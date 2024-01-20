@@ -1,0 +1,1 @@
+enum ReceiveBoltzUIState { enterAmount, webView }

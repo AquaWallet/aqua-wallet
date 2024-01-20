@@ -1,0 +1,74 @@
+{
+  "bg": [
+    "marketplaceScreenComingSoon",
+    "receiveAssetScreenDescription",
+    "receiveLightningViewLoadingStatusMessage",
+    "sideshiftFeesNotice",
+    "boltzSupportEmail",
+    "lightningTransactionSuccessScreenReceiveMessage",
+    "whatsappTitle",
+    "zendeskTitle",
+    "getHelpSupportScreenTitle",
+    "contactUsHelpSupportScreenHeaderText",
+    "sendAssetScreenLightningZeroSatsErrorMessage",
+    "sendAssetScreenLightningInputHint",
+    "sendAssetAmountScreenLightningEmptyAddressError",
+    "marketplaceScreenBottomBoxText",
+    "marketplaceScreenBottomBoxTextBoldText",
+    "marketplaceBuySellScreenPlatformButtonSubText",
+    "boltzRedeemScriptValidationError"
+  ],
+
+  "ca": [
+    "marketplaceScreenComingSoon",
+    "receiveAssetScreenDescription",
+    "receiveLightningViewLoadingStatusMessage",
+    "sideshiftFeesNotice",
+    "boltzSupportEmail",
+    "lightningTransactionSuccessScreenReceiveMessage",
+    "whatsappTitle",
+    "zendeskTitle",
+    "getHelpSupportScreenTitle",
+    "contactUsHelpSupportScreenHeaderText",
+    "sendAssetScreenLightningZeroSatsErrorMessage",
+    "sendAssetScreenLightningInputHint",
+    "sendAssetAmountScreenLightningEmptyAddressError",
+    "marketplaceScreenBottomBoxText",
+    "marketplaceScreenBottomBoxTextBoldText",
+    "marketplaceBuySellScreenPlatformButtonSubText",
+    "settingsScreenItemHiddenLanguageDisabled",
+    "settingsScreenItemHiddenLanguageEnabled",
+    "boltzRedeemScriptValidationError"
+  ],
+
+  "cs": [
+    "marketplaceScreenComingSoon",
+    "receiveAssetScreenDescription",
+    "receiveLightningViewLoadingStatusMessage",
+    "sideshiftFeesNotice",
+    "boltzSupportEmail",
+    "lightningTransactionSuccessScreenReceiveMessage",
+    "whatsappTitle",
+    "zendeskTitle",
+    "getHelpSupportScreenTitle",
+    "contactUsHelpSupportScreenHeaderText",
+    "sendAssetScreenLightningZeroSatsErrorMessage",
+    "sendAssetScreenLightningInputHint",
+    "sendAssetAmountScreenLightningEmptyAddressError",
+    "marketplaceScreenBottomBoxText",
+    "marketplaceScreenBottomBoxTextBoldText",
+    "marketplaceBuySellScreenPlatformButtonSubText",
+    "settingsScreenItemHiddenLanguageDisabled",
+    "settingsScreenItemHiddenLanguageEnabled",
+    "boltzRedeemScriptValidationError"
+  ],
+
+  "es": [
+    "settingsScreenItemDarkMode",
+    "receiveLightningViewLoadingStatusMessage",
+    "sideshiftFeesNotice",
+    "boltzSupportEmail",
+    "lightningTransactionSuccessScreenReceiveMessage",
+    "boltzRedeemScriptValidationError"
+  ]
+}
