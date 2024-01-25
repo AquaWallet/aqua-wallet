@@ -48,6 +48,7 @@ class SwapPanel extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 18.h),
             //ANCHOR - Deliver Asset
             SwapDeliverAssetPicker(focusNode: deliverFocusNode),
             SizedBox(height: 18.h),

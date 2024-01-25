@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:aqua/common/utils/encode_query_component.dart';
 import 'package:aqua/config/config.dart';
@@ -97,62 +96,42 @@ class MarketplaceContent extends ConsumerWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.symmetric(horizontal: 28.w),
                 children: [
-                  if (Platform.isAndroid)
-                    MarketplaceButton(
-                      title: AppLocalizations.of(context)!
-                          .marketplaceScreenBuyButton,
-                      subtitle: AppLocalizations.of(context)!
-                          .marketplaceScreenBuyButtonDescription,
-                      icon: Svgs.marketplaceBuy,
-                      onPressed: () async {
-                        if (multipleOnramps) {
-                          Navigator.of(context).pushNamed(
-                            OnRampScreen.routeName,
-                          );
-                        } else {
-                          final address = await ref
-                              .read(bitcoinProvider)
-                              .getReceiveAddress();
-                          final uri =
-                              ref.read(meldUriProvider(address?.address));
-                          if (context.mounted) {
-                            Navigator.of(context)
-                                .pushNamed(WebviewScreen.routeName,
-                                    arguments: WebviewArguments(
-                                      uri,
-                                      AppLocalizations.of(context)!
-                                          .buyWithFiatScreenTitle,
-                                    ));
-                          }
+                  MarketplaceButton(
+                    title: AppLocalizations.of(context)!
+                        .marketplaceScreenBuyButton,
+                    subtitle: AppLocalizations.of(context)!
+                        .marketplaceScreenBuyButtonDescription,
+                    icon: Svgs.marketplaceBuy,
+                    onPressed: () async {
+                      if (multipleOnramps) {
+                        Navigator.of(context).pushNamed(
+                          OnRampScreen.routeName,
+                        );
+                      } else {
+                        final address =
+                            await ref.read(bitcoinProvider).getReceiveAddress();
+                        final uri = ref.read(meldUriProvider(address?.address));
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .pushNamed(WebviewScreen.routeName,
+                                  arguments: WebviewArguments(
+                                    uri,
+                                    AppLocalizations.of(context)!
+                                        .buyWithFiatScreenTitle,
+                                  ));
                         }
-                      },
-                    ),
-                  if (Platform.isIOS)
-                    MarketplaceButton(
-                      title: AppLocalizations.of(context)!
-                          .marketplaceScreenBuyButton,
-                      subtitle: AppLocalizations.of(context)!
-                          .marketplaceScreenComingSoon,
-                      icon: Svgs.marketplaceBuy,
-                    ),
-                  if (Platform.isAndroid)
-                    MarketplaceButton(
-                        title: AppLocalizations.of(context)!
-                            .marketplaceScreenExchangeButton,
-                        subtitle: AppLocalizations.of(context)!
-                            .marketplaceScreenExchangeButtonDescription,
-                        icon: Svgs.marketplaceExchange,
-                        onPressed: () async {
-                          Navigator.of(context).pushNamed(SwapScreen.routeName);
-                        }),
-                  if (Platform.isIOS)
-                    MarketplaceButton(
+                      }
+                    },
+                  ),
+                  MarketplaceButton(
                       title: AppLocalizations.of(context)!
                           .marketplaceScreenExchangeButton,
                       subtitle: AppLocalizations.of(context)!
-                          .marketplaceScreenComingSoon,
+                          .marketplaceScreenExchangeButtonDescription,
                       icon: Svgs.marketplaceExchange,
-                    ),
+                      onPressed: () async {
+                        Navigator.of(context).pushNamed(SwapScreen.routeName);
+                      }),
                   MarketplaceButton(
                     title: AppLocalizations.of(context)!
                         .marketplaceScreenRemittanceButton,
