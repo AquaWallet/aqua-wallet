@@ -21,6 +21,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'package:aqua/features/receive/widgets/receive_sideshift_order_expire_label.dart';
 import 'models/models.dart';
 
 extension BoltzExtension on ReceiveAssetScreen {
@@ -442,7 +443,7 @@ class State extends ConsumerState<ReceiveAssetScreen> {
                               //ANCHOR - Description
                               SizedBox(height: 12.h),
                               ReceiveAssetAddressLabel(
-                                assetName: asset.value.name,
+                                asset: asset.value,
                               ),
 
                               SizedBox(height: 11.h),
@@ -456,14 +457,20 @@ class State extends ConsumerState<ReceiveAssetScreen> {
                               ReceiveAssetCopyAddressButton(
                                 address: rawAddress,
                               ),
-                              SizedBox(height: 21.h),
+                              SizedBox(height: 13.h),
+                              //ANCHOR - Shift min and max
+                              if (asset.value.isSideshift) ...[
+                                //ANCHOR - Expiry
+                                const ReceiveSideshiftOrderExpireLabel(),
+                                SizedBox(height: 14.h),
+                              ],
                             ],
                           ),
                         ),
                       ),
                       SizedBox(height: 21.h),
                       if (asset.value.isSideshift) ...[
-                        const ReceiveShiftInformation(),
+                        ReceiveShiftInformation(asset: asset.value),
                         SizedBox(height: 21.h),
                       ],
                       Container(

@@ -1,3 +1,4 @@
+export 'peg_info_message.dart';
 export 'peg_order_details.dart';
 export 'peg_review_info_card.dart';
 export 'swap_amount_input.dart';

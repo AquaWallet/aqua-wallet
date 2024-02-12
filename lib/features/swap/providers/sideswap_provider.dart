@@ -135,7 +135,17 @@ final swapIncomingReceiveAmountProvider =
           separated: false,
         );
     log('[PEG] MaxPegFeeDeductedAmount: $amount');
-    return amount;
+    if (amount == "0") {
+      return amount;
+    } else {
+      // this is the sideswap fee. This should ideally come from the value we
+      // get from the `server_status` call to sideswap. but putting this in for
+      // now do we are accurate in predicting how much btc/lbtc comes back to
+      // the user.
+      final amountAfterSideSwapFeeDedcution = double.parse(amount) * .98;
+      return amountAfterSideSwapFeeDedcution
+          .toStringAsFixed(inputState.deliverAsset!.precision);
+    }
   }
 
   final priceStream = ref.watch(sideswapPriceStreamResultStateProvider);

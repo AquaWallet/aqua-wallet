@@ -1,10 +1,8 @@
 import 'package:aqua/config/config.dart';
-import 'package:aqua/config/constants/urls.dart' as urls;
 import 'package:aqua/data/provider/sideshift/screens/sideshift_orders_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class AssetTransactionsScreen extends StatefulHookConsumerWidget {
   const AssetTransactionsScreen({super.key});
@@ -16,34 +14,6 @@ class AssetTransactionsScreen extends StatefulHookConsumerWidget {
 }
 
 class State extends ConsumerState<AssetTransactionsScreen> {
-  WebViewController? _controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // using Future here to get access to context
-    Future.delayed(Duration.zero, () {
-      final asset = ModalRoute.of(context)?.settings.arguments as Asset;
-
-      if (asset.isLayerTwo) {
-        _controller = WebViewController()
-          ..setJavaScriptMode(JavaScriptMode.unrestricted)
-          ..setBackgroundColor(const Color(0x00000000))
-          ..setNavigationDelegate(NavigationDelegate(
-            onProgress: (int progress) {},
-            onPageStarted: (String url) {},
-            onPageFinished: (String url) {},
-            onWebResourceError: (WebResourceError error) {},
-          ))
-          // we are doing this so we load the boltz js code and perform any
-          // pending claims. native integration coming soon
-          // also setting the referral code to 'AQUA'
-          ..loadRequest(Uri.parse("${urls.boltzWebAppUrl}refund/?ref=AQUA"));
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final asset = ModalRoute.of(context)?.settings.arguments as Asset;
@@ -103,12 +73,6 @@ class State extends ConsumerState<AssetTransactionsScreen> {
               ),
             ),
           ),
-          if (asset.isLayerTwo && _controller != null) ...[
-            SizedBox(
-              height: 0.h,
-              child: WebViewWidget(controller: _controller!),
-            ),
-          ]
         ],
       ),
     );

@@ -1,9 +1,10 @@
+import 'dart:io';
+
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'dart:io';
 
 class AssetsList extends HookConsumerWidget {
   const AssetsList({

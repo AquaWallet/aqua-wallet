@@ -14,6 +14,7 @@ class SwapPanel extends HookConsumerWidget {
 
     final value = ref.watch(swapLoadingIndicatorStateProvider);
     final isLoading = value == const SwapProgressState.connecting();
+    final error = ref.watch(swapValidationsProvider(context))?.message;
 
     deliverFocusNode.addListener(() {
       if (deliverFocusNode.hasFocus) {
@@ -29,44 +30,46 @@ class SwapPanel extends HookConsumerWidget {
 
     return Skeletonizer(
       enabled: isLoading,
-      child: BoxShadowContainer(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(30.r),
-            bottomRight: Radius.circular(30.r),
-          ),
-          boxShadow: [Theme.of(context).shadow],
-        ),
-        padding: EdgeInsets.only(
-          top: 114.h,
-          bottom: 34.h,
-          left: 28.w,
-          right: 28.w,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 18.h),
-            //ANCHOR - Deliver Asset
-            SwapDeliverAssetPicker(focusNode: deliverFocusNode),
-            SizedBox(height: 18.h),
-            //ANCHOR - Rate
-            const SwapConversionRateView(),
-            SizedBox(height: 18.h),
-            //ANCHOR - Receive Asset
-            const SwapReceiveAssetPicker(),
-            SizedBox(height: 18.h),
-            //ANCHOR - Error
-            CustomError(
-              errorMessage:
-                  ref.watch(swapValidationsProvider(context))?.message,
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: BoxShadowContainer(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(30.r),
+              bottomRight: Radius.circular(30.r),
             ),
-            SizedBox(height: 18.h),
-            //ANCHOR - Swap Button
-            const SwapButton(),
-          ],
+            boxShadow: [Theme.of(context).shadow],
+          ),
+          padding: EdgeInsets.only(
+            top: 114.h,
+            bottom: 34.h,
+            left: 28.w,
+            right: 28.w,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20.h),
+              //ANCHOR - Deliver Asset
+              SwapDeliverAssetPicker(focusNode: deliverFocusNode),
+              SizedBox(height: 18.h),
+              //ANCHOR - Rate
+              const SwapConversionRateView(),
+              SizedBox(height: 18.h),
+              //ANCHOR - Receive Asset
+              const SwapReceiveAssetPicker(),
+              SizedBox(height: 18.h),
+              //ANCHOR - Error Message
+              CustomError(errorMessage: error),
+              SizedBox(height: 18.h),
+              //ANCHOR - Swap Button
+              const SwapButton(),
+              //ANCHOR - Peg Info Message
+              const PegInfoMessage(),
+            ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,5 @@
 {
-"@@locale": "en",
+  "@@locale": "en",
   "amount": "Amount",
   "fee": "Fee",
   "send": "Send",
@@ -151,13 +151,15 @@
   "receiveMenuScreenSectionAquaAssets": "AQUA Assets",
   "receiveMenuScreenSectionOtherAssets": "Other Assets",
   "receiveAssetScreenTitle": "Receive",
-  "receiveAssetScreenDescription": "This is your {asset} receiving address",
+  "receiveAssetScreenDescription": "{asset} address",
   "receiveAssetScreenAddNotes": "Add notes",
   "receiveAssetScreenSetAmount": "Set Amount",
   "receiveAssetScreenShare": "Share",
   "receiveAssetScreenVariableShift": "Variable Shift",
+  "receiveAssetScreenFeeEstimate": "Fee Estimate",
+  "receiveAssetScreenSideshiftServiceFee": "SideShift Service Fee:",
   "receiveAssetScreenShiftId": "Shift ID",
-  "receiveAssetScreenExpiresOn": "Expires on: {date}",
+  "receiveAssetScreenExpiresOn": "Single-use address expires on: {date}",
   "receiveAssetAmountSheetTitle": "Set Amount",
   "receiveAssetAmountSheetConfirmButton": "Confirm",
   "receiveAssetAmountSheetCancelButton": "Cancel",
@@ -222,7 +224,8 @@
   "sideshiftOrders": "Sideshift Orders",
   "sideshiftOrderListEmptyState": "Your shift orders will\nshow up here.",
   "sideshiftCustomerService": "Contact SideShift Customer Service",
-  "sideshiftFeesNotice": "Powered by SideShift. Service Fees Apply.",
+  "sideshiftReceiveFeesPrompt": "1% service +  ~{networkFee} USDt network fees.",
+  "receiveAssetScreenCurrentAssetFee": "Current {asset} Network Fee:",
   "sideshiftOrderIdCopiedSnackbar": "Shift ID copied",
   "sideshiftDepositAddress": "Deposit Address",
   "sideshiftSettleAddress": "Settle Address",
@@ -323,5 +326,8 @@
   "marketplaceBuySellScreenPlatformButtonSubText": "Coming soon!",
   "settingsScreenItemHiddenLanguageDisabled": "Hidden Languages Disabled",
   "settingsScreenItemHiddenLanguageEnabled": "Hidden Languages Enabled",
-  "boltzRedeemScriptValidationError": "Redeem Script from Boltz could not be validated."
+  "boltzRedeemScriptValidationError": "Redeem Script from Boltz could not be validated.",
+  "swapPanelPegInInfo": "This is a peg-in transaction to the Liquid Network. It will initiate after 2 Bitcoin confirmations (~20 minutes), or if SideSwap has insufficient liquidity, 102 confirmations (~17 hours). This peg-in transaction will appear in your Layer 2 wallet transaction list once it has been broadcast to the Liquid Network after the aforementioned number of confirmations.",
+  "swapPanelPegOutInfo": "This is a peg-out transaction from the Liquid Network. It will initiate after 2 Liquid confirmations (~2 minutes), or if SideSwap has insufficient liquidity, up to 1 hour. This peg-out transaction will appear in your Bitcoin wallet transaction list once it has been broadcast to the Bitcoin Network after the aforementioned durations. An onchain transaction fee will be deducted from the amount shown above for your incoming bitcoin transaction."
+
 }

@@ -329,6 +329,7 @@ class SideshiftVariableOrderResponse
     OrderType? type,
     DateTime? expiresAt,
     String? status,
+    String? settleCoinNetworkFee,
   }) = _SideshiftVariableOrderResponse;
 
   factory SideshiftVariableOrderResponse.fromJson(Map<String, dynamic> json) =>

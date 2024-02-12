@@ -8,5 +8,5 @@ AQUA is a free, open-source wallet for iOS and Android.
 - Contact: [support@aquawallet.io](mailto:support@aquawallet.io)
 
 ## Development
-1) Clone this repo (`git clone https://github.com/AquaWallet/aqua-wallet`)
-2) Follow instructions in [DEVELOPMENT.md](https://github.com/AquaWallet/aqua-wallet/blob/main/DEVELOPMENT.md)
+1) Clone this repo (`git clone https://github.com/AquaWalletIO/aqua-wallet`)
+2) Follow instructions in [DEVELOPMENT.md](https://github.com/AquaWalletIO/aqua-wallet/blob/main/DEVELOPMENT.md)

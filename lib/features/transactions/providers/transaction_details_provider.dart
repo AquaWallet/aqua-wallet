@@ -216,7 +216,6 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
   ) async {
     final asset = arguments.transactionAsset;
     final transaction = arguments.transaction;
-    final feeAsset = arguments.feeAsset;
 
     final items = <AssetTransactionDetailsItemUiModel>[];
 
@@ -242,19 +241,6 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
       title: AppLocalizations.of(context)!.amount,
       value: cryptoAmount,
     ));
-
-    final fee = transaction.fee;
-    {
-      final formattedFee = ref.read(formatterProvider).signedFormatAssetAmount(
-            amount: -(fee ?? 0),
-            precision: feeAsset.precision,
-          );
-      final feeText = '$formattedFee ${feeAsset.ticker}';
-      items.add(AssetTransactionDetailsDataItemUiModel(
-        title: AppLocalizations.of(context)!.fee,
-        value: feeText,
-      ));
-    }
 
     // My Notes
     final notes = arguments.memo;

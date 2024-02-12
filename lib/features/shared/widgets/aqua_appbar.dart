@@ -112,7 +112,8 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
                         dimension: 40.w,
                         child: AquaOutlinedButton(
                           onPressed: onActionButtonPressed ?? () {},
-                          iconBackgroundColor: iconBackgroundColor ?? defaultIconBackgroundColor,
+                          iconBackgroundColor:
+                              iconBackgroundColor ?? defaultIconBackgroundColor,
                           child: CountryFlag.fromCountryCode(
                             actionButtonAsset!,
                             width: 20.r,

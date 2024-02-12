@@ -2,8 +2,11 @@
   "bg": [
     "marketplaceScreenComingSoon",
     "receiveAssetScreenDescription",
+    "receiveAssetScreenFeeEstimate",
+    "receiveAssetScreenSideshiftServiceFee",
     "receiveLightningViewLoadingStatusMessage",
-    "sideshiftFeesNotice",
+    "sideshiftReceiveFeesPrompt",
+    "receiveAssetScreenCurrentAssetFee",
     "boltzSupportEmail",
     "lightningTransactionSuccessScreenReceiveMessage",
     "whatsappTitle",
@@ -16,14 +19,19 @@
     "marketplaceScreenBottomBoxText",
     "marketplaceScreenBottomBoxTextBoldText",
     "marketplaceBuySellScreenPlatformButtonSubText",
-    "boltzRedeemScriptValidationError"
+    "boltzRedeemScriptValidationError",
+    "swapPanelPegInInfo",
+    "swapPanelPegOutInfo"
   ],
 
   "ca": [
     "marketplaceScreenComingSoon",
     "receiveAssetScreenDescription",
+    "receiveAssetScreenFeeEstimate",
+    "receiveAssetScreenSideshiftServiceFee",
     "receiveLightningViewLoadingStatusMessage",
-    "sideshiftFeesNotice",
+    "sideshiftReceiveFeesPrompt",
+    "receiveAssetScreenCurrentAssetFee",
     "boltzSupportEmail",
     "lightningTransactionSuccessScreenReceiveMessage",
     "whatsappTitle",
@@ -38,14 +46,19 @@
     "marketplaceBuySellScreenPlatformButtonSubText",
     "settingsScreenItemHiddenLanguageDisabled",
     "settingsScreenItemHiddenLanguageEnabled",
-    "boltzRedeemScriptValidationError"
+    "boltzRedeemScriptValidationError",
+    "swapPanelPegInInfo",
+    "swapPanelPegOutInfo"
   ],
 
   "cs": [
     "marketplaceScreenComingSoon",
     "receiveAssetScreenDescription",
+    "receiveAssetScreenFeeEstimate",
+    "receiveAssetScreenSideshiftServiceFee",
     "receiveLightningViewLoadingStatusMessage",
-    "sideshiftFeesNotice",
+    "sideshiftReceiveFeesPrompt",
+    "receiveAssetScreenCurrentAssetFee",
     "boltzSupportEmail",
     "lightningTransactionSuccessScreenReceiveMessage",
     "whatsappTitle",
@@ -60,15 +73,31 @@
     "marketplaceBuySellScreenPlatformButtonSubText",
     "settingsScreenItemHiddenLanguageDisabled",
     "settingsScreenItemHiddenLanguageEnabled",
-    "boltzRedeemScriptValidationError"
+    "boltzRedeemScriptValidationError",
+    "swapPanelPegInInfo",
+    "swapPanelPegOutInfo"
   ],
 
   "es": [
     "settingsScreenItemDarkMode",
+    "receiveAssetScreenFeeEstimate",
+    "receiveAssetScreenSideshiftServiceFee",
     "receiveLightningViewLoadingStatusMessage",
-    "sideshiftFeesNotice",
+    "sideshiftReceiveFeesPrompt",
+    "receiveAssetScreenCurrentAssetFee",
     "boltzSupportEmail",
     "lightningTransactionSuccessScreenReceiveMessage",
-    "boltzRedeemScriptValidationError"
+    "boltzRedeemScriptValidationError",
+    "swapPanelPegInInfo",
+    "swapPanelPegOutInfo"
+  ],
+
+  "nl": [
+    "receiveAssetScreenFeeEstimate",
+    "receiveAssetScreenSideshiftServiceFee",
+    "sideshiftReceiveFeesPrompt",
+    "receiveAssetScreenCurrentAssetFee",
+    "swapPanelPegInInfo",
+    "swapPanelPegOutInfo"
   ]
 }

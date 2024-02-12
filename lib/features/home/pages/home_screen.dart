@@ -8,14 +8,42 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:aqua/config/constants/urls.dart' as urls;
 
-class HomeScreen extends HookConsumerWidget {
+class HomeScreen extends StatefulHookConsumerWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   static const routeName = '/home';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => State();
+}
+
+class State extends ConsumerState<HomeScreen> {
+  WebViewController? _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(NavigationDelegate(
+        onProgress: (int progress) {},
+        onPageStarted: (String url) {},
+        onPageFinished: (String url) {},
+        onWebResourceError: (WebResourceError error) {},
+      ))
+      // we are doing this so we load the boltz js code and perform any
+      // pending claims. native integration coming soon
+      // also setting the referral code to 'AQUA'
+      ..loadRequest(Uri.parse("${urls.boltzWebAppUrl}refund/?ref=AQUA"));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final visible = ref.watch(homeContentVisibilityProvider);
     final selectedTab = ref.watch(homeSelectedBottomTabProvider);
     final hasTransacted = ref.watch(hasTransactedProvider).asData?.value;
@@ -56,11 +84,21 @@ class HomeScreen extends HookConsumerWidget {
             statusBarColor: Colors.transparent,
           ),
           child: Scaffold(
-            body: switch (selectedTab) {
-              WalletTabs.wallet => const WalletTab(),
-              WalletTabs.marketplace => const MarketplaceTab(),
-              WalletTabs.settings => const SettingsTab(),
-            },
+            body: Stack(
+              children: [
+                switch (selectedTab) {
+                  WalletTabs.wallet => const WalletTab(),
+                  WalletTabs.marketplace => const MarketplaceTab(),
+                  WalletTabs.settings => const SettingsTab(),
+                },
+                if (_controller != null) ...[
+                  SizedBox(
+                    height: 0.h,
+                    child: WebViewWidget(controller: _controller!),
+                  )
+                ]
+              ],
+            ),
             bottomNavigationBar: CustomBottomNavigationBar(
               currentIndex: selectedTab.index,
               onTap: (index) => ref.read(homeProvider).selectTab(index),

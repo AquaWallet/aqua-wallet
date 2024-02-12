@@ -58,6 +58,11 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     final fee = txn.fee!;
     final deliverAmount = input.deliverAmountSatoshi;
     final feeDeductedAmount = deliverAmount - fee;
+    // this is the sideswap fee. This should ideally come from the value we
+    // get from the `server_status` call to sideswap. but putting this in for
+    // now do we are accurate in predicting how much btc/lbtc comes back to
+    // the user.
+    final finalAmountAfterSideSwapFee = feeDeductedAmount * .98;
 
     if (fee > deliverAmount) {
       log('[PEG] Fee ($fee) exceeds amount ($deliverAmount)');
@@ -72,7 +77,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       transaction: txn,
       deliverAmount: deliverAmount,
       feeAmount: fee,
-      finalAmount: feeDeductedAmount,
+      finalAmount: finalAmountAfterSideSwapFee.toInt(),
       isSendAll: input.isSendAll,
     );
     state = AsyncData(PegState.pendingVerification(data: data));

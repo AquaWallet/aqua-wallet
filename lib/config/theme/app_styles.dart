@@ -74,7 +74,8 @@ class AppStyle {
           backgroundColor: colors.colorScheme.primary,
           foregroundColor: colors.colorScheme.onPrimary,
           disabledForegroundColor: colors.colorScheme.surface,
-          disabledBackgroundColor: colors.disabledBackgroundColorAquaElevatedButton,
+          disabledBackgroundColor:
+              colors.disabledBackgroundColorAquaElevatedButton,
           textStyle: typography.appTextTheme.labelLarge,
           minimumSize: Size(100.w, 52.h),
           padding: EdgeInsets.symmetric(horizontal: 8.w),
