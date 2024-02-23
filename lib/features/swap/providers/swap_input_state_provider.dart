@@ -11,12 +11,12 @@ final sideswapInputStateProvider = AutoDisposeStateNotifierProvider<
   final deliverAssetBalance = deliverAsset != null
       ? ref
           .read(formatterProvider)
-          .formatAssetAmountFromAsset(asset: deliverAsset)
+          .convertAssetAmountToDisplayUnit(amount:deliverAsset.amount, precision:deliverAsset.precision)
       : '';
   final receiveAssetBalance = receiveAsset != null
       ? ref
           .read(formatterProvider)
-          .formatAssetAmountFromAsset(asset: receiveAsset)
+          .convertAssetAmountToDisplayUnit(amount:receiveAsset.amount, precision:receiveAsset.precision)
       : '';
 
   final initialState = SideswapInputState(
@@ -46,7 +46,7 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
       receiveAmountSatoshi: 0,
       deliverAsset: asset,
       deliverAssetBalance:
-          ref.watch(formatterProvider).formatAssetAmountFromAsset(asset: asset),
+          ref.watch(formatterProvider).convertAssetAmountToDisplayUnit(amount:asset.amount, precision:asset.precision),
     );
   }
 
@@ -58,7 +58,7 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
       receiveAmountSatoshi: 0,
       receiveAsset: asset,
       receiveAssetBalance:
-          ref.watch(formatterProvider).formatAssetAmountFromAsset(asset: asset),
+          ref.watch(formatterProvider).convertAssetAmountToDisplayUnit(amount:asset.amount, precision:asset.precision),
     );
   }
 

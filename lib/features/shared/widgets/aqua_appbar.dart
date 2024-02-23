@@ -68,10 +68,9 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
         onTap: onTitlePressed,
         child: Text(
           title,
-          style: Theme.of(context)
-              .appBarTheme
-              .titleTextStyle
-              ?.copyWith(color: foregroundColor),
+          style: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
+                color: foregroundColor,
+              ),
         ),
       ),
       automaticallyImplyLeading: false,

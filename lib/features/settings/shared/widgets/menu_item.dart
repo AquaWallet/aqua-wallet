@@ -13,6 +13,7 @@ class MenuItemWidget extends StatelessWidget {
     required this.onPressed,
     this.trailing,
     this.color,
+    this.iconPadding,
     required this.isEnabled,
   }) : super(key: key);
 
@@ -22,6 +23,7 @@ class MenuItemWidget extends StatelessWidget {
   final Widget? trailing;
   final Color? color;
   final bool isEnabled;
+  final EdgeInsets? iconPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +52,10 @@ class MenuItemWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: assetName.isNotEmpty
-                        ? SizedBox(
+                        ? Container(
                             width: 36.r,
                             height: 36.r,
+                            padding: iconPadding,
                             child: assetName.contains('assets/') == true
                                 ? SvgPicture.asset(
                                     assetName,
@@ -101,6 +104,7 @@ class MenuItemWidget extends StatelessWidget {
     required BuildContext context,
     String assetName = '',
     Color? color,
+    EdgeInsets? iconPadding,
     required String title,
     required VoidCallback onPressed,
   }) {
@@ -110,6 +114,7 @@ class MenuItemWidget extends StatelessWidget {
       assetName: assetName,
       title: title,
       color: color,
+      iconPadding: iconPadding,
       trailing: Padding(
         padding: EdgeInsets.only(right: 9.w),
         child: const _ArrowIcon(),
@@ -121,6 +126,7 @@ class MenuItemWidget extends StatelessWidget {
     required BuildContext context,
     String assetName = '',
     Color? color,
+    EdgeInsets? iconPadding,
     required String title,
     required String label,
     required VoidCallback onPressed,
@@ -132,6 +138,7 @@ class MenuItemWidget extends StatelessWidget {
       assetName: assetName,
       title: title,
       color: color,
+      iconPadding: iconPadding,
       trailing: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -153,21 +160,24 @@ class MenuItemWidget extends StatelessWidget {
     String assetName = '',
     required String title,
     required VoidCallback onPressed,
+    EdgeInsets? iconPadding,
+    bool value = true,
     bool enabled = true,
   }) {
     return MenuItemWidget(
-      isEnabled: true,
+      isEnabled: enabled,
       onPressed: onPressed,
       assetName: assetName,
       title: title,
+      iconPadding: iconPadding,
       trailing: Transform.scale(
         scaleY: .7,
         scaleX: .7,
         child: CupertinoSwitch(
-          onChanged: (_) => onPressed.call(),
+          onChanged: enabled ? (_) => onPressed.call() : null,
           activeColor: Theme.of(context).colorScheme.secondary,
           trackColor: Theme.of(context).colorScheme.onSurface,
-          value: enabled,
+          value: value,
           applyTheme: true,
         ),
       ),

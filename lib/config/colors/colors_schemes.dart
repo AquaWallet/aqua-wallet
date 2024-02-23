@@ -66,15 +66,23 @@ abstract class AppColors {
 
   Color get appBarIconBackgroundColor;
 
+  Color get appBarIconBackgroundColorAlt;
+
   Color get usdContainerBackgroundColor;
 
   Color get usdContainerSendRecieveAssets;
 
   Color get appBarIconOutlineColor;
 
+  Color get appBarIconOutlineColorAlt;
+
   Color get helpScreenLogoColor;
 
   Color get disabledBackgroundColorAquaElevatedButton;
+
+  Color get headerBackgroundColor;
+
+  Color get transactionAppBarBackgroundColor;
 
   ColorScheme get colorScheme;
 }
@@ -179,16 +187,28 @@ class DarkThemeColors implements AppColors {
   Color get usdContainerSendRecieveAssets => AquaColors.charcoal;
 
   @override
-  Color get appBarIconOutlineColor => AquaColors.gray;
+  Color get appBarIconOutlineColor => AquaColors.antiFlashWhite;
+
+  @override
+  Color get appBarIconOutlineColorAlt => AquaColors.antiFlashWhite;
 
   @override
   Color get appBarIconBackgroundColor => AquaColors.robinEggBlue;
+
+  @override
+  Color get appBarIconBackgroundColorAlt => AquaColors.robinEggBlue;
 
   @override
   Color get helpScreenLogoColor => Colors.white;
 
   @override
   Color get disabledBackgroundColorAquaElevatedButton => AquaColors.linkWater;
+
+  @override
+  Color get headerBackgroundColor => AquaColors.blueGreen;
+
+  @override
+  Color get transactionAppBarBackgroundColor => Colors.transparent;
 
   @override
   ColorScheme get colorScheme => ColorScheme(
@@ -313,13 +333,25 @@ class LightThemeColors implements AppColors {
   Color get appBarIconOutlineColor => AquaColors.lightSilver;
 
   @override
-  Color get appBarIconBackgroundColor => AquaColors.antiFlashWhite;
+  Color get appBarIconOutlineColorAlt => AquaColors.lightSilver;
+
+  @override
+  Color get appBarIconBackgroundColor => Colors.white;
+
+  @override
+  Color get appBarIconBackgroundColorAlt => Colors.white;
 
   @override
   Color get helpScreenLogoColor => AquaColors.eerieBlack;
 
   @override
   Color get disabledBackgroundColorAquaElevatedButton => AquaColors.linkWater;
+
+  @override
+  Color get headerBackgroundColor => Colors.white;
+
+  @override
+  Color get transactionAppBarBackgroundColor => Colors.white;
 
   @override
   ColorScheme get colorScheme => const ColorScheme(
@@ -340,5 +372,41 @@ class LightThemeColors implements AppColors {
         onBackground: AquaColors.eerieBlack,
         error: AquaColors.portlandOrange,
         onError: Colors.white,
+      );
+}
+
+//ANCHOR - Botev Mode Theme Colors
+
+class BotevThemeColors extends DarkThemeColors {
+  @override
+  Color get divider => AquaColors.eerieBlack;
+
+  @override
+  Color get headerBackgroundColor => AquaColors.fcBotevPrimary;
+
+  @override
+  Color get appBarIconOutlineColorAlt => AquaColors.eerieBlack;
+
+  @override
+  Color get appBarIconBackgroundColorAlt => AquaColors.fcBotevPrimary;
+
+  @override
+  Color get headerUsdContainerTextColor => AquaColors.eerieBlack;
+
+  @override
+  Color get menuBackground => AquaColors.fcBotevPrimary;
+
+  @override
+  Color get headerSubtitle => AquaColors.charcoal;
+
+  @override
+  Color get walletTabButtonBackgroundColor => AquaColors.fcBotevSecondary;
+
+  @override
+  ColorScheme get colorScheme => super.colorScheme.copyWith(
+        primary: AquaColors.fcBotevPrimary,
+        secondary: AquaColors.fcBotevSecondary,
+        onPrimaryContainer: Colors.black,
+        onSecondaryContainer: Colors.black,
       );
 }

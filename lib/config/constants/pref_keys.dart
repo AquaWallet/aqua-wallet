@@ -1,6 +1,7 @@
 class PrefKeys {
   static const hasTransacted = 'has_transacted';
   static const darkMode = 'dark_mode';
+  static const botevMode = 'botev_mode';
   static const biometric = 'biometric';
   static const languageCode = 'language_code';
   static const region = 'region';

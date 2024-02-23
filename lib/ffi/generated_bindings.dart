@@ -2844,13 +2844,15 @@ const int __API_TO_BE_DEPRECATED_MACOS = 100000;
 
 const int __API_TO_BE_DEPRECATED_IOS = 100000;
 
-const int __API_TO_BE_DEPRECATED_TVOS = 100000;
+const int __API_TO_BE_DEPRECATED_MACCATALYST = 100000;
 
 const int __API_TO_BE_DEPRECATED_WATCHOS = 100000;
 
-const int __API_TO_BE_DEPRECATED_MACCATALYST = 100000;
+const int __API_TO_BE_DEPRECATED_TVOS = 100000;
 
 const int __API_TO_BE_DEPRECATED_DRIVERKIT = 100000;
+
+const int __API_TO_BE_DEPRECATED_VISIONOS = 100000;
 
 const int __MAC_10_0 = 1000;
 
@@ -2908,6 +2910,8 @@ const int __MAC_10_14_1 = 101401;
 
 const int __MAC_10_14_4 = 101404;
 
+const int __MAC_10_14_5 = 101405;
+
 const int __MAC_10_14_6 = 101406;
 
 const int __MAC_10_15 = 101500;
@@ -2938,6 +2942,14 @@ const int __MAC_12_2 = 120200;
 
 const int __MAC_12_3 = 120300;
 
+const int __MAC_12_4 = 120400;
+
+const int __MAC_12_5 = 120500;
+
+const int __MAC_12_6 = 120600;
+
+const int __MAC_12_7 = 120700;
+
 const int __MAC_13_0 = 130000;
 
 const int __MAC_13_1 = 130100;
@@ -2945,6 +2957,18 @@ const int __MAC_13_1 = 130100;
 const int __MAC_13_2 = 130200;
 
 const int __MAC_13_3 = 130300;
+
+const int __MAC_13_4 = 130400;
+
+const int __MAC_13_5 = 130500;
+
+const int __MAC_13_6 = 130600;
+
+const int __MAC_14_0 = 140000;
+
+const int __MAC_14_1 = 140100;
+
+const int __MAC_14_2 = 140200;
 
 const int __IPHONE_2_0 = 20000;
 
@@ -3050,6 +3074,8 @@ const int __IPHONE_14_3 = 140300;
 
 const int __IPHONE_14_5 = 140500;
 
+const int __IPHONE_14_4 = 140400;
+
 const int __IPHONE_14_6 = 140600;
 
 const int __IPHONE_14_7 = 140700;
@@ -3066,6 +3092,10 @@ const int __IPHONE_15_3 = 150300;
 
 const int __IPHONE_15_4 = 150400;
 
+const int __IPHONE_15_5 = 150500;
+
+const int __IPHONE_15_6 = 150600;
+
 const int __IPHONE_16_0 = 160000;
 
 const int __IPHONE_16_1 = 160100;
@@ -3075,6 +3105,104 @@ const int __IPHONE_16_2 = 160200;
 const int __IPHONE_16_3 = 160300;
 
 const int __IPHONE_16_4 = 160400;
+
+const int __IPHONE_16_5 = 160500;
+
+const int __IPHONE_16_6 = 160600;
+
+const int __IPHONE_16_7 = 160700;
+
+const int __IPHONE_17_0 = 170000;
+
+const int __IPHONE_17_1 = 170100;
+
+const int __IPHONE_17_2 = 170200;
+
+const int __WATCHOS_1_0 = 10000;
+
+const int __WATCHOS_2_0 = 20000;
+
+const int __WATCHOS_2_1 = 20100;
+
+const int __WATCHOS_2_2 = 20200;
+
+const int __WATCHOS_3_0 = 30000;
+
+const int __WATCHOS_3_1 = 30100;
+
+const int __WATCHOS_3_1_1 = 30101;
+
+const int __WATCHOS_3_2 = 30200;
+
+const int __WATCHOS_4_0 = 40000;
+
+const int __WATCHOS_4_1 = 40100;
+
+const int __WATCHOS_4_2 = 40200;
+
+const int __WATCHOS_4_3 = 40300;
+
+const int __WATCHOS_5_0 = 50000;
+
+const int __WATCHOS_5_1 = 50100;
+
+const int __WATCHOS_5_2 = 50200;
+
+const int __WATCHOS_5_3 = 50300;
+
+const int __WATCHOS_6_0 = 60000;
+
+const int __WATCHOS_6_1 = 60100;
+
+const int __WATCHOS_6_2 = 60200;
+
+const int __WATCHOS_7_0 = 70000;
+
+const int __WATCHOS_7_1 = 70100;
+
+const int __WATCHOS_7_2 = 70200;
+
+const int __WATCHOS_7_3 = 70300;
+
+const int __WATCHOS_7_4 = 70400;
+
+const int __WATCHOS_7_5 = 70500;
+
+const int __WATCHOS_7_6 = 70600;
+
+const int __WATCHOS_8_0 = 80000;
+
+const int __WATCHOS_8_1 = 80100;
+
+const int __WATCHOS_8_3 = 80300;
+
+const int __WATCHOS_8_4 = 80400;
+
+const int __WATCHOS_8_5 = 80500;
+
+const int __WATCHOS_8_6 = 80600;
+
+const int __WATCHOS_8_7 = 80700;
+
+const int __WATCHOS_9_0 = 90000;
+
+const int __WATCHOS_9_1 = 90100;
+
+const int __WATCHOS_9_2 = 90200;
+
+const int __WATCHOS_9_3 = 90300;
+
+const int __WATCHOS_9_4 = 90400;
+
+const int __WATCHOS_9_5 = 90500;
+
+const int __WATCHOS_9_6 = 90600;
+
+const int __WATCHOS_10_0 = 100000;
+
+const int __WATCHOS_10_1 = 100100;
+
+const int __WATCHOS_10_2 = 100200;
 
 const int __TVOS_9_0 = 90000;
 
@@ -3142,6 +3270,10 @@ const int __TVOS_15_3 = 150300;
 
 const int __TVOS_15_4 = 150400;
 
+const int __TVOS_15_5 = 150500;
+
+const int __TVOS_15_6 = 150600;
+
 const int __TVOS_16_0 = 160000;
 
 const int __TVOS_16_1 = 160100;
@@ -3152,77 +3284,83 @@ const int __TVOS_16_3 = 160300;
 
 const int __TVOS_16_4 = 160400;
 
-const int __WATCHOS_1_0 = 10000;
+const int __TVOS_16_5 = 160500;
 
-const int __WATCHOS_2_0 = 20000;
+const int __TVOS_16_6 = 160600;
 
-const int __WATCHOS_2_1 = 20100;
+const int __TVOS_17_0 = 170000;
 
-const int __WATCHOS_2_2 = 20200;
+const int __TVOS_17_1 = 170100;
 
-const int __WATCHOS_3_0 = 30000;
+const int __TVOS_17_2 = 170200;
 
-const int __WATCHOS_3_1 = 30100;
+const int __BRIDGEOS_2_0 = 20000;
 
-const int __WATCHOS_3_1_1 = 30101;
+const int __BRIDGEOS_3_0 = 30000;
 
-const int __WATCHOS_3_2 = 30200;
+const int __BRIDGEOS_3_1 = 30100;
 
-const int __WATCHOS_4_0 = 40000;
+const int __BRIDGEOS_3_4 = 30400;
 
-const int __WATCHOS_4_1 = 40100;
+const int __BRIDGEOS_4_0 = 40000;
 
-const int __WATCHOS_4_2 = 40200;
+const int __BRIDGEOS_4_1 = 40100;
 
-const int __WATCHOS_4_3 = 40300;
+const int __BRIDGEOS_5_0 = 50000;
 
-const int __WATCHOS_5_0 = 50000;
+const int __BRIDGEOS_5_1 = 50100;
 
-const int __WATCHOS_5_1 = 50100;
+const int __BRIDGEOS_5_3 = 50300;
 
-const int __WATCHOS_5_2 = 50200;
+const int __BRIDGEOS_6_0 = 60000;
 
-const int __WATCHOS_5_3 = 50300;
+const int __BRIDGEOS_6_2 = 60200;
 
-const int __WATCHOS_6_0 = 60000;
+const int __BRIDGEOS_6_4 = 60400;
 
-const int __WATCHOS_6_1 = 60100;
+const int __BRIDGEOS_6_5 = 60500;
 
-const int __WATCHOS_6_2 = 60200;
+const int __BRIDGEOS_6_6 = 60600;
 
-const int __WATCHOS_7_0 = 70000;
+const int __BRIDGEOS_7_0 = 70000;
 
-const int __WATCHOS_7_1 = 70100;
+const int __BRIDGEOS_7_1 = 70100;
 
-const int __WATCHOS_7_2 = 70200;
+const int __BRIDGEOS_7_2 = 70200;
 
-const int __WATCHOS_7_3 = 70300;
+const int __BRIDGEOS_7_3 = 70300;
 
-const int __WATCHOS_7_4 = 70400;
+const int __BRIDGEOS_7_4 = 70400;
 
-const int __WATCHOS_7_5 = 70500;
+const int __BRIDGEOS_7_6 = 70600;
 
-const int __WATCHOS_7_6 = 70600;
+const int __BRIDGEOS_8_0 = 80000;
 
-const int __WATCHOS_8_0 = 80000;
+const int __BRIDGEOS_8_1 = 80100;
 
-const int __WATCHOS_8_1 = 80100;
+const int __BRIDGEOS_8_2 = 80200;
 
-const int __WATCHOS_8_3 = 80300;
+const int __DRIVERKIT_19_0 = 190000;
 
-const int __WATCHOS_8_4 = 80400;
+const int __DRIVERKIT_20_0 = 200000;
 
-const int __WATCHOS_8_5 = 80500;
+const int __DRIVERKIT_21_0 = 210000;
 
-const int __WATCHOS_9_0 = 90000;
+const int __DRIVERKIT_22_0 = 220000;
 
-const int __WATCHOS_9_1 = 90100;
+const int __DRIVERKIT_22_4 = 220400;
 
-const int __WATCHOS_9_2 = 90200;
+const int __DRIVERKIT_22_5 = 220500;
 
-const int __WATCHOS_9_3 = 90300;
+const int __DRIVERKIT_22_6 = 220600;
 
-const int __WATCHOS_9_4 = 90400;
+const int __DRIVERKIT_23_0 = 230000;
+
+const int __DRIVERKIT_23_1 = 230100;
+
+const int __DRIVERKIT_23_2 = 230200;
+
+const int __VISIONOS_1_0 = 10000;
 
 const int MAC_OS_X_VERSION_10_0 = 1000;
 
@@ -3280,29 +3418,69 @@ const int MAC_OS_X_VERSION_10_14_1 = 101401;
 
 const int MAC_OS_X_VERSION_10_14_4 = 101404;
 
+const int MAC_OS_X_VERSION_10_14_5 = 101405;
+
 const int MAC_OS_X_VERSION_10_14_6 = 101406;
 
 const int MAC_OS_X_VERSION_10_15 = 101500;
 
 const int MAC_OS_X_VERSION_10_15_1 = 101501;
 
+const int MAC_OS_X_VERSION_10_15_4 = 101504;
+
 const int MAC_OS_X_VERSION_10_16 = 101600;
 
 const int MAC_OS_VERSION_11_0 = 110000;
 
+const int MAC_OS_VERSION_11_1 = 110100;
+
+const int MAC_OS_VERSION_11_3 = 110300;
+
+const int MAC_OS_VERSION_11_4 = 110400;
+
+const int MAC_OS_VERSION_11_5 = 110500;
+
+const int MAC_OS_VERSION_11_6 = 110600;
+
 const int MAC_OS_VERSION_12_0 = 120000;
+
+const int MAC_OS_VERSION_12_1 = 120100;
+
+const int MAC_OS_VERSION_12_2 = 120200;
+
+const int MAC_OS_VERSION_12_3 = 120300;
+
+const int MAC_OS_VERSION_12_4 = 120400;
+
+const int MAC_OS_VERSION_12_5 = 120500;
+
+const int MAC_OS_VERSION_12_6 = 120600;
+
+const int MAC_OS_VERSION_12_7 = 120700;
 
 const int MAC_OS_VERSION_13_0 = 130000;
 
-const int __DRIVERKIT_19_0 = 190000;
+const int MAC_OS_VERSION_13_1 = 130100;
 
-const int __DRIVERKIT_20_0 = 200000;
+const int MAC_OS_VERSION_13_2 = 130200;
 
-const int __DRIVERKIT_21_0 = 210000;
+const int MAC_OS_VERSION_13_3 = 130300;
+
+const int MAC_OS_VERSION_13_4 = 130400;
+
+const int MAC_OS_VERSION_13_5 = 130500;
+
+const int MAC_OS_VERSION_13_6 = 130600;
+
+const int MAC_OS_VERSION_14_0 = 140000;
+
+const int MAC_OS_VERSION_14_1 = 140100;
+
+const int MAC_OS_VERSION_14_2 = 140200;
 
 const int __MAC_OS_X_VERSION_MIN_REQUIRED = 130000;
 
-const int __MAC_OS_X_VERSION_MAX_ALLOWED = 130300;
+const int __MAC_OS_X_VERSION_MAX_ALLOWED = 140200;
 
 const int __ENABLE_LEGACY_MAC_AVAILABILITY = 1;
 

@@ -34,6 +34,18 @@ class UserPreferencesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  //ANCHOR - Botev Mode
+
+  bool get isBotevMode => _prefs.getBool(PrefKeys.botevMode) ?? false;
+
+  Future<void> switchBotevMode() async {
+    _prefs.setBool(PrefKeys.botevMode, !isBotevMode);
+    if (isBotevMode) {
+      setTheme(dark: true);
+    }
+    notifyListeners();
+  }
+
   //ANCHOR - Language
 
   String get languageCode =>

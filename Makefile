@@ -18,7 +18,6 @@ get-rust-elements-wrapper:
 	cp rust-elements-wrapper/android/app/src/main/jniLibs/x86/librust_elements_wrapper.so android/app/src/main/jniLibs/x86/
 	cp rust-elements-wrapper/android/app/src/main/jniLibs/x86_64/librust_elements_wrapper.so android/app/src/main/jniLibs/x86_64/
 	cp rust-elements-wrapper/ios/librust_elements_wrapper.a ios
-	rm -rf rust-elements-wrapper
 
 generate-bindings:
 	fvm flutter pub run ffigen

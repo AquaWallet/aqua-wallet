@@ -1,3 +1,4 @@
+import 'package:aqua/common/debug/navigation_observer.dart';
 import 'package:aqua/common/widgets/auth_wrapper.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/theme_provider.dart';
@@ -8,8 +9,6 @@ import 'package:aqua/routes.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'common/debug/navigation_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +38,7 @@ class AquaApp extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final languageCode = ref.watch(prefsProvider.select((p) => p.languageCode));
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
 
     useEffect(() {
       Future.microtask(() {
@@ -56,13 +56,13 @@ class AquaApp extends HookConsumerWidget {
     );
 
     return CustomPaint(
-      painter: PreloadBackgroundPainter(),
+      painter: PreloadBackgroundPainter(isBotevMode: botevMode),
       child: ScreenUtilInit(
         designSize: const Size(428, 926),
         builder: (context, _) => MaterialApp(
           navigatorObservers: [AquaNavigatorObserver()],
-          theme: ref.read(lightThemeProvider(context)),
-          darkTheme: ref.read(darkThemeProvider(context)),
+          theme: ref.watch(lightThemeProvider(context)),
+          darkTheme: ref.watch(darkThemeProvider(context)),
           themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
           locale: Locale.fromSubtags(languageCode: languageCode),
           localizationsDelegates: AppLocalizations.localizationsDelegates,

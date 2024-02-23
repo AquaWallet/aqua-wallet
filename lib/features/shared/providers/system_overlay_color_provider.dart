@@ -21,7 +21,8 @@ class SystemOverlayColor {
 
     _change(
       brightness: darkMode ? Brightness.light : Brightness.dark,
-      color: theme.colorScheme.background,
+      statusBarColor: theme.colorScheme.background,
+      navBarColor: theme.colorScheme.surface,
     );
   }
 
@@ -30,7 +31,7 @@ class SystemOverlayColor {
 
     _change(
       brightness: Brightness.dark,
-      color: theme.colorScheme.background,
+      statusBarColor: theme.colorScheme.background,
     );
   }
 
@@ -39,32 +40,37 @@ class SystemOverlayColor {
 
     _change(
       brightness: Brightness.light,
-      color: theme.colorScheme.background,
+      statusBarColor: theme.colorScheme.background,
     );
   }
 
-  void aqua() {
+  void aqua({bool aquaColorNav = false}) {
     _change(
       brightness: Brightness.light,
-      color: AquaColors.backgroundGradientStartColor,
+      statusBarColor: AquaColors.backgroundGradientStartColor,
+      navBarColor: aquaColorNav
+          ? AquaColors.backgroundGradientEndColor
+          : ref.read(lightThemeProvider(context)).colorScheme.background,
     );
   }
 
   void transparent() {
     _change(
       brightness: Brightness.light,
-      color: Colors.transparent,
+      statusBarColor: Colors.transparent,
     );
   }
 
   void _change({
     required Brightness brightness,
-    required Color color,
+    required Color statusBarColor,
+    Color? navBarColor,
   }) {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarIconBrightness: brightness,
-        statusBarColor: color,
+        statusBarColor: statusBarColor,
+        systemNavigationBarColor: navBarColor,
       ),
     );
   }

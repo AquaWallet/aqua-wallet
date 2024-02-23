@@ -17,9 +17,17 @@ class SplashScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
+
     useEffect(() {
       Future.microtask(() {
-        ref.read(systemOverlayColorProvider(context)).aqua();
+        if (botevMode) {
+          ref.read(systemOverlayColorProvider(context)).forceDark();
+        } else {
+          ref
+              .read(systemOverlayColorProvider(context))
+              .aqua(aquaColorNav: true);
+        }
         ref.invalidate(availableAssetsProvider);
       });
       return null;
@@ -28,24 +36,26 @@ class SplashScreen extends HookConsumerWidget {
     return Stack(
       children: [
         const SplashBackground(),
-        Container(
-          width: double.maxFinite,
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Spacer(flex: 10),
-              //ANCHOR - Logo
-              OnboardingAppLogo(
-                description: description,
-                onTap: () => unawaited(Navigator.of(context)
-                    .pushReplacementNamed(WelcomeScreen.routeName)),
-              ),
-              const Spacer(flex: 7),
-              SizedBox(height: 188.h),
-            ],
+        if (!botevMode) ...{
+          Container(
+            width: double.maxFinite,
+            padding: EdgeInsets.symmetric(horizontal: 28.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Spacer(flex: 10),
+                //ANCHOR - Logo
+                OnboardingAppLogo(
+                  description: description,
+                  onTap: () => unawaited(Navigator.of(context)
+                      .pushReplacementNamed(WelcomeScreen.routeName)),
+                ),
+                const Spacer(flex: 7),
+                SizedBox(height: 188.h),
+              ],
+            ),
           ),
-        ),
+        },
       ],
     );
   }

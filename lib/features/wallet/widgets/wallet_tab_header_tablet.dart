@@ -21,7 +21,9 @@ class WalletTabHeaderTablet extends ConsumerWidget {
       child: Container(
         height: 265.h,
         padding: EdgeInsets.only(top: 25.h),
-        decoration: AppStyle.getHeaderDecoration(darkMode),
+        decoration: AppStyle.getHeaderDecoration(
+          color: Theme.of(context).colors.headerBackgroundColor,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

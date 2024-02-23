@@ -88,10 +88,9 @@ final swapIncomingDeliverAmountProvider = Provider.autoDispose<String>((ref) {
   }
 
   if (priceStream.sendAmount == inputState.deliverAmountSatoshi) {
-    return ref.read(formatterProvider).formatAssetAmountDirect(
+    return ref.read(formatterProvider).convertAssetAmountToDisplayUnit(
           amount: priceStream.sendAmount ?? 0,
           precision: deliverAsset.precision,
-          separated: false,
         );
   }
 
@@ -129,10 +128,9 @@ final swapIncomingReceiveAmountProvider =
 
   final receiveAsset = inputState.receiveAsset;
   if (inputState.isPeg) {
-    final amount = ref.read(formatterProvider).formatAssetAmountDirect(
+    final amount = ref.read(formatterProvider).convertAssetAmountToDisplayUnit(
           amount: ref.watch(maxPegFeeDeductedAmountProvider).asData?.value ?? 0,
           precision: inputState.deliverAsset?.precision,
-          separated: false,
         );
     log('[PEG] MaxPegFeeDeductedAmount: $amount');
     if (amount == "0") {
@@ -157,10 +155,9 @@ final swapIncomingReceiveAmountProvider =
   }
 
   if (priceStream.recvAmount != null) {
-    return ref.watch(formatterProvider).formatAssetAmountDirect(
+    return ref.watch(formatterProvider).convertAssetAmountToDisplayUnit(
           amount: priceStream.recvAmount ?? 0,
           precision: receiveAsset.precision,
-          separated: false,
         );
   }
 

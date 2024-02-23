@@ -1,6 +1,7 @@
 import 'package:aqua/common/widgets/sliver_grid_delegate.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -19,7 +20,7 @@ class WalletBackupMnemonicWords extends HookConsumerWidget {
   }
 }
 
-class WalletBackupGridView extends StatelessWidget {
+class WalletBackupGridView extends ConsumerWidget {
   final List<String> words;
   const WalletBackupGridView({
     Key? key,
@@ -27,7 +28,9 @@ class WalletBackupGridView extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
+
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
         crossAxisCount: 3,
@@ -39,6 +42,7 @@ class WalletBackupGridView extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 12,
       itemBuilder: (_, index) => WalletBackupTile(
+        isBotevMode: botevMode,
         number: '${index + 1}',
         title: words[index],
       ),
@@ -47,22 +51,30 @@ class WalletBackupGridView extends StatelessWidget {
 }
 
 class WalletBackupTile extends StatelessWidget {
-  final String number;
-  final String title;
   const WalletBackupTile({
     Key? key,
+    required this.isBotevMode,
     required this.number,
     required this.title,
   }) : super(key: key);
+
+  final bool isBotevMode;
+  final String number;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 12.w, right: 8.w),
-      decoration: BoxDecoration(
-        gradient: AppStyle.gridItemGradient,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
+      decoration: isBotevMode
+          ? BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: BorderRadius.circular(12.r),
+            )
+          : BoxDecoration(
+              gradient: AppStyle.gridItemGradient,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
       child: Row(
         children: [
           SizedBox(

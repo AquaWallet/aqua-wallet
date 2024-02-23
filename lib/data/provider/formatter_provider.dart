@@ -16,6 +16,17 @@ class FormatterProvider {
 
   final AutoDisposeRef _ref;
 
+  String convertAssetAmountToDisplayUnit({
+    required int amount,
+    int? precision,
+  }) {
+    precision ??= 8;
+    final amountWithPrecision = Decimal.parse(amount.toString()) /
+        Decimal.parse(pow(10, precision).toString());
+    return amountWithPrecision.toDecimal().toString();
+  }
+
+
   String formatAssetAmountFromAsset({
     required Asset asset,
     bool separated = true,

@@ -17,7 +17,9 @@ class WalletHeaderBtcPrice extends StatelessWidget {
           //ANCHOR - Title
           child: Text(
             AppLocalizations.of(context)!.walletBitcoinPriceTitle,
-            style: Theme.of(context).textTheme.titleSmall,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
           ),
         ),
         SizedBox(height: 12.h),
@@ -31,6 +33,7 @@ class WalletHeaderBtcPrice extends StatelessWidget {
                 style: GoogleFonts.arimo(
                   fontWeight: FontWeight.w700,
                   fontSize: 32.sp,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),
               SizedBox(width: 8.w),

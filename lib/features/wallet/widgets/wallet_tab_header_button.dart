@@ -35,20 +35,23 @@ class WalletTabHeaderButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 //ANCHOR - Icon
-                SvgPicture.asset(svgAssetName,
-                    width: 16.w,
-                    height: 16.w,
-                    fit: BoxFit.scaleDown,
-                    colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.onBackground,
-                        BlendMode.srcIn)),
+                SvgPicture.asset(
+                  svgAssetName,
+                  width: 16.w,
+                  height: 16.w,
+                  fit: BoxFit.scaleDown,
+                  colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onPrimaryContainer,
+                    BlendMode.srcIn,
+                  ),
+                ),
                 SizedBox(width: 12.w),
                 //ANCHOR - Label
                 Text(
                   label,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                 ),
               ],

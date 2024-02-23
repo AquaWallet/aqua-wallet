@@ -50,4 +50,8 @@ class AquaColors {
   static const Color gray = Color(0xFF888888);
 
   static const Color linkWater = Color(0xFFDFE2E9);
+
+  static const Color fcBotevPrimary = Color(0xFFFFCB05);
+
+  static const Color fcBotevSecondary = Color(0xFFD9C453);
 }

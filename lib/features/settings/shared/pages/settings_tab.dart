@@ -14,6 +14,7 @@ class SettingsTab extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
     final env = ref.watch(envProvider);
     final version = ref.watch(versionProvider).asData?.value ?? '';
     final versionText = kDebugMode ? '$version (${env.name})' : version;
@@ -115,11 +116,24 @@ class SettingsTab extends HookConsumerWidget {
                     //ANCHOR - Dark Mode
                     MenuItemWidget.switchItem(
                       context: context,
-                      enabled: darkMode,
+                      value: darkMode,
+                      enabled: !botevMode,
                       assetName: Svgs.darkMode,
                       title: AppLocalizations.of(context)!
                           .settingsScreenItemDarkMode,
                       onPressed: () => ref.read(prefsProvider).switchDarkMode(),
+                    ),
+                    SizedBox(height: 4.h),
+                    //ANCHOR - Botev Mode
+                    MenuItemWidget.switchItem(
+                      context: context,
+                      value: botevMode,
+                      assetName: Svgs.botev,
+                      iconPadding: EdgeInsets.all(8.r),
+                      title: AppLocalizations.of(context)!
+                          .settingsScreenItemBotevMode,
+                      onPressed: () =>
+                          ref.read(prefsProvider).switchBotevMode(),
                     ),
                     SizedBox(height: 4.h),
                     //ANCHOR - Block Explorer

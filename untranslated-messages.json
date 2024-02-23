@@ -48,7 +48,8 @@
     "settingsScreenItemHiddenLanguageEnabled",
     "boltzRedeemScriptValidationError",
     "swapPanelPegInInfo",
-    "swapPanelPegOutInfo"
+    "swapPanelPegOutInfo",
+    "settingsScreenItemBotevMode"
   ],
 
   "cs": [
@@ -75,7 +76,8 @@
     "settingsScreenItemHiddenLanguageEnabled",
     "boltzRedeemScriptValidationError",
     "swapPanelPegInInfo",
-    "swapPanelPegOutInfo"
+    "swapPanelPegOutInfo",
+    "settingsScreenItemBotevMode"
   ],
 
   "es": [
@@ -89,7 +91,8 @@
     "lightningTransactionSuccessScreenReceiveMessage",
     "boltzRedeemScriptValidationError",
     "swapPanelPegInInfo",
-    "swapPanelPegOutInfo"
+    "swapPanelPegOutInfo",
+    "settingsScreenItemBotevMode"
   ],
 
   "nl": [
@@ -98,6 +101,7 @@
     "sideshiftReceiveFeesPrompt",
     "receiveAssetScreenCurrentAssetFee",
     "swapPanelPegInInfo",
-    "swapPanelPegOutInfo"
+    "swapPanelPegOutInfo",
+    "settingsScreenItemBotevMode"
   ]
 }

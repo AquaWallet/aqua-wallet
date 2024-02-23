@@ -10,7 +10,9 @@ class WalletTabHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
     final btcPrice = ref.watch(btcPriceProvider);
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -21,7 +23,9 @@ class WalletTabHeader extends ConsumerWidget {
       child: Container(
         height: 265.h,
         padding: EdgeInsets.only(top: 68.h),
-        decoration: AppStyle.getHeaderDecoration(darkMode),
+        decoration: AppStyle.getHeaderDecoration(
+          color: Theme.of(context).colors.headerBackgroundColor,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -32,6 +36,12 @@ class WalletTabHeader extends ConsumerWidget {
                   //ANCHOR - Logo
                   SvgPicture.asset(
                     darkMode ? Svgs.aquaLogoWhite : Svgs.aquaLogoColor,
+                    colorFilter: botevMode
+                        ? ColorFilter.mode(
+                            Theme.of(context).colorScheme.background,
+                            BlendMode.srcIn,
+                          )
+                        : null,
                     width: 120.w,
                   ),
                   const Spacer(),

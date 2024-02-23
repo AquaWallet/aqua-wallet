@@ -17,7 +17,6 @@ class State extends ConsumerState<AssetTransactionsScreen> {
   @override
   Widget build(BuildContext context) {
     final asset = ModalRoute.of(context)?.settings.arguments as Asset;
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -38,15 +37,13 @@ class State extends ConsumerState<AssetTransactionsScreen> {
         showActionButton: asset
             .isUsdtLiquid, // For now only show the action button for USDT to show the sideshift orders screen
         actionButtonAsset: Svgs.history,
-        backgroundColor: darkMode
-            ? Colors.transparent
-            : Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onBackground,
-        iconOutlineColor: darkMode ? Theme.of(context).colors.divider : null,
-        iconBackgroundColor: darkMode
-            ? Theme.of(context).colors.walletTabButtonBackgroundColor
-            : Theme.of(context).colors.notificationButtonBackground,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        backgroundColor:
+            Theme.of(context).colors.transactionAppBarBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        iconOutlineColor: Theme.of(context).colors.appBarIconOutlineColorAlt,
+        iconBackgroundColor:
+            Theme.of(context).colors.appBarIconBackgroundColorAlt,
+        iconForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         onActionButtonPressed: () => Navigator.of(context).pushNamed(
           SideShiftOrdersScreen.routeName,
         ),

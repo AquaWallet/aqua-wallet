@@ -77,4 +77,5 @@ class Svgs {
   static const pocketBitcoinLogo = 'assets/marketplace/pocket-light.svg';
   static const whatsappLogo = 'assets/asset_icons/whatsapp_logo.svg';
   static const zendeskLogo = 'assets/asset_icons/zendesk_logo.svg';
+  static const botev = 'assets/botev.svg';
 }

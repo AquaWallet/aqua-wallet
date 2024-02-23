@@ -15,7 +15,6 @@ class AssetDetailsHeader extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
     final balanceAsset = ref
         .watch(assetsProvider)
         .asData
@@ -42,7 +41,9 @@ class AssetDetailsHeader extends HookConsumerWidget {
       margin: EdgeInsets.zero,
       child: Container(
         padding: EdgeInsets.only(top: kToolbarHeight + 59.h),
-        decoration: AppStyle.getHeaderDecoration(darkMode, rounded: false),
+        decoration: AppStyle.getHeaderDecorationWithShadows(
+          color: Theme.of(context).colors.headerBackgroundColor,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -60,7 +61,9 @@ class AssetDetailsHeader extends HookConsumerWidget {
                 //ANCHOR - Amount
                 Text(
                   balance,
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
                 ),
                 //ANCHOR - Symbol
                 Padding(

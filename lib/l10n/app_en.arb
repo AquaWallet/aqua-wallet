@@ -328,6 +328,6 @@
   "settingsScreenItemHiddenLanguageEnabled": "Hidden Languages Enabled",
   "boltzRedeemScriptValidationError": "Redeem Script from Boltz could not be validated.",
   "swapPanelPegInInfo": "This is a peg-in transaction to the Liquid Network. It will initiate after 2 Bitcoin confirmations (~20 minutes), or if SideSwap has insufficient liquidity, 102 confirmations (~17 hours). This peg-in transaction will appear in your Layer 2 wallet transaction list once it has been broadcast to the Liquid Network after the aforementioned number of confirmations.",
-  "swapPanelPegOutInfo": "This is a peg-out transaction from the Liquid Network. It will initiate after 2 Liquid confirmations (~2 minutes), or if SideSwap has insufficient liquidity, up to 1 hour. This peg-out transaction will appear in your Bitcoin wallet transaction list once it has been broadcast to the Bitcoin Network after the aforementioned durations. An onchain transaction fee will be deducted from the amount shown above for your incoming bitcoin transaction."
-
+  "swapPanelPegOutInfo": "This is a peg-out transaction from the Liquid Network. It will initiate after 2 Liquid confirmations (~2 minutes), or if SideSwap has insufficient liquidity, up to 1 hour. This peg-out transaction will appear in your Bitcoin wallet transaction list once it has been broadcast to the Bitcoin Network after the aforementioned durations. An onchain transaction fee will be deducted from the amount shown above for your incoming bitcoin transaction.",
+  "settingsScreenItemBotevMode": "BOTEV Mode"
 }

@@ -29,7 +29,7 @@ class AppbarButton extends HookWidget {
         height: 40.w,
         fit: BoxFit.scaleDown,
         colorFilter: ColorFilter.mode(
-          Theme.of(context).colorScheme.onBackground,
+          foreground,
           BlendMode.srcIn,
         ),
       );

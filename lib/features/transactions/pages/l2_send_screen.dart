@@ -32,9 +32,11 @@ class L2SendScreen extends HookConsumerWidget {
         showBackButton: true,
         showActionButton: false,
         backgroundColor: Theme.of(context).colors.menuBackground,
-        iconOutlineColor: darkMode ? Theme.of(context).colors.divider : null,
-        iconBackgroundColor: Theme.of(context).colors.appBarIconBackgroundColor,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        iconOutlineColor: Theme.of(context).colors.appBarIconOutlineColorAlt,
+        iconBackgroundColor:
+            Theme.of(context).colors.appBarIconBackgroundColorAlt,
+        iconForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         title: title,
       ),
       body: SafeArea(

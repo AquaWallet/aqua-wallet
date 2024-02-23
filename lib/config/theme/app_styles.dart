@@ -9,6 +9,7 @@ class AppStyle {
 
   static final lightColors = LightThemeColors();
   static final darkColors = DarkThemeColors();
+  static final botevColors = BotevThemeColors();
 
   static final roundedRectangleBorder = RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(32.r),
@@ -32,23 +33,29 @@ class AppStyle {
     ],
   );
 
-  static getHeaderDecoration(
-    bool darkMode, {
-    bool rounded = true,
-  }) {
-    return rounded
-        ? ShapeDecoration(
-            color: darkMode ? AquaColors.blueGreen : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20.r),
-                bottomRight: Radius.circular(20.r),
-              ),
-            ),
-          )
-        : BoxDecoration(
-            color: darkMode ? AquaColors.blueGreen : Colors.white,
-          );
+  static getHeaderDecoration({required Color color}) {
+    return ShapeDecoration(
+      color: color,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(20.r),
+          bottomRight: Radius.circular(20.r),
+        ),
+      ),
+    );
+  }
+
+  static getHeaderDecorationWithShadows({required Color color}) {
+    return BoxDecoration(
+      color: color,
+      boxShadow: [
+        BoxShadow(
+          offset: const Offset(0, 4),
+          blurRadius: 16.r,
+          color: Colors.black.withOpacity(0.18),
+        ),
+      ],
+    );
   }
 
   static ThemeData createLightThemeData(BuildContext context) {
@@ -59,6 +66,11 @@ class AppStyle {
   static ThemeData createDarkThemeData(BuildContext context) {
     final typography = AppTypography.createDark(context, darkColors);
     return _create(darkColors, typography);
+  }
+
+  static ThemeData createBotevThemeData(BuildContext context) {
+    final typography = AppTypography.createDark(context, botevColors);
+    return _create(botevColors, typography);
   }
 
   static ThemeData _create(AppColors colors, AppTypography typography) {
@@ -181,9 +193,15 @@ class AppStyle {
 }
 
 extension ThemeDataEx on ThemeData {
-  AppColors get colors => isLight ? AppStyle.lightColors : AppStyle.darkColors;
+  AppColors get colors => isLight
+      ? AppStyle.lightColors
+      : isBotevMode
+          ? AppStyle.botevColors
+          : AppStyle.darkColors;
 
   bool get isLight => brightness == Brightness.light;
+
+  bool get isBotevMode => colorScheme.primary == AquaColors.fcBotevPrimary;
 
   TextStyle get richTextStyleNormal => textTheme.headlineLarge!.copyWith(
         fontSize: 26.sp,

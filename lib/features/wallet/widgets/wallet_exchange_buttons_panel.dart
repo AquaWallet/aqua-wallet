@@ -58,8 +58,6 @@ class WalletExchangeButtonsPanel extends ConsumerWidget {
           //ANCHOR - Scan Button
           Expanded(
             child: WalletTabHeaderButton(
-              backgroundColor:
-                  Theme.of(context).colors.walletTabButtonBackgroundColor,
               svgAssetName: Svgs.walletScan,
               label: AppLocalizations.of(context)!.scan,
               radius: BorderRadius.only(bottomRight: Radius.circular(20.r)),

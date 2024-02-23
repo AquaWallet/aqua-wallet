@@ -350,5 +350,6 @@
   "layer2Bitcoin": "Разплащателен Биткойн",
   "l2bitcoin": "L2 разплащателен Биткойн",
   "settingsScreenItemHiddenLanguageDisabled": "Скритите езици са деактивирани",
-  "settingsScreenItemHiddenLanguageEnabled": "Скритите езици са активирани"
+  "settingsScreenItemHiddenLanguageEnabled": "Скритите езици са активирани",
+  "settingsScreenItemBotevMode": "Ботев режим"
 }

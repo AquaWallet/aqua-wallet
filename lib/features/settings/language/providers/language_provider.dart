@@ -27,9 +27,10 @@ class LanguageProvider extends ChangeNotifier {
         Language(LanguageCodes.english),
         Language(LanguageCodes.spanish),
         Language(LanguageCodes.dutch),
+        Language(LanguageCodes.bulgarian),
+
         if (prefs.isHiddenLanguagesEnabled) ...[
           //NOTE - Hidden languages go here
-          Language(LanguageCodes.bulgarian),
           Language(LanguageCodes.czech),
           Language(LanguageCodes.catalan)
         ]
