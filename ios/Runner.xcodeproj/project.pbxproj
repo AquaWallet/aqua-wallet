@@ -12,12 +12,12 @@
 		2C760118E3C32245DD28612E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D6BD61CA8D3E1F978CE7EF /* Pods_Runner.framework */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
-		529D73F42B05507D00EBD265 /* librust_elements_wrapper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 529D73F32B05506800EBD265 /* librust_elements_wrapper.a */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		B179D3A92A7ABAE80087EBED /* callbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = B179D3A82A7ABAE80087EBED /* callbacks.c */; };
+		B1D4246B2B7D779000017E39 /* libboltz_rust.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B1D4246A2B7D779000017E39 /* libboltz_rust.a */; };
 		B1DADEF52A7A99C300B018DD /* FlutterMethodChannel+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DADEF22A7A99C300B018DD /* FlutterMethodChannel+Extensions.swift */; };
 		B1DADEF62A7A99C300B018DD /* UserDefaults+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DADEF32A7A99C300B018DD /* UserDefaults+Extensions.swift */; };
 		B1DADEF92A7A99E400B018DD /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B1DADEF82A7A99E400B018DD /* libc++.tbd */; };
@@ -57,7 +57,7 @@
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		36D3C3F881833BB7BD245DE4 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
-		529D73F32B05506800EBD265 /* librust_elements_wrapper.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = librust_elements_wrapper.a; sourceTree = "<group>"; };
+		529D73F32B05506800EBD265 /* libboltz_rust.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libboltz_rust.a; sourceTree = "<group>"; };
 		6622E9AA110CF5D0D569E433 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -71,6 +71,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B179D3A82A7ABAE80087EBED /* callbacks.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = callbacks.c; path = ../ffi/dart_helper/callbacks.c; sourceTree = "<group>"; };
+		B1D4246A2B7D779000017E39 /* libboltz_rust.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libboltz_rust.a; sourceTree = "<group>"; };
 		B1DADEF22A7A99C300B018DD /* FlutterMethodChannel+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FlutterMethodChannel+Extensions.swift"; sourceTree = "<group>"; };
 		B1DADEF32A7A99C300B018DD /* UserDefaults+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Extensions.swift"; sourceTree = "<group>"; };
 		B1DADEF82A7A99E400B018DD /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -84,9 +85,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1D4246B2B7D779000017E39 /* libboltz_rust.a in Frameworks */,
 				B1DADEFB2A7AA4E800B018DD /* libgreenaddress_full.a in Frameworks */,
 				B1DADEF92A7A99E400B018DD /* libc++.tbd in Frameworks */,
-				529D73F42B05507D00EBD265 /* librust_elements_wrapper.a in Frameworks */,
 				2C760118E3C32245DD28612E /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,7 +177,7 @@
 		B1DADEF72A7A99E400B018DD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				529D73F32B05506800EBD265 /* librust_elements_wrapper.a */,
+				529D73F32B05506800EBD265 /* libboltz_rust.a */,
 				B1DADEFA2A7AA4E800B018DD /* libgreenaddress_full.a */,
 				B1DADEF82A7A99E400B018DD /* libc++.tbd */,
 				B2D6BD61CA8D3E1F978CE7EF /* Pods_Runner.framework */,
@@ -522,9 +523,10 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Profile;
@@ -729,10 +731,11 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -770,9 +773,10 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

@@ -1,17 +1,17 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'package:aqua/constants.dart';
 
 final rawTransactionsProvider =
     StreamProvider.family<List<GdkTransaction>, Asset>((ref, asset) async* {
@@ -90,8 +90,35 @@ final transactionsProvider = FutureProvider.autoDispose
     .family<List<TransactionUiModel>, Asset>((ref, asset) async {
   final rawTransactions =
       ref.watch(rawTransactionsProvider(asset)).asData?.value ?? [];
+  final recordedTransactions =
+      ref.watch(transactionStorageProvider).asData?.value ?? [];
 
   return Future.wait(rawTransactions.mapIndexed((index, transaction) async {
+    //TODO - Unify Boltz storage and DB storage
+    final boltzSwapData = ref
+        .watch(boltzSwapFromTxHashProvider(transaction.txhash ?? ''))
+        .asData
+        ?.value;
+    final boltzRevSwapData = ref
+        .watch(boltzReverseSwapFromTxHashProvider(transaction.txhash ?? ''))
+        .asData
+        ?.value;
+
+    final dbTransaction = switch (null) {
+      _ when (boltzSwapData != null) => TransactionDbModel.fromBoltzSwap(
+          txhash: transaction.txhash ?? '',
+          assetId: asset.id,
+          swap: boltzSwapData,
+        ),
+      _ when (boltzRevSwapData != null) => TransactionDbModel.fromBoltzRevSwap(
+          txhash: transaction.txhash ?? '',
+          assetId: asset.id,
+          swap: boltzRevSwapData,
+        ),
+      _ => recordedTransactions
+          .firstWhereOrNull((dbTxn) => dbTxn.txhash == transaction.txhash),
+    };
+
     final currentBlockHeight =
         ref.watch(_currentBlockHeightProvider(asset)).asData?.value ?? 0;
     final transactionBlockHeight = transaction.blockHeight ?? 0;
@@ -101,16 +128,18 @@ final transactionsProvider = FutureProvider.autoDispose
     final pending = asset.isBTC
         ? confirmationCount < onchainConfirmationBlockCount
         : confirmationCount < liquidConfirmationBlockCount;
-    final String assetIcon = pending
-        ? Svgs.pending
-        : switch (transaction.type) {
-            GdkTransactionTypeEnum.incoming => Svgs.incoming,
-            GdkTransactionTypeEnum.outgoing => Svgs.outgoing,
-            GdkTransactionTypeEnum.redeposit ||
-            GdkTransactionTypeEnum.swap =>
-              Svgs.exchange,
-            _ => throw AssetTransactionsInvalidTypeException(),
-          };
+    final assetIcon = switch (transaction.type) {
+      _ when (pending) => Svgs.pending,
+      _ when (dbTransaction?.isBoltzSwap == true) => Svgs.outgoing,
+      _ when (dbTransaction?.isBoltzReverseSwap == true) => Svgs.incoming,
+      _ when (dbTransaction != null) => Svgs.exchange,
+      GdkTransactionTypeEnum.incoming => Svgs.incoming,
+      GdkTransactionTypeEnum.outgoing => Svgs.outgoing,
+      GdkTransactionTypeEnum.redeposit ||
+      GdkTransactionTypeEnum.swap =>
+        Svgs.exchange,
+      _ => throw AssetTransactionsInvalidTypeException(),
+    };
     final createdAt = transaction.createdAtTs != null
         ? DateFormat.yMMMd().format(
             DateTime.fromMicrosecondsSinceEpoch(transaction.createdAtTs!))
@@ -142,6 +171,7 @@ final transactionsProvider = FutureProvider.autoDispose
       asset: asset,
       otherAsset: otherAsset,
       transaction: transaction,
+      dbTransaction: dbTransaction,
     );
   }).toList());
 });

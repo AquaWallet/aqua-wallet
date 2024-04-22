@@ -4,6 +4,7 @@ import 'package:aqua/features/receive/providers/receive_asset_amount_provider.da
 import 'package:aqua/features/send/widgets/asset_currency_type_toggle_button.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/services.dart';
 
 class AmountInputField extends HookConsumerWidget {
@@ -22,7 +23,7 @@ class AmountInputField extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // asset symbol
     final assetSymbol = isFiatToggled
-        ? AppLocalizations.of(context)!.sendAssetAmountScreenAmountUnitUsd
+        ? context.loc.sendAssetAmountScreenAmountUnitUsd
         : asset.ticker;
     final allowedInputRegex = asset.isLightning && !isFiatToggled
         ? RegExp(r'^\d*')
@@ -51,8 +52,7 @@ class AmountInputField extends HookConsumerWidget {
             ),
           ],
           decoration: Theme.of(context).inputDecoration.copyWith(
-                hintText: AppLocalizations.of(context)!
-                    .sendAssetAmountScreenAmountHint,
+                hintText: context.loc.sendAssetAmountScreenAmountHint,
                 hintStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Theme.of(context).colors.hintTextColor,
                       fontWeight: FontWeight.w400,

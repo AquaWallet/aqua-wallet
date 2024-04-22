@@ -4,6 +4,7 @@ import 'package:aqua/data/provider/receive_address/receive_address_ui_model.dart
 import 'package:aqua/data/provider/receive_address/receive_addresses_history_arguments.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 class UsedAddresses extends HookConsumerWidget {
@@ -115,8 +116,7 @@ class ReceiveAddressesHistoryScreenUsedItem extends StatelessWidget {
                         Row(children: [
                           //ANCHOR - Receive Date Label
                           Text(
-                            AppLocalizations.of(context)!
-                                .receiveAddressHistoryReceivedLabel,
+                            context.loc.receiveAddressHistoryReceivedLabel,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleSmall

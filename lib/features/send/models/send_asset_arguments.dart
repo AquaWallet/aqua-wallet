@@ -1,4 +1,7 @@
+import 'package:aqua/features/lightning/lnurl/dart_lnurl.dart';
+import 'package:aqua/features/send/models/send_asset_start_screen.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:decimal/decimal.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'send_asset_arguments.freezed.dart';
@@ -15,87 +18,69 @@ enum FeeAsset {
 
 @freezed
 class SendAssetArguments with _$SendAssetArguments {
-  const factory SendAssetArguments._({
-    required Asset asset,
-    required String symbol,
-    required String network,
-    required String address,
-    double? userEnteredAmount,
-    String? note,
-    String? transactionId,
-
-    /// User for external services such as sideshift or boltz
-    String? externalServiceTxId,
-    double? fee,
-    FeeAsset? feeUnit,
-    int? timestamp,
-    @Default(null) String? recipientAddress,
-  }) = _SendAssetArguments;
+  const factory SendAssetArguments._(
+      {SendAssetStartScreen? startScreen,
+      required Asset asset,
+      required String network,
+      String? input,
+      Decimal? userEnteredAmount,
+      LNURLParseResult? lnurlParseResult}) = _SendAssetArguments;
 
   factory SendAssetArguments.btc(Asset asset) => SendAssetArguments._(
-        asset: asset,
-        network: 'Bitcoin',
-        symbol: 'BTC',
-        address: '',
-        recipientAddress: null,
-        userEnteredAmount: null,
-        fee: null,
-        feeUnit: FeeAsset.btc,
-      );
+      startScreen: null,
+      asset: asset,
+      network: 'Bitcoin',
+      input: null,
+      userEnteredAmount: null,
+      lnurlParseResult: null);
 
   factory SendAssetArguments.lbtc(Asset asset) => SendAssetArguments._(
-        asset: asset,
-        network: 'Liquid',
-        symbol: 'L-BTC',
-        address: '',
-        feeUnit: FeeAsset.lbtc,
-        userEnteredAmount: null,
-      );
+      startScreen: null,
+      asset: asset,
+      network: 'Liquid',
+      input: null,
+      userEnteredAmount: null,
+      lnurlParseResult: null);
 
   factory SendAssetArguments.lightningBtc(Asset asset) => SendAssetArguments._(
-        asset: asset,
-        network: 'Lightning',
-        symbol: 'Sats',
-        address: '',
-        feeUnit: FeeAsset.lbtc,
-        userEnteredAmount: null,
-      );
+      startScreen: null,
+      asset: asset,
+      network: 'Lightning',
+      input: null,
+      userEnteredAmount: null,
+      lnurlParseResult: null);
 
   factory SendAssetArguments.liquidUsdt(Asset asset) => SendAssetArguments._(
-        asset: asset,
-        network: 'Liquid',
-        symbol: 'USDt',
-        address: '',
-        feeUnit: FeeAsset.lbtc,
-        userEnteredAmount: null,
-      );
+      startScreen: null,
+      asset: asset,
+      network: 'Liquid',
+      input: null,
+      userEnteredAmount: null,
+      lnurlParseResult: null);
 
   factory SendAssetArguments.ethereumUsdt(Asset asset) => SendAssetArguments._(
-        asset: asset,
-        network: 'Ethereum',
-        symbol: 'USDt',
-        address: '',
-        feeUnit: FeeAsset.lbtc,
-        userEnteredAmount: null,
-      );
+      startScreen: null,
+      asset: asset,
+      network: 'Ethereum',
+      input: null,
+      userEnteredAmount: null,
+      lnurlParseResult: null);
 
   factory SendAssetArguments.tronUsdt(Asset asset) => SendAssetArguments._(
-        asset: asset,
-        network: 'Tron',
-        symbol: 'USDt',
-        address: '',
-        feeUnit: FeeAsset.lbtc,
-        userEnteredAmount: null,
-      );
+      startScreen: null,
+      asset: asset,
+      network: 'Tron',
+      input: null,
+      userEnteredAmount: null,
+      lnurlParseResult: null);
 
   factory SendAssetArguments.liquid(Asset asset) => SendAssetArguments._(
-        asset: asset,
-        network: 'Liquid',
-        symbol: '',
-        address: '',
-        feeUnit: FeeAsset.lbtc,
-        userEnteredAmount: null,
-      );
+      startScreen: null,
+      asset: asset,
+      network: 'Liquid',
+      input: null,
+      userEnteredAmount: null,
+      lnurlParseResult: null);
 
   factory SendAssetArguments.fromAsset(Asset asset) {
     // have to do these as ifs because we cannot handle it in the case

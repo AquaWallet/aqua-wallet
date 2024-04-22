@@ -1,5 +1,7 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class ExchangeRateSettingsScreen extends HookConsumerWidget {
   static const routeName = '/exchangeRateSettingsScreen';
@@ -16,7 +18,8 @@ class ExchangeRateSettingsScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: true,
-        title: AppLocalizations.of(context)!.refExRateSettingsScreenTitle,
+        title: context.loc.refExRateSettingsScreenTitle,
+        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: SafeArea(
         child: SettingsSelectionList(

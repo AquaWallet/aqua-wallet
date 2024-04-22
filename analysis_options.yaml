@@ -5,6 +5,7 @@ analyzer:
     - "lib/ffi/**"
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    - flutter/
   errors:
     sdk_version_since: ignore
     implicit_dynamic_parameter: warning

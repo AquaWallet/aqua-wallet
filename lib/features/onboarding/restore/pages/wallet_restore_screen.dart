@@ -2,6 +2,7 @@ import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -51,12 +52,12 @@ class WalletRestoreScreen extends HookConsumerWidget {
                 ),
                 SizedBox(height: 43.h),
                 Text(
-                  AppLocalizations.of(context)!.restorePromptTitle,
+                  context.loc.restorePromptTitle,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 SizedBox(height: 20.h),
                 Text(
-                  AppLocalizations.of(context)!.restorePromptSubtitle,
+                  context.loc.restorePromptSubtitle,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         fontSize: 16.sp,
                       ),
@@ -65,8 +66,7 @@ class WalletRestoreScreen extends HookConsumerWidget {
                 AquaElevatedButton(
                   onPressed: () => Navigator.of(context)
                       .pushNamed(WalletRestoreInputScreen.routeName),
-                  child:
-                      Text(AppLocalizations.of(context)!.restorePromptButton),
+                  child: Text(context.loc.restorePromptButton),
                 ),
                 SizedBox(height: 66.h),
               ],

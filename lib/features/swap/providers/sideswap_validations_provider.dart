@@ -2,6 +2,7 @@ import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/settings.dart' hide AssetsResponse;
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 
 final swapValidationsProvider = Provider.autoDispose
     .family<SideswapException?, BuildContext>((ref, context) {
@@ -16,22 +17,22 @@ final swapValidationsProvider = Provider.autoDispose
   //ANCHOR - Argument validation
   if (deliverAsset == null || receiveAsset == null) {
     return SideswapInvalidArgumentsException(
-      message: AppLocalizations.of(context)!.swapErrorUnselectedAsset,
+      message: context.loc.swapErrorUnselectedAsset,
     );
   }
   if (deliverAsset.isBTC && !receiveAsset.isLBTC) {
     return SideswapInvalidArgumentsException(
-      message: AppLocalizations.of(context)!.swapErrorInvalidBtcPair,
+      message: context.loc.swapErrorInvalidBtcPair,
     );
   }
   if (deliverAsset.isLBTC && (!receiveAsset.isBTC && !receiveAsset.isUSDt)) {
     return SideswapInvalidArgumentsException(
-      message: AppLocalizations.of(context)!.swapErrorInvalidLbtcPair,
+      message: context.loc.swapErrorInvalidLbtcPair,
     );
   }
   if (deliverAsset.isUSDt && !receiveAsset.isLBTC) {
     return SideswapInvalidArgumentsException(
-      message: AppLocalizations.of(context)!.swapErrorInvalidUsdtPair,
+      message: context.loc.swapErrorInvalidUsdtPair,
     );
   }
 
@@ -46,7 +47,7 @@ final swapValidationsProvider = Provider.autoDispose
   if (isInsufficientBalance) {
     return SideswapInsufficientFundsException(
       isDeliver: isDeliver,
-      message: AppLocalizations.of(context)!.exchangeSwapInsufficientFunds,
+      message: context.loc.exchangeSwapInsufficientFunds,
     );
   }
 
@@ -54,7 +55,7 @@ final swapValidationsProvider = Provider.autoDispose
   if (inputState.isPeg && inputState.deliverAmountSatoshi > 0 && pegFeeError) {
     return SideswapInsufficientFundsException(
       isDeliver: isDeliver,
-      message: AppLocalizations.of(context)!.swapErrorUnspendableAmount,
+      message: context.loc.swapErrorUnspendableAmount,
     );
   }
 
@@ -97,8 +98,7 @@ final swapValidationsProvider = Provider.autoDispose
           deliverAmountSat < minPegInAmountSatWithFee;
       if (pegInAmountLessThanMinLimit) {
         return SideswapMinPegInAmountException(
-          message:
-              AppLocalizations.of(context)!.errorMinPegInAmount(minPegInAmount),
+          message: context.loc.errorMinPegInAmount(minPegInAmount),
         );
       }
     } else {
@@ -106,8 +106,7 @@ final swapValidationsProvider = Provider.autoDispose
           deliverAmountSat < minPegOutAmountSatWithFee;
       if (pegOutAmountLessThanMinLimit) {
         return SideswapMinPegOutAmountException(
-          message: AppLocalizations.of(context)!
-              .errorMinPegOutAmount(minPegOutAmount),
+          message: context.loc.errorMinPegOutAmount(minPegOutAmount),
         );
       }
     }

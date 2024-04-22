@@ -3,6 +3,7 @@ import 'package:aqua/common/widgets/sliver_grid_delegate.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class WalletBackupConfirmationContent extends ConsumerWidget {
   const WalletBackupConfirmationContent({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class WalletBackupConfirmationContent extends ConsumerWidget {
       children: <Widget>[
         SizedBox(height: 30.h),
         Text(
-          AppLocalizations.of(context)!.backupConfirmationTitle,
+          context.loc.backupConfirmationTitle,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 21.sp,
                 letterSpacing: .8,
@@ -32,7 +33,7 @@ class WalletBackupConfirmationContent extends ConsumerWidget {
           onPressed: !isFilled
               ? null
               : () => ref.read(walletBackupConfirmationProvider).confirm(),
-          child: Text(AppLocalizations.of(context)!.backupConfirmationButton),
+          child: Text(context.loc.backupConfirmationButton),
         ),
         SizedBox(height: 64.h),
       ],
@@ -92,8 +93,7 @@ class _SectionWidget extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          AppLocalizations.of(context)!
-              .backupConfirmationSelect('${section.wordToSelect}'),
+          context.loc.backupConfirmationSelect('${section.wordToSelect}'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         Padding(

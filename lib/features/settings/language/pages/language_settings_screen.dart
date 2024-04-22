@@ -1,3 +1,4 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
@@ -25,11 +26,11 @@ class LanguageSettingsScreen extends HookConsumerWidget {
               .setCurrentLanguage(languages.first);
         }
         if (enabled) {
-          context.showSuccessSnackbar(AppLocalizations.of(context)!
-              .settingsScreenItemHiddenLanguageEnabled);
+          context.showSuccessSnackbar(
+              context.loc.settingsScreenItemHiddenLanguageEnabled);
         } else {
-          context.showErrorSnackbar(AppLocalizations.of(context)!
-              .settingsScreenItemHiddenLanguageDisabled);
+          context.showErrorSnackbar(
+              context.loc.settingsScreenItemHiddenLanguageDisabled);
         }
       });
     });
@@ -38,7 +39,8 @@ class LanguageSettingsScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.languageSettingsTitle,
+        title: context.loc.languageSettingsTitle,
+        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
         onTitlePressed: () =>
             ref.read(featureUnlockTapCountProvider.notifier).increment(),
       ),

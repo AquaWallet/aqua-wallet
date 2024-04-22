@@ -1,3 +1,4 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/receive_address/receive_address_provider.dart';
 import 'package:aqua/data/provider/receive_address/receive_address_ui_model.dart';
 import 'package:aqua/data/provider/receive_address/receive_addresses_history_arguments.dart';
@@ -23,14 +24,14 @@ class ReceiveAddressesHistoryScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.receiveHistoryTitle,
+        title: context.loc.receiveHistoryTitle,
       ),
       body: SafeArea(
         child: Container(
           margin: EdgeInsets.only(top: 32.h),
           padding: EdgeInsets.only(top: 32.h),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colors.addressHistoryBackgroundColor,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(30.r),
               topRight: Radius.circular(30.r),

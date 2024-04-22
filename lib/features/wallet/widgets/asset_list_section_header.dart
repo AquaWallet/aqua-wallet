@@ -15,6 +15,7 @@ class AssetListSectionHeader extends StatelessWidget {
     return Container(
       alignment: Alignment.topLeft,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
             text,

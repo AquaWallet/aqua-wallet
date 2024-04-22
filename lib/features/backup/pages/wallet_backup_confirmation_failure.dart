@@ -2,6 +2,7 @@ import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -41,7 +42,7 @@ class WalletBackupConfirmationFailure extends HookConsumerWidget {
               SizedBox(height: 20.h),
               //ANCHOR - Title
               Text(
-                AppLocalizations.of(context)!.backupFailureTitle,
+                context.loc.backupFailureTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 20.sp,
                     ),
@@ -51,7 +52,7 @@ class WalletBackupConfirmationFailure extends HookConsumerWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.w),
                 child: Text(
-                  AppLocalizations.of(context)!.backupFailureDescription,
+                  context.loc.backupFailureDescription,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onBackground,
@@ -62,7 +63,7 @@ class WalletBackupConfirmationFailure extends HookConsumerWidget {
               //ANCHOR - Quit button
               AquaElevatedButton(
                 child: Text(
-                  AppLocalizations.of(context)!.backupFailureQuitButton,
+                  context.loc.backupFailureQuitButton,
                 ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
@@ -75,7 +76,7 @@ class WalletBackupConfirmationFailure extends HookConsumerWidget {
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
                 child: Text(
-                  AppLocalizations.of(context)!.backupFailureRetryButton,
+                  context.loc.backupFailureRetryButton,
                 ),
               ),
               SizedBox(height: 64.h),

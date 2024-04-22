@@ -1,4 +1,4 @@
-import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -6,13 +6,9 @@ part 'qr_scanner_pop_result.freezed.dart';
 
 @freezed
 class QrScannerPopResult with _$QrScannerPopResult {
-  const factory QrScannerPopResult.success({
-    required String address,
-    Asset? asset,
-    String? amount,
-    String? label,
-    String? message,
-  }) = QrScannerPopSuccessResult;
+  const factory QrScannerPopResult.parsedAddress({
+    required ParsedAddress parsedAddress,
+  }) = QrScannerPopParsedAddressResult;
   const factory QrScannerPopResult.swap({
     required String orderId,
     required String sendAsset,

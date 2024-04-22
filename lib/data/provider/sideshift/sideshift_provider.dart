@@ -1,9 +1,11 @@
-import 'dart:math';
-
+import 'package:aqua/common/decimal/decimal_ext.dart';
+import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/data/provider/sideshift/sideshift_http_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
+import 'package:decimal/decimal.dart';
 
 import 'models/sideshift.dart';
 
@@ -15,50 +17,49 @@ const usdtId = 'usdt-liquid';
 
 // Errors /////////////////////////////////////////////////////////////////////
 
-class DeliverAmountRequiredException implements Exception, OrderErrorLocalized {
+class DeliverAmountRequiredException implements ExceptionLocalized {
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.sideshiftDeliverAmountRequiredError;
+    return context.loc.sideshiftDeliverAmountRequiredError;
   }
 }
 
 class DeliverAmountExceedBalanceException
-    implements Exception, OrderErrorLocalized {
+    implements ExceptionLocalized, OrderError {
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!
-        .sideshiftDeliverAmountExceedBalanceError;
+    return context.loc.sideshiftDeliverAmountExceedBalanceError;
   }
 }
 
-class MinDeliverAmountException implements Exception, OrderErrorLocalized {
+class MinDeliverAmountException implements ExceptionLocalized, OrderError {
   MinDeliverAmountException(this.min, this.assetId);
 
-  final double min;
+  final Decimal min;
   final String assetId;
 
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.sideshiftMinDeliverAmountError('$min');
+    return context.loc.sideshiftMinDeliverAmountError('$min');
   }
 }
 
-class MaxDeliverAmountException implements Exception, OrderErrorLocalized {
+class MaxDeliverAmountException implements ExceptionLocalized, OrderError {
   MaxDeliverAmountException(this.max, this.assetId);
 
-  final double max;
+  final Decimal max;
   final String assetId;
 
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.sideshiftMaxDeliverAmountError('$max');
+    return context.loc.sideshiftMaxDeliverAmountError('$max');
   }
 }
 
-class FeeBalanceException implements Exception, OrderErrorLocalized {
+class FeeBalanceException implements ExceptionLocalized, OrderError {
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.sideshiftFeeBalanceError;
+    return context.loc.sideshiftFeeBalanceError;
   }
 }
 
@@ -135,6 +136,7 @@ final sideshiftPairInfoProvider = FutureProvider.autoDispose
       .read(sideshiftHttpProvider)
       .fetchSideShiftAssetPair(pair.from, pair.to)
       .then((pairInfo) {
+    ref.read(sideshiftCurrentPairInfoProvider.notifier).state = pairInfo;
     logger.d('[SideShift] Pair info: ${pairInfo.toJson()}');
     return pairInfo;
   }).catchError((e) {
@@ -174,7 +176,7 @@ class WalletBalanceProvider {
   WalletBalanceProvider(this.ref);
 
   /// Fetches user balance for an asset
-  Future<double?> getWalletBalance(SideshiftAsset shiftAsset) async {
+  Future<Decimal?> getWalletBalance(SideshiftAsset shiftAsset) async {
     final asset = ref.watch(assetConverterProvider(shiftAsset));
     logger.d(
         '[SideShift] wallet balance provider - Asset amount (${asset?.amount})');
@@ -183,7 +185,7 @@ class WalletBalanceProvider {
       return null;
     }
 
-    final balance = asset.amount / pow(10, asset.precision);
+    final balance = DecimalExt.satsToDecimal(asset.amount, asset.precision);
     logger.d('[SideShift] wallet balance provider - Asset ($balance)');
     return balance;
   }

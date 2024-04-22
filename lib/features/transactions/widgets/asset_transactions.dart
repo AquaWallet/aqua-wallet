@@ -2,6 +2,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -20,6 +21,7 @@ class AssetTransactions extends HookConsumerWidget {
         useMemoized(() => RefreshController(initialRefresh: false));
 
     return itemUiModels.when(
+      skipLoadingOnReload: true,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text(error.toString())),
       data: (items) {
@@ -27,10 +29,8 @@ class AssetTransactions extends HookConsumerWidget {
           return Center(
             child: Text(
               asset.isBTC
-                  ? AppLocalizations.of(context)!
-                      .assetTransactionsItemBitcoinEmpty
-                  : AppLocalizations.of(context)!
-                      .assetTransactionsLiquidEmptyList(asset.name),
+                  ? context.loc.assetTransactionsItemBitcoinEmpty
+                  : context.loc.assetTransactionsLiquidEmptyList(asset.name),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
@@ -38,17 +38,21 @@ class AssetTransactions extends HookConsumerWidget {
         } else {
           final listItems = [null, ...items];
           return Container(
-            padding: EdgeInsets.only(top: 40.h),
+            padding: EdgeInsets.only(top: 30.h),
             child: SmartRefresher(
               key: refresherKey,
               enablePullDown: true,
               controller: controller,
               physics: const BouncingScrollPhysics(),
               onRefresh: () async {
-                //NOTE - Fake delay to give impression of loading
+                // fake delay to give impression of loading
                 await Future.delayed(const Duration(seconds: 1));
+
                 ref.invalidate(rawTransactionsProvider(asset));
                 ref.invalidate(transactionsProvider(asset));
+
+                // hide loading animation
+                controller.refreshCompleted();
               },
               header: ClassicHeader(
                 height: 40.h,
@@ -103,7 +107,7 @@ class TransactionsTitle extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
-        bottom: 20.h,
+        top: 25.h,
       ),
       decoration: BoxDecoration(
         gradient: Theme.of(context).getFadeGradient(
@@ -113,7 +117,7 @@ class TransactionsTitle extends StatelessWidget {
         ),
       ),
       child: Text(
-        AppLocalizations.of(context)!.assetTransactionsListTitle,
+        context.loc.assetTransactionsListTitle,
         style: Theme.of(context).textTheme.titleMedium,
       ),
     );

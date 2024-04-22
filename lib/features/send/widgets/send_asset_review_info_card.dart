@@ -3,19 +3,20 @@ import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class SendAssetReviewInfoCard extends HookConsumerWidget {
   const SendAssetReviewInfoCard({
     super.key,
-    required this.arguments,
+    required this.amountDisplay,
   });
 
-  final SendAssetArguments arguments;
+  final String amountDisplay;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asset = ref.watch(sendAssetProvider);
-    final amountDisplay = ref.watch(amountMinusFeesToDisplayProvider);
+    final address = ref.watch(sendAddressProvider);
 
     return BoxShadowCard(
       color: Theme.of(context).colors.altScreenSurface,
@@ -30,8 +31,8 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
               children: [
                 //ANCHOR - Logo
                 AssetIcon(
-                  assetId: arguments.asset.id,
-                  assetLogoUrl: arguments.asset.logoUrl,
+                  assetId: asset.id,
+                  assetLogoUrl: asset.logoUrl,
                   size: 51.r,
                 ),
                 SizedBox(width: 19.w),
@@ -42,8 +43,7 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
                     SizedBox(height: 2.h),
                     //ANCHOR - Amount Title
                     Text(
-                      AppLocalizations.of(context)!
-                          .sendAssetReviewScreenConfirmAmountTitle,
+                      context.loc.sendAssetReviewScreenConfirmAmountTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
@@ -51,33 +51,30 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
                     SizedBox(height: 8.h),
                     //ANCHOR - Amount & Symbol
                     Text(
-                      "$amountDisplay ${arguments.asset.ticker}",
+                      "$amountDisplay ${asset.ticker}",
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ],
                 ),
               ],
             ),
-            if (arguments.recipientAddress != null && !asset.isLightning) ...[
+            if (address != null && !asset.isLightning) ...[
+              //ANCHOR - Address
+              LabelCopyableTextView(
+                label: context.loc.sendAssetReviewScreenConfirmAddressTitle,
+                value: address,
+              ),
               //ANCHOR - Divider
-              Divider(
+              DashedDivider(
                 height: 36.h,
                 thickness: 2.h,
                 color: Theme.of(context).colors.divider,
               ),
-              //ANCHOR - Address
-              //TODO: This is not copying
-              LabelCopyableTextView(
-                label: AppLocalizations.of(context)!
-                    .sendAssetReviewScreenConfirmAddressTitle,
-                value: arguments.recipientAddress!,
-              ),
               //ANCHOR - Shift id (sideshift only)
-              if (arguments.asset.isSideshift) ...[
+              if (asset.isSideshift) ...[
                 SizedBox(height: 16.h),
                 LabelCopyableTextView(
-                  label: AppLocalizations.of(context)!
-                      .sendAssetReviewScreenConfirmShiftIdTitle,
+                  label: context.loc.sendAssetReviewScreenConfirmShiftIdTitle,
                   value: ref.watch(pendingOrderProvider)?.id ?? '',
                 ),
               ],

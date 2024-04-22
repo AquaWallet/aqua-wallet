@@ -1,6 +1,6 @@
+import 'package:aqua/config/constants/constants.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:aqua/config/constants/svgs.dart';
 
 class AssetIcon extends ConsumerWidget {
   const AssetIcon({

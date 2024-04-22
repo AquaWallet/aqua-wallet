@@ -1,13 +1,16 @@
 import 'dart:async';
-import 'dart:developer';
 
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
+import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/logger.dart';
 
 const minBtcAmountSatoshi = 10000;
 const minLbtcAmountSatoshi = 100000;
@@ -49,7 +52,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     );
 
     if (txn == null) {
-      log('[PEG] Transaction cannot be created');
+      logger.d('[PEG] Transaction cannot be created');
       final error = PegGdkTransactionException();
       state = AsyncValue.error(error, StackTrace.current);
       throw error;
@@ -58,14 +61,12 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     final fee = txn.fee!;
     final deliverAmount = input.deliverAmountSatoshi;
     final feeDeductedAmount = deliverAmount - fee;
-    // this is the sideswap fee. This should ideally come from the value we
-    // get from the `server_status` call to sideswap. but putting this in for
-    // now do we are accurate in predicting how much btc/lbtc comes back to
-    // the user.
-    final finalAmountAfterSideSwapFee = feeDeductedAmount * .98;
+
+    final finalAmountAfterSideSwapFee =
+        feeDeductedAmount * sideSwapPegInOutReturnRate;
 
     if (fee > deliverAmount) {
-      log('[PEG] Fee ($fee) exceeds amount ($deliverAmount)');
+      logger.d('[PEG] Fee ($fee) exceeds amount ($deliverAmount)');
       final error = PegGdkFeeExceedingAmountException();
       state = AsyncValue.error(error, StackTrace.current);
       throw error;
@@ -89,13 +90,13 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       final data = currentState.data;
       final amount = data.finalAmount;
       if (data.asset.isBTC && amount < minBtcAmountSatoshi) {
-        log('[PEG] BTC amount too low (min: $minBtcAmountSatoshi))');
+        logger.d('[PEG] BTC amount too low (min: $minBtcAmountSatoshi))');
         final error = PegSideSwapMinBtcLimitException();
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
       }
       if (data.asset.isLBTC && amount < minLbtcAmountSatoshi) {
-        log('[PEG] L-BTC amount too low (min: $minLbtcAmountSatoshi))');
+        logger.d('[PEG] L-BTC amount too low (min: $minLbtcAmountSatoshi))');
         final error = PegSideSwapMinLBtcLimitException();
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
@@ -112,6 +113,17 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
       } else {
+        await ref
+            .read(transactionStorageProvider.notifier)
+            .save(TransactionDbModel(
+              txhash: transaction.txhash!,
+              assetId: data.asset.id,
+              type: ref.read(sideswapInputStateProvider).isPegIn
+                  ? TransactionDbModelType.sideswapPegIn
+                  : TransactionDbModelType.sideswapPegOut,
+              serviceOrderId: data.order.orderId,
+              serviceAddress: data.order.pegAddress,
+            ));
         state = const AsyncValue.data(PegState.success());
       }
     } else {
@@ -138,21 +150,21 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
 
       final transaction = GdkNewTransaction(
         addressees: [addressee],
-        feeRate: await network.getDefaultFees(),
+        feeRate: await network.getFastFees(),
         sendAll: isSendAll,
         utxoStrategy: GdkUtxoStrategyEnum.defaultStrategy,
       );
 
       return await network.createTransaction(transaction);
     } on GdkNetworkInsufficientFunds {
-      log('[PEG] Insufficient funds');
+      logger.d('[PEG] Insufficient funds');
       if (relayErrors) {
         final error = PegGdkInsufficientFeeBalanceException();
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
       }
     } catch (e) {
-      log('[PEG] Generic exception');
+      logger.d('[PEG] Generic exception');
     }
     return null;
   }

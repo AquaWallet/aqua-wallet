@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/data/provider/secure_storage_provider.dart';
 import 'package:aqua/features/backup/providers/backup_reminder_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/foundation.dart';
@@ -9,15 +9,13 @@ import 'package:rxdart/rxdart.dart';
 
 final recoveryPhraseWordsProvider =
     FutureProvider.autoDispose<List<String>>((ref) async {
-  return await ref
-      .read(aquaProvider)
-      .mnemonicStringStream
-      .switchMap((value) => value.maybeWhen(
-            data: (mnemonic) =>
-                Stream.value(mnemonic).map((mnemonic) => mnemonic.split(' ')),
-            orElse: () => const Stream<List<String>>.empty(),
-          ))
-      .first;
+  final (mnemonic, err) =
+      await ref.read(secureStorageProvider).get(StorageKeys.mnemonic);
+  if (err != null || mnemonic == null) {
+    return [];
+  }
+
+  return mnemonic.split(' ');
 });
 
 final _selectedWordsIndicesProvider = Provider.autoDispose<List<int>>((ref) {

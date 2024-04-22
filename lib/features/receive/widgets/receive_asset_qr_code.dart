@@ -1,8 +1,8 @@
-import 'package:aqua/features/shared/widgets/asset_icon.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+const kPlaceholderQrUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 class ReceiveAssetQrCode extends StatelessWidget {
   const ReceiveAssetQrCode({
@@ -18,44 +18,40 @@ class ReceiveAssetQrCode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isPlaceholder = assetAddress.isEmpty;
     logger.d("[LN] assetAddress: $assetAddress");
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 9.w),
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: SizedBox.square(
-        child: assetAddress.isEmpty
-            ? Center(
-                child: SizedBox(
-                  width: 60.r,
-                  height: 60.r,
-                  child: AssetIcon(
-                    assetId: assetId,
-                    assetLogoUrl: assetIconUrl,
-                    size: 60.r,
-                  ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Opacity(
+              opacity: isPlaceholder ? 0.3 : 1,
+              child: QrImage(
+                data: isPlaceholder ? kPlaceholderQrUrl : assetAddress,
+                version: QrVersions.auto,
+                embeddedImage: null,
+                embeddedImageStyle: QrEmbeddedImageStyle(
+                  size: Size(45.r, 45.r),
                 ),
-              )
-            : Stack(
-                alignment: Alignment.center,
-                children: [
-                  QrImage(
-                    data: assetAddress,
-                    version: QrVersions.auto,
-                    embeddedImage: null,
-                    embeddedImageStyle: QrEmbeddedImageStyle(
-                      size: Size(45.r, 45.r),
-                    ),
-                  ),
-                  AssetIcon(
-                    assetId: assetId,
-                    assetLogoUrl: assetIconUrl,
-                    size: 60.r,
-                  ),
-                ],
               ),
+            ),
+            if (isPlaceholder) ...{
+              const CircularProgressIndicator()
+            } else ...{
+              QrAssetIcon(
+                assetId: assetId,
+                assetLogoUrl: assetIconUrl,
+                size: 60.r,
+              ),
+            },
+          ],
+        ),
       ),
     );
   }

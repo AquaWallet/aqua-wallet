@@ -45,19 +45,6 @@ class AppStyle {
     );
   }
 
-  static getHeaderDecorationWithShadows({required Color color}) {
-    return BoxDecoration(
-      color: color,
-      boxShadow: [
-        BoxShadow(
-          offset: const Offset(0, 4),
-          blurRadius: 16.r,
-          color: Colors.black.withOpacity(0.18),
-        ),
-      ],
-    );
-  }
-
   static ThemeData createLightThemeData(BuildContext context) {
     final typography = AppTypography.createLight(context, lightColors);
     return _create(lightColors, typography);
@@ -203,6 +190,8 @@ extension ThemeDataEx on ThemeData {
 
   bool get isBotevMode => colorScheme.primary == AquaColors.fcBotevPrimary;
 
+  bool get isDarkMode => colorScheme.brightness == Brightness.dark;
+
   TextStyle get richTextStyleNormal => textTheme.headlineLarge!.copyWith(
         fontSize: 26.sp,
         fontWeight: FontWeight.normal,
@@ -225,12 +214,23 @@ extension ThemeDataEx on ThemeData {
         ],
       );
 
-  BoxDecoration get solidBorderDecoration =>
-      roundedShadowBoxDecoration.copyWith(
+  BoxDecoration get boxDecorationForMarketplaceCards => BoxDecoration(
+        borderRadius: BorderRadius.circular(10.r),
+        border: isDarkMode
+            ? null
+            : Border.all(
+                color: colors.cardOutlineColor,
+                width: 2.w,
+              ),
+      );
+
+  BoxDecoration get solidBorderDecoration => BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: colorScheme.onBackground,
-          width: 2
-              .w, // Make sure to define 'w' or replace it with a specific value
+          // Make sure to define 'w' or replace it with a specific value
+          width: 2.w,
         ),
       );
 
@@ -251,6 +251,13 @@ extension ThemeDataEx on ThemeData {
         blurRadius: 6,
         spreadRadius: 0,
         color: colorScheme.shadow.withOpacity(0.2),
+      );
+
+  BoxShadow get swapScreenRateConversionBoxShadows => BoxShadow(
+        offset: const Offset(0, 4),
+        blurRadius: 4,
+        spreadRadius: 0,
+        color: colorScheme.shadow.withOpacity(0.1),
       );
 
   Gradient getFadeGradient({

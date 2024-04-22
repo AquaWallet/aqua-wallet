@@ -4,8 +4,9 @@ import 'package:aqua/features/receive/providers/providers.dart';
 import 'package:aqua/features/receive/widgets/widgets.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/features/external/boltz/boltz.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 
 class ReceiveAmountInputWidget extends HookConsumerWidget {
   const ReceiveAmountInputWidget({super.key, required this.asset});
@@ -48,7 +49,7 @@ class ReceiveAmountInputWidget extends HookConsumerWidget {
 
                 //ANCHOR - Title
                 Text(
-                  AppLocalizations.of(context)!.receiveAssetAmountSheetTitle,
+                  context.loc.receiveAssetAmountSheetTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontSize: 20.sp,
                       ),

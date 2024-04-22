@@ -1,7 +1,9 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ManageAssetsScreen extends HookConsumerWidget {
@@ -18,7 +20,8 @@ class ManageAssetsScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.manageAssetsScreenTitle,
+        title: context.loc.manageAssetsScreenTitle,
+        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 28.w),
@@ -54,8 +57,7 @@ class ManageAssetsScreen extends HookConsumerWidget {
                       },
                     )
                   : AssetListErrorView(
-                      message:
-                          AppLocalizations.of(context)!.manageAssetsScreenError,
+                      message: context.loc.manageAssetsScreenError,
                     ),
             ),
             SizedBox(
@@ -66,7 +68,7 @@ class ManageAssetsScreen extends HookConsumerWidget {
                     : () => Navigator.of(context)
                         .pushNamed(AddAssetsScreen.routeName),
                 child: Text(
-                  AppLocalizations.of(context)!.manageAssetsScreenAddButton,
+                  context.loc.manageAssetsScreenAddButton,
                 ),
               ),
             ),

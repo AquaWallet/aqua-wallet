@@ -1,18 +1,16 @@
-import 'package:aqua/features/send/providers/send_asset_fee_provider.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class TransactionInfoCard extends HookConsumerWidget {
   const TransactionInfoCard({
     super.key,
-    required this.arguments,
   });
-
-  final SendAssetArguments arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final fee = ref.watch(feeInFiatToDisplayProvider(arguments.asset));
+    final asset = ref.watch(sendAssetProvider);
+    final fee = ref.watch(totalFeeToDisplayProvider(asset));
 
     final amountToDisplay = ref.read(amountMinusFeesToDisplayProvider);
 
@@ -25,16 +23,14 @@ class TransactionInfoCard extends HookConsumerWidget {
           SizedBox(height: 22.h),
           //ANCHOR - Amount
           TransactionInfoItem(
-            label: AppLocalizations.of(context)!
-                .sendAssetCompleteScreenUsdAmountLabel,
-            value: '$amountToDisplay ${arguments.symbol}',
+            label: context.loc.sendAssetCompleteScreenUsdAmountLabel,
+            value: '$amountToDisplay ${asset.symbol}',
             padding: EdgeInsets.symmetric(horizontal: 26.w),
           ),
           const SizedBox(height: 18),
           //ANCHOR - Network Fee
           TransactionInfoItem(
-            label:
-                AppLocalizations.of(context)!.sendAssetCompleteScreenFeeLabel,
+            label: context.loc.sendAssetCompleteScreenFeeLabel,
             value: fee ?? '-',
             padding: EdgeInsets.symmetric(horizontal: 26.w),
           ),
@@ -43,7 +39,7 @@ class TransactionInfoCard extends HookConsumerWidget {
           // ExpandableContainer(
           //   padding: EdgeInsets.only(left: 26.w, right: 6.w),
           //   title: Text(
-          //     AppLocalizations.of(context)!.sendAssetCompleteScreenNoteLabel,
+          //     context.loc.sendAssetCompleteScreenNoteLabel,
           //     style: Theme.of(context).textTheme.labelLarge?.copyWith(
           //           color: Theme.of(context).colorScheme.onSurface,
           //           fontWeight: FontWeight.w400,

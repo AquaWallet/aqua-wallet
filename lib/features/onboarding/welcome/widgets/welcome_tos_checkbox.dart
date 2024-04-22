@@ -1,5 +1,6 @@
 import 'package:aqua/config/constants/constants.dart' as constants;
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -72,8 +73,7 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
           child: Text.rich(
             //ANCHOR - Description
             TextSpan(
-              text: AppLocalizations.of(context)!
-                  .welcomeScreenToSDescriptionNormal,
+              text: context.loc.welcomeScreenToSDescriptionNormal,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
@@ -81,23 +81,21 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
                 //ANCHOR - Terms of Service link
                 TextSpan(
                   recognizer: TapGestureRecognizer()..onTap = openToTermsUrl,
-                  text: AppLocalizations.of(context)!
-                      .welcomeScreenToSDescriptionBold,
+                  text: context.loc.welcomeScreenToSDescriptionBold,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                 ),
                 TextSpan(
-                  text: " &",
+                  text: " & ",
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onBackground,
                       ),
                 ),
                 TextSpan(
                   recognizer: TapGestureRecognizer()..onTap = openToPrivacyUrl,
-                  text: AppLocalizations.of(context)!
-                      .welcomeScreenPrivacyDescriptionBold,
+                  text: context.loc.welcomeScreenPrivacyDescriptionBold,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -105,7 +103,6 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
                 ),
               ],
             ),
-            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

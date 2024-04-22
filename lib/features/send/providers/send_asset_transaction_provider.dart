@@ -1,74 +1,107 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:aqua/data/data.dart';
+import 'package:aqua/features/boltz/boltz.dart';
+import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/address_validator/models/address_validator_models.dart';
 import 'package:aqua/logger.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/electrs_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_storage_provider.dart';
-import 'package:aqua/features/external/boltz/boltz_provider.dart';
-import 'package:aqua/features/send/models/models.dart';
-import 'package:aqua/features/send/providers/send_asset_provider.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/providers/asset_balance_provider.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'send_asset_transaction_provider.g.dart';
 
+const liquidFeeRatePerVb = 0.1; // hardcoded sats per vbytes
+const liquidFeeRatePerKb = 100; // hardcoded sats per 1000vbytes
+
 //ANCHOR: - Send Asset Transaction Provider
 final sendAssetTransactionProvider = AutoDisposeAsyncNotifierProvider<
     SendAssetTransactionProvider,
-    GdkNewTransactionReply?>(SendAssetTransactionProvider.new);
+    SendAssetOnchainTx?>(SendAssetTransactionProvider.new);
 
 class SendAssetTransactionProvider
-    extends AutoDisposeAsyncNotifier<GdkNewTransactionReply?> {
+    extends AutoDisposeAsyncNotifier<SendAssetOnchainTx?> {
   @override
-  FutureOr<GdkNewTransactionReply?> build() => null;
+  FutureOr<SendAssetOnchainTx?> build() => null;
 
-  //ANCHOR: - Create Tx
-  Future<GdkNewTransactionReply> createTransaction({
-    int? amountSatoshi,
-    required bool sendAll,
-    required String address,
-    int? feeRate,
-    NetworkType network = NetworkType.liquid,
-    String? assetId,
+  //ANCHOR: - Create Gdk Tx
+  Future<GdkNewTransactionReply> createGdkTransaction({
+    String? address,
+    int? amountWithPrecision,
+    Asset? asset,
   }) async {
     try {
-      final networkProvider = (network == NetworkType.bitcoin)
-          ? ref.read(bitcoinProvider)
-          : ref.read(liquidProvider);
+      // asset
+      asset = asset ?? ref.read(sendAssetProvider);
+      if (asset == null) {
+        logger.e('[Send] asset is null');
+        throw Exception('Asset is null');
+      }
+
+      // amount
+      if (amountWithPrecision == null) {
+        final userEnteredAmount = ref.read(userEnteredAmountProvider);
+        if (userEnteredAmount == null) {
+          logger.e('[Send] amount is null');
+          throw AmountParsingException(AmountParsingExceptionType.emptyAmount);
+        }
+
+        amountWithPrecision =
+            ref.read(enteredAmountWithPrecisionProvider(userEnteredAmount));
+      }
+
+      // address
+      address = address ?? ref.read(sendAddressProvider);
+      if (address == null) {
+        throw AddressParsingException(AddressParsingExceptionType.emptyAddress);
+      }
+
+      final feeRatePerVb = asset.isBTC
+          ? ref.read(userSelectedFeeRatePerVByteProvider)?.rate.toInt()
+          : liquidFeeRatePerVb;
+      final feeRatePerKb =
+          feeRatePerVb != null ? (feeRatePerVb * 1000).toInt() : null;
+      final useAllFunds = ref.read(useAllFundsProvider);
+      logger.d(
+          '[Send][Fee] creating transaction with fee rate per kb: $feeRatePerKb');
+      logger.d('[Send] creating transaction with useAllFunds: $useAllFunds');
+
+      final networkProvider =
+          asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
 
       final addressee = GdkAddressee(
         address: address,
-        satoshi: amountSatoshi,
-        assetId: assetId,
+        satoshi: amountWithPrecision,
+        assetId: asset.id,
       );
 
-      logger.d('addresse: $addressee; feeRate: $feeRate');
+      logger.d('[Send] addresse: $addressee; feeRate: $feeRatePerKb');
 
+      final notes = ref.read(noteProvider);
       final transaction = GdkNewTransaction(
         addressees: [addressee],
-        feeRate: feeRate ?? await networkProvider.getDefaultFees(),
-        sendAll: sendAll,
+        feeRate: feeRatePerKb ?? await networkProvider.getDefaultFees(),
+        sendAll: useAllFunds,
         utxoStrategy: GdkUtxoStrategyEnum.defaultStrategy,
+        memo: notes,
       );
 
-      logger.d('provider tx: $transaction');
+      logger.d('[Send] provider tx: $transaction');
 
       final reply = await networkProvider.createTransaction(transaction);
-      logger.d('provider tx reply: $reply');
+      logger.d('[Send] provider tx reply: $reply');
       if (reply == null) {
         throw GdkNetworkException('Failed to create GDK transaction');
       }
-      state = AsyncData(reply);
+      ref.read(insufficientBalanceProvider.notifier).state = false;
+      state = AsyncData(SendAssetOnchainTx.gdkTx(reply));
       return reply;
+    } on GdkNetworkInsufficientFunds {
+      ref.read(insufficientBalanceProvider.notifier).state = true;
+      rethrow;
     } catch (e) {
-      logger.d('[SEND] create gdk tx - error: $e');
+      logger.d('[Send] create gdk tx - error: $e');
       if (e is GdkNetworkException) {
         state = AsyncValue.error(e, StackTrace.current);
       }
@@ -77,15 +110,19 @@ class SendAssetTransactionProvider
   }
 
   //ANCHOR: Sign Tx through gdk
-  Future<GdkNewTransactionReply?> signTransaction({
+  Future<GdkNewTransactionReply?> _signGdkTransaction({
     required GdkNewTransactionReply transaction,
     required NetworkType network,
   }) async {
     try {
-      final tx = network == NetworkType.bitcoin
+      final signedTx = network == NetworkType.bitcoin
           ? await ref.read(bitcoinProvider).signTransaction(transaction)
           : await ref.read(liquidProvider).signTransaction(transaction);
-      return tx;
+      if (signedTx == null) {
+        throw GdkNetworkException('Failed to sign GDK transaction');
+      }
+      state = AsyncData(SendAssetOnchainTx.gdkTx(signedTx));
+      return signedTx;
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
       logger.d('[SEND] sign gdk tx - error: $e');
@@ -94,12 +131,19 @@ class SendAssetTransactionProvider
   }
 
   //ANCHOR: - Create & Sign Taxi Psbt
-  Future<GdkSignPsbtResult?> createAndSignTaxiPsbt({
-    required int amount,
-    required String address,
-    required Asset asset,
-  }) async {
+  Future<GdkSignPsbtResult?> createTaxiPsbt() async {
     try {
+      final asset = ref.read(sendAssetProvider);
+      final userEnteredAmount = ref.read(userEnteredAmountProvider);
+      final address = ref.read(sendAddressProvider);
+      final amountSatoshi = ref.read(formatterProvider).parseAssetAmountDirect(
+          amount: userEnteredAmount.toString(), precision: asset.precision);
+
+      if (address == null || userEnteredAmount == null) {
+        logger.e('[Send][Taxi] address or amount is null');
+        throw Exception('Address or amount is null');
+      }
+
       final network =
           asset == Asset.btc() ? NetworkType.bitcoin : NetworkType.liquid;
       final networkProvider = (network == NetworkType.bitcoin)
@@ -121,23 +165,26 @@ class SendAssetTransactionProvider
       final changeAddress = await networkProvider.getReceiveAddress();
 
       //TOOD: Call elements.rs to create and partially sign taxi pset
-      logger.d('[TAXI] create tx - params - depositAmount: $amount');
+      logger.d('[TAXI] create tx - params - depositAmount: $amountSatoshi');
       logger.d('[TAXI] create tx - params - depositAddress: $address');
       logger.d(
           '[TAXI] create tx - params - changeAddress: ${changeAddress?.address}');
       logger.d('[TAXI] create tx - params - utxos: $utxosJson');
 
-      final signedPset = await signPsbt(
+      final partiallySignedPsbt = await _signPsbt(
         pset: '', //TODO: replace with pset from elements.rs
         utxos: flattenedUtxos,
         network: network,
       );
 
-      //TODO: Need to cache signed pset in `state`. However need a new object to hold both a `GdkNewTransactionReply` and a `GdkSignPsetDetailsReply`
-      // state = AsyncData(signedPset);
+      if (partiallySignedPsbt == null) {
+        state = AsyncValue.error(
+            Exception('Failed to sign taxi pset'), StackTrace.current);
+      }
 
-      logger.d('[TAXI] create taxi tx - success: $signedPset');
-      return signedPset;
+      state = AsyncData(SendAssetOnchainTx.gdkPsbt(partiallySignedPsbt!));
+      logger.d('[TAXI] create taxi tx - success: $partiallySignedPsbt');
+      return partiallySignedPsbt;
     } catch (e) {
       logger.d('[TAXI] create taxi tx - error: $e');
       state = AsyncValue.error(e, StackTrace.current);
@@ -146,7 +193,7 @@ class SendAssetTransactionProvider
   }
 
   //ANCHOR: - Sign Pset
-  Future<GdkSignPsbtResult?> signPsbt({
+  Future<GdkSignPsbtResult?> _signPsbt({
     required String pset,
     required List<Map<String, dynamic>> utxos,
     required NetworkType network,
@@ -165,22 +212,94 @@ class SendAssetTransactionProvider
     }
   }
 
-  //ANCHOR: - Broadcast Tx
+  //ANCHOR: - Sign and Broadcast Tx
+  Future<void> signAndBroadcastTransaction(
+      {required Function onSuccess}) async {
+    final asset = ref.read(sendAssetProvider);
+    final transaction = state.asData?.value;
+    final network = asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid;
+
+    if (transaction != null && transaction.transactionHex != null) {
+      logger.d('[Send] signing transaction: ${transaction.transactionHex!}');
+
+      // sign tx
+      final signedTx = await signTransaction(
+          transactionHex: transaction.transactionHex!, network: network);
+
+      if (signedTx == null) {
+        throw Exception('Failed to sign transaction');
+      }
+
+      // broadcast tx
+      final txId = await ref
+          .read(sendAssetTransactionProvider.notifier)
+          .broadcastTransaction(
+              rawTx: signedTx,
+              network: network,
+              broadcastType: asset.broadcastService);
+
+      onSuccess(txId, DateTime.now().microsecondsSinceEpoch, network);
+    } else {
+      throw Exception('Failed to sign transaction - no transaction found');
+    }
+  }
+
+  Future<String?> signTransaction({
+    required String transactionHex,
+    required NetworkType network,
+  }) async {
+    final tx = state.value;
+    return tx?.maybeMap(
+      gdkTx: (gdkTx) async {
+        try {
+          final signedTx = await _signGdkTransaction(
+            transaction: gdkTx.gdkTx.copyWith(
+              memo: ref.read(noteProvider),
+            ),
+            network: network,
+          );
+          return signedTx?.transaction;
+        } catch (e) {
+          throw Exception('Failed to sign GDK transaction: $e');
+        }
+      },
+      gdkPsbt: (gdkPsbt) async {
+        try {
+          final signedPsbt = await _signPsbt(
+              pset: gdkPsbt.gdkPsbt.psbt,
+              utxos: gdkPsbt.gdkPsbt.utxos,
+              network: network);
+          return signedPsbt?.psbt;
+        } catch (e) {
+          throw Exception('Failed to sign PSBT transaction: $e');
+        }
+      },
+      orElse: () => throw Exception('Failed to sign transaction'),
+    );
+  }
+
   Future<String?> broadcastTransaction(
       {required String rawTx,
+      String? txHash,
       NetworkType network = NetworkType.liquid,
       SendBroadcastServiceType broadcastType =
           SendBroadcastServiceType.blockstream}) async {
     try {
+      String result;
       switch (broadcastType) {
         case SendBroadcastServiceType.blockstream:
-          return await ref.read(electrsProvider).broadcast(rawTx, network);
+          result = await ref.read(electrsProvider).broadcast(rawTx, network);
         case SendBroadcastServiceType.boltz:
           final response = await ref
               .read(boltzProvider)
               .broadcastTransaction(currency: "L-BTC", transactionHex: rawTx);
-          return response.transactionId;
+          result = response.transactionId;
       }
+
+      txHash = result;
+      await success(txHash);
+
+      return result;
     } catch (e) {
       _handleBroadcastException(e);
       rethrow;
@@ -196,7 +315,7 @@ class SendAssetTransactionProvider
   }
 
   //ANCHOR: - Success
-  void success(GdkNewTransactionReply tx) {
+  Future<void> success(String txHash) async {
     final asset = ref.read(sendAssetProvider);
 
     // cache tx hash for boltz
@@ -204,11 +323,11 @@ class SendAssetTransactionProvider
       final boltzCurrentOrder =
           ref.watch(boltzSwapSuccessResponseProvider.notifier).state;
 
-      if (boltzCurrentOrder != null && tx.txhash != null) {
-        logger.d("[TX] success - cache tx hash for boltz: ${tx.txhash}");
-        ref
+      if (boltzCurrentOrder != null) {
+        logger.d("[TX] success - cache tx hash for boltz: $txHash");
+        await ref
             .read(boltzProvider)
-            .cacheTxHash(swapId: boltzCurrentOrder.id, txHash: tx.txhash!);
+            .cacheTxHash(swapId: boltzCurrentOrder.id, txHash: txHash);
       }
     }
 
@@ -216,13 +335,11 @@ class SendAssetTransactionProvider
     if (asset.isSideshift) {
       final sideShiftCurrentOrder = ref.watch(pendingOrderProvider);
 
-      if (sideShiftCurrentOrder != null &&
-          sideShiftCurrentOrder.id != null &&
-          tx.txhash != null) {
-        logger.d("[TX] success - cache tx hash for sideshift: ${tx.txhash}");
-        ref
+      if (sideShiftCurrentOrder != null && sideShiftCurrentOrder.id != null) {
+        logger.d("[TX] success - cache tx hash for sideshift: $txHash");
+        await ref
             .read(sideshiftStorageProvider)
-            .updateTxHash(sideShiftCurrentOrder.id!, tx.txhash!);
+            .updateTxHash(sideShiftCurrentOrder.id!, txHash);
       }
     }
   }
@@ -242,6 +359,25 @@ class SendAssetTransactionProvider
     }
   }
 }
+
+//ANCHOR: - External Tx Id Provider
+final externalServiceTxIdProvider =
+    Provider.family.autoDispose<String?, Asset>((ref, asset) {
+  if (asset.isSideshift) {
+    final sideshiftCurrentOrder = ref.watch(pendingOrderProvider);
+    if (sideshiftCurrentOrder != null) {
+      return sideshiftCurrentOrder.id;
+    }
+  } else if (asset.isLightning) {
+    final boltzCurrentOrder =
+        ref.watch(boltzSwapSuccessResponseProvider.notifier).state;
+    if (boltzCurrentOrder != null) {
+      return boltzCurrentOrder.id;
+    }
+  }
+
+  return null;
+});
 
 /// Verify if user has enough funds for fee for asset
 @riverpod

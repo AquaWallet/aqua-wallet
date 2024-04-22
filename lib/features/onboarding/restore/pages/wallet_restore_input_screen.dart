@@ -12,10 +12,10 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
     final hasError = useState(false);
 
     ref.listen(
-      walletRestoreResultProvider,
+      walletRestoreProvider,
       (_, asyncValue) {
         hasError.value = false;
-        asyncValue?.maybeWhen(
+        asyncValue.maybeWhen(
           loading: () => showGeneralDialog(
             context: context,
             pageBuilder: (_, __, ___) => const WalletProcessingAnimation(
@@ -43,7 +43,7 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
         },
       ),
       body: SafeArea(
-        child: ref.watch(walletOptionsValueProvider)?.when(
+        child: ref.watch(walletHintWordListProvider).when(
                   data: (_) => WalletRestoreInputContent(error: hasError),
                   loading: () => Center(
                     child: CircularProgressIndicator(
@@ -54,7 +54,7 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
                   ),
                   error: (_, __) => GenericErrorWidget(
                     buttonAction: () =>
-                        ref.read(walletOptionsProvider).reload(),
+                        ref.invalidate(walletInputHintsProvider),
                   ),
                 ) ??
             Container(),

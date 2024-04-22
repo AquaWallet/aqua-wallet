@@ -1,6 +1,7 @@
 import 'package:aqua/data/provider/sideshift/screens/sideshift_order_detail_screen.dart';
 import 'package:aqua/data/provider/sideshift/screens/sideshift_orders_screen.dart';
 import 'package:aqua/features/backup/backup.dart';
+import 'package:aqua/features/boltz/screens/boltz_swap_detail_screen.dart';
 import 'package:aqua/features/home/home.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/marketplace/pages/select_buy_and_sell_platform_screen.dart';
@@ -17,6 +18,8 @@ import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/screens/common/webview_screen.dart';
 import 'package:aqua/screens/qrscanner/qr_scanner_screen.dart';
+
+import 'features/boltz/screens/boltz_swaps_screen.dart';
 
 mixin Routes {
   static final Map<String,
@@ -188,15 +191,21 @@ mixin Routes {
         settings: settings,
       );
     },
-    L2SendScreen.routeName: (settings) {
+    SendAssetContainerScreen.routeName: (settings) {
       return MaterialPageRoute<Object>(
-        builder: (context) => const L2SendScreen(),
+        builder: (context) => const SendAssetContainerScreen(),
         settings: settings,
       );
     },
-    SendAssetScreen.routeName: (settings) {
+    SendAssetAddressScreen.routeName: (settings) {
       return MaterialPageRoute<Object>(
-        builder: (context) => const SendAssetScreen(),
+        builder: (context) => const SendAssetAddressScreen(),
+        settings: settings,
+      );
+    },
+    SendAssetAmountScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const SendAssetAmountScreen(),
         settings: settings,
       );
     },
@@ -233,6 +242,18 @@ mixin Routes {
     SideshiftOrderDetailScreen.routeName: (settings) {
       return MaterialPageRoute<Object>(
         builder: (context) => const SideshiftOrderDetailScreen(),
+        settings: settings,
+      );
+    },
+    BoltzSwapsScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const BoltzSwapsScreen(),
+        settings: settings,
+      );
+    },
+    BoltzSwapDetailScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const BoltzSwapDetailScreen(),
         settings: settings,
       );
     },

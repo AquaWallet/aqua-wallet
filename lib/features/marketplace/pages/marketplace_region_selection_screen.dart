@@ -1,6 +1,6 @@
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class MarketplaceRegionSelection extends HookConsumerWidget {
@@ -23,7 +23,7 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
         appBar: AquaAppBar(
           showBackButton: false,
           showActionButton: false,
-          title: AppLocalizations.of(context)!.marketplaceRegionScreenTitle,
+          title: context.loc.marketplaceRegionScreenTitle,
         ),
         body: SafeArea(
           child: Column(
@@ -35,18 +35,18 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
                 margin: EdgeInsets.only(top: 20.h),
                 child: Text.rich(
                   TextSpan(
-                    text: AppLocalizations.of(context)!
-                        .marketplaceRegionScreenDescriptionStartNormal,
+                    text: context
+                        .loc.marketplaceRegionScreenDescriptionStartNormal,
                     style: normalTextStyle,
                     children: [
                       TextSpan(
-                        text: AppLocalizations.of(context)!
-                            .marketplaceRegionScreenDescriptionBold,
+                        text:
+                            context.loc.marketplaceRegionScreenDescriptionBold,
                         style: Theme.of(context).textTheme.headlineLarge,
                       ),
                       TextSpan(
-                        text: AppLocalizations.of(context)!
-                            .marketplaceRegionScreenDescriptionEndNormal,
+                        text: context
+                            .loc.marketplaceRegionScreenDescriptionEndNormal,
                         style: normalTextStyle,
                       ),
                     ],
@@ -68,12 +68,7 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
                     itemBuilder: (context, item) {
                       final region = item.object as Region;
                       return SettingsListSelectionItem(
-                        icon: CountryFlag.fromCountryCode(
-                          region.iso,
-                          width: 20.r,
-                          height: 20.r,
-                          borderRadius: 5.r,
-                        ),
+                        icon: CountryFlag(svgAsset: region.flagSvg),
                         content: Text(
                           region.name,
                           style: Theme.of(context)
@@ -99,7 +94,7 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
         child: CircularProgressIndicator(),
       ),
       error: (error, stackTrace) => Center(
-        child: Text(AppLocalizations.of(context)!.regionSettingsScreenError),
+        child: Text(context.loc.regionSettingsScreenError),
       ),
     );
   }

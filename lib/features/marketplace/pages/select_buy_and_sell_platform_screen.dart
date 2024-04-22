@@ -3,6 +3,7 @@ import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/marketplace/meld_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/screens/common/webview_screen.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class OnRampScreen extends ConsumerWidget {
@@ -30,7 +31,7 @@ class OnRampScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.buyWithFiatScreenTitle,
+                      context.loc.buyWithFiatScreenTitle,
                       style: Theme.of(context)
                           .textTheme
                           .titleLarge
@@ -49,9 +50,7 @@ class OnRampScreen extends ConsumerWidget {
                           Navigator.of(context).pushNamed(
                               WebviewScreen.routeName,
                               arguments: WebviewArguments(
-                                  uri,
-                                  AppLocalizations.of(context)!
-                                      .buyWithFiatScreenTitle));
+                                  uri, context.loc.buyWithFiatScreenTitle));
                         }
                       },
                     ),
@@ -124,8 +123,7 @@ class BuyAndSellPlatformButton extends StatelessWidget {
                 ),
               if (svgImage != Svgs.meldLogo)
                 Text(
-                  AppLocalizations.of(context)!
-                      .marketplaceBuySellScreenPlatformButtonSubText,
+                  context.loc.marketplaceBuySellScreenPlatformButtonSubText,
                 ),
             ],
           ),

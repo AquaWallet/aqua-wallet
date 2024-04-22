@@ -1,6 +1,7 @@
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
+import 'package:aqua/utils/utils.dart';
 
 class AssetListErrorView extends ConsumerWidget {
   const AssetListErrorView({
@@ -15,7 +16,7 @@ class AssetListErrorView extends ConsumerWidget {
     return Center(
       child: GenericErrorWidget(
         description: message,
-        buttonTitle: AppLocalizations.of(context)!.unknownErrorButton,
+        buttonTitle: context.loc.unknownErrorButton,
         buttonAction: () {
           ref.invalidate(availableAssetsProvider);
           ref.invalidate(reloadNotifier);

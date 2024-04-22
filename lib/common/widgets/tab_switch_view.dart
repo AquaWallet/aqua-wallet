@@ -44,15 +44,12 @@ class TabSwitchView extends HookWidget {
 
     return Container(
       height: 40.h,
+      padding: labels.length > 2 ? EdgeInsets.all(2.h) : EdgeInsets.zero,
       decoration: BoxDecoration(
         boxShadow: [Theme.of(context).shadow],
         color:
-            backgroundColor ?? Theme.of(context).colors.tabUnselectedBackground,
+            backgroundColor ?? Theme.of(context).colors.tabSelectedBackground,
         borderRadius: BorderRadius.all(Radius.circular(12.r)),
-        border: Border.all(
-          color: Theme.of(context).colors.tabSelectedBackground,
-          width: 2.w,
-        ),
       ),
       margin: EdgeInsets.symmetric(horizontal: 28.w),
       child: TabBar(
@@ -71,6 +68,18 @@ class TabSwitchView extends HookWidget {
                   width: double.maxFinite,
                   decoration: BoxDecoration(
                     borderRadius: getTabRadius(index),
+                    border: labels.length > 2 &&
+                            index != 0 &&
+                            index != labels.length - 1
+                        ? Border.symmetric(
+                            vertical: BorderSide(
+                              color: Theme.of(context)
+                                  .colors
+                                  .tabSelectedBackground,
+                              width: 1.25.w,
+                            ),
+                          )
+                        : null,
                     color: tabController.index == index
                         ? Theme.of(context).colors.tabSelectedBackground
                         : Theme.of(context).colors.tabUnselectedBackground,

@@ -21,7 +21,7 @@ class SystemOverlayColor {
 
     _change(
       brightness: darkMode ? Brightness.light : Brightness.dark,
-      statusBarColor: theme.colorScheme.background,
+      statusBarColor: theme.colors.appBarBackgroundColor,
       navBarColor: theme.colorScheme.surface,
     );
   }
@@ -58,6 +58,14 @@ class SystemOverlayColor {
     _change(
       brightness: Brightness.light,
       statusBarColor: Colors.transparent,
+    );
+  }
+
+  void transparentWithKeyboard() {
+    _change(
+      brightness: Brightness.light,
+      statusBarColor: Colors.transparent,
+      navBarColor: Theme.of(context).colors.keyboardBackground,
     );
   }
 

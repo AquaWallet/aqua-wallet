@@ -1,10 +1,12 @@
-import 'package:aqua/data/models/exception_localized.dart';
+import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/provider/app_links/app_link.dart';
 import 'package:aqua/data/provider/app_links/app_links_provider.dart';
 import 'package:aqua/data/provider/qr_scanner/qr_scanner_pop_result.dart';
+import 'package:aqua/features/address_validator/address_validator.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:bolt11_decoder/bolt11_decoder.dart';
+import 'package:aqua/logger.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:rxdart/rxdart.dart';
 
 final qrScannerProvider = Provider.family
@@ -13,9 +15,6 @@ final qrScannerProvider = Provider.family
 
 class QrScannerProvider {
   static const _qrParametersKeyAssetId = 'assetid';
-  static const _qrParametersKeyAmount = 'amount';
-  static const _qrParametersKeyLabel = 'label';
-  static const _qrParametersKeyMessage = 'message';
 
   QrScannerProvider(this.ref) {
     ref.onDispose(() {
@@ -48,28 +47,29 @@ class QrScannerProvider {
           isPermissionSet ? const Stream.empty() : Stream.value(Object()));
 
   /// Parse the result of the QR code scan based on asset type
-  Future<QrScannerPopResult?> validateQrAddressScan(String? value,
+  Future<QrScannerPopResult?> parseQrAddressScan(String? value,
       {String? network, Asset? asset}) async {
     if (value == null) {
       return null;
     }
 
     final uri = Uri.parse(value);
-    final address = uri.path;
 
     // asset is passed - validate address for that asset
     if (asset != null) {
-      final isValid = await ref
+      final parsedInput = await ref
           .read(addressParserProvider)
-          .isValidAddressForAsset(asset: asset, address: address);
-      if (isValid) {
-        return QrScannerPopSuccessResult(
-          address: address,
-          asset: asset,
-        );
-      } else {
+          .parseInput(input: uri.toString(), asset: asset);
+
+      if (parsedInput == null) {
         throw QrScannerInvalidQrParametersException();
       }
+
+      final result =
+          QrScannerPopResult.parsedAddress(parsedAddress: parsedInput);
+
+      logger.d('[QR] scanner result: $result');
+      return result;
     }
     // asset is null - validate address for all valid assets
     else {
@@ -89,95 +89,36 @@ class QrScannerProvider {
         }
       } catch (_) {}
 
-      final validAsset = await ref
+      // all other assets
+      final parsedInput = await ref
           .read(addressParserProvider)
-          .isValidAddress(address: address);
-      if (validAsset == null) {
+          .parseInput(input: uri.toString());
+
+      if (parsedInput == null) {
         throw QrScannerInvalidQrParametersException();
       }
 
-      // usdt-eth and usdt-trx
-      if (validAsset.isEth || validAsset.isTrx) {
-        return QrScannerPopSuccessResult(
-          address: address,
-          asset: validAsset,
-        );
+      Asset? asset = parsedInput.asset;
+      if (asset == null) {
+        throw QrScannerInvalidQrParametersException();
       }
 
-      // lightning
-      if (validAsset.isLightning) {
-        try {
-          final lnRequest = Bolt11PaymentRequest(uri.path);
-
-          return QrScannerPopSuccessResult(
-            address: uri.path,
-            asset: Asset.lightning(),
-            amount: lnRequest.amount.toString(),
-          );
-        } catch (_) {}
-      }
-
-      // bitcoin and liquid
+      // if qr code assetId is not in user assets, throw exception
       final assets = ref.read(assetsProvider).asData?.value ?? [];
-
-      late Asset asset;
-
-      final isLiquid = await ref
-          .read(addressParserProvider)
-          .isValidAddressForAsset(asset: Asset.liquid(), address: address);
-      final isBitcoin = await ref
-          .read(addressParserProvider)
-          .isValidAddressForAsset(asset: Asset.btc(), address: address);
-
-      if (network == 'Liquid' && !isLiquid) {
-        throw QrScannerInvalidQrParametersException();
-      }
-
-      if (network == 'Bitcoin' && !isBitcoin) {
-        throw QrScannerInvalidQrParametersException();
-      }
-
-      // parse bitcoin or liquid for asset
-      if (isLiquid) {
+      if (asset.isLiquid) {
         if (uri.queryParameters[_qrParametersKeyAssetId] != null) {
-          // if qr code assetId is not in user assets, throw exception
           asset = assets.firstWhere(
             (asset) => asset.id == uri.queryParameters[_qrParametersKeyAssetId],
             orElse: () => throw QrScannerUnsupportedAssetIdException(),
           );
-        } else {
-          asset = assets.firstWhere((asset) => asset.isLBTC);
         }
-      } else if (isBitcoin) {
-        asset = assets.firstWhere((asset) => asset.isBTC);
       }
 
-      // parse for amount, label, message
-      try {
-        final amount = uri.queryParameters.containsKey(_qrParametersKeyAmount)
-            ? uri.queryParameters[_qrParametersKeyAmount]
-            : null;
+      final result =
+          QrScannerPopResult.parsedAddress(parsedAddress: parsedInput);
 
-        final label = uri.queryParameters.containsKey(_qrParametersKeyLabel)
-            ? uri.queryParameters[_qrParametersKeyLabel]
-            : null;
-
-        final message = uri.queryParameters.containsKey(_qrParametersKeyMessage)
-            ? uri.queryParameters[_qrParametersKeyMessage]
-            : null;
-
-        final result = QrScannerPopSuccessResult(
-          address: address,
-          asset: asset,
-          amount: amount,
-          label: label,
-          message: message,
-        );
-
-        return result;
-      } catch (_) {
-        throw QrScannerInvalidQrParametersException();
-      }
+      logger.d('[QR] scanner result: $result');
+      return result;
     }
   }
 }
@@ -214,14 +155,20 @@ final qrScannerShowPermissionAlertProvider =
 class QrScannerInvalidQrParametersException implements ExceptionLocalized {
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.scanQrCodeValidationAlertRetryButton;
+    return context.loc.scanQrCodeValidationAlertRetryButton;
   }
 }
 
 class QrScannerUnsupportedAssetIdException implements ExceptionLocalized {
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!
-        .scanQrCodeUnsupportedAssetAlertSubtitle;
+    return context.loc.scanQrCodeUnsupportedAssetAlertSubtitle;
+  }
+}
+
+class QrScannerIncompatibleAssetIdException implements ExceptionLocalized {
+  @override
+  String toLocalizedString(BuildContext context) {
+    return context.loc.scanQrCodeIncompatibleAssetAlertSubtitle;
   }
 }

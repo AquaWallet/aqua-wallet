@@ -1,5 +1,6 @@
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class MarketplaceErrorView extends ConsumerWidget {
   const MarketplaceErrorView({
@@ -14,7 +15,7 @@ class MarketplaceErrorView extends ConsumerWidget {
     return Center(
       child: GenericErrorWidget(
         description: message,
-        buttonTitle: AppLocalizations.of(context)!.unknownErrorButton,
+        buttonTitle: context.loc.unknownErrorButton,
         buttonAction: () => ref.invalidate(availableRegionsProvider),
       ),
     );

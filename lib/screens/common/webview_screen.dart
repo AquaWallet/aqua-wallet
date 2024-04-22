@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:aqua/features/shared/shared.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 // ignore: depend_on_referenced_packages
@@ -9,42 +10,14 @@ import 'package:webview_flutter_android/webview_flutter_android.dart'
     as webview_flutter_android;
 import 'package:image_picker/image_picker.dart' as image_picker;
 
-class WebviewScreen extends StatefulWidget {
+class WebviewScreen extends HookWidget {
   static const routeName = '/webviewScreen';
+
   const WebviewScreen({super.key});
 
-  @override
-  State<WebviewScreen> createState() => _WebviewState();
-}
-
-class WebviewArguments {
-  final Uri uri;
-  final String title;
-  const WebviewArguments(this.uri, this.title);
-}
-
-class _WebviewState extends State<WebviewScreen> {
-  late final WebViewController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(NavigationDelegate(
-        onProgress: (int progress) {},
-        onPageStarted: (String url) {},
-        onPageFinished: (String url) {},
-        onWebResourceError: (WebResourceError error) {},
-      ));
-
-    initFilePicker();
-  }
-
-  initFilePicker() async {
+  initFilePicker(WebViewController controller) async {
     if (Platform.isAndroid) {
-      final androidController = (_controller.platform
+      final androidController = (controller.platform
           as webview_flutter_android.AndroidWebViewController);
       await androidController.setOnShowFileSelector(_androidFilePicker);
     }
@@ -102,14 +75,35 @@ class _WebviewState extends State<WebviewScreen> {
   Widget build(BuildContext context) {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as WebviewArguments;
-    _controller.loadRequest(arguments.uri);
+
+    final WebViewController controller = useMemoized(() => WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(NavigationDelegate(
+        onProgress: (int progress) {},
+        onPageStarted: (String url) {},
+        onPageFinished: (String url) {},
+        onWebResourceError: (WebResourceError error) {},
+      ))
+      ..loadRequest(arguments.uri));
+
+    useEffect(() {
+      initFilePicker(controller);
+      return null;
+    }, []);
 
     return Scaffold(
       appBar: AquaAppBar(
         title: arguments.title,
         showActionButton: false,
       ),
-      body: WebViewWidget(controller: _controller),
+      body: WebViewWidget(controller: controller),
     );
   }
+}
+
+class WebviewArguments {
+  final Uri uri;
+  final String title;
+  const WebviewArguments(this.uri, this.title);
 }

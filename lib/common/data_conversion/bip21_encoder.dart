@@ -1,10 +1,11 @@
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:decimal/decimal.dart';
 
 enum NetworkType { bitcoin, liquid }
 
 class Bip21Encoder {
   final String address;
-  final double? amount;
+  final Decimal? amount;
   final String? label;
   final String? message;
   final String? lightning;
@@ -45,7 +46,7 @@ class Bip21Encoder {
       queryParams['lightning'] = lightning;
     }
 
-    if (asset?.id != null && !asset!.isLBTC) {
+    if (asset?.id != null) {
       queryParams['assetid'] = asset!.id;
     }
 
@@ -63,7 +64,7 @@ class Bip21Encoder {
 class Bip21Decoder {
   final String uri;
   late final String address;
-  late final double? amount;
+  late final Decimal? amount;
   late final String? label;
   late final String? message;
   late final String? lightning;
@@ -92,7 +93,8 @@ class Bip21Decoder {
     NetworkType network;
     if (baseUri.startsWith('bitcoin:')) {
       network = NetworkType.bitcoin;
-    } else if (baseUri.startsWith('liquidnetwork:')) {
+    } else if (baseUri.startsWith('liquidnetwork:') ||
+        baseUri.startsWith('liquidtestnet:')) {
       network = NetworkType.liquid;
     } else {
       throw const FormatException('Invalid network type');
@@ -101,11 +103,11 @@ class Bip21Decoder {
     String address = baseUri.split(':')[1];
     Map<String, String> queryParameters = Uri.splitQueryString(queryString);
 
-    double? amount = queryParameters.containsKey('amount')
-        ? double.parse(queryParameters['amount']!)
+    Decimal? amount = queryParameters.containsKey('amount')
+        ? Decimal.parse(queryParameters['amount']!)
         : null;
 
-    if (amount != null && (!amount.isFinite || amount < 0)) {
+    if (amount != null && amount < Decimal.zero) {
       throw const FormatException('Invalid amount');
     }
 

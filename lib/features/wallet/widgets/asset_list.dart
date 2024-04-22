@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
@@ -57,29 +56,29 @@ class AssetsList extends HookConsumerWidget {
           parent: AlwaysScrollableScrollPhysics(),
         ),
         children: [
+          SizedBox(height: 12.h),
           //ANCHOR - Savings Header
           AssetListSectionHeader(
-            text: AppLocalizations.of(context)!.tabSavings,
+            text: context.loc.tabSavings,
           ),
           SizedBox(height: 16.h),
           //ANCHOR - Savings List
           SectionAssetList(items: savingAssetList),
-          SizedBox(height: 22.h),
+          SizedBox(height: 18.h),
           //ANCHOR - Spending Header
           AssetListSectionHeader(
-            text: AppLocalizations.of(context)!.tabSpending,
-            children: [
-              const Spacer(),
-              if (Platform.isAndroid) const WalletInternalSwapButton(),
+            text: context.loc.tabSpending,
+            children: const [
+              Spacer(),
+              WalletInternalSwapButton(),
             ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 18.h),
           //ANCHOR - Spending List
           spendingAssetList.isNotEmpty
               ? SectionAssetList(items: spendingAssetList)
               : AssetListErrorView(
-                  message:
-                      AppLocalizations.of(context)!.manageAssetsScreenError,
+                  message: context.loc.manageAssetsScreenError,
                 ),
         ],
       ),

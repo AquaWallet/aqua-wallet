@@ -1,9 +1,11 @@
 export 'asset_details_header.dart';
 export 'asset_transactions.dart';
-export 'boltz_swap_status_button.dart';
-export 'transaction_details_copyable_item.dart';
+export 'boltz_reverse_swap_details_card.dart';
+export 'boltz_swap_details_card.dart';
+export 'general_transaction_details_card.dart';
+export 'sideswap_peg_details_card.dart';
 export 'transaction_details_data_item.dart';
 export 'transaction_details_explorer_buttons_item.dart';
-export 'transaction_details_header_item.dart';
 export 'transaction_details_notes_item.dart';
+export 'transaction_details_status_chip.dart';
 export 'transaction_menu_bottom_bar.dart';

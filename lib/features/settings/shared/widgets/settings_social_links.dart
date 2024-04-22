@@ -31,7 +31,7 @@ class SettingsSocialLinks extends StatelessWidget {
         primary: false,
         padding: EdgeInsets.only(right: 8.w),
         itemCount: _socials.length,
-        separatorBuilder: (_, __) => SizedBox(width: 26.w),
+        separatorBuilder: (_, __) => SizedBox(width: 30.w),
         itemBuilder: (context, index) => Center(
           child: InkWell(
             onTap: () => onLinkClick(_socials.keys.elementAt(index)),

@@ -1,8 +1,8 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/send/models/send_asset_extensions.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:aqua/features/settings/settings.dart';
 
 class ReceiveAssetAddressLabel extends HookWidget {
   const ReceiveAssetAddressLabel({
@@ -14,24 +14,38 @@ class ReceiveAssetAddressLabel extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var assetName = asset.name;
-    if (asset.isEth) {
-      assetName = "Ethereum USDt";
-    } else if (asset.isTrx) {
-      assetName = "Tron USDt";
+    String getAddressTitle(Asset asset) {
+      if (asset.isUsdtLiquid) {
+        return AppLocalizations.of(context)!
+            .receiveAssetScreenDescriptionUsdt(asset.network);
+      }
+
+      if (asset.isTrx) {
+        return AppLocalizations.of(context)!.receiveAssetScreenDescriptionUsdt(
+            AppLocalizations.of(context)!.tron);
+      }
+
+      if (asset.isEth) {
+        return AppLocalizations.of(context)!.receiveAssetScreenDescriptionUsdt(
+            AppLocalizations.of(context)!.eth);
+      }
+
+      if (asset.isLightning) {
+        return AppLocalizations.of(context)!.receiveAssetScreenDescriptionLn;
+      }
+
+      return AppLocalizations.of(context)!
+          .receiveAssetScreenDescriptionAll(asset.name);
     }
+
+    final addressTitle = getAddressTitle(asset);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 9.w),
-      child: Text.rich(
-        TextSpan(children: [
-          TextSpan(text: assetName, style: Theme.of(context).richTextStyleBold),
-          TextSpan(
-            text: " address",
-            style: Theme.of(context).richTextStyleNormal,
-          )
-        ]),
+      child: Text(
+        addressTitle,
         textAlign: TextAlign.center,
+        style: Theme.of(context).richTextStyleBold,
       ),
     );
   }

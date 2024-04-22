@@ -1,6 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 class WalletInternalSwapButton extends StatelessWidget {
@@ -45,7 +46,7 @@ class WalletInternalSwapButton extends StatelessWidget {
             ),
             SizedBox(width: 7.w),
             Text(
-              AppLocalizations.of(context)!.convert,
+              context.loc.convert,
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     color: Theme.of(context).colorScheme.onBackground,
                     fontSize: 14.sp,

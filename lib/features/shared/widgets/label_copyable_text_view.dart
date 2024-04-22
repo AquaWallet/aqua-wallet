@@ -16,49 +16,48 @@ class LabelCopyableTextView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              SizedBox(height: 4.h),
-              Text(
+        Text(
+          label,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        SizedBox(height: 4.h),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
                 value,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onBackground,
                       fontWeight: FontWeight.w400,
+                      fontSize: 13.sp,
                       height: 1.5.h,
                     ),
               ),
-            ],
-          ),
-        ),
-        Container(
-          alignment: Alignment.centerRight,
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => context.copyToClipboard(value),
-              child: InkWell(
-                child: SvgPicture.asset(
-                  Svgs.copy,
-                  width: 16.r,
-                  height: 16.r,
-                  colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onBackground,
-                      BlendMode.srcIn),
+            ),
+            Container(
+              alignment: Alignment.centerRight,
+              margin: EdgeInsets.symmetric(horizontal: 12.w),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => context.copyToClipboard(value),
+                  child: InkWell(
+                    child: SvgPicture.asset(
+                      Svgs.copy,
+                      width: 16.r,
+                      height: 16.r,
+                      colorFilter: ColorFilter.mode(
+                          Theme.of(context).colorScheme.onBackground,
+                          BlendMode.srcIn),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );

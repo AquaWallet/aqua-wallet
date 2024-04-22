@@ -110,6 +110,11 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
     return width;
   }
 
+  double get textOpacity {
+    final opacity = calculatePercent() * 2;
+    return 1.0 - (opacity > 1 ? 1 : opacity);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -137,13 +142,16 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
       child: Stack(
         children: <Widget>[
           Center(
-            child: Text(
-              widget.text,
-              style: widget.textStyle ??
-                  const TextStyle(
-                    color: Colors.black26,
-                    fontWeight: FontWeight.bold,
-                  ),
+            child: Opacity(
+              opacity: textOpacity,
+              child: Text(
+                widget.text,
+                style: widget.textStyle ??
+                    const TextStyle(
+                      color: Colors.black26,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
             ),
           ),
           AnimatedContainer(

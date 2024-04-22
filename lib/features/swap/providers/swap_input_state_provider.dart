@@ -7,16 +7,16 @@ final sideswapInputStateProvider = AutoDisposeStateNotifierProvider<
     SideswapInputStateNotifier, SideswapInputState>((ref) {
   final assets = ref.watch(swapAssetsProvider).assets;
   final deliverAsset = assets.firstWhereOrNull((e) => e.isLBTC);
-  final receiveAsset = assets.firstWhereOrNull((e) => e.isUSDt);
+  final receiveAsset = ref.read(manageAssetsProvider).isUsdtEnabled
+      ? assets.firstWhereOrNull((e) => e.isUSDt)
+      : assets.firstWhereOrNull((e) => e.isBTC);
   final deliverAssetBalance = deliverAsset != null
-      ? ref
-          .read(formatterProvider)
-          .convertAssetAmountToDisplayUnit(amount:deliverAsset.amount, precision:deliverAsset.precision)
+      ? ref.read(formatterProvider).convertAssetAmountToDisplayUnit(
+          amount: deliverAsset.amount, precision: deliverAsset.precision)
       : '';
   final receiveAssetBalance = receiveAsset != null
-      ? ref
-          .read(formatterProvider)
-          .convertAssetAmountToDisplayUnit(amount:receiveAsset.amount, precision:receiveAsset.precision)
+      ? ref.read(formatterProvider).convertAssetAmountToDisplayUnit(
+          amount: receiveAsset.amount, precision: receiveAsset.precision)
       : '';
 
   final initialState = SideswapInputState(
@@ -45,8 +45,10 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
       receiveAmount: '',
       receiveAmountSatoshi: 0,
       deliverAsset: asset,
-      deliverAssetBalance:
-          ref.watch(formatterProvider).convertAssetAmountToDisplayUnit(amount:asset.amount, precision:asset.precision),
+      deliverAssetBalance: ref
+          .watch(formatterProvider)
+          .convertAssetAmountToDisplayUnit(
+              amount: asset.amount, precision: asset.precision),
     );
   }
 
@@ -57,8 +59,10 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
       receiveAmount: '',
       receiveAmountSatoshi: 0,
       receiveAsset: asset,
-      receiveAssetBalance:
-          ref.watch(formatterProvider).convertAssetAmountToDisplayUnit(amount:asset.amount, precision:asset.precision),
+      receiveAssetBalance: ref
+          .watch(formatterProvider)
+          .convertAssetAmountToDisplayUnit(
+              amount: asset.amount, precision: asset.precision),
     );
   }
 

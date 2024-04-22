@@ -1,13 +1,17 @@
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 
-class LanguageCodes {
-  static const english = 'en';
-  static const spanish = 'es';
-  static const dutch = 'nl';
-  static const bulgarian = 'bg';
-  static const czech = 'cs';
-  static const catalan = 'ca';
+enum SupportedLanguageCodes {
+  english('en'),
+  spanish('es'),
+  dutch('nl'),
+  bulgarian('bg'),
+  czech('cs'),
+  catalan('ca');
+
+  const SupportedLanguageCodes(this.value);
+
+  final String value;
 }
 
 final languageProvider =
@@ -24,15 +28,14 @@ class LanguageProvider extends ChangeNotifier {
   LanguageProvider(this.ref, this.context, this.prefs);
 
   List<Language> get supportedLanguages => [
-        Language(LanguageCodes.english),
-        Language(LanguageCodes.spanish),
-        Language(LanguageCodes.dutch),
-        Language(LanguageCodes.bulgarian),
-
+        Language(SupportedLanguageCodes.english.value),
+        Language(SupportedLanguageCodes.spanish.value),
+        Language(SupportedLanguageCodes.dutch.value),
+        Language(SupportedLanguageCodes.bulgarian.value),
         if (prefs.isHiddenLanguagesEnabled) ...[
           //NOTE - Hidden languages go here
-          Language(LanguageCodes.czech),
-          Language(LanguageCodes.catalan)
+          Language(SupportedLanguageCodes.czech.value),
+          Language(SupportedLanguageCodes.catalan.value)
         ]
       ];
 

@@ -1,7 +1,6 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
 
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
@@ -10,10 +9,15 @@ import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:intl/intl.dart';
-import 'package:aqua/constants.dart';
 
-typedef Transaction = (Asset, GdkTransaction, BuildContext);
+typedef Transaction = (
+  Asset,
+  GdkTransaction,
+  BuildContext,
+  TransactionDbModel?
+);
 
 final assetTransactionDetailsProvider = AsyncNotifierProvider.family
     .autoDispose<
@@ -64,269 +68,179 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
       feeAsset: feeAsset,
       satoshiAssets: assetList ?? [],
       confirmationCount: count,
+      isPending: _isPending(asset, count),
+      requiredConfirmationCount: _getRequiredConfirmationCount(asset),
+      memo: updatedTransaction.memo,
+      dbTransaction: arg.$4,
     );
 
-    final items = switch (transaction.type) {
-      GdkTransactionTypeEnum.swap => await _swapItemUiModels(arg.$3, arguments),
-      GdkTransactionTypeEnum.redeposit =>
-        await _redepositItems(arg.$3, arguments),
-      GdkTransactionTypeEnum.outgoing =>
-        await _outgoingItems(arg.$3, arguments),
-      GdkTransactionTypeEnum.incoming =>
-        await _incomingItems(arg.$3, arguments),
-      _ => <AssetTransactionDetailsItemUiModel>[],
+    return switch (transaction.type) {
+      GdkTransactionTypeEnum.swap => _swapItemUiModels(arg.$3, arguments),
+      GdkTransactionTypeEnum.redeposit => _redepositItems(arg.$3, arguments),
+      GdkTransactionTypeEnum.outgoing => _outgoingItems(arg.$3, arguments),
+      GdkTransactionTypeEnum.incoming => _incomingItems(arg.$3, arguments),
+      _ => throw UnimplementedError(),
     };
-
-    return AssetTransactionDetailsUiModel(items: items);
   }
 
-  Future<List<AssetTransactionDetailsItemUiModel>> _swapItemUiModels(
+  int _getRequiredConfirmationCount(Asset asset) {
+    return asset.isBTC
+        ? onchainConfirmationBlockCount
+        : liquidConfirmationBlockCount;
+  }
+
+  bool _isPending(Asset asset, int confirmationCount) {
+    return confirmationCount < _getRequiredConfirmationCount(asset);
+  }
+
+  AssetTransactionDetailsUiModel _swapItemUiModels(
     BuildContext context,
     TransactionDataArgument arguments,
-  ) async {
-    final asset = arguments.transactionAsset;
+  ) {
     final transaction = arguments.transaction;
     final satoshiAssets = arguments.satoshiAssets;
 
-    final items = <AssetTransactionDetailsItemUiModel>[];
+    final date = formattedDate(context, transaction.createdAtTs);
+    final confirmationCount = arguments.confirmationCount;
 
-    final type = AppLocalizations.of(context)!.assetTransactionsTypeSwap;
-    final showPendingIndicator = asset.isBTC
-        ? arguments.confirmationCount < onchainConfirmationBlockCount
-        : arguments.confirmationCount < liquidConfirmationBlockCount;
-    final date = await formattedDate(context, transaction.createdAtTs);
-    items.add(AssetTransactionDetailsHeaderItemUiModel(
-      type: type,
-      showPendingIndicator: showPendingIndicator,
-      date: date,
-    ));
-
-    final delivered = (transaction.swapOutgoingSatoshi as int).abs();
     final deliveredAsset = satoshiAssets!
         .firstWhere((asset) => asset.id == transaction.swapOutgoingAssetId);
-    final formattedDelivered = ref.read(formatterProvider).formatAssetAmount(
-          amount: delivered,
+    final deliveredAmount = ref.read(formatterProvider).formatAssetAmountDirect(
+          amount: (transaction.swapOutgoingSatoshi as int).abs(),
           precision: deliveredAsset.precision,
         );
 
-    final deliveredText = '$formattedDelivered ${deliveredAsset.ticker}';
-    items.add(AssetTransactionDetailsDataItemUiModel(
-      title: AppLocalizations.of(context)!.assetTransactionDetailsDelivered,
-      value: deliveredText,
-    ));
-
-    final received = transaction.swapIncomingSatoshi as int;
     final receivedAsset = satoshiAssets
         .firstWhere((asset) => asset.id == transaction.swapIncomingAssetId);
-    final formattedReceived = ref.read(formatterProvider).formatAssetAmount(
-          amount: received,
+    final receivedAmount = ref.read(formatterProvider).formatAssetAmountDirect(
+          amount: transaction.swapIncomingSatoshi as int,
           precision: receivedAsset.precision,
         );
-    final receivedText = '$formattedReceived ${receivedAsset.ticker}';
-    items.add(AssetTransactionDetailsDataItemUiModel(
-      title: AppLocalizations.of(context)!.assetTransactionDetailsReceived,
-      value: receivedText,
-    )); //0.00003337*0.50739721
 
-    // -----------
-    items.add(const AssetTransactionDetailsDividerItemUiModel());
-
-    // Transaction Id
-    final transactionId = transaction.txhash;
-    if (transactionId != null) {
-      items.add(
-        AssetTransactionDetailsCopyableItemUiModel(
-          title: AppLocalizations.of(context)!
-              .assetTransactionDetailsTransactionId,
-          value: transactionId,
-        ),
-      );
-    }
-
-    return items;
+    return AssetTransactionDetailsUiModel.swap(
+      transactionId: transaction.txhash ?? '',
+      date: date,
+      confirmationCount: confirmationCount,
+      requiredConfirmationCount: arguments.requiredConfirmationCount,
+      isPending: arguments.isPending,
+      notes: transaction.memo,
+      deliverAmount: deliveredAmount,
+      deliverAssetTicker: deliveredAsset.ticker,
+      receiveAmount: receivedAmount,
+      receiveAssetTicker: receivedAsset.ticker,
+      dbTransaction: arguments.dbTransaction,
+    );
   }
 
-  Future<List<AssetTransactionDetailsItemUiModel>> _redepositItems(
+  AssetTransactionDetailsUiModel _redepositItems(
     BuildContext context,
     TransactionDataArgument arguments,
-  ) async {
+  ) {
     final asset = arguments.transactionAsset;
     final transaction = arguments.transaction;
 
-    final items = <AssetTransactionDetailsItemUiModel>[];
+    final date = formattedDate(context, transaction.createdAtTs);
+    final confirmationCount = arguments.confirmationCount;
 
-    // Swap/Pending/Sep 23, 2021 at 14:31
-    final type = AppLocalizations.of(context)!.assetTransactionsTypeRedeposit;
-    final showPendingIndicator = asset.isBTC
-        ? arguments.confirmationCount < onchainConfirmationBlockCount
-        : arguments.confirmationCount < liquidConfirmationBlockCount;
-    final date = await formattedDate(context, transaction.createdAtTs);
-    items.add(AssetTransactionDetailsHeaderItemUiModel(
-      type: type,
-      showPendingIndicator: showPendingIndicator,
+    final isConfidential = transaction.outputs?.first.assetId != null;
+
+    final deliveredAmount = !isConfidential
+        ? ref.read(formatterProvider).formatAssetAmountDirect(
+              amount: transaction.outputs?.first.satoshi as int,
+              precision: asset.precision,
+            )
+        : null;
+    final deliveredAssetTicker = !isConfidential
+        ? arguments.satoshiAssets?.firstOrNull?.ticker ?? ''
+        : null;
+
+    final feeAmount = ref.read(formatterProvider).formatAssetAmountDirect(
+          amount: transaction.fee as int,
+          precision: asset.precision,
+        );
+    final feeAssetTicker = asset.ticker;
+
+    return AssetTransactionDetailsUiModel.redeposit(
+      transactionId: transaction.txhash ?? '',
       date: date,
-    ));
-
-    final delivered = transaction.outputs?.first.satoshi as int;
-    final formattedDelivered = ref.read(formatterProvider).formatAssetAmount(
-          amount: delivered,
-          precision: asset.precision,
-        );
-    final deliveredText =
-        '$formattedDelivered ${arguments.satoshiAssets?.first.ticker ?? ''}';
-    items.add(AssetTransactionDetailsDataItemUiModel(
-      title: AppLocalizations.of(context)!.amount,
-      value: transaction.outputs?.first.assetId != null
-          ? AppLocalizations.of(context)!.confidental
-          : deliveredText,
-    ));
-
-    final received = transaction.fee as int;
-    final formattedReceived = ref.read(formatterProvider).formatAssetAmount(
-          amount: received,
-          precision: asset.precision,
-        );
-    final receivedText = '$formattedReceived ${asset.ticker}';
-    items.add(AssetTransactionDetailsDataItemUiModel(
-      title: AppLocalizations.of(context)!.fee,
-      value: receivedText,
-    ));
-
-    // -----------
-    items.add(const AssetTransactionDetailsDividerItemUiModel());
-
-    // Transaction Id
-    final transactionId = transaction.txhash;
-    if (transactionId != null) {
-      items.add(
-        AssetTransactionDetailsCopyableItemUiModel(
-          title: AppLocalizations.of(context)!
-              .assetTransactionDetailsTransactionId,
-          value: transactionId,
-        ),
-      );
-    }
-
-    return items;
+      confirmationCount: confirmationCount,
+      requiredConfirmationCount: arguments.requiredConfirmationCount,
+      isPending: arguments.isPending,
+      isConfidential: isConfidential,
+      deliverAmount: deliveredAmount,
+      deliverAssetTicker: deliveredAssetTicker,
+      feeAmount: feeAmount,
+      feeAssetTicker: feeAssetTicker,
+      notes: transaction.memo,
+      dbTransaction: arguments.dbTransaction,
+    );
   }
 
-  Future<List<AssetTransactionDetailsItemUiModel>> _outgoingItems(
+  AssetTransactionDetailsUiModel _outgoingItems(
     BuildContext context,
     TransactionDataArgument arguments,
-  ) async {
+  ) {
+    final asset = arguments.transactionAsset;
+    final transaction = arguments.transaction;
+    final feeAsset = arguments.feeAsset;
+
+    final date = formattedDate(context, transaction.createdAtTs);
+    final confirmationCount = arguments.confirmationCount;
+
+    final deliveredAmount = ref.read(formatterProvider).formatAssetAmountDirect(
+          amount: -(transaction.satoshi?[asset.id] as int),
+          precision: asset.precision,
+        );
+
+    final feeAmount = ref.read(formatterProvider).formatAssetAmountDirect(
+          amount: transaction.fee ?? 0,
+          precision: feeAsset.precision,
+        );
+
+    return AssetTransactionDetailsUiModel.send(
+      transactionId: transaction.txhash ?? '',
+      date: date,
+      confirmationCount: confirmationCount,
+      requiredConfirmationCount: arguments.requiredConfirmationCount,
+      isPending: arguments.isPending,
+      deliverAmount: deliveredAmount,
+      deliverAssetTicker: asset.ticker,
+      feeAmount: feeAmount,
+      feeAssetTicker: feeAsset.ticker,
+      notes: arguments.memo,
+      dbTransaction: arguments.dbTransaction,
+    );
+  }
+
+  AssetTransactionDetailsUiModel _incomingItems(
+    BuildContext context,
+    TransactionDataArgument arguments,
+  ) {
     final asset = arguments.transactionAsset;
     final transaction = arguments.transaction;
 
-    final items = <AssetTransactionDetailsItemUiModel>[];
-
-    // Sent/Pending/Sep 23, 2021 at 14:31
-    final type = AppLocalizations.of(context)!.assetTransactionsTypeSent;
-    final showPendingIndicator = asset.isBTC
-        ? arguments.confirmationCount < onchainConfirmationBlockCount
-        : arguments.confirmationCount < liquidConfirmationBlockCount;
-    final date = await formattedDate(context, transaction.createdAtTs);
-    items.add(AssetTransactionDetailsHeaderItemUiModel(
-      type: type,
-      showPendingIndicator: showPendingIndicator,
-      date: date,
-    ));
-
-    final amount = transaction.satoshi?[asset.id] as int;
-    final formattedAmount = ref.read(formatterProvider).signedFormatAssetAmount(
-          amount: amount,
+    final receivedAmount = ref.read(formatterProvider).formatAssetAmountDirect(
+          amount: transaction.satoshi?[asset.id] as int,
           precision: asset.precision,
         );
-    final cryptoAmount = '$formattedAmount ${asset.ticker}';
-    items.add(AssetTransactionDetailsDataItemUiModel(
-      title: AppLocalizations.of(context)!.amount,
-      value: cryptoAmount,
-    ));
 
-    // My Notes
-    final notes = arguments.memo;
-    items.add(AssetTransactionDetailsNotesItemUiModel(
-      notes: notes,
-      onTap: () {},
-    ));
-
-    // -----------
-    items.add(const AssetTransactionDetailsDividerItemUiModel());
-
-    // Transaction Id
-    final transactionId = transaction.txhash;
-    if (transactionId != null) {
-      items.add(
-        AssetTransactionDetailsCopyableItemUiModel(
-          title: AppLocalizations.of(context)!
-              .assetTransactionDetailsTransactionId,
-          value: transactionId,
-        ),
-      );
-    }
-    return items;
+    return AssetTransactionDetailsUiModel.receive(
+      transactionId: transaction.txhash ?? '',
+      date: formattedDate(context, transaction.createdAtTs),
+      confirmationCount: arguments.confirmationCount,
+      requiredConfirmationCount: arguments.requiredConfirmationCount,
+      isPending: arguments.isPending,
+      receivedAmount: receivedAmount,
+      receivedAssetTicker: asset.ticker,
+      notes: arguments.memo,
+      dbTransaction: arguments.dbTransaction,
+    );
   }
 
-  Future<List<AssetTransactionDetailsItemUiModel>> _incomingItems(
-    BuildContext context,
-    TransactionDataArgument arguments,
-  ) async {
-    final asset = arguments.transactionAsset;
-    final transaction = arguments.transaction;
-
-    final items = <AssetTransactionDetailsItemUiModel>[];
-
-    // Received/Pending/Sep 23, 2021 at 14:31
-    final type = AppLocalizations.of(context)!.assetTransactionsTypeReceived;
-    final showPendingIndicator = asset.isBTC
-        ? arguments.confirmationCount < onchainConfirmationBlockCount
-        : arguments.confirmationCount < liquidConfirmationBlockCount;
-    final date = await formattedDate(context, transaction.createdAtTs);
-    items.add(AssetTransactionDetailsHeaderItemUiModel(
-      type: type,
-      showPendingIndicator: showPendingIndicator,
-      date: date,
-    ));
-
-    final amount = transaction.satoshi?[asset.id] as int;
-    final formattedAmount = ref.read(formatterProvider).formatAssetAmount(
-          amount: amount,
-          precision: asset.precision,
-        );
-    final cryptoAmount = '$formattedAmount ${asset.ticker}';
-    items.add(AssetTransactionDetailsDataItemUiModel(
-      title: AppLocalizations.of(context)!.amount,
-      value: cryptoAmount,
-    ));
-
-    // My Notes
-    final notes = arguments.memo;
-    items.add(AssetTransactionDetailsNotesItemUiModel(
-      notes: notes,
-      onTap: () {},
-    ));
-
-    // -----------
-    items.add(const AssetTransactionDetailsDividerItemUiModel());
-
-    // Transaction Id
-    final transactionId = transaction.txhash;
-    if (transactionId != null) {
-      items.add(
-        AssetTransactionDetailsCopyableItemUiModel(
-          title: AppLocalizations.of(context)!
-              .assetTransactionDetailsTransactionId,
-          value: transactionId,
-        ),
-      );
-    }
-
-    return items;
-  }
-
-  Future<String> formattedDate(BuildContext context, int? timestamp) async {
+  String formattedDate(BuildContext context, int? timestamp) {
     return timestamp != null
         ? DateFormat(
-                'MMM d, yyyy \'${AppLocalizations.of(context)!.assetTransactionDetailsTimeAt}\' HH:mm')
+                'MMM d, yyyy \'${context.loc.assetTransactionDetailsTimeAt}\' HH:mm')
             .format(DateTime.fromMicrosecondsSinceEpoch(timestamp))
         : '';
   }

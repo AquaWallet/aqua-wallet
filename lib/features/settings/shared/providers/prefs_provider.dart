@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -46,10 +48,52 @@ class UserPreferencesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  //ANCHOR - Biometric Auth
+
+  bool get isBiometricEnabled => _prefs.getBool(PrefKeys.biometric) ?? false;
+
+  Future<void> switchBiometricAuth() async {
+    _prefs.setBool(PrefKeys.biometric, !isBiometricEnabled);
+    notifyListeners();
+  }
+
   //ANCHOR - Language
 
-  String get languageCode =>
-      _prefs.getString(PrefKeys.languageCode) ?? LanguageCodes.english;
+  String get languageCode {
+    final configuredLanguage = _prefs.getString(PrefKeys.languageCode);
+
+    if (configuredLanguage != null) {
+      // user has already configured language in app settings
+      return configuredLanguage;
+    }
+
+    /**
+     * per localeName docs:
+     * 
+     * localeName returns a language (e.g., "en")
+     * a language and country code (e.g. "en_US", "de_AT"), or
+     * a language, country code and character set (e.g. "en_US.UTF-8")
+     * 
+     * we only need the language value
+     */
+    final platformLocale = Platform.localeName.substring(0, 2);
+
+    final isDeviceLocaleSupported = SupportedLanguageCodes.values
+        .where((lc) => lc.value == platformLocale)
+        .isNotEmpty;
+
+    if (isDeviceLocaleSupported) {
+      /**
+       *  user has not yet configured language
+       *  fallback to device locale if supported
+       **/
+
+      return platformLocale;
+    }
+
+    // default to English
+    return SupportedLanguageCodes.english.value;
+  }
 
   Future<void> setLanguageCode(String languageCode) async {
     _prefs.setString(PrefKeys.languageCode, languageCode);

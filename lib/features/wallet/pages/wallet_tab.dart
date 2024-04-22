@@ -3,7 +3,6 @@ import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
 
 class WalletTab extends ConsumerWidget {
   const WalletTab({Key? key}) : super(key: key);
@@ -25,42 +24,13 @@ class WalletTab extends ConsumerWidget {
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        double screenWidth = constraints.maxWidth;
-        DeviceCategory deviceCategory =
-            ResponsiveBreakpoints.getDeviceCategory(screenWidth);
-
-        return deviceCategory == DeviceCategory.tabletPortrait
-            ? const _TabletLayout()
-            : const _MobileLayout();
+        return const Stack(
+          children: [
+            CategorizedAssetList(),
+            WalletTabHeader(),
+          ],
+        );
       },
-    );
-  }
-}
-
-class _MobileLayout extends ConsumerWidget {
-  const _MobileLayout();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return const Stack(
-      children: [
-        CategorizedAssetList(),
-        WalletTabHeader(),
-      ],
-    );
-  }
-}
-
-class _TabletLayout extends ConsumerWidget {
-  const _TabletLayout();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return const Stack(
-      children: [
-        CategorizedAssetListTablet(),
-        WalletTabHeaderTablet(),
-      ],
     );
   }
 }

@@ -55,12 +55,10 @@ class SideshiftOrderDetailScreen extends HookConsumerWidget {
 
                       // ANCHOR - Deposit & settle amount
                       _ShiftOrderAmountDetailWidget(
-                          title: AppLocalizations.of(context)!
-                              .sideshiftOrderDepositAmount,
+                          title: context.loc.sideshiftOrderDepositAmount,
                           amount: order.depositAmount),
                       _ShiftOrderAmountDetailWidget(
-                          title: AppLocalizations.of(context)!
-                              .sideshiftOrderSettleAmount,
+                          title: context.loc.sideshiftOrderSettleAmount,
                           amount: order.settleAmount),
 
                       SizedBox(height: 12.h),
@@ -73,45 +71,41 @@ class SideshiftOrderDetailScreen extends HookConsumerWidget {
 
                       // ANCHOR - Copyable shift id
                       _SideshiftOrderDetailCopyableItemWidget(
-                        title: AppLocalizations.of(context)!
-                            .receiveAssetScreenShiftId,
+                        title: context.loc.receiveAssetScreenShiftId,
                         text: order.id.toString(),
                         onPressed: () {
                           Clipboard.setData(
                               ClipboardData(text: order.id.toString()));
                           Future.microtask(() => context.showAquaSnackbar(
-                              AppLocalizations.of(context)!
-                                  .sideshiftOrderIdCopiedSnackbar));
+                              context.loc.sideshiftOrderIdCopiedSnackbar));
                         },
                       ),
                       SizedBox(height: 24.h),
 
                       // ANCHOR - Copyable deposit address
                       _SideshiftOrderDetailCopyableItemWidget(
-                        title: AppLocalizations.of(context)!
-                            .sideshiftDepositAddress,
+                        title: context.loc.sideshiftDepositAddress,
                         text: order.depositAddress ?? '-',
                         onPressed: () {
                           Clipboard.setData(
                               ClipboardData(text: order.depositAddress ?? ''));
                           Future.microtask(() => context.showAquaSnackbar(
-                              AppLocalizations.of(context)!
-                                  .sideshiftDepositAddressCopiedSnackbar));
+                              context
+                                  .loc.sideshiftDepositAddressCopiedSnackbar));
                         },
                       ),
                       SizedBox(height: 24.h),
 
                       // ANCHOR - Copyable settle address
                       _SideshiftOrderDetailCopyableItemWidget(
-                        title: AppLocalizations.of(context)!
-                            .sideshiftSettleAddress,
+                        title: context.loc.sideshiftSettleAddress,
                         text: order.settleAddress ?? '-',
                         onPressed: () {
                           Clipboard.setData(
                               ClipboardData(text: order.settleAddress ?? ''));
                           Future.microtask(() => context.showAquaSnackbar(
-                              AppLocalizations.of(context)!
-                                  .sideshiftSettleAddressCopiedSnackbar));
+                              context
+                                  .loc.sideshiftSettleAddressCopiedSnackbar));
                         },
                       ),
                       SizedBox(height: 48.h),
@@ -125,8 +119,7 @@ class SideshiftOrderDetailScreen extends HookConsumerWidget {
                           ),
                           onPressed: () => ref.read(urlLauncherProvider).open(
                               'https://sideshift.ai/orders/${order.id.toString()}?openSupport=true'),
-                          child: Text(AppLocalizations.of(context)!
-                              .sideshiftCustomerService),
+                          child: Text(context.loc.sideshiftCustomerService),
                         ),
                       )
                     ],
@@ -162,8 +155,7 @@ class _SideshiftOrderDetailHeaderWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ANCHOR - Shift status
-          Text(
-              "${AppLocalizations.of(context)!.sideshiftOrderStatus}: $orderStatusStr",
+          Text("${context.loc.status}: $orderStatusStr",
               style: Theme.of(context).textTheme.headlineMedium),
         ],
       ),
@@ -183,13 +175,13 @@ class _SideshiftOrderDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final createAtStr = order.createdAt != null
         ? DateFormat(
-                'MMM d, yyyy \'${AppLocalizations.of(context)!.assetTransactionDetailsTimeAt}\' HH:mm')
+                'MMM d, yyyy \'${context.loc.assetTransactionDetailsTimeAt}\' HH:mm')
             .format(DateTime.fromMicrosecondsSinceEpoch(
                 order.createdAt!.microsecondsSinceEpoch))
         : '-';
     final expiresAtStr = order.expiresAt != null
         ? DateFormat(
-                'MMM d, yyyy \'${AppLocalizations.of(context)!.assetTransactionDetailsTimeAt}\' HH:mm')
+                'MMM d, yyyy \'${context.loc.assetTransactionDetailsTimeAt}\' HH:mm')
             .format(DateTime.fromMicrosecondsSinceEpoch(
                 order.expiresAt!.microsecondsSinceEpoch))
         : '-';
@@ -199,19 +191,16 @@ class _SideshiftOrderDetailsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //HERE: TODO: Data  - Add time
           // ANCHOR - Created row
           Row(children: [
-            Text(
-                "${AppLocalizations.of(context)!.sideshiftOrderCreatedAt} $createAtStr",
+            Text("${context.loc.sideshiftOrderCreatedAt} $createAtStr",
                 style: Theme.of(context).textTheme.bodyMedium),
           ]),
           SizedBox(height: 10.h),
 
           // ANCHOR - Expiry row
           Row(children: [
-            Text(
-                "${AppLocalizations.of(context)!.sideshiftOrderExpiresAt} $expiresAtStr",
+            Text("${context.loc.sideshiftOrderExpiresAt} $expiresAtStr",
                 style: Theme.of(context).textTheme.bodyMedium),
           ]),
         ],

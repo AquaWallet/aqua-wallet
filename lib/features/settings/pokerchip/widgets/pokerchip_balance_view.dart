@@ -1,5 +1,6 @@
 import 'package:aqua/features/settings/pokerchip/pokerchip.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class PokerchipBalanceCard extends HookConsumerWidget {
   const PokerchipBalanceCard({
@@ -19,7 +20,7 @@ class PokerchipBalanceCard extends HookConsumerWidget {
           //ANCHOR: Balance Title
           SizedBox(height: 31.h),
           Text(
-            AppLocalizations.of(context)!.pokerChipBalanceLabel,
+            context.loc.pokerChipBalanceLabel,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontSize: 26.sp,
                   fontWeight: FontWeight.w400,
@@ -35,6 +36,7 @@ class PokerchipBalanceCard extends HookConsumerWidget {
             iconSize: 14.r,
             textAlign: TextAlign.center,
             textStyle: Theme.of(context).textTheme.titleLarge,
+            margin: EdgeInsets.symmetric(horizontal: 40.w),
           ),
           SizedBox(height: 24.h),
           //ANCHOR - Address

@@ -1,8 +1,8 @@
 import 'package:aqua/features/settings/region/region.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:test/test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:test/test.dart';
 
 import 'helpers.dart';
 
@@ -84,7 +84,7 @@ void main() {
           Region(name: 'Afghanistan', iso: 'AF'));
       expect(container.read(availableRegionsProvider).value?.last,
           Region(name: 'Zimbabwe', iso: 'ZW'));
-      expect(container.read(availableRegionsProvider).value?.length, 228);
+      expect(container.read(availableRegionsProvider).value?.length, 226);
 
       // Verify the GET request was made to the correct URL.
       verify(

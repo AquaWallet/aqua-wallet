@@ -4,11 +4,6 @@ import 'models.dart';
 
 /// Asset extensions for send flow
 extension SendAssetExtensions on Asset {
-  // should disable editing amount
-  bool get shouldDisableEditAmountOnSend {
-    return isLightning;
-  }
-
   // should show conversion
   bool get shouldShowConversionOnSend {
     return isBTC || isLBTC || isLightning;
@@ -29,12 +24,35 @@ extension SendAssetExtensions on Asset {
     return !isLightning;
   }
 
+  // display symbol
+  String get symbol {
+    if (isBTC) {
+      return 'BTC';
+    } else if (isLBTC) {
+      return 'L-BTC';
+    } else if (isLightning) {
+      return 'Sats';
+    } else if (isUSDt) {
+      return 'USDt';
+    }
+    return '';
+  }
+
   // fee currency symbol
   String get feeCurrencySymbol {
     if (isUSDt) {
       return 'USDt';
     }
     return 'USD';
+  }
+
+  // network
+  String get network {
+    if (isBTC) {
+      return 'Bitcoin';
+    } else {
+      return 'Liquid';
+    }
   }
 
   // provider name

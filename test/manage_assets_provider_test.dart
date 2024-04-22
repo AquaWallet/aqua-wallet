@@ -213,6 +213,7 @@ void main() {
               logoUrl:
                   'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/L-BTC.svg',
               isDefaultAsset: true,
+              isRemovable: false,
               domain: null,
               amount: 0,
               precision: 8,

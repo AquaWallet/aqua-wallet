@@ -5,6 +5,7 @@ import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:lottie/lottie.dart';
 
 class SwapAssetCompleteScreen extends HookConsumerWidget {
@@ -23,7 +24,7 @@ class SwapAssetCompleteScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: false,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.swapScreenTitle,
+        title: context.loc.swapScreenTitle,
       ),
       body: model.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -58,7 +59,7 @@ class _SuccessUi extends StatelessWidget {
           SizedBox(height: 7.h),
           //ANCHOR - Amount Title
           Text(
-            AppLocalizations.of(context)!.swapScreenSuccessAmountTitle,
+            context.loc.swapScreenSuccessAmountTitle,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
@@ -86,10 +87,90 @@ class _SuccessUi extends StatelessWidget {
           ),
           SizedBox(height: 32.h),
           //ANCHOR - Transaction Info
-          SwapInfoCard(uiModel: uiModel),
+          BoxShadowCard(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12.r),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 22.h),
+                //ANCHOR - Amount
+                TransactionInfoItem(
+                  label: context.loc.swapScreenSuccessSentAmountLabel,
+                  value: uiModel.deliverAmount,
+                  padding: EdgeInsets.symmetric(horizontal: 26.w),
+                ),
+                const SizedBox(height: 18),
+                //ANCHOR - Network Fee
+                TransactionInfoItem(
+                  label: context.loc.sendAssetCompleteScreenFeeLabel,
+                  value: uiModel.networkFee,
+                  padding: EdgeInsets.symmetric(horizontal: 26.w),
+                ),
+                SizedBox(height: 18.h),
+                //ANCHOR - Notes
+                // ExpandableContainer(
+                //   padding: EdgeInsets.only(left: 26.w, right: 6.w),
+                //   title: Text(
+                //     context.loc.sendAssetCompleteScreenNoteLabel,
+                //     style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                //           color: Theme.of(context).colorScheme.onSurface,
+                //           fontWeight: FontWeight.w400,
+                //         ),
+                //   ),
+                //   child: Container(
+                //     padding: EdgeInsets.only(bottom: 18.h),
+                //     child: Text(
+                //       uiModel.note ?? '',
+                //       textAlign: TextAlign.start,
+                //       style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                //             color: Theme.of(context).colorScheme.onBackground,
+                //             fontWeight: FontWeight.w400,
+                //           ),
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
+          ),
           SizedBox(height: 20.h),
           //ANCHOR - Transaction ID
-          SwapIdCard(uiModel: uiModel),
+          BoxShadowCard(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12.r),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 9.h),
+                //ANCHOR - Transaction ID
+                ExpandableContainer(
+                  padding: EdgeInsets.only(left: 26.w, right: 6.w),
+                  title: Text(
+                    context.loc.swapScreenSuccessTransactionIdLabel,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w400,
+                        ),
+                  ),
+                  child: CopyableTextView(text: uiModel.transactionId),
+                ),
+                //ANCHOR - Time
+                TransactionInfoItem(
+                  label: context.loc.swapScreenSuccessTimeLabel,
+                  value: uiModel.time,
+                  padding: EdgeInsets.symmetric(horizontal: 26.w),
+                ),
+                SizedBox(height: 18.h),
+                //ANCHOR - Date
+                TransactionInfoItem(
+                  label: context.loc.swapScreenSuccessDateLabel,
+                  value: uiModel.date,
+                  padding: EdgeInsets.symmetric(horizontal: 26.w),
+                ),
+                SizedBox(height: 26.h),
+              ],
+            ),
+          ),
           const Spacer(),
           //ANCHOR - Button
           SizedBox(
@@ -98,7 +179,7 @@ class _SuccessUi extends StatelessWidget {
               onPressed: () =>
                   Navigator.of(context).popUntil((route) => route.isFirst),
               child: Text(
-                AppLocalizations.of(context)!.sendAssetCompleteScreenDoneButton,
+                context.loc.sendAssetCompleteScreenDoneButton,
               ),
             ),
           ),

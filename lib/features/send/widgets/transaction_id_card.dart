@@ -10,11 +10,12 @@ class TransactionIdCard extends HookConsumerWidget {
     required this.arguments,
   });
 
-  final SendAssetArguments arguments;
+  final SendAssetCompletionArguments arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     logger.d('arguments: $arguments');
+    final asset = ref.read(sendAssetProvider);
     final timestamp = arguments.timestamp;
     final formattedTime = timestamp != null
         ? DateTime.fromMicrosecondsSinceEpoch(timestamp).HHmmaUTC()
@@ -33,30 +34,28 @@ class TransactionIdCard extends HookConsumerWidget {
           ExpandableContainer(
             padding: EdgeInsets.only(left: 26.w, right: 6.w),
             title: Text(
-              AppLocalizations.of(context)!.sendAssetCompleteScreenIdLabel,
+              context.loc.sendAssetCompleteScreenIdLabel,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w400,
                   ),
             ),
-            child: CopyableTextView(text: arguments.transactionId ?? ''),
+            child: CopyableTextView(text: arguments.txId ?? ''),
           ),
           //ANCHOR - Shift ID
-          if (arguments.asset.isSideshift || arguments.asset.isLightning) ...{
-            ExternalServiceIdView(arguments: arguments),
+          if (asset.isSideshift || asset.isLightning) ...{
+            const ExternalServiceIdView(),
           },
           //ANCHOR - Time
           TransactionInfoItem(
-            label:
-                AppLocalizations.of(context)!.sendAssetCompleteScreenTimeLabel,
+            label: context.loc.sendAssetCompleteScreenTimeLabel,
             value: formattedTime,
             padding: EdgeInsets.symmetric(horizontal: 26.w),
           ),
           SizedBox(height: 18.h),
           //ANCHOR - Date
           TransactionInfoItem(
-            label:
-                AppLocalizations.of(context)!.sendAssetCompleteScreenDateLabel,
+            label: context.loc.sendAssetCompleteScreenDateLabel,
             value: formattedDate,
             padding: EdgeInsets.symmetric(horizontal: 26.w),
           ),
@@ -70,31 +69,29 @@ class TransactionIdCard extends HookConsumerWidget {
 class ExternalServiceIdView extends HookConsumerWidget {
   const ExternalServiceIdView({
     super.key,
-    required this.arguments,
   });
-
-  final SendAssetArguments arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final asset = ref.read(sendAssetProvider);
+
     return Container(
       padding: EdgeInsets.only(left: 26.w, right: 6.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            arguments.asset.isSideshift
-                ? AppLocalizations.of(context)!
-                    .sendAssetCompleteScreenShiftIdLabel
-                : AppLocalizations.of(context)!
-                    .sendAssetCompleteScreenBoltzIdLabel,
+            asset.isSideshift
+                ? context.loc.sendAssetCompleteScreenShiftIdLabel
+                : context.loc.sendAssetCompleteScreenBoltzIdLabel,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w400,
                 ),
           ),
           SizedBox(height: 4.h),
-          CopyableTextView(text: arguments.externalServiceTxId ?? ''),
+          CopyableTextView(
+              text: ref.read(externalServiceTxIdProvider(asset)) ?? ''),
         ],
       ),
     );

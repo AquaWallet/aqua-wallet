@@ -6,18 +6,20 @@ class AquaElevatedButton extends StatelessWidget {
     Key? key,
     this.child,
     this.onPressed,
+    this.height,
     this.style,
   }) : super(key: key);
 
   final Widget? child;
   final VoidCallback? onPressed;
   final ButtonStyle? style;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.maxFinite,
-      height: 48.h,
+      height: height ?? 48.h,
       child: ElevatedButton(
         onPressed: onPressed,
         style: style ??

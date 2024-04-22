@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 28.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<g>
+	<defs>
+		<path id="SVGID_1_" d="M512,400V112C512,50.1,461.9,0,400,0H112C50.2,0,0,50.1,0,112v288c0,61.8,50.2,112,112,112h288
+			C461.9,512,512,461.9,512,400z"/>
+	</defs>
+	<clipPath id="SVGID_00000163783250753942680030000001362886394917151109_">
+		<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+	</clipPath>
+	<g style="clip-path:url(#SVGID_00000163783250753942680030000001362886394917151109_);">
+		<polygon fill="#078930" points="-139.9,-7.9 651.9,-7.9 651.9,519.9 		"/>
+		<polygon fill="#FCDD09" points="-139.9,-7.9 651.9,519.9 -139.9,519.9 		"/>
+		<polygon id="pentagram" fill="#DA121A" points="256,168 307.7,327.2 172.3,228.8 339.7,228.8 204.3,327.2 		"/>
+	</g>
+</g>
+</svg>

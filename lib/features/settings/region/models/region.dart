@@ -32,3 +32,20 @@ class Region with _$Region {
 
   factory Region.fromJson(Map<String, dynamic> json) => _$RegionFromJson(json);
 }
+
+extension RegionExt on Region {
+  String get flagSvg {
+    const ext = '.svg';
+    final filename = name
+        // Remove text in parentheses AND any commas, periods, or apostrophes
+        .replaceAll(RegExp(r"\(([^)]+)\)|[,.']"), '')
+        // Replace spaces with hyphens and remove any double hyphens
+        .replaceAll(' ', '-')
+        // Remove any double hyphens
+        .replaceAll('--', '-')
+        .toLowerCase();
+    // If the filename ends with a hyphen, remove it
+    final filenameWithExt = '$filename$ext'.replaceAll('-$ext', ext);
+    return 'assets/flags/$filenameWithExt';
+  }
+}

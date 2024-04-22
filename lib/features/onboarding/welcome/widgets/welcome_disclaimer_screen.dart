@@ -1,5 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class WelcomeDisclaimerScreen extends HookConsumerWidget {
   const WelcomeDisclaimerScreen({Key? key}) : super(key: key);
@@ -28,7 +29,7 @@ class WelcomeDisclaimerScreen extends HookConsumerWidget {
                 height: 50.h,
               ),
               Text(
-                AppLocalizations.of(context)!.welcomeScreenBetaDisclaimer,
+                context.loc.welcomeScreenBetaDisclaimer,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],

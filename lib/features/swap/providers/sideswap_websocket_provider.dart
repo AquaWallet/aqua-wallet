@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:aqua/logger.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/logger.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -112,6 +113,9 @@ class SideswapWebsocketProvider {
       );
 
       await _sendRequest(_channel, 1, startPeg, request.toJson());
+      ref
+          .read(transactionStorageProvider.notifier)
+          .cacheSideswapReceiveAddress(request.receiveAddress);
     } else {
       throw Exception('Invalid receive address');
     }

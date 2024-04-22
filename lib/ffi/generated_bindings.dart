@@ -1929,25 +1929,31 @@ class NativeLibrary {
   late final _GA_get_uniform_uint32_t =
       _GA_get_uniform_uint32_tPtr.asFunction<DartGA_get_uniform_uint32_t>();
 
-  ffi.Pointer<ffi.Char> reconstruct_swap_script(
+  int validate_submarine(
     ffi.Pointer<ffi.Char> preimage_hash,
     ffi.Pointer<ffi.Char> claim_public_key,
     ffi.Pointer<ffi.Char> refund_public_key,
     int timeout_block_height,
+    ffi.Pointer<ffi.Char> lockup_address,
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
   ) {
-    return _reconstruct_swap_script(
+    return _validate_submarine(
       preimage_hash,
       claim_public_key,
       refund_public_key,
       timeout_block_height,
+      lockup_address,
+      redeem_script,
+      blinding_key,
     );
   }
 
-  late final _reconstruct_swap_scriptPtr =
-      _lookup<ffi.NativeFunction<NativeReconstruct_swap_script>>(
-          'reconstruct_swap_script');
-  late final _reconstruct_swap_script =
-      _reconstruct_swap_scriptPtr.asFunction<DartReconstruct_swap_script>();
+  late final _validate_submarinePtr =
+      _lookup<ffi.NativeFunction<NativeValidate_submarine>>(
+          'validate_submarine');
+  late final _validate_submarine =
+      _validate_submarinePtr.asFunction<DartValidate_submarine>();
 
   ffi.Pointer<ffi.Char> extract_claim_public_key(
     ffi.Pointer<ffi.Char> comparison_script,
@@ -1963,6 +1969,100 @@ class NativeLibrary {
   late final _extract_claim_public_key =
       _extract_claim_public_keyPtr.asFunction<DartExtract_claim_public_key>();
 
+  ffi.Pointer<ffi.Char> create_and_sign_claim_transaction(
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+    ffi.Pointer<ffi.Char> onchain_address,
+    ffi.Pointer<ffi.Char> private_key,
+    ffi.Pointer<ffi.Char> preimage,
+    ffi.Pointer<ffi.Char> tx,
+    int fees,
+  ) {
+    return _create_and_sign_claim_transaction(
+      redeem_script,
+      blinding_key,
+      onchain_address,
+      private_key,
+      preimage,
+      tx,
+      fees,
+    );
+  }
+
+  late final _create_and_sign_claim_transactionPtr =
+      _lookup<ffi.NativeFunction<NativeCreate_and_sign_claim_transaction>>(
+          'create_and_sign_claim_transaction');
+  late final _create_and_sign_claim_transaction =
+      _create_and_sign_claim_transactionPtr
+          .asFunction<DartCreate_and_sign_claim_transaction>();
+
+  ffi.Pointer<ffi.Char> create_and_sign_refund_transaction(
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+    ffi.Pointer<ffi.Char> onchain_address,
+    ffi.Pointer<ffi.Char> private_key,
+    ffi.Pointer<ffi.Char> tx,
+    int fees,
+  ) {
+    return _create_and_sign_refund_transaction(
+      redeem_script,
+      blinding_key,
+      onchain_address,
+      private_key,
+      tx,
+      fees,
+    );
+  }
+
+  late final _create_and_sign_refund_transactionPtr =
+      _lookup<ffi.NativeFunction<NativeCreate_and_sign_refund_transaction>>(
+          'create_and_sign_refund_transaction');
+  late final _create_and_sign_refund_transaction =
+      _create_and_sign_refund_transactionPtr
+          .asFunction<DartCreate_and_sign_refund_transaction>();
+
+  ffi.Pointer<ffi.Char> get_key_pair() {
+    return _get_key_pair();
+  }
+
+  late final _get_key_pairPtr =
+      _lookup<ffi.NativeFunction<NativeGet_key_pair>>('get_key_pair');
+  late final _get_key_pair = _get_key_pairPtr.asFunction<DartGet_key_pair>();
+
+  ffi.Pointer<ffi.Char> sign_message_schnorr(
+    ffi.Pointer<ffi.Char> message,
+    ffi.Pointer<ffi.Char> private_key,
+  ) {
+    return _sign_message_schnorr(
+      message,
+      private_key,
+    );
+  }
+
+  late final _sign_message_schnorrPtr =
+      _lookup<ffi.NativeFunction<NativeSign_message_schnorr>>(
+          'sign_message_schnorr');
+  late final _sign_message_schnorr =
+      _sign_message_schnorrPtr.asFunction<DartSign_message_schnorr>();
+
+  int verify_signature_schnorr(
+    ffi.Pointer<ffi.Char> signature,
+    ffi.Pointer<ffi.Char> message,
+    ffi.Pointer<ffi.Char> public_key,
+  ) {
+    return _verify_signature_schnorr(
+      signature,
+      message,
+      public_key,
+    );
+  }
+
+  late final _verify_signature_schnorrPtr =
+      _lookup<ffi.NativeFunction<NativeVerify_signature_schnorr>>(
+          'verify_signature_schnorr');
+  late final _verify_signature_schnorr =
+      _verify_signature_schnorrPtr.asFunction<DartVerify_signature_schnorr>();
+
   void rust_cstr_free(
     ffi.Pointer<ffi.Char> s,
   ) {
@@ -1975,6 +2075,30 @@ class NativeLibrary {
       _lookup<ffi.NativeFunction<NativeRust_cstr_free>>('rust_cstr_free');
   late final _rust_cstr_free =
       _rust_cstr_freePtr.asFunction<DartRust_cstr_free>();
+
+  void register_log_callback(
+    LogCallback callback,
+  ) {
+    return _register_log_callback(
+      callback,
+    );
+  }
+
+  late final _register_log_callbackPtr =
+      _lookup<ffi.NativeFunction<NativeRegister_log_callback>>(
+          'register_log_callback');
+  late final _register_log_callback =
+      _register_log_callbackPtr.asFunction<DartRegister_log_callback>();
+
+  /// Retrieves the last error message, if any.
+  ffi.Pointer<ffi.Char> get_last_error() {
+    return _get_last_error();
+  }
+
+  late final _get_last_errorPtr =
+      _lookup<ffi.NativeFunction<NativeGet_last_error>>('get_last_error');
+  late final _get_last_error =
+      _get_last_errorPtr.asFunction<DartGet_last_error>();
 }
 
 final class __mbstate_t extends ffi.Union {
@@ -2625,22 +2749,85 @@ typedef NativeGA_get_uniform_uint32_t = ffi.Int Function(
     ffi.Uint32 upper_bound, ffi.Pointer<ffi.Uint32> output);
 typedef DartGA_get_uniform_uint32_t = int Function(
     int upper_bound, ffi.Pointer<ffi.Uint32> output);
-typedef NativeReconstruct_swap_script = ffi.Pointer<ffi.Char> Function(
+
+final class Option______c_char extends ffi.Opaque {}
+
+final class TransactionType extends ffi.Opaque {}
+
+typedef NativeValidate_submarine = ffi.Int Function(
     ffi.Pointer<ffi.Char> preimage_hash,
     ffi.Pointer<ffi.Char> claim_public_key,
     ffi.Pointer<ffi.Char> refund_public_key,
-    ffi.Int timeout_block_height);
-typedef DartReconstruct_swap_script = ffi.Pointer<ffi.Char> Function(
+    ffi.Int timeout_block_height,
+    ffi.Pointer<ffi.Char> lockup_address,
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key);
+typedef DartValidate_submarine = int Function(
     ffi.Pointer<ffi.Char> preimage_hash,
     ffi.Pointer<ffi.Char> claim_public_key,
     ffi.Pointer<ffi.Char> refund_public_key,
-    int timeout_block_height);
+    int timeout_block_height,
+    ffi.Pointer<ffi.Char> lockup_address,
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key);
 typedef NativeExtract_claim_public_key = ffi.Pointer<ffi.Char> Function(
     ffi.Pointer<ffi.Char> comparison_script);
 typedef DartExtract_claim_public_key = ffi.Pointer<ffi.Char> Function(
     ffi.Pointer<ffi.Char> comparison_script);
+typedef NativeCreate_and_sign_claim_transaction
+    = ffi.Pointer<ffi.Char> Function(
+        ffi.Pointer<ffi.Char> redeem_script,
+        ffi.Pointer<ffi.Char> blinding_key,
+        ffi.Pointer<ffi.Char> onchain_address,
+        ffi.Pointer<ffi.Char> private_key,
+        ffi.Pointer<ffi.Char> preimage,
+        ffi.Pointer<ffi.Char> tx,
+        ffi.Int fees);
+typedef DartCreate_and_sign_claim_transaction = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+    ffi.Pointer<ffi.Char> onchain_address,
+    ffi.Pointer<ffi.Char> private_key,
+    ffi.Pointer<ffi.Char> preimage,
+    ffi.Pointer<ffi.Char> tx,
+    int fees);
+typedef NativeCreate_and_sign_refund_transaction
+    = ffi.Pointer<ffi.Char> Function(
+        ffi.Pointer<ffi.Char> redeem_script,
+        ffi.Pointer<ffi.Char> blinding_key,
+        ffi.Pointer<ffi.Char> onchain_address,
+        ffi.Pointer<ffi.Char> private_key,
+        ffi.Pointer<ffi.Char> tx,
+        ffi.Int fees);
+typedef DartCreate_and_sign_refund_transaction = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+    ffi.Pointer<ffi.Char> onchain_address,
+    ffi.Pointer<ffi.Char> private_key,
+    ffi.Pointer<ffi.Char> tx,
+    int fees);
+typedef NativeGet_key_pair = ffi.Pointer<ffi.Char> Function();
+typedef DartGet_key_pair = ffi.Pointer<ffi.Char> Function();
+typedef NativeSign_message_schnorr = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> message, ffi.Pointer<ffi.Char> private_key);
+typedef DartSign_message_schnorr = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> message, ffi.Pointer<ffi.Char> private_key);
+typedef NativeVerify_signature_schnorr = ffi.Int Function(
+    ffi.Pointer<ffi.Char> signature,
+    ffi.Pointer<ffi.Char> message,
+    ffi.Pointer<ffi.Char> public_key);
+typedef DartVerify_signature_schnorr = int Function(
+    ffi.Pointer<ffi.Char> signature,
+    ffi.Pointer<ffi.Char> message,
+    ffi.Pointer<ffi.Char> public_key);
 typedef NativeRust_cstr_free = ffi.Void Function(ffi.Pointer<ffi.Char> s);
 typedef DartRust_cstr_free = void Function(ffi.Pointer<ffi.Char> s);
+typedef LogCallback
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>;
+typedef NativeRegister_log_callback = ffi.Void Function(LogCallback callback);
+typedef DartRegister_log_callback = void Function(LogCallback callback);
+typedef NativeGet_last_error = ffi.Pointer<ffi.Char> Function();
+typedef DartGet_last_error = ffi.Pointer<ffi.Char> Function();
 
 const int __DARWIN_ONLY_64_BIT_INO_T = 1;
 
@@ -3517,3 +3704,5 @@ const int GA_DEBUG = 2;
 const int GA_TRUE = 1;
 
 const int GA_FALSE = 0;
+
+const int DEFAULT_ELECTRUM_TIMEOUT = 10;

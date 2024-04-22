@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
+import 'package:decimal/decimal.dart';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 import 'package:aqua/config/constants/urls.dart';
@@ -16,22 +19,16 @@ const affiliateId = sideshiftAffiliateId;
 
 abstract class OrderError {}
 
-abstract class OrderErrorLocalized implements OrderError {
-  String toLocalizedString(BuildContext context);
-}
-
 class GdkTransactionException implements OrderError {
   GdkTransactionException(this.exception);
 
   final GdkNetworkException exception;
 }
 
-class InvalidGdkTransactionException implements OrderError {}
-
-class NoPermissionsException implements Exception, OrderErrorLocalized {
+class NoPermissionsException implements ExceptionLocalized, OrderError {
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.sideshiftNoPermissionsError;
+    return context.loc.sideshiftNoPermissionsError;
   }
 }
 
@@ -57,32 +54,11 @@ class LoadAssetsException implements Exception {}
 
 class LoadPairsException implements Exception {}
 
-String getSideshiftErrorMsg(OrderError error, BuildContext context) {
-  if (error is OrderException && error.message != null) {
-    return error.message!;
-  } else if (error is OrderQuoteException && error.message != null) {
-    return error.message!;
-  } else if (error is OrderErrorLocalized) {
-    return error.toLocalizedString(context);
-  } else {
-    return AppLocalizations.of(context)!.sideshiftGenericError;
-  }
-}
-
 // Providers //////////////////////////////////////////////////////////////////
 
 // Order Error
 
 final _orderErrorSubject = PublishSubject<OrderError?>();
-
-final _orderErrorStreamProvider =
-    StreamProvider.autoDispose<OrderError?>((ref) async* {
-  yield* _orderErrorSubject.stream;
-});
-
-final orderErrorProvider = Provider.autoDispose<OrderError?>((ref) {
-  return ref.watch(_orderErrorStreamProvider).asData?.value;
-});
 
 void setOrderError(OrderError? error) {
   _orderErrorSubject.add(error);
@@ -93,48 +69,10 @@ void setOrderError(OrderError? error) {
 
 final _assetListErrorSubject = PublishSubject<LoadAssetsException?>();
 
-final _assetListErrorStreamProvider =
-    StreamProvider.autoDispose<LoadAssetsException?>((ref) async* {
-  yield* _assetListErrorSubject.stream;
-});
-
-final assetListErrorProvider =
-    Provider.autoDispose<LoadAssetsException?>((ref) {
-  return ref.watch(_assetListErrorStreamProvider).asData?.value;
-});
-
 void setAssetListError(LoadAssetsException? error) {
   _assetListErrorSubject.add(error);
   logger.d('[SideShift] setAssetListError: $error');
 }
-
-// Asset Rate Info Error
-
-final _assetsRateInfoErrorStreamProvider =
-    StreamProvider.autoDispose<LoadPairsException?>((ref) async* {
-  yield* ref.read(sideshiftHttpProvider)._assetsRateInfoErrorSubject.stream;
-});
-
-final assetsRateInfoErrorProvider =
-    Provider.autoDispose<LoadPairsException?>((ref) {
-  return ref.watch(_assetsRateInfoErrorStreamProvider).asData?.value;
-});
-
-// Permissions
-
-final sideshiftPermissionsProvider =
-    FutureProvider.autoDispose<SideshiftPermissionsResponse>((ref) {
-  final sideshiftHttp = ref.read(sideshiftHttpProvider);
-  return sideshiftHttp.checkPermissions();
-});
-
-final sideshiftHasPermissionsProvider = Provider.autoDispose<bool?>((ref) {
-  final response = ref.watch(sideshiftPermissionsProvider);
-  return response.maybeWhen(
-    data: (data) => data.createShift,
-    orElse: () => null,
-  );
-});
 
 // Sideshift Http
 
@@ -186,8 +124,8 @@ class SideshiftHttpProvider {
   Future<SideshiftQuoteResponse> requestQuote({
     required SideshiftAsset fromAsset,
     required SideshiftAsset toAsset,
-    double? deliverAmount,
-    double? settleAmount,
+    Decimal? deliverAmount,
+    Decimal? settleAmount,
   }) async {
     const url = "$baseUrl/quotes";
     logger.d('[SideShift] Requesting order quote: $url');

@@ -1,8 +1,8 @@
 import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
 import 'package:aqua/common/widgets/custom_dialog.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CustomAlertDialog extends StatelessWidget {
   const CustomAlertDialog({
@@ -72,13 +72,13 @@ class CustomAlertDialog extends StatelessWidget {
     required BuildContext context,
   }) {
     return CustomAlertDialog(
-      title: AppLocalizations.of(context)!.linkErrorAlertTitle,
-      subtitle: AppLocalizations.of(context)!.linkErrorAlertSubtitle,
+      title: context.loc.linkErrorAlertTitle,
+      subtitle: context.loc.linkErrorAlertSubtitle,
       height: 240.h,
       controlWidgets: [
         Expanded(
           child: ElevatedButton(
-            child: Text(AppLocalizations.of(context)!.linkErrorAlertButton),
+            child: Text(context.loc.linkErrorAlertButton),
             onPressed: () async {
               Navigator.of(context).pop();
             },

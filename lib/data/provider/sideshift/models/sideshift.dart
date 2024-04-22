@@ -1,4 +1,5 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sideshift.freezed.dart';
@@ -38,27 +39,27 @@ extension OrderStatusExtension on OrderStatus {
   String localizedString(BuildContext context) {
     switch (this) {
       case OrderStatus.waiting:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusWaiting;
+        return context.loc.sideshiftOrderStatusWaiting;
       case OrderStatus.pending:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusPending;
+        return context.loc.sideshiftOrderStatusPending;
       case OrderStatus.processing:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusProcessing;
+        return context.loc.sideshiftOrderStatusProcessing;
       case OrderStatus.review:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusReview;
+        return context.loc.sideshiftOrderStatusReview;
       case OrderStatus.settling:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusSettling;
+        return context.loc.sideshiftOrderStatusSettling;
       case OrderStatus.settled:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusSettled;
+        return context.loc.sideshiftOrderStatusSettled;
       case OrderStatus.refund:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusRefund;
+        return context.loc.sideshiftOrderStatusRefund;
       case OrderStatus.refunding:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusRefunding;
+        return context.loc.sideshiftOrderStatusRefunding;
       case OrderStatus.refunded:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusRefunded;
+        return context.loc.sideshiftOrderStatusRefunded;
       case OrderStatus.expired:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusExpired;
+        return context.loc.sideshiftOrderStatusExpired;
       default:
-        return AppLocalizations.of(context)!.sideshiftOrderStatusUnknown;
+        return context.loc.sideshiftOrderStatusUnknown;
     }
   }
 

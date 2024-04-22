@@ -37,7 +37,7 @@ class ElectrsClient {
   }
 
   /// Returns transaction ID if broadcasted succesfully
-  Future<String?> broadcast(String rawTx, NetworkType network) async {
+  Future<String> broadcast(String rawTx, NetworkType network) async {
     final client = ref.read(dioProvider);
     final endpoint = '${getApiUrl(network)}/tx';
 
@@ -52,8 +52,48 @@ class ElectrsClient {
       rethrow;
     }
   }
+
+  /// Returns liquid transaction ids for an address
+  Future<List<String>?> fetchTransactions(
+      String address, NetworkType network) async {
+    final client = ref.read(dioProvider);
+    final endpoint = '${getApiUrl(network)}/address/$address/txs';
+
+    try {
+      final response = await client.get(endpoint);
+      final txids =
+          List<String>.from(response.data.map((tx) => tx['txid'].toString()));
+      logger.d("[Boltz] existing txids: $txids - for address: $address");
+      return txids;
+    } on DioException catch (e) {
+      logger.e(
+          "[Electrs client] fetch txs error: ${e.response?.statusCode}, ${e.response?.data}");
+      rethrow;
+    }
+  }
+
+  /// Returns current block height
+  Future<int> fetchBlockHeight(NetworkType network) async {
+    final client = ref.read(dioProvider);
+    final endpoint = '${getApiUrl(network)}/blocks/tip/height';
+
+    try {
+      final response = await client.get(endpoint);
+      final blockHeight = int.parse(response.data.toString());
+      return blockHeight;
+    } on DioException catch (e) {
+      logger.e(
+          "[Electrs client] fetch block height error: ${e.response?.statusCode}, ${e.response?.data}");
+      rethrow;
+    }
+  }
 }
 
 final electrsProvider = Provider<ElectrsClient>(
   (ref) => ElectrsClient(ref),
 );
+
+final fetchBlockHeightProvider =
+    FutureProvider.family<int, NetworkType>((ref, network) async {
+  return await ref.read(electrsProvider).fetchBlockHeight(network);
+});

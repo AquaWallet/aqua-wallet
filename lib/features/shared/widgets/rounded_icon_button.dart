@@ -9,6 +9,7 @@ class RoundedIconButton extends StatelessWidget {
     this.size,
     this.iconSize,
     this.radius,
+    this.elevation,
     this.background,
     this.foreground,
   });
@@ -18,6 +19,7 @@ class RoundedIconButton extends StatelessWidget {
   final double? size;
   final double? iconSize;
   final double? radius;
+  final int? elevation;
   final Color? background;
   final Color? foreground;
 
@@ -27,7 +29,7 @@ class RoundedIconButton extends StatelessWidget {
       dimension: size ?? 74.r,
       child: BoxShadowElevatedButton(
         onPressed: onPressed,
-        elevation: 4,
+        elevation: elevation ?? 4,
         background: background ?? Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(radius ?? 18.r),
         side: BorderSide(

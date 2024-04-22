@@ -1,11 +1,10 @@
+import 'package:aqua/data/provider/sideshift/sideshift.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:intl/intl.dart';
-
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
 
 class ReceiveSideshiftOrderExpireLabel extends HookConsumerWidget {
   const ReceiveSideshiftOrderExpireLabel({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sideshiftOrder = ref.watch(pendingOrderProvider);
@@ -16,8 +15,7 @@ class ReceiveSideshiftOrderExpireLabel extends HookConsumerWidget {
 
     //ANCHOR - Expiry
     return Text(
-      AppLocalizations.of(context)!
-          .receiveAssetScreenExpiresOn(formattedExpiresDate),
+      context.loc.receiveAssetScreenExpiresOn(formattedExpiresDate),
       style: Theme.of(context).textTheme.titleSmall?.copyWith(
             fontSize: 12.sp,
             fontWeight: FontWeight.w700,

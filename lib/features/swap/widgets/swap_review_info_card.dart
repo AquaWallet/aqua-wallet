@@ -2,6 +2,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SwapReviewInfoCard extends HookConsumerWidget {
@@ -32,7 +33,7 @@ class SwapReviewInfoCard extends HookConsumerWidget {
 
     return BoxShadowCard(
       margin: EdgeInsets.symmetric(horizontal: 20.w),
-      color: Theme.of(context).colors.altScreenSurface,
+      color: Theme.of(context).colors.addressFieldContainerBackgroundColor,
       borderRadius: BorderRadius.circular(12.r),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
@@ -56,7 +57,7 @@ class SwapReviewInfoCard extends HookConsumerWidget {
                     SizedBox(height: 2.h),
                     //ANCHOR - Amount Title
                     Text(
-                      AppLocalizations.of(context)!.pegOrderReviewTitle,
+                      context.loc.pegOrderReviewTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
@@ -87,20 +88,21 @@ class SwapReviewInfoCard extends HookConsumerWidget {
                 ),
               ],
             ),
+            SizedBox(height: 36.h),
+            //ANCHOR - Receive Amount
+            LabelCopyableTextView(
+              label: context.loc.conversionReceiveAmount,
+              value: receiveAmount,
+            ),
             //ANCHOR - Divider
-            Divider(
-              height: 36.h,
+            DashedDivider(
+              height: 32.h,
               thickness: 2.h,
               color: Theme.of(context).colors.divider,
             ),
-            LabelCopyableTextView(
-              label: AppLocalizations.of(context)!.conversionReceiveAmount,
-              value: receiveAmount,
-            ),
-            SizedBox(height: 16.h),
             //ANCHOR - Order ID
             LabelCopyableTextView(
-              label: AppLocalizations.of(context)!.pegOrderReviewOrderId,
+              label: context.loc.pegOrderReviewOrderId,
               value: order.orderId!,
             ),
             SizedBox(height: 16.h),

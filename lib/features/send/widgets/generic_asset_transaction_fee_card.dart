@@ -1,23 +1,20 @@
 import 'package:aqua/config/config.dart';
-import 'package:aqua/features/send/providers/send_asset_fee_provider.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class GenericAssetTransactionFeeCard extends HookConsumerWidget {
   const GenericAssetTransactionFeeCard({
     super.key,
-    required this.arguments,
   });
-
-  final SendAssetArguments arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final feeToDisplay = ref.watch(feeToDisplayProvider(arguments.asset));
+    final asset = ref.watch(sendAssetProvider);
+    final feeToDisplay = ref.watch(totalFeeToDisplayProvider(asset));
     final amountToDisplay = ref.watch(amountMinusFeesToDisplayProvider);
-    final totalToDisplay =
-        ref.watch(amountWithFeesToDisplayProvider(arguments.asset));
+    final totalToDisplay = ref.watch(amountWithFeesToDisplayProvider(asset));
 
     return BoxShadowCard(
         color: Theme.of(context).colors.altScreenSurface,
@@ -29,7 +26,7 @@ class GenericAssetTransactionFeeCard extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               //ANCHOR - "Send To" plus address
-              if (arguments.asset.isLightning) ...[
+              if (asset.isLightning) ...[
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -37,9 +34,8 @@ class GenericAssetTransactionFeeCard extends HookConsumerWidget {
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w500,
                             ),
-                        AppLocalizations.of(context)!
-                            .sendAssetReviewScreenSendTo),
-                    Text(AppLocalizations.of(context)!.lightningInvoice)
+                        context.loc.sendAssetReviewScreenSendTo),
+                    Text(context.loc.lightningInvoice)
                   ],
                 ),
               ],
@@ -62,8 +58,7 @@ class GenericAssetTransactionFeeCard extends HookConsumerWidget {
                                 ?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
-                            AppLocalizations.of(context)!
-                                .sendAssetReviewScreenAmount),
+                            context.loc.sendAssetReviewScreenAmount),
                         Text(amountToDisplay != null
                             ? amountToDisplay.toString()
                             : '')
@@ -82,8 +77,7 @@ class GenericAssetTransactionFeeCard extends HookConsumerWidget {
                                 ?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
-                            AppLocalizations.of(context)!
-                                .sendAssetReviewScreenFee),
+                            context.loc.sendAssetReviewScreenFee),
                         Text(feeToDisplay ?? '')
                       ],
                     ),
@@ -104,8 +98,7 @@ class GenericAssetTransactionFeeCard extends HookConsumerWidget {
                                 ?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
-                            AppLocalizations.of(context)!
-                                .sendAssetReviewScreenTotal),
+                            context.loc.sendAssetReviewScreenTotal),
                         Text(
                           totalToDisplay ?? '',
                           style: const TextStyle(fontWeight: FontWeight.bold),

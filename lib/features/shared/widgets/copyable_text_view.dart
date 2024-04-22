@@ -9,6 +9,7 @@ class CopyableTextView extends HookConsumerWidget {
     this.textStyle,
     this.textAlign,
     this.iconSize,
+    this.margin,
     required this.text,
   });
 
@@ -16,11 +17,12 @@ class CopyableTextView extends HookConsumerWidget {
   final TextStyle? textStyle;
   final TextAlign? textAlign;
   final double? iconSize;
+  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      margin: EdgeInsets.only(bottom: 18.h),
+      margin: margin ?? EdgeInsets.only(bottom: 18.h, right: 20.w, left: 30.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -38,7 +40,6 @@ class CopyableTextView extends HookConsumerWidget {
           ),
           Container(
             alignment: Alignment.centerRight,
-            margin: EdgeInsets.symmetric(horizontal: 20.w),
             child: Material(
               color: Colors.transparent,
               child: InkWell(

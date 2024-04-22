@@ -46,7 +46,7 @@ class SideShiftOrdersList extends HookConsumerWidget {
       data: (items) => items == null || items.isEmpty
           ? Center(
               child: Text(
-                AppLocalizations.of(context)!.sideshiftOrderListEmptyState,
+                context.loc.sideshiftOrderListEmptyState,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -110,7 +110,7 @@ class _SideShiftOrderListItem extends HookConsumerWidget {
                         Row(children: [
                           //ANCHOR - Status
                           Text(
-                            "${AppLocalizations.of(context)!.sideshiftOrderStatus}: $orderStatusStr",
+                            "${context.loc.status}: $orderStatusStr",
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           //ANCHOR - Amount
@@ -127,7 +127,7 @@ class _SideShiftOrderListItem extends HookConsumerWidget {
                         // ANCHOR - Shift Id row
                         Row(children: [
                           Text(
-                            "${AppLocalizations.of(context)!.receiveAssetScreenShiftId}: ${order.id.toString()}",
+                            "${context.loc.receiveAssetScreenShiftId}: ${order.id.toString()}",
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
@@ -143,7 +143,7 @@ class _SideShiftOrderListItem extends HookConsumerWidget {
                         // ANCHOR - Created row
                         Row(children: [
                           Text(
-                            "${AppLocalizations.of(context)!.sideshiftOrderCreatedAt}: ${order.createdAt?.yMMMd() ?? '-'}",
+                            "${context.loc.sideshiftOrderCreatedAt}: ${order.createdAt?.yMMMd() ?? '-'}",
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
@@ -159,7 +159,7 @@ class _SideShiftOrderListItem extends HookConsumerWidget {
                         // ANCHOR - Expiry row
                         Row(children: [
                           Text(
-                            "${AppLocalizations.of(context)!.sideshiftOrderExpiresAt}: ${order.expiresAt?.yMMMd() ?? '-'}",
+                            "${context.loc.sideshiftOrderExpiresAt}: ${order.expiresAt?.yMMMd() ?? '-'}",
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium

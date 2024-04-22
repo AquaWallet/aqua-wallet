@@ -2,8 +2,9 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/theme_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:country_flags/country_flags.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+
+final kAppBarHeight = 74.h;
 
 class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
   const AquaAppBar({
@@ -53,7 +54,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
       [darkMode],
     );
     final defaultIconBackgroundColor = useMemoized(
-      () => theme.colorScheme.surface,
+      () => theme.colors.addressFieldContainerBackgroundColor,
       [darkMode],
     );
     final defaultIconOutlineColor = useMemoized(
@@ -63,14 +64,17 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
     return AppBar(
       centerTitle: true,
-      toolbarHeight: kToolbarHeight,
+      toolbarHeight: kAppBarHeight,
+      titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
+            color: foregroundColor,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
       title: GestureDetector(
         onTap: onTitlePressed,
-        child: Text(
-          title,
-          style: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
-                color: foregroundColor,
-              ),
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 12.h),
+          child: Text(title),
         ),
       ),
       automaticallyImplyLeading: false,
@@ -95,7 +99,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
           ? [
               Center(
                 child: actionButtonAsset == null ||
-                        (actionButtonAsset?.contains('assets/') ?? false)
+                        !(actionButtonAsset?.contains('flags/') ?? false)
                     ? AppbarButton(
                         onPressed: onActionButtonPressed ?? () {},
                         elevated: darkMode && elevated,
@@ -113,8 +117,8 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
                           onPressed: onActionButtonPressed ?? () {},
                           iconBackgroundColor:
                               iconBackgroundColor ?? defaultIconBackgroundColor,
-                          child: CountryFlag.fromCountryCode(
-                            actionButtonAsset!,
+                          child: CountryFlag(
+                            svgAsset: actionButtonAsset!,
                             width: 20.r,
                             height: 20.r,
                             borderRadius: 5.r,
@@ -129,5 +133,5 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(kAppBarHeight);
 }

@@ -1,5 +1,6 @@
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -19,20 +20,21 @@ class PokerchipScannerScreen extends HookConsumerWidget {
       final barcode = barcodeStream.data?.barcodes.firstOrNull?.rawValue;
       if (barcode != null) {
         Future.microtask(() async {
-          Navigator.of(context).pushNamed(
+          final _ = await Navigator.of(context).pushNamed(
             PokerchipBalanceScreen.routeName,
             arguments: barcode,
           );
+          controller.start();
         });
       }
-      return null;
+      return () => controller.stop();
     }, [barcodeStream]);
 
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.pokerchipScreenTitle,
+        title: context.loc.pokerchipScreenTitle,
       ),
       body: SafeArea(
         child: Stack(children: [
@@ -45,15 +47,8 @@ class PokerchipScannerScreen extends HookConsumerWidget {
                 topRight: Radius.circular(30.r),
               ),
               child: MobileScanner(
-                onDetect: (data) => Future.microtask(() {
-                  final barcode = data.barcodes.firstOrNull?.rawValue;
-                  if (barcode != null) {
-                    Navigator.of(context).pushNamed(
-                      PokerchipBalanceScreen.routeName,
-                      arguments: barcode,
-                    );
-                  }
-                }),
+                controller: controller,
+                onDetect: (_) {},
               ),
             ),
           ),

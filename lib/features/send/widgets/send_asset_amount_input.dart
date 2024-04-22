@@ -1,6 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/services.dart';
 
 class SendAssetAmountInput extends HookConsumerWidget {
@@ -8,23 +9,31 @@ class SendAssetAmountInput extends HookConsumerWidget {
     super.key,
     required this.controller,
     required this.symbol,
+    required this.onChanged,
+    required this.onCurrencyTypeToggle,
     this.allowUsdToggle = true,
     this.disabled = false,
   });
 
   final TextEditingController controller;
   final String symbol;
+  final void Function(String) onChanged;
+  final void Function() onCurrencyTypeToggle;
   final bool allowUsdToggle;
   final bool disabled;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: Theme.of(context).solidBorderDecoration,
+      decoration: Theme.of(context).solidBorderDecoration.copyWith(
+            color:
+                Theme.of(context).colors.addressFieldContainerBackgroundColor,
+          ),
       //ANCHOR - Address Input
       child: TextField(
         enabled: !disabled,
         controller: controller,
+        onChanged: onChanged,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w400,
               fontSize: 24.sp,
@@ -43,11 +52,11 @@ class SendAssetAmountInput extends HookConsumerWidget {
           ),
         ],
         decoration: Theme.of(context).inputDecoration.copyWith(
-              hintText:
-                  AppLocalizations.of(context)!.sendAssetAmountScreenAmountHint,
+              filled: false,
+              hintText: context.loc.sendAssetAmountScreenAmountHint,
               hintStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Theme.of(context).colors.hintTextColor,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w700,
                   ),
               border: Theme.of(context).inputBorder,
               suffixIcon: Row(
@@ -63,10 +72,7 @@ class SendAssetAmountInput extends HookConsumerWidget {
                   SizedBox(width: 14.w),
                   //ANCHOR - Input Type Toggle Button
                   if (allowUsdToggle) ...[
-                    AssetCurrencyTypeToggleButton(onTap: () {
-                      ref.read(userEnteredAmountIsUsdProvider.notifier).state =
-                          !ref.read(userEnteredAmountIsUsdProvider);
-                    }),
+                    AssetCurrencyTypeToggleButton(onTap: onCurrencyTypeToggle),
                   ],
                   SizedBox(width: 16.w),
                 ],

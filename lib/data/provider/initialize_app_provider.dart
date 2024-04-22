@@ -1,59 +1,51 @@
+import 'dart:async';
+
+import 'package:aqua/data/data.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/gdk.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:rxdart/rxdart.dart';
 
 final initAppProvider =
-    Provider.autoDispose<InitAppProvider>((ref) => InitAppProvider(ref));
+    AsyncNotifierProvider<InitAppProvider, void>(InitAppProvider.new);
 
-class InitAppProvider {
-  InitAppProvider(this.ref) {
-    ref.onDispose(() {
-      _initAppSubject.close();
-    });
+class InitAppProvider extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {
+    state = const AsyncValue.loading();
+    const int splashScreenMinDurationInMs = 2100; // 2.1 seconds
+    final startTime = DateTime.now();
+    try {
+      final dir = await getApplicationSupportDirectory();
+
+      final config = GdkConfig(
+          dataDir: dir.absolute.path, logLevel: GdkConfigLogLevelEnum.info);
+      final libGdk = LibGdk();
+      await libGdk.initGdk(config);
+
+      await ref.read(liquidProvider).init();
+
+      await ref.read(bitcoinProvider).init();
+
+      logger.d('[InitAppProvider] Finished backends initialization');
+
+      /**
+      * App is initialized.
+      * Connect to remote network services.
+      */
+      ref.read(aquaConnectionProvider.notifier).connect();
+
+      // TODO: Handle this in a splash screen provider in the future
+      final splashScreenRemainingDurationInMs = splashScreenMinDurationInMs -
+          DateTime.now().difference(startTime).inMilliseconds;
+      if (splashScreenRemainingDurationInMs > 0) {
+        await Future.delayed(
+            Duration(milliseconds: splashScreenRemainingDurationInMs));
+      }
+
+      state = const AsyncValue.data(null);
+    } catch (error) {
+      state = AsyncValue.error(error, StackTrace.current);
+    }
   }
-
-  final AutoDisposeProviderRef ref;
-
-  late final Stream<AsyncValue<void>> initAppStream = _initAppSubject
-      .startWith(null)
-      .switchMap((_) => Rx.zipList([
-            getApplicationSupportDirectory()
-                .then((dir) async {
-                  final config = GdkConfig(
-                      dataDir: dir.absolute.path,
-                      logLevel: GdkConfigLogLevelEnum.info);
-                  final libGdk = LibGdk();
-                  return await libGdk.initGdk(config);
-                })
-                .asStream()
-                .switchMap((_) => Rx.zipList([
-                      ref
-                          .read(liquidProvider)
-                          .init()
-                          .then<bool>((result) =>
-                              result ? Future.value(result) : throw Exception())
-                          .asStream(),
-                      ref
-                          .read(bitcoinProvider)
-                          .init()
-                          .then<bool>((result) =>
-                              result ? Future.value(result) : throw Exception())
-                          .asStream(),
-                    ])),
-          ])
-              .doOnData((_) => logger.d('Backends initialization done'))
-              .map<AsyncValue<void>>((_) {
-                return const AsyncValue.data(null);
-              })
-              .startWith(const AsyncValue.loading())
-              .onErrorReturnWith(
-                  (error, stackTrace) => AsyncValue.error(error, stackTrace)))
-      .shareReplay(maxSize: 1);
-
-  final PublishSubject<void> _initAppSubject = PublishSubject();
 }

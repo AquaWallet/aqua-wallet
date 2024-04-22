@@ -38,7 +38,7 @@ class SwapAmountInput extends HookConsumerWidget {
 
     return BoxShadowContainer(
       bordered: true,
-      color: Theme.of(context).colors.inputBackground,
+      color: Theme.of(context).colors.addressFieldContainerBackgroundColor,
       borderRadius: BorderRadius.circular(12.r),
       child: Row(
         children: [
@@ -63,7 +63,9 @@ class SwapAmountInput extends HookConsumerWidget {
                     onChanged: onChanged,
                     readOnly: !isEditable || readOnly,
                     autofocus: false,
+                    filled: false,
                     decoration: InputDecoration(
+                      filled: false,
                       border: InputBorder.none,
                       hintText: '0',
                       hintStyle:

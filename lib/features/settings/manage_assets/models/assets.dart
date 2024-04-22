@@ -1,4 +1,5 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/receive/receive.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'assets.freezed.dart';
@@ -32,6 +33,7 @@ class Asset with _$Asset {
     @JsonKey(name: 'Ticker') required String ticker,
     @JsonKey(name: 'Logo') required String logoUrl,
     @JsonKey(name: 'Default') @Default(false) bool isDefaultAsset,
+    @JsonKey(name: 'IsRemovable') @Default(true) bool isRemovable,
     String? domain,
     @Default(0) int amount,
     @Default(8) int precision,
@@ -98,13 +100,23 @@ class Asset with _$Asset {
         isUSDt: false,
       );
 
+  factory Asset.unknown() => Asset(
+        logoUrl: Svgs.unknownAsset,
+        id: '',
+        name: '',
+        ticker: '',
+        isLiquid: false,
+        isLBTC: false,
+        isUSDt: false,
+      );
+
   factory Asset.fromJson(Map<String, dynamic> json) => _$AssetFromJson(json);
 }
 
 extension AssetExt on Asset {
   bool get isBTC => id == 'btc';
 
-  bool get isLBTC => ticker == 'L-BTC';
+  bool get isLBTC => ticker == 'L-BTC' || ticker == 'tL-BTC';
 
   bool get isUsdtLiquid => isUSDt && isLiquid;
 
@@ -126,4 +138,30 @@ extension AssetExt on Asset {
   bool get selectable => !isBTC && !isLBTC && !isUSDt;
 
   bool get hasFiatRate => isBTC || isLBTC || isLightning;
+
+  UsdtOption get usdtOption {
+    return isUsdtLiquid
+        ? UsdtOption.liquid
+        : isEth
+            ? UsdtOption.eth
+            : UsdtOption.trx;
+  }
+}
+
+extension CompatibleExt on Asset {
+  /// Returns true if the asset is compatible with the other asset, meaning we want to treat them as interchangeable in certain scenarios
+  /// such as sending or receiving.
+  bool isCompatibleWith(Asset other) {
+    if (isLayerTwo) {
+      return other.isLayerTwo;
+    } else if (isBTC) {
+      return other.isLightning || other.isBTC;
+    } else if (isAnyUsdt) {
+      return other.isAnyUsdt;
+    } else {
+      return this == other;
+    }
+  }
+
+  bool get hasCompatibleAssets => isLayerTwo || isAnyUsdt;
 }

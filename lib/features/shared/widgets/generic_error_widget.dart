@@ -1,5 +1,5 @@
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class GenericErrorWidget extends StatelessWidget {
@@ -21,7 +21,7 @@ class GenericErrorWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            description ?? AppLocalizations.of(context)!.unknownErrorSubtitle,
+            description ?? context.loc.unknownErrorSubtitle,
             style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
@@ -33,7 +33,7 @@ class GenericErrorWidget extends StatelessWidget {
                 foregroundColor: Theme.of(context).colorScheme.onBackground,
               ),
               child: Text(
-                buttonTitle ?? AppLocalizations.of(context)!.unknownErrorButton,
+                buttonTitle ?? context.loc.unknownErrorButton,
               ),
             ),
           ),

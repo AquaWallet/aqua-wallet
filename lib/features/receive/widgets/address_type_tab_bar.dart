@@ -1,6 +1,6 @@
-import 'package:aqua/common/widgets/tab_switch_view.dart';
+import 'package:aqua/common/widgets/tab_switch_view_address_history.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AddressTypeTabBar extends HookConsumerWidget {
@@ -13,10 +13,10 @@ class AddressTypeTabBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return TabSwitchView(
+    return TabSwitchViewAddressHistory(
       labels: [
-        AppLocalizations.of(context)!.receiveAddressChipsUsed,
-        AppLocalizations.of(context)!.receiveAddressChipsAll,
+        context.loc.receiveAddressChipsUsed,
+        context.loc.receiveAddressChipsAll,
       ],
       onChange: onTabChange,
     );

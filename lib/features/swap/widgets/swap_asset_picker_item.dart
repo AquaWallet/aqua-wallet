@@ -1,7 +1,9 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 const usdteName = '(USDT.e)';
 
@@ -39,9 +41,13 @@ class SwapAssetSelectionItem extends HookConsumerWidget {
                 // Name
                 Text(
                   asset.name == "Liquid Bitcoin"
-                      ? AppLocalizations.of(context)!.layer2Bitcoin
+                      ? context.loc.layer2Bitcoin
                       : asset.name.replaceAll(usdteName, '').trim(),
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: Theme.of(context)
+                            .colors
+                            .popUpMenuButtonSwapScreenTextColor,
+                      ),
                 ),
                 SizedBox(height: 4.h),
                 // Ticker
@@ -61,10 +67,13 @@ class SwapAssetSelectionItem extends HookConsumerWidget {
             children: [
               // Balance
               Text(
-                ref
-                    .read(formatterProvider)
-                    .formatAssetAmountFromAsset(asset: asset),
-                style: Theme.of(context).textTheme.bodyLarge,
+                ref.read(formatterProvider).formatAssetAmountDirect(
+                    amount: asset.amount, precision: asset.precision),
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Theme.of(context)
+                          .colors
+                          .popUpMenuButtonSwapScreenTextColor,
+                    ),
               ),
               SizedBox(height: 4.h),
               // USD Equivalent

@@ -3,6 +3,7 @@ import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:decimal/decimal.dart';
 
 /////////////////////
 /// Amount
@@ -26,28 +27,28 @@ final receiveAssetAmountForBip21Provider =
 
   // if fiat toggled and any btc/lbtc/lightning asset, we want to add the btc/lbtc amount to the bip21 uri
   if (isFiatToggled && (asset.isBTC || asset.isLBTC || asset.isLightning)) {
-    var amountAsDouble =
-        ref.read(parsedAssetAmountAsDoubleProvider(userEntered));
+    var amountAsDecimal =
+        ref.read(parsedAssetAmountAsDecimalProvider(userEntered));
     if (asset.isLightning == true) {
-      amountAsDouble = amountAsDouble * satsPerBtc;
+      amountAsDecimal = amountAsDecimal * Decimal.fromInt(satsPerBtc);
     }
     final btcConversion =
-        ref.watch(conversionFiatProvider((asset, amountAsDouble)));
+        ref.watch(conversionFiatProvider((asset, amountAsDecimal)));
     return btcConversion;
   } else {
     return userEntered;
   }
 });
 
-/// Amount as double
-final parsedAssetAmountAsDoubleProvider =
-    Provider.family.autoDispose<double, String?>((ref, amountStr) {
-  if (amountStr == null || amountStr.isEmpty) {
-    return 0;
+/// Amount as Decimal
+final parsedAssetAmountAsDecimalProvider =
+    Provider.family.autoDispose<Decimal, String?>((ref, amountStr) {
+  if (amountStr == null || amountStr.isEmpty || amountStr == ".") {
+    return Decimal.zero;
   }
 
   try {
-    return double.parse(amountStr);
+    return Decimal.parse(amountStr);
   } catch (e) {
     throw FormatException(
         "The provided string cannot be parsed as a double: $amountStr");
@@ -67,16 +68,17 @@ final receiveAssetAmountConversionDisplayProvider =
   }
 
   if (isFiatToggled) {
-    var amountAsDouble = ref.read(parsedAssetAmountAsDoubleProvider(amountStr));
+    var amountAsDecimal =
+        ref.read(parsedAssetAmountAsDecimalProvider(amountStr));
     if (asset.isLightning == true) {
-      amountAsDouble = amountAsDouble * satsPerBtc;
+      amountAsDecimal = amountAsDecimal * Decimal.fromInt(satsPerBtc);
     }
 
-    return ref.watch(conversionFiatProvider((asset, amountAsDouble)));
+    return ref.watch(conversionFiatProvider((asset, amountAsDecimal)));
   } else {
     final amountInSats = ref
         .read(formatterProvider)
         .parseAssetAmountDirect(amount: amountStr, precision: asset.precision);
-    return ref.read(fiatProvider).getSatsToFiat(amountInSats);
+    return ref.read(fiatProvider).getSatsToFiatDisplay(amountInSats, true);
   }
 });

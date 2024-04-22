@@ -1,25 +1,21 @@
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'asset_balance_provider.g.dart';
+import 'package:aqua/features/shared/shared.dart';
 
 // Future Providers
-@riverpod
-Future<int> getBalance(GetBalanceRef ref, Asset asset) async {
+final getBalanceProvider =
+    FutureProvider.autoDispose.family<int, Asset>((ref, asset) async {
   return await ref.read(balanceProvider).getBalance(asset);
-}
+});
 
-@riverpod
-Future<int> getLBTCBalance(GetLBTCBalanceRef ref) async {
+final getLBTCBalanceProvider = FutureProvider.autoDispose<int>((ref) async {
   return await ref.read(balanceProvider).getBalance(Asset.liquid());
-}
+});
 
-@riverpod
-Future<int> getBitcoinBalance(GetBitcoinBalanceRef ref) async {
+final getBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) async {
   return await ref.read(balanceProvider).getBalance(Asset.btc());
-}
+});
 
 // Main Provider
 final balanceProvider = Provider.autoDispose((ref) => BalanceService(ref));

@@ -41,7 +41,8 @@ class _RegisterWalletProvider {
                         .save(key: StorageKeys.mnemonic, value: mnemonic)),
                 (a, b) => AsyncValue.data(_),
               )
-                  .doOnData((_) => _ref.read(aquaProvider).authorize())
+                  .doOnData((_) =>
+                      _ref.read(aquaConnectionProvider.notifier).connect())
                   .startWith(const AsyncValue.loading())
                   .onErrorReturnWith((error, stackTrace) =>
                       AsyncValue.error(error, stackTrace)))

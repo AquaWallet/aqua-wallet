@@ -1,5 +1,6 @@
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class RecoveryPhraseWidget extends ConsumerWidget {
   const RecoveryPhraseWidget({Key? key}) : super(key: key);
@@ -11,7 +12,7 @@ class RecoveryPhraseWidget extends ConsumerWidget {
       children: [
         SizedBox(height: 12.h),
         Text(
-          AppLocalizations.of(context)!.backupRecoveryPhraseTitle,
+          context.loc.backupRecoveryPhraseTitle,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 letterSpacing: 1,
                 height: 1.2,
@@ -19,7 +20,7 @@ class RecoveryPhraseWidget extends ConsumerWidget {
         ),
         SizedBox(height: 18.h),
         Text(
-          AppLocalizations.of(context)!.backupRecoveryPhraseSubtitle,
+          context.loc.backupRecoveryPhraseSubtitle,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 letterSpacing: .15,
                 height: 1.2,

@@ -4,6 +4,7 @@ import 'package:aqua/features/backup/providers/backup_reminder_provider.dart';
 import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -56,12 +57,12 @@ class WalletBackupScreen extends HookConsumerWidget {
               ),
               SizedBox(height: 43.h),
               Text(
-                AppLocalizations.of(context)!.backupInviteTitle,
+                context.loc.backupInviteTitle,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               SizedBox(height: 20.h),
               Text(
-                AppLocalizations.of(context)!.backupInviteDescription,
+                context.loc.backupInviteDescription,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       fontSize: 16.sp,
                     ),
@@ -71,14 +72,14 @@ class WalletBackupScreen extends HookConsumerWidget {
                 onPressed: () =>
                     ref.read(walletBackupConfirmationProvider).acceptInvite(),
                 child: Text(
-                  AppLocalizations.of(context)!.backupInviteButtonNext,
+                  context.loc.backupInviteButtonNext,
                 ),
               ),
               SizedBox(height: 30.h),
               AquaElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  AppLocalizations.of(context)!.backupInviteButtonLater,
+                  context.loc.backupInviteButtonLater,
                 ),
               ),
               SizedBox(height: 66.h),

@@ -1,5 +1,7 @@
-import 'package:aqua/features/note/note.dart';
+import 'package:aqua/common/widgets/aqua_elevated_button.dart';
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -13,31 +15,24 @@ class AddNoteScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useTextEditingController();
-
-    ref.listen(
-      addNotePopProvider,
-      (_, result) {
-        Navigator.of(context).pop(result);
-      },
-    );
+    final note = useValueListenable(controller);
 
     return Scaffold(
       appBar: AquaAppBar(
-        title: AppLocalizations.of(context)!.addNoteScreenTitle,
+        title: context.loc.addNoteScreenTitle,
         showActionButton: false,
       ),
       body: SafeArea(
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 28.w),
-          padding: EdgeInsets.only(bottom: 66.h),
+          padding: EdgeInsets.symmetric(horizontal: 28.w),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               //ANCHOR - Input
-              BoxShadowContainer(
+              Container(
                 margin: EdgeInsets.only(top: 32.h),
-                padding: EdgeInsets.symmetric(horizontal: 18.w),
                 constraints: BoxConstraints(minHeight: 140.h),
+                decoration: Theme.of(context).solidBorderDecoration,
                 child: TextField(
                   minLines: 6,
                   maxLines: 16,
@@ -48,19 +43,17 @@ class AddNoteScreen extends HookConsumerWidget {
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onBackground,
                       ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    counterText: '',
-                    hintText: AppLocalizations.of(context)!.addNoteScreenHint,
-                    hintStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                  ),
-                  onChanged: (text) {
-                    ref.read(addNoteProvider).updateText(text);
-                  },
-                  onSubmitted: (text) =>
-                      ref.read(addNoteProvider).updateText(text),
+                  decoration: Theme.of(context).inputDecoration.copyWith(
+                        border: Theme.of(context).inputBorder,
+                        counterText: '',
+                        hintText: context.loc.addNoteScreenHint,
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .labelLarge
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                      ),
                 ),
               ),
               //ANCHOR - Counter
@@ -80,19 +73,18 @@ class AddNoteScreen extends HookConsumerWidget {
               ),
               const Spacer(),
               //ANCHOR - Button
-              SizedBox(
-                width: double.maxFinite,
-                child: BoxShadowElevatedButton(
-                  onPressed: () {
-                    FocusScope.of(context).unfocus();
-                    Future.delayed(const Duration(milliseconds: 200), () {
-                      Navigator.of(context).pop(controller.text);
-                    });
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.addNoteScreenSaveButton,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
+              AquaElevatedButton(
+                onPressed: note.text.isNotEmpty
+                    ? () {
+                        FocusScope.of(context).unfocus();
+                        Future.delayed(
+                          const Duration(milliseconds: 200),
+                          () => Navigator.of(context).pop(controller.text),
+                        );
+                      }
+                    : null,
+                child: Text(
+                  context.loc.addNoteScreenSaveButton,
                 ),
               ),
             ],

@@ -1,8 +1,6 @@
 import 'package:aqua/config/config.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MenuItemWidget extends StatelessWidget {
@@ -14,7 +12,7 @@ class MenuItemWidget extends StatelessWidget {
     this.trailing,
     this.color,
     this.iconPadding,
-    required this.isEnabled,
+    this.isEnabled = true,
   }) : super(key: key);
 
   final String assetName;
@@ -28,7 +26,7 @@ class MenuItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.circular(12.r),
         child: Opacity(
           opacity: isEnabled ? 1 : 0.5,
@@ -44,20 +42,22 @@ class MenuItemWidget extends StatelessWidget {
                   Container(
                     width: 50.r,
                     height: 50.r,
-                    padding: assetName == Svgs.support
-                        ? const EdgeInsets.all(4)
-                        : null,
                     decoration: BoxDecoration(
                       color: Theme.of(context).colors.iconBackground,
-                      borderRadius: BorderRadius.circular(100),
+                      borderRadius: BorderRadius.circular(100.r),
                     ),
                     child: assetName.isNotEmpty
                         ? Container(
                             width: 36.r,
                             height: 36.r,
-                            padding: iconPadding,
-                            child: assetName.contains('assets/') == true
-                                ? SvgPicture.asset(
+                            padding: iconPadding ?? EdgeInsets.all(8.r),
+                            child: assetName.contains('flags/') == true
+                                ? Center(
+                                    child: CountryFlag(
+                                      svgAsset: assetName,
+                                    ),
+                                  )
+                                : SvgPicture.asset(
                                     assetName,
                                     fit: BoxFit.scaleDown,
                                     colorFilter: color != null
@@ -68,14 +68,6 @@ class MenuItemWidget extends StatelessWidget {
                                             BlendMode.srcIn,
                                           )
                                         : null,
-                                  )
-                                : Center(
-                                    child: CountryFlag.fromCountryCode(
-                                      assetName,
-                                      width: 20.r,
-                                      height: 20.r,
-                                      borderRadius: 5.r,
-                                    ),
                                   ),
                           )
                         : Container(),
@@ -130,7 +122,7 @@ class MenuItemWidget extends StatelessWidget {
     required String title,
     required String label,
     required VoidCallback onPressed,
-    required bool isEnabled,
+    bool isEnabled = true,
   }) {
     return MenuItemWidget(
       isEnabled: isEnabled,

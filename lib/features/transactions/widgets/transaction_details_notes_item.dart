@@ -1,5 +1,6 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/utils/utils.dart';
 
 class TransactionDetailsNotesItem extends StatelessWidget {
   const TransactionDetailsNotesItem({
@@ -7,18 +8,18 @@ class TransactionDetailsNotesItem extends StatelessWidget {
     required this.uiModel,
   }) : super(key: key);
 
-  final AssetTransactionDetailsNotesItemUiModel uiModel;
+  final AssetTransactionDetailsUiModel uiModel;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: uiModel.onTap,
+      onTap: () {},
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 1.h),
         child: Row(
           children: [
             Text(
-              AppLocalizations.of(context)!.assetTransactionDetailsMyNotes,
+              context.loc.assetTransactionDetailsMyNotes,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -39,8 +40,7 @@ class TransactionDetailsNotesItem extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                     )
                   : Text(
-                      AppLocalizations.of(context)!
-                          .assetTransactionDetailsMyNotesPlaceholder,
+                      context.loc.assetTransactionDetailsMyNotesPlaceholder,
                       textAlign: TextAlign.end,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onBackground,

@@ -25,10 +25,10 @@ class RemoveWalletConfirmScreen extends HookConsumerWidget {
           return null;
         },
         failure: () => context.showErrorSnackbar(
-          AppLocalizations.of(context)!.removeWalletScreenRemoveFailed,
+          context.loc.removeWalletScreenRemoveFailed,
         ),
         verificationFailed: () => context.showErrorSnackbar(
-          AppLocalizations.of(context)!.removeWalletScreenVerificationFailed,
+          context.loc.removeWalletScreenVerificationFailed,
         ),
         orElse: () => null,
       ),
@@ -70,7 +70,7 @@ class _ConfirmationView extends ConsumerWidget {
           SizedBox(height: 20.h),
           //ANCHOR - Title
           Text(
-            AppLocalizations.of(context)!.removeWalletScreenTitle,
+            context.loc.removeWalletScreenTitle,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontSize: 20.sp,
                 ),
@@ -80,7 +80,7 @@ class _ConfirmationView extends ConsumerWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: Text(
-              AppLocalizations.of(context)!.removeWalletScreenDesc,
+              context.loc.removeWalletScreenDesc,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onBackground,
@@ -91,7 +91,7 @@ class _ConfirmationView extends ConsumerWidget {
           //ANCHOR - Cancel button
           AquaElevatedButton(
             child: Text(
-              AppLocalizations.of(context)!.removeWalletScreenCancelButton,
+              context.loc.removeWalletScreenCancelButton,
             ),
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -106,7 +106,7 @@ class _ConfirmationView extends ConsumerWidget {
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             child: Text(
-              AppLocalizations.of(context)!.removeWalletScreenConfirmButton,
+              context.loc.removeWalletScreenConfirmButton,
             ),
           ),
           SizedBox(height: 64.h),

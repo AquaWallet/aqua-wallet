@@ -2,6 +2,7 @@ import 'package:aqua/common/widgets/confirmation_slider.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SwapSlider extends ConsumerWidget {
@@ -25,7 +26,7 @@ class SwapSlider extends ConsumerWidget {
         backgroundColor: Theme.of(context).colorScheme.background,
         disabledBackgroundColor:
             Theme.of(context).colorScheme.onSurface.withOpacity(.3),
-        text: AppLocalizations.of(context)!.exchangeSwapButton,
+        text: context.loc.exchangeSwapButton,
         textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
             color: enabled
                 ? Theme.of(context).colorScheme.onBackground

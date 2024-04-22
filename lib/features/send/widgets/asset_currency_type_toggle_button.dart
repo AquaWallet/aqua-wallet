@@ -31,7 +31,7 @@ class AssetCurrencyTypeToggleButton extends ConsumerWidget {
                     )
                   : null,
             ),
-            child: SvgPicture.asset(Svgs.walletAdd,
+            child: SvgPicture.asset(Svgs.walletExchange,
                 fit: BoxFit.scaleDown,
                 width: 14.r,
                 height: 14.r,

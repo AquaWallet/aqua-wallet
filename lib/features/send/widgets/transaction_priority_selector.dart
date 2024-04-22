@@ -4,59 +4,64 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/data/provider/electrs_provider.dart';
+import 'package:aqua/data/provider/network_frontend.dart';
+import 'package:aqua/features/send/models/models.dart';
+import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class TransactionPrioritySelector extends HookConsumerWidget {
   const TransactionPrioritySelector({
-    required this.onFeeRateChange,
-    required this.rates,
-    required this.gdkTransaction,
+    required this.transaction,
     super.key,
   });
 
-  final void Function(int) onFeeRateChange;
-  final Map<TransactionPriority, double> rates;
-  final GdkNewTransactionReply gdkTransaction;
+  final SendAssetOnchainTx transaction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isExpanded = useState<bool>(false);
-    final selectedPriority =
-        useState<TransactionPriority>(TransactionPriority.low);
+    final GdkNewTransactionReply? gdkTransaction = useMemoized(() {
+      return transaction.maybeMap(
+        gdkTx: (tx) => tx.gdkTx,
+        orElse: () => null,
+      );
+    }, [transaction]);
 
-    final highFeeRate = rates[TransactionPriority.high]!.toInt();
-    final highFeeInSats =
-        (gdkTransaction.transactionVsize! * highFeeRate).toInt();
+    final isExpanded = useState<bool>(true);
+    final rates = ref
+        .watch(fetchedFeeRatesPerVByteProvider(NetworkType.bitcoin))
+        .asData
+        ?.value;
+    final selectedFeeRate = ref.watch(userSelectedFeeRatePerVByteProvider);
+    logger.d(
+        '[Send][Fee] selectedFeeRate: ${selectedFeeRate?.priority.toString()}');
+
+    final selectedPriority =
+        selectedFeeRate?.priority ?? TransactionPriority.medium;
+
+    int calculateFeeInSats(int feeRate) {
+      return gdkTransaction != null
+          ? (gdkTransaction.transactionVsize! * feeRate).toInt()
+          : 0;
+    }
+
+    final highFeeRate = rates?[TransactionPriority.high]!.toInt() ?? 0;
+    final highFeeInSats = calculateFeeInSats(highFeeRate);
     final highFeeInFiat =
         ref.watch(conversionProvider((Asset.btc(), highFeeInSats)));
 
-    final mediumFeeRate = rates[TransactionPriority.medium]!.toInt();
-    final mediumFeeInSats =
-        (gdkTransaction.transactionVsize! * mediumFeeRate).toInt();
+    final mediumFeeRate = rates?[TransactionPriority.medium]!.toInt() ?? 0;
+    final mediumFeeInSats = calculateFeeInSats(mediumFeeRate);
     final mediumFeeInFiat =
         ref.watch(conversionProvider((Asset.btc(), mediumFeeInSats)));
 
-    final lowFeeRate = rates[TransactionPriority.low]!.toInt();
-    final lowFeeInSats =
-        (gdkTransaction.transactionVsize! * lowFeeRate).toInt();
+    final lowFeeRate = rates?[TransactionPriority.low]!.toInt() ?? 0;
+    final lowFeeInSats = calculateFeeInSats(lowFeeRate);
     final lowFeeInFiat =
         ref.watch(conversionProvider((Asset.btc(), lowFeeInSats)));
-
-    selectedPriority.addListener(() {
-      double feeRate;
-      switch (selectedPriority.value) {
-        case TransactionPriority.high:
-          feeRate = highFeeRate * 1000;
-        case TransactionPriority.medium:
-          feeRate = mediumFeeRate * 1000;
-        case TransactionPriority.low:
-          feeRate = lowFeeRate * 1000;
-      }
-
-      onFeeRateChange(feeRate.toInt());
-    });
 
     return BoxShadowCard(
       color: Theme.of(context).colors.altScreenSurface,
@@ -78,56 +83,64 @@ class TransactionPrioritySelector extends HookConsumerWidget {
                     children: [
                       Expanded(
                         child: _SelectionItem(
-                          label: AppLocalizations.of(context)!
-                              .sendAssetReviewScreenConfirmPriorityHigh,
+                          label: context
+                              .loc.sendAssetReviewScreenConfirmPriorityHigh,
                           fee: highFeeInFiat ?? '',
-                          satsPerByte:
-                              highFeeRate != null ? highFeeRate.toInt() : 0,
-                          isSelected: selectedPriority.value ==
-                              TransactionPriority.high,
-                          onPressed: () =>
-                              selectedPriority.value = TransactionPriority.high,
+                          satsPerByte: highFeeRate.toInt(),
+                          isSelected:
+                              selectedPriority == TransactionPriority.high,
+                          onPressed: () => ref
+                                  .read(userSelectedFeeRatePerVByteProvider
+                                      .notifier)
+                                  .state =
+                              FeeRate(TransactionPriority.high,
+                                  highFeeRate.toDouble()),
                         ),
                       ),
                       SizedBox(
-                        width: 10.w,
+                        width: 11.w,
                       ),
                       Expanded(
                           child: _SelectionItem(
-                        label: AppLocalizations.of(context)!
-                            .sendAssetReviewScreenConfirmPriorityStandard,
+                        label: context
+                            .loc.sendAssetReviewScreenConfirmPriorityStandard,
                         fee: mediumFeeInFiat ?? '',
-                        satsPerByte:
-                            mediumFeeRate != null ? mediumFeeRate.toInt() : 0,
-                        isSelected: selectedPriority.value ==
-                            TransactionPriority.medium,
+                        satsPerByte: mediumFeeRate.toInt(),
+                        isSelected:
+                            selectedPriority == TransactionPriority.medium,
                         onPressed: () =>
-                            selectedPriority.value = TransactionPriority.medium,
+                            ref
+                                    .read(userSelectedFeeRatePerVByteProvider
+                                        .notifier)
+                                    .state =
+                                FeeRate(TransactionPriority.medium,
+                                    mediumFeeRate.toDouble()),
                       )),
                     ],
                   ),
+                  SizedBox(height: 14.h),
                   Row(
                     children: [
                       Expanded(
-                          child: _SelectionItem(
-                        label: AppLocalizations.of(context)!
-                            .sendAssetReviewScreenConfirmPriorityLow,
-                        fee: lowFeeInFiat ?? '',
-                        satsPerByte:
-                            lowFeeRate != null ? lowFeeRate.toInt() : 0,
-                        isSelected:
-                            selectedPriority.value == TransactionPriority.low,
-                        onPressed: () =>
-                            selectedPriority.value = TransactionPriority.low,
-                      )),
-                      SizedBox(
-                        width: 10.w,
-                      ),
-                      Expanded(
-                        child: SizedBox(
-                          height: 100.h,
+                        child: _SelectionItem(
+                          label: context
+                              .loc.sendAssetReviewScreenConfirmPriorityLow,
+                          fee: lowFeeInFiat ?? '',
+                          satsPerByte: lowFeeRate.toInt(),
+                          isSelected:
+                              selectedPriority == TransactionPriority.low,
+                          onPressed: () => ref
+                                  .read(userSelectedFeeRatePerVByteProvider
+                                      .notifier)
+                                  .state =
+                              FeeRate(TransactionPriority.low,
+                                  lowFeeRate.toDouble()),
                         ),
                       ),
+                      SizedBox(
+                        width: 11.w,
+                      ),
+                      const Spacer(),
                     ],
                   ),
                 ],
@@ -166,8 +179,8 @@ class _SelectionItem extends StatelessWidget {
         onTap: onPressed,
         borderRadius: BorderRadius.circular(6.r),
         child: Ink(
-          height: 100.h,
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 16.h),
+          height: 125.h,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           decoration: isSelected
               ? null
               : BoxDecoration(
@@ -207,7 +220,7 @@ class _SelectionItem extends StatelessWidget {
               ),
               SizedBox(height: 5.h),
               Text(
-                AppLocalizations.of(context)!
+                context.loc
                     .sendAssetReviewScreenConfirmPrioritySats(satsPerByte),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 13.sp,
@@ -249,8 +262,7 @@ class _Header extends StatelessWidget {
               SizedBox(width: 18.w),
               Expanded(
                 child: Text(
-                  AppLocalizations.of(context)!
-                      .sendAssetReviewScreenConfirmPriorityTitle,
+                  context.loc.sendAssetReviewScreenConfirmPriorityTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontSize: 18.sp,
                       ),

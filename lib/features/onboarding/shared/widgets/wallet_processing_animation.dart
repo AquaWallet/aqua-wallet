@@ -1,5 +1,6 @@
 import 'package:aqua/config/constants/animations.dart' as animation;
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:lottie/lottie.dart';
 
@@ -41,8 +42,8 @@ class WalletProcessingAnimation extends HookConsumerWidget {
               SizedBox(height: 26.h),
               Text(
                 type == WalletProcessType.create
-                    ? AppLocalizations.of(context)!.walletCreateAnimationTitle
-                    : AppLocalizations.of(context)!.walletRestoreAnimationTitle,
+                    ? context.loc.walletCreateAnimationTitle
+                    : context.loc.walletRestoreAnimationTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 20.sp,
                       color: Theme.of(context).colorScheme.onBackground,

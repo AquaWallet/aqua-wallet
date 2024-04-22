@@ -14,64 +14,43 @@ class WalletMnemonicSuggestions extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useScrollController();
-    return Ink(
-      height: 40.h,
-      color: Theme.of(context).colorScheme.onBackground,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            onPressed: () => controller.animateTo(
-              controller.offset - 100.w,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-            ),
-            splashRadius: 20.r,
-            splashColor: Colors.transparent,
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            color: Theme.of(context).colorScheme.background,
-            icon: const Icon(Icons.chevron_left),
-          ),
-          Expanded(
-            child: ListView.separated(
+    return Container(
+      height: 43.h,
+      color: Theme.of(context).colorScheme.primary,
+      child: suggestions.isEmpty
+          ? const SizedBox.shrink()
+          //ANCHOR - Suggestions
+          : ListView.separated(
               controller: controller,
               scrollDirection: Axis.horizontal,
               itemCount: suggestions.length,
-              separatorBuilder: (context, index) => SizedBox(width: 8.w),
+              separatorBuilder: (_, __) => VerticalDivider(
+                width: 16.w,
+                indent: 8.h,
+                endIndent: 8.h,
+                thickness: 1.w,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
               itemBuilder: (context, index) {
                 final text = suggestions[index];
                 return Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.h),
-                  child: ElevatedButton(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 4.h,
+                  ),
+                  child: TextButton(
                     onPressed: () => onSuggestionSelected(text),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.onSurface,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 24.w),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                     ),
-                    child: Text(text),
+                    child: Text(text.toUpperCase()),
                   ),
                 );
               },
             ),
-          ),
-          IconButton(
-            onPressed: () => controller.animateTo(
-              controller.offset + 100.w,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-            ),
-            splashRadius: 20.r,
-            splashColor: Colors.transparent,
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            color: Theme.of(context).colorScheme.background,
-            icon: const Icon(Icons.chevron_right),
-          ),
-        ],
-      ),
     );
   }
 }

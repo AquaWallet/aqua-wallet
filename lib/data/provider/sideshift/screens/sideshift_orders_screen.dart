@@ -3,6 +3,7 @@ import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
+import 'package:aqua/utils/utils.dart';
 
 class SideShiftOrdersScreen extends ConsumerWidget {
   static const routeName = '/sideShiftOrdersScreen';
@@ -22,14 +23,13 @@ class SideShiftOrdersScreen extends ConsumerWidget {
       child: Scaffold(
         extendBodyBehindAppBar: false,
         appBar: AquaAppBar(
-          title: AppLocalizations.of(context)!.sideshiftOrders,
+          title: context.loc.sideshiftOrders,
           showBackButton: true,
           showActionButton: false,
           backgroundColor: darkMode
               ? Colors.transparent
               : Theme.of(context).colorScheme.surface,
           foregroundColor: Theme.of(context).colorScheme.onBackground,
-          elevated: true,
         ),
         body: const SideShiftOrdersList(),
       ),

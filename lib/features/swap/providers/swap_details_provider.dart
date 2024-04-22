@@ -25,10 +25,11 @@ class SwapDetailsNotifier
     final delivered = (transaction.swapOutgoingSatoshi as int).abs();
     final deliveredAsset = assets
         .firstWhere((asset) => asset.id == transaction.swapOutgoingAssetId);
-    final formattedDelivered = ref.read(formatterProvider).formatAssetAmount(
-          amount: delivered,
-          precision: deliveredAsset.precision,
-        );
+    final formattedDelivered =
+        ref.read(formatterProvider).formatAssetAmountDirect(
+              amount: delivered,
+              precision: deliveredAsset.precision,
+            );
 
     final feeAsset =
         assets.firstWhere((a) => deliveredAsset.isBTC ? a.isBTC : a.isLBTC);
@@ -38,10 +39,11 @@ class SwapDetailsNotifier
     final received = transaction.swapIncomingSatoshi as int;
     final receivedAsset = assets
         .firstWhere((asset) => asset.id == transaction.swapIncomingAssetId);
-    final formattedReceived = ref.read(formatterProvider).formatAssetAmount(
-          amount: received,
-          precision: receivedAsset.precision,
-        );
+    final formattedReceived =
+        ref.read(formatterProvider).formatAssetAmountDirect(
+              amount: received,
+              precision: receivedAsset.precision,
+            );
     final receivedTicker = receivedAsset.ticker;
 
     final transactionId = transaction.txhash ?? '-';

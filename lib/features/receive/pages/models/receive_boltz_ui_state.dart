@@ -1,1 +1,7 @@
-enum ReceiveBoltzUIState { enterAmount, webView }
+enum ReceiveBoltzUIState {
+  inactive,
+  loading,
+  enterAmount,
+  generatingInvoice,
+  qrCode
+}

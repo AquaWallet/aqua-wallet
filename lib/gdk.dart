@@ -763,7 +763,7 @@ class LibGdk {
 
   Future<Result<GdkAuthHandlerStatus>> signPsbt({
     required Pointer<GA_session> session,
-    required GdkSignPsbtDetails details, //HERE: TODO: Change this
+    required GdkSignPsbtDetails details,
   }) async {
     final json = toJson(details.toJsonString());
     if (json.isError) {

@@ -1,12 +1,22 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/services.dart';
 
+extension LocalizedBuildContext on BuildContext {
+  AppLocalizations get loc => AppLocalizations.of(this)!;
+}
+
 extension ContextExt on BuildContext {
   Future<void> copyToClipboard(String value) async {
     final text = AppLocalizations.of(this)!.copiedToClipboard;
     ScaffoldMessenger.of(this).removeCurrentSnackBar();
     showAquaSnackbar(text);
     await Clipboard.setData(ClipboardData(text: value));
+  }
+
+  Future<String?> checkClipboardContent() async {
+    ClipboardData? clipboardData =
+        await Clipboard.getData(Clipboard.kTextPlain);
+    return clipboardData?.text;
   }
 
   void showErrorSnackbar(String message) {
@@ -19,7 +29,9 @@ extension ContextExt on BuildContext {
 
   void showAquaSnackbar(String message) {
     _showSnackbar(
-        message: message, color: Theme.of(this).colorScheme.secondary);
+      message: message,
+      color: Theme.of(this).colorScheme.primary,
+    );
   }
 
   void _showSnackbar({

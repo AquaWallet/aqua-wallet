@@ -1,10 +1,10 @@
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/common/widgets/sliver_grid_delegate.dart';
-import 'package:aqua/data/models/focus_action.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class WalletRestoreInputContent extends HookConsumerWidget {
   const WalletRestoreInputContent({
@@ -19,85 +19,115 @@ class WalletRestoreInputContent extends HookConsumerWidget {
     final node = useFocusScopeNode();
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final focusedIndex = useState(0);
-    final focusedInputText = useState('');
     final mnemonicComplete = ref.watch(walletRestoreInputCompleteProvider);
 
-    ref.listen(
-      focusActionProvider,
-      (context, focusAction) {
-        error.value = false;
-        if (focusAction is FocusActionNext) {
-          node.nextFocus();
-        } else if (focusAction is FocusActionClear) {
-          node.unfocus();
-        }
-      },
-    );
+    //ANCHOR - Force status bar colors
+    useEffect(() {
+      Future.delayed(const Duration(milliseconds: 250), () {
+        ref.read(systemOverlayColorProvider(context)).transparentWithKeyboard();
+      });
+      return null;
+    }, []);
 
-    return KeyboardVisibilityBuilder(
-      builder: (context, isKeyboardVisible) => LayoutBuilder(
-        builder: (context, constraints) => ConstrainedBox(
-          constraints: BoxConstraints(
-            minWidth: constraints.maxWidth,
-            minHeight: constraints.maxHeight,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        //ANCHOR - Header
+        WalletRestoreHeader(error: error.value),
+        //ANCHOR - Mnemonic Word Fields
+        Expanded(
+          child: Center(
+            child: _MnemonicInputGrid(
+              formKey: formKey,
+              node: node,
+              focusedIndex: focusedIndex,
+              onKeyboardInput: kDebugMode
+                  ? (key) => ref
+                      .read(mnemonicWordInputStateProvider(focusedIndex.value)
+                          .notifier)
+                      .onKeyPressed(key)
+                  : null,
+            ),
           ),
-          child: IntrinsicHeight(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                WalletRestoreHeader(error: error.value),
-                Expanded(
-                  child: Container(
-                    height: 230.h,
-                    padding: EdgeInsets.symmetric(horizontal: 28.w),
-                    margin: EdgeInsets.only(top: 42.h),
-                    child: Form(
-                      key: formKey,
-                      child: FocusScope(
-                        node: node,
-                        child: GridView.builder(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 14.w,
-                            crossAxisSpacing: 10.w,
-                            height: 48.h,
-                          ),
-                          itemCount: 12,
-                          itemBuilder: (_, index) => WalletRestoreInputField(
-                            index: index,
-                            onFocused: (index) => focusedIndex.value = index,
-                            onTextChanged: (s) => focusedInputText.value = s,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+        ),
+        //ANCHOR - Restore Button
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 28.w),
+          child: AquaElevatedButton(
+            onPressed: mnemonicComplete
+                ? () => ref.watch(walletRestoreProvider.notifier).restore()
+                : null,
+            child: Text(context.loc.restoreInputButton),
+          ),
+        ),
+        SizedBox(height: 24.h),
+        SizedBox(
+          height: 254.h,
+          child: Column(
+            children: [
+              //ANCHOR - Mnemonic Suggestions
+              WalletMnemonicSuggestions(
+                suggestions: ref
+                    .watch(walletInputHintsProvider(focusedIndex.value))
+                    .options,
+                onSuggestionSelected: (suggestion) => ref
+                    .read(mnemonicWordInputStateProvider(focusedIndex.value)
+                        .notifier)
+                    .update(text: suggestion, isSuggestion: true),
+              ),
+              //ANCHOR - Virtual Keyboard
+              Expanded(
+                child: WalletRestoreInputKeyboard(
+                  onKeyPressed: (key) => ref
+                      .read(mnemonicWordInputStateProvider(focusedIndex.value)
+                          .notifier)
+                      .onKeyPressed(key),
                 ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 28.w),
-                  child: AquaElevatedButton(
-                    onPressed: mnemonicComplete
-                        ? () =>
-                            ref.read(walletRestoreProcessingProvider).restore()
-                        : null,
-                    child:
-                        Text(AppLocalizations.of(context)!.restoreInputButton),
-                  ),
-                ),
-                SizedBox(height: 24.h),
-                if (isKeyboardVisible) ...{
-                  WalletMnemonicSuggestions(
-                    suggestions: ref
-                        .read(walletRestoreItemProvider(focusedIndex.value))
-                        .options(focusedInputText.value)
-                        .toList(),
-                    onSuggestionSelected: (suggestion) => ref
-                        .read(walletRestoreItemProvider(focusedIndex.value))
-                        .select(suggestion),
-                  ),
-                }
-              ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MnemonicInputGrid extends StatelessWidget {
+  const _MnemonicInputGrid({
+    required this.formKey,
+    required this.node,
+    required this.focusedIndex,
+    this.onKeyboardInput,
+  });
+
+  final GlobalKey<FormState> formKey;
+  final FocusScopeNode node;
+  final ValueNotifier<int> focusedIndex;
+  final Function(MnemonicKeyboardKey key)? onKeyboardInput;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 28.w),
+      margin: EdgeInsets.only(top: 42.h),
+      child: Form(
+        key: formKey,
+        child: FocusScope(
+          node: node,
+          child: GridView.builder(
+            shrinkWrap: true,
+            gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+              crossAxisCount: 3,
+              mainAxisSpacing: 14.w,
+              crossAxisSpacing: 10.w,
+              height: 48.h,
+            ),
+            itemCount: 12,
+            itemBuilder: (_, index) => WalletRestoreInputField(
+              index: index,
+              onFocused: (index) => focusedIndex.value = index,
+              onKeyboardInput: onKeyboardInput,
             ),
           ),
         ),

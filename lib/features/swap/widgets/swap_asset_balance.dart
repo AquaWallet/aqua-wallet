@@ -1,11 +1,17 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SwapAssetBalance extends HookConsumerWidget {
-  const SwapAssetBalance({super.key, required this.isReceive});
+  const SwapAssetBalance({
+    super.key,
+    required this.isReceive,
+    this.textColor,
+  });
 
   final bool isReceive;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,17 +32,27 @@ class SwapAssetBalance extends HookConsumerWidget {
 
     if (isLoading) {
       return Text(
-        AppLocalizations.of(context)!.exchangeSwapBalance('12.34567890', 'XXX'),
+        '${context.loc.exchangeSwapBalance} 12.34567890 XXX',
         style: textStyle,
       );
     }
 
     return balance.isEmpty || asset == null
         ? const SizedBox.shrink()
-        : Text(
-            AppLocalizations.of(context)!
-                .exchangeSwapBalance(balance, asset.ticker),
-            style: textStyle,
+        : Row(
+            children: [
+              Text(
+                context.loc.exchangeSwapBalance,
+                style: textStyle,
+              ),
+              Text(
+                '$balance ${asset.ticker}',
+                style: textStyle!.copyWith(
+                  color:
+                      textColor ?? Theme.of(context).colorScheme.onBackground,
+                ),
+              ),
+            ],
           );
   }
 }

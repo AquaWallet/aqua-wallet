@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -64,9 +65,8 @@ final currenciesProvider = FutureProvider.family
     .autoDispose<List<String>, BuildContext>((ref, context) async {
   final currencies = await ref.read(aquaProvider).getAvailableCurrencies();
   return currencies?.perExchange?.entries
-          .expand((exchange) => exchange.value.map((currency) =>
-              AppLocalizations.of(context)!
-                  .refExRateSettingsScreenItemLabel(currency, exchange.key)))
+          .expand((exchange) => exchange.value.map((currency) => context.loc
+              .refExRateSettingsScreenItemLabel(currency, exchange.key)))
           .toList() ??
       [];
 });

@@ -1,6 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 const iconsForUnit = {
@@ -15,14 +16,15 @@ const labelForUnit = {
   FeeAsset.btc: 'Bitcoin',
 };
 
-class GetBitcoinCard extends StatelessWidget {
-  const GetBitcoinCard({super.key, required this.asset, required this.onTap});
+class GetBitcoinCard extends ConsumerWidget {
+  const GetBitcoinCard({super.key, required this.onTap});
 
-  final SendAssetArguments asset;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final feeAsset = ref.read(userSelectedFeeAssetProvider);
+
     return BoxShadowCard(
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(12.r),
@@ -38,7 +40,7 @@ class GetBitcoinCard extends StatelessWidget {
               children: [
                 SizedBox(width: 14.w),
                 SvgPicture.asset(
-                  iconsForUnit[asset.feeUnit]!,
+                  iconsForUnit[feeAsset]!,
                   width: 38.r,
                   height: 38.r,
                 ),
@@ -49,9 +51,8 @@ class GetBitcoinCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!
-                            .insufficientFundsSheetAssetTitle(
-                                labelForUnit[asset.feeUnit]!),
+                        context.loc.insufficientFundsSheetAssetTitle(
+                            labelForUnit[feeAsset]!),
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   fontSize: 18.sp,
@@ -59,8 +60,7 @@ class GetBitcoinCard extends StatelessWidget {
                       ),
                       SizedBox(height: 6.h),
                       Text(
-                        AppLocalizations.of(context)!
-                            .insufficientFundsSheetAssetDescription,
+                        context.loc.insufficientFundsSheetAssetDescription,
                         style:
                             Theme.of(context).textTheme.labelMedium?.copyWith(
                                   fontSize: 12.sp,

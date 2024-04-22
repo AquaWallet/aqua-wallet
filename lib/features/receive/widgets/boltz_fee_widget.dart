@@ -1,9 +1,8 @@
 import 'package:aqua/features/receive/providers/providers.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:flutter/material.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aqua/utils/utils.dart';
 
 class BoltzFeeWidget extends ConsumerWidget {
   final Asset asset;
@@ -42,12 +41,13 @@ class BoltzFeeWidget extends ConsumerWidget {
         (reversePercentage / 100 * double.parse(userEnteredValueInSats!));
 
     final assetBalanceFiatAmount = ref
-            .watch(satsToFiatProvider(totalServiceFeeSats.round()))
+            .watch(satsToFiatDisplayWithSymbolProvider(
+                totalServiceFeeSats.round()))
             .asData
             ?.value ??
         '';
 
     return Text(
-        "Service Fee: ${totalServiceFeeSats.ceil()} sats ($assetBalanceFiatAmount)");
+        "${context.loc.boltzServiceFee}: ${totalServiceFeeSats.ceil()} sats ($assetBalanceFiatAmount)");
   }
 }

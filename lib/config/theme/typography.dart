@@ -1,6 +1,7 @@
 import 'package:aqua/config/colors/colors_schemes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:aqua/utils/utils.dart';
 
 class AppTypography {
   AppTypography._(
@@ -57,47 +58,52 @@ class AppTypography {
             ),
         //ANCHOR - Title
         titleLarge: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontSize: 22.sp,
+              fontSize:
+                  context.adaptiveDouble(mobile: 22.sp, wideMobile: 20.sp),
               color: colors.colorScheme.onBackground,
               fontWeight: FontWeight.bold,
             ),
         titleMedium: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontSize: 16.sp,
+              fontSize:
+                  context.adaptiveDouble(mobile: 16.sp, wideMobile: 14.sp),
               color: colors.colorScheme.onBackground,
               fontWeight: FontWeight.bold,
               letterSpacing: .15,
             ),
         titleSmall: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontSize: 14.sp,
+              fontSize:
+                  context.adaptiveDouble(mobile: 14.sp, wideMobile: 12.sp),
               color: colors.colorScheme.onBackground,
               fontWeight: FontWeight.bold,
               letterSpacing: .1,
             ),
         //ANCHOR - Label
         labelLarge: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontSize: 14.sp,
+              fontSize:
+                  context.adaptiveDouble(mobile: 16.sp, wideMobile: 14.sp),
               color: Theme.of(context).colorScheme.onBackground,
             ),
         labelMedium: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontSize: 12.sp,
+              fontSize:
+                  context.adaptiveDouble(mobile: 14.sp, wideMobile: 12.sp),
               color: colors.colorScheme.onBackground,
             ),
         labelSmall: Theme.of(context).textTheme.labelSmall?.copyWith(
-              fontSize: 11.sp,
-            ),
+            fontSize: context.adaptiveDouble(mobile: 11.sp, wideMobile: 10.sp)),
         //ANCHOR - Body
         bodyLarge: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: colors.colorScheme.onBackground,
-              fontSize: 16.sp,
+              fontSize:
+                  context.adaptiveDouble(mobile: 16.sp, wideMobile: 14.sp),
             ),
         bodyMedium: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: colors.colorScheme.onBackground,
-              fontSize: 14.sp,
+              fontSize:
+                  context.adaptiveDouble(mobile: 14.sp, wideMobile: 12.sp),
             ),
         bodySmall: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: colors.colorScheme.onBackground,
-              fontSize: 12.sp,
-            ),
+            color: colors.colorScheme.onBackground,
+            fontSize: context.adaptiveDouble(mobile: 12.sp, wideMobile: 10.sp)),
       );
 
   TextStyle get bottomNavBarLabelStyle => appTextTheme.labelMedium!.copyWith(

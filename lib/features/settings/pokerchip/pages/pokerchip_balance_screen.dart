@@ -17,8 +17,8 @@ class PokerchipBalanceScreen extends HookConsumerWidget {
 
     useEffect(() {
       if (error) {
-        Future.microtask(() => context.showErrorSnackbar(
-            AppLocalizations.of(context)!.pokerChipBalanceError));
+        Future.microtask(
+            () => context.showErrorSnackbar(context.loc.pokerChipBalanceError));
       }
       return null;
     }, [error]);
@@ -27,7 +27,7 @@ class PokerchipBalanceScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.pokerchipScreenTitle,
+        title: context.loc.pokerchipScreenTitle,
       ),
       body: SafeArea(
         child: Container(
@@ -48,7 +48,7 @@ class PokerchipBalanceScreen extends HookConsumerWidget {
                       ref.read(urlLauncherProvider).open(value.explorerLink),
                 ),
                 child: Text(
-                  AppLocalizations.of(context)!.pokerChipBalanceExplorerButton,
+                  context.loc.pokerChipBalanceExplorerButton,
                 ),
               ),
               SizedBox(height: 36.h),

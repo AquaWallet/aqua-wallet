@@ -3,6 +3,7 @@ import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 enum TransactionType {
   send,
@@ -18,8 +19,8 @@ class TransactionMenuScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final type = ModalRoute.of(context)!.settings.arguments as TransactionType;
     final title = type == TransactionType.send
-        ? AppLocalizations.of(context)!.sendAssetScreenTitle
-        : AppLocalizations.of(context)!.receiveMenuScreenTitle;
+        ? context.loc.sendAssetScreenTitle
+        : context.loc.receiveMenuScreenTitle;
 
     final curatedAssets =
         ref.watch(manageAssetsProvider.select((p) => p.curatedAssets));
@@ -27,6 +28,7 @@ class TransactionMenuScreen extends HookConsumerWidget {
         .watch(manageAssetsProvider.select((p) => p.otherTransactableAssets));
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colors.menuSurface,
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
@@ -68,84 +70,29 @@ class TransactionMenuScreen extends HookConsumerWidget {
                     children: [
                       //ANCHOR - Aqua Assets Section
                       Text(
-                        AppLocalizations.of(context)!
-                            .receiveMenuScreenSectionAquaAssets,
+                        context.loc.receiveMenuScreenSectionAquaAssets,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       SizedBox(height: 26.h),
                       //ANCHOR - Aqua Assets List
-                      GridView.count(
-                        shrinkWrap: true,
-                        crossAxisSpacing: 22.w,
-                        mainAxisSpacing: 27.h,
-                        crossAxisCount: 2,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children:
-                            //ANCHOR - Curated Assets List
-                            curatedAssets
-                                .map((asset) => _AssetMenuItem(
-                                      name: asset.name,
-                                      symbol: asset.ticker == 'USDt'
-                                          ? 'Liquid USDt'
-                                          : asset.ticker,
-                                      id: asset.id,
-                                      iconUrl: asset.logoUrl,
-                                      onTap: () {
-                                        final sendArguments =
-                                            SendAssetArguments.fromAsset(asset);
-                                        type == TransactionType.send
-                                            ? Navigator.of(context).pushNamed(
-                                                SendAssetScreen.routeName,
-                                                arguments: sendArguments,
-                                              )
-                                            : Navigator.of(context).pushNamed(
-                                                ReceiveAssetScreen.routeName,
-                                                arguments: asset,
-                                              );
-                                      },
-                                    ))
-                                .toList(),
+                      _AquaAssetsGrid(
+                        curatedAssets: curatedAssets,
+                        type: type,
                       ),
                       SizedBox(height: 32.h),
-                      //ANCHOR - Other Assets Section
-                      Text(
-                        AppLocalizations.of(context)!
-                            .receiveMenuScreenSectionOtherAssets,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      SizedBox(height: 26.h),
-
-                      //ANCHOR - Other Assets List
-                      GridView.count(
-                        shrinkWrap: true,
-                        crossAxisSpacing: 22.w,
-                        mainAxisSpacing: 27.h,
-                        crossAxisCount: 2,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: otherAssets
-                            .map((asset) => _AssetMenuItem(
-                                  name: asset.name,
-                                  symbol: asset.isEth
-                                      ? 'Ethereum USDt'
-                                      : 'Tron USDt',
-                                  id: asset.id,
-                                  iconUrl: asset.logoUrl,
-                                  onTap: () {
-                                    final sendArguments =
-                                        SendAssetArguments.fromAsset(asset);
-                                    type == TransactionType.send
-                                        ? Navigator.of(context).pushNamed(
-                                            SendAssetScreen.routeName,
-                                            arguments: sendArguments,
-                                          )
-                                        : Navigator.of(context).pushNamed(
-                                            ReceiveAssetScreen.routeName,
-                                            arguments: asset,
-                                          );
-                                  },
-                                ))
-                            .toList(),
-                      ),
+                      if (otherAssets.isNotEmpty) ...[
+                        //ANCHOR - Other Assets Section
+                        Text(
+                          context.loc.receiveMenuScreenSectionOtherAssets,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        SizedBox(height: 26.h),
+                        //ANCHOR - Other Assets List
+                        _OtherAssetsGrid(
+                          otherAssets: otherAssets,
+                          type: type,
+                        ),
+                      ],
                       SizedBox(height: 32.h),
                     ],
                   ),
@@ -172,7 +119,88 @@ class TransactionMenuScreen extends HookConsumerWidget {
   }
 }
 
-class _AssetMenuItem extends StatelessWidget {
+class _OtherAssetsGrid extends ConsumerWidget {
+  const _OtherAssetsGrid({
+    required this.otherAssets,
+    required this.type,
+  });
+
+  final List<Asset> otherAssets;
+  final TransactionType type;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisSpacing: 22.w,
+      mainAxisSpacing: 27.h,
+      crossAxisCount: 2,
+      physics: const NeverScrollableScrollPhysics(),
+      children: otherAssets
+          .map((asset) => _AssetMenuItem(
+                name: asset.name,
+                symbol: asset.isEth ? 'Ethereum USDt' : 'Tron USDt',
+                id: asset.id,
+                iconUrl: asset.logoUrl,
+                onTap: () {
+                  final sendArguments = SendAssetArguments.fromAsset(asset);
+                  type == TransactionType.send
+                      ? ref
+                          .read(sendNavigationEntryProvider(sendArguments))
+                          .call(context)
+                      : Navigator.of(context).pushNamed(
+                          ReceiveAssetScreen.routeName,
+                          arguments: asset,
+                        );
+                },
+              ))
+          .toList(),
+    );
+  }
+}
+
+class _AquaAssetsGrid extends ConsumerWidget {
+  const _AquaAssetsGrid({
+    required this.curatedAssets,
+    required this.type,
+  });
+
+  final List<Asset> curatedAssets;
+  final TransactionType type;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisSpacing: 22.w,
+      mainAxisSpacing: 27.h,
+      crossAxisCount: 2,
+      physics: const NeverScrollableScrollPhysics(),
+      //ANCHOR - Curated Assets List
+      children: curatedAssets
+          .map((asset) => _AssetMenuItem(
+                name: asset.name,
+                symbol: asset.ticker == 'USDt' ? 'Liquid USDt' : asset.ticker,
+                id: asset.id,
+                iconUrl: asset.logoUrl,
+                onTap: () {
+                  final sendArguments = SendAssetArguments.fromAsset(asset);
+                  type == TransactionType.send
+                      ? ref
+                          .read(sendNavigationEntryProvider(sendArguments))
+                          .call(context)
+                      : Navigator.of(context).pushNamed(
+                          ReceiveAssetScreen.routeName,
+                          arguments: asset,
+                        );
+                },
+              ))
+          .toList(),
+    );
+  }
+}
+
+class _AssetMenuItem extends ConsumerWidget {
   const _AssetMenuItem({
     required this.name,
     required this.symbol,
@@ -188,7 +216,8 @@ class _AssetMenuItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
     return AspectRatio(
       aspectRatio: 175 / 164,
       child: InkWell(
@@ -198,13 +227,12 @@ class _AssetMenuItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(10.r),
-            boxShadow: [
-              BoxShadow(
-                offset: const Offset(0, 1),
-                blurRadius: 5,
-                color: Colors.black.withOpacity(0.3),
-              ),
-            ],
+            border: darkMode
+                ? null
+                : Border.all(
+                    color: Theme.of(context).colors.cardOutlineColor,
+                    width: 2.w,
+                  ),
           ),
           child: Opacity(
             opacity: onTap != null ? 1.0 : 0.5,
@@ -221,12 +249,13 @@ class _AssetMenuItem extends StatelessWidget {
                     assetLogoUrl: iconUrl,
                     size: 60.r,
                   ),
-                  SizedBox(height: 25.h),
+                  SizedBox(height: 35.h),
                   //ANCHOR - Name
                   Text(
                     name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontSize: 15.sp,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontSize: context.adaptiveDouble(
+                              mobile: 18.sp, wideMobile: 14.sp),
                           fontWeight: FontWeight.bold,
                         ),
                   ),
@@ -234,8 +263,7 @@ class _AssetMenuItem extends StatelessWidget {
                   //ANCHOR - Symbol
                   Text(
                     symbol,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontSize: 13.sp,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),

@@ -17,12 +17,11 @@ Future<Result<AssetsResponse>> fetchAssets(
     final fetchedAssetsResponse = await ref.read(dioProvider).get(assetsUrl);
     final assetsJson = fetchedAssetsResponse.data as Map<String, dynamic>;
     final response = AssetsResponse.fromJson(assetsJson);
-    logger.i(
-        '[manageAssetsProvider] Fetched ${response.data?.assets.length} assets');
+    logger.i('[ManageAssets] Fetched ${response.data?.assets.length} assets');
 
     return Result.value(response);
   } catch (e) {
-    logger.w('[manageAssetsProvider] Failed to fetch assets');
+    logger.w('[ManageAssets] Failed to fetch assets');
     return Result.error(e);
   }
 }
@@ -32,15 +31,19 @@ final availableAssetsProvider =
   final keepAliveLink = ref.keepAlive();
   Future.delayed(const Duration(hours: 1), () => keepAliveLink.close());
 
-  final String staticAssetsRaw =
-      await rootBundle.loadString('assets/assets.json');
-  final staticAssetsJson = await json.decode(staticAssetsRaw);
   final fetchedAssetsJson = await fetchAssets(ref);
+  final response = fetchedAssetsJson.asValue?.value;
 
-  final AssetsResponse assetsResponse = fetchedAssetsJson.asValue?.value ??
-      AssetsResponse.fromJson(staticAssetsJson);
+  final AssetsResponse assetsResponse;
+  if (response != null) {
+    assetsResponse = response;
+  } else {
+    final staticAssetsRaw = await rootBundle.loadString('assets/assets.json');
+    final staticAssetsJson = await json.decode(staticAssetsRaw);
+    assetsResponse = AssetsResponse.fromJson(staticAssetsJson);
+  }
 
-  final assets = assetsResponse.data?.assets
+  final allAssets = assetsResponse.data?.assets
           .map((asset) => asset.copyWith(
                 isLiquid: true,
                 isLBTC: ref.read(liquidProvider).policyAsset == asset.id,
@@ -49,23 +52,26 @@ final availableAssetsProvider =
           .toList() ??
       [];
 
-  final userAssetIds = ref.read(prefsProvider).userAssetIds;
-  assets
-      .where((asset) => asset.isDefaultAsset)
-      .whereNot((asset) => userAssetIds.contains(asset.id))
-      .forEach((asset) => ref.read(prefsProvider).addAsset(asset.id));
-  return assets;
+  // Add default assets to user assets
+  if (ref.read(prefsProvider).userAssetIds.isEmpty) {
+    allAssets
+        .where((asset) => asset.isDefaultAsset)
+        .forEach((asset) => ref.read(prefsProvider).addAsset(asset.id));
+  }
+  return allAssets;
 });
 
 final manageAssetsProvider = Provider.autoDispose<ManageAssetsProvider>((ref) {
-  final assets = ref.watch(availableAssetsProvider).asData?.value ?? [];
+  final env = ref.watch(envProvider);
   final prefs = ref.watch(prefsProvider);
-  return ManageAssetsProvider(prefs, assets);
+  final assets = ref.watch(availableAssetsProvider).asData?.value ?? [];
+  return ManageAssetsProvider(env, prefs, assets);
 });
 
 class ManageAssetsProvider extends ChangeNotifier {
-  ManageAssetsProvider(this.prefs, this.allAssets);
+  ManageAssetsProvider(this.env, this.prefs, this.allAssets);
 
+  final Env env;
   final UserPreferencesNotifier prefs;
   //NOTE - The assets supported by Aqua at a given moment (fetched from API)
   final List<Asset> allAssets;
@@ -74,9 +80,7 @@ class ManageAssetsProvider extends ChangeNotifier {
   //This is supposed to be a subset of [availableAssets].
   List<Asset> get userAssets {
     return prefs.userAssetIds
-        .map((id) {
-          return allAssets.firstWhereOrNull((asset) => asset.id == id);
-        })
+        .map((id) => allAssets.firstWhereOrNull((asset) => asset.id == id))
         .whereType<Asset>()
         .toList();
   }
@@ -86,7 +90,7 @@ class ManageAssetsProvider extends ChangeNotifier {
   //verify if the assets are present in the GDK ([gdkAssets]) supported assets.
   List<Asset> get availableAssets => allAssets
       .whereNot((asset) => prefs.userAssetIds.contains(asset.id))
-      .whereNot((asset) => asset.isDefaultAsset)
+      .where((asset) => asset.isRemovable)
       .whereType<Asset>()
       .distinctBy((asset) => asset.id)
       .toList();
@@ -105,14 +109,14 @@ class ManageAssetsProvider extends ChangeNotifier {
     prefs.removeAsset(asset.id);
     notifyListeners();
   }
-}
 
-extension ManageAssetsProviderExtension on ManageAssetsProvider {
   Asset get btcAsset => Asset.btc();
 
   /// Convenience getter for `lbtc` asset
-  Asset get lbtcAsset =>
-      allAssets.firstWhere((asset) => asset.ticker == "L-BTC");
+  Asset get lbtcAsset => allAssets.firstWhere((asset) => switch (env) {
+        Env.mainnet => asset.ticker == "L-BTC",
+        _ => asset.ticker == "tL-BTC",
+      });
 
   /// Convenience getter for `liquid USDt` asset
   Asset get liquidUsdtAsset =>
@@ -129,7 +133,9 @@ extension ManageAssetsProviderExtension on ManageAssetsProvider {
   List<Asset> get curatedAssets {
     return [
       btcAsset,
-      liquidUsdtAsset,
+      if (isUsdtEnabled) ...{
+        liquidUsdtAsset,
+      },
       Asset.lightning(),
       lbtcAsset,
       ...userAssets.where((asset) =>
@@ -140,7 +146,8 @@ extension ManageAssetsProviderExtension on ManageAssetsProvider {
   }
 
   /// Convenience getter for list of other transactable assets
-  List<Asset> get otherTransactableAssets => [Asset.usdtEth(), Asset.usdtTrx()];
+  List<Asset> get otherTransactableAssets =>
+      isUsdtEnabled ? [Asset.usdtEth(), Asset.usdtTrx()] : [];
 
   /// Validate `asset` is a USDt asset
   bool isUsdt(Asset asset) =>
@@ -157,6 +164,9 @@ extension ManageAssetsProviderExtension on ManageAssetsProvider {
 
   /// Validate `asset` is any active liquid asset EXCEPT ltbc
   bool isLiquidButNotLBTC(Asset asset) {
-    return [liquidUsdtAsset, ...userAssets].any((a) => a.id == asset.id);
+    return isLiquid(asset) && !isLBTC(asset);
   }
+
+  // Convenience getter to check whether or not USDt is enabled
+  bool get isUsdtEnabled => userAssets.any((asset) => asset.isUSDt);
 }

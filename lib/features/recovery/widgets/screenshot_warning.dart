@@ -1,6 +1,7 @@
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ScreenshotWarningSheet extends ConsumerWidget {
@@ -24,7 +25,7 @@ class ScreenshotWarningSheet extends ConsumerWidget {
           SizedBox(height: 20.h),
           //ANCHOR - Title
           Text(
-            AppLocalizations.of(context)!.backupRecoveryAlertTitle,
+            context.loc.backupRecoveryAlertTitle,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontSize: 20.sp,
                 ),
@@ -34,7 +35,7 @@ class ScreenshotWarningSheet extends ConsumerWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: Text(
-              AppLocalizations.of(context)!.backupRecoveryAlertSubtitle,
+              context.loc.backupRecoveryAlertSubtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onBackground,
@@ -45,7 +46,7 @@ class ScreenshotWarningSheet extends ConsumerWidget {
           //ANCHOR - Quit button
           AquaElevatedButton(
             child: Text(
-              AppLocalizations.of(context)!.backupRecoveryAlertButton,
+              context.loc.backupRecoveryAlertButton,
             ),
             onPressed: () => Navigator.of(context).pop(),
           ),

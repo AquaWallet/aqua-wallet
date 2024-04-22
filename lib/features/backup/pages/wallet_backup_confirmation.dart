@@ -2,6 +2,7 @@ import 'package:aqua/common/widgets/loading_dialog.dart';
 import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class WalletBackupConfirmation extends ConsumerWidget {
   static const routeName = '/walletBackupConfirmation';
@@ -16,7 +17,7 @@ class WalletBackupConfirmation extends ConsumerWidget {
         data: (_) => Navigator.of(context).popUntil((route) => route.isFirst),
         loading: () => showLoadingDialog(
           context,
-          AppLocalizations.of(context)!.backupInviteLoadingIndicator,
+          context.loc.backupInviteLoadingIndicator,
         ),
         error: (e, _) {
           Navigator.of(context).pushNamedAndRemoveUntil(

@@ -5,6 +5,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/services.dart';
 
 class WalletRecoveryPhraseScreen extends StatefulHookConsumerWidget {
@@ -82,7 +83,7 @@ class _State extends ConsumerState<WalletRecoveryPhraseScreen> {
               if (arguments?.isOnboarding ?? true) ...[
                 AquaElevatedButton(
                   child: Text(
-                    AppLocalizations.of(context)!.backupRecoveryPhraseButton,
+                    context.loc.backupRecoveryPhraseButton,
                   ),
                   onPressed: () => Navigator.of(context)
                       .pushReplacementNamed(WalletBackupConfirmation.routeName),

@@ -4,9 +4,8 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/screens/qrscanner/qr_scanner_screen.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:aqua/features/transactions/transactions.dart';
 
 class TransactionMenuBottomBar extends HookConsumerWidget {
   const TransactionMenuBottomBar({
@@ -18,9 +17,6 @@ class TransactionMenuBottomBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sendAssetArgs = useMemoized(() {
-      return SendAssetArguments.fromAsset(asset);
-    });
     final lightningAsset = ref
         .watch(manageAssetsProvider.select((p) => p.curatedAssets))
         .firstWhere((lightningAsset) => lightningAsset.isLightning);
@@ -35,7 +31,7 @@ class TransactionMenuBottomBar extends HookConsumerWidget {
             child: _MenuButton(
               svgAssetName: Svgs.walletReceive,
               radius: BorderRadius.only(bottomLeft: Radius.circular(20.r)),
-              label: AppLocalizations.of(context)!.receive,
+              label: context.loc.receive,
               onPressed: () => Navigator.of(context).pushNamed(
                 ReceiveAssetScreen.routeName,
                 arguments: asset.isLBTC ? lightningAsset : asset,
@@ -46,22 +42,12 @@ class TransactionMenuBottomBar extends HookConsumerWidget {
           Expanded(
             child: _MenuButton(
               svgAssetName: Svgs.walletSend,
-              label: AppLocalizations.of(context)!.send,
+              label: context.loc.send,
               onPressed: () => {
-                if (asset.isLBTC)
-                  {
-                    Navigator.of(context).pushNamed(
-                      L2SendScreen.routeName,
-                      arguments: L2TransactionType.send,
-                    )
-                  }
-                else
-                  {
-                    Navigator.of(context).pushNamed(
-                      SendAssetScreen.routeName,
-                      arguments: SendAssetArguments.fromAsset(asset),
-                    )
-                  }
+                ref
+                    .read(sendNavigationEntryProvider(
+                        SendAssetArguments.fromAsset(asset)))
+                    .call(context)
               },
             ),
           ),
@@ -69,26 +55,18 @@ class TransactionMenuBottomBar extends HookConsumerWidget {
           Expanded(
             child: _MenuButton(
               svgAssetName: Svgs.walletScan,
-              label: AppLocalizations.of(context)!.scan,
+              label: context.loc.scan,
               radius: BorderRadius.only(bottomRight: Radius.circular(20.r)),
               onPressed: () => {
-                if (asset.isLBTC)
-                  {
-                    Navigator.of(context).pushNamed(
-                      QrScannerScreen.routeName,
-                      arguments: QrScannerScreenArguments(parseAddress: true),
-                    )
-                  }
-                else
-                  {
-                    Navigator.of(context).pushNamed(
-                      QrScannerScreen.routeName,
-                      arguments: QrScannerScreenArguments(
-                        asset: asset,
-                        network: sendAssetArgs.network,
-                      ),
-                    )
-                  }
+                Navigator.of(context).pushNamed(
+                  QrScannerScreen.routeName,
+                  arguments: QrScannerScreenArguments(
+                    asset: asset,
+                    throwErrorOnAssetMismatch: true,
+                    parseAddress: true,
+                  ),
+                )
+                // }
               },
             ),
           ),

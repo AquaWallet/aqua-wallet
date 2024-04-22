@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -79,8 +80,7 @@ class SettingsSelectionList extends HookWidget {
                 TextField(
                   onChanged: (value) => query.value = value,
                   decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!
-                        .regionSettingsScreenSearchHint,
+                    hintText: context.loc.regionSettingsScreenSearchHint,
                     hintStyle: TextStyle(
                       fontWeight: FontWeight.w400,
                       color: Theme.of(context).colorScheme.onBackground,

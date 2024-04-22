@@ -5,6 +5,7 @@ import 'package:aqua/features/receive/providers/providers.dart';
 import 'package:aqua/features/receive/widgets/widgets.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ReceiveAmountInputSheet extends HookConsumerWidget {
@@ -43,7 +44,7 @@ class ReceiveAmountInputSheet extends HookConsumerWidget {
             SizedBox(height: 18.h),
             //ANCHOR - Title
             Text(
-              AppLocalizations.of(context)!.receiveAssetAmountSheetTitle,
+              context.loc.receiveAssetAmountSheetTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontSize: 20.sp,
                   ),
@@ -82,8 +83,7 @@ class ReceiveAmountInputSheet extends HookConsumerWidget {
                         }
                       },
                 child: Text(
-                  AppLocalizations.of(context)!
-                      .receiveAssetAmountSheetConfirmButton,
+                  context.loc.receiveAssetAmountSheetConfirmButton,
                 ),
               ),
             ),
@@ -98,8 +98,7 @@ class ReceiveAmountInputSheet extends HookConsumerWidget {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    AppLocalizations.of(context)!
-                        .receiveAssetAmountSheetCancelButton,
+                    context.loc.receiveAssetAmountSheetCancelButton,
                   ),
                 ),
               ),

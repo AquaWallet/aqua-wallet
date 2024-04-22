@@ -24,21 +24,26 @@ class SwapConversionRateView extends HookConsumerWidget {
     return Container(
       height: 34.h,
       margin: EdgeInsets.symmetric(vertical: 12.h),
+      padding: EdgeInsets.all(1.h),
       child: amount == null || error != null
           ? const SizedBox.shrink()
           : BoxShadowContainer(
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Theme.of(context).colors.inputBackground,
+                color: Theme.of(context).colors.conversionRateSwapScreenColor,
                 borderRadius: BorderRadius.circular(6.r),
-                boxShadow: [Theme.of(context).shadow],
+                boxShadow: [
+                  Theme.of(context).swapScreenRateConversionBoxShadows,
+                ],
               ),
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
               child: Text(
                 amount,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontSize: 13.sp,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme.of(context)
+                          .colors
+                          .swapConversionRateViewTextColor,
                     ),
               ),
             ),

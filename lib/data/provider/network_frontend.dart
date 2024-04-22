@@ -1,13 +1,13 @@
-import 'package:aqua/common/errors/error_localized.dart';
+import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/data/backend/gdk_backend_event.dart';
 import 'package:aqua/data/models/gdk_models.dart';
+import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:async/async.dart';
 import 'package:isolator/isolator.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 
 class InitializeNetworkFrontendException implements Exception {}
 
@@ -67,9 +67,8 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
 
         if (isLogged &&
             result.currentState == GdkNetworkEventStateEnum.connected) {
-          // refresh balances & transactions
+          // refresh balances
           await getBalance(requiresRefresh: true);
-          await getTransactions(requiresRefresh: true);
         }
 
         break;
@@ -340,7 +339,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   Future<Map<String, GdkAssetInformation>?> getAssets() async {
     final userAssetIds = ref.read(prefsProvider).userAssetIds;
     GdkGetAssetsParameters params =
-        GdkGetAssetsParameters(assets_id: userAssetIds);
+        GdkGetAssetsParameters(assetsId: userAssetIds);
 
     final result = await runBackendMethod<GdkGetAssetsParameters,
             Result<Map<String, GdkAssetInformation>?>>(
@@ -705,7 +704,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   }
 }
 
-class GdkNetworkException implements Exception, ErrorLocalized {
+class GdkNetworkException implements Exception, ExceptionLocalized {
   final Object error;
 
   GdkNetworkException(this.error);
@@ -727,7 +726,7 @@ class GdkNetworkInvalidAddress extends GdkNetworkException {
 
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.gdkNetworkInvalidAddress;
+    return context.loc.gdkNetworkInvalidAddress;
   }
 }
 
@@ -736,7 +735,7 @@ class GdkNetworkInvalidAmount extends GdkNetworkException {
 
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.gdkNetworkInvalidAmount;
+    return context.loc.gdkNetworkInvalidAmount;
   }
 }
 
@@ -745,7 +744,7 @@ class GdkNetworkInsufficientFunds extends GdkNetworkException {
 
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.gdkNetworkInsufficientFunds;
+    return context.loc.gdkNetworkInsufficientFunds;
   }
 }
 
@@ -754,6 +753,6 @@ class GdkNonExistentAccount extends GdkNetworkException {
 
   @override
   String toLocalizedString(BuildContext context) {
-    return AppLocalizations.of(context)!.gdkNetworkInsufficientFunds;
+    return context.loc.gdkNetworkInsufficientFunds;
   }
 }

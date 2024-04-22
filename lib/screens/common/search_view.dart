@@ -1,5 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 class SearchView extends StatelessWidget {
@@ -28,10 +29,10 @@ class SearchView extends StatelessWidget {
           filled: true,
           isDense: true,
           fillColor: Theme.of(context).colors.inputBackground,
-          hintText: AppLocalizations.of(context)!.receiveAddressSearchHint,
+          hintText: context.loc.receiveAddressSearchHint,
           hintStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).colors.addressHistoryHintTextColor,
               ),
           prefixIcon: Container(
             padding: EdgeInsets.only(left: 18.w, right: 12.w),
@@ -39,7 +40,8 @@ class SearchView extends StatelessWidget {
                 width: 16.r,
                 height: 16.r,
                 colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurface, BlendMode.srcIn)),
+                    Theme.of(context).colors.addressHistoryHintTextColor,
+                    BlendMode.srcIn)),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.r),

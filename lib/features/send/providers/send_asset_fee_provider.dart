@@ -1,22 +1,25 @@
+import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
+import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/electrs_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
-import 'package:aqua/features/external/boltz/boltz_provider.dart';
-import 'package:aqua/features/send/models/send_asset_arguments.dart';
+import 'package:aqua/features/boltz/boltz_provider.dart';
+import 'package:aqua/features/send/models/models.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 
 import 'package:aqua/data/provider/conversion_provider.dart';
+import 'package:decimal/decimal.dart';
 import 'providers.dart';
 
 /// ---------------------
 /// Fee estimates and rates
 
 /// Fetch fee rates in sats/vbyte
-final feeRatesPerVByteProvider = FutureProvider.autoDispose
+final fetchedFeeRatesPerVByteProvider = FutureProvider.autoDispose
     .family<Map<TransactionPriority, double>, NetworkType>(
         (ref, network) async {
   final currentAsset = ref.watch(sendAssetProvider);
@@ -31,11 +34,16 @@ final feeRatesPerVByteProvider = FutureProvider.autoDispose
 
 /// Estimate fee from user selected fee rate * transaction size
 final estimatedFeeProvider = StateProvider.autoDispose<int?>((ref) {
-  final gdkTx = ref.watch(sendAssetTransactionProvider).asData?.value;
-  final selectedFeeRate = ref.watch(selectedFeeRatePerKByteProvider);
+  final transaction = ref.watch(sendAssetTransactionProvider).asData?.value;
+  GdkNewTransactionReply? gdkTx = transaction?.maybeMap(
+    gdkTx: (tx) => tx.gdkTx,
+    orElse: () => null,
+  );
+
+  final selectedFeeRate = ref.watch(userSelectedFeeRatePerVByteProvider);
 
   if (gdkTx != null && selectedFeeRate != null) {
-    return (gdkTx.transactionVsize! * (selectedFeeRate / 1000)).toInt();
+    return (gdkTx.transactionVsize! * (selectedFeeRate.rate / 1000)).toInt();
   }
   return null;
 });
@@ -47,9 +55,14 @@ final estimatedFeeProvider = StateProvider.autoDispose<int?>((ref) {
 /// - Initially set to default
 /// - Updated to estimated fee based on fee rate user selected (for btc only currently)
 /// - Then updated to the fee returned from a formed transaction
-final feeInSatsProvider = Provider.autoDispose<int>((ref) {
+final onchainFeeInSatsProvider = Provider.autoDispose<int>((ref) {
   // formed transaction
-  final gdkTx = ref.watch(sendAssetTransactionProvider).asData?.value;
+  final transaction = ref.watch(sendAssetTransactionProvider).asData?.value;
+  GdkNewTransactionReply? gdkTx = transaction?.maybeMap(
+    gdkTx: (tx) => tx.gdkTx,
+    orElse: () => null,
+  );
+
   if (gdkTx != null) {
     logger.d('[FEE] fee coming from formed gdk tx: ${gdkTx.fee}');
     return gdkTx.fee!.toInt();
@@ -66,18 +79,23 @@ final feeInSatsProvider = Provider.autoDispose<int>((ref) {
 });
 
 /// Cache user selected fee asset (which asset to pay fees in)
-final selectedFeeAssetProvider = StateProvider.autoDispose<FeeAsset>((ref) {
+final userSelectedFeeAssetProvider = StateProvider.autoDispose<FeeAsset>((ref) {
   final asset = ref.read(sendAssetProvider);
   return asset == Asset.btc() ? FeeAsset.btc : FeeAsset.lbtc;
 });
 
 /// Cache fee rate selected by user (for btc only currently)
-final selectedFeeRatePerKByteProvider = StateProvider.autoDispose<int?>((ref) {
-  final fetchedRates =
-      ref.watch(feeRatesPerVByteProvider(NetworkType.bitcoin)).asData?.value;
-  if (fetchedRates != null) {
-    return fetchedRates[TransactionPriority.low]!.toInt() *
-        1000; // fetchRates comes back as sats per byte, so * 1000 to get sats per kb
+final userSelectedFeeRatePerVByteProvider =
+    StateProvider.autoDispose<FeeRate?>((ref) {
+  final fetchedRates = ref
+      .watch(fetchedFeeRatesPerVByteProvider(NetworkType.bitcoin))
+      .asData
+      ?.value;
+
+  if (fetchedRates != null &&
+      fetchedRates.containsKey(TransactionPriority.low)) {
+    final rate = fetchedRates[TransactionPriority.low]!;
+    return FeeRate(TransactionPriority.low, rate);
   }
   return null;
 });
@@ -87,8 +105,13 @@ final boltzServiceFeeProvider =
     Provider.family.autoDispose<int, Asset>((ref, asset) {
   if (asset.isLightning) {
     final boltzOrder = ref.watch(boltzSwapSuccessResponseProvider);
+    final userEnteredAmount = ref.read(userEnteredAmountProvider);
+    if (userEnteredAmount == null) {
+      return 0;
+    }
+
     final userEnteredAmountWithPrecision =
-        ref.watch(userEnteredAmountWithPrecisionProvider(asset));
+        ref.watch(enteredAmountWithPrecisionProvider(userEnteredAmount));
     if (boltzOrder != null) {
       int userEnteredAmountSats = userEnteredAmountWithPrecision;
       final boltzExpectedAmount = boltzOrder.expectedAmount;
@@ -102,33 +125,35 @@ final boltzServiceFeeProvider =
 
 /// Service fee from external service - sideshift
 final sideshiftServiceFeeProvider =
-    Provider.family.autoDispose<double, Asset>((ref, asset) {
+    Provider.family.autoDispose<Decimal, Asset>((ref, asset) {
   if (asset.isSideshift) {
     final pendingOrder = ref.watch(pendingOrderProvider);
     if (pendingOrder is SideshiftFixedOrderResponse) {
-      double serviceFeeDouble = double.parse(pendingOrder.depositAmount!) -
-          double.parse(pendingOrder.settleAmount!);
-      logger.d("[B] service fee - sideshift: $serviceFeeDouble");
+      Decimal serviceFeeDouble = Decimal.parse(pendingOrder.depositAmount!) -
+          Decimal.parse(pendingOrder.settleAmount!);
+      logger.d(
+          "[Send][Fee][Sideshift] service fee - sideshift: $serviceFeeDouble");
       return serviceFeeDouble;
     }
   }
-  return 0;
+  return Decimal.zero;
 });
 
 /// ---------------------
 /// Fees UI display
 
-/// UI display of fee
-final feeToDisplayProvider =
+/// UI display of fee (including service provider fees)
+final totalFeeToDisplayProvider =
     StateProvider.autoDispose.family<String?, Asset>((ref, asset) {
-  var feeInSats = ref.watch(feeInSatsProvider);
+  var feeInSats = ref.watch(onchainFeeInSatsProvider);
 
   // add service fees
   if (asset.isSideshift) {
-    double serviceFeeDouble = ref.watch(sideshiftServiceFeeProvider(asset));
-    final total = serviceFeeDouble + 0.01; // hardcoded liquid fee for now
+    Decimal serviceFee = ref.watch(sideshiftServiceFeeProvider(asset));
+    final total = serviceFee +
+        DecimalExt.fromDouble(0.01); // hardcoded liquid fee for now
     logger.d(
-        '[FEE] sideshift service fee - serviceFeeDouble: $serviceFeeDouble - : ${serviceFeeDouble.toStringAsFixed(2)} - feeInSats: $feeInSats');
+        '[Send][Fee] sideshift service fee - serviceFeeDouble: $serviceFee - : ${serviceFee.toStringAsFixed(2)} - feeInSats: $feeInSats');
     return total.toStringAsFixed(2);
   }
 
@@ -136,18 +161,18 @@ final feeToDisplayProvider =
     final boltzServiceFee = ref.watch(boltzServiceFeeProvider(asset));
     final total = feeInSats + boltzServiceFee;
     logger.d(
-        '[FEE] boltzServiceFee: $boltzServiceFee - feeInSats: $feeInSats - total: $total');
+        '[Send][Fee] boltzServiceFee: $boltzServiceFee - feeInSats: $feeInSats - total: $total');
     return total.toString();
   }
 
-  return ref.watch(formatterProvider).formatAssetAmount(
+  return ref.watch(formatterProvider).formatAssetAmountDirect(
         amount: feeInSats,
         precision: asset.precision,
       );
 });
 
-final feeInFiatToDisplayProvider =
+final onchainFeeInFiatToDisplayProvider =
     StateProvider.autoDispose.family<String?, Asset>((ref, asset) {
-  var feeInSats = ref.watch(feeInSatsProvider);
+  var feeInSats = ref.watch(onchainFeeInSatsProvider);
   return ref.watch(conversionProvider((Asset.btc(), feeInSats)));
 });

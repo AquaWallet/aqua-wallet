@@ -4,7 +4,10 @@ import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+
+const kUsdtDisplayPrecision = 2;
 
 class AssetListItem extends HookConsumerWidget {
   const AssetListItem({
@@ -17,9 +20,10 @@ class AssetListItem extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
-    final amount = ref.watch(formatterProvider).formatAssetAmount(
+    final amount = ref.watch(formatterProvider).formatAssetAmountDirect(
           amount: asset.amount,
           precision: asset.precision,
+          roundingOverride: asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
         );
     final usdAmount = ref.watch(conversionProvider((asset, asset.amount)));
     final subtitleTextStyle =
@@ -67,7 +71,7 @@ class AssetListItem extends HookConsumerWidget {
                           Expanded(
                             child: Text(
                               asset.isLBTC
-                                  ? AppLocalizations.of(context)!.layer2Bitcoin
+                                  ? context.loc.layer2Bitcoin
                                   : asset.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -75,7 +79,8 @@ class AssetListItem extends HookConsumerWidget {
                                   .textTheme
                                   .bodyLarge
                                   ?.copyWith(
-                                    fontSize: 18.sp,
+                                    fontSize: context.adaptiveDouble(
+                                        mobile: 18.sp, wideMobile: 14.sp),
                                     fontWeight: FontWeight.bold,
                                   ),
                             ),

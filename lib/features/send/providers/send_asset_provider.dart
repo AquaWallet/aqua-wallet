@@ -4,7 +4,7 @@ import 'package:aqua/features/shared/shared.dart';
 /// ---------------------
 /// Asset
 final sendAssetProvider = StateProvider.autoDispose<Asset>((ref) {
-  return Asset.btc();
+  return Asset.unknown();
 });
 
 /// ---------------------

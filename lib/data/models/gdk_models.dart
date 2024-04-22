@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'gdk_models.freezed.dart';
 part 'gdk_models.g.dart';
 
@@ -240,7 +241,7 @@ class GdkAssetsParameters with _$GdkAssetsParameters {
 class GdkGetAssetsParameters with _$GdkGetAssetsParameters {
   const GdkGetAssetsParameters._();
   const factory GdkGetAssetsParameters({
-    List<String>? assets_id,
+    @JsonKey(name: 'assets_id') List<String>? assetsId,
   }) = _GdkGetAssetsParameters;
 
   factory GdkGetAssetsParameters.fromJson(Map<String, dynamic> json) =>

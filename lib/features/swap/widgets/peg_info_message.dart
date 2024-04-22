@@ -1,5 +1,6 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 
 class PegInfoMessage extends HookConsumerWidget {
   const PegInfoMessage({Key? key}) : super(key: key);
@@ -23,11 +24,11 @@ class PegInfoMessage extends HookConsumerWidget {
       ),
       child: Text(
         input.isPegIn
-            ? AppLocalizations.of(context)!.swapPanelPegInInfo
-            : AppLocalizations.of(context)!.swapPanelPegOutInfo,
+            ? context.loc.swapPanelPegInInfo
+            : context.loc.swapPanelPegOutInfo,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w700,
-              fontSize: 10.sp,
+              fontSize: 12.sp,
             ),
       ),
     );

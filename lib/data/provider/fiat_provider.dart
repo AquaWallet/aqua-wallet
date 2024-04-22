@@ -103,28 +103,35 @@ class FiatProvider {
             return result;
           }).onErrorResumeNext(const Stream.empty()));
 
-  /// Convenience method to get the fiat value of a satoshi amount
-  Future<String> getSatsToFiat(int satoshi) async {
+  /// Convenience method to get the fiat value of a satoshi amount to display
+  Future<String> getSatsToFiatDisplay(int satoshi, bool withSymbol) async {
     final rate = await rateStream.first;
     final fiatValue = satoshiToFiat(Asset.btc(amount: satoshi), satoshi, rate);
     final formattedValue = formattedFiat(fiatValue);
     final currency = await currencyStream.first;
-    return '$currency $formattedValue';
+    return withSymbol ? '$currency $formattedValue' : formattedValue;
+  }
+
+  /// Convenience method to get the fiat value of a satoshi amount
+  Future<Decimal> getSatsToFiat(int satoshi) async {
+    final rate = await rateStream.first;
+    final fiatValue = satoshiToFiat(Asset.btc(amount: satoshi), satoshi, rate);
+    return fiatValue;
   }
 }
 
 /// Provider to get the fiat value of a satoshi amount
-final satsToFiatProvider = FutureProvider.family<String, int>(
-    (ref, satoshi) => ref.read(fiatProvider).getSatsToFiat(satoshi));
+final satsToFiatDisplayWithSymbolProvider = FutureProvider.family<String, int>(
+    (ref, satoshi) =>
+        ref.read(fiatProvider).getSatsToFiatDisplay(satoshi, true));
 
 /// Provider to convert a fiat amount to its equivalent in satoshis as a double
 final fiatToSatsAsIntProvider =
-    FutureProvider.family<int, (Asset, double)>((ref, params) async {
+    FutureProvider.family<int, (Asset, Decimal)>((ref, params) async {
   final asset = params.$1;
   final amount = params.$2;
-  final amountDecimal = Decimal.parse(amount.toStringAsFixed(2));
   final Decimal sats =
-      await ref.read(fiatProvider).fiatToSatoshi(asset, amountDecimal);
+      await ref.read(fiatProvider).fiatToSatoshi(asset, amount);
   return sats.toBigInt().toInt();
 });
 

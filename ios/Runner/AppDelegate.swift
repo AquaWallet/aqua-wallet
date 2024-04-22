@@ -41,9 +41,15 @@ public func dummyMethodToEnforceBundling() {
     GA_sign_transaction(nil, nil, nil)
     GA_validate_mnemonic(nil, nil)
 
-    reconstruct_swap_script(nil, nil, nil, 0)
+    validate_submarine(nil, nil, nil, 0, nil, nil, nil)
     extract_claim_public_key(nil)
+    create_and_sign_claim_transaction(nil, nil, nil, nil, nil, nil, 0)
+    create_and_sign_refund_transaction(nil, nil, nil, nil, nil, 0)
+    get_key_pair()
+    sign_message_schnorr(nil, nil)
+    verify_signature_schnorr(nil, nil, nil)
     rust_cstr_free(nil)
+
 }
 
 @UIApplicationMain

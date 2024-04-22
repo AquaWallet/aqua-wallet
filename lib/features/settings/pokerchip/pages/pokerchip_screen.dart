@@ -1,7 +1,8 @@
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/config/constants/svgs.dart';
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 class PokerchipScreen extends HookConsumerWidget {
@@ -17,7 +18,8 @@ class PokerchipScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.pokerchipScreenTitle,
+        title: context.loc.pokerchipScreenTitle,
+        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 48.h),
@@ -32,13 +34,13 @@ class PokerchipScreen extends HookConsumerWidget {
           SizedBox(height: 42.h),
           //ANCHOR - Title
           Text(
-            AppLocalizations.of(context)!.pokerchipScreenLabel,
+            context.loc.pokerchipScreenLabel,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           SizedBox(height: 12.h),
           //ANCHOR - Description
           Text(
-            AppLocalizations.of(context)!.pokerchipScreenDescription,
+            context.loc.pokerchipScreenDescription,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w400,
                 ),
@@ -49,7 +51,7 @@ class PokerchipScreen extends HookConsumerWidget {
             onPressed: () => Navigator.of(context)
                 .pushNamed(PokerchipScannerScreen.routeName),
             child: Text(
-              AppLocalizations.of(context)!.pokerchipScreenReadButton,
+              context.loc.pokerchipScreenReadButton,
             ),
           ),
           SizedBox(height: 16.h),

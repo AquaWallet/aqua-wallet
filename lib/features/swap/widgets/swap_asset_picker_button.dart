@@ -2,6 +2,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class SwapAssetPickerButton extends HookConsumerWidget {
@@ -23,13 +24,27 @@ class SwapAssetPickerButton extends HookConsumerWidget {
 
     return PopupMenuButton(
       position: PopupMenuPosition.under,
-      offset: Offset(2.w, -20.h),
+      offset: Offset(
+        2.w,
+        context.adaptiveDouble(
+          mobile: -10.h,
+          smallMobile: -7.h,
+          tablet: -12.h,
+        ),
+      ),
+      clipBehavior: Clip.hardEdge,
+      elevation: 0,
+      shape: _AssetSelectorFieldCutOutShape(
+        radius: 12.r,
+        borderColor:
+            Theme.of(context).colors.popUpMenuButtonSwapScreenBorderColor,
+      ),
+      shadowColor: Colors.transparent,
       constraints: BoxConstraints(
         minWidth: MediaQuery.of(context).size.width - 56.w,
         maxWidth: MediaQuery.of(context).size.width - 56.w,
       ),
-      shape: _AssetSelectorFieldCutOutShape(radius: 12.r),
-      color: Theme.of(context).colors.swapAssetPickerPopUpItemBackground,
+      color: Theme.of(context).colors.addressFieldContainerBackgroundColor,
       onSelected: (index) =>
           Future.microtask(() => onAssetSelected(assets[index])),
       itemBuilder: (context) => assets
@@ -84,8 +99,12 @@ class SwapAssetPickerButton extends HookConsumerWidget {
 
 class _AssetSelectorFieldCutOutShape extends ShapeBorder {
   final double radius;
+  final Color borderColor;
 
-  const _AssetSelectorFieldCutOutShape({required this.radius});
+  const _AssetSelectorFieldCutOutShape({
+    required this.borderColor,
+    required this.radius,
+  });
 
   @override
   EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
@@ -108,10 +127,22 @@ class _AssetSelectorFieldCutOutShape extends ShapeBorder {
   }
 
   @override
-  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    final Path outerPath = getOuterPath(rect, textDirection: textDirection);
+
+    final paint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5.w;
+
+    canvas.drawPath(outerPath, paint);
+  }
 
   @override
   ShapeBorder scale(double t) {
-    return _AssetSelectorFieldCutOutShape(radius: radius * t);
+    return _AssetSelectorFieldCutOutShape(
+      borderColor: borderColor,
+      radius: radius * t,
+    );
   }
 }

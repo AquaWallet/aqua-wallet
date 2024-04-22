@@ -1,0 +1,15 @@
+Changelog for release version 0.1.50+90
+
+New Features:
+* Reworked send workflow
+* Added sending to LNURL Pay and Lightning addresses. LNURL Withdraw will be supported in future versions.
+* Added support for BIP21 unified QR codes (on-chain and Lightning payments in a single QR code)
+* Added automatic refund and claim transaction with submarine swaps using native rust library
+* USDt is still a default asset but removable in Settings.
+* Improved restore wallet workflow
+* Added support for AQUA to AQUA lightning payments
+* Enabled Biometrics for auth
+
+Bug Fixes:
+* Numerous UI bug fixes.
+* Fixed bug with reading certain bitcoin chips

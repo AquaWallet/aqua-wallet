@@ -4,7 +4,7 @@ import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 extension ReceiveAssetExtensions on Asset {
 // should show amount input
   bool get shouldShowAmountInputOnReceive {
-    if (isSideshift) {
+    if (isSideshift || isLightning) {
       return false;
     }
     return true;

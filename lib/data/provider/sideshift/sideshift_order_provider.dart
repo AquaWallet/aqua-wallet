@@ -1,19 +1,19 @@
+import 'package:aqua/common/decimal/decimal_ext.dart';
+import 'package:aqua/data/provider/network_frontend.dart';
+import 'package:aqua/features/send/providers/send_asset_provider.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_http_provider.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_provider.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_storage_provider.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_transaction_state.dart';
 import 'package:aqua/features/send/providers/send_asset_transaction_provider.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/providers/asset_balance_provider.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
+
+import 'sideshift.dart';
 
 // Providers //////////////////////////////////////////////////////////////////
 
@@ -51,6 +51,11 @@ final _pendingOrderStreamProvider =
 
 final pendingOrderProvider = Provider.autoDispose<SideshiftOrder?>((ref) {
   return ref.watch(_pendingOrderStreamProvider).asData?.value;
+});
+
+final pendingOrderCacheProvider =
+    StateProvider.autoDispose<SideshiftOrder?>((ref) {
+  return null;
 });
 
 // Order Result
@@ -121,6 +126,7 @@ class SideshiftOrderProvider {
 
   void setPendingOrder(SideshiftOrder? order) {
     _pendingOrderSubject.add(order);
+    _ref.read(pendingOrderCacheProvider.notifier).state = order;
     logger.d('[SideShift] SetPendingOrder ${order?.id}');
   }
 
@@ -238,14 +244,15 @@ class SideshiftOrderProvider {
     } catch (e) {
       if (e is GdkNetworkException) {
         setOrderError(GdkTransactionException(e));
+        throw Exception(e.errorMessage());
       } else if (e is OrderException) {
         setOrderError(e);
-      } else if (e is OrderQuoteException) {
-        setOrderError(e);
+        throw Exception("${e.message}");
       }
       logger.d('[SideShift] Place Receive Order Error:');
       logger.e('[SideShift]', e);
       setTransactionState(const SideshiftTransactionState.complete());
+      rethrow;
     }
   }
 
@@ -254,7 +261,7 @@ class SideshiftOrderProvider {
     required SideshiftAsset receiveAsset,
     String? refundAddress,
     String? receiveAddress,
-    double? amount,
+    Decimal? amount,
     SideShiftAssetPairInfo? exchangeRate,
   }) async {
     try {
@@ -306,14 +313,14 @@ class SideshiftOrderProvider {
         return Future.error(error);
       }
 
-      final min = double.tryParse(exchangeRate.min) ?? 0;
+      final min = Decimal.tryParse(exchangeRate.min) ?? Decimal.zero;
       if (amount < min) {
         logger.d('[SideShift] Deliver Amount Error: $amount <= $min');
         final error = MinDeliverAmountException(min, deliverAsset.id);
         return Future.error(error);
       }
 
-      final max = double.tryParse(exchangeRate.max) ?? 0;
+      final max = Decimal.tryParse(exchangeRate.max) ?? Decimal.zero;
       if (amount > max) {
         logger.d('[SideShift] Deliver Amount Error: $amount <= $min');
         final error = MaxDeliverAmountException(max, deliverAsset.id);
@@ -338,14 +345,15 @@ class SideshiftOrderProvider {
     } catch (e) {
       if (e is GdkNetworkException) {
         setOrderError(GdkTransactionException(e));
+        throw Exception(e.errorMessage());
       } else if (e is OrderException) {
         setOrderError(e);
-      } else if (e is OrderQuoteException) {
-        setOrderError(e);
+        throw Exception("${e.message}");
       }
       logger.d('[SideShift] Place Send Order Error:');
       logger.e('[SideShift]', e);
       setTransactionState(const SideshiftTransactionState.complete());
+      rethrow;
     }
   }
 
@@ -383,7 +391,7 @@ class SideshiftOrderProvider {
     required SideshiftAsset receiveAsset,
     required String refundAddress,
     required String receiveAddress,
-    required double amount,
+    required Decimal amount,
     required SideshiftQuoteResponse quote,
   }) async {
     setTransactionState(const SideshiftTransactionState.loading());
@@ -406,11 +414,17 @@ class SideshiftOrderProvider {
   }
 
   // create tx
-  Future<GdkNewTransactionReply> createLiquidTransaction({
-    required SideshiftOrder pendingOrder,
-    required Asset receiveAsset,
-  }) async {
+
+  Future<GdkNewTransactionReply> createOnchainTxForSwap() async {
+    // get order
+    final pendingOrder = _ref.read(pendingOrderCacheProvider);
+    if (pendingOrder == null) {
+      throw Exception('[Send][Sideshift] No pending order found');
+    }
+    logger.d('[Send][Sideshift] PendingOrder found: ${pendingOrder.id}}');
+
     // setup
+    final receiveAsset = _ref.read(sendAssetProvider);
     final fixedPendingOrder = pendingOrder as SideshiftFixedOrderResponse;
     final isFixedOrder = fixedPendingOrder.type == OrderType.fixed;
     final depositAddress = fixedPendingOrder.depositAddress;
@@ -422,9 +436,9 @@ class SideshiftOrderProvider {
     if (depositAmountStr == null) {
       throw Exception('Deposit amount is null');
     }
-    double depositAmount = 0;
+    Decimal depositAmount = Decimal.zero;
     try {
-      depositAmount = double.parse(depositAmountStr);
+      depositAmount = Decimal.parse(depositAmountStr);
     } catch (e) {
       logger.e('[SideShift] could not parse deposit amount');
     }
@@ -466,17 +480,15 @@ class SideshiftOrderProvider {
     assert(depositAddress.isNotEmpty == true);
     assert(receiveAddress.isNotEmpty == true);
 
-    final deliverAssetId = _ref.read(liquidProvider).usdtId;
-    logger
-        .d('[SideShift] gdk amount to send - deliverAssetId: $deliverAssetId');
+    final deliverAsset = _ref.read(manageAssetsProvider).liquidUsdtAsset;
+    logger.d(
+        '[SideShift] gdk amount to send - deliverAssetId: ${deliverAsset.id}');
     final initialTransactionReply = await _ref
         .read(sendAssetTransactionProvider.notifier)
-        .createTransaction(
-            amountSatoshi: amountSatoshi,
-            sendAll: sendAll,
+        .createGdkTransaction(
+            amountWithPrecision: amountSatoshi,
             address: depositAddress,
-            network: NetworkType.liquid,
-            assetId: deliverAssetId);
+            asset: deliverAsset);
 
     // If the order is set to send max amount from wallet then recreate the
     // sideshift fixed rate order with fee deducted from it. Pass it to gdk
@@ -496,10 +508,10 @@ class SideshiftOrderProvider {
         throw Exception('Transaction fee rate not found in initial request');
       }
 
-      final fee = gdkFee / 100000000;
+      final fee = DecimalExt.fromDouble(gdkFee / 100000000);
       logger.d('[SideShift] Fiat Fee: $fee');
 
-      if (fee <= 0) {
+      if (fee <= Decimal.zero) {
         throw Exception('Transaction fee cannot be less than zero');
       }
 
@@ -524,12 +536,10 @@ class SideshiftOrderProvider {
 
       final revisedTxnResult = await _ref
           .read(sendAssetTransactionProvider.notifier)
-          .createTransaction(
-              amountSatoshi: assetBalanceSatoshi,
-              sendAll: sendAll,
+          .createGdkTransaction(
               address: revisedOrderResponse.depositAddress!,
-              network: NetworkType.liquid,
-              assetId: _ref.read(liquidProvider).usdtId);
+              amountWithPrecision: assetBalanceSatoshi,
+              asset: _ref.read(manageAssetsProvider).liquidUsdtAsset);
 
       gdkArgs = (revisedTxnResult, revisedOrderResponse);
     } else {

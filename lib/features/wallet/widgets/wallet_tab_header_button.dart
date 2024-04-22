@@ -1,3 +1,4 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -9,7 +10,6 @@ class WalletTabHeaderButton extends StatelessWidget {
     this.radius,
     required this.onPressed,
     this.isDark = false,
-    this.backgroundColor,
   }) : super(key: key);
 
   final BorderRadius? radius;
@@ -17,7 +17,6 @@ class WalletTabHeaderButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
   final bool isDark;
-  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +24,10 @@ class WalletTabHeaderButton extends StatelessWidget {
       height: double.maxFinite,
       child: Material(
         borderRadius: radius,
-        color:
-            backgroundColor ?? Colors.transparent.withOpacity(isDark ? .05 : 0),
+        color: Colors.transparent.withOpacity(isDark ? .05 : 0),
         child: InkWell(
           onTap: onPressed,
+          splashColor: Theme.of(context).colors.walletTabButtonBackgroundColor,
           borderRadius: radius,
           child: Ink(
             child: Row(

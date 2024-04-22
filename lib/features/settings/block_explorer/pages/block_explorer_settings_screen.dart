@@ -1,8 +1,9 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/widgets/aqua_appbar.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BlockExplorerSettingsScreen extends HookConsumerWidget {
@@ -21,7 +22,8 @@ class BlockExplorerSettingsScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.blockExplorerSettingsTitle,
+        title: context.loc.blockExplorerSettingsTitle,
+        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: SafeArea(
         child: SettingsSelectionList(

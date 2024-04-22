@@ -4,6 +4,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 
@@ -11,9 +12,11 @@ const _blockStreamApiBaseUrl = 'https://blockstream.info';
 const _bitcoinPrefix = 'BITCOIN:';
 const _liquidPrefix = 'LIQUID:';
 
-// Errors
-
 class PokerChipAssetError implements Exception {}
+
+class PokerChipInvalidAddressError implements Exception {}
+
+class PokerChipUnexpectedResponseError implements Exception {}
 
 final pokerchipBalanceProvider = AutoDisposeAsyncNotifierProviderFamily<
     PokerchipBalanceNotifier,
@@ -24,17 +27,59 @@ class PokerchipBalanceNotifier
     extends AutoDisposeFamilyAsyncNotifier<PokerchipBalanceState, String> {
   @override
   FutureOr<PokerchipBalanceState> build(String arg) async {
-    final address =
+    final scanInput =
         arg.replaceFirst(_bitcoinPrefix, '').replaceFirst(_liquidPrefix, '');
-    final isBtc = await ref.read(bitcoinProvider).isValidAddress(address);
-    final response = await _getPokerchipDetails(address, isBtc: isBtc);
-    final balance =
-        ref.read(formatterProvider).formatAssetAmount(amount: response.value);
-    final asset = isBtc ? Asset.btc() : await _getUserAsset(response.asset);
-    final explorerLink = await _getExplorerLink(address);
+    final isBtc = await ref.read(bitcoinProvider).isValidAddress(scanInput);
+    final isLiquid = await ref.read(liquidProvider).isValidAddress(scanInput);
+
+    if (!isBtc && !isLiquid) {
+      return Future.error(PokerChipInvalidAddressError());
+    }
+
+    final explorerLink = isBtc
+        ? '$_blockStreamApiBaseUrl/address/$scanInput'
+        : '$_blockStreamApiBaseUrl/liquid/address/$scanInput';
+    final apiLink = isBtc
+        ? '$_blockStreamApiBaseUrl/api/address/$scanInput/utxo'
+        : '$_blockStreamApiBaseUrl/liquid/api/address/$scanInput/utxo';
+    final apiResponse = await ref.read(dioProvider).get(apiLink);
+
+    debugPrint('[Pokerchip] Type: ${apiResponse.data.runtimeType}');
+    if (apiResponse.data == null || apiResponse.data is! List) {
+      return Future.error(PokerChipAssetError());
+    }
+
+    final items = apiResponse.data as List;
+
+    if (items.isEmpty) {
+      return PokerchipBalanceState(
+        address: scanInput,
+        balance: '0',
+        asset: isBtc ? Asset.btc() : Asset.liquid(),
+        explorerLink: explorerLink,
+      );
+    }
+
+    if (items.length != 1) {
+      // if there is more than 1 UTXO, we just bail
+      return Future.error(PokerChipUnexpectedResponseError());
+    }
+
+    final data = items.first;
+    if (isBtc) {
+      data.addAll({
+        'asset': 'btc',
+      });
+    }
+
+    final pokerChipAssetResponse = PokerChipAssetResponse.fromJson(data);
+    final balance = ref.read(formatterProvider).formatAssetAmountDirect(
+        amount: pokerChipAssetResponse.value, precision: 8);
+    final asset =
+        isBtc ? Asset.btc() : await _getUserAsset(pokerChipAssetResponse.asset);
 
     return PokerchipBalanceState(
-      address: address,
+      address: scanInput,
       balance: '$balance ${asset.ticker}',
       asset: asset,
       explorerLink: explorerLink,
@@ -54,32 +99,5 @@ class PokerchipBalanceNotifier
             isUSDt: false,
           ),
         );
-  }
-
-  Future<PokerChipAssetResponse> _getPokerchipDetails(
-    String address, {
-    required bool isBtc,
-  }) async {
-    final url = isBtc
-        ? '$_blockStreamApiBaseUrl/api/address/$address/utxo'
-        : '$_blockStreamApiBaseUrl/liquid/api/address/$address/utxo';
-    final client = ref.read(dioProvider);
-    final response = await client.get(url);
-    final json = response.data as List;
-    final data = json.first as Map<String, dynamic>;
-    final containsValue = data.containsKey('value') == true;
-    final containsAsset = data.containsKey('asset') == true;
-    final isValidBtc = isBtc && containsValue;
-    final isValidLiquid = containsAsset && containsValue;
-    if (isValidBtc || isValidLiquid) {
-      return PokerChipAssetResponse.fromJson(data);
-    }
-    return Future.error(PokerChipAssetError());
-  }
-
-  Future<String> _getExplorerLink(String address) async {
-    return await ref.read(bitcoinProvider).isValidAddress(address)
-        ? '$_blockStreamApiBaseUrl/address/$address'
-        : '$_blockStreamApiBaseUrl/liquid/address/$address';
   }
 }

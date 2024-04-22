@@ -30,14 +30,8 @@ class ReceiveAssetCopyAddressButton extends HookConsumerWidget {
           width: double.maxFinite,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(8.r)),
-            border: Border.all(
-              color: Theme.of(context).colors.receiveContentBoxBorder,
-            ),
           ),
-          padding: EdgeInsets.symmetric(
-            horizontal: 23.w,
-            vertical: 12.h,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
           child: Row(
             children: [
               Expanded(
@@ -45,18 +39,21 @@ class ReceiveAssetCopyAddressButton extends HookConsumerWidget {
                   address,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onBackground,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.bold,
                         height: 1.38,
                       ),
                 ),
               ),
               SizedBox(width: 24.w),
-              SvgPicture.asset(Svgs.copy,
-                  width: 12.r,
-                  height: 12.r,
-                  colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onBackground,
-                      BlendMode.srcIn)),
+              SvgPicture.asset(
+                Svgs.copy,
+                width: 12.r,
+                height: 12.r,
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.onBackground,
+                  BlendMode.srcIn,
+                ),
+              ),
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class AddAssetsScreen extends HookConsumerWidget {
   static const routeName = '/addAssetsScreen';
@@ -15,7 +16,7 @@ class AddAssetsScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.addAssetsScreenTitle,
+        title: context.loc.addAssetsScreenTitle,
       ),
       body: ListView.separated(
         padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 24.h),

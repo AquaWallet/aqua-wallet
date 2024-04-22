@@ -1,9 +1,11 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/config/constants/animations.dart' as animation;
 import 'package:aqua/constants.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:lottie/lottie.dart';
-import 'package:aqua/config/constants/animations.dart' as animation;
 
 class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
   const SendAssetTransactionCompleteScreen({super.key});
@@ -12,17 +14,20 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as SendAssetArguments;
+    final arguments = ModalRoute.of(context)?.settings.arguments
+        as SendAssetCompletionArguments;
+    final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
     final amountToDisplay = ref.read(amountMinusFeesToDisplayProvider);
+    final asset = ref.read(sendAssetProvider);
 
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: false,
         actionButtonAsset: Svgs.close,
         actionButtonIconSize: 13.r,
-        onActionButtonPressed: () => Navigator.of(context).pop(),
-        title: AppLocalizations.of(context)!.sendAssetScreenTitle,
+        onActionButtonPressed: () =>
+            Navigator.of(context).popUntil((r) => r.isFirst),
+        title: context.loc.sendAssetScreenTitle,
       ),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 28.w),
@@ -30,7 +35,7 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
           children: [
             SizedBox(height: 18.h),
             Lottie.asset(
-              animation.tick,
+              botevMode ? animation.tickBotev : animation.tick,
               repeat: false,
               width: 100.r,
               height: 100.r,
@@ -39,7 +44,7 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
             SizedBox(height: 7.h),
             //ANCHOR - Amount Title
             Text(
-              AppLocalizations.of(context)!.sendAssetCompleteScreenAmountTitle,
+              context.loc.sendAssetCompleteScreenAmountTitle,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
@@ -47,14 +52,14 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
             SizedBox(height: 14.h),
             //ANCHOR - Amount
             Text(
-              '$amountToDisplay ${arguments.symbol}',
+              '$amountToDisplay ${asset.symbol}',
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
             ),
             SizedBox(height: 19.h),
             //ANCHOR - Transaction Info
-            TransactionInfoCard(arguments: arguments),
+            const TransactionInfoCard(),
             SizedBox(height: 20.h),
             //ANCHOR - Transaction ID
             TransactionIdCard(arguments: arguments),
@@ -63,10 +68,10 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
             SizedBox(
               width: double.maxFinite,
               child: BoxShadowElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () =>
+                    Navigator.of(context).popUntil((r) => r.isFirst),
                 child: Text(
-                  AppLocalizations.of(context)!
-                      .sendAssetCompleteScreenDoneButton,
+                  context.loc.sendAssetCompleteScreenDoneButton,
                 ),
               ),
             ),

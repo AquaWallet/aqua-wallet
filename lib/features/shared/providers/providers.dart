@@ -1,4 +1,5 @@
-export 'address_validator.dart';
+export 'asset_balance_provider.dart';
+export 'asset_status_provider.dart';
 export 'assets_provider.dart';
 export 'btc_price_provider.dart';
 export 'dio_provider.dart';

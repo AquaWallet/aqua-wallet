@@ -4,6 +4,7 @@ import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 
 final swapProvider =
     AutoDisposeAsyncNotifierProvider<SwapNotifier, SwapState>(SwapNotifier.new);
@@ -23,6 +24,13 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
     final assets = ref.read(assetsProvider).asData?.value ?? [];
     final asset = assets.firstWhere((asset) => recvAsset == asset.id);
     final transaction = await ref.read(_assetTransactionsProvider(txId).future);
+
+    await ref.read(transactionStorageProvider.notifier).save(TransactionDbModel(
+          txhash: txId,
+          assetId: asset.id,
+          type: TransactionDbModelType.sideswapSwap,
+          serviceOrderId: response.params!.orderId,
+        ));
 
     state = AsyncData(SwapState.success(
       asset: asset,

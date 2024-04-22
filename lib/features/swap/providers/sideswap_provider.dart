@@ -1,8 +1,8 @@
-import 'dart:developer';
-
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/constants.dart';
+import 'package:aqua/logger.dart';
 
 final swapLoadingIndicatorStateProvider =
     StateProvider.autoDispose<SwapProgressState>((ref) {
@@ -63,8 +63,10 @@ final sideswapConversionRateAmountProvider =
 
       if (!(bestOffer.price == null || subscribedAssetId.isEmpty)) {
         final d = ref
-            .read(formatterProvider)
-            .formatAmountDirect(amount: bestOffer.price!, precision: 2);
+            .watch(currencyFormatProvider(2))
+            .format(bestOffer.price!)
+            .replaceAllMapped(
+                reRemoveTrailingDecimals, (e) => e.group(1) ?? '');
         return '1 L-BTC = $d ${asset.ticker}';
       }
     }
@@ -130,17 +132,18 @@ final swapIncomingReceiveAmountProvider =
   if (inputState.isPeg) {
     final amount = ref.read(formatterProvider).convertAssetAmountToDisplayUnit(
           amount: ref.watch(maxPegFeeDeductedAmountProvider).asData?.value ?? 0,
-          precision: inputState.deliverAsset?.precision,
+          precision: inputState.deliverAsset!.precision,
         );
-    log('[PEG] MaxPegFeeDeductedAmount: $amount');
+    logger.d('[PEG] MaxPegFeeDeductedAmount: $amount');
     if (amount == "0") {
       return amount;
     } else {
       // this is the sideswap fee. This should ideally come from the value we
-      // get from the `server_status` call to sideswap. but putting this in for
+      // get from the `server_status` call to sideswap. but puttin this in for
       // now do we are accurate in predicting how much btc/lbtc comes back to
       // the user.
-      final amountAfterSideSwapFeeDedcution = double.parse(amount) * .98;
+      final amountAfterSideSwapFeeDedcution =
+          double.parse(amount) * sideSwapPegInOutReturnRate;
       return amountAfterSideSwapFeeDedcution
           .toStringAsFixed(inputState.deliverAsset!.precision);
     }
@@ -180,21 +183,4 @@ final swapIncomingReceiveSatoshiAmountProvider =
         amount: receiveIncomingAmount,
         precision: receiveAsset.precision,
       );
-});
-
-final swapButtonEnabledProvider =
-    Provider.family.autoDispose<bool, BuildContext>((ref, context) {
-  final validationError = ref.watch(swapValidationsProvider(context));
-  final deliverIncomingSatoshi =
-      ref.watch(swapIncomingDeliverSatoshiAmountProvider);
-  final receiveIncomingSatoshi =
-      ref.watch(swapIncomingReceiveSatoshiAmountProvider(context));
-
-  if (validationError != null ||
-      deliverIncomingSatoshi == 0 ||
-      receiveIncomingSatoshi == 0) {
-    return false;
-  }
-
-  return true;
 });

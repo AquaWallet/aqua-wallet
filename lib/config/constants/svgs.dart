@@ -16,9 +16,11 @@ class Svgs {
   static const unknownAsset = 'assets/asset_icons/asset_unknown.svg';
   static const btcAsset = 'assets/asset_icons/BTC.svg';
   static const liquidAsset = 'assets/asset_icons/Liquid.svg';
-  static const usdtAsset = 'assets/asset_icons/USDt.svg';
-  static const lightningAsset = 'assets/asset_icons/L2.svg';
-  static const l2Asset = 'assets/asset_icons/L2.svg';
+  static const usdtAsset = 'assets/asset_icons/usdt.svg';
+  static const usdtAssetDisabled = 'assets/asset_icons/usdt_disabled.svg';
+  static const lightningAsset = 'assets/asset_icons/l2.svg';
+  static const l2Asset = 'assets/asset_icons/l2.svg';
+  static const l2AssetDisabled = 'assets/asset_icons/l2_disabled.svg';
   static const ethUsdtAsset = 'assets/asset_icons/ETHUSDT.svg';
   static const tronUsdtAsset = 'assets/asset_icons/TRONUSDT.svg';
   static const backButton = 'assets/settings_back.svg';
@@ -47,6 +49,7 @@ class Svgs {
   static const setAmount = 'assets/set_amount.svg';
   static const share = 'assets/share.svg';
   static const walletAdd = 'assets/wallet_add.svg';
+  static const walletExchange = 'assets/wallet_exchange.svg';
   static const arrowForward = 'assets/arrow_forward.svg';
   static const insufficientBalance = 'assets/insufficient_balance.svg';
   static const slideConfirmArrow = 'assets/slide_confirm_arrow.svg';
@@ -77,5 +80,16 @@ class Svgs {
   static const pocketBitcoinLogo = 'assets/marketplace/pocket-light.svg';
   static const whatsappLogo = 'assets/asset_icons/whatsapp_logo.svg';
   static const zendeskLogo = 'assets/asset_icons/zendesk_logo.svg';
+  static const qrIconBitcoin = 'assets/asset_icons/qr_icon_btc.svg';
+  static const qrIconLiquidBitcoin =
+      'assets/asset_icons/qr_icon_liquid_btc.svg';
+  static const qrIconTetherUsdt = 'assets/asset_icons/qr_icon_liquid_usdt.svg';
+  static const qrIconLightning = 'assets/asset_icons/qr_icon_lightning_btc.svg';
+  static const qrIconEthUsdt = 'assets/asset_icons/qr_icon_ethereum_usdt.svg';
+  static const qrIconTronUsdt = 'assets/asset_icons/qr_icon_tron_usdt.svg';
+  static const backspace = 'assets/backspace.svg';
+  static const noHistoryIconAddressHistory =
+      'assets/address_history_screen_no_history_logo.svg';
   static const botev = 'assets/botev.svg';
+  static const capsLock = 'assets/caps_lock.svg';
 }

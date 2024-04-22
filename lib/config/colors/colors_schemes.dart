@@ -6,6 +6,12 @@ import 'package:flutter/material.dart';
 abstract class AppColors {
   Color get divider;
 
+  Color get walletHeaderDivider;
+
+  Color get dottedDivider;
+
+  Color get bottomNavBarBorder;
+
   Color get notificationButtonBackground;
 
   Color get iconBackground;
@@ -64,6 +70,8 @@ abstract class AppColors {
 
   Color get walletTabButtonBackgroundColor;
 
+  Color get appBarBackgroundColor;
+
   Color get appBarIconBackgroundColor;
 
   Color get appBarIconBackgroundColorAlt;
@@ -80,9 +88,57 @@ abstract class AppColors {
 
   Color get disabledBackgroundColorAquaElevatedButton;
 
+  Color get addressHistoryBackgroundColor;
+
+  Color get addressHistoryHintTextColor;
+
+  Color get addressHistoryNoHistoryIconColor;
+
+  Color get addressHistoryNoHistoryTextColor;
+
+  Color get addressHistoryTabBarSelected;
+
+  Color get addressHistoryTabBarUnSelected;
+
+  Color get addressHistoryTabBarTextSelected;
+
+  Color get addressHistoryTabBarTextUnSelected;
+
+  Color get popUpMenuButtonSwapScreenTextColor;
+
+  Color get popUpMenuButtonSwapScreenBorderColor;
+
+  Color get success;
+
+  Color get keyboardBackground;
+
+  Color get inverseSurfaceColor;
+
+  Color get sendMaxButtonBackgroundColor;
+
+  Color get addressFieldContainerBackgroundColor;
+
+  Color get usdCenterPillBackgroundColor;
+
+  Color get swapConversionRateViewTextColor;
+
+  Color get swapReviewScreenBackgroundColor;
+
+  Color get walletRemoveTextColor;
+
+  Color get recieveOtherAssetsTabBarSepratorColor;
+
   Color get headerBackgroundColor;
 
   Color get transactionAppBarBackgroundColor;
+
+  Color get conversionRateSwapScreenColor;
+
+  Color get conversionRateSwapScreenBackgroundColor;
+
+  Color get versionBackground;
+
+  Color get versionForeground;
 
   ColorScheme get colorScheme;
 }
@@ -91,7 +147,16 @@ abstract class AppColors {
 
 class DarkThemeColors implements AppColors {
   @override
-  Color get divider => AquaColors.seaBlue;
+  Color get divider => AquaColors.charcoal;
+
+  @override
+  Color get walletHeaderDivider => AquaColors.seaBlue;
+
+  @override
+  Color get dottedDivider => AquaColors.platinum;
+
+  @override
+  Color get bottomNavBarBorder => Colors.transparent;
 
   @override
   Color get notificationButtonBackground => AquaColors.blueGreen;
@@ -130,13 +195,13 @@ class DarkThemeColors implements AppColors {
   Color get hintTextColor => AquaColors.quickSilver;
 
   @override
-  Color get usdContainerColor => AquaColors.eerieBlack;
+  Color get usdContainerColor => AquaColors.heavyMetal;
 
   @override
   Color get headerUsdContainerColor => AquaColors.lotion;
 
   @override
-  Color get headerUsdContainerTextColor => AquaColors.blueGreen;
+  Color get headerUsdContainerTextColor => Colors.white;
 
   @override
   Color get sendAssetPriorityUnselectedBorder => AquaColors.charlestonGreen;
@@ -145,7 +210,7 @@ class DarkThemeColors implements AppColors {
   Color get sendAssetPrioritySelectedText => Colors.white;
 
   @override
-  Color get swapAssetPickerPopUpItemBackground => AquaColors.eerieBlack;
+  Color get swapAssetPickerPopUpItemBackground => AquaColors.charcoal;
 
   @override
   Color get roundedButtonOutlineColor => AquaColors.brightGray;
@@ -154,13 +219,13 @@ class DarkThemeColors implements AppColors {
   Color get listItemRoundedIconBackground => AquaColors.eerieBlack;
 
   @override
-  Color get tabSelectedBackground => AquaColors.charlestonGreen;
+  Color get tabSelectedBackground => AquaColors.charcoal;
 
   @override
   Color get tabSelectedForeground => Colors.white;
 
   @override
-  Color get tabUnselectedBackground => Colors.black;
+  Color get tabUnselectedBackground => AquaColors.darkJungleGreen;
 
   @override
   Color get tabUnselectedForeground => Colors.white;
@@ -181,7 +246,7 @@ class DarkThemeColors implements AppColors {
   Color get walletTabButtonBackgroundColor => AquaColors.robinEggBlue;
 
   @override
-  Color get usdContainerBackgroundColor => AquaColors.brightGray;
+  Color get usdContainerBackgroundColor => AquaColors.celadonBlue;
 
   @override
   Color get usdContainerSendRecieveAssets => AquaColors.charcoal;
@@ -191,6 +256,9 @@ class DarkThemeColors implements AppColors {
 
   @override
   Color get appBarIconOutlineColorAlt => AquaColors.antiFlashWhite;
+
+  @override
+  Color get appBarBackgroundColor => AquaColors.charcoal;
 
   @override
   Color get appBarIconBackgroundColor => AquaColors.robinEggBlue;
@@ -205,10 +273,82 @@ class DarkThemeColors implements AppColors {
   Color get disabledBackgroundColorAquaElevatedButton => AquaColors.linkWater;
 
   @override
+  Color get addressHistoryBackgroundColor => Colors.black;
+
+  @override
+  Color get addressHistoryHintTextColor => Colors.white;
+
+  @override
+  Color get addressHistoryNoHistoryIconColor => Colors.white;
+
+  @override
+  Color get addressHistoryNoHistoryTextColor => Colors.white;
+
+  @override
+  Color get addressHistoryTabBarSelected => AquaColors.darkJungleGreen;
+
+  @override
+  Color get addressHistoryTabBarUnSelected => AquaColors.lightSilver;
+
+  @override
+  Color get addressHistoryTabBarTextSelected => Colors.white;
+
+  @override
+  Color get addressHistoryTabBarTextUnSelected => AquaColors.darkJungleGreen;
+
+  @override
+  Color get popUpMenuButtonSwapScreenTextColor => Colors.white;
+
+  @override
+  Color get popUpMenuButtonSwapScreenBorderColor => AquaColors.eerieBlack;
+
+  @override
+  Color get success => Colors.green;
+
+  @override
+  Color get keyboardBackground => AquaColors.brightGray;
+
+  @override
+  Color get inverseSurfaceColor => Colors.black;
+
+  @override
+  Color get sendMaxButtonBackgroundColor => AquaColors.heavyMetal;
+
+  @override
+  Color get addressFieldContainerBackgroundColor => AquaColors.charcoal;
+
+  @override
+  Color get usdCenterPillBackgroundColor => AquaColors.charcoal;
+
+  @override
+  Color get swapConversionRateViewTextColor => Colors.white;
+
+  @override
+  Color get swapReviewScreenBackgroundColor => AquaColors.darkJungleGreen;
+
+  @override
+  Color get walletRemoveTextColor => const Color(0xFFFF4B2B);
+
+  @override
+  Color get recieveOtherAssetsTabBarSepratorColor => Colors.white;
+
+  @override
   Color get headerBackgroundColor => AquaColors.blueGreen;
 
   @override
   Color get transactionAppBarBackgroundColor => Colors.transparent;
+
+  @override
+  Color get conversionRateSwapScreenColor => AquaColors.blueGreen;
+
+  @override
+  Color get conversionRateSwapScreenBackgroundColor => AquaColors.blueGreen;
+
+  @override
+  Color get versionBackground => AquaColors.charcoal;
+
+  @override
+  Color get versionForeground => Colors.white;
 
   @override
   ColorScheme get colorScheme => ColorScheme(
@@ -223,7 +363,7 @@ class DarkThemeColors implements AppColors {
         onTertiary: AquaColors.eerieBlack,
         surface: AquaColors.charlestonGreen,
         onSurface: AquaColors.cadetGrey,
-        background: AquaColors.eerieBlack,
+        background: Colors.black,
         onBackground: Colors.white,
         error: AquaColors.portlandOrange,
         onError: Colors.white,
@@ -235,6 +375,15 @@ class DarkThemeColors implements AppColors {
 class LightThemeColors implements AppColors {
   @override
   Color get divider => AquaColors.brightGray;
+
+  @override
+  Color get walletHeaderDivider => AquaColors.platinum;
+
+  @override
+  Color get dottedDivider => AquaColors.platinum;
+
+  @override
+  Color get bottomNavBarBorder => AquaColors.platinum;
 
   @override
   Color get notificationButtonBackground => Colors.white;
@@ -258,7 +407,7 @@ class LightThemeColors implements AppColors {
   Color get menuSurface => AquaColors.lotion;
 
   @override
-  Color get receiveAddressCopySurface => AquaColors.lotion;
+  Color get receiveAddressCopySurface => AquaColors.splashGrey;
 
   @override
   Color get receiveContentBoxBorder => AquaColors.brightGray;
@@ -300,16 +449,16 @@ class LightThemeColors implements AppColors {
   Color get tabSelectedBackground => Colors.white;
 
   @override
-  Color get tabSelectedForeground => AquaColors.eerieBlack;
+  Color get tabSelectedForeground => AquaColors.charcoal;
 
   @override
-  Color get tabUnselectedBackground => AquaColors.brightGray;
+  Color get tabUnselectedBackground => AquaColors.lotion;
 
   @override
-  Color get tabUnselectedForeground => AquaColors.eerieBlack;
+  Color get tabUnselectedForeground => AquaColors.charcoal;
 
   @override
-  Color get cardOutlineColor => AquaColors.chineseWhite;
+  Color get cardOutlineColor => AquaColors.platinum;
 
   @override
   Color get headerSubtitle => AquaColors.graniteGray;
@@ -324,7 +473,7 @@ class LightThemeColors implements AppColors {
   Color get walletTabButtonBackgroundColor => AquaColors.splashGrey;
 
   @override
-  Color get usdContainerBackgroundColor => AquaColors.cloudGrey;
+  Color get usdContainerBackgroundColor => AquaColors.periglacialBlue;
 
   @override
   Color get usdContainerSendRecieveAssets => AquaColors.cloudGrey;
@@ -334,6 +483,9 @@ class LightThemeColors implements AppColors {
 
   @override
   Color get appBarIconOutlineColorAlt => AquaColors.lightSilver;
+
+  @override
+  Color get appBarBackgroundColor => Colors.white;
 
   @override
   Color get appBarIconBackgroundColor => Colors.white;
@@ -348,10 +500,82 @@ class LightThemeColors implements AppColors {
   Color get disabledBackgroundColorAquaElevatedButton => AquaColors.linkWater;
 
   @override
+  Color get addressHistoryBackgroundColor => AquaColors.splashGrey;
+
+  @override
+  Color get addressHistoryHintTextColor => AquaColors.cadetGrey;
+
+  @override
+  Color get addressHistoryNoHistoryIconColor => AquaColors.dustyGrey;
+
+  @override
+  Color get addressHistoryNoHistoryTextColor => AquaColors.charcoal;
+
+  @override
+  Color get addressHistoryTabBarSelected => Colors.white;
+
+  @override
+  Color get addressHistoryTabBarUnSelected => AquaColors.dustyGrey;
+
+  @override
+  Color get addressHistoryTabBarTextSelected => AquaColors.darkJungleGreen;
+
+  @override
+  Color get addressHistoryTabBarTextUnSelected => Colors.white;
+
+  @override
+  Color get popUpMenuButtonSwapScreenTextColor => AquaColors.charcoal;
+
+  @override
+  Color get popUpMenuButtonSwapScreenBorderColor => AquaColors.greyGoose;
+
+  @override
+  Color get success => Colors.green;
+
+  @override
+  Color get keyboardBackground => AquaColors.brightGray;
+
+  @override
+  Color get inverseSurfaceColor => AquaColors.splashGrey;
+
+  @override
+  Color get sendMaxButtonBackgroundColor => Colors.white;
+
+  @override
+  Color get addressFieldContainerBackgroundColor => Colors.white;
+
+  @override
+  Color get usdCenterPillBackgroundColor => AquaColors.periglacialBlue;
+
+  @override
+  Color get swapConversionRateViewTextColor => Colors.black;
+
+  @override
+  Color get swapReviewScreenBackgroundColor => AquaColors.splashGrey;
+
+  @override
+  Color get walletRemoveTextColor => const Color(0xFFFF8F8F);
+
+  @override
+  Color get recieveOtherAssetsTabBarSepratorColor => AquaColors.platinum;
+
+  @override
   Color get headerBackgroundColor => Colors.white;
 
   @override
   Color get transactionAppBarBackgroundColor => Colors.white;
+
+  @override
+  Color get conversionRateSwapScreenColor => AquaColors.lotion;
+
+  @override
+  Color get conversionRateSwapScreenBackgroundColor => Colors.white;
+
+  @override
+  Color get versionBackground => AquaColors.eerieBlack;
+
+  @override
+  Color get versionForeground => Colors.white;
 
   @override
   ColorScheme get colorScheme => const ColorScheme(
@@ -368,7 +592,7 @@ class LightThemeColors implements AppColors {
         onTertiary: AquaColors.eerieBlack,
         surface: Colors.white,
         onSurface: AquaColors.cadetGrey,
-        background: AquaColors.lotion,
+        background: AquaColors.splashGrey,
         onBackground: AquaColors.eerieBlack,
         error: AquaColors.portlandOrange,
         onError: Colors.white,
@@ -379,7 +603,10 @@ class LightThemeColors implements AppColors {
 
 class BotevThemeColors extends DarkThemeColors {
   @override
-  Color get divider => AquaColors.eerieBlack;
+  Color get divider => AquaColors.fcBotevDivider;
+
+  @override
+  Color get walletHeaderDivider => AquaColors.fcBotevDivider;
 
   @override
   Color get headerBackgroundColor => AquaColors.fcBotevPrimary;
@@ -403,9 +630,19 @@ class BotevThemeColors extends DarkThemeColors {
   Color get walletTabButtonBackgroundColor => AquaColors.fcBotevSecondary;
 
   @override
+  Color get usdContainerBackgroundColor => AquaColors.brightGray;
+
+  @override
+  Color get conversionRateSwapScreenColor => AquaColors.fcBotevPrimary;
+
+  @override
+  Color get swapConversionRateViewTextColor => Colors.black;
+
+  @override
   ColorScheme get colorScheme => super.colorScheme.copyWith(
         primary: AquaColors.fcBotevPrimary,
         secondary: AquaColors.fcBotevSecondary,
+        onPrimary: Colors.black,
         onPrimaryContainer: Colors.black,
         onSecondaryContainer: Colors.black,
       );

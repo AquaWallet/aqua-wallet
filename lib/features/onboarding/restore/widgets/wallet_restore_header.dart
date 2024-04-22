@@ -1,4 +1,5 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 
 class WalletRestoreHeader extends StatelessWidget {
   const WalletRestoreHeader({
@@ -18,7 +19,7 @@ class WalletRestoreHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.restoreInputTitle,
+            context.loc.restoreInputTitle,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontSize: 24.sp,
                   letterSpacing: 1,
@@ -27,14 +28,14 @@ class WalletRestoreHeader extends StatelessWidget {
           SizedBox(height: 16.h),
           if (error) ...{
             Text(
-              AppLocalizations.of(context)!.restoreInputError,
+              context.loc.restoreInputError,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Theme.of(context).colorScheme.error,
                   ),
             )
           } else ...{
             Text(
-              AppLocalizations.of(context)!.restoreInputSubtitle,
+              context.loc.restoreInputSubtitle,
               style: Theme.of(context).textTheme.titleMedium,
             )
           },

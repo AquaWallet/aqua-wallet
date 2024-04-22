@@ -2,7 +2,7 @@ import 'package:aqua/common/debug/navigation_observer.dart';
 import 'package:aqua/common/widgets/auth_wrapper.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/theme_provider.dart';
-import 'package:aqua/features/onboarding/onboarding.dart';
+import 'package:aqua/features/onboarding/shared/shared.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/routes.dart';
@@ -15,20 +15,18 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((value) => runApp(
-            ProviderScope(
-              overrides: [
-                sharedPreferencesProvider.overrideWithValue(prefs),
-              ],
-              //NOTE - Do NOT remove, for testing various screen sizes
-              // child: DevicePreview(
-              //   enabled: !kReleaseMode,
-              //   builder: (context) => const AquaApp(),
-              // ),
-              child: const AquaApp(),
-            ),
-          ));
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const AppWithDevicePreviewWrapper(),
+    ),
+  );
 }
 
 class AquaApp extends HookConsumerWidget {
@@ -59,7 +57,10 @@ class AquaApp extends HookConsumerWidget {
       painter: PreloadBackgroundPainter(isBotevMode: botevMode),
       child: ScreenUtilInit(
         designSize: const Size(428, 926),
+        rebuildFactor: (old, data) => RebuildFactors.always(old, data),
         builder: (context, _) => MaterialApp(
+          // ignore: deprecated_member_use
+          useInheritedMediaQuery: true,
           navigatorObservers: [AquaNavigatorObserver()],
           theme: ref.watch(lightThemeProvider(context)),
           darkTheme: ref.watch(darkThemeProvider(context)),

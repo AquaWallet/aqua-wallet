@@ -10,7 +10,7 @@ if [ ! -z "$empty_files" ]; then
 fi
 
 # Run dart format and check for unformatted files
-if ! unformatted=$(fvm dart format -o none --set-exit-if-changed .); then
+if ! unformatted=$(fvm dart format -o none --set-exit-if-changed lib test); then
     echo "COMMIT REJECTED: Dart format found unformatted files:"
     echo "$unformatted"
     exit 1

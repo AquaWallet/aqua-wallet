@@ -51,7 +51,29 @@ class AquaColors {
 
   static const Color linkWater = Color(0xFFDFE2E9);
 
+  static const Color heavyMetal = Color(0xFF282828);
+
+  static const Color mercury = Color(0xFFE9E9E9);
+
+  static const Color darkJungleGreen = Color(0xFF1B1A1A);
+
+  static const Color dustyGrey = Color(0xFF979797);
+
+  static const Color greyGoose = Color(0xFFCDCDCD);
+
+  static const Color spanishGray = Color(0xFF979797);
+
+  static const Color platinum = Color(0xFFE5E5E5);
+
+  static const Color vermillion = Color(0xFFFF4B2B);
+
+  static const Color fcBotevDivider = Color(0x4D444444);
+
   static const Color fcBotevPrimary = Color(0xFFFFCB05);
 
   static const Color fcBotevSecondary = Color(0xFFD9C453);
+
+  static const Color periglacialBlue = Color(0xFFE3E3E3);
+
+  static const Color aquaGreen = Color(0xFF13CDC2);
 }

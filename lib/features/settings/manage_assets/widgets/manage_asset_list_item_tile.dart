@@ -1,8 +1,8 @@
+import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
-
-import 'package:aqua/config/constants/svgs.dart';
 
 class ManageAssetListItemTile extends StatelessWidget {
   const ManageAssetListItemTile({
@@ -57,9 +57,7 @@ class ManageAssetListItemTile extends StatelessWidget {
                     children: [
                       //ANCHOR - Name
                       Text(
-                        asset.isLBTC
-                            ? AppLocalizations.of(context)!.layer2Bitcoin
-                            : asset.name,
+                        asset.isLBTC ? context.loc.layer2Bitcoin : asset.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -83,7 +81,7 @@ class ManageAssetListItemTile extends StatelessWidget {
                 ),
                 if (isUserAsset) ...[
                   //ANCHOR - Remove Button
-                  if (!asset.isDefaultAsset) ...[
+                  if (asset.isRemovable) ...[
                     AquaOutlinedIconButton(
                       onPressed: () => onRemove?.call(asset),
                       size: 40.r,

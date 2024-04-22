@@ -2,6 +2,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
@@ -110,10 +111,10 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
                     //ANCHOR - Title
                     Text(
                       arguments.map(
-                        send: (_) => AppLocalizations.of(context)!
-                            .lightningTransactionSuccessScreenSendTitle,
-                        receive: (_) => AppLocalizations.of(context)!
-                            .lightningTransactionSuccessScreenReceiveTitle,
+                        send: (_) => context
+                            .loc.lightningTransactionSuccessScreenSendTitle,
+                        receive: (_) => context
+                            .loc.lightningTransactionSuccessScreenReceiveTitle,
                       ),
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -127,9 +128,9 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
                     Text(
                       // ignore: unnecessary_null_comparison
                       arguments.satoshiAmount == null
-                          ? AppLocalizations.of(context)!
+                          ? context.loc
                               .lightningTransactionSuccessScreenReceiveMessage
-                          : AppLocalizations.of(context)!
+                          : context.loc
                               .lightningTransactionSuccessScreenAmountSats(
                                   satoshiAmountFormatted),
                       style:
@@ -159,8 +160,8 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
                         ),
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
-                          AppLocalizations.of(context)!
-                              .lightningTransactionSuccessScreenDoneButton,
+                          context
+                              .loc.lightningTransactionSuccessScreenDoneButton,
                         ),
                       ),
                     ),

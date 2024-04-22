@@ -1,53 +1,37 @@
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:rxdart/rxdart.dart';
 
-//TODO - Remove RxDart dependency
+// Represents the list of words used to provide suggestions for the mnemonic
 
-final walletOptionsProvider = Provider.autoDispose(WalletOptionsProvider.new);
-
-class WalletOptionsProvider {
-  WalletOptionsProvider(this.ref) {
-    ref.onDispose(() {
-      _reloadSubject.close();
-    });
+final walletHintWordListProvider = FutureProvider<List<String>>((_) async {
+  try {
+    final words = await rootBundle.loadString('assets/wordlist.txt');
+    return words.split('\n');
+  } catch (e) {
+    throw WalletRestoreInvalidOptionsException();
   }
-  final AutoDisposeProviderRef ref;
-  final PublishSubject<void> _reloadSubject = PublishSubject();
+});
 
-  /// This stream loads the bip39 wordlist from assets/wordlist.txt
-  late final ReplayStream<AsyncValue<List<String>>> optionsStream =
-      _reloadSubject
-          .startWith(null)
-          .switchMap((_) => loadList()
-              .asStream()
-              .map((list) => AsyncValue.data(list))
-              .startWith(const AsyncValue.loading())
-              .onErrorReturnWith(
-                  (error, stackTrace) => AsyncValue.error(error, stackTrace)))
-          .shareReplay(maxSize: 1);
-  Future<List<String>> loadList() async {
-    try {
-      final string = await rootBundle.loadString('assets/wordlist.txt');
-      return string.split('\n');
-    } catch (e) {
-      throw WalletRestoreInvalidOptionsException();
+final walletInputHintsProvider =
+    Provider.autoDispose.family<WalletInputHintsNotifier, int>((ref, index) {
+  final options = ref.watch(walletHintWordListProvider).asData?.value ?? [];
+  final text = ref.watch(mnemonicWordInputStateProvider(index)).text;
+  return WalletInputHintsNotifier(options, text);
+});
+
+class WalletInputHintsNotifier {
+  WalletInputHintsNotifier(this._options, this._text);
+
+  final List<String> _options;
+  final String _text;
+
+  List<String> get options {
+    if (_text.isEmpty) {
+      return [];
     }
-  }
-
-  void reload() {
-    _reloadSubject.add(null);
+    return _options.where((String option) {
+      return option.startsWith(_text.toLowerCase());
+    }).toList();
   }
 }
-
-final _walletOptionsStreamProvider =
-    StreamProvider.autoDispose<AsyncValue<List<String>>>((ref) async* {
-  final restoreProcessingStream =
-      ref.watch(walletOptionsProvider).optionsStream;
-  yield* restoreProcessingStream;
-});
-final walletOptionsValueProvider =
-    Provider.autoDispose<AsyncValue<List<String>>?>((ref) {
-  return ref.watch(_walletOptionsStreamProvider).asData?.value;
-});

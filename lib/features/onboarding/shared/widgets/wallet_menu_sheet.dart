@@ -3,6 +3,7 @@ import 'package:aqua/data/provider/register_wallet/register_wallet_provider.dart
 import 'package:aqua/data/provider/theme_provider.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -19,9 +20,8 @@ class WalletMenuSheet extends HookConsumerWidget {
         SnackBar(
           content: Text(
             !tosAccepted.value
-                ? AppLocalizations.of(context)!.welcomeScreenUnacceptedToSError
-                : AppLocalizations.of(context)!
-                    .welcomeScreenUnacceptedDisclaimerError,
+                ? context.loc.welcomeScreenUnacceptedToSError
+                : context.loc.welcomeScreenUnacceptedDisclaimerError,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w400,
                   color: colorScheme.onError,
@@ -61,7 +61,7 @@ class WalletMenuSheet extends HookConsumerWidget {
           SizedBox(height: 16.h),
           //ANCHOR - Title
           Text(
-            AppLocalizations.of(context)!.welcomeScreenTitle,
+            context.loc.welcomeScreenTitle,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontSize: 20.sp,
                   color: colorScheme.onBackground,
@@ -70,7 +70,7 @@ class WalletMenuSheet extends HookConsumerWidget {
           SizedBox(height: 16.h),
           //ANCHOR - Description
           Text(
-            AppLocalizations.of(context)!.welcomeScreenDescription,
+            context.loc.welcomeScreenDescription,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w400,
@@ -92,9 +92,8 @@ class WalletMenuSheet extends HookConsumerWidget {
             iconSize: 48.w,
             paddingStart: 3.w,
             paddingIcon: 14.w,
-            title: AppLocalizations.of(context)!.welcomeScreenCreateButtonTitle,
-            description: AppLocalizations.of(context)!
-                .welcomeScreenCreateButtonDescription,
+            title: context.loc.welcomeScreenCreateButtonTitle,
+            description: context.loc.welcomeScreenCreateButtonDescription,
           ),
           SizedBox(height: 8.h),
           //ANCHOR - Restore Button
@@ -114,10 +113,8 @@ class WalletMenuSheet extends HookConsumerWidget {
             iconSize: 38.w,
             paddingStart: 8.w,
             paddingIcon: 17.w,
-            title:
-                AppLocalizations.of(context)!.welcomeScreenRestoreButtonTitle,
-            description: AppLocalizations.of(context)!
-                .welcomeScreenRestoreButtonDescription,
+            title: context.loc.welcomeScreenRestoreButtonTitle,
+            description: context.loc.welcomeScreenRestoreButtonDescription,
           ),
           SizedBox(height: 16.h),
           WelcomeToSCheckbox(onTosAccepted: tosAccepted),

@@ -1,6 +1,7 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:aqua/utils/utils.dart';
 
 class RegionSettings extends StatelessWidget {
   final Widget child;
@@ -12,7 +13,8 @@ class RegionSettings extends StatelessWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!.regionSettingsScreenTitle,
+        title: context.loc.regionSettingsScreenTitle,
+        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: SafeArea(child: child),
     );
@@ -34,8 +36,7 @@ class RegionSettingsScreen extends HookConsumerWidget {
       child: availableRegions.when(
         data: (items) => SettingsSelectionList(
           showSearch: true,
-          label: currentRegion?.name ??
-              AppLocalizations.of(context)!.regionSettingsScreenHint,
+          label: currentRegion?.name ?? context.loc.regionSettingsScreenHint,
           items: items
               .mapIndexed((index, item) => SettingsItem.create(item,
                   name: item.name, index: index, length: items.length))
@@ -43,11 +44,10 @@ class RegionSettingsScreen extends HookConsumerWidget {
           itemBuilder: (context, item) {
             final region = item.object as Region;
             return SettingsListSelectionItem(
-              icon: CountryFlag.fromCountryCode(
-                region.iso,
+              icon: CountryFlag(
+                svgAsset: region.flagSvg,
                 width: 20.r,
                 height: 20.r,
-                borderRadius: 5.r,
               ),
               content: Text(region.name),
               position: item.position,
@@ -57,7 +57,7 @@ class RegionSettingsScreen extends HookConsumerWidget {
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
-          child: Text(AppLocalizations.of(context)!.regionSettingsScreenError),
+          child: Text(context.loc.regionSettingsScreenError),
         ),
       ),
     );

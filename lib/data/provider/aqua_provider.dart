@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:aqua/logger.dart';
 import 'package:aqua/config/config.dart';
@@ -11,6 +11,61 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/gdk.dart';
 import 'package:rxdart/rxdart.dart';
+
+final aquaConnectionProvider =
+    AsyncNotifierProvider<AquaConnectionProvider, void>(
+        AquaConnectionProvider.new);
+
+class AquaConnectionProvider extends AsyncNotifier<void> {
+  @override
+  FutureOr<void> build() => null;
+
+  Future<void> connect() async {
+    state = const AsyncValue.loading();
+
+    await disconnect();
+
+    try {
+      final (mnemonic, err) =
+          await ref.read(secureStorageProvider).get(StorageKeys.mnemonic);
+      if (err != null || mnemonic == null) {
+        throw AquaProviderInvalidMnemonicException();
+      }
+
+      final credentials = GdkLoginCredentials(mnemonic: mnemonic);
+
+      await ref.read(liquidProvider).connect();
+      final liquidWalletId =
+          await ref.read(liquidProvider).loginUser(credentials: credentials);
+      if (liquidWalletId == null || liquidWalletId.isEmpty) {
+        throw AquaProviderLiquidAuthFailureException();
+      }
+
+      await ref.read(bitcoinProvider).connect();
+      final bitcoinWalletId =
+          await ref.read(bitcoinProvider).loginUser(credentials: credentials);
+      if (bitcoinWalletId == null || bitcoinWalletId.isEmpty) {
+        throw AquaProviderBitcoinAuthFailureException();
+      }
+      final subaccount = await ref.read(bitcoinProvider).getSubaccount(1);
+      if (subaccount == null) {
+        await ref.read(bitcoinProvider).createSegwitSubaccount();
+      }
+
+      logger.d('[AquaConnectionProvider] Connected');
+
+      state = const AsyncValue.data(null);
+    } catch (error) {
+      logger.d('[AquaConnectionProvider] Failed to connect');
+      state = AsyncValue.error(error, StackTrace.current);
+    }
+  }
+
+  Future<void> disconnect() async {
+    await ref.read(liquidProvider).disconnect();
+    await ref.read(bitcoinProvider).disconnect();
+  }
+}
 
 /// # Connection flow description
 /// (network name)_provider is derived from [NetworkFrontend]
@@ -52,131 +107,32 @@ class AquaProvider {
   );
 
   final ProviderRef ref;
-  final bool runTestCode = false;
 
-  final PublishSubject<void> _startAuthSubject = PublishSubject();
-  late final Stream<void> _startAuthStream = _startAuthSubject.switchMap((_) =>
-      authStream.first.asStream().switchMap<void>((value) => value.maybeWhen(
-            loading: () => const Stream.empty(),
-            orElse: () => Stream.value(null),
-          )));
+  Future<GdkAssetInformation?> gdkRawAssetForAssetId(String id) async {
+    final allAssets = await ref.read(liquidProvider).getAssets();
+    final asset = allAssets?[id];
 
-  late final Stream<AsyncValue<String>> mnemonicStringStream = _startAuthStream
-      .startWith(null)
-      .switchMap((_) => Stream.value(_)
-          .asyncMap((_) => getMnemonic())
-          .map((mnemonic) => AsyncValue.data(mnemonic))
-          .startWith(const AsyncValue.loading())
-          .onErrorReturnWith(
-              (error, stackTrace) => AsyncValue.error(error, stackTrace)))
-      .shareReplay(maxSize: 1);
-
-  late final Stream<AsyncValue<void>> authStream = mnemonicStringStream
-      .switchMap((value) => value.when(
-            data: (mnemonic) => Stream.value(mnemonic)
-                .asyncMap((_) async => await disconnect())
-                .asyncMap((_) => Rx.zipList([
-                      Stream.value(null)
-                          .asyncMap((_) async =>
-                              await ref.read(liquidProvider).connect())
-                          .asyncMap((_) async {
-                            return GdkLoginCredentials(mnemonic: mnemonic);
-                          })
-                          .asyncMap((credentials) => ref
-                              .read(liquidProvider)
-                              .loginUser(credentials: credentials))
-                          .asyncMap<void>((id) async {
-                            if (id == null || id.isEmpty) {
-                              throw AquaProviderLiquidAuthFailureException();
-                            }
-                            await ref.read(liquidProvider).refreshAssets();
-                            return;
-                          }),
-                      Stream.value(null)
-                          .asyncMap((_) async =>
-                              await ref.read(bitcoinProvider).connect())
-                          .asyncMap((_) async {
-                            return GdkLoginCredentials(mnemonic: mnemonic);
-                          })
-                          .asyncMap((credentials) => ref
-                              .read(bitcoinProvider)
-                              .loginUser(credentials: credentials))
-                          .asyncMap<void>((id) async {
-                            if (id == null || id.isEmpty) {
-                              throw AquaProviderBitcoinAuthFailureException();
-                            }
-                            final subaccount = await ref
-                                .read(bitcoinProvider)
-                                .getSubaccount(1);
-                            if (subaccount == null) {
-                              await ref
-                                  .read(bitcoinProvider)
-                                  .createSegwitSubaccount();
-                            }
-
-                            await ref.read(bitcoinProvider).refreshAssets();
-
-                            return;
-                          }),
-                    ]).first)
-                .map<AsyncValue<void>>((_) => const AsyncValue.data(null))
-                .startWith(const AsyncValue.loading())
-                .onErrorReturnWith(
-                    (error, stackTrace) => AsyncValue.error(error, stackTrace)),
-            loading: () => Stream.value(const AsyncValue<void>.loading()),
-            error: (error, stackTrace) =>
-                Stream.value(AsyncValue<void>.error(error, stackTrace)),
-          ))
-      .shareReplay(maxSize: 1);
-
-  void authorize() {
-    _startAuthSubject.add(null);
+    return asset;
   }
 
-  Future<void> disconnect() => Rx.zipList([
-        Stream.value(null).asyncMap(
-            (event) async => await ref.read(liquidProvider).disconnect()),
-        Stream.value(null).asyncMap(
-            (event) async => await ref.read(bitcoinProvider).disconnect()),
-      ]).asyncMap<void>((_) {
-        return null;
-      }).first;
-
-  Future<String> getMnemonic() async {
-    final (value, err) =
-        await ref.read(secureStorageProvider).get(StorageKeys.mnemonic);
-    if (err != null) {
-      throw AquaProviderInvalidMnemonicException();
+  Future<Asset?> liquidAssetById(String id) async {
+    final asset = await gdkRawAssetForAssetId(id);
+    if (asset != null) {
+      return Asset(
+        id: asset.assetId ?? '',
+        amount: 0,
+        name: asset.name ?? '',
+        ticker: asset.ticker ?? '',
+        precision: asset.precision ?? 8,
+        domain: asset.entity?.domain,
+        isLiquid: true,
+        isLBTC: ref.read(liquidProvider).policyAsset == asset.assetId,
+        isUSDt: ref.read(liquidProvider).usdtId == asset.assetId,
+        logoUrl: Svgs.liquidAsset,
+      );
     }
 
-    return value!;
-  }
-
-  Future<Map<String, GdkAssetInformation>?> _gdkRawAssets() => authStream
-      .switchMap<void>((value) => value.maybeWhen(
-            data: (_) => Stream.value(null),
-            orElse: () => const Stream.empty(),
-          ))
-      .asyncMap((_) => ref.read(liquidProvider).getAssets())
-      .handleError((e, stackTrace) {})
-      .first;
-
-  Future<Asset?> liquidAssetById(String id) =>
-      _gdkRawAssets().then((gdkAssets) => gdkAssets?[id]).then(
-          (gdkAsset) => gdkAsset != null ? _buildLiquidAsset(gdkAsset) : null);
-
-  Future<GdkAssetInformation?> gdkRawAssetForAssetId(String assetId) {
-    return Stream.value(null).asyncMap((_) async {
-      return _gdkRawAssets();
-    }).map((gdkAssets) {
-      return gdkAssets?.values ?? <GdkAssetInformation>[];
-    }).asyncMap((gdkAssets) async {
-      if (gdkAssets.any((asset) => asset.assetId == assetId)) {
-        return gdkAssets.firstWhere((asset) => asset.assetId == assetId);
-      }
-
-      return null;
-    }).first;
+    return null;
   }
 
   Stream<int> getConfirmationCount(
@@ -194,21 +150,6 @@ class AquaProvider {
 
   Future<GdkCurrencyData?> getAvailableCurrencies() async {
     return ref.read(liquidProvider).getAvailableCurrencies();
-  }
-
-  Asset _buildLiquidAsset(GdkAssetInformation gdkAsset, {int balance = 0}) {
-    return Asset(
-      id: gdkAsset.assetId ?? '',
-      amount: balance,
-      name: gdkAsset.name ?? '',
-      ticker: gdkAsset.ticker ?? '',
-      precision: gdkAsset.precision ?? 8,
-      domain: gdkAsset.entity?.domain,
-      isLiquid: true,
-      isLBTC: ref.read(liquidProvider).policyAsset == gdkAsset.assetId,
-      isUSDt: ref.read(liquidProvider).usdtId == gdkAsset.assetId,
-      logoUrl: Svgs.liquidAsset,
-    );
   }
 
   /// --------------------------------------------------------------------------------------------
@@ -236,29 +177,19 @@ class AquaProvider {
     if (isFirstRun) {
       await ref.read(secureStorageProvider).deleteAll();
       prefs.setBool(key, false);
-      log('[Aqua] Clearing secure storage on first run');
+      logger.d('[Aqua] Clearing secure storage on first run');
     }
   }
-
-  /// --------------------------------------------------------------------------------------------
-  /// Init
-  /// --------------------------------------------------------------------------------------------
 }
 
 /// --------------------------------------------------------------------------------------------
 /// Exceptions
 /// --------------------------------------------------------------------------------------------
-class AquaProviderUnathorizedException implements Exception {}
-
 class AquaProviderInvalidMnemonicException implements Exception {}
-
-class AquaProviderBiometricFailureException implements Exception {}
 
 class AquaProviderLiquidAuthFailureException implements Exception {}
 
 class AquaProviderBitcoinAuthFailureException implements Exception {}
-
-class AquaProviderAssetForAssetIdEmptyException implements Exception {}
 
 /// --------------------------------------------------------------------------------------------
 /// networkEventStreamProvider

@@ -2,6 +2,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class PegReviewInfoCard extends HookConsumerWidget {
@@ -19,7 +20,7 @@ class PegReviewInfoCard extends HookConsumerWidget {
     final asset = useMemoized(() => input.deliverAsset!);
     final deliverAmountDisplay = useMemoized(() => input.deliverAmount);
     final receiveAmountDisplay = useMemoized(() {
-      return ref.read(formatterProvider).formatAssetAmount(
+      return ref.read(formatterProvider).formatAssetAmountDirect(
             amount: data.finalAmount,
             precision: asset.precision,
           );
@@ -51,7 +52,7 @@ class PegReviewInfoCard extends HookConsumerWidget {
                     SizedBox(height: 2.h),
                     //ANCHOR - Amount Title
                     Text(
-                      AppLocalizations.of(context)!.pegOrderReviewTitle,
+                      context.loc.pegOrderReviewTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
@@ -82,21 +83,21 @@ class PegReviewInfoCard extends HookConsumerWidget {
                 ),
               ],
             ),
+            SizedBox(height: 36.h),
+            //ANCHOR - Receive amount
+            LabelCopyableTextView(
+              label: context.loc.conversionReceiveAmount,
+              value: "$receiveAmountDisplay ${input.receiveAsset!.ticker}",
+            ),
             //ANCHOR - Divider
-            Divider(
-              height: 36.h,
+            DashedDivider(
+              height: 32.h,
               thickness: 2.h,
               color: Theme.of(context).colors.divider,
             ),
-            //ANCHOR - Receive amount
-            LabelCopyableTextView(
-              label: AppLocalizations.of(context)!.conversionReceiveAmount,
-              value: "$receiveAmountDisplay ${input.receiveAsset!.ticker}",
-            ),
-            SizedBox(height: 16.h),
             //ANCHOR - Order ID
             LabelCopyableTextView(
-              label: AppLocalizations.of(context)!.pegOrderReviewOrderId,
+              label: context.loc.pegOrderReviewOrderId,
               value: data.order.orderId,
             ),
             SizedBox(height: 16.h),
