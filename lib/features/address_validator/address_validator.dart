@@ -352,6 +352,11 @@ class AddressParser {
         // get pubkey from routing hint (this is the pubkey we sent when creating reverse swap)
         // note: pubkey is a standard field in routingHints, so other non-boltz invoices can have them
         Map routingInfo = routingData[0];
+        final shortChannelId = routingInfo["short_channel_id"];
+        if (shortChannelId != "0846c900051c0000") {
+          return null;
+        }
+
         final pubkey = routingInfo["pubkey"];
         if (pubkey == null) {
           return null;

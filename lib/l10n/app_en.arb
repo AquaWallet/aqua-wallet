@@ -399,8 +399,8 @@
   "settingsScreenItemBotevMode": "BOTEV Mode",
   "assetTransactionsTypePegIn": "Peg In",
   "assetTransactionsTypePegOut": "Peg Out",
-  "assetTransactionsTypeBoltzSwap": "Lighting Send",
-  "assetTransactionsTypeBoltzReverseSwap": "Lighting Receive",
+  "assetTransactionsTypeBoltzSwap": "Lightning Send",
+  "assetTransactionsTypeBoltzReverseSwap": "Lightning Receive",
   "sideswapPegInDescription": "Peg-In Powered By Sideswap.io",
   "sideswapPegOutDescription": "Peg-Out Powered By Sideswap.io"
 }

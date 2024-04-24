@@ -6,9 +6,11 @@
 
 2. [Install fvm](https://fvm.app/docs/getting_started/installation/)
 
-3. Run `fvm use` in the git repo directory which will install and set the correct version of Flutter for the project.
+3. `git clone` this repo
 
-4. Run `make setup` (run it whenever you pull from upstream.)
+4. Run `fvm use` in the git repo directory which will install and set the correct version of Flutter for the project.
+
+5. Run `make setup` (run it whenever you pull from upstream.)
 
 - `make setup` pulls all the dependencies configured in `pubspec.yaml` as well as pre-built binaries for GDK as well as `boltz-rust`.
 - We use a forked version of GDK which can be found in https://github.com/sideswap-io/gdk/tree/pset_stable . Instead of using the pre-built binaries you can build it form source and use it as well.
@@ -21,8 +23,8 @@
 To develop with Android emulator, you need `Android Studio` with `Cmake` and `NDK`.
 
 ```bash
-sdk-manager --install "ndk;21.4.7075529"
-sdk-manager --install "cmake;3.10.2.4988404"
+sdkmanager --install "ndk;21.4.7075529"
+sdkmanager --install "cmake;3.10.2.4988404"
 ```
 
 Check which Java version Flutter uses with `fvm flutter doctor -v`. Make sure the same version is configured in `gradle-wrapper.properties`.
