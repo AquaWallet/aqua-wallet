@@ -82,6 +82,21 @@ class GeneralTransactionDetailsCard extends HookConsumerWidget {
               value: uiModel.transactionId,
             ),
             SizedBox(height: 18.h),
+            ...uiModel.maybeMap(
+              swap: (model) {
+                if (model.dbTransaction?.serviceAddress?.isNotEmpty == true) {
+                  return [
+                    LabelCopyableTextView(
+                      label: context.loc.assetTransactionDetailsDepositAddress,
+                      value: model.dbTransaction!.serviceAddress!,
+                    ),
+                    SizedBox(height: 18.h),
+                  ];
+                }
+                return [];
+              },
+              orElse: () => [],
+            ),
             Center(
               child: TransactionDetailsStatusChip(
                 color:

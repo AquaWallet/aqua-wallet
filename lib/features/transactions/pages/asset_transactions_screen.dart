@@ -37,8 +37,7 @@ class State extends ConsumerState<AssetTransactionsScreen> {
             ? context.loc.layer2Bitcoin
             : asset.name,
         showBackButton: true,
-        showActionButton: asset
-            .isUsdtLiquid, // For now only show the action button for USDT to show the sideshift orders screen
+        showActionButton: asset.isUsdtLiquid || asset.isLayerTwo,
         actionButtonAsset: Svgs.history,
         backgroundColor:
             Theme.of(context).colors.transactionAppBarBackgroundColor,
@@ -50,6 +49,8 @@ class State extends ConsumerState<AssetTransactionsScreen> {
         onActionButtonPressed: () {
           if (asset.isUsdtLiquid) {
             Navigator.of(context).pushNamed(SideShiftOrdersScreen.routeName);
+          } else if (asset.isLayerTwo) {
+            Navigator.of(context).pushNamed(BoltzSwapsScreen.routeName);
           }
         },
         onTitlePressed: () {

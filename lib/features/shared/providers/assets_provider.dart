@@ -37,10 +37,13 @@ class AssetsNotifier extends AutoDisposeAsyncNotifier<List<Asset>> {
         Stream.periodic(const Duration(seconds: 5)),
         _reloadAssetsController.stream,
       ]).asyncMap((_) async {
-        final balances = await ref.read(bitcoinProvider).getBalance();
+        final balances =
+            await ref.read(bitcoinProvider).getBalance(requiresRefresh: true);
         return Asset.btc(amount: balances?['btc'] as int? ?? 0);
       }).asyncMap((btcAsset) async {
-        final balances = await ref.read(liquidProvider).getBalance() ?? {};
+        final balances =
+            await ref.read(liquidProvider).getBalance(requiresRefresh: true) ??
+                {};
         final assets = ref
             .read(manageAssetsProvider.select((p) => p.userAssets))
             .map((asset) => balances.containsKey(asset.id)

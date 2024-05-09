@@ -1,15 +1,8 @@
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:dio/dio.dart';
-
-enum TransactionPriority { high, medium, low }
-
-final priorityBlockLookup = {
-  TransactionPriority.high: '1',
-  TransactionPriority.medium: '10',
-  TransactionPriority.low: '144'
-};
 
 getApiUrl(NetworkType network) =>
     'https://blockstream.info${network == NetworkType.liquid ? '/liquid' : ''}/api';
@@ -27,12 +20,10 @@ class ElectrsClient {
     final response = await client.get(endpoint);
     final json = response.data as Map<String, dynamic>;
     return {
-      TransactionPriority.high:
-          json[priorityBlockLookup[TransactionPriority.high]],
-      TransactionPriority.medium:
-          json[priorityBlockLookup[TransactionPriority.medium]],
-      TransactionPriority.low:
-          json[priorityBlockLookup[TransactionPriority.low]]
+      TransactionPriority.high: json[TransactionPriority.high.value],
+      TransactionPriority.medium: json[TransactionPriority.medium.value],
+      TransactionPriority.low: json[TransactionPriority.low.value],
+      TransactionPriority.min: json[TransactionPriority.min.value]
     };
   }
 

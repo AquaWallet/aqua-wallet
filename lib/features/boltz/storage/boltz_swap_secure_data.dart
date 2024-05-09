@@ -1,25 +1,15 @@
-class BoltzSwapSecureData {
-  final String privateKeyHex;
-  final String? preimageHex;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  BoltzSwapSecureData({required this.privateKeyHex, this.preimageHex});
+part 'boltz_swap_secure_data.freezed.dart';
+part 'boltz_swap_secure_data.g.dart';
 
-  factory BoltzSwapSecureData.fromJson(Map<String, dynamic> json) {
-    return BoltzSwapSecureData(
-      privateKeyHex: json['privateKeyHex'],
-      preimageHex: json['preimageHex'] as String?,
-    );
-  }
+@freezed
+class BoltzSwapSecureData with _$BoltzSwapSecureData {
+  const factory BoltzSwapSecureData({
+    required String privateKeyHex,
+    String? preimageHex,
+  }) = _BoltzSwapSecureData;
 
-  Map<String, dynamic> toJson() {
-    final data = {
-      'privateKeyHex': privateKeyHex,
-    };
-
-    if (preimageHex != null) {
-      data['preimageHex'] = preimageHex!;
-    }
-
-    return data;
-  }
+  factory BoltzSwapSecureData.fromJson(Map<String, dynamic> json) =>
+      _$BoltzSwapSecureDataFromJson(json);
 }

@@ -1,17 +1,11 @@
 import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/electrs_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
+import 'package:aqua/data/data.dart';
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/features/boltz/boltz_provider.dart';
 import 'package:aqua/features/send/models/models.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
-
-import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:decimal/decimal.dart';
 import 'providers.dart';
 
@@ -27,7 +21,7 @@ final fetchedFeeRatesPerVByteProvider = FutureProvider.autoDispose
     throw Exception("Only fetching fee rates for onchain BTC");
   }
 
-  final feeRates = await ref.read(electrsProvider).fetchFeeRates(network);
+  final feeRates = await ref.read(feeEstimateProvider).fetchFeeRates(network);
   logger.d('[$network] feeRates: $feeRates');
   return feeRates;
 });
@@ -93,9 +87,9 @@ final userSelectedFeeRatePerVByteProvider =
       ?.value;
 
   if (fetchedRates != null &&
-      fetchedRates.containsKey(TransactionPriority.low)) {
-    final rate = fetchedRates[TransactionPriority.low]!;
-    return FeeRate(TransactionPriority.low, rate);
+      fetchedRates.containsKey(TransactionPriority.medium)) {
+    final rate = fetchedRates[TransactionPriority.medium]!;
+    return FeeRate(TransactionPriority.medium, rate);
   }
   return null;
 });
@@ -175,4 +169,28 @@ final onchainFeeInFiatToDisplayProvider =
     StateProvider.autoDispose.family<String?, Asset>((ref, asset) {
   var feeInSats = ref.watch(onchainFeeInSatsProvider);
   return ref.watch(conversionProvider((Asset.btc(), feeInSats)));
+});
+
+final customFeeInputProvider = StateProvider.autoDispose<String?>((ref) {
+  return null;
+});
+
+final customFeeInFiatProvider =
+    Provider.autoDispose.family<String?, (String?, int?)>((ref, args) {
+  final amount = args.$1;
+  final transactionVsize = args.$2;
+  if (amount != null && transactionVsize != null) {
+    try {
+      final amountInSats = Decimal.tryParse(amount)!.toBigInt().toInt();
+      return ref
+          .watch(satsToFiatDisplayWithSymbolProvider(
+              amountInSats * transactionVsize))
+          .asData
+          ?.value;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  return null;
 });

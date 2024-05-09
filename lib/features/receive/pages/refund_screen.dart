@@ -67,6 +67,8 @@ class RefundScreen extends HookConsumerWidget {
             minutes: (arguments.swapData.response.timeoutBlockHeight -
                 currentBlockHeight)))
         : null;
+    final refundData =
+        ref.read(boltzSwapRefundDataProvider(arguments.swapData));
 
     useEffect(() {
       Future<void> determineUIState() async {
@@ -149,6 +151,19 @@ class RefundScreen extends HookConsumerWidget {
               Text(
                   '${context.loc.boltzRefundTimeoutSubtitle}: ${arguments.swapData.response.timeoutBlockHeight}',
                   style: Theme.of(context).textTheme.titleMedium),
+
+              SizedBox(height: 60.h),
+              //ANCHOR - Copy Refund Data
+              TextButton(
+                style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                    textStyle: Theme.of(context).textTheme.titleMedium),
+                onPressed: () async {
+                  final jsonString = jsonEncode(refundData?.toJson());
+                  context.copyToClipboard(jsonString);
+                },
+                child: Text(context.loc.boltzCopyRefundData),
+              ),
             ],
           ),
         );

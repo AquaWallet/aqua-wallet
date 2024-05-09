@@ -41,7 +41,7 @@ class AssetDetailsHeader extends HookConsumerWidget {
       color: Theme.of(context).colors.headerBackgroundColor,
       elevation: 6,
       child: Container(
-        padding: EdgeInsets.only(top: kToolbarHeight + 35.h),
+        padding: EdgeInsets.only(top: kToolbarHeight + 45.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

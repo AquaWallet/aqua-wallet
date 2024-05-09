@@ -16,6 +16,8 @@ class AmountParsingException implements ExceptionLocalized {
         return context.loc.sendAssetAmountScreenEmptyAmountError;
       case AmountParsingExceptionType.notEnoughFunds:
         return context.loc.sendAssetAmountScreenNotEnoughFundsError;
+      case AmountParsingExceptionType.notEnoughFundsForFee:
+        return context.loc.sendAssetAmountScreenNotEnoughFundsForFeeError;
       case AmountParsingExceptionType.belowBoltzMin:
         return context.loc.boltzMinAmountError(boltzMin.toString());
       case AmountParsingExceptionType.aboveBoltzMax:
@@ -35,6 +37,7 @@ class AmountParsingException implements ExceptionLocalized {
 enum AmountParsingExceptionType {
   emptyAmount,
   notEnoughFunds,
+  notEnoughFundsForFee,
   belowBoltzMin,
   aboveBoltzMax,
   belowSideShiftMin,

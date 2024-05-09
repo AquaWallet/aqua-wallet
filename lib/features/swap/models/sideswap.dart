@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'sideswap.freezed.dart';
 part 'sideswap.g.dart';
 
+const loginClient = 'login_client';
 const serverStatus = 'server_status';
 const assets = 'assets';
 const subscribePriceStream = 'subscribe_price_stream';
@@ -370,4 +371,16 @@ class SwapStartPegResult with _$SwapStartPegResult {
 
   factory SwapStartPegResult.fromJson(Map<String, dynamic> json) =>
       _$SwapStartPegResultFromJson(json);
+}
+
+@freezed
+class SideswapLoginClientRequest with _$SideswapLoginClientRequest {
+  const factory SideswapLoginClientRequest({
+    @JsonKey(name: 'api_key') required String apiKey,
+    @JsonKey(name: 'version') required String appVersion,
+    @JsonKey(name: 'user_agent') @Default('Aqua') String userAgent,
+  }) = _SideswapLoginClientRequest;
+
+  factory SideswapLoginClientRequest.fromJson(Map<String, dynamic> json) =>
+      _$SideswapLoginClientRequestFromJson(json);
 }

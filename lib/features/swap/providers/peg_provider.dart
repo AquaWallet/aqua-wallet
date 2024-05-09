@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aqua/constants.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
@@ -143,14 +144,19 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
           asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
 
       final addressee = GdkAddressee(
-        assetId: asset.id,
+        assetId: asset.isBTC ? null : asset.id,
         address: pegAddress,
         satoshi: deliverAmountSatoshi,
       );
 
+      final feeEstimates = await ref
+          .read(feeEstimateProvider)
+          .fetchFeeRates(NetworkType.bitcoin);
+      final fastFee = feeEstimates[TransactionPriority.high]!;
       final transaction = GdkNewTransaction(
         addressees: [addressee],
-        feeRate: await network.getFastFees(),
+        feeRate: fastFee.toInt() *
+            1000, // feeEstimateProvider returns sats/byte, gdk takes sats/kb
         sendAll: isSendAll,
         utxoStrategy: GdkUtxoStrategyEnum.defaultStrategy,
       );

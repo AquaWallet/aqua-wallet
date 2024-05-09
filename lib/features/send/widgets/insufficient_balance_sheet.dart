@@ -5,10 +5,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+enum InsufficientFundsType {
+  fee,
+  sendAmount,
+}
+
 class InsufficientBalanceSheet extends HookConsumerWidget {
   const InsufficientBalanceSheet({
     super.key,
+    this.type = InsufficientFundsType.sendAmount,
   });
+
+  final InsufficientFundsType type;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +34,9 @@ class InsufficientBalanceSheet extends HookConsumerWidget {
           SizedBox(height: 42.h),
           //ANCHOR - Title
           Text(
-            context.loc.insufficientFundsSheetMessage,
+            type == InsufficientFundsType.fee
+                ? context.loc.insufficientFundsForFeesSheetMessage
+                : context.loc.insufficientFundsSheetMessage,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontSize: 20.sp,
                 ),
@@ -53,7 +63,7 @@ class InsufficientBalanceSheet extends HookConsumerWidget {
           // }),
           //ANCHOR - Reques Bitcoin Message
           Text(
-            "Ask a friend to send you a few dollars over lightning",
+            context.loc.sendAssetReviewNotEnoughFunds,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ],

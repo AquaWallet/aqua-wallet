@@ -4,6 +4,7 @@ import 'package:aqua/common/widgets/custom_error.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/features/address_validator/models/amount_parsing_exception.dart';
 import 'package:aqua/features/boltz/boltz_provider.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
@@ -78,6 +79,48 @@ class SendAssetAmountScreen extends HookConsumerWidget {
         isSpinnerVisible.value = false;
       }
     });
+
+    // show a modal telling the user they don't have enough funds
+    final insufficientFundsModalShown = useState<bool>(false);
+    final showInsufficientFundsModal =
+        useCallback((InsufficientFundsType type) {
+      if (!insufficientFundsModalShown.value) {
+        insufficientFundsModalShown.value = true;
+        Future.microtask(() => showModalBottomSheet(
+            context: context,
+            backgroundColor: Theme.of(context).colorScheme.background,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30.r),
+                topRight: Radius.circular(30.r),
+              ),
+            ),
+            constraints: BoxConstraints(
+              maxHeight: context.adaptiveDouble(
+                mobile: 0.4.sh,
+                tablet: 0.2.sh,
+              ),
+            ),
+            builder: (_) => InsufficientBalanceSheet(type: type)));
+      }
+    }, []);
+
+    // handle errors
+    List<Widget> handleError(
+        BuildContext context, AmountParsingException error) {
+      if (error.type == AmountParsingExceptionType.notEnoughFundsForFee) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showInsufficientFundsModal(InsufficientFundsType.fee);
+        });
+      }
+
+      return [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30.w),
+          child: CustomError(errorMessage: error.toLocalizedString(context)),
+        )
+      ];
+    }
 
     return Scaffold(
       appBar: AquaAppBar(
@@ -237,13 +280,7 @@ class SendAssetAmountScreen extends HookConsumerWidget {
             const Spacer(),
 
             //ANCHOR - Error
-            if (error != null) ...[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.w),
-                child:
-                    CustomError(errorMessage: error.toLocalizedString(context)),
-              ),
-            ],
+            if (error != null) ...handleError(context, error),
 
             //ANCHOR - Continue Button
             Container(

@@ -1,4 +1,4 @@
-import 'package:aqua/data/provider/electrs_provider.dart';
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 
 class FeeRate {
   final TransactionPriority priority;

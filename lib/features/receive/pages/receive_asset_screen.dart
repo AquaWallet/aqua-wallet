@@ -222,7 +222,8 @@ class ReceiveAssetScreen extends HookConsumerWidget {
                 boltzUIState.value == ReceiveBoltzUIState.enterAmount
             ? Container(
                 height: 50.h,
-                margin: const EdgeInsets.all(18),
+                margin: EdgeInsets.only(
+                    left: 30.w, top: 12.h, right: 30.w, bottom: 48.h),
                 child: AquaElevatedButton(
                   onPressed: () {
                     if (amountAsDecimal < Decimal.fromInt(boltzMin)) {

@@ -1,12 +1,11 @@
-// ignore_for_file: unnecessary_null_comparison
-
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
-import 'package:aqua/data/provider/electrs_provider.dart';
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/send/models/models.dart';
 import 'package:aqua/features/send/providers/providers.dart';
+import 'package:aqua/features/send/widgets/custom_fee_input_sheet.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
@@ -31,6 +30,10 @@ class TransactionPrioritySelector extends HookConsumerWidget {
     }, [transaction]);
 
     final isExpanded = useState<bool>(true);
+    final isCustomFeeSelected = useState<bool>(false);
+    final customFeeRate = ref.watch(customFeeInputProvider);
+    final customFeeInFiat = ref.watch(customFeeInFiatProvider(
+        (customFeeRate, gdkTransaction?.transactionVsize)));
     final rates = ref
         .watch(fetchedFeeRatesPerVByteProvider(NetworkType.bitcoin))
         .asData
@@ -58,10 +61,27 @@ class TransactionPrioritySelector extends HookConsumerWidget {
     final mediumFeeInFiat =
         ref.watch(conversionProvider((Asset.btc(), mediumFeeInSats)));
 
-    final lowFeeRate = rates?[TransactionPriority.low]!.toInt() ?? 0;
-    final lowFeeInSats = calculateFeeInSats(lowFeeRate);
-    final lowFeeInFiat =
-        ref.watch(conversionProvider((Asset.btc(), lowFeeInSats)));
+    final minFeeRate = rates?[TransactionPriority.min]!.toInt();
+
+    final showCustomFeeInputSheet = useCallback(() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Theme.of(context).colorScheme.background,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30.r),
+            topRight: Radius.circular(30.r),
+          ),
+        ),
+        builder: (_) => CustomFeeInputSheet(
+            minimum: minFeeRate,
+            transactionVsize: gdkTransaction?.transactionVsize,
+            onConfirm: () {
+              isCustomFeeSelected.value = true;
+            }),
+      );
+    }, [minFeeRate]);
 
     return BoxShadowCard(
       color: Theme.of(context).colors.altScreenSurface,
@@ -82,72 +102,157 @@ class TransactionPrioritySelector extends HookConsumerWidget {
                   Row(
                     children: [
                       Expanded(
+                          child: _SelectionItem(
+                              label: context.loc
+                                  .sendAssetReviewScreenConfirmPriorityStandard,
+                              fee: mediumFeeInFiat ?? '',
+                              satsPerByte: mediumFeeRate.toInt(),
+                              isSelected: isCustomFeeSelected.value == false &&
+                                  selectedPriority ==
+                                      TransactionPriority.medium,
+                              onPressed: () {
+                                ref
+                                        .read(
+                                            userSelectedFeeRatePerVByteProvider
+                                                .notifier)
+                                        .state =
+                                    FeeRate(TransactionPriority.medium,
+                                        mediumFeeRate.toDouble());
+                                ref
+                                    .read(customFeeInputProvider.notifier)
+                                    .state = null;
+                                isCustomFeeSelected.value = false;
+                              })),
+                      SizedBox(
+                        width: 11.w,
+                      ),
+                      Expanded(
                         child: _SelectionItem(
                           label: context
                               .loc.sendAssetReviewScreenConfirmPriorityHigh,
                           fee: highFeeInFiat ?? '',
                           satsPerByte: highFeeRate.toInt(),
-                          isSelected:
+                          isSelected: isCustomFeeSelected.value == false &&
                               selectedPriority == TransactionPriority.high,
-                          onPressed: () => ref
-                                  .read(userSelectedFeeRatePerVByteProvider
-                                      .notifier)
-                                  .state =
-                              FeeRate(TransactionPriority.high,
-                                  highFeeRate.toDouble()),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 11.w,
-                      ),
-                      Expanded(
-                          child: _SelectionItem(
-                        label: context
-                            .loc.sendAssetReviewScreenConfirmPriorityStandard,
-                        fee: mediumFeeInFiat ?? '',
-                        satsPerByte: mediumFeeRate.toInt(),
-                        isSelected:
-                            selectedPriority == TransactionPriority.medium,
-                        onPressed: () =>
+                          onPressed: () {
                             ref
                                     .read(userSelectedFeeRatePerVByteProvider
                                         .notifier)
                                     .state =
-                                FeeRate(TransactionPriority.medium,
-                                    mediumFeeRate.toDouble()),
-                      )),
-                    ],
-                  ),
-                  SizedBox(height: 14.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _SelectionItem(
-                          label: context
-                              .loc.sendAssetReviewScreenConfirmPriorityLow,
-                          fee: lowFeeInFiat ?? '',
-                          satsPerByte: lowFeeRate.toInt(),
-                          isSelected:
-                              selectedPriority == TransactionPriority.low,
-                          onPressed: () => ref
-                                  .read(userSelectedFeeRatePerVByteProvider
-                                      .notifier)
-                                  .state =
-                              FeeRate(TransactionPriority.low,
-                                  lowFeeRate.toDouble()),
+                                FeeRate(TransactionPriority.high,
+                                    highFeeRate.toDouble());
+                            ref.read(customFeeInputProvider.notifier).state =
+                                null;
+                          },
                         ),
                       ),
-                      SizedBox(
-                        width: 11.w,
-                      ),
-                      const Spacer(),
                     ],
                   ),
+                  SizedBox(height: 11.h),
+                  Material(
+                    color: isCustomFeeSelected.value
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colors.altScreenSurface,
+                    borderRadius: BorderRadius.circular(6.r),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.all(isCustomFeeSelected.value ? 16.0 : 0),
+                      child: Row(
+                        mainAxisAlignment: isCustomFeeSelected.value
+                            ? MainAxisAlignment.spaceBetween
+                            : MainAxisAlignment.end,
+                        children: [
+                          if (isCustomFeeSelected.value)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(customFeeInFiat ?? '',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                            fontSize: 18.sp,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .colors
+                                                .sendAssetPrioritySelectedText)),
+                                SizedBox(
+                                  height: 4.h,
+                                ),
+                                Text(
+                                    customFeeRate != null
+                                        ? "$customFeeRate sats/vbyte"
+                                        : '',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colors
+                                                .sendAssetPrioritySelectedText)),
+                              ],
+                            ),
+                          _CustomFeeButton(
+                            isSelected: isCustomFeeSelected.value,
+                            onTap: showCustomFeeInputSheet,
+                          )
+                        ],
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
           ]
         ],
+      ),
+    );
+  }
+}
+
+class _CustomFeeButton extends StatelessWidget {
+  const _CustomFeeButton({required this.onTap, required this.isSelected});
+
+  final bool isSelected;
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: isSelected
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.background,
+      borderRadius: BorderRadius.circular(6.r),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6.r),
+        child: Ink(
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+            decoration: isSelected
+                ? BoxDecoration(
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2.r,
+                    ),
+                    borderRadius: BorderRadius.circular(6.r),
+                  )
+                : BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context)
+                          .colors
+                          .sendAssetPriorityUnselectedBorder,
+                      width: 2.r,
+                    ),
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+            child: Text(context.loc.sendAssetReviewScreenConfirmCustomFeeButton,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: isSelected
+                          ? Theme.of(context)
+                              .colors
+                              .sendAssetPrioritySelectedText
+                          : Theme.of(context).colorScheme.onBackground,
+                    ))),
       ),
     );
   }

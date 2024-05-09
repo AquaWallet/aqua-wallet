@@ -71,7 +71,7 @@ class BoltzSwapsList extends HookConsumerWidget {
                       left: 32.w, right: 32.w, top: 10.h, bottom: 10.h),
                   child: Text(
                     context.loc.boltzSwapsListEmptyState,
-                    textAlign: TextAlign.left,
+                    textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),

@@ -69,7 +69,8 @@ class UsdtTransactionFeeSelector extends HookConsumerWidget {
     final feeInFiat = (gdkTransaction != null)
         ? ref.watch(conversionProvider((Asset.btc(), gdkTransaction.fee!)))
         : "";
-    final feeInSats = "${gdkTransaction?.fee?.toString()} Sats";
+    final satsString = gdkTransaction?.fee?.toString();
+    final feeInSats = satsString != null ? "$satsString Sats" : "";
 
     // toggle automatically if one of the assets doesn't have enough funds and the other doesn't
     // if both don't have enough funds, will show error message below

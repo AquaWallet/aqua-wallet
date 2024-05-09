@@ -40,3 +40,6 @@ const sideshiftUrl = 'https://sideshift.ai/api/v2/';
 
 // Mail
 const aquaSupportEmail = 'support@aquawallet.io';
+
+//MEMPOOL.SPACE
+const mempoolSpaceUrl = 'https://mempool.space/api/v1';

@@ -34,8 +34,10 @@ class BoltzStatusCheckService {
         .where((swap) =>
             (swap.swapStatus.isPending || swap.swapStatus.needsRefund) &&
             (swap.refundTx == null || swap.refundTx!.isEmpty) &&
-            (swap.created != null &&
-                DateTime.now().difference(swap.created!).inHours <= 72))
+            (swap.created == null ||
+                (swap.created != null &&
+                    DateTime.now().difference(swap.created!).inHours <=
+                        168))) // swap.created == null accounts for previous version that didn't have this property
         .toList();
 
     logger.d(
@@ -64,8 +66,9 @@ class BoltzStatusCheckService {
         .where((swap) =>
             (swap.swapStatus.isPending || swap.swapStatus.needsClaim) &&
             (swap.claimTx == null || swap.claimTx!.isEmpty) &&
-            (swap.created != null &&
-                DateTime.now().difference(swap.created!).inHours <= 72))
+            (swap.created == null ||
+                (swap.created != null &&
+                    DateTime.now().difference(swap.created!).inHours <= 72)))
         .toList();
 
     logger.d(

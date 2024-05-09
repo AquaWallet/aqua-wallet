@@ -72,10 +72,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
           ),
       title: GestureDetector(
         onTap: onTitlePressed,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 12.h),
-          child: Text(title),
-        ),
+        child: Text(title),
       ),
       automaticallyImplyLeading: false,
       leadingWidth: 96.w,

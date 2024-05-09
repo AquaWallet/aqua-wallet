@@ -1,4 +1,5 @@
 import 'package:aqua/common/exceptions/exception_localized.dart';
+import 'package:aqua/features/address_validator/models/amount_parsing_exception.dart';
 import 'package:aqua/features/shared/shared.dart';
 
 final sendAddressErrorProvider =
@@ -7,6 +8,6 @@ final sendAddressErrorProvider =
 });
 
 final sendAmountErrorProvider =
-    StateProvider.autoDispose<ExceptionLocalized?>((ref) {
+    StateProvider.autoDispose<AmountParsingException?>((ref) {
   return null;
 });

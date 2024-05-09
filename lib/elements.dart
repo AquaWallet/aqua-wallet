@@ -1,8 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
-import 'package:aqua/logger.dart';
 import 'package:ffi/ffi.dart';
-import 'dart:ffi' as ffi;
 import 'ffi/generated_bindings.dart';
 
 const rustElementsWrapperLibAndroid = "libboltz_rust.so";
@@ -173,21 +171,4 @@ class Elements {
     final ptr = value.cast<Int8>();
     return _bindings.rust_cstr_free(ptr as Pointer<Char>);
   }
-
-  /// Logging
-  static void setupRustLogging() {
-    final callback =
-        ffi.Pointer.fromFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>(
-            logMessageFromRust);
-    _bindings.register_log_callback(callback);
-  }
-}
-
-/// Logging
-typedef LogCallback = Void Function(Pointer<Int8>);
-typedef LogCallbackDart = void Function(Pointer<Int8>);
-
-void logMessageFromRust(ffi.Pointer<ffi.Char> message) {
-  final String messageString = message.cast<Utf8>().toDartString();
-  logger.d('[Rust] $messageString');
 }

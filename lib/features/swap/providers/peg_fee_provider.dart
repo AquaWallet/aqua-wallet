@@ -29,21 +29,21 @@ final maxPegFeeDeductedAmountProvider =
     );
   }
 
-  final finalFee = input.isPegIn ? fee * 2 : fee;
-  final feeDeductedAmount = amount - finalFee;
+  final feeDeductedAmount = amount - fee;
   logger.d(
       '[PEG] Fee: $fee, Gross Amount: $amount, Net Amount: $feeDeductedAmount');
 
-  if (balance != null && finalFee > balance) {
-    logger.d('[PEG] Fee ($finalFee) exceeds balance ($balance)');
+  if (balance != null && fee > balance) {
+    logger.d('[PEG] Fee ($fee) exceeds balance ($balance)');
     return AsyncValue.error(
       PegGdkInsufficientFeeBalanceException(),
       StackTrace.current,
     );
   }
 
-  if (finalFee > amount) {
-    logger.d('[PEG] Fee ($finalFee) exceeds amount ($amount)');
+  // this prevents showing a negative receive asset amount
+  if (fee > amount) {
+    logger.d('[PEG] Fee ($fee) exceeds amount ($amount)');
     return AsyncValue.error(
       PegGdkFeeExceedingAmountException(),
       StackTrace.current,

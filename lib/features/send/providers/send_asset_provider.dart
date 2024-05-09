@@ -1,3 +1,4 @@
+import 'package:aqua/features/send/widgets/insufficient_balance_sheet.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 
@@ -9,8 +10,9 @@ final sendAssetProvider = StateProvider.autoDispose<Asset>((ref) {
 
 /// ---------------------
 /// Insufficient Balance
-final insufficientBalanceProvider = StateProvider.autoDispose<bool>((ref) {
-  return false;
+final insufficientBalanceProvider =
+    StateProvider.autoDispose<InsufficientFundsType?>((ref) {
+  return null;
 });
 
 /// ---------------------

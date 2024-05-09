@@ -1,4 +1,5 @@
 import 'package:aqua/data/provider/electrs_provider.dart';
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:dio/dio.dart' as dio;
@@ -27,9 +28,9 @@ void main() {
     test('fetchFeeRates success', () async {
       final ratesJson = <String, dynamic>{
         '1': 48.427,
-        '10': 41.674,
-        '18': 34.616,
-        '144': 31.124000000000002
+        '3': 41.674,
+        '6': 31.124000000000002,
+        '1008': 5.12
       };
 
       final response = MockDioResponse<Map<String, dynamic>>();
@@ -48,7 +49,8 @@ void main() {
       expect(feeRates, {
         TransactionPriority.high: 48.427,
         TransactionPriority.medium: 41.674,
-        TransactionPriority.low: 31.124000000000002
+        TransactionPriority.low: 31.124000000000002,
+        TransactionPriority.min: 5.12
       });
 
       // Verify the GET request was made to the correct URL.

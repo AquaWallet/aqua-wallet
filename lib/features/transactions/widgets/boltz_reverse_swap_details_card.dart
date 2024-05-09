@@ -37,7 +37,8 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
     );
 
     final swapStatus = ref
-            .watch(boltzSwapStatusStreamProvider(swapData.response.id))
+            .watch(boltzSwapStatusStreamProvider(SwapStatusRequest(
+                id: swapData.response.id, forceNewStream: true)))
             .asData
             ?.value
             .status ??
@@ -84,6 +85,12 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
             LabelCopyableTextView(
               label: context.loc.lightningInvoice,
               value: swapData.response.invoice,
+            ),
+            SizedBox(height: 18.h),
+            //ANCHOR - Address
+            LabelCopyableTextView(
+              label: context.loc.address,
+              value: swapData.response.lockupAddress,
             ),
             SizedBox(height: 18.h),
             //ANCHOR - Status

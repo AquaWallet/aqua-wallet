@@ -55,9 +55,19 @@ final boltzReverseSwapMempoolTxProvider =
 
 /////////////////////////////////////////
 // Swap status provider /////////////////
+class SwapStatusRequest {
+  final String id;
+  final bool forceNewStream;
+
+  SwapStatusRequest({required this.id, this.forceNewStream = false});
+}
+
 final boltzSwapStatusStreamProvider =
-    StreamProvider.family<BoltzSwapStatusResponse, String>((ref, id) {
-  return ref.read(boltzProvider).getSwapStatusStream(id);
+    StreamProvider.family<BoltzSwapStatusResponse, SwapStatusRequest>(
+        (ref, request) {
+  return ref
+      .read(boltzProvider)
+      .getSwapStatusStream(request.id, forceNewStream: request.forceNewStream);
 });
 
 /// Fetches a boltz swap by the onchain tx hash
@@ -483,11 +493,15 @@ class BoltzService {
   // ANCHOR: - Get Swap Status Stream
 
   /// Get a server-side events stream of swap status
-  Stream<BoltzSwapStatusResponse> getSwapStatusStream(String id) {
-    if (_statusStreamControllers.containsKey(id)) {
+  Stream<BoltzSwapStatusResponse> getSwapStatusStream(String id,
+      {bool forceNewStream = false}) {
+    if (!forceNewStream && _statusStreamControllers.containsKey(id)) {
       return _statusStreamControllers[id]!.stream;
+    } else if (forceNewStream && _statusStreamControllers.containsKey(id)) {
+      _closeSwapStatusStream(id);
     }
 
+    // open new stream
     final baseUri =
         ref.read(boltzEnvConfigProvider.select((env) => env.apiUrl));
     final uri = '${baseUri}streamswapstatus?id=$id';

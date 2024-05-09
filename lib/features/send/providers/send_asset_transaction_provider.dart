@@ -7,6 +7,7 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/address_validator/models/address_validator_models.dart';
 import 'package:aqua/logger.dart';
+import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -57,8 +58,12 @@ class SendAssetTransactionProvider
         throw AddressParsingException(AddressParsingExceptionType.emptyAddress);
       }
 
+      final customFeeInput = ref.read(customFeeInputProvider);
+
       final feeRatePerVb = asset.isBTC
-          ? ref.read(userSelectedFeeRatePerVByteProvider)?.rate.toInt()
+          ? customFeeInput != null
+              ? Decimal.tryParse(customFeeInput)?.toBigInt().toInt()
+              : ref.read(userSelectedFeeRatePerVByteProvider)?.rate.toInt()
           : liquidFeeRatePerVb;
       final feeRatePerKb =
           feeRatePerVb != null ? (feeRatePerVb * 1000).toInt() : null;
@@ -94,11 +99,12 @@ class SendAssetTransactionProvider
       if (reply == null) {
         throw GdkNetworkException('Failed to create GDK transaction');
       }
-      ref.read(insufficientBalanceProvider.notifier).state = false;
+      ref.read(insufficientBalanceProvider.notifier).state = null;
       state = AsyncData(SendAssetOnchainTx.gdkTx(reply));
       return reply;
     } on GdkNetworkInsufficientFunds {
-      ref.read(insufficientBalanceProvider.notifier).state = true;
+      ref.read(insufficientBalanceProvider.notifier).state =
+          InsufficientFundsType.sendAmount;
       rethrow;
     } catch (e) {
       logger.d('[Send] create gdk tx - error: $e');

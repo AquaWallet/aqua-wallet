@@ -1,5 +1,4 @@
 import 'package:aqua/common/widgets/custom_bottom_navigation_bar.dart';
-import 'package:aqua/elements.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/home/providers/home_provider.dart';
@@ -25,7 +24,6 @@ class HomeScreen extends HookConsumerWidget {
 
     useEffect(() {
       Future.microtask(() {
-        Elements.setupRustLogging();
         ref.read(boltzStatusCheckProvider).streamAllPendingSwaps();
       });
       return null;

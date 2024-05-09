@@ -18,6 +18,8 @@ enum BoltzSwapStatus {
   transactionClaimPending('transaction.claim.pending'),
   transactionClaimed('transaction.claimed'),
   transactionRefunded('transaction.refunded'),
+
+  /// "In the unlikely event that Boltz is unable to send the agreed amount of chain bitcoin after the user set up the payment to the provided Lightning invoice, the status of the swap will be transaction.failed and the pending Lightning HTLC will be cancelled. The Lightning bitcoin automatically bounce back to the user, no further action or refund is required and the user didn't pay any fees."
   transactionFailed('transaction.failed');
 
   const BoltzSwapStatus(this.value);
@@ -48,9 +50,10 @@ extension SwapStatusExtension on BoltzSwapStatus {
 
   /// A normal swap failed, and needs a refund
   bool get needsRefund {
-    return this == BoltzSwapStatus.invoiceFailedToPay ||
-        this == BoltzSwapStatus.transactionLockupFailed ||
-        this == BoltzSwapStatus.swapExpired;
+    return this != BoltzSwapStatus.transactionClaimed &&
+        (this == BoltzSwapStatus.invoiceFailedToPay ||
+            this == BoltzSwapStatus.transactionLockupFailed ||
+            this == BoltzSwapStatus.swapExpired);
   }
 
   bool get isFailed {
@@ -71,8 +74,8 @@ extension SwapStatusExtension on BoltzSwapStatus {
   }
 
   bool get isFinal {
+    // swapExpired is not final, it needs a refund
     return isSuccess ||
-        this == BoltzSwapStatus.swapExpired ||
         this == BoltzSwapStatus.swapRefunded ||
         this == BoltzSwapStatus.invoiceExpired ||
         this == BoltzSwapStatus.transactionRefunded ||

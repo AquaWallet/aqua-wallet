@@ -3,12 +3,18 @@ import 'dart:convert';
 
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/features/settings/shared/shared.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
+
+// Keeping in code since this key in particular is not sensitive, might need to
+// devise a strategy to manage keys in the future if we have more keys.
+const sideswapApiKey =
+    'f8b7a12ee96aa68ee2b12ebfc51d804a4a404c9732652c298d24099a3d922a84';
 
 const sideswapWssAddressLive = 'wss://api.sideswap.io/json-rpc-ws';
 const sideswapWssAddressTestnet = 'wss://api-testnet.sideswap.io/json-rpc-ws';
@@ -60,6 +66,15 @@ class SideswapWebsocketProvider {
         'params': params,
       }),
     );
+  }
+
+  Future<void> addLoginClient() async {
+    final version = await ref.read(versionProvider.future);
+    final request = SideswapLoginClientRequest(
+      apiKey: sideswapApiKey,
+      appVersion: version,
+    );
+    await _sendRequest(_channel, 1, loginClient, request.toJson());
   }
 
   Future<void> getServerStatus() async {
@@ -126,6 +141,7 @@ class SideswapWebsocketProvider {
     final sideswapServerAddr = getSideswapWssAddress(env);
     _channel = WebSocketChannel.connect(Uri.parse(sideswapServerAddr));
 
+    await addLoginClient();
     await getServerStatus();
     await getAssets();
 

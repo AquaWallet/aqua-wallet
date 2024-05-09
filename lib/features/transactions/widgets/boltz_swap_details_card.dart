@@ -38,7 +38,8 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
     );
 
     final swapStatus = ref
-            .watch(boltzSwapStatusStreamProvider(swapData.response.id))
+            .watch(boltzSwapStatusStreamProvider(SwapStatusRequest(
+                id: swapData.response.id, forceNewStream: true)))
             .asData
             ?.value
             .status ??
@@ -87,6 +88,12 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
               value: swapData.request.invoice,
             ),
             SizedBox(height: 18.h),
+            //ANCHOR - Deposit Address
+            LabelCopyableTextView(
+              label: context.loc.address,
+              value: swapData.response.address,
+            ),
+            SizedBox(height: 18.h),
             //ANCHOR - Status
             TransactionDetailsStatusChip(
               color: switch (swapStatus) {
@@ -124,7 +131,7 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
                 child: Text(context.loc.boltzRefund),
               ),
             ],
-            SizedBox(height: 28.h),
+            SizedBox(height: 18.h),
             //ANCHOR - Boltz Support
             OutlinedButton(
               style: OutlinedButton.styleFrom(

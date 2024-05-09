@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
@@ -31,7 +34,8 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
               ),
               if (isReverseSwap) _buildReverseSwapDetails(swapData, context),
               if (!isReverseSwap)
-                _buildNormalSwapDetails(swapData as BoltzSwapData, context),
+                _buildNormalSwapDetails(
+                    swapData as BoltzSwapData, ref, context),
             ],
           ),
         ),
@@ -82,6 +86,9 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
           ),
           SizedBox(height: 40.h),
 
+          _CopyButton(data: swapData.toJson().toString()),
+          SizedBox(height: 24.h),
+
           LabelCopyableTextView(
               label: context.loc.boltzId, value: swapData.response.id),
           SizedBox(height: 24.h),
@@ -89,6 +96,11 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
           LabelCopyableTextView(
               label: context.loc.lightningInvoice,
               value: swapData.response.invoice),
+          SizedBox(height: 24.h),
+
+          LabelCopyableTextView(
+              label: context.loc.boltzPreimage,
+              value: swapData.secureData.preimageHex ?? '-'),
           SizedBox(height: 24.h),
 
           LabelCopyableTextView(
@@ -124,7 +136,10 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildNormalSwapDetails(BoltzSwapData swapData, BuildContext context) {
+  Widget _buildNormalSwapDetails(
+      BoltzSwapData swapData, WidgetRef ref, BuildContext context) {
+    final refundData = ref.read(boltzSwapRefundDataProvider(swapData));
+
     return Container(
       padding: EdgeInsets.only(
         top: 31.h,
@@ -167,6 +182,9 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
           ),
           SizedBox(height: 40.h),
 
+          _RefundButton(refundData: refundData),
+          SizedBox(height: 24.h),
+
           LabelCopyableTextView(
               label: context.loc.boltzId, value: swapData.response.id),
           SizedBox(height: 24.h),
@@ -182,6 +200,11 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
 
           LabelCopyableTextView(
               label: context.loc.bip21, value: swapData.response.bip21),
+          SizedBox(height: 24.h),
+
+          LabelCopyableTextView(
+              label: context.loc.boltzRefundPrivateKey,
+              value: swapData.secureData.privateKeyHex),
           SizedBox(height: 24.h),
 
           LabelCopyableTextView(
@@ -259,6 +282,48 @@ class _BoltzDetailWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CopyButton extends StatelessWidget {
+  final String data;
+
+  const _CopyButton({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: AquaElevatedButton(
+        onPressed: () {
+          context.copyToClipboard(data);
+        },
+        child: Text(context.loc.boltzCopySwapData),
+      ),
+    );
+  }
+}
+
+class _RefundButton extends StatelessWidget {
+  final BoltzRefundData? refundData;
+
+  const _RefundButton({required this.refundData});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: AquaElevatedButton(
+        onPressed: () {
+          final jsonString = jsonEncode(refundData?.toJson());
+          context.copyToClipboard(jsonString);
+        },
+        style: ElevatedButton.styleFrom(
+          textStyle: Theme.of(context).textTheme.titleSmall,
+          backgroundColor: Theme.of(context).colorScheme.error,
+          foregroundColor: Theme.of(context).colorScheme.onError,
+        ),
+        child: Text(context.loc.boltzCopyRefundData),
       ),
     );
   }

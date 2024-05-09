@@ -8,6 +8,7 @@ import 'package:aqua/data/provider/sideshift/sideshift_provider.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/boltz/boltz_provider.dart';
 import 'package:aqua/features/send/providers/providers.dart';
+import 'package:aqua/features/send/widgets/widgets.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
@@ -49,10 +50,21 @@ class UserEnteredAmountStateNotifier extends AutoDisposeNotifier<Decimal?> {
     if (amountWithPrecision > assetBalanceInSats) {
       ref.read(sendAmountErrorProvider.notifier).state =
           AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
-      ref.read(insufficientBalanceProvider.notifier).state = true;
+      ref.read(insufficientBalanceProvider.notifier).state =
+          InsufficientFundsType.sendAmount;
       throw AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
     } else {
-      ref.read(insufficientBalanceProvider.notifier).state = false;
+      ref.read(insufficientBalanceProvider.notifier).state = null;
+    }
+
+    final lbtcBalance = await ref.read(balanceProvider).getLBTCBalance();
+    if (asset.isLiquid && lbtcBalance == 0) {
+      ref.read(insufficientBalanceProvider.notifier).state =
+          InsufficientFundsType.fee;
+      ref.read(sendAmountErrorProvider.notifier).state = AmountParsingException(
+          AmountParsingExceptionType.notEnoughFundsForFee);
+      throw AmountParsingException(
+          AmountParsingExceptionType.notEnoughFundsForFee);
     }
 
     // if lightning, check if amount is above or below boltz min/max

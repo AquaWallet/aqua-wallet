@@ -13,6 +13,8 @@ import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+final _debouncer = Debouncer(milliseconds: 300);
+
 class SendAssetReviewScreen extends HookConsumerWidget {
   const SendAssetReviewScreen({super.key, this.arguments});
 
@@ -49,7 +51,7 @@ class SendAssetReviewScreen extends HookConsumerWidget {
 
     // show a modal telling the user they don't have enough funds
     useEffect(() {
-      if (insufficientBalance) {
+      if (insufficientBalance != null) {
         Future.microtask(() => showModalBottomSheet(
               context: context,
               backgroundColor: Theme.of(context).colorScheme.background,
@@ -122,17 +124,29 @@ class SendAssetReviewScreen extends HookConsumerWidget {
     // listen to setup
     ref.listen(sendAssetSetupProvider, (_, setup) {
       if (setup.asData?.value == true) {
-        createTransaction();
+        _debouncer.run(() {
+          createTransaction();
+        });
       }
     });
 
     // listen to user changes
     ref.listen(userSelectedFeeAssetProvider, (_, __) {
-      createTransaction();
+      _debouncer.run(() {
+        createTransaction();
+      });
     });
 
     ref.listen(userSelectedFeeRatePerVByteProvider, (_, __) {
-      createTransaction();
+      _debouncer.run(() {
+        createTransaction();
+      });
+    });
+
+    ref.listen(customFeeInputProvider, (_, __) {
+      _debouncer.run(() {
+        createTransaction();
+      });
     });
 
     return WillPopScope(
@@ -206,12 +220,12 @@ class SendAssetReviewScreen extends HookConsumerWidget {
                           return ref.watch(sendAssetTransactionProvider).when(
                                 data: (_) {
                                   return SendAssetConfirmSlider(
-                                    text: insufficientBalance
+                                    text: insufficientBalance != null
                                         ? context.loc
                                             .sendAssetAmountScreenNotEnoughFundsError
                                         : context.loc
                                             .sendAssetReviewScreenConfirmSlider,
-                                    enabled: !insufficientBalance &&
+                                    enabled: insufficientBalance == null &&
                                         transaction != null,
                                     onConfirm: onTransactionConfirm,
                                   );

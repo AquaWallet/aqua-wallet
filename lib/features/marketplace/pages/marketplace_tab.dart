@@ -112,8 +112,9 @@ class MarketplaceView extends HookConsumerWidget {
             crossAxisSpacing: 22.w,
             mainAxisSpacing: 25.h,
             childAspectRatio: context.adaptiveDouble(
-              mobile: 175 / 216,
-              tablet: 205 / 216,
+              smallMobile: 175 / 216,
+              mobile: 165 / 216,
+              tablet: 190 / 216,
             ),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -169,7 +170,7 @@ class MarketplaceView extends HookConsumerWidget {
           SizedBox(
             height: context.adaptiveDouble(
               smallMobile: 4.h,
-              mobile: 50.h,
+              mobile: 20.h,
               tablet: 4.h,
             ),
           ),

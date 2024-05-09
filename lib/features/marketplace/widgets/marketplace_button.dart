@@ -34,7 +34,12 @@ class MarketplaceButton extends StatelessWidget {
               children: [
                 //ANCHOR - Icon
                 SizedBox.square(
-                  dimension: 52.w,
+                  dimension: context.adaptiveDouble(
+                    smallMobile: 48.h,
+                    mobile: 52.h,
+                    wideMobile: 52.h,
+                    tablet: 40.h,
+                  ),
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.r),
@@ -50,7 +55,7 @@ class MarketplaceButton extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 47.h),
+                SizedBox(height: 42.h),
                 //ANCHOR - Title
                 Text(
                   title,

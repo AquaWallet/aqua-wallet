@@ -53,6 +53,12 @@ class SideswapPegDetailsCard extends HookConsumerWidget {
               label: context.loc.pegOrderReviewOrderId,
               value: dbTransaction.serviceOrderId ?? '-',
             ),
+            SizedBox(height: 18.h),
+            //ANCHOR - Deposit Address
+            LabelCopyableTextView(
+              label: context.loc.sideshiftDepositAddress,
+              value: dbTransaction.serviceAddress ?? '-',
+            ),
           ],
         ),
       ),
