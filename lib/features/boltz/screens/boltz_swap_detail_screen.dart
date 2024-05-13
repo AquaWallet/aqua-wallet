@@ -318,11 +318,6 @@ class _RefundButton extends StatelessWidget {
           final jsonString = jsonEncode(refundData?.toJson());
           context.copyToClipboard(jsonString);
         },
-        style: ElevatedButton.styleFrom(
-          textStyle: Theme.of(context).textTheme.titleSmall,
-          backgroundColor: Theme.of(context).colorScheme.error,
-          foregroundColor: Theme.of(context).colorScheme.onError,
-        ),
         child: Text(context.loc.boltzCopyRefundData),
       ),
     );

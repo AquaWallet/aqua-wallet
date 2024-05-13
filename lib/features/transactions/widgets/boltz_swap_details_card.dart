@@ -116,7 +116,7 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
               SizedBox(height: 18.h),
               TextButton(
                 style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.secondary,
                 ),
                 onPressed: () async {
                   final address =

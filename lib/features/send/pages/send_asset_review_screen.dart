@@ -124,9 +124,7 @@ class SendAssetReviewScreen extends HookConsumerWidget {
     // listen to setup
     ref.listen(sendAssetSetupProvider, (_, setup) {
       if (setup.asData?.value == true) {
-        _debouncer.run(() {
-          createTransaction();
-        });
+        createTransaction();
       }
     });
 

@@ -139,7 +139,7 @@ class RefundScreen extends HookConsumerWidget {
                 Text(
                   unlockDate.formatFullDateTime,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.error,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                 ),
               ],
@@ -152,12 +152,21 @@ class RefundScreen extends HookConsumerWidget {
                   '${context.loc.boltzRefundTimeoutSubtitle}: ${arguments.swapData.response.timeoutBlockHeight}',
                   style: Theme.of(context).textTheme.titleMedium),
 
-              SizedBox(height: 60.h),
+              SizedBox(height: 40.h),
+              DashedDivider(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+              SizedBox(height: 40.h),
+
               //ANCHOR - Copy Refund Data
+              Text('${context.loc.boltzManualRefundTitle}:',
+                  style: Theme.of(context).textTheme.titleLarge,
+                  textAlign: TextAlign.center),
+              SizedBox(height: 15.h),
               TextButton(
                 style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                    textStyle: Theme.of(context).textTheme.titleMedium),
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
+                    textStyle: Theme.of(context).textTheme.titleLarge),
                 onPressed: () async {
                   final jsonString = jsonEncode(refundData?.toJson());
                   context.copyToClipboard(jsonString);
@@ -204,20 +213,25 @@ class RefundScreen extends HookConsumerWidget {
                 onPressed: () async {
                   processRefundLoadingState.value = true;
 
-                  final refundTx = await ref
-                      .read(boltzProvider)
-                      .performClaimOrRefundIfNeeded(
-                          arguments.swapData.response.id,
-                          null,
-                          arguments.swapStatus);
+                  try {
+                    final refundTx = await ref
+                        .read(boltzProvider)
+                        .performClaimOrRefundIfNeeded(
+                            arguments.swapData.response.id,
+                            null,
+                            arguments.swapStatus);
 
-                  if (refundTx != null) {
-                    refundTxState.value = refundTx;
-                  } else {
+                    if (refundTx != null) {
+                      refundTxState.value = refundTx;
+                    } else {
+                      uiState.value = RefundUIState.refundError;
+                    }
+                  } catch (e) {
                     uiState.value = RefundUIState.refundError;
+                    logger.d("[Boltz] Error processing refund: $e");
+                  } finally {
+                    processRefundLoadingState.value = false;
                   }
-
-                  processRefundLoadingState.value = false;
                 },
                 child: Text(context.loc.boltzProcessRefund),
               ),

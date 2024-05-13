@@ -75,13 +75,13 @@ class _ConfirmationView extends ConsumerWidget {
                   fontSize: 20.sp,
                 ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           //ANCHOR - Description
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: Text(
               context.loc.removeWalletScreenDesc,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
