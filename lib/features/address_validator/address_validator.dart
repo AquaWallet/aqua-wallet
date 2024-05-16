@@ -112,8 +112,10 @@ class AddressParser {
 
     // replace asset with parsed asset if compatible, otherwise if asset is null set as parsedAsset
     final parsedAsset = await parseAsset(address: input);
-    if (_shouldSwitchAsset(asset, parsedAsset, accountForCompatibleAssets)) {
-      asset = parsedAsset;
+    final switchedAsset =
+        _switchedAsset(asset, parsedAsset, accountForCompatibleAssets);
+    if (switchedAsset != null) {
+      asset = switchedAsset;
     }
 
     if (asset == null) {
@@ -164,20 +166,22 @@ class AddressParser {
     }
   }
 
-  /// If the parsed asset is compatible with the input asset, switch to the parsed asset
+  /// Returns the `parsedAsset` if we should switch from the original asset.
   /// For instance, if the user is on a LBTC send flow, but scans a BTC bip21 with a lightning invoice, switch to lightning asset
-  bool _shouldSwitchAsset(
-      Asset? asset, Asset? parsedAsset, bool accountForCompatibleAssets) {
-    if (asset == null && parsedAsset != null) {
-      return true;
-    } else if (asset != null &&
-        parsedAsset != null &&
-        accountForCompatibleAssets &&
-        asset.isCompatibleWith(parsedAsset)) {
-      return true;
+  /// Or if user is on USDt-trx flow, but scans a plain Liquid address, switch to USDt-Liquid
+  Asset? _switchedAsset(Asset? originalAsset, Asset? parsedAsset,
+      bool accountForCompatibleAssets) {
+    if (originalAsset == null) {
+      return parsedAsset;
+    } else if (parsedAsset != null) {
+      if (originalAsset.isAnyAltUsdt && parsedAsset.isLiquid) {
+        return ref.read(manageAssetsProvider).liquidUsdtAsset;
+      } else if (accountForCompatibleAssets &&
+          originalAsset.isCompatibleWith(parsedAsset)) {
+        return parsedAsset;
+      }
     }
-
-    return false;
+    return null;
   }
 
   /// Parse Lightning Address

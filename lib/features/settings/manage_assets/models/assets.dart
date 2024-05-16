@@ -133,6 +133,8 @@ extension AssetExt on Asset {
 
   bool get isAnyUsdt => isUsdtLiquid || isEth || isTrx;
 
+  bool get isAnyAltUsdt => isEth || isTrx;
+
   bool get isUnknown => logoUrl == Svgs.unknownAsset;
 
   bool get selectable => !isBTC && !isLBTC && !isUSDt;

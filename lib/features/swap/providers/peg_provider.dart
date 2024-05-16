@@ -7,6 +7,7 @@ import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
+import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
@@ -149,14 +150,20 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
         satoshi: deliverAmountSatoshi,
       );
 
-      final feeEstimates = await ref
-          .read(feeEstimateProvider)
-          .fetchFeeRates(NetworkType.bitcoin);
-      final fastFee = feeEstimates[TransactionPriority.high]!;
+      int feeRatePerKb;
+      final networkType =
+          asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid;
+      if (networkType == NetworkType.bitcoin) {
+        final feeEstimates =
+            await ref.read(feeEstimateProvider).fetchFeeRates(networkType);
+        final fastFee = feeEstimates[TransactionPriority.high]!;
+        feeRatePerKb = (fastFee * 1000.0).toInt();
+      } else {
+        feeRatePerKb = liquidFeeRatePerKb;
+      }
       final transaction = GdkNewTransaction(
         addressees: [addressee],
-        feeRate: fastFee.toInt() *
-            1000, // feeEstimateProvider returns sats/byte, gdk takes sats/kb
+        feeRate: feeRatePerKb,
         sendAll: isSendAll,
         utxoStrategy: GdkUtxoStrategyEnum.defaultStrategy,
       );
