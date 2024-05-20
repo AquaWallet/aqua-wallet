@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:aqua/common/utils/encode_query_component.dart';
 import 'package:aqua/config/config.dart';
@@ -125,24 +126,30 @@ class MarketplaceView extends HookConsumerWidget {
                 title: context.loc.marketplaceScreenBuyButton,
                 subtitle: marketplaceCardsSubtitleText[0],
                 icon: Svgs.marketplaceBuy,
-                onPressed: () async {
-                  if (multipleOnramps) {
-                    Navigator.of(context).pushNamed(OnRampScreen.routeName);
-                  } else {
-                    final address =
-                        await ref.read(bitcoinProvider).getReceiveAddress();
-                    final uri = ref.read(meldUriProvider(address?.address));
-                    if (context.mounted) {
-                      Navigator.of(context).pushNamed(
-                        WebviewScreen.routeName,
-                        arguments: WebviewArguments(
-                          uri,
-                          context.loc.buyWithFiatScreenTitle,
-                        ),
-                      );
-                    }
-                  }
-                },
+                // Disable iOS for app store compliance
+                onPressed: Platform.isIOS
+                    ? null
+                    : () async {
+                        if (multipleOnramps) {
+                          Navigator.of(context)
+                              .pushNamed(OnRampScreen.routeName);
+                        } else {
+                          final address = await ref
+                              .read(bitcoinProvider)
+                              .getReceiveAddress();
+                          final uri =
+                              ref.read(meldUriProvider(address?.address));
+                          if (context.mounted) {
+                            Navigator.of(context).pushNamed(
+                              WebviewScreen.routeName,
+                              arguments: WebviewArguments(
+                                uri,
+                                context.loc.buyWithFiatScreenTitle,
+                              ),
+                            );
+                          }
+                        }
+                      },
               ),
               //ANCHOR - Swaps
               MarketplaceButton(
