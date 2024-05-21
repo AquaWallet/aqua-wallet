@@ -156,9 +156,11 @@ class MarketplaceView extends HookConsumerWidget {
                 title: context.loc.marketplaceScreenExchangeButton,
                 subtitle: marketplaceCardsSubtitleText[1],
                 icon: Svgs.marketplaceExchange,
-                onPressed: () {
-                  Navigator.of(context).pushNamed(SwapScreen.routeName);
-                },
+                onPressed: Platform.isIOS
+                    ? null
+                    : () {
+                        Navigator.of(context).pushNamed(SwapScreen.routeName);
+                      },
               ),
               //ANCHOR - Bills
               MarketplaceButton(

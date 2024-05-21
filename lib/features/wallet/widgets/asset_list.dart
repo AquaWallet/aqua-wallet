@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
@@ -68,9 +70,9 @@ class AssetsList extends HookConsumerWidget {
           //ANCHOR - Spending Header
           AssetListSectionHeader(
             text: context.loc.tabSpending,
-            children: const [
-              Spacer(),
-              WalletInternalSwapButton(),
+            children: [
+              const Spacer(),
+              if (!Platform.isIOS) const WalletInternalSwapButton(),
             ],
           ),
           SizedBox(height: 18.h),
