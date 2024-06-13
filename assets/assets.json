@@ -34,6 +34,14 @@
         "Default": false,
         "IsRemovable": true
       },
+        {
+        "Name": "Tether USDt",
+        "Id": "a6027bba1721182eb6c422b028ec805ad113ffcd1288b680d7a5882d0736a002",
+        "Ticker": "USDt",
+        "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/USDt.svg",
+        "Default": false,
+        "IsRemovable": true
+      }
       {
         "Name": "PEGx EURx",
         "Id": "18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec",
