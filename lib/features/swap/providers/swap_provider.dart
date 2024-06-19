@@ -17,13 +17,12 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
     state = AsyncData(SwapState.pendingVerification(data: response));
   }
 
-  Future<void> markSwapSuccess(SwapDoneResponse response) async {
+  Future<void> processSwapCompletion(SwapDoneResponse response) async {
     final txId = response.params!.txid!;
     final recvAsset = response.params!.recvAsset;
 
     final assets = ref.read(assetsProvider).asData?.value ?? [];
     final asset = assets.firstWhere((asset) => recvAsset == asset.id);
-    final transaction = await ref.read(_assetTransactionsProvider(txId).future);
 
     await ref.read(transactionStorageProvider.notifier).save(TransactionDbModel(
           txhash: txId,
@@ -34,7 +33,7 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
 
     state = AsyncData(SwapState.success(
       asset: asset,
-      transaction: transaction!,
+      txId: txId,
     ));
   }
 
@@ -94,15 +93,35 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
   }
 }
 
-final _assetTransactionEventsProvider =
-    StreamProvider.autoDispose<void>((ref) async* {
-  yield* ref.read(liquidProvider).transactionEventSubject;
+final completedTransactionProvider = FutureProvider.autoDispose
+    .family<GdkTransaction, String>((ref, txId) async {
+  final stream = ref.read(liquidProvider).transactionEventSubject;
+
+  await for (var event in stream) {
+    if (event != null && event.txhash == txId) {
+      final transaction =
+          await ref.read(_matchingTransactionProvider(txId).future);
+      if (transaction == null) {
+        throw SideSwapExecuteBroadcastTxFetchException();
+      }
+      return Future.value(transaction);
+    }
+  }
+  throw Exception("Transaction with txId $txId not found");
 });
 
-final _assetTransactionsProvider = FutureProvider.autoDispose
+final _matchingTransactionProvider = FutureProvider.autoDispose
     .family<GdkTransaction?, String>((ref, txnId) async {
-  await ref.read(_assetTransactionEventsProvider.future);
-
   final transactions = await ref.read(liquidProvider).getTransactions() ?? [];
   return transactions.firstWhereOrNull((txn) => txnId == txn.txhash);
 });
+
+class SideSwapExecuteInvalidAssetException implements Exception {}
+
+class SideSwapExecuteInvalidAmountException implements Exception {}
+
+class SideSwapExecuteInsufficientFundsException implements Exception {}
+
+class SideSwapExecutePsbtVerificationFailedException implements Exception {}
+
+class SideSwapExecuteBroadcastTxFetchException implements Exception {}

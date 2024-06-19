@@ -6,6 +6,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:aqua/features/lightning/lightning.dart';
+import 'package:decimal/decimal.dart';
 
 /// Base send address
 final sendAddressProvider = StateProvider.autoDispose<String?>((ref) {
@@ -99,11 +100,19 @@ class SendAssetInputParser {
       }
 
       // lnurl
-      if (parsedAddress?.lnurlParseResult != null) {
+      if (parsedAddress?.lnurlParseResult?.payParams != null) {
+        final lnurlPayParams = parsedAddress!.lnurlParseResult!.payParams!;
         ref.read(lnurlParseResultProvider.notifier).state =
-            parsedAddress!.lnurlParseResult;
+            parsedAddress.lnurlParseResult;
         logger
             .d("[Send][LNURL] parsed lnurl: ${parsedAddress.lnurlParseResult}");
+
+        // if fixed amount, set as send amount
+        if (lnurlPayParams.isFixedAmount) {
+          ref
+              .read(userEnteredAmountProvider.notifier)
+              .updateAmount(Decimal.fromInt(lnurlPayParams.minSendableSats));
+        }
       }
 
       // asset

@@ -58,14 +58,19 @@ class LNURLPayParams {
   LNURLPayParams.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
         callback = json['callback'],
-        minSendable = json['minSendable'] = 0,
-        maxSendable = json['maxSendable'] = 0,
+        minSendable = json['minSendable'] ?? 0,
+        maxSendable = json['maxSendable'] ?? 0,
         metadata = json['metadata'];
   final String? tag;
   final String? callback;
-  final int minSendable;
-  final int maxSendable;
+  final int minSendable; // returned in millisats
+  final int maxSendable; // returned in millisats
   final String? metadata;
+
+  int get minSendableSats => minSendable ~/ 1000;
+  int get maxSendableSats => maxSendable ~/ 1000;
+
+  bool get isFixedAmount => minSendable == maxSendable;
 }
 
 /// A success action will be returned when making a call to the lnUrl callback url.
@@ -118,4 +123,7 @@ class LNURLParseResult {
   final LNURLAuthParams? authParams;
   final LNURLChannelParams? channelParams;
   final LNURLErrorResponse? error;
+
+  bool get isLnurlPayFixedAmount =>
+      payParams != null && payParams!.isFixedAmount;
 }

@@ -111,12 +111,6 @@ class SideswapHttpProvider {
   }
 }
 
-final startSwapProvider = Provider.autoDispose<bool>((ref) {
-  final isSwapInProgress = ref.watch(swapProvider).isLoading;
-  final isPegInProgress = ref.watch(pegProvider).isLoading;
-  return isSwapInProgress || isPegInProgress;
-});
-
 class SideSwapProviderInvalidTransactionException implements Exception {}
 
 class SideswapHttpProcessStartWrongData implements Exception {}

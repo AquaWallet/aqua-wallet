@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
@@ -7,6 +8,7 @@ import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
 import 'package:aqua/data/provider/sideshift/sideshift_provider.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/boltz/boltz_provider.dart';
+import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
 import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/send/widgets/widgets.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
@@ -27,7 +29,7 @@ class UserEnteredAmountStateNotifier extends AutoDisposeNotifier<Decimal?> {
   @override
   Decimal? build() => null;
 
-  void updateAmount(Decimal? newAmount) async {
+  Future<void> updateAmount(Decimal? newAmount) async {
     final isValid = await _validateAmount(newAmount);
     if (isValid) {
       state = newAmount;
@@ -39,52 +41,73 @@ class UserEnteredAmountStateNotifier extends AutoDisposeNotifier<Decimal?> {
       return false;
     }
 
-    final asset = ref.read(sendAssetProvider);
-    final assetBalanceInSats =
-        await ref.read(balanceProvider).getBalance(asset);
-    final amountWithPrecision =
-        ref.read(enteredAmountWithPrecisionProvider(amount));
-    logger.d(
-        '[Send][Amount] validate amount - assetBalanceInSats: $assetBalanceInSats - amountWithPrecision: $amountWithPrecision');
+    try {
+      final asset = ref.read(sendAssetProvider);
+      final assetBalanceInSats =
+          await ref.read(balanceProvider).getBalance(asset);
+      final amountWithPrecision =
+          ref.read(enteredAmountWithPrecisionProvider(amount));
+      final minMax = sendMinMax();
+      logger.d(
+          '[Send][Amount] validate amount - assetBalanceInSats: $assetBalanceInSats - amountWithPrecision: $amountWithPrecision');
 
-    if (amountWithPrecision > assetBalanceInSats) {
-      ref.read(sendAmountErrorProvider.notifier).state =
-          AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
-      ref.read(insufficientBalanceProvider.notifier).state =
-          InsufficientFundsType.sendAmount;
-      throw AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
-    } else {
-      ref.read(insufficientBalanceProvider.notifier).state = null;
-    }
-
-    final lbtcBalance = await ref.read(balanceProvider).getLBTCBalance();
-    if (asset.isLiquid && lbtcBalance == 0) {
-      ref.read(insufficientBalanceProvider.notifier).state =
-          InsufficientFundsType.fee;
-      ref.read(sendAmountErrorProvider.notifier).state = AmountParsingException(
-          AmountParsingExceptionType.notEnoughFundsForFee);
-      throw AmountParsingException(
-          AmountParsingExceptionType.notEnoughFundsForFee);
-    }
-
-    // if lightning, check if amount is above or below boltz min/max
-    if (asset.isLightning) {
-      if (amountWithPrecision < boltzMin) {
-        ref.read(sendAmountErrorProvider.notifier).state =
-            AmountParsingException(AmountParsingExceptionType.belowBoltzMin);
-        logger.d(
-            '[Send][Amount][Boltz] validate amount - amount $amountWithPrecision is below boltz min $boltzMin');
-        throw AmountParsingException(AmountParsingExceptionType.belowBoltzMin);
-      } else if (amountWithPrecision > boltzMax) {
-        ref.read(sendAmountErrorProvider.notifier).state =
-            AmountParsingException(AmountParsingExceptionType.aboveBoltzMax);
-        logger.d(
-            '[Send][Amount][Boltz] validate amount - amount $amountWithPrecision is above boltz max $boltzMax');
-        throw AmountParsingException(AmountParsingExceptionType.aboveBoltzMax);
+      // check insufficient funds for send amount
+      if (amountWithPrecision > assetBalanceInSats) {
+        ref.read(insufficientBalanceProvider.notifier).state =
+            InsufficientFundsType.sendAmount;
+        throw AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
       }
+
+      // check insufficient funds for fee
+      final lbtcBalance = await ref.read(balanceProvider).getLBTCBalance();
+      if (asset.isLiquid && lbtcBalance == 0) {
+        ref.read(insufficientBalanceProvider.notifier).state =
+            InsufficientFundsType.fee;
+        throw AmountParsingException(
+            AmountParsingExceptionType.notEnoughFundsForFee);
+      }
+
+      // check min/max
+      if (amountWithPrecision < minMax.$1) {
+        final errorAmount = ref.read(formatterProvider).formatAssetAmountDirect(
+              amount: minMax.$1,
+              precision: asset.precision,
+            );
+        throw AmountParsingException(AmountParsingExceptionType.belowSendMin,
+            amount: errorAmount);
+      } else if (amountWithPrecision > minMax.$2) {
+        final errorAmount = ref.read(formatterProvider).formatAssetAmountDirect(
+              amount: minMax.$2,
+              precision: asset.precision,
+            );
+        throw AmountParsingException(AmountParsingExceptionType.aboveSendMax,
+            amount: errorAmount);
+      }
+
+      ref.read(sendAmountErrorProvider.notifier).state = null;
+      return true;
+    } catch (e) {
+      ref.read(sendAmountErrorProvider.notifier).state =
+          e as ExceptionLocalized;
+      return false;
+    }
+  }
+
+  (int, int) sendMinMax() {
+    final maxInt = double.maxFinite.toInt();
+    final asset = ref.read(sendAssetProvider);
+
+    if (asset.isLightning) {
+      final lnurlPayParams = ref.read(lnurlParseResultProvider)?.payParams;
+      final sendMin = lnurlPayParams != null
+          ? max(lnurlPayParams.minSendableSats, boltzMin)
+          : boltzMin;
+      final sendMax = lnurlPayParams != null
+          ? min(lnurlPayParams.maxSendableSats, boltzMax)
+          : boltzMax;
+      return (sendMin, sendMax);
     }
 
-    // if sideshift, check if amount is above or below sideshift min/max
     if (asset.isSideshift) {
       final SideshiftAssetPair assetPair = SideshiftAssetPair(
         from: SideshiftAsset.usdtLiquid(),
@@ -97,40 +120,20 @@ class UserEnteredAmountStateNotifier extends AutoDisposeNotifier<Decimal?> {
       final min = currentPairInfo?.min;
       final max = currentPairInfo?.max;
       if (min == null || max == null) {
-        return false;
+        return (0, maxInt);
       }
       final precisionMultiplier = pow(10, asset.precision).toDouble();
       final double? minDouble = double.tryParse(min);
       final double? maxDouble = double.tryParse(max);
       if (minDouble == null || maxDouble == null) {
-        return false;
+        return (0, maxInt);
       }
       final minPrecision = (minDouble * precisionMultiplier).toInt();
       final maxPrecision = (maxDouble * precisionMultiplier).toInt();
-
-      logger.d(
-          '[Send][Amount][Sideshift] validate amount - amount $amountWithPrecision - min $min - max $max');
-      if (amountWithPrecision < minPrecision) {
-        ref.read(sendAmountErrorProvider.notifier).state =
-            AmountParsingException(
-                AmountParsingExceptionType.belowSideShiftMin);
-        logger.d(
-            '[Send][Amount][Sideshift] validate amount - amount $amountWithPrecision is below sideshift min $min');
-        throw AmountParsingException(
-            AmountParsingExceptionType.belowSideShiftMin);
-      } else if (amountWithPrecision > maxPrecision) {
-        ref.read(sendAmountErrorProvider.notifier).state =
-            AmountParsingException(
-                AmountParsingExceptionType.aboveSideShiftMax);
-        logger.d(
-            '[Send][Amount][Sideshift] validate amount - amount $amountWithPrecision is above sideshift max $max');
-        throw AmountParsingException(
-            AmountParsingExceptionType.aboveSideShiftMax);
-      }
+      return (minPrecision, maxPrecision);
     }
 
-    ref.read(sendAmountErrorProvider.notifier).state = null;
-    return true;
+    return (0, maxInt);
   }
 }
 

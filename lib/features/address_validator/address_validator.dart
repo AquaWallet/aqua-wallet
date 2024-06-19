@@ -210,15 +210,22 @@ class AddressParser {
   Future<ParsedAddress?> _parseLNURL(String input) async {
     try {
       final decoded = decodeUri(input);
-      logger.d("[LNURL] lnurl decoded: $decoded");
       final result = await getParamsFromLnurlServer(decoded);
+      logger.d("[LNURL] lnurl decoded: $decoded - result: $result");
       if (result.error != null) {
         throw AddressParsingException(AddressParsingExceptionType.generic,
             customMessage: result.error!.reason);
       }
 
+      final fixedAmount = result.isLnurlPayFixedAmount
+          ? Decimal.fromInt(result.payParams!.minSendableSats)
+          : null;
       return ParsedAddress(
-          address: input, asset: Asset.lightning(), lnurlParseResult: result);
+        amount: fixedAmount,
+        address: input,
+        asset: Asset.lightning(),
+        lnurlParseResult: result,
+      );
     }
     // rethrow AddressParsingException, any other exception just return null
     on AddressParsingException catch (_) {

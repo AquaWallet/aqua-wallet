@@ -1,13 +1,13 @@
 import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 
 class AmountParsingException implements ExceptionLocalized {
   final AmountParsingExceptionType type;
+  final String? amount;
   final String? customMessage;
 
-  AmountParsingException(this.type, {this.customMessage});
+  AmountParsingException(this.type, {this.customMessage, this.amount});
 
   @override
   String toLocalizedString(BuildContext context) {
@@ -18,14 +18,10 @@ class AmountParsingException implements ExceptionLocalized {
         return context.loc.sendAssetAmountScreenNotEnoughFundsError;
       case AmountParsingExceptionType.notEnoughFundsForFee:
         return context.loc.sendAssetAmountScreenNotEnoughFundsForFeeError;
-      case AmountParsingExceptionType.belowBoltzMin:
-        return context.loc.boltzMinAmountError(boltzMin.toString());
-      case AmountParsingExceptionType.aboveBoltzMax:
-        return context.loc.boltzMaxAmountError(boltzMin.toString());
-      case AmountParsingExceptionType.belowSideShiftMin:
-        return context.loc.sideshiftMinDeliverAmountBasicError;
-      case AmountParsingExceptionType.aboveSideShiftMax:
-        return context.loc.sideshiftMaxDeliverAmountBasicError;
+      case AmountParsingExceptionType.belowSendMin:
+        return context.loc.sendMinAmountError(amount!);
+      case AmountParsingExceptionType.aboveSendMax:
+        return context.loc.sendMaxAmountError(amount!);
       case AmountParsingExceptionType.generic:
         return customMessage ?? toString();
       default:
@@ -38,9 +34,7 @@ enum AmountParsingExceptionType {
   emptyAmount,
   notEnoughFunds,
   notEnoughFundsForFee,
-  belowBoltzMin,
-  aboveBoltzMax,
-  belowSideShiftMin,
-  aboveSideShiftMax,
+  belowSendMin,
+  aboveSendMax,
   generic;
 }

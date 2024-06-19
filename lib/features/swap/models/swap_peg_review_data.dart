@@ -7,18 +7,24 @@ class SwapPegReviewModel {
     required this.asset,
     required this.order,
     required this.transaction,
-    required this.deliverAmount,
+    required this.inputAmount,
     required this.feeAmount,
-    required this.finalAmount,
+    required this.sendTxAmount,
+    required this.receiveAmount,
     required this.isSendAll,
   });
 
   final Asset asset;
   final SwapStartPegResult order;
   final GdkNewTransactionReply transaction;
-  final int deliverAmount;
+  final int inputAmount;
   final int feeAmount;
-  final int finalAmount;
+
+  /// The amount to send in the onchain tx to sideswap. Sideswap will then deduct their fee from this amount
+  final int sendTxAmount;
+
+  /// The amount the user will receive after sideswap deducts their fee
+  final int receiveAmount;
   final bool isSendAll;
 }
 

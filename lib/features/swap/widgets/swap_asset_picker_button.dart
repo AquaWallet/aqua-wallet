@@ -8,11 +8,15 @@ import 'package:skeletonizer/skeletonizer.dart';
 class SwapAssetPickerButton extends HookConsumerWidget {
   const SwapAssetPickerButton({
     super.key,
+    required this.isReceive,
     required this.selectedAsset,
+    required this.counterAsset,
     required this.onAssetSelected,
   });
 
+  final bool isReceive;
   final Asset? selectedAsset;
+  final Asset? counterAsset;
   final Function(Asset) onAssetSelected;
 
   @override
@@ -20,7 +24,10 @@ class SwapAssetPickerButton extends HookConsumerWidget {
     final value = ref.watch(swapLoadingIndicatorStateProvider);
     final isLoading = value == const SwapProgressState.connecting() ||
         value == const SwapProgressState.waiting();
-    final assets = ref.read(swapAssetsProvider.select((p) => p.assets));
+    // If receive, limit assets to only assets swappable with send asset
+    final swappableAssets = isReceive
+        ? ref.read(swapAssetsProvider).swappableAssets(counterAsset)
+        : ref.read(swapAssetsProvider.select((p) => p.assets));
 
     return PopupMenuButton(
       position: PopupMenuPosition.under,
@@ -46,8 +53,8 @@ class SwapAssetPickerButton extends HookConsumerWidget {
       ),
       color: Theme.of(context).colors.addressFieldContainerBackgroundColor,
       onSelected: (index) =>
-          Future.microtask(() => onAssetSelected(assets[index])),
-      itemBuilder: (context) => assets
+          Future.microtask(() => onAssetSelected(swappableAssets[index])),
+      itemBuilder: (context) => swappableAssets
           .mapIndexed((index, asset) => PopupMenuItem(
                 value: index,
                 padding:

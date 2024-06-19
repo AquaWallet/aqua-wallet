@@ -1,11 +1,6 @@
 import 'dart:async';
 
-import 'package:aqua/constants.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/fee_estimate_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
@@ -13,20 +8,6 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
-
-const minBtcAmountSatoshi = 10000;
-const minLbtcAmountSatoshi = 100000;
-const onePercent = 0.01;
-
-// Problem: When user executes a non-sendAll peg, the fee amount is added on
-// top of the deliver amount. The expected behavior is to deduct the fee
-// from the deliver amount. E.g. if 0.0001 is being converted and the fee is
-// 0.00001, the user should receive 0.00009.
-//
-// The problem in designing this flow is that the fee is known only after
-// the GDK Transaction is created. This means we will need to create the
-// transaction twice, once to get the fee, and once to sign the transaction
-// with the amount exclusive of the fee.
 
 final pegProvider =
     AutoDisposeAsyncNotifierProvider<PegNotifier, PegState>(PegNotifier.new);
@@ -45,6 +26,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     final assets = ref.read(assetsProvider).asData?.value ?? [];
     final asset = assets.firstWhere((e) => isLiquid ? e.isLBTC : e.isBTC);
     final input = ref.read(sideswapInputStateProvider);
+    final statusStream = ref.read(sideswapStatusStreamResultStateProvider);
 
     final txn = await createPegGdkTransaction(
       asset: asset,
@@ -61,14 +43,17 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     }
 
     final fee = txn.fee!;
-    final deliverAmount = input.deliverAmountSatoshi;
-    final feeDeductedAmount = deliverAmount - fee;
+    final inputAmount = input.deliverAmountSatoshi;
+    final amountMinusOnchainFee = inputAmount - fee;
+    final amountMinusSideSwapFee =
+        SideSwapFeeCalculator.subtractSideSwapFeeForPegDeliverAmount(
+            amountMinusOnchainFee, input.isPegIn, statusStream);
 
-    final finalAmountAfterSideSwapFee =
-        feeDeductedAmount * sideSwapPegInOutReturnRate;
+    logger.d(
+        "[Peg] Verifying Order - Input Amount: $inputAmount - Onchain Fee: $fee - Amount (minus onchain fee): $amountMinusOnchainFee - Amount (minus sideswap fee): $amountMinusSideSwapFee");
 
-    if (fee > deliverAmount) {
-      logger.d('[PEG] Fee ($fee) exceeds amount ($deliverAmount)');
+    if (fee > inputAmount) {
+      logger.d('[PEG] Fee ($fee) exceeds amount ($inputAmount)');
       final error = PegGdkFeeExceedingAmountException();
       state = AsyncValue.error(error, StackTrace.current);
       throw error;
@@ -78,9 +63,10 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       asset: asset,
       order: order,
       transaction: txn,
-      deliverAmount: deliverAmount,
+      inputAmount: inputAmount,
       feeAmount: fee,
-      finalAmount: finalAmountAfterSideSwapFee.toInt(),
+      sendTxAmount: amountMinusOnchainFee,
+      receiveAmount: amountMinusSideSwapFee.toInt(),
       isSendAll: input.isSendAll,
     );
     state = AsyncData(PegState.pendingVerification(data: data));
@@ -90,26 +76,33 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     final currentState = state.asData?.value;
     if (currentState is PegStateVerify) {
       final data = currentState.data;
-      final amount = data.finalAmount;
-      if (data.asset.isBTC && amount < minBtcAmountSatoshi) {
+      final amount = data.sendTxAmount;
+      final statusStream = ref.read(sideswapStatusStreamResultStateProvider);
+
+      final minBtcAmountSatoshi = statusStream?.minPegInAmount;
+      final minLbtcAmountSatoshi = statusStream?.minPegOutAmount;
+      if (minBtcAmountSatoshi != null &&
+          data.asset.isBTC &&
+          amount < minBtcAmountSatoshi) {
         logger.d('[PEG] BTC amount too low (min: $minBtcAmountSatoshi))');
         final error = PegSideSwapMinBtcLimitException();
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
       }
-      if (data.asset.isLBTC && amount < minLbtcAmountSatoshi) {
+      if (minLbtcAmountSatoshi != null &&
+          data.asset.isLBTC &&
+          amount < minLbtcAmountSatoshi) {
         logger.d('[PEG] L-BTC amount too low (min: $minLbtcAmountSatoshi))');
         final error = PegSideSwapMinLBtcLimitException();
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
       }
-      final reply = await createPegGdkTransaction(
-        asset: data.asset,
-        pegAddress: data.order.pegAddress,
-        isSendAll: data.isSendAll,
-        deliverAmountSatoshi: amount,
-      );
-      final transaction = await signPegGdkTransaction(reply!, data.asset);
+
+      logger.d(
+          "[Sideswap][Peg] created tx - asset: ${data.asset.ticker} - amount: $amount - isSendAll: ${data.isSendAll} - pegAddress: ${data.order.pegAddress} - reply: ${data.transaction}");
+
+      final transaction =
+          await signPegGdkTransaction(data.transaction, data.asset);
       if (transaction == null) {
         final error = PegGdkTransactionException();
         state = AsyncValue.error(error, StackTrace.current);
@@ -153,14 +146,16 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       int feeRatePerKb;
       final networkType =
           asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid;
+
       if (networkType == NetworkType.bitcoin) {
-        final feeEstimates =
-            await ref.read(feeEstimateProvider).fetchFeeRates(networkType);
-        final fastFee = feeEstimates[TransactionPriority.high]!;
-        feeRatePerKb = (fastFee * 1000.0).toInt();
+        final feeRatesMap = ref.watch(pegFeeRatesProvider).asData?.value ?? {};
+        final feeRatePerVb =
+            feeRatesMap.entries.firstWhere((entry) => entry.key.isBTC).value;
+        feeRatePerKb = (feeRatePerVb * 1000.0).ceil();
       } else {
         feeRatePerKb = liquidFeeRatePerKb;
       }
+
       final transaction = GdkNewTransaction(
         addressees: [addressee],
         feeRate: feeRatePerKb,
@@ -177,8 +172,14 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
         throw error;
       }
     } catch (e) {
-      logger.d('[PEG] Generic exception');
+      if (relayErrors) {
+        logger.e('[PEG] create gdk tx error: $e');
+        final error = PegGdkTransactionException();
+        state = AsyncValue.error(error, StackTrace.current);
+        throw error;
+      }
     }
+
     return null;
   }
 
@@ -186,16 +187,27 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     GdkNewTransactionReply reply,
     Asset asset,
   ) async {
-    final network =
-        asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
-    final signedReply = await network.signTransaction(reply);
-    if (signedReply != null) {
-      final response = await network.sendTransaction(signedReply);
-      if (response != null) {
-        return response;
+    try {
+      final network =
+          asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
+
+      final signedReply = await network.signTransaction(reply);
+      if (signedReply == null) {
+        throw PegGdkTransactionException();
       }
+
+      final response = await network.sendTransaction(signedReply);
+      if (response == null) {
+        throw PegGdkTransactionException();
+      }
+
+      return response;
+    } catch (e) {
+      logger.e('[PEG] sign/send gdk tx error: $e');
+      final error = PegGdkTransactionException();
+      state = AsyncValue.error(error, StackTrace.current);
+      throw error;
     }
-    return null;
   }
 }
 

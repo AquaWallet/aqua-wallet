@@ -39,6 +39,12 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
   final AutoDisposeRef ref;
 
   void setDeliverAsset(Asset asset) {
+    final swappableAssets = ref.read(swapAssetsProvider).swappableAssets(asset);
+    if (state.receiveAsset != null &&
+        !swappableAssets.contains(state.receiveAsset)) {
+      setReceiveAsset(swappableAssets.first);
+    }
+
     state = state.copyWith(
       deliverAmount: '',
       deliverAmountSatoshi: 0,

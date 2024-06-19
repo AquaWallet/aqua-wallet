@@ -175,6 +175,7 @@ class SwapForm extends HookConsumerWidget {
               //ANCHOR - Swap Button
               AquaElevatedButton(
                 onPressed: isContinueEnabled ? onContinueHandler : null,
+                debounce: true,
                 style: ElevatedButton.styleFrom(
                   disabledBackgroundColor:
                       Theme.of(context).colorScheme.onSurface.withOpacity(.3),

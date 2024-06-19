@@ -6,6 +6,8 @@ import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
+import 'package:aqua/lifecycle_observer.dart';
+import 'package:aqua/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -21,6 +23,15 @@ class HomeScreen extends HookConsumerWidget {
     final hasTransacted = ref.watch(hasTransactedProvider).asData?.value;
 
     ref.watch(availableAssetsProvider);
+
+    observeAppLifecycle((state) {
+      if (state == AppLifecycleState.resumed) {
+        logger.d("[Lifecycle] App resumed in foreground");
+        Future.microtask(() {
+          ref.read(boltzStatusCheckProvider).streamAllPendingSwaps();
+        });
+      }
+    });
 
     useEffect(() {
       Future.microtask(() {

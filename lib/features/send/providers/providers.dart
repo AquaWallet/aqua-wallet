@@ -6,3 +6,4 @@ export 'send_asset_amount_provider.dart';
 export 'send_asset_provider.dart';
 export 'send_asset_error_provider.dart';
 export 'send_asset_setup_provider.dart';
+export 'send_asset_initialization_provider.dart';

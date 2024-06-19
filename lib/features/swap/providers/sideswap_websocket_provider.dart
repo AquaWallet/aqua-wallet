@@ -14,7 +14,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 // Keeping in code since this key in particular is not sensitive, might need to
 // devise a strategy to manage keys in the future if we have more keys.
 const sideswapApiKey =
-    'f8b7a12ee96aa68ee2b12ebfc51d804a4a404c9732652c298d24099a3d922a84';
+    'fee09b63c148b335ccd0c4641c47359c8a7a803c517487bc61ca18edc19a72d5';
 
 const sideswapWssAddressLive = 'wss://api.sideswap.io/json-rpc-ws';
 const sideswapWssAddressTestnet = 'wss://api-testnet.sideswap.io/json-rpc-ws';
@@ -221,7 +221,7 @@ class SideswapWebsocketProvider {
           final transactionId = response.params?.txid;
           final success = response.params?.status == SwapDoneStatusEnum.success;
           if (receiveAsset != null && transactionId != null && success) {
-            ref.read(swapProvider.notifier).markSwapSuccess(response);
+            ref.read(swapProvider.notifier).processSwapCompletion(response);
           } else {
             // TODO Handle error
             logger.e('[Sideswap] Error: $json');

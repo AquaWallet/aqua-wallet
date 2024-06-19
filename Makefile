@@ -11,8 +11,8 @@ get-gdk:
 
 get-boltz-rust:
 	rm -rf boltz-rust boltz-rust.tar.gz
-	curl -L https://github.com/AquaWallet/boltz-rust/releases/download/0.1.6/boltz-rust-0.1.6.tar.gz --output boltz-rust.tar.gz
-	echo "45b5ac8e9ba177f5f48881b94b7276cc2513fdc21f8f89b197e9bffc9ab86521  boltz-rust.tar.gz" | shasum -a 256 --check
+	curl -L https://github.com/AquaWallet/boltz-rust/releases/download/0.1.7/boltz-rust-0.1.7.tar.gz --output boltz-rust.tar.gz
+	echo "71d26bd79212ae4f7254505c2caf3edb35a07c6cad9080ff40afcceb249a84af  boltz-rust.tar.gz" | shasum -a 256 --check
 	tar -xzf boltz-rust.tar.gz
 	rm boltz-rust.tar.gz
 	mkdir -p android/app/src/main/jniLibs/arm64-v8a/ android/app/src/main/jniLibs/armeabi-v7a/ android/app/src/main/jniLibs/x86/ android/app/src/main/jniLibs/x86_64/

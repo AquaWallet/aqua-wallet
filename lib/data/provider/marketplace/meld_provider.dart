@@ -16,7 +16,7 @@ Uri meldUri(Ref ref, String? receiveAddress) {
   final params = {
     if (receiveAddress != null) 'walletAddress': receiveAddress,
     'publicKey': key,
-    'CurrencyCodeLocked': 'BTC'
+    'destinationCurrencyCodeLocked': 'BTC'
   };
   final newUri = baseUri.replace(queryParameters: params);
   return newUri;

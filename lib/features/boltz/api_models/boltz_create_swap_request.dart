@@ -1,4 +1,5 @@
 import 'package:aqua/features/boltz/api_models/boltz_api_models.dart';
+import 'package:aqua/features/boltz/boltz_provider.dart';
 
 /// Request body for `POST /createswap` type `normal`
 
@@ -18,7 +19,7 @@ class BoltzCreateSwapRequest {
     required this.refundPublicKey,
     required this.invoice,
     this.pairHash,
-    this.referralId,
+    this.referralId = boltzReferralId,
   });
 
   factory BoltzCreateSwapRequest.fromJson(Map<String, dynamic> json) {

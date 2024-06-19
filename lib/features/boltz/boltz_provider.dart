@@ -23,6 +23,7 @@ import 'package:aqua/elements.dart';
 import 'package:aqua/features/settings/manage_assets/providers/manage_assets_provider.dart';
 import 'boltz.dart';
 
+const boltzReferralId = 'AQUA';
 const boltzMin = 1000;
 const boltzMax = 25000000;
 const boltzMinString = "1,000";

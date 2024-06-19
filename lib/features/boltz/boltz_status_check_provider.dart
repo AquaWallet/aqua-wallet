@@ -40,13 +40,10 @@ class BoltzStatusCheckService {
                         168))) // swap.created == null accounts for previous version that didn't have this property
         .toList();
 
-    logger.d(
-        "[BOLTZ] checkAllSwaps - filteredNormalSwaps: ${filteredNormalSwaps.length}");
-
     for (final swap in filteredNormalSwaps) {
       final _ = ref
           .read(boltzProvider)
-          .getSwapStatusStream(swap.response.id)
+          .getSwapStatusStream(swap.response.id, forceNewStream: true)
           .listen((event) {
         logger.d(
             "[BOLTZ] checkAllSwaps - normal swap status ${swap.response.id}: ${event.status}");
@@ -71,13 +68,10 @@ class BoltzStatusCheckService {
                     DateTime.now().difference(swap.created!).inHours <= 72)))
         .toList();
 
-    logger.d(
-        "[BOLTZ] checkAllSwaps - filteredReverseSwaps: ${filteredReverseSwaps.length}");
-
     for (final swap in filteredReverseSwaps) {
       final _ = ref
           .read(boltzProvider)
-          .getSwapStatusStream(swap.response.id)
+          .getSwapStatusStream(swap.response.id, forceNewStream: true)
           .listen((event) {
         logger.d(
             "[BOLTZ] checkAllSwaps - reverse swap status  ${swap.response.id}:: ${event.status}");

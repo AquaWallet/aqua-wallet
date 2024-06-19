@@ -35,6 +35,8 @@ class SwapAmountInput extends HookConsumerWidget {
         : ref.watch(sideswapInputStateProvider).deliverAmount;
     final selectedAsset = ref.watch(sideswapInputStateProvider
         .select((p) => isReceive ? p.receiveAsset : p.deliverAsset));
+    final counterAsset = ref.watch(sideswapInputStateProvider
+        .select((p) => isReceive ? p.deliverAsset : p.receiveAsset));
 
     return BoxShadowContainer(
       bordered: true,
@@ -79,7 +81,9 @@ class SwapAmountInput extends HookConsumerWidget {
             ),
           ),
           SwapAssetPickerButton(
+            isReceive: isReceive,
             selectedAsset: selectedAsset,
+            counterAsset: counterAsset,
             onAssetSelected: onAssetSelected,
           ),
         ],

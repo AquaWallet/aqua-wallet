@@ -67,8 +67,7 @@ class SwapReviewScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final arg = ModalRoute.of(context)!.settings.arguments;
-
-    final isProcessing = ref.watch(startSwapProvider);
+    final isProcessing = useState(false);
     final amount = ref.read(swapIncomingDeliverAmountProvider);
     final inputState = ref.read(sideswapInputStateProvider);
     final deliverAssetTicker = inputState.deliverAsset?.ticker ?? '';
@@ -110,11 +109,17 @@ class SwapReviewScreen extends HookConsumerWidget {
       swapProvider,
       (_, value) => value.maybeWhen(
         data: (data) => data.maybeWhen(
-          success: (asset, transaction) {
+          success: (asset, txId) async {
+            final transaction =
+                await ref.read(completedTransactionProvider(txId).future);
+
+            // ignore: use_build_context_synchronously
             Navigator.of(context).pushReplacementNamed(
               SwapAssetCompleteScreen.routeName,
               arguments: (asset, transaction),
             );
+            isProcessing.value = false;
+
             ref.read(swapLoadingIndicatorStateProvider.notifier).state =
                 const SwapProgressState.empty();
             return null;
@@ -122,42 +127,36 @@ class SwapReviewScreen extends HookConsumerWidget {
           orElse: () => null,
         ),
         error: (error, stackTrace) {
-          logger.e(error);
-          logger.e(stackTrace);
-
-          var errorMessage = '';
-          if (error is ArgumentError) {
-            errorMessage = error.message as String;
-          } else if (error is GdkNetworkException) {
-            errorMessage = error.errorMessage();
-          } else if (error is SideswapHttpStateNetworkError) {
-            errorMessage = error.message!;
-          }
-
-          if (errorMessage.isNotEmpty) {
-            showErrorDialog(errorMessage);
-          }
-          ref.read(swapLoadingIndicatorStateProvider.notifier).state =
-              const SwapProgressState.empty();
+          _handleError(context, ref, error, showErrorDialog);
         },
+        loading: () => isProcessing.value = true,
         orElse: () {},
       ),
     );
+
     ref.listen(
       pegProvider,
-      (_, state) => state.asData?.value.maybeWhen(
-        success: () {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          context.showSuccessSnackbar(
-            context.loc.pegInProgress,
-          );
-          return null;
-        },
-        orElse: () => null,
+      (_, state) => state.maybeWhen(
+        data: (data) => data.maybeWhen(
+          success: () {
+            isProcessing.value = false;
+
+            Navigator.of(context).popUntil((route) => route.isFirst);
+            context.showSuccessSnackbar(
+              context.loc.pegInProgress,
+            );
+            return null;
+          },
+          orElse: () => null,
+        ),
+        error: (error, stackTrace) =>
+            _handleError(context, ref, error, showErrorDialog),
+        loading: () => isProcessing.value = true,
+        orElse: () {},
       ),
     );
 
-    if (isProcessing) {
+    if (isProcessing.value) {
       return TransactionProcessingAnimation(
         message: context.loc.swapScreenLoadingMessage(
           amount,
@@ -180,6 +179,7 @@ class SwapReviewScreen extends HookConsumerWidget {
         onBackPressed: () {
           ref.invalidate(sideswapInputStateProvider);
           ref.invalidate(sideswapWebsocketProvider);
+          ref.invalidate(pegProvider);
         },
       ),
       backgroundColor: Theme.of(context).colors.swapReviewScreenBackgroundColor,
@@ -188,5 +188,26 @@ class SwapReviewScreen extends HookConsumerWidget {
         child: content,
       ),
     );
+  }
+
+  void _handleError(BuildContext context, WidgetRef ref, dynamic error,
+      void Function(String) showErrorDialog) {
+    logger.e(error);
+    var errorMessage = '';
+    if (error is ArgumentError) {
+      errorMessage = error.message as String;
+    } else if (error is GdkNetworkException) {
+      errorMessage = error.errorMessage();
+    } else if (error is SideswapHttpStateNetworkError) {
+      errorMessage = error.message!;
+    } else if (error is PegGdkTransactionException) {
+      errorMessage = context.loc.pegErrorTransaction;
+    }
+
+    if (errorMessage.isNotEmpty) {
+      showErrorDialog(errorMessage);
+    }
+    ref.read(swapLoadingIndicatorStateProvider.notifier).state =
+        const SwapProgressState.empty();
   }
 }

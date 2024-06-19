@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:aqua/config/config.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
@@ -50,9 +53,10 @@ class AssetListSkeleton extends ConsumerWidget {
             Skeleton.keep(
               child: AssetListSectionHeader(
                 text: context.loc.tabSpending,
-                children: const [
-                  Spacer(),
-                  WalletInternalSwapButton(),
+                children: [
+                  const Spacer(),
+                  if (!(Platform.isIOS && disableSideswapOnIOS))
+                    const WalletInternalSwapButton(),
                 ],
               ),
             ),

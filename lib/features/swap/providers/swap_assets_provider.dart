@@ -30,4 +30,25 @@ class SwapAssetsNotifier extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  List<Asset> swappableAssets(Asset? asset) {
+    if (asset == null) {
+      return [];
+    }
+
+    final btcAsset = assets.firstWhere((asset) => asset.isBTC);
+    final lbtcAsset = assets.firstWhere((asset) => asset.isLBTC);
+    final usdtLiquidAsset = assets.firstWhere((asset) => asset.isUsdtLiquid);
+
+    if (asset.isBTC) {
+      return [lbtcAsset];
+    } else if (asset.isLBTC) {
+      final isUsdtEnabled = ref.read(manageAssetsProvider).isUsdtEnabled;
+      return isUsdtEnabled ? [btcAsset, usdtLiquidAsset] : [btcAsset];
+    } else if (asset.isUsdtLiquid) {
+      return [lbtcAsset];
+    }
+
+    return [];
+  }
 }

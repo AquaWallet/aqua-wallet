@@ -51,7 +51,7 @@ final swapValidationsProvider = Provider.autoDispose
     );
   }
 
-  final pegFeeError = ref.watch(maxPegFeeDeductedAmountProvider).hasError;
+  final pegFeeError = ref.watch(amountMinusChainFeeEstProvider).hasError;
   if (inputState.isPeg && inputState.deliverAmountSatoshi > 0 && pegFeeError) {
     return SideswapInsufficientFundsException(
       isDeliver: isDeliver,
@@ -76,12 +76,18 @@ final swapValidationsProvider = Provider.autoDispose
   if (inputState.isPeg && deliverAmountSat > 0) {
     final minPegInAmountSat = statusStream?.minPegInAmount;
     final minPegOutAmountSat = statusStream?.minPegOutAmount;
+    final pegInServiceFee = statusStream?.serverFeePercentPegIn;
+    final pegOutServiceFee = statusStream?.serverFeePercentPegOut;
 
-    final minPegInAmountSatWithFee = minPegInAmountSat != null
-        ? (minPegInAmountSat + (minPegInAmountSat * onePercent)).ceil()
-        : null;
-    final minPegOutAmountSatWithFee = minPegOutAmountSat != null
-        ? (minPegOutAmountSat + (minPegOutAmountSat * onePercent)).ceil()
+    final minPegInAmountSatWithFee =
+        minPegInAmountSat != null && pegInServiceFee != null
+            ? (minPegInAmountSat + (minPegInAmountSat * pegInServiceFee / 100))
+                .ceil()
+            : null;
+    final minPegOutAmountSatWithFee = minPegOutAmountSat != null &&
+            pegOutServiceFee != null
+        ? (minPegOutAmountSat + (minPegOutAmountSat * pegOutServiceFee / 100))
+            .ceil()
         : null;
 
     final minPegInAmount = ref.read(formatterProvider).formatAssetAmountDirect(

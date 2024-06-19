@@ -1,4 +1,5 @@
 import 'package:aqua/features/boltz/api_models/boltz_api_models.dart';
+import 'package:aqua/features/boltz/boltz_provider.dart';
 
 /// Request body for `POST /createswap` type `reverse`
 
@@ -13,6 +14,7 @@ class BoltzCreateReverseSwapRequest {
   final String? address;
   final String? addressSignature;
   final String? pairHash;
+  final String? referralId;
 
   BoltzCreateReverseSwapRequest({
     required this.type,
@@ -24,6 +26,7 @@ class BoltzCreateReverseSwapRequest {
     this.address,
     this.addressSignature,
     this.pairHash,
+    this.referralId = boltzReferralId,
   });
 
   factory BoltzCreateReverseSwapRequest.fromJson(Map<String, dynamic> json) {
@@ -38,6 +41,7 @@ class BoltzCreateReverseSwapRequest {
       address: json['address'] as String?,
       addressSignature: json['addressSignature'] as String?,
       pairHash: json['pairHash'] as String?,
+      referralId: json['referralId'] as String?,
     );
   }
 
@@ -54,6 +58,7 @@ class BoltzCreateReverseSwapRequest {
     if (address != null) json['address'] = address;
     if (addressSignature != null) json['addressSignature'] = addressSignature;
     if (pairHash != null) json['pairHash'] = pairHash;
+    if (referralId != null) json['referralId'] = referralId;
 
     return json;
   }

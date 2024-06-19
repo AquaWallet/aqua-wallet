@@ -21,7 +21,7 @@ class PegReviewInfoCard extends HookConsumerWidget {
     final deliverAmountDisplay = useMemoized(() => input.deliverAmount);
     final receiveAmountDisplay = useMemoized(() {
       return ref.read(formatterProvider).formatAssetAmountDirect(
-            amount: data.finalAmount,
+            amount: data.receiveAmount,
             precision: asset.precision,
           );
     });

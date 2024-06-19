@@ -228,11 +228,11 @@ class ReceiveAssetScreen extends HookConsumerWidget {
                   onPressed: () {
                     if (amountAsDecimal < Decimal.fromInt(boltzMin)) {
                       errorMessage.value =
-                          context.loc.boltzMinAmountError(boltzMin);
+                          context.loc.sendMinAmountError(boltzMin);
                       return;
                     } else if (amountAsDecimal > Decimal.fromInt(boltzMax)) {
                       errorMessage.value =
-                          context.loc.boltzMaxAmountError(boltzMax);
+                          context.loc.sendMaxAmountError(boltzMax);
                       return;
                     }
 

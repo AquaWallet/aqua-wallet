@@ -1,11 +1,11 @@
 import 'package:aqua/common/decimal/decimal_ext.dart';
+import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/common/widgets/custom_error.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/address_validator/models/amount_parsing_exception.dart';
-import 'package:aqua/features/boltz/boltz_provider.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
@@ -34,6 +34,10 @@ class SendAssetAmountScreen extends HookConsumerWidget {
     final address = ref.watch(sendAddressProvider);
     final amount = ref.watch(userEnteredAmountProvider);
     final lnurlParseResult = ref.watch(lnurlParseResultProvider);
+    final lnurlPayParams = lnurlParseResult?.payParams;
+    final isLightningFromInvoice = asset.isLightning && lnurlPayParams == null;
+    final isLnurlPayFixedAmount =
+        lnurlPayParams != null && lnurlPayParams.isFixedAmount;
 
     // balance
     final assetBalanceInSats =
@@ -49,6 +53,10 @@ class SendAssetAmountScreen extends HookConsumerWidget {
             ?.value ??
         '-';
 
+    // min/max
+    final (sendMin, sendMax) =
+        ref.watch(userEnteredAmountProvider.notifier).sendMinMax();
+
     // use all funds
     final useAllFunds = ref.watch(useAllFundsProvider);
 
@@ -58,6 +66,10 @@ class SendAssetAmountScreen extends HookConsumerWidget {
         : amount; //TODO: hack until we have a unified amount display
     final amountInputController =
         useTextEditingController(text: (initialAmount ?? '').toString());
+    final disableAmountField = useAllFunds ||
+        isLightningFromInvoice ||
+        isLnurlPayFixedAmount ||
+        disableUI.value == true;
 
     // asset <> fiat toggle
     final isFiatInput = ref.watch(isFiatInputProvider);
@@ -106,9 +118,9 @@ class SendAssetAmountScreen extends HookConsumerWidget {
     }, []);
 
     // handle errors
-    List<Widget> handleError(
-        BuildContext context, AmountParsingException error) {
-      if (error.type == AmountParsingExceptionType.notEnoughFundsForFee) {
+    List<Widget> handleError(BuildContext context, ExceptionLocalized error) {
+      if (error is AmountParsingException &&
+          error.type == AmountParsingExceptionType.notEnoughFundsForFee) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showInsufficientFundsModal(InsufficientFundsType.fee);
         });
@@ -171,10 +183,7 @@ class SendAssetAmountScreen extends HookConsumerWidget {
 
             //ANCHOR - Amount Input
             SendAssetAmountInput(
-                disabled: useAllFunds ||
-                    (asset.isLightning &&
-                        lnurlParseResult?.payParams == null) ||
-                    disableUI.value == true,
+                disabled: disableAmountField,
                 controller: amountInputController,
                 onChanged: (String value) {
                   logger.d(
@@ -208,20 +217,22 @@ class SendAssetAmountScreen extends HookConsumerWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
-              SizedBox(height: 24.h),
-              Row(
-                children: <Widget>[
-                  Text(
-                    '${context.loc.min}: $boltzMin sats',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const Spacer(),
-                  Text(
-                    '${context.loc.max}: $boltzMax sats',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ],
-              ),
+              if (!isLnurlPayFixedAmount) ...[
+                SizedBox(height: 24.h),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      '${context.loc.min}: $sendMin sats',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${context.loc.max}: $sendMax sats',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ],
+                ),
+              ],
             } else ...{
               //ANCHOR - Conversion + Use All Funds Row
               SizedBox(

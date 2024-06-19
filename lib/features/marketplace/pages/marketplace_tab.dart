@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:aqua/common/utils/encode_query_component.dart';
 import 'package:aqua/config/config.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/marketplace/meld_provider.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
@@ -126,8 +127,7 @@ class MarketplaceView extends HookConsumerWidget {
                 title: context.loc.marketplaceScreenBuyButton,
                 subtitle: marketplaceCardsSubtitleText[0],
                 icon: Svgs.marketplaceBuy,
-                // Disable iOS for app store compliance
-                onPressed: Platform.isIOS
+                onPressed: Platform.isIOS && disableExchagesOnIOS
                     ? null
                     : () async {
                         if (multipleOnramps) {
@@ -156,7 +156,7 @@ class MarketplaceView extends HookConsumerWidget {
                 title: context.loc.marketplaceScreenExchangeButton,
                 subtitle: marketplaceCardsSubtitleText[1],
                 icon: Svgs.marketplaceExchange,
-                onPressed: Platform.isIOS
+                onPressed: Platform.isIOS && disableSideswapOnIOS
                     ? null
                     : () {
                         Navigator.of(context).pushNamed(SwapScreen.routeName);

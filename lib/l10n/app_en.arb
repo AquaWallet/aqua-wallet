@@ -327,8 +327,6 @@
   "boltzRefund": "Refund",
   "boltzCopyRefundData": "Copy Refund Data",
   "boltzSupportEmail": "Contact Boltz",
-  "boltzMinAmountError": "The amount is below the min of {min} sats.",
-  "boltzMaxAmountError": "The amount exceeds the max of {max} sats.",
   "boltzGenerateInvoice": "Generate Invoice",
   "boltzServiceFee": "Service Fee",
   "boltzNormalSwapAlreadyBroadcastedError": "A liquid transaction for this swap already exists",
@@ -413,5 +411,9 @@
   "assetTransactionsTypeBoltzReverseSwap": "Lightning Receive",
   "sideswapPegInDescription": "Peg-In Powered By Sideswap.io",
   "sideswapPegOutDescription": "Peg-Out Powered By Sideswap.io",
-  "assetTransactionDetailsDepositAddress": "Deposit Address"
+  "assetTransactionDetailsDepositAddress": "Deposit Address",
+  "genericErrorMessage": "Something went wrong",
+  "genericOk": "OK",
+  "sendMinAmountError": "The amount is below the min of {min}.",
+  "sendMaxAmountError": "The amount exceeds the max of {max}."
 }

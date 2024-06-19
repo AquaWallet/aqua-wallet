@@ -1,4 +1,3 @@
-import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,6 +12,6 @@ class SwapState with _$SwapState {
   }) = SwapStateVerify;
   const factory SwapState.success({
     required Asset asset,
-    required GdkTransaction transaction,
+    required String txId,
   }) = SwapStateSuccess;
 }
