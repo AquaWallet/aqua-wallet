@@ -1,14 +1,16 @@
+import 'package:aqua/common/dialogs/dialog_manager.dart';
 import 'package:aqua/common/exceptions/exception_localized.dart';
+import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
 import 'package:aqua/common/widgets/custom_error.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
-import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -24,30 +26,73 @@ class SendAssetReviewScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.d("[Send][Build] -- build review screen --");
+    final sliderState = useState(SliderState.initial);
 
-    // asset
     final asset = ref.watch(sendAssetProvider);
-
-    // amount display
+    final transactionDetails = ref.watch(sendAssetSetupProvider);
     final amountDisplay = ref.watch(amountMinusFeesToDisplayProvider) ??
         arguments?.userEnteredAmount.toString() ??
         '-';
 
     // fees
-    final fee = ref.watch(estimatedFeeProvider);
-    final feeAsset = ref.watch(userSelectedFeeAssetProvider);
     final insufficientBalance = ref.watch(insufficientBalanceProvider);
 
-    // transaction
+    // taxi errors
+    ref.listen(
+        sideswapTaxiProvider,
+        (_, state) => state.maybeWhen(
+              error: (error, stackTrace) async {
+                sliderState.value = SliderState.initial;
+
+                final alertModel = CustomAlertDialogUiModel(
+                    title: context.loc.taxiFeeErrorTitle,
+                    subtitle: context.loc.taxiFeeErrorSubtitle(error),
+                    buttonTitle: context.loc.ok,
+                    onButtonPressed: () {
+                      Navigator.of(context).pop();
+                    });
+                DialogManager().showDialog(context, alertModel);
+              },
+              orElse: () => {},
+            ));
+
+    // send tx errors
+    ref.listen(
+        sendAssetTransactionProvider,
+        (_, state) => state.maybeWhen(
+              error: (error, stackTrace) async {
+                sliderState.value = SliderState.initial;
+
+                final String errorMessage;
+                if (error is ExceptionLocalized) {
+                  errorMessage = error.toLocalizedString(context);
+                } else if (error is NetworkException) {
+                  errorMessage = error.message != null
+                      ? context.loc.networkErrorSpecific(error.message!)
+                      : context.loc.networkErrorGeneric;
+                } else {
+                  errorMessage = error.toString();
+                }
+
+                final alertModel = CustomAlertDialogUiModel(
+                    title: context.loc.genericErrorMessage,
+                    subtitle: errorMessage,
+                    buttonTitle: context.loc.ok,
+                    onButtonPressed: () {
+                      Navigator.of(context).pop();
+                    });
+                DialogManager().showDialog(context, alertModel);
+              },
+              orElse: () => {},
+            ));
+
     final transaction = ref.watch(sendAssetTransactionProvider).asData?.value;
+    final isSendAll = ref.read(useAllFundsProvider);
 
     // ui
     final feeToDisplay = ref.watch(totalFeeToDisplayProvider(asset));
-    final note = ref.watch(noteProvider);
-
-    // error
-    final error = ref.watch(sendAmountErrorProvider);
+    final addNoteEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
 
     // show a modal telling the user they don't have enough funds
     useEffect(() {
@@ -73,8 +118,9 @@ class SendAssetReviewScreen extends HookConsumerWidget {
       return null;
     }, [insufficientBalance]);
 
-    // push to complete screen
     void pushToCompleteScreen(String txId, int timestamp, NetworkType network) {
+      sliderState.value = SliderState.completed;
+
       if (asset.isLightning) {
         final amountSatoshi =
             ref.read(formatterProvider).parseAssetAmountDirect(
@@ -99,59 +145,53 @@ class SendAssetReviewScreen extends HookConsumerWidget {
       }
     }
 
-    // on confirm swipe
-    final onTransactionConfirm = useCallback(() {
+    // on confirm, create and send tx
+    final onTransactionConfirm = useCallback(() async {
+      sliderState.value = SliderState.inProgress;
+
+      await ref
+          .read(sendAssetTransactionProvider.notifier)
+          .createAndSendFinalTransaction(onSuccess: pushToCompleteScreen);
+    }, []);
+
+    // create initial tx (for now only need plain btc and lbtc for estimates)
+    final createInitialTransaction = useCallback(() {
       ref
           .read(sendAssetTransactionProvider.notifier)
-          .signAndBroadcastTransaction(onSuccess: pushToCompleteScreen);
-    }, [fee, note]);
-
-    // create initial tx
-    final createTransaction = useCallback(() {
-      if (asset == Asset.unknown()) return;
-      logger.d("[Send] send review - create transaction");
-      if (asset.isLightning) {
-        ref.read(boltzProvider).createOnchainTxForCurrentNormalSwap();
-      } else if (asset.isSideshift) {
-        ref.read(sideshiftOrderProvider).createOnchainTxForSwap();
-      } else if (feeAsset == FeeAsset.tetherUsdt) {
-        ref.read(sendAssetTransactionProvider.notifier).createTaxiPsbt();
-      } else {
-        ref.read(sendAssetTransactionProvider.notifier).createGdkTransaction();
-      }
+          .createInitialGdkTransactionForFeeEstimate();
     }, []);
 
     // listen to setup
     ref.listen(sendAssetSetupProvider, (_, setup) {
       if (setup.asData?.value == true) {
-        createTransaction();
+        createInitialTransaction();
       }
     });
 
     // listen to user changes
     ref.listen(userSelectedFeeAssetProvider, (_, __) {
       _debouncer.run(() {
-        createTransaction();
+        createInitialTransaction();
       });
     });
 
     ref.listen(userSelectedFeeRatePerVByteProvider, (_, __) {
       _debouncer.run(() {
-        createTransaction();
+        createInitialTransaction();
       });
     });
 
     ref.listen(customFeeInputProvider, (_, __) {
       _debouncer.run(() {
-        createTransaction();
+        createInitialTransaction();
       });
     });
 
-    return WillPopScope(
-      onWillPop: () async {
-        logger.d('[Navigation] onWillPop in SendAssetScreen called');
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (_) async {
+        logger.d('[Navigation] onPopInvoked in SendAssetScreen called');
         ref.read(sideshiftOrderProvider).stopAllStreams();
-        return true;
       },
       child: Scaffold(
         appBar: AquaAppBar(
@@ -160,128 +200,126 @@ class SendAssetReviewScreen extends HookConsumerWidget {
           backgroundColor: Theme.of(context).colors.altScreenBackground,
           iconBackgroundColor: Theme.of(context).colors.altScreenSurface,
         ),
+        //ANCHOR - Confirmation Slider
+        floatingActionButton: transactionDetails.mapOrNull(
+          data: (_) => SendAssetConfirmSlider(
+            text: insufficientBalance != null
+                ? context.loc.sendAssetAmountScreenNotEnoughFundsError
+                : context.loc.sendAssetReviewScreenConfirmSlider,
+            enabled: insufficientBalance == null,
+            onConfirm: onTransactionConfirm,
+            sliderState: sliderState.value,
+          ),
+        ),
         backgroundColor: Theme.of(context).colors.altScreenBackground,
-        body: ref.watch(sendAssetSetupProvider).map(
-              data: (_) {
-                return Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 28.w, vertical: 32.h),
-                  child: Column(
-                    children: [
-                      //ANCHOR - Send Review Card
-                      //Sideshift
-                      if (asset.isSideshift) ...[
-                        Text(
-                          context.loc.sendAssetReviewScreenGenericLabel(
-                              asset.network, asset.symbol),
-                          style: Theme.of(context).textTheme.titleMedium,
+        body: transactionDetails.map(
+          data: (_) => Stack(
+            children: [
+              SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  left: 28.w,
+                  right: 28.w,
+                  top: 32.h,
+                  bottom: 140.h,
+                ),
+                child: Column(
+                  children: [
+                    //ANCHOR - Send Review Card
+                    //Sideshift
+                    if (asset.isSideshift) ...[
+                      Text(
+                        context.loc.sendAssetReviewScreenGenericLabel(
+                          asset.network,
+                          asset.symbol,
                         ),
-                        SizedBox(height: 20.h),
-                      ],
-                      //All other assets
-                      SendAssetReviewInfoCard(
-                        amountDisplay: amountDisplay,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 22.h),
-                      //ANCHOR - Fee Cards
-                      // Bitcoin
-                      if (asset.isBTC) ...{
-                        if (transaction != null)
-                          TransactionPrioritySelector(transaction: transaction),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                      }
-                      // Sideshift (usdt-eth & trx) or Boltz (lighting)
-                      else if (asset.isSideshift || asset.isLightning) ...{
-                        if (transaction != null && feeToDisplay != null)
-                          const GenericAssetTransactionFeeCard(),
-                      }
-                      // All Liquid Assets
-                      else ...{
-                        UsdtTransactionFeeSelector(
-                            asset: asset, transaction: transaction),
+                      SizedBox(height: 20.h),
+                    ],
+                    //All other assets
+                    SendAssetReviewInfoCard(
+                      amountDisplay: amountDisplay,
+                    ),
+                    SizedBox(height: 22.h),
+                    //ANCHOR - Fee Cards
+                    // Bitcoin
+                    if (asset.isBTC) ...{
+                      if (transaction != null) ...{
+                        TransactionPrioritySelector(transaction: transaction),
                       },
                       SizedBox(height: 10.h),
-                      //ANCHOR - Add Note
-                      if (addNoteEnabled) ...{
-                        const AddNoteButton(),
-                        const Spacer(),
+                    }
+                    // Sideshift (usdt-eth & trx)
+                    else if (asset.isSideshift) ...{
+                      if (feeToDisplay != null) ...{
+                        const GenericAssetTransactionFeeCard(),
                       },
-                      //ANCHOR - Fixed Error
-                      CustomError(
-                          errorMessage: error?.toLocalizedString(context)),
-                      const Spacer(),
-                      //ANCHOR - Confirmation Slider or Error
-                      Consumer(
-                        builder: (context, ref, child) {
-                          return ref.watch(sendAssetTransactionProvider).when(
-                                data: (_) {
-                                  return SendAssetConfirmSlider(
-                                    text: insufficientBalance != null
-                                        ? context.loc
-                                            .sendAssetAmountScreenNotEnoughFundsError
-                                        : context.loc
-                                            .sendAssetReviewScreenConfirmSlider,
-                                    enabled: insufficientBalance == null &&
-                                        transaction != null,
-                                    onConfirm: onTransactionConfirm,
-                                  );
-                                },
-                                loading: () =>
-                                    const CircularProgressIndicator(),
-                                error: (error, _) {
-                                  final String errorMessage;
-                                  if (error is ExceptionLocalized) {
-                                    errorMessage =
-                                        error.toLocalizedString(context);
-                                  } else {
-                                    errorMessage = error.toString();
-                                  }
-
-                                  return Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      CustomError(errorMessage: errorMessage),
-                                      const SizedBox(height: 40.0),
-                                    ],
-                                  );
-                                },
-                              );
-                        },
+                      LiquidTransactionFeeSelector(
+                        asset: asset,
+                        transaction: transaction,
+                        isSendAll: isSendAll,
                       ),
-                    ],
-                  ),
-                );
-              },
-              error: (asyncError) {
-                final error = asyncError.error;
-                final String errorMessage;
-                if (error is ExceptionLocalized) {
-                  errorMessage = error.toLocalizedString(context);
-                } else {
-                  errorMessage = error.toString();
-                }
-
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                      child: CustomError(errorMessage: errorMessage),
-                    ),
-                    const SizedBox(height: 80.0),
+                    }
+                    // Lightning
+                    else if (asset.isLightning) ...{
+                      if (feeToDisplay != null)
+                        const GenericAssetTransactionFeeCard(),
+                    }
+                    // All Liquid Assets
+                    else ...{
+                      LiquidTransactionFeeSelector(
+                        asset: asset,
+                        transaction: transaction,
+                        isSendAll: isSendAll,
+                      ),
+                    },
+                    SizedBox(height: 10.h),
+                    //ANCHOR - Add Note
+                    if (addNoteEnabled) ...{
+                      const AddNoteButton(),
+                    },
                   ],
-                );
-              },
-              loading: (_) => const Center(
-                child: CircularProgressIndicator(),
+                ),
               ),
-            ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: double.infinity,
+                  height: MediaQuery.sizeOf(context).height * .25,
+                  decoration: BoxDecoration(
+                    gradient: Theme.of(context).getFadeGradient(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          error: (asyncError) {
+            final error = asyncError.error;
+            final String errorMessage;
+            if (error is ExceptionLocalized) {
+              errorMessage = error.toLocalizedString(context);
+            } else {
+              errorMessage = error.toString();
+            }
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                  child: CustomError(errorMessage: errorMessage),
+                ),
+                const SizedBox(height: 80.0),
+              ],
+            );
+          },
+          loading: (_) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:aqua/config/constants/api_keys.dart';
 import 'package:aqua/config/constants/urls.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/swap/providers/sideswap_websocket_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -77,6 +78,26 @@ final boltzEnvConfigProvider = Provider<EnvConfig>((ref) {
   switch (env) {
     case Env.mainnet:
       return const EnvConfig(
+        apiUrl: boltzV2MainnetUrl,
+        apiKey: '',
+      );
+    case Env.testnet || Env.regtest:
+      return const EnvConfig(
+        apiUrl: boltzV2TestnetUrl,
+        apiKey: '',
+      );
+    default:
+      throw UnimplementedError('Unknown environment');
+  }
+});
+
+@Deprecated('Only used for migration, use `boltzEnvConfigProvider` instead')
+final legacyBoltzEnvConfigProvider = Provider<EnvConfig>((ref) {
+  final env = ref.watch(envProvider);
+
+  switch (env) {
+    case Env.mainnet:
+      return const EnvConfig(
         apiUrl: boltzMainnetUrl,
         apiKey: '',
       );
@@ -84,6 +105,27 @@ final boltzEnvConfigProvider = Provider<EnvConfig>((ref) {
       return const EnvConfig(
         apiUrl: boltzTestnetUrl,
         apiKey: '',
+      );
+    default:
+      throw UnimplementedError('Unknown environment');
+  }
+});
+
+// ANCHOR - Boltz
+
+final sideswapEnvConfigProvider = Provider<EnvConfig>((ref) {
+  final env = ref.watch(envProvider);
+
+  switch (env) {
+    case Env.mainnet:
+      return const EnvConfig(
+        apiUrl: sideswapMainnetUrl,
+        apiKey: kSideswapApiKey,
+      );
+    case Env.testnet || Env.regtest:
+      return const EnvConfig(
+        apiUrl: sideswapTestnetUrl,
+        apiKey: kSideswapApiKey,
       );
     default:
       throw UnimplementedError('Unknown environment');

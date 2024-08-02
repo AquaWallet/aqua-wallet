@@ -1,134 +1,150 @@
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
+import 'package:isar/isar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-//ANCHOR - Convenience Providers
+const _orderPrefix = 'sideshiftOrder_';
+const kSideshiftBoxName = 'sideshift';
 
-/// FutureProvider to fetch all cached orders
-final sideShiftCachedOrdersProvider =
-    FutureProvider.autoDispose<List<SideshiftOrderStatusResponse>?>(
-        (ref) async {
-  return ref.watch(sideshiftStorageProvider).getAllSideshiftOrders();
-});
+//ANCHOR - Public-facing Sideshift Orders Storage Notifier
 
-//ANCHOR - Main Provider
-final sideshiftStorageProvider = Provider<SideshiftStorageProvider>((ref) {
-  return SideshiftStorageProvider(ref);
-});
+final sideshiftStorageProvider = AsyncNotifierProvider<
+    SideshiftOrderStorageNotifier,
+    List<SideshiftOrderDbModel>>(SideshiftOrderStorageNotifier.new);
 
-class SideshiftStorageProvider {
-  final ProviderRef ref;
+abstract class SideshiftOrderStorage {
+  Future<void> save(SideshiftOrderDbModel model);
+  Future<void> delete(String orderId);
+  Future<void> updateOrder({
+    required String orderId,
+    String? txHash,
+    OrderStatus? status,
+  });
+  Future<void> clear();
+}
 
-  SideshiftStorageProvider(this.ref);
+class SideshiftOrderStorageNotifier
+    extends AsyncNotifier<List<SideshiftOrderDbModel>>
+    implements SideshiftOrderStorage {
+  @override
+  FutureOr<List<SideshiftOrderDbModel>> build() async {
+    // NOTE: This is a one-time migration
+    _migrateFromSharedPreferencesToIsar();
 
-  final _prefs = SharedPreferences.getInstance();
-
-  static const String _orderPrefix = 'sideshiftOrder_';
-
-  //ANCHOR - Save
-  Future<void> saveSideshiftOrderData(
-      SideshiftOrderStatusResponse order, String id) async {
-    if (id.isEmpty) {
-      return;
-    }
-
-    SharedPreferences prefs = await _prefs;
-    prefs.setString('$_orderPrefix$id', jsonEncode(order.toJson()));
+    final storage = await ref.watch(storageProvider.future);
+    return storage.sideshiftOrderDbModels.all().sortByCreated();
   }
 
-  //ANCHOR - Retrieve Single Order
-  Future<SideshiftOrderStatusResponse?> getSideshiftOrderData(String id) async {
-    SharedPreferences prefs = await _prefs;
-    String? sideshiftOrderJson = prefs.getString('$_orderPrefix$id');
+  Future<void> _migrateFromSharedPreferencesToIsar() async {
+    final prefs = await SharedPreferences.getInstance();
+    final toMigrate = prefs.getKeys().where((k) => k.startsWith(_orderPrefix));
 
-    if (sideshiftOrderJson != null) {
-      Map<String, dynamic> json = jsonDecode(sideshiftOrderJson);
-      SideshiftOrderStatusResponse order =
-          SideshiftOrderStatusResponse.fromJson(json);
-
-      logger.d("[Sideshift] fetched order from storage: $order");
-      return order;
+    if (toMigrate.isNotEmpty) {
+      logger.d('[SideshiftStorage] Migrating ${toMigrate.length} to Isar');
     }
 
-    return null;
-  }
+    for (String key in toMigrate) {
+      String? json = prefs.getString(key);
+      if (json != null) {
+        final order = SideshiftOrderStatusResponse.fromJson(jsonDecode(json));
 
-  //ANCHOR - Retrieve All Orders
-  Future<List<SideshiftOrderStatusResponse>> getAllSideshiftOrders() async {
-    SharedPreferences prefs = await _prefs;
-    final keys = prefs.getKeys();
-    List<SideshiftOrderStatusResponse> orders = [];
+        logger
+            .d("[SideshiftStorage] Migrating order to secure storage: $order");
 
-    for (String key in keys) {
-      if (key.startsWith(_orderPrefix)) {
-        String? orderJson = prefs.getString(key);
-        if (orderJson != null) {
-          Map<String, dynamic> json = jsonDecode(orderJson);
-          SideshiftOrderStatusResponse order =
-              SideshiftOrderStatusResponse.fromJson(json);
-          orders.add(order);
-        }
+        await ref
+            .read(transactionStorageProvider.notifier)
+            .save(TransactionDbModel.fromSideshiftOrder(order));
+        await ref
+            .read(sideshiftStorageProvider.notifier)
+            .save(SideshiftOrderDbModel.fromSideshiftOrderResponse(order));
+
+        prefs.remove(key);
+        logger.d(
+            "[SideshiftStorage] Migrated order to secure storage: ${order.id}");
       }
     }
+  }
 
-    // sort by `createdAt`
-    orders.sort((a, b) {
-      if (a.createdAt == null && b.createdAt == null) return 0;
-      if (a.createdAt == null) return 1;
-      if (b.createdAt == null) return -1;
-      return b.createdAt!.compareTo(a.createdAt!);
+  @override
+  Future<void> save(SideshiftOrderDbModel model) async {
+    try {
+      final storage = await ref.read(storageProvider.future);
+      await storage.writeTxn(() async {
+        final existing = await storage.sideshiftOrderDbModels
+            .where()
+            .orderIdEqualTo(model.orderId)
+            .findFirst();
+        if (existing != null) {
+          final updated = model.copyWith(id: existing.id);
+          storage.sideshiftOrderDbModels.put(updated);
+        } else {
+          storage.sideshiftOrderDbModels.put(model);
+        }
+      });
+
+      final update = await storage.sideshiftOrderDbModels.all().sortByCreated();
+      state = AsyncValue.data(update);
+    } catch (e, st) {
+      logger.e('[SideshiftStorage] Error saving transaction', e, st);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateOrder({
+    required String orderId,
+    String? txHash,
+    OrderStatus? status,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      var model = await storage.sideshiftOrderDbModels
+          .where()
+          .orderIdEqualTo(orderId)
+          .findFirst();
+
+      if (model == null) {
+        logger.i('[SideshiftOrderStorage] Order not found: $orderId');
+        return;
+      }
+
+      if (txHash != null) {
+        model = model.copyWith(onchainTxHash: txHash);
+      }
+
+      if (status != null) {
+        model = model.copyWith(status: status);
+      }
+
+      await storage.sideshiftOrderDbModels.put(model);
     });
 
-    return orders;
+    final updated = await storage.sideshiftOrderDbModels.all().sortByCreated();
+    state = AsyncValue.data(updated);
   }
 
-  //ANCHOR - Updates
-  Future<void> updateOrderStatus(String id, OrderStatus newStatus) async {
-    if (id.isEmpty) {
-      return;
-    }
+  @override
+  Future<void> clear() async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() => storage.clear());
 
-    SharedPreferences prefs = await _prefs;
-    String? orderJson = prefs.getString('$_orderPrefix$id');
-
-    if (orderJson != null) {
-      Map<String, dynamic> json = jsonDecode(orderJson);
-      SideshiftOrderStatusResponse order =
-          SideshiftOrderStatusResponse.fromJson(json);
-
-      order = order.copyWith(status: newStatus);
-      prefs.setString('$_orderPrefix$id', jsonEncode(order.toJson()));
-      logger.d(
-          "[Sideshift] Updated order status in storage: ${order.id} - status: ${order.status.toString()}");
-    }
+    final updated = await storage.sideshiftOrderDbModels.all().sortByCreated();
+    state = AsyncValue.data(updated);
   }
 
-  Future<void> updateTxHash(String id, String txHash) async {
-    if (id.isEmpty) {
-      return;
-    }
-
-    SharedPreferences prefs = await _prefs;
-    String? orderJson = prefs.getString('$_orderPrefix$id');
-
-    if (orderJson != null) {
-      Map<String, dynamic> json = jsonDecode(orderJson);
-      SideshiftOrderStatusResponse order =
-          SideshiftOrderStatusResponse.fromJson(json);
-
-      order = order.copyWith(onchainTxHash: txHash);
-      prefs.setString('$_orderPrefix$id', jsonEncode(order.toJson()));
-      logger.d(
-          "[Sideshift] Updated order status in storage: ${order.id} - txHash: ${order.onchainTxHash}");
-    }
-  }
-
-  //ANCHOR - Delete
-  Future<void> deleteSideshiftOrderData(String id) async {
-    SharedPreferences prefs = await _prefs;
-    prefs.remove('$_orderPrefix$id');
+  @override
+  Future<void> delete(String orderId) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      storage.sideshiftOrderDbModels
+          .where()
+          .orderIdEqualTo(orderId)
+          .deleteAll();
+    });
   }
 }

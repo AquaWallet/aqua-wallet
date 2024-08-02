@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:aqua/data/data.dart';
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
@@ -20,7 +20,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     final order = response.result!;
     final isLiquid =
         await ref.read(addressParserProvider).isValidAddressForAsset(
-              asset: Asset.liquid(),
+              asset: ref.read(manageAssetsProvider).lbtcAsset,
               address: order.pegAddress,
             );
     final assets = ref.read(assetsProvider).asData?.value ?? [];
@@ -119,7 +119,11 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
               serviceOrderId: data.order.orderId,
               serviceAddress: data.order.pegAddress,
             ));
-        state = const AsyncValue.data(PegState.success());
+        state = AsyncValue.data(PegState.success(
+          asset: data.asset,
+          txn: data.transaction,
+          orderId: data.order.orderId,
+        ));
       }
     } else {
       throw Exception('Invalid state: $state');
@@ -132,38 +136,45 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     required bool isSendAll,
     required int deliverAmountSatoshi,
     bool relayErrors = true,
+    bool isLowball = true,
   }) async {
     try {
       final network =
           asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
 
       final addressee = GdkAddressee(
-        assetId: asset.isBTC ? null : asset.id,
-        address: pegAddress,
-        satoshi: deliverAmountSatoshi,
-      );
+          assetId: asset.isBTC ? null : asset.id,
+          address: pegAddress,
+          satoshi: deliverAmountSatoshi,
+          isGreedy: isSendAll);
 
       int feeRatePerKb;
       final networkType =
           asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid;
 
       if (networkType == NetworkType.bitcoin) {
-        final feeRatesMap = ref.watch(pegFeeRatesProvider).asData?.value ?? {};
+        final feeRatesMap = await ref.read(pegFeeRatesProvider.future);
         final feeRatePerVb =
             feeRatesMap.entries.firstWhere((entry) => entry.key.isBTC).value;
         feeRatePerKb = (feeRatePerVb * 1000.0).ceil();
       } else {
-        feeRatePerKb = liquidFeeRatePerKb;
+        feeRatePerKb = ((ref
+                    .read(feeEstimateProvider)
+                    .fetchLiquidFeeRate(isLowball: isLowball)) *
+                1000)
+            .toInt();
       }
 
       final transaction = GdkNewTransaction(
         addressees: [addressee],
         feeRate: feeRatePerKb,
-        sendAll: isSendAll,
         utxoStrategy: GdkUtxoStrategyEnum.defaultStrategy,
       );
 
-      return await network.createTransaction(transaction);
+      final txReply = await network.createTransaction(transaction: transaction);
+      logger.d(
+          "[Peg] Create Gdk Tx - deliverAmountSatoshi $deliverAmountSatoshi - fee ${txReply?.fee} - feeRatePerKb $feeRatePerKb - isSendAll: $isSendAll");
+      return txReply;
     } on GdkNetworkInsufficientFunds {
       logger.d('[PEG] Insufficient funds');
       if (relayErrors) {
@@ -184,30 +195,67 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
   }
 
   Future<GdkNewTransactionReply?> signPegGdkTransaction(
-    GdkNewTransactionReply reply,
-    Asset asset,
-  ) async {
+      GdkNewTransactionReply reply, Asset asset,
+      {bool isLowball = true}) async {
     try {
       final network =
           asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
 
-      final signedReply = await network.signTransaction(reply);
-      if (signedReply == null) {
+      final blindedTx = asset.isBTC
+          ? reply
+          : await ref.read(liquidProvider).blindTransaction(reply);
+      if (blindedTx == null) {
         throw PegGdkTransactionException();
       }
 
-      final response = await network.sendTransaction(signedReply);
-      if (response == null) {
+      final signedReply = await network.signTransaction(blindedTx);
+      if (signedReply == null || signedReply.transaction == null) {
         throw PegGdkTransactionException();
       }
 
-      return response;
+      // if liquid, try lowball. if fail, try again without lowball
+      try {
+        await ref.read(electrsProvider).broadcast(signedReply.transaction!,
+            asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid,
+            isLowball: !asset.isBTC);
+      } on AquaBroadcastError {
+        if (asset.isBTC) {
+          assert(false, 'BTC should not be broadcasted through aqua');
+          final error = PegGdkTransactionException();
+          state = AsyncValue.error(error, StackTrace.current);
+          throw error;
+        }
+
+        signAndSendNonLowballTx(reply);
+      }
+
+      return signedReply;
     } catch (e) {
       logger.e('[PEG] sign/send gdk tx error: $e');
       final error = PegGdkTransactionException();
       state = AsyncValue.error(error, StackTrace.current);
       throw error;
     }
+  }
+
+  Future<void> signAndSendNonLowballTx(GdkNewTransactionReply lowballTx) async {
+    final nonLowballFeeKb =
+        ref.read(feeEstimateProvider).fetchLiquidFeeRate(isLowball: false) *
+            1000;
+    final nonLowbalTx = lowballTx.copyWith(feeRate: nonLowballFeeKb.toInt());
+    final blindedTx =
+        await ref.read(liquidProvider).blindTransaction(nonLowbalTx);
+    if (blindedTx == null) {
+      throw PegGdkTransactionException();
+    }
+    final signedReply =
+        await ref.read(liquidProvider).signTransaction(blindedTx);
+    if (signedReply == null || signedReply.transaction == null) {
+      throw PegGdkTransactionException();
+    }
+    await ref.read(electrsProvider).broadcast(
+        signedReply.transaction!, NetworkType.liquid,
+        isLowball: false);
   }
 }
 

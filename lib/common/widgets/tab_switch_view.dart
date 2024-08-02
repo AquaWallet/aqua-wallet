@@ -1,17 +1,18 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/settings/shared/shared.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-class TabSwitchView extends HookWidget {
+class TabSwitchView extends HookConsumerWidget {
   const TabSwitchView({
-    Key? key,
+    super.key,
     this.backgroundColor,
     this.foregroundColor,
     this.initialIndex = 0,
     this.disabledIndices = const [],
     required this.labels,
     required this.onChange,
-  }) : super(key: key);
+  });
 
   final Color? backgroundColor;
   final Color? foregroundColor;
@@ -21,7 +22,9 @@ class TabSwitchView extends HookWidget {
   final List<int> disabledIndices;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+
     final tabController = useTabController(
       initialLength: labels.length,
       initialIndex: initialIndex,
@@ -47,8 +50,7 @@ class TabSwitchView extends HookWidget {
       padding: labels.length > 2 ? EdgeInsets.all(2.h) : EdgeInsets.zero,
       decoration: BoxDecoration(
         boxShadow: [Theme.of(context).shadow],
-        color:
-            backgroundColor ?? Theme.of(context).colors.tabSelectedBackground,
+        color: null,
         borderRadius: BorderRadius.all(Radius.circular(12.r)),
       ),
       margin: EdgeInsets.symmetric(horizontal: 28.w),
@@ -58,7 +60,9 @@ class TabSwitchView extends HookWidget {
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: const BoxDecoration(),
         labelColor: Theme.of(context).colors.tabSelectedForeground,
-        unselectedLabelColor: Theme.of(context).colors.tabUnselectedForeground,
+        unselectedLabelColor: darkMode
+            ? Theme.of(context).colors.tabUnselectedForeground
+            : Theme.of(context).colorScheme.surface,
         labelPadding: EdgeInsets.zero,
         indicatorPadding: EdgeInsets.zero,
         indicatorWeight: 0,

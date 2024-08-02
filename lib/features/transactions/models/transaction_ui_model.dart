@@ -1,4 +1,4 @@
-import 'package:aqua/data/models/gdk_models.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -22,6 +22,31 @@ class TransactionUiModel {
   final Asset? otherAsset;
   final GdkTransaction transaction;
   final TransactionDbModel? dbTransaction;
+
+  Iterable<String> inOutToBlindingString(List<GdkTransactionInOut> inOuts) {
+    return inOuts
+        .where((inOut) =>
+            inOut.amountBlinder != null && inOut.assetBlinder != null)
+        .map((inOut) {
+      return '${inOut.satoshi},${inOut.assetId},${inOut.amountBlinder},${inOut.assetBlinder}';
+    });
+  }
+
+  String get blindingUrl {
+    if (asset.isLiquid) {
+      final blindingStrings = [
+        if (transaction.inputs?.isNotEmpty ?? false)
+          ...inOutToBlindingString(transaction.inputs!),
+        if (transaction.outputs?.isNotEmpty ?? false)
+          ...inOutToBlindingString(transaction.outputs!)
+      ].join(',');
+
+      return blindingStrings.isNotEmpty
+          ? '${transaction.txhash}#blinded=$blindingStrings'
+          : '';
+    }
+    return '';
+  }
 }
 
 extension TransactionUiModelX on TransactionUiModel {

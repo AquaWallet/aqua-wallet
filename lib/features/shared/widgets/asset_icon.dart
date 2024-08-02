@@ -1,27 +1,31 @@
 import 'package:aqua/config/constants/constants.dart';
+import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AssetIcon extends ConsumerWidget {
   const AssetIcon({
-    Key? key,
+    super.key,
     this.size,
+    this.fit,
     required this.assetLogoUrl,
     required this.assetId,
-  }) : super(key: key);
+  });
 
   final double? size;
   final String assetId;
   final String assetLogoUrl;
+  final BoxFit? fit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     String? localAsset;
+    final liquidProviderRef = ref.read(liquidProvider);
 
     // local hardcoded cases
     switch (assetId) {
       case 'Layer2Bitcoin':
-        localAsset = Svgs.l2Asset;
+        localAsset = Svgs.layerTwoDual;
         break;
       case 'btc':
         localAsset = Svgs.btcAsset;
@@ -35,14 +39,15 @@ class AssetIcon extends ConsumerWidget {
       case 'eth-usdt':
         localAsset = Svgs.ethUsdtAsset;
         break;
-      case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
-        // TODO: the asset id should not be hardcoded here
-        localAsset = Svgs.usdtAsset;
-      case '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d':
-        // TODO: the asset id should not be hardcoded here
-        localAsset = Svgs.liquidAsset;
-
       default:
+        // liquid assetIds
+        if (assetId == liquidProviderRef.usdtId) {
+          localAsset = Svgs.usdtAsset;
+        } else if (assetId == liquidProviderRef.lbtcId) {
+          localAsset = Svgs.liquidAsset;
+        } else if (assetId == liquidProviderRef.mexasId) {
+          localAsset = Svgs.mexasAsset;
+        }
         break;
     }
 
@@ -50,14 +55,14 @@ class AssetIcon extends ConsumerWidget {
     if (localAsset != null) {
       return SvgPicture.asset(
         localAsset,
-        fit: BoxFit.fitWidth,
+        fit: fit ?? BoxFit.fitWidth,
         width: size ?? 40.r,
         height: size ?? 40.r,
       );
     } else {
       return SvgPicture.network(
         assetLogoUrl,
-        fit: BoxFit.fitWidth,
+        fit: fit ?? BoxFit.fitWidth,
         width: size ?? 40.r,
         height: size ?? 40.r,
       );

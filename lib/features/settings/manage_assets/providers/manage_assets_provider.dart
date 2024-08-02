@@ -33,31 +33,42 @@ final availableAssetsProvider =
 
   final fetchedAssetsJson = await fetchAssets(ref);
   final response = fetchedAssetsJson.asValue?.value;
+  final env = ref.watch(envProvider);
 
   final AssetsResponse assetsResponse;
   if (response != null) {
     assetsResponse = response;
   } else {
-    final staticAssetsRaw = await rootBundle.loadString('assets/assets.json');
+    final staticAssetsResource = env == Env.mainnet
+        ? 'assets/assets.json'
+        : 'assets/assets-testnet.json';
+    final staticAssetsRaw = await rootBundle.loadString(staticAssetsResource);
     final staticAssetsJson = await json.decode(staticAssetsRaw);
     assetsResponse = AssetsResponse.fromJson(staticAssetsJson);
   }
 
-  final allAssets = assetsResponse.data?.assets
-          .map((asset) => asset.copyWith(
-                isLiquid: true,
-                isLBTC: ref.read(liquidProvider).policyAsset == asset.id,
-                isUSDt: ref.read(liquidProvider).usdtId == asset.id,
-              ))
-          .toList() ??
-      [];
+  final allAssets = [
+    ...?assetsResponse.data?.assets.map((asset) => asset.copyWith(
+          isLiquid: true,
+          isLBTC: ref.read(liquidProvider).policyAsset == asset.id,
+          isUSDt: ref.read(liquidProvider).usdtId == asset.id,
+        )),
+    if (env == Env.testnet) Asset.liquidTest(),
+  ];
 
   // Add default assets to user assets
   if (ref.read(prefsProvider).userAssetIds.isEmpty) {
     allAssets
         .where((asset) => asset.isDefaultAsset)
         .forEach((asset) => ref.read(prefsProvider).addAsset(asset.id));
+
+    // Add mexas if region mx
+    final region = ref.read(regionsProvider).currentRegion;
+    if (region == RegionsStatic.mx) {
+      ref.read(prefsProvider).addAsset(ref.read(liquidProvider).mexasId);
+    }
   }
+
   return allAssets;
 });
 
@@ -118,14 +129,11 @@ class ManageAssetsProvider extends ChangeNotifier {
         _ => asset.ticker == "tL-BTC",
       });
 
-  /// Convenience getter for `liquid USDt` asset
   Asset get liquidUsdtAsset =>
       allAssets.firstWhere((asset) => asset.ticker == "USDt");
 
-  /// Convenience getter for shitcoin assets
   List<Asset> get shitcoinAssets => [Asset.usdtEth(), Asset.usdtTrx()];
 
-  /// Convenience getter for list of main transactable assets
   List<Asset> get mainTransactableAssets =>
       [btcAsset, Asset.lightning(), ...allAssets];
 
@@ -141,7 +149,8 @@ class ManageAssetsProvider extends ChangeNotifier {
       ...userAssets.where((asset) =>
           asset != liquidUsdtAsset &&
           asset !=
-              lbtcAsset) // filter out usdt and liquid since they are already added
+              lbtcAsset), // filter out usdt and liquid since they are already added
+      if (env == Env.testnet) Asset.liquidTest()
     ];
   }
 

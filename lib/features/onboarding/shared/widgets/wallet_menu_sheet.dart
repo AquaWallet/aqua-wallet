@@ -18,6 +18,7 @@ class WalletMenuSheet extends HookConsumerWidget {
     final showUnacceptedConditionError = useCallback(() {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          key: const Key('welcome-unaccepted-condition'),
           content: Text(
             !tosAccepted.value
                 ? context.loc.welcomeScreenUnacceptedToSError
@@ -80,6 +81,7 @@ class WalletMenuSheet extends HookConsumerWidget {
           SizedBox(height: 36.h),
           //ANCHOR - Create Button
           WalletButton(
+            key: const Key('welcome-create-btn'),
             onPressed: () {
               if (!tosAccepted.value) {
                 showUnacceptedConditionError();
@@ -98,6 +100,7 @@ class WalletMenuSheet extends HookConsumerWidget {
           SizedBox(height: 8.h),
           //ANCHOR - Restore Button
           WalletButton(
+            key: const Key('welcome-restore-btn'),
             onPressed: () {
               if (!tosAccepted.value) {
                 showUnacceptedConditionError();

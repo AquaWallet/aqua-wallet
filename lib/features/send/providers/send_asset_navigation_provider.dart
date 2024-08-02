@@ -1,7 +1,7 @@
+import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
-import 'package:aqua/features/lightning/lightning.dart';
 
 /// Navigates to the SendAssetContainerScreen with the given arguments
 final sendNavigationEntryProvider = Provider.autoDispose
@@ -36,30 +36,6 @@ final sendNavigationEntryProvider = Provider.autoDispose
 });
 
 /// Navigates to a specific screen in the Send flow conditionally
-final sendNavigationScreenProvider = Provider.autoDispose
-    .family<void Function(BuildContext), SendAssetArguments>((ref, arguments) {
-  final address = ref.read(sendAddressProvider);
-  final amount = ref.read(userEnteredAmountProvider);
-
-  return (BuildContext context) {
-    if (address == null && amount == null) {
-      Navigator.of(context).pushNamed(
-        SendAssetAddressScreen.routeName,
-        arguments: arguments,
-      );
-    } else if (amount == null) {
-      Navigator.of(context).pushNamed(
-        SendAssetAmountScreen.routeName,
-        arguments: arguments,
-      );
-    } else {
-      Navigator.of(context).pushNamed(
-        SendAssetReviewScreen.routeName,
-        arguments: arguments,
-      );
-    }
-  };
-});
 
 /// Navigates directly to the SendAssetAmountScreen
 final sendNavigationAmountScreenProvider =

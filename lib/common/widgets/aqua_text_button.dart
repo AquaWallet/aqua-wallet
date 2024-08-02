@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AquaTextButton extends StatelessWidget {
   const AquaTextButton({
-    Key? key,
+    super.key,
     required this.child,
     this.onPressed,
     this.style,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final VoidCallback? onPressed;

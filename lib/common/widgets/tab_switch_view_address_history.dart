@@ -4,14 +4,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 class TabSwitchViewAddressHistory extends HookWidget {
   const TabSwitchViewAddressHistory({
-    Key? key,
+    super.key,
     this.backgroundColor,
     this.foregroundColor,
     this.initialIndex = 0,
     this.disabledIndices = const [],
     required this.labels,
     required this.onChange,
-  }) : super(key: key);
+  });
 
   final Color? backgroundColor;
   final Color? foregroundColor;

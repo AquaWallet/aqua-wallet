@@ -81,10 +81,17 @@ class PegFeeRatesNotifier extends AutoDisposeAsyncNotifier<Map<Asset, double>> {
         .asyncMap<MapEntry<Asset, double>?>((asset) async {
           final networkType =
               asset.isLBTC ? NetworkType.liquid : NetworkType.bitcoin;
-          final feeEstimates =
-              await ref.read(feeEstimateProvider).fetchFeeRates(networkType);
+          final feeEstimates = asset.isLBTC
+              ? ref.read(feeEstimateProvider).fetchLiquidFeeRate()
+              : await ref
+                  .read(feeEstimateProvider)
+                  .fetchBitcoinFeeRates(networkType);
 
-          final fee = feeEstimates[TransactionPriority.high]!;
+          final fee = asset.isLBTC
+              ? feeEstimates as double
+              : (feeEstimates as Map<TransactionPriority, double>)[
+                  TransactionPriority.high]!;
+
           logger.d('[PEG] Fee for ${asset.ticker}: $fee');
           return MapEntry(asset, fee);
         })
@@ -137,3 +144,28 @@ class SideSwapFeeCalculator {
     return amountAfterSideSwapFeeDedcution.toInt();
   }
 }
+
+final minPegInAmountWithFeeProvider = Provider.autoDispose<int>((ref) {
+  final statusStream = ref.watch(sideswapStatusStreamResultStateProvider);
+  final minPegInAmountSat = statusStream?.minPegInAmount;
+  final pegInServiceFee = statusStream?.serverFeePercentPegIn;
+
+  final minPegInAmountSatWithFee = minPegInAmountSat != null &&
+          pegInServiceFee != null
+      ? (minPegInAmountSat + (minPegInAmountSat * pegInServiceFee / 100)).ceil()
+      : null;
+  return minPegInAmountSatWithFee ?? 0;
+});
+
+final minPegOutAmountWithFeeProvider = Provider.autoDispose<int>((ref) {
+  final statusStream = ref.watch(sideswapStatusStreamResultStateProvider);
+  final minPegOutAmountSat = statusStream?.minPegOutAmount;
+  final pegOutServiceFee = statusStream?.serverFeePercentPegOut;
+
+  final minPegOutAmountSatWithFee =
+      minPegOutAmountSat != null && pegOutServiceFee != null
+          ? (minPegOutAmountSat + (minPegOutAmountSat * pegOutServiceFee / 100))
+              .ceil()
+          : null;
+  return minPegOutAmountSatWithFee ?? 0;
+});

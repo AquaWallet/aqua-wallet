@@ -37,7 +37,7 @@ class ManageAssetListItemTile extends StatelessWidget {
                 //ANCHOR - Icon
                 if (asset.isLBTC)
                   SvgPicture.asset(
-                    Svgs.l2Asset,
+                    Svgs.layerTwoDual,
                     fit: BoxFit.fitWidth,
                     width: 52.r,
                     height: 52.r,

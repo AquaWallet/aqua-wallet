@@ -22,6 +22,7 @@ class SideswapInputState with _$SideswapInputState {
     @Default('') String deliverAssetBalance,
     @Default('') String receiveAssetBalance,
     @Default(SwapUserInputSide.deliver) SwapUserInputSide userInputSide,
+    @Default(false) bool isFiat,
   }) = _SideswapInputState;
 
   factory SideswapInputState.fromJson(Map<String, dynamic> json) =>

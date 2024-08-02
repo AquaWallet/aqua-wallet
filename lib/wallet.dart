@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_typing_uninitialized_variables
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
@@ -10,8 +8,10 @@ import 'package:aqua/gdk.dart';
 import 'package:aqua/logger.dart';
 import 'package:async/async.dart';
 
-class WalletService {
+abstract class WalletService {
+  // ignore: prefer_typing_uninitialized_variables
   var context;
+  // ignore: prefer_typing_uninitialized_variables
   var session;
 
   final libGdk = LibGdk();
@@ -292,6 +292,28 @@ class WalletService {
         GdkGetFeeEstimatesEvent.fromJson(result.asValue!.value));
   }
 
+  Future<Result<GdkSettingsEvent?>> getSettings() async {
+    final result = await libGdk.getSettings(session: session!);
+
+    if (isErrorResult(result)) {
+      return Result.value(null);
+    }
+
+    return Result.value(GdkSettingsEvent.fromJson(result.asValue!.value));
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> changeSettings(
+      {required GdkSettingsEvent settings}) async {
+    final status =
+        await libGdk.changeSettings(session: session!, settings: settings);
+
+    if (isErrorResult(status)) {
+      return status;
+    }
+
+    return _resolveAuthHandlerStatus(status.asValue!.value);
+  }
+
   Future<Result<bool>> isValidAddress({required String address}) async {
     final status = await libGdk.isValidAddress(
         session: session!, address: address, subaccount: getSubAccount());
@@ -317,19 +339,38 @@ class WalletService {
     return Result.value(true);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> createTransaction({
-    required GdkNewTransaction transaction,
-  }) async {
+  Future<Result<GdkAuthHandlerStatus>> createTransaction(
+      {required GdkNewTransaction transaction,
+      bool rbfEnabled = true,
+      bool isRbfTx = false}) async {
     GdkNewTransaction detailsWithSubaccount =
         transaction.copyWith(subaccount: getSubAccount());
     final status = await libGdk.createTransaction(
-        session: session!, transaction: detailsWithSubaccount);
+        session: session!,
+        transaction: detailsWithSubaccount,
+        rbfEnabled: rbfEnabled,
+        isRbfTx: isRbfTx);
 
     if (isErrorResult(status)) {
       return status;
     }
 
     return await _resolveAuthHandlerStatus(status.asValue!.value);
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> blindTransaction({
+    required GdkNewTransactionReply transactionReply,
+  }) async {
+    GdkNewTransactionReply detailsWithSubaccount =
+        transactionReply.copyWith(subaccount: getSubAccount());
+    final status = await libGdk.blindTransaction(
+        session: session!, transactionReply: detailsWithSubaccount);
+
+    if (isErrorResult(status)) {
+      return status;
+    }
+
+    return _resolveAuthHandlerStatus(status.asValue!.value);
   }
 
   Future<Result<GdkAuthHandlerStatus>> signTransaction({
@@ -362,40 +403,23 @@ class WalletService {
     return _resolveAuthHandlerStatus(status.asValue!.value);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> createPset({
-    required GdkCreatePsetDetails details,
-  }) async {
-    GdkCreatePsetDetails detailsWithSubAccount =
-        details.copyWith(subaccount: getSubAccount());
-    final status = await libGdk.createPset(
-        session: session!, details: detailsWithSubAccount);
-
-    if (isErrorResult(status)) {
-      return status;
-    }
-
-    return await _resolveAuthHandlerStatus(status.asValue!.value);
-  }
-
-  Future<Result<GdkAuthHandlerStatus>> signPset({
-    required GdkSignPsetDetails details,
-  }) async {
-    GdkSignPsetDetails detailsWithSubAccount =
-        details.copyWith(subaccount: getSubAccount());
-    final status = await libGdk.signPset(
-        session: session!, details: detailsWithSubAccount);
-
-    if (isErrorResult(status)) {
-      return status;
-    }
-
-    return await _resolveAuthHandlerStatus(status.asValue!.value);
-  }
-
   Future<Result<GdkAuthHandlerStatus>> signPsbt({
     required GdkSignPsbtDetails details,
   }) async {
     final status = await libGdk.signPsbt(session: session!, details: details);
+
+    if (isErrorResult(status)) {
+      return status;
+    }
+
+    return await _resolveAuthHandlerStatus(status.asValue!.value);
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> getDetailsPsbt({
+    required GdkPsbtGetDetails details,
+  }) async {
+    final status =
+        await libGdk.getDetailsPsbt(session: session!, details: details);
 
     if (isErrorResult(status)) {
       return status;

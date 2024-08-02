@@ -1,4 +1,7 @@
+import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
 import 'package:aqua/common/widgets/custom_bottom_navigation_bar.dart';
+import 'package:aqua/data/data.dart';
+import 'package:aqua/data/provider/aqua_node_provider.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/home/providers/home_provider.dart';
@@ -8,11 +11,12 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/lifecycle_observer.dart';
 import 'package:aqua/logger.dart';
+import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class HomeScreen extends HookConsumerWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   static const routeName = '/home';
 
@@ -23,11 +27,35 @@ class HomeScreen extends HookConsumerWidget {
     final hasTransacted = ref.watch(hasTransactedProvider).asData?.value;
 
     ref.watch(availableAssetsProvider);
+    ref.watch(sideshiftPendingOrderProvider);
+    ref.watch(sideshiftStorageProvider);
+    ref.watch(featureUnlockTapCountProvider);
+    ref.watch(isAquaNodeSyncedProvider);
+
+    ref.watch(boltzInitProvider).maybeWhen(
+          data: (_) {
+            ref.watch(boltzSwapSettlementServiceProvider);
+          },
+          error: (e, stackTrace) async {
+            final alertModel = CustomAlertDialogUiModel(
+                title: context.loc.boltzInitTitleError,
+                subtitle: '${context.loc.needRestartAppError}\n\n$e',
+                buttonTitle: context.loc.ok,
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                });
+            await showCustomAlertDialog(context: context, uiModel: alertModel);
+          },
+          orElse: () {},
+        );
 
     observeAppLifecycle((state) {
       if (state == AppLifecycleState.resumed) {
         logger.d("[Lifecycle] App resumed in foreground");
         Future.microtask(() {
+          // restart v2 boltz swaps checker
+          ref.invalidate(boltzSwapSettlementServiceProvider);
+          // restart v0 sboltz waps checker
           ref.read(boltzStatusCheckProvider).streamAllPendingSwaps();
         });
       }
@@ -35,6 +63,7 @@ class HomeScreen extends HookConsumerWidget {
 
     useEffect(() {
       Future.microtask(() {
+        // restart v0 sboltz waps checker
         ref.read(boltzStatusCheckProvider).streamAllPendingSwaps();
       });
       return null;
@@ -60,13 +89,11 @@ class HomeScreen extends HookConsumerWidget {
 
     return Visibility(
       visible: visible,
-      child: WillPopScope(
-        onWillPop: () async {
-          if (selectedTab != WalletTabs.wallet) {
+      child: PopScope(
+        canPop: selectedTab == WalletTabs.wallet,
+        onPopInvoked: (bool didPop) {
+          if (!didPop && selectedTab != WalletTabs.wallet) {
             ref.read(homeProvider).selectTab(0);
-            return false;
-          } else {
-            return true;
           }
         },
         child: AnnotatedRegion(

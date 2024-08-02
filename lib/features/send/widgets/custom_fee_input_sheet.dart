@@ -14,11 +14,13 @@ class CustomFeeInputSheet extends HookConsumerWidget {
       {super.key,
       this.minimum,
       this.transactionVsize,
+      this.title,
       required this.onConfirm});
 
   final int? minimum;
   final int? transactionVsize;
   final Function onConfirm;
+  final String? title;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -56,7 +58,9 @@ class CustomFeeInputSheet extends HookConsumerWidget {
             SizedBox(height: 18.h),
             //ANCHOR - Title
             Text(
-              context.loc.sendAssetReviewScreenConfirmCustomFeeInputSheetTitle,
+              title ??
+                  context
+                      .loc.sendAssetReviewScreenConfirmCustomFeeInputSheetTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontSize: 20.sp,
                   ),
@@ -124,14 +128,14 @@ class CustomFeeInputSheet extends HookConsumerWidget {
                   Text(
                     context.loc
                         .sendAssetReviewScreenConfirmCustomFeeMinimum(minimum!),
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontSize: 18.sp, color: Colors.red),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontSize: 18.sp,
+                        color: Colors.red,
+                        fontWeight: FontWeight.w700),
                   ),
               ],
             ),
-            SizedBox(height: 18.h),
+            SizedBox(height: 24.h),
             //ANCHOR - Confirm Button
             SizedBox(
               width: double.maxFinite,
@@ -155,6 +159,7 @@ class CustomFeeInputSheet extends HookConsumerWidget {
                 ),
               ),
             ),
+            SizedBox(height: 10.h),
           ],
         ),
       ),

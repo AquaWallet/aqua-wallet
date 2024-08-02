@@ -9,8 +9,8 @@ class WalletRestoreInputField extends HookConsumerWidget {
     required this.index,
     required this.onFocused,
     this.onKeyboardInput,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final int index;
   final Function(int index) onFocused;
@@ -47,11 +47,11 @@ class WalletRestoreInputField extends HookConsumerWidget {
       );
     });
 
-    return RawKeyboardListener(
+    return KeyboardListener(
       key: key,
       focusNode: focusNode,
-      onKey: (e) {
-        if (e is RawKeyUpEvent) {
+      onKeyEvent: (e) {
+        if (e is KeyUpEvent) {
           final label = e.logicalKey.keyLabel;
           if (label.toLowerCase() == 'tab') {
             focusNode.nextFocus();

@@ -86,108 +86,102 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
       }
     });
 
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        body: Container(
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
-          child: Stack(
-            children: [
-              AnimatedOpacity(
-                opacity: fadeAnimation,
-                duration: _fadeAnimationDuration,
-                child: Column(
-                  children: [
-                    SizedBox(height: 100.h),
-                    //ANCHOR - Aqua Logo
-                    SvgPicture.asset(
-                      Svgs.aquaLogoWhite,
-                      width: 220.w,
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 28.w),
+        child: Stack(
+          children: [
+            AnimatedOpacity(
+              opacity: fadeAnimation,
+              duration: _fadeAnimationDuration,
+              child: Column(
+                children: [
+                  SizedBox(height: 198.h),
+                  //ANCHOR - Aqua Logo
+                  SvgPicture.asset(
+                    Svgs.aquaLogoWhite,
+                    width: 200.w,
+                  ),
+                  const Spacer(),
+                  //ANCHOR - Lightning Graphic Placeholder
+                  SizedBox(height: 180.h),
+                  //ANCHOR - Title
+                  Text(
+                    arguments.map(
+                      send: (_) => context
+                          .loc.lightningTransactionSuccessScreenSendTitle,
+                      receive: (_) => context
+                          .loc.lightningTransactionSuccessScreenReceiveTitle,
                     ),
-                    const Spacer(),
-                    //ANCHOR - Lightning Graphic Placeholder
-                    SizedBox(height: 342.h),
-                    //ANCHOR - Title
-                    Text(
-                      arguments.map(
-                        send: (_) => context
-                            .loc.lightningTransactionSuccessScreenSendTitle,
-                        receive: (_) => context
-                            .loc.lightningTransactionSuccessScreenReceiveTitle,
-                      ),
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                letterSpacing: .6,
-                                fontWeight: FontWeight.normal,
-                              ),
-                    ),
-                    SizedBox(height: 18.h),
-                    //ANCHOR - Amount
-                    Text(
-                      // ignore: unnecessary_null_comparison
-                      arguments.satoshiAmount == null
-                          ? context.loc
-                              .lightningTransactionSuccessScreenReceiveMessage
-                          : context.loc
-                              .lightningTransactionSuccessScreenAmountSats(
-                                  satoshiAmountFormatted),
-                      style:
-                          Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 48.sp,
-                              ),
-                    ),
-                    const Spacer(flex: 2),
-                    //ANCHOR - Button
-                    SizedBox(
-                      width: double.maxFinite,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: Size.fromHeight(54.h),
-                          backgroundColor: Colors.transparent,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onPrimary,
-                          textStyle: Theme.of(context).textTheme.titleSmall,
-                          side: BorderSide(
-                            width: 2.w,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          letterSpacing: .6,
+                          fontWeight: FontWeight.normal,
                         ),
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(
-                          context
-                              .loc.lightningTransactionSuccessScreenDoneButton,
+                  ),
+                  SizedBox(height: 18.h),
+                  //ANCHOR - Amount
+                  Text(
+                    // ignore: unnecessary_null_comparison
+                    arguments.satoshiAmount == null
+                        ? context
+                            .loc.lightningTransactionSuccessScreenReceiveMessage
+                        : context.loc
+                            .lightningTransactionSuccessScreenAmountSats(
+                                satoshiAmountFormatted),
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontSize: 48.sp,
+                        ),
+                  ),
+                  const Spacer(),
+                  //ANCHOR - Button
+                  SizedBox(
+                    width: double.maxFinite,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: Size.fromHeight(54.h),
+                        backgroundColor: Colors.transparent,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                        textStyle: Theme.of(context).textTheme.titleSmall,
+                        side: BorderSide(
+                          width: 2.w,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
                       ),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        context.loc.lightningTransactionSuccessScreenDoneButton,
+                      ),
                     ),
-                    SizedBox(height: kBottomPadding + 12.h),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: kBottomPadding + 12.h),
+                ],
               ),
-              //ANCHOR - Lightning Graphic
-              Container(
-                alignment: Alignment.center,
-                transformAlignment: Alignment.center,
-                margin: EdgeInsets.only(bottom: 160.h),
-                child: SlideTransition(
-                  position: slideAnimation,
-                  child: ScaleTransition(
-                    scale: scaleAnimation,
-                    child: SvgPicture.asset(
-                      Svgs.lightningBolt,
-                      width: 258.w,
-                      height: 310.h,
-                    ),
+            ),
+            //ANCHOR - Lightning Graphic
+            Container(
+              alignment: Alignment.center,
+              transformAlignment: Alignment.center,
+              margin: EdgeInsets.only(bottom: 120.h),
+              child: SlideTransition(
+                position: slideAnimation,
+                child: ScaleTransition(
+                  scale: scaleAnimation,
+                  child: SvgPicture.asset(
+                    Svgs.lightningBolt,
+                    width: 240.r,
+                    height: 240.r,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

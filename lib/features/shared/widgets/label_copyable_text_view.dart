@@ -1,3 +1,4 @@
+import 'package:aqua/common/widgets/middle_ellipsis_text.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/utils/extensions/extensions.dart';
 import 'package:flutter/material.dart';
@@ -27,14 +28,17 @@ class LabelCopyableTextView extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Text(
-                value,
+              child: MiddleEllipsisText(
+                text: value,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onBackground,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.bold,
                       fontSize: 13.sp,
                       height: 1.5.h,
                     ),
+                startLength: 30,
+                endLength: 30,
+                ellipsisLength: 3,
               ),
             ),
             Container(
@@ -50,8 +54,9 @@ class LabelCopyableTextView extends StatelessWidget {
                       width: 16.r,
                       height: 16.r,
                       colorFilter: ColorFilter.mode(
-                          Theme.of(context).colorScheme.onBackground,
-                          BlendMode.srcIn),
+                        Theme.of(context).colorScheme.onBackground,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                 ),

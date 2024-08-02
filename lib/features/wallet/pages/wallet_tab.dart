@@ -5,7 +5,7 @@ import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/logger.dart';
 
 class WalletTab extends ConsumerWidget {
-  const WalletTab({Key? key}) : super(key: key);
+  const WalletTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

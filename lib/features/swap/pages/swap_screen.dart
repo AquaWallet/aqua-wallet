@@ -5,11 +5,12 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class SwapForm extends HookConsumerWidget {
-  const SwapForm({Key? key}) : super(key: key);
+  const SwapForm({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,38 +83,21 @@ class SwapForm extends HookConsumerWidget {
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       //ANCHOR - Title
                       Text(
                         context.loc.exchangeTransferFromTitle,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
+                      const Spacer(),
+                      //NOTE - Utility for sending minimum possible amount for testing
+                      if (kDebugMode && input.isPeg) ...[
+                        //ANCHOR - Send Minimum Possible Amount Button
+                        const SwapSendMinButton(),
+                        SizedBox(width: 8.w),
+                      ],
                       //ANCHOR - Send All Button
-                      TextButton(
-                        onPressed: () => ref
-                            .read(sideswapInputStateProvider.notifier)
-                            .setMaxDeliverAmount(),
-                        style: TextButton.styleFrom(
-                          textStyle: Theme.of(context).textTheme.titleSmall,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onBackground,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 8.w, vertical: 8.h),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6.r),
-                            side: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 2.r,
-                            ),
-                          ),
-                        ),
-                        child: Text(
-                          context.loc.swapScreenConvertAllButton,
-                        ),
-                      )
+                      const SwapSendMaxButton(),
                     ],
                   ),
                   SizedBox(height: 13.h),
@@ -139,8 +123,15 @@ class SwapForm extends HookConsumerWidget {
                 ],
               ),
               SizedBox(height: 18.h),
-              //ANCHOR - Rate
-              const SwapConversionRateView(),
+              const Row(
+                children: [
+                  //ANCHOR - Rate
+                  SwapConversionRateView(),
+                  Spacer(),
+                  //ANCHOR - Switch button
+                  SwapAssetsSwitchButton(),
+                ],
+              ),
               SizedBox(height: 18.h),
               //ANCHOR - Receive Asset
               Column(
@@ -184,8 +175,9 @@ class SwapForm extends HookConsumerWidget {
                 ),
                 child: Text(context.loc.sendAssetAmountScreenContinueButton),
               ),
+              SizedBox(height: 30.h),
               //ANCHOR - Peg Info Message
-              const PegInfoMessage(),
+              const PegInfoMessageView(),
             ],
           ),
         ),
@@ -197,7 +189,7 @@ class SwapForm extends HookConsumerWidget {
 class SwapScreen extends HookConsumerWidget {
   static const routeName = '/exchangeSwapScreen';
 
-  const SwapScreen({Key? key}) : super(key: key);
+  const SwapScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -259,13 +251,13 @@ class SwapScreen extends HookConsumerWidget {
           orElse: () => null,
         ),
         error: (error, _) => switch (error.runtimeType) {
-          PegGdkFeeExceedingAmountException => resetFormWithError(
+          PegGdkFeeExceedingAmountException _ => resetFormWithError(
               context.loc.pegErrorFeeExceedAmount,
             ),
-          PegGdkInsufficientFeeBalanceException => resetFormWithError(
+          PegGdkInsufficientFeeBalanceException _ => resetFormWithError(
               context.loc.pegInsufficientFeeBalanceError,
             ),
-          PegGdkTransactionException => resetFormWithError(
+          PegGdkTransactionException _ => resetFormWithError(
               context.loc.pegErrorTransaction,
             ),
           _ => logger.d('[PEG] Error: $error'),

@@ -8,6 +8,7 @@ import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/address_validator/models/amount_parsing_exception.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
@@ -24,6 +25,9 @@ class SendAssetAmountScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentRate =
+        ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
+
     // setup
     final disableUI = useState<bool>(true);
     final error = ref.watch(sendAmountErrorProvider);
@@ -183,11 +187,17 @@ class SendAssetAmountScreen extends HookConsumerWidget {
 
             //ANCHOR - Amount Input
             SendAssetAmountInput(
-                disabled: disableAmountField,
                 controller: amountInputController,
+                symbol: isFiatInput ? currentRate.currency.value : asset.ticker,
                 onChanged: (String value) {
                   logger.d(
                       "[Send][Amount] send amount screen - amountInputController onChanged: $value");
+                  // Reset useAllFunds when user types in a new amount
+                  if (useAllFunds) {
+                    ref
+                        .read(useAllFundsProvider.notifier)
+                        .setUseAllFunds(false);
+                  }
                   final withoutCommas = value.replaceAll(',', '');
                   ref
                       .read(userEnteredAmountProvider.notifier)
@@ -198,10 +208,9 @@ class SendAssetAmountScreen extends HookConsumerWidget {
                   final isFiatNewValue = !ref.read(isFiatInputProvider);
                   ref.read(isFiatInputProvider.notifier).state = isFiatNewValue;
                 },
-                symbol: isFiatInput
-                    ? context.loc.sendAssetAmountScreenAmountUnitUsd
-                    : asset.ticker,
-                allowUsdToggle: asset.shouldAllowUsdToggleOnSend),
+                allowUsdToggle: asset.shouldAllowUsdToggleOnSend,
+                disabled: disableAmountField,
+                precision: asset.precision),
 
             SizedBox(height: 2.h),
 

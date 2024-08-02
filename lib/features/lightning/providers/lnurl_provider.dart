@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/lightning/lnurl/dart_lnurl.dart';
+import 'package:aqua/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
@@ -33,7 +33,7 @@ class LNUrlService {
   LNUrlService(this.ref);
 
   /// Call lnurlPay and returns an invoice
-  Future<String?> callLNURLp({
+  Future<String?> callLnurlPay({
     required LNURLPayParams payParams,
     required int amountSatoshis,
   }) async {
@@ -71,8 +71,55 @@ class LNUrlService {
     } on DioException catch (_) {
       throw LNUrlpException();
     } catch (e) {
-      logger.d("[LNURL] error fetching pay request: $e");
-      throw LNUrlpException();
+      logger.e("[LNURL] LNURLp error: $e");
+      rethrow;
+    }
+  }
+
+  /// Call lnurlWithdraw
+  Future<void> callLnurlWithdraw({
+    required LNURLWithdrawParams withdrawParams,
+    required String invoice,
+  }) async {
+    if (withdrawParams.callback == null) {
+      throw LNUrlwException;
+    }
+
+    final client = ref.read(dioProvider);
+
+    // Construct the full URL with query parameters
+    final queryParams = {"k1": withdrawParams.k1, "pr": invoice};
+    final uri = Uri.parse(withdrawParams.callback!)
+        .replace(queryParameters: queryParams);
+    logger.d("[LNURL] LNURLw Requesting URL: ${uri.toString()}");
+
+    try {
+      // Lnurl withdraw calls take a while to response
+      final options = Options(
+        receiveTimeout: const Duration(seconds: 20),
+      );
+      final apiResponse = await client.getUri(uri, options: options);
+      final json = apiResponse.data as Map<String, dynamic>;
+      logger.d("[LNURL] LNURLw response: $json");
+      final response = LNURLWithdrawResult.fromJson(json);
+      if (response.errorResponse != null) {
+        throw Exception(response.errorResponse!.reason);
+      }
+
+      // LUD-03: withdrawRequest returns either an error or a `{"status": "OK"}` response, so just return if no error
+      return;
+    } on DioException catch (e) {
+      // The lnurlw error is hidden in the dio response error - parse it out
+      if (e.response != null) {
+        final responseError = LNURLErrorResponse.fromJson(e.response!.data);
+        throw Exception(responseError.reason);
+      }
+      logger.e("[LNURL] LNURLw error: $e");
+      // Was seeing a lot of timeouts with no response on successful calls, so if a timeout occurs, just return
+      if (e.type == DioExceptionType.receiveTimeout) {
+        return;
+      }
+      throw Exception(e.message);
     }
   }
 
@@ -100,7 +147,7 @@ class LNUrlService {
   /// Check if input is a valid lnurl
   bool isValidLnurl(String input) {
     try {
-      final _ = decodeUri(input);
+      decodeLnurlUri(input);
       return true;
     } catch (_) {
       return false;
@@ -122,5 +169,12 @@ class LNUrlpException implements ExceptionLocalized {
   @override
   String toLocalizedString(BuildContext context) {
     return context.loc.lnurlpInvoiceRetrievalError;
+  }
+}
+
+class LNUrlwException implements ExceptionLocalized {
+  @override
+  String toLocalizedString(BuildContext context) {
+    return AppLocalizations.of(context)!.lnurlwGeneralError;
   }
 }

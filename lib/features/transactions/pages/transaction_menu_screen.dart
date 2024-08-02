@@ -47,54 +47,63 @@ class TransactionMenuScreen extends HookConsumerWidget {
             Container(
               width: double.infinity,
               height: 500.h,
-              padding: EdgeInsets.only(left: 30.w, top: 46.h),
-              color: Theme.of(context).colors.menuBackground,
-            ),
-            SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: 125.h),
-              physics: const BouncingScrollPhysics(),
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30.r),
-                    topRight: Radius.circular(30.r),
-                  ),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colors.menuBackground,
+                border: Border.all(
+                  color: Theme.of(context).colors.menuBackground,
                 ),
-                color: Theme.of(context).colors.menuSurface,
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 28.w, vertical: 30.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //ANCHOR - Aqua Assets Section
-                      Text(
-                        context.loc.receiveMenuScreenSectionAquaAssets,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      SizedBox(height: 26.h),
-                      //ANCHOR - Aqua Assets List
-                      _AquaAssetsGrid(
-                        curatedAssets: curatedAssets,
-                        type: type,
-                      ),
-                      SizedBox(height: 32.h),
-                      if (otherAssets.isNotEmpty) ...[
-                        //ANCHOR - Other Assets Section
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 24.h),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: 125.h),
+                physics: const BouncingScrollPhysics(),
+                child: Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.r),
+                      topRight: Radius.circular(20.r),
+                    ),
+                  ),
+                  color: Theme.of(context).colors.menuSurface,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 28.w,
+                      vertical: 30.h,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //ANCHOR - Aqua Assets Section
                         Text(
-                          context.loc.receiveMenuScreenSectionOtherAssets,
+                          context.loc.receiveMenuScreenSectionAquaAssets,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         SizedBox(height: 26.h),
-                        //ANCHOR - Other Assets List
-                        _OtherAssetsGrid(
-                          otherAssets: otherAssets,
+                        //ANCHOR - Aqua Assets List
+                        _AquaAssetsGrid(
+                          curatedAssets: curatedAssets,
                           type: type,
                         ),
+                        SizedBox(height: 32.h),
+                        if (otherAssets.isNotEmpty) ...[
+                          //ANCHOR - Other Assets Section
+                          Text(
+                            context.loc.receiveMenuScreenSectionOtherAssets,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          SizedBox(height: 26.h),
+                          //ANCHOR - Other Assets List
+                          _OtherAssetsGrid(
+                            otherAssets: otherAssets,
+                            type: type,
+                          ),
+                        ],
+                        SizedBox(height: 32.h),
                       ],
-                      SizedBox(height: 32.h),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -237,7 +246,7 @@ class _AssetMenuItem extends ConsumerWidget {
           child: Opacity(
             opacity: onTap != null ? 1.0 : 0.5,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.symmetric(horizontal: 19.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -253,6 +262,8 @@ class _AssetMenuItem extends ConsumerWidget {
                   //ANCHOR - Name
                   Text(
                     name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontSize: context.adaptiveDouble(
                               mobile: 18.sp, wideMobile: 14.sp),

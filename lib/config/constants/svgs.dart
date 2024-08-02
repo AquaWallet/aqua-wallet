@@ -18,6 +18,7 @@ class Svgs {
   static const liquidAsset = 'assets/asset_icons/Liquid.svg';
   static const usdtAsset = 'assets/asset_icons/usdt.svg';
   static const usdtAssetDisabled = 'assets/asset_icons/usdt_disabled.svg';
+  static const mexasAsset = 'assets/asset_icons/MEX.svg';
   static const lightningAsset = 'assets/asset_icons/l2.svg';
   static const l2Asset = 'assets/asset_icons/l2.svg';
   static const l2AssetDisabled = 'assets/asset_icons/l2_disabled.svg';
@@ -75,9 +76,6 @@ class Svgs {
   static const jan3LogoDark = 'assets/jan3_logo_dark.svg';
   static const jan3LogoLight = 'assets/jan3_logo_light.svg';
   static const lightningBolt = 'assets/lightning_bolt.svg';
-  static const beaverLogo = 'assets/marketplace/beaver-logo.svg';
-  static const meldLogo = 'assets/marketplace/meld-logo.svg';
-  static const pocketBitcoinLogo = 'assets/marketplace/pocket-light.svg';
   static const whatsappLogo = 'assets/asset_icons/whatsapp_logo.svg';
   static const zendeskLogo = 'assets/asset_icons/zendesk_logo.svg';
   static const qrIconBitcoin = 'assets/asset_icons/qr_icon_btc.svg';
@@ -92,4 +90,23 @@ class Svgs {
       'assets/address_history_screen_no_history_logo.svg';
   static const botev = 'assets/botev.svg';
   static const capsLock = 'assets/caps_lock.svg';
+  static const flask = 'assets/flask.svg';
+  static const unlock = 'assets/unlock.svg';
+  static const layerTwoDual = 'assets/asset_icons/layer_two_dual.svg';
+  static const internalSendArrow = 'assets/internal_send_arrow.svg';
+}
+
+extension SvgsMarketplace on Svgs {
+  // Integration Logos
+  static const beaverWhite = 'assets/marketplace/beaver_white.svg';
+  static const beaverBlack = 'assets/marketplace/beaver_black.svg';
+  static const meldWhite = 'assets/marketplace/meld_white.svg';
+  static const meldBlack = 'assets/marketplace/meld_black.svg';
+  static const pocketWhite = 'assets/marketplace/pocket_white.svg';
+  static const pocketBlack = 'assets/marketplace/pocket_black.svg';
+
+  // Payment Options
+  static const paymentOptionBank = 'assets/marketplace/payment_bank.svg';
+  static const paymentOptionCash = 'assets/marketplace/payment_cash.svg';
+  static const paymentOptionCard = 'assets/marketplace/payment_card.svg';
 }

@@ -1,0 +1,12 @@
+module ga [extern_c] {
+    module sdk {
+        header "gdk.h"
+        export *
+    }
+    module wally {
+        header "wally_wrapper.h"
+        export *
+    }
+
+    link "green_gdk"
+}

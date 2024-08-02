@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/shared/shared.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
@@ -11,10 +12,9 @@ import 'package:aqua/logger.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-// Keeping in code since this key in particular is not sensitive, might need to
-// devise a strategy to manage keys in the future if we have more keys.
-const sideswapApiKey =
+const kSideswapApiKey =
     'fee09b63c148b335ccd0c4641c47359c8a7a803c517487bc61ca18edc19a72d5';
+const kSideswapUserAgent = 'Aqua';
 
 const sideswapWssAddressLive = 'wss://api.sideswap.io/json-rpc-ws';
 const sideswapWssAddressTestnet = 'wss://api-testnet.sideswap.io/json-rpc-ws';
@@ -71,7 +71,7 @@ class SideswapWebsocketProvider {
   Future<void> addLoginClient() async {
     final version = await ref.read(versionProvider.future);
     final request = SideswapLoginClientRequest(
-      apiKey: sideswapApiKey,
+      apiKey: kSideswapApiKey,
       appVersion: version,
     );
     await _sendRequest(_channel, 1, loginClient, request.toJson());
@@ -134,6 +134,19 @@ class SideswapWebsocketProvider {
     } else {
       throw Exception('Invalid receive address');
     }
+  }
+
+  Future<void> requestPegStatus({
+    required String orderId,
+    required bool isPegIn,
+  }) async {
+    ref.read(swapLoadingIndicatorStateProvider.notifier).state =
+        const SwapProgressState.waiting();
+    final request = SwapPegStatusRequest(
+      orderId: orderId,
+      isPegIn: isPegIn,
+    );
+    await _sendRequest(_channel, 1, pegStatus, request.toJson());
   }
 
   Future<void> connect() async {
@@ -213,12 +226,20 @@ class SideswapWebsocketProvider {
           break;
         case startPeg:
           final response = SwapStartPegResponse.fromJson(json);
+          if (ref.exists(directPegInProvider)) {
+            ref.read(directPegInProvider.notifier).orderCreated(response);
+          }
           ref.read(pegProvider.notifier).requestVerification(response);
+          break;
+        case pegStatus:
+          final response = SwapPegStatusResponse.fromJson(json);
+          ref.read(pegStatusProvider.notifier).processPegStatus(response);
           break;
         case swapDone:
           final response = SwapDoneResponse.fromJson(json);
           final receiveAsset = response.params?.recvAsset;
           final transactionId = response.params?.txid;
+          logger.e('[Sideswap] Done: $transactionId');
           final success = response.params?.status == SwapDoneStatusEnum.success;
           if (receiveAsset != null && transactionId != null && success) {
             ref.read(swapProvider.notifier).processSwapCompletion(response);

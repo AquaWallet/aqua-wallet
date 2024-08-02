@@ -45,10 +45,7 @@ class TransactionDetailsExplorerButtons extends HookConsumerWidget {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onPressed: () {
-              final out = tuple.$2.outputs?.firstWhere(
-                  (e) => (e.amountBlinder != null && e.assetBlinder != null));
-              final link =
-                  '${explorer.liquidUrl}${tuple.$2.txhash}#blinded=${out?.satoshi},${out?.assetId},${out?.amountBlinder},${out?.assetBlinder}';
+              final link = '${explorer.liquidUrl}${model.blindingUrl}';
               ref.read(urlLauncherProvider).open(link);
             },
             child: Text(

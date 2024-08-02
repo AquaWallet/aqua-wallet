@@ -3,34 +3,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BoxShadowCard extends Card {
   const BoxShadowCard({
-    Color? color,
-    Color? shadowColor,
-    Color? surfaceTintColor,
-    double? elevation,
-    ShapeBorder? shape,
-    Clip? clipBehavior,
-    EdgeInsetsGeometry? margin,
-    Widget? child,
+    super.color,
+    super.shadowColor,
+    super.surfaceTintColor,
+    super.elevation,
+    super.shape,
+    super.clipBehavior,
+    super.margin,
+    super.child,
     super.key,
-    bool borderOnForeground = true,
-    bool semanticContainer = true,
+    super.borderOnForeground,
+    super.semanticContainer,
     this.bordered = true,
     this.borderColor,
     this.error = false,
     this.borderRadius,
     this.borderWidth,
-  }) : super(
-          color: color,
-          shadowColor: shadowColor,
-          surfaceTintColor: surfaceTintColor,
-          elevation: elevation,
-          shape: shape,
-          borderOnForeground: borderOnForeground,
-          margin: margin,
-          clipBehavior: clipBehavior,
-          child: child,
-          semanticContainer: semanticContainer,
-        );
+  });
 
   final BorderRadius? borderRadius;
   final bool error;

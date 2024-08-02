@@ -8,11 +8,13 @@ final featureUnlockTapCountProvider = ChangeNotifierProvider.autoDispose(
 
 class ExperimentalFeatureTapUnlockNotifier extends ChangeNotifier {
   int _tapCount = 0;
+  bool experimentalFeaturesEnabled = false;
 
   void increment() {
     _tapCount++;
     if (_tapCount >= kDefaultTapCountThreshold) {
       _tapCount = 0;
+      experimentalFeaturesEnabled = true;
       notifyListeners();
     }
   }

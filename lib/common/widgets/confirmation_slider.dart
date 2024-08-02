@@ -21,7 +21,7 @@ class ConfirmationSlider extends StatefulWidget {
   final Widget? backgroundEndContent;
 
   const ConfirmationSlider({
-    Key? key,
+    super.key,
     required this.height,
     required this.width,
     this.backgroundColor = Colors.white,
@@ -42,7 +42,7 @@ class ConfirmationSlider extends StatefulWidget {
     this.sliderHeight = 70,
     this.backgroundEndContent,
     this.enabled = true,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() {

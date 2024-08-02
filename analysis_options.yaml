@@ -8,6 +8,4 @@ analyzer:
     - flutter/
   errors:
     sdk_version_since: ignore
-    implicit_dynamic_parameter: warning
     invalid_annotation_target: ignore
-    implicit_dynamic_variable: ignore

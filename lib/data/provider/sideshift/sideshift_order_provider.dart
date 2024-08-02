@@ -1,19 +1,14 @@
 import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
+import 'package:aqua/data/data.dart';
+import 'package:aqua/features/send/models/send_asset_arguments.dart';
 import 'package:aqua/features/send/providers/send_asset_provider.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/send/providers/send_asset_transaction_provider.dart';
-import 'package:aqua/features/shared/providers/asset_balance_provider.dart';
+import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/shared/providers/providers.dart';
+import 'package:aqua/logger.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'sideshift.dart';
 
 // Providers //////////////////////////////////////////////////////////////////
 
@@ -49,11 +44,12 @@ final _pendingOrderStreamProvider =
   yield* ref.watch(sideshiftOrderProvider)._pendingOrderSubject;
 });
 
-final pendingOrderProvider = Provider.autoDispose<SideshiftOrder?>((ref) {
+final sideshiftPendingOrderProvider =
+    Provider.autoDispose<SideshiftOrder?>((ref) {
   return ref.watch(_pendingOrderStreamProvider).asData?.value;
 });
 
-final pendingOrderCacheProvider =
+final sideShiftPendingOrderCacheProvider =
     StateProvider.autoDispose<SideshiftOrder?>((ref) {
   return null;
 });
@@ -102,6 +98,7 @@ final sideshiftOrderProvider = Provider<SideshiftOrderProvider>((ref) {
 class SideshiftOrderProvider {
   SideshiftOrderProvider(this._ref) {
     _ref.onDispose(() {
+      logger.d('[SideShift] onDispose');
       _transactionStateSubject.close();
       _pendingOrderSubject.close();
       _shiftOrderStreamStopAllSubject.close();
@@ -126,7 +123,7 @@ class SideshiftOrderProvider {
 
   void setPendingOrder(SideshiftOrder? order) {
     _pendingOrderSubject.add(order);
-    _ref.read(pendingOrderCacheProvider.notifier).state = order;
+    _ref.read(sideShiftPendingOrderCacheProvider.notifier).state = order;
     logger.d('[SideShift] SetPendingOrder ${order?.id}');
   }
 
@@ -144,18 +141,16 @@ class SideshiftOrderProvider {
     return orderId == null
         ? const Stream<SideshiftOrderStatusResponse>.empty()
         : Stream.value(null).asyncMap((_) async {
-            final response = await _ref
+            final res = await _ref
                 .read(sideshiftHttpProvider)
                 .fetchOrderStatus(orderId);
 
             // cache updated order
-            _ref
-                .read(sideshiftStorageProvider)
-                .saveSideshiftOrderData(response, orderId);
+            await _saveResponseToDatabase(orderId: orderId, response: res);
 
-            logger.d(
-                '[SideShift] Caching order $orderId status: ${response.status}');
-            return Future.value(response);
+            logger
+                .d('[SideShift] Caching order $orderId status: ${res.status}');
+            return Future.value(res);
           });
   }).doOnError((error, stackTrace) {
     logger.e('[SideShift] $error');
@@ -181,17 +176,15 @@ class SideshiftOrderProvider {
           .d('[SideShift] Checking status for order $shiftId in status stream');
     }).asyncMap((_) async {
       try {
-        final response =
+        final res =
             await _ref.read(sideshiftHttpProvider).fetchOrderStatus(shiftId);
         logger.d(
-            '[SideShift] Order $shiftId status: ${response.status} in status stream');
+            '[SideShift] Order $shiftId status: ${res.status} in status stream');
 
         // cache updated order
-        _ref
-            .read(sideshiftStorageProvider)
-            .saveSideshiftOrderData(response, shiftId);
+        await _saveResponseToDatabase(orderId: shiftId, response: res);
 
-        return response;
+        return res;
       } catch (error, _) {
         logger.e('[SideShift] $error');
         throw OrdersStatusException(error.toString());
@@ -299,7 +292,9 @@ class SideshiftOrderProvider {
       }
 
       final lbtcBalance = await _ref.read(balanceProvider).getLBTCBalance();
-      if (lbtcBalance <= 0) {
+      final usdtBalance =
+          await _ref.read(balanceProvider).getUsdtLiquidBalance();
+      if (lbtcBalance <= 0 && usdtBalance <= 0) {
         logger.d('[SideShift] Not enough LBTC to pay network fee');
         final error = FeeBalanceException();
         return Future.error(error);
@@ -351,7 +346,7 @@ class SideshiftOrderProvider {
         throw Exception("${e.message}");
       }
       logger.d('[SideShift] Place Send Order Error:');
-      logger.e('[SideShift]', e);
+      logger.e('[SideShift]', e, StackTrace.current);
       setTransactionState(const SideshiftTransactionState.complete());
       rethrow;
     }
@@ -379,8 +374,9 @@ class SideshiftOrderProvider {
 
     // cache order with empty status
     if (response.id != null) {
-      _ref.read(sideshiftStorageProvider).saveSideshiftOrderData(
-          SideshiftOrderStatusResponse(id: response.id!), response.id!);
+      final orderId = response.id!;
+      final res = SideshiftOrderStatusResponse(id: orderId);
+      await _saveResponseToDatabase(orderId: orderId, response: res);
     }
   }
 
@@ -408,16 +404,63 @@ class SideshiftOrderProvider {
 
     // cache order with empty status
     if (response.id != null) {
-      _ref.read(sideshiftStorageProvider).saveSideshiftOrderData(
-          SideshiftOrderStatusResponse(id: response.id!), response.id!);
+      final orderId = response.id!;
+      final res = SideshiftOrderStatusResponse(id: orderId);
+      await _saveResponseToDatabase(orderId: orderId, response: res);
     }
   }
 
   // create tx
 
-  Future<GdkNewTransactionReply> createOnchainTxForSwap() async {
+  Future<void> createOnchainTxForSwap(FeeAsset feeAsset, bool sendAll,
+      {bool isLowball = true}) async {
+    switch (feeAsset) {
+      case FeeAsset.lbtc:
+        await createGdkTxForSwap(sendAll, isLowball: isLowball);
+      case FeeAsset.tetherUsdt:
+        await createTaxiTxForSwap(sendAll, isLowball: isLowball);
+      case FeeAsset.btc:
+        assert(false, 'BTC fee asset not supported for sideshift');
+    }
+  }
+
+  Future<void> createTaxiTxForSwap(bool sendAll,
+      {bool isLowball = true}) async {
+    final pendingOrder = _ref.read(sideShiftPendingOrderCacheProvider);
+    if (pendingOrder == null) {
+      throw Exception('[Send][Sideshift] No pending order found');
+    }
+    logger.d('[Send][Sideshift] PendingOrder found: ${pendingOrder.id}}');
+
+    final fixedPendingOrder = pendingOrder as SideshiftFixedOrderResponse;
+    final depositAddress = fixedPendingOrder.depositAddress;
+    final depositAmountStr = fixedPendingOrder.depositAmount;
+    if (depositAddress == null) {
+      throw Exception('Deposit address is null');
+    }
+    if (depositAmountStr == null) {
+      throw Exception('Deposit amount is null');
+    }
+    Decimal depositAmount = Decimal.zero;
+    try {
+      depositAmount = Decimal.parse(depositAmountStr);
+    } catch (e) {
+      logger.e('[SideShift] could not parse deposit amount');
+    }
+
+    // usdt in liquid is represented as "sats", ie, $1 is represented as 100,000,000
+    final depositAmountPrecision =
+        (depositAmount * Decimal.fromInt(satsPerBtc)).toInt();
+    await _ref
+        .read(sendAssetTransactionProvider.notifier)
+        .executeTaxiTransaction(
+            depositAddress, depositAmountPrecision, sendAll, isLowball);
+  }
+
+  Future<GdkNewTransactionReply> createGdkTxForSwap(bool sendAll,
+      {bool isLowball = true}) async {
     // get order
-    final pendingOrder = _ref.read(pendingOrderCacheProvider);
+    final pendingOrder = _ref.read(sideShiftPendingOrderCacheProvider);
     if (pendingOrder == null) {
       throw Exception('[Send][Sideshift] No pending order found');
     }
@@ -453,9 +496,6 @@ class SideshiftOrderProvider {
     logger.d(
         '[SideShift] create fixed rate gdk tx - currentPairInfo: ${assetPair.from.toString()}');
 
-    final isLBTC = assetPair.from.id == lbtcId;
-    final isBTC = assetPair.from.id == btcId;
-
     // calculate amount in sats to send and if sendAll
     const precision =
         8; // TODO: hardcoded for now, but should be dynamic on Asset when that's returned in endpoint
@@ -470,7 +510,6 @@ class SideshiftOrderProvider {
     final amountSatoshi = await _ref
         .read(formatterProvider)
         .parseAssetAmount(amount: depositAmountStr, precision: precision);
-    final sendAll = amountSatoshi == assetBalanceSatoshi && (isBTC || isLBTC);
 
     logger.d(
         '[SideShift] gdk amount to send: $depositAmount - with precision: $amountSatoshi');
@@ -488,7 +527,8 @@ class SideshiftOrderProvider {
         .createGdkTransaction(
             amountWithPrecision: amountSatoshi,
             address: depositAddress,
-            asset: deliverAsset);
+            asset: deliverAsset,
+            isLowball: isLowball);
 
     // If the order is set to send max amount from wallet then recreate the
     // sideshift fixed rate order with fee deducted from it. Pass it to gdk
@@ -539,7 +579,8 @@ class SideshiftOrderProvider {
           .createGdkTransaction(
               address: revisedOrderResponse.depositAddress!,
               amountWithPrecision: assetBalanceSatoshi,
-              asset: _ref.read(manageAssetsProvider).liquidUsdtAsset);
+              asset: _ref.read(manageAssetsProvider).liquidUsdtAsset,
+              isLowball: isLowball);
 
       gdkArgs = (revisedTxnResult, revisedOrderResponse);
     } else {
@@ -550,6 +591,17 @@ class SideshiftOrderProvider {
     _ref.read(sideswapGDKTransactionProvider.notifier).state = gdkArgs.$1;
 
     logger.d('[SideShift] createGdkTransaction response: ${gdkArgs.$1}');
+
     return gdkArgs.$1;
+  }
+
+  Future<void> _saveResponseToDatabase({
+    required String orderId,
+    required SideshiftOrderStatusResponse response,
+  }) async {
+    final model = SideshiftOrderDbModel.fromSideshiftOrderResponse(response);
+    await _ref
+        .read(sideshiftStorageProvider.notifier)
+        .save(model.copyWith(orderId: orderId));
   }
 }

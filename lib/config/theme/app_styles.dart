@@ -62,6 +62,8 @@ class AppStyle {
 
   static ThemeData _create(AppColors colors, AppTypography typography) {
     return ThemeData(
+      // TODO: temoporary solution. migrate to Material 3
+      useMaterial3: false,
       fontFamily: 'HelveticaNeue',
       colorScheme: colors.colorScheme,
       textTheme: typography.appTextTheme,

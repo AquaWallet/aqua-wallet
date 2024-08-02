@@ -32,7 +32,7 @@ class ReceiveAssetQrCode extends StatelessWidget {
           children: [
             Opacity(
               opacity: isPlaceholder ? 0.3 : 1,
-              child: QrImage(
+              child: QrImageView(
                 data: isPlaceholder ? kPlaceholderQrUrl : assetAddress,
                 version: QrVersions.auto,
                 embeddedImage: null,

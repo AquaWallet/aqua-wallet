@@ -6,7 +6,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 
 class WalletBackupConfirmationContent extends ConsumerWidget {
-  const WalletBackupConfirmationContent({Key? key}) : super(key: key);
+  const WalletBackupConfirmationContent({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,9 +42,7 @@ class WalletBackupConfirmationContent extends ConsumerWidget {
 }
 
 class _SectionsContainerWidget extends ConsumerWidget {
-  const _SectionsContainerWidget({
-    Key? key,
-  }) : super(key: key);
+  const _SectionsContainerWidget();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,8 +59,7 @@ class _SectionsContainerWidget extends ConsumerWidget {
 class _SectionsListWidget extends StatelessWidget {
   const _SectionsListWidget({
     required this.sections,
-    Key? key,
-  }) : super(key: key);
+  });
 
   final List<Section> sections;
 
@@ -80,8 +77,7 @@ class _SectionsListWidget extends StatelessWidget {
 class _SectionWidget extends ConsumerWidget {
   const _SectionWidget({
     required this.section,
-    Key? key,
-  }) : super(key: key);
+  });
 
   final Section section;
 
@@ -128,8 +124,7 @@ class _SectionWordWidget extends ConsumerWidget {
     required this.word,
     required this.section,
     required this.selected,
-    Key? key,
-  }) : super(key: key);
+  });
 
   final SectionWord word;
   final int section;

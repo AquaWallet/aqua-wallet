@@ -13,6 +13,7 @@ class SendAssetAmountInput extends HookConsumerWidget {
     required this.onCurrencyTypeToggle,
     this.allowUsdToggle = true,
     this.disabled = false,
+    required this.precision,
   });
 
   final TextEditingController controller;
@@ -21,6 +22,7 @@ class SendAssetAmountInput extends HookConsumerWidget {
   final void Function() onCurrencyTypeToggle;
   final bool allowUsdToggle;
   final bool disabled;
+  final int precision;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,9 +48,19 @@ class SendAssetAmountInput extends HookConsumerWidget {
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r'^\d*(\.|\,)?\d*')),
           TextInputFormatter.withFunction(
-            (oldValue, newValue) => newValue.copyWith(
-              text: newValue.text.replaceAll(',', '.'),
-            ),
+            (oldValue, newValue) {
+              final text = newValue.text.replaceAll(',', '.');
+              final decimalIndex = text.indexOf('.');
+              final containsDecimal = decimalIndex != -1;
+              final overflowing = text.length - decimalIndex - 1 > precision;
+              final newText = containsDecimal && overflowing
+                  ? text.substring(0, decimalIndex + precision + 1)
+                  : text;
+              return newValue.copyWith(
+                text: newText,
+                selection: TextSelection.collapsed(offset: newText.length),
+              );
+            },
           ),
         ],
         decoration: Theme.of(context).inputDecoration.copyWith(

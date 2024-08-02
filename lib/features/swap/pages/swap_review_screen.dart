@@ -1,63 +1,9 @@
-import 'package:aqua/common/widgets/custom_dialog.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
-class SwapErrorDialogContent extends HookConsumerWidget {
-  const SwapErrorDialogContent({
-    super.key,
-    required this.message,
-  });
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final onContinue = useCallback(() {
-      ref.invalidate(sideswapInputStateProvider);
-      ref.invalidate(sideswapWebsocketProvider);
-      Navigator.of(context)
-          .popUntil((route) => route.settings.name == SwapScreen.routeName);
-    }, []);
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            context.loc.swapError,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          Text(
-            message,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 24.h),
-            child: SizedBox(
-              width: double.maxFinite,
-              height: 48.h,
-              child: BoxShadowElevatedButton(
-                onPressed: onContinue,
-                child: Text(
-                  context.loc.backupRecoveryAlertButton,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class SwapReviewScreen extends HookConsumerWidget {
   static const routeName = '/swapReviewScreen';
@@ -95,28 +41,15 @@ class SwapReviewScreen extends HookConsumerWidget {
       }
     }, [arg]);
 
-    final showErrorDialog = useCallback((String message) {
-      showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => CustomDialog(
-          child: SwapErrorDialogContent(message: message),
-        ),
-      );
-    }, []);
-
     ref.listen(
       swapProvider,
       (_, value) => value.maybeWhen(
-        data: (data) => data.maybeWhen(
-          success: (asset, txId) async {
-            final transaction =
-                await ref.read(completedTransactionProvider(txId).future);
-
+        data: (data) => data.maybeMap(
+          success: (state) async {
             // ignore: use_build_context_synchronously
             Navigator.of(context).pushReplacementNamed(
               SwapAssetCompleteScreen.routeName,
-              arguments: (asset, transaction),
+              arguments: state,
             );
             isProcessing.value = false;
 
@@ -127,7 +60,8 @@ class SwapReviewScreen extends HookConsumerWidget {
           orElse: () => null,
         ),
         error: (error, stackTrace) {
-          _handleError(context, ref, error, showErrorDialog);
+          isProcessing.value = false;
+          ref.handleSwapError(error, stackTrace);
         },
         loading: () => isProcessing.value = true,
         orElse: () {},
@@ -137,8 +71,8 @@ class SwapReviewScreen extends HookConsumerWidget {
     ref.listen(
       pegProvider,
       (_, state) => state.maybeWhen(
-        data: (data) => data.maybeWhen(
-          success: () {
+        data: (data) => data.maybeMap(
+          success: (_) {
             isProcessing.value = false;
 
             Navigator.of(context).popUntil((route) => route.isFirst);
@@ -149,8 +83,10 @@ class SwapReviewScreen extends HookConsumerWidget {
           },
           orElse: () => null,
         ),
-        error: (error, stackTrace) =>
-            _handleError(context, ref, error, showErrorDialog),
+        error: (error, stackTrace) {
+          isProcessing.value = false;
+          ref.handleSwapError(error, stackTrace);
+        },
         loading: () => isProcessing.value = true,
         orElse: () {},
       ),
@@ -188,26 +124,5 @@ class SwapReviewScreen extends HookConsumerWidget {
         child: content,
       ),
     );
-  }
-
-  void _handleError(BuildContext context, WidgetRef ref, dynamic error,
-      void Function(String) showErrorDialog) {
-    logger.e(error);
-    var errorMessage = '';
-    if (error is ArgumentError) {
-      errorMessage = error.message as String;
-    } else if (error is GdkNetworkException) {
-      errorMessage = error.errorMessage();
-    } else if (error is SideswapHttpStateNetworkError) {
-      errorMessage = error.message!;
-    } else if (error is PegGdkTransactionException) {
-      errorMessage = context.loc.pegErrorTransaction;
-    }
-
-    if (errorMessage.isNotEmpty) {
-      showErrorDialog(errorMessage);
-    }
-    ref.read(swapLoadingIndicatorStateProvider.notifier).state =
-        const SwapProgressState.empty();
   }
 }

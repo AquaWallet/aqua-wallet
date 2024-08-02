@@ -49,6 +49,8 @@ class AquaColors {
 
   static const Color gray = Color(0xFF888888);
 
+  static const Color darkGray = Color(0xFF818181);
+
   static const Color linkWater = Color(0xFFDFE2E9);
 
   static const Color heavyMetal = Color(0xFF282828);

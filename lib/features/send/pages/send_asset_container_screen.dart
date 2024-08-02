@@ -1,14 +1,12 @@
 import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
 import 'package:aqua/features/send/models/models.dart';
 import 'package:aqua/features/send/pages/pages.dart';
 import 'package:aqua/features/send/providers/providers.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
 
 class SendAssetContainerScreen extends HookConsumerWidget {
   const SendAssetContainerScreen({super.key});
@@ -23,28 +21,18 @@ class SendAssetContainerScreen extends HookConsumerWidget {
     // watch to keep providers alive
     final initializationState = ref.watch(initializationProvider(arguments));
     final asset = ref.watch(sendAssetProvider);
-    final address = ref.watch(sendAddressProvider);
-    final amount = ref.watch(userEnteredAmountProvider);
-    final lnurlParseResult = ref.watch(lnurlParseResultProvider);
-    final addressError = ref.watch(sendAmountErrorProvider);
-    final amountError = ref.watch(sendAmountErrorProvider);
-    final insufficientBalance = ref.watch(insufficientBalanceProvider);
-    final network = asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid;
-    final feeRates =
-        ref.watch(fetchedFeeRatesPerVByteProvider(network)).asData?.value;
-    final userSelectedFeeAsset = ref.watch(userSelectedFeeAssetProvider);
-    final userSelectedFeeRatePerVByte =
-        ref.watch(userSelectedFeeRatePerVByteProvider);
-    final userEnteredAmountIsFiat = ref.watch(isFiatInputProvider);
-    final useAllFunds = ref.watch(useAllFundsProvider);
-
-    logger.d(
-        "[Send] send container - asset: $asset - address: $address - amount: $amount");
-    logger.d(
-        "[Send] send container - - addressError: $addressError - amountError: $amountError");
-    logger.d(
-        "[Send] send container - insufficientBalance: $insufficientBalance - feeRates: $feeRates - userSelectedFeeAsset: $userSelectedFeeAsset - userSelectedFeeRatePerVByte: ${userSelectedFeeRatePerVByte?.priority.toString()} - userEnteredAmountIsFiat: $userEnteredAmountIsFiat - useAllFunds: $useAllFunds");
-    logger.d("[Send] send container - lnurlParseResult: $lnurlParseResult");
+    ref.watch(sendAddressProvider);
+    ref.watch(userEnteredAmountProvider);
+    ref.watch(lnurlParseResultProvider);
+    ref.watch(sendAmountErrorProvider);
+    ref.watch(sendAddressErrorProvider);
+    ref.watch(insufficientBalanceProvider);
+    ref.watch(fetchedFeeRatesPerVByteProvider(asset.networkType));
+    ref.watch(userSelectedFeeAssetProvider);
+    ref.watch(userSelectedFeeRatePerVByteProvider);
+    ref.watch(isFiatInputProvider);
+    ref.watch(useAllFundsProvider);
+    ref.watch(sideShiftPendingOrderCacheProvider);
 
     useEffect(() {
       Future.microtask(() {
@@ -78,16 +66,13 @@ class SendAssetContainerScreen extends HookConsumerWidget {
 
   Widget switchScreen(BuildContext context, SendAssetArguments arguments) {
     // Use the arguments to determine which screen to display
-    switch (arguments.startScreen) {
-      case SendAssetStartScreen.addressScreen:
-        return SendAssetAddressScreen(arguments: arguments);
-      case SendAssetStartScreen.amountScreen:
-        return SendAssetAmountScreen(arguments: arguments);
-      case SendAssetStartScreen.reviewScreen:
-        return SendAssetReviewScreen(arguments: arguments);
-      default:
-        return SendAssetAddressScreen(arguments: arguments);
-    }
+    return switch (arguments.startScreen) {
+      SendAssetStartScreen.amountScreen =>
+        SendAssetAmountScreen(arguments: arguments),
+      SendAssetStartScreen.reviewScreen =>
+        SendAssetReviewScreen(arguments: arguments),
+      _ => SendAssetAddressScreen(arguments: arguments),
+    };
   }
 
   void showErrorDialog(BuildContext context, String errorMessage,
@@ -97,13 +82,13 @@ class SendAssetContainerScreen extends HookConsumerWidget {
         context: context,
         barrierDismissible: false,
         builder: (context) => CustomAlertDialog(
-          onWillPop: () async => false,
+          onPopInvoked: (bool value) => false,
           title: context.loc.unknownErrorTitle,
           subtitle: errorMessage,
           controlWidgets: [
             Expanded(
               child: ElevatedButton(
-                child: Text(context.loc.genericOk),
+                child: Text(context.loc.ok),
                 onPressed: () {
                   if (shouldPopScreen) {
                     Navigator.of(context)

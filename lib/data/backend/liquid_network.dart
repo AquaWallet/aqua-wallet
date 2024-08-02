@@ -10,6 +10,7 @@ class LiquidNetwork extends WalletService {
   Future<bool> connect({
     GdkConnectionParams connectionParams = const GdkConnectionParams(
       name: 'electrum-testnet-liquid',
+      minFeeRate: 10,
     ),
   }) async {
     return super.connect(connectionParams: connectionParams);

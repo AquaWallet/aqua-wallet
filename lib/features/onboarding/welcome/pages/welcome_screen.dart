@@ -12,9 +12,9 @@ class WelcomeScreen extends HookConsumerWidget {
   static const routeName = '/welcome';
 
   const WelcomeScreen({
-    Key? key,
+    super.key,
     this.description = '',
-  }) : super(key: key);
+  });
 
   final String description;
 
@@ -34,7 +34,7 @@ class WelcomeScreen extends HookConsumerWidget {
         _fadeAnimationDuration,
         () => slideAnimationController.forward(),
       );
-      return () => slideAnimationController.dispose();
+      return null;
     }, []);
 
     //ANCHOR - Fade animation
@@ -50,7 +50,7 @@ class WelcomeScreen extends HookConsumerWidget {
         _fadeAnimationDuration,
         () => fadeAnimationController.forward(),
       );
-      return () => fadeAnimationController.dispose();
+      return null;
     }, []);
 
     //ANCHOR - Force status bar colors

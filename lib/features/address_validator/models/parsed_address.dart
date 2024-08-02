@@ -1,4 +1,4 @@
-import 'package:aqua/features/lightning/lnurl/dart_lnurl.dart';
+import 'package:aqua/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:decimal/decimal.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

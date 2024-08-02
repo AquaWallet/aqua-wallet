@@ -37,6 +37,7 @@ class SwapSuccessModel {
     required this.networkFee,
     required this.feeRate,
     required this.transactionId,
+    required this.sideswapOrderId,
     required this.time,
     required this.date,
     this.note,
@@ -50,6 +51,7 @@ class SwapSuccessModel {
   final String feeRate;
   final String? note;
   final String transactionId;
+  final String sideswapOrderId;
   final String time;
   final String date;
 }

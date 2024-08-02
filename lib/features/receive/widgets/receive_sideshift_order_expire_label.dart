@@ -7,7 +7,7 @@ class ReceiveSideshiftOrderExpireLabel extends HookConsumerWidget {
   const ReceiveSideshiftOrderExpireLabel({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sideshiftOrder = ref.watch(pendingOrderProvider);
+    final sideshiftOrder = ref.watch(sideshiftPendingOrderProvider);
 
     final formattedExpiresDate = sideshiftOrder?.expiresAt != null
         ? DateFormat('MMMM d, y').format(sideshiftOrder!.expiresAt!)

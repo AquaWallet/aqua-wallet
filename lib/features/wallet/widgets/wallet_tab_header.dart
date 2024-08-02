@@ -13,7 +13,7 @@ class WalletTabHeader extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
     final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
-    final btcPrice = ref.watch(btcPriceProvider);
+    final btcPrice = ref.watch(btcPriceProvider(2));
     final verticalPadding = useMemoized(() => context.adaptiveDouble(
           mobile: 24.h,
           smallMobile: 28.h,

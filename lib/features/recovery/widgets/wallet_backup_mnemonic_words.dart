@@ -7,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class WalletBackupMnemonicWords extends HookConsumerWidget {
-  const WalletBackupMnemonicWords({Key? key}) : super(key: key);
+  const WalletBackupMnemonicWords({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,9 +23,9 @@ class WalletBackupMnemonicWords extends HookConsumerWidget {
 class WalletBackupGridView extends ConsumerWidget {
   final List<String> words;
   const WalletBackupGridView({
-    Key? key,
+    super.key,
     required this.words,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,11 +52,11 @@ class WalletBackupGridView extends ConsumerWidget {
 
 class WalletBackupTile extends StatelessWidget {
   const WalletBackupTile({
-    Key? key,
+    super.key,
     required this.isBotevMode,
     required this.number,
     required this.title,
-  }) : super(key: key);
+  });
 
   final bool isBotevMode;
   final String number;

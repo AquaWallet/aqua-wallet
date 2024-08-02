@@ -3,15 +3,16 @@ import 'package:aqua/data/provider/sideshift/screens/sideshift_orders_screen.dar
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/screens/boltz_swap_detail_screen.dart';
 import 'package:aqua/features/home/home.dart';
+import 'package:aqua/features/internal_send/internal_send.dart';
 import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/marketplace/pages/select_buy_and_sell_platform_screen.dart';
+import 'package:aqua/features/marketplace/pages/on_ramp_screen.dart';
 import 'package:aqua/features/note/note.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/onboarding/welcome/widgets/welcome_disclaimer_screen.dart';
-import 'package:aqua/features/receive/pages/refund_screen.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/exchange_rate/pages/currency_conversion_settings_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
@@ -128,6 +129,12 @@ mixin Routes {
     ExchangeRateSettingsScreen.routeName: (settings) {
       return MaterialPageRoute<Object>(
         builder: (context) => const ExchangeRateSettingsScreen(),
+        settings: settings,
+      );
+    },
+    ConversionCurrenciesSettingsScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const ConversionCurrenciesSettingsScreen(),
         settings: settings,
       );
     },
@@ -263,9 +270,45 @@ mixin Routes {
         settings: settings,
       );
     },
+    LnurlWithdrawScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const LnurlWithdrawScreen(),
+        settings: settings,
+      );
+    },
     HelpSupportScreen.routeName: (settings) {
       return MaterialPageRoute<Object>(
         builder: (context) => const HelpSupportScreen(),
+        settings: settings,
+      );
+    },
+    ExperimentalFeaturesScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const ExperimentalFeaturesScreen(),
+        settings: settings,
+      );
+    },
+    InternalSendAmountScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const InternalSendAmountScreen(),
+        settings: settings,
+      );
+    },
+    InternalSendReviewScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const InternalSendReviewScreen(),
+        settings: settings,
+      );
+    },
+    InternalSendCompleteScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const InternalSendCompleteScreen(),
+        settings: settings,
+      );
+    },
+    DirectPegInScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const DirectPegInScreen(),
         settings: settings,
       );
     },

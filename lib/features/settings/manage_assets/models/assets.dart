@@ -25,6 +25,8 @@ class AssetsResponseItem with _$AssetsResponseItem {
       _$AssetsResponseItemFromJson(json);
 }
 
+const minSendAmount = 546; // This is the min amount GDK allows
+
 @freezed
 class Asset with _$Asset {
   factory Asset({
@@ -90,14 +92,14 @@ class Asset with _$Asset {
       amount: amount,
       precision: 0);
 
-  factory Asset.liquid() => Asset(
+  // Testnet asset
+  factory Asset.liquidTest() => Asset(
         logoUrl: Svgs.unknownAsset,
-        id: '',
-        name: '',
-        ticker: '',
-        isLiquid: true,
-        isLBTC: true,
-        isUSDt: false,
+        id: '38fca2d939696061a8f76d4e6b5eecd54e3b4221c846f24a6b279e79952850a5',
+        name: 'Testnet Asset',
+        ticker: 'TEST',
+        isDefaultAsset: true,
+        isRemovable: true,
       );
 
   factory Asset.unknown() => Asset(
@@ -114,15 +116,23 @@ class Asset with _$Asset {
 }
 
 extension AssetExt on Asset {
+  static String get lBtcMainnetTicker => 'L-BTC';
+
+  static String get lBtcTestnetTicker => 'tL-BTC';
+
   bool get isBTC => id == 'btc';
 
-  bool get isLBTC => ticker == 'L-BTC' || ticker == 'tL-BTC';
+  bool get isLBTC => ticker == lBtcMainnetTicker || ticker == lBtcTestnetTicker;
 
   bool get isUsdtLiquid => isUSDt && isLiquid;
 
   bool get isLightning => this == Asset.lightning();
 
   bool get isSideshift => this == Asset.usdtEth() || this == Asset.usdtTrx();
+
+  bool get isSwappable => isBTC || isLBTC;
+
+  bool get isInternal => isSwappable || isUsdtLiquid;
 
   bool get isEth => this == Asset.usdtEth();
 
@@ -134,6 +144,9 @@ extension AssetExt on Asset {
   bool get isAnyUsdt => isUsdtLiquid || isEth || isTrx;
 
   bool get isAnyAltUsdt => isEth || isTrx;
+
+  /// any asset not denominated in sats
+  bool get isNonSatsAsset => !isBTC && !isLBTC && !isLightning;
 
   bool get isUnknown => logoUrl == Svgs.unknownAsset;
 

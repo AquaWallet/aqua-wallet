@@ -7,7 +7,7 @@ import 'package:aqua/utils/utils.dart';
 class WalletBackupConfirmation extends ConsumerWidget {
   static const routeName = '/walletBackupConfirmation';
 
-  const WalletBackupConfirmation({Key? key}) : super(key: key);
+  const WalletBackupConfirmation({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -41,6 +41,14 @@
         "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/EURx.svg",
         "Default": false,
         "IsRemovable": true
+      },
+      {
+        "Name": "Mexas",
+        "Id": "26ac924263ba547b706251635550a8649545ee5c074fe5db8d7140557baaf32e",
+        "Ticker": "MEX",
+        "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/MEX.svg",
+        "Default": false,
+        "IsRemovable": true
       }
     ]
   }

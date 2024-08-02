@@ -3,10 +3,10 @@ import 'package:aqua/utils/utils.dart';
 
 class SendAssetMaxButton extends StatelessWidget {
   const SendAssetMaxButton({
-    Key? key,
+    super.key,
     required this.isSelected,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   final VoidCallback? onPressed;
   final bool isSelected;

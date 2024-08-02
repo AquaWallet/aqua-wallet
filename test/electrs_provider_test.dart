@@ -20,9 +20,11 @@ void main() {
 
   group('electrsProvider', () {
     late dio.Dio client;
+    late SharedPreferences prefs;
 
     setUp(() {
       client = MockDio();
+      prefs = MockSharedPreferences();
     });
 
     test('fetchFeeRates success', () async {
@@ -40,6 +42,7 @@ void main() {
 
       final container = createContainer(overrides: [
         dioProvider.overrideWithValue(client),
+        sharedPreferencesProvider.overrideWithValue(prefs),
       ]);
 
       final feeRates = await container

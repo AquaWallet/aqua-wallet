@@ -64,7 +64,8 @@ class WalletExchangeButtonsPanel extends ConsumerWidget {
               radius: BorderRadius.only(bottomRight: Radius.circular(20.r)),
               onPressed: () => Navigator.of(context).pushNamed(
                 QrScannerScreen.routeName,
-                arguments: QrScannerScreenArguments(parseAddress: true),
+                arguments: QrScannerScreenArguments(
+                    parseAction: QrScannerParseAction.parse),
               ),
             ),
           ),

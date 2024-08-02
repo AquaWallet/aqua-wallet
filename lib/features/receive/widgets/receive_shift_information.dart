@@ -12,15 +12,15 @@ const kSideshiftUrl = 'https://sideshift.ai/?orderId=';
 
 class ReceiveShiftInformation extends HookConsumerWidget {
   const ReceiveShiftInformation({
-    Key? key,
+    super.key,
     required this.assetNetwork,
-  }) : super(key: key);
+  });
 
   final String assetNetwork;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sideshiftOrder = ref.watch(pendingOrderProvider);
+    final sideshiftOrder = ref.watch(sideshiftPendingOrderProvider);
 
     final sectionTitleStyle = useMemoized(() {
       return Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -123,9 +123,7 @@ class ReceiveShiftInformation extends HookConsumerWidget {
             child: InkWell(
               onTap: () async {
                 HapticFeedback.mediumImpact();
-                Clipboard.setData(
-                  ClipboardData(text: sideshiftOrder.id ?? 'N/A'),
-                );
+                await context.copyToClipboard(sideshiftOrder.id ?? 'N/A');
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),

@@ -1,11 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/fiat_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -15,24 +10,22 @@ import 'package:rxdart/rxdart.dart';
 
 final rawTransactionsProvider =
     StreamProvider.family<List<GdkTransaction>, Asset>((ref, asset) async* {
-  yield* asset.isBTC
-      ? ref
-          .read(bitcoinProvider)
-          .transactionEventSubject
-          .startWith(null)
-          .asyncMap((_) =>
-              ref.read(bitcoinProvider).getTransactions(requiresRefresh: true))
-          .map((transactions) => transactions ?? [])
-      : ref
-          .read(liquidProvider)
-          .transactionEventSubject
-          .startWith(null)
-          .asyncMap((_) =>
-              ref.read(liquidProvider).getTransactions(requiresRefresh: true))
-          .map((transactions) => transactions ?? [])
-          .map((transactions) => transactions
-              .where((transaction) => transaction.satoshi?[asset.id] != null)
-              .toList());
+  final networkProvider = asset.isBTC ? bitcoinProvider : liquidProvider;
+  final rawTxs = ref
+      .read(networkProvider)
+      .transactionEventSubject
+      .startWith(null)
+      .asyncMap((_) =>
+          ref.read(networkProvider).getTransactions(requiresRefresh: true))
+      .map((transactions) => transactions ?? []);
+
+  if (!asset.isBTC) {
+    yield* rawTxs.map((transactions) => transactions
+        .where((transaction) => transaction.satoshi?[asset.id] != null)
+        .toList());
+  }
+
+  yield* rawTxs;
 });
 
 final _rateStreamProvider = StreamProvider.autoDispose((ref) async* {
@@ -176,4 +169,31 @@ final transactionsProvider = FutureProvider.autoDispose
   }).toList());
 });
 
+final completedTransactionProvider = FutureProvider.autoDispose
+    .family<GdkTransaction, String>((ref, txId) async {
+  final stream = ref.read(liquidProvider).transactionEventSubject;
+
+  await for (var event in stream) {
+    if (event != null && event.txhash == txId) {
+      final transaction =
+          await ref.read(_matchingTransactionProvider(txId).future);
+      if (transaction == null) {
+        throw AssetTransactionsBroadcastTxFetchException();
+      }
+      return Future.value(transaction);
+    }
+  }
+  throw Exception("Transaction with txId $txId not found");
+});
+
+final _matchingTransactionProvider = FutureProvider.autoDispose
+    .family<GdkTransaction?, String>((ref, txnId) async {
+  final transactions =
+      await ref.read(liquidProvider).getTransactions(requiresRefresh: true) ??
+          [];
+  return transactions.firstWhereOrNull((txn) => txnId == txn.txhash);
+});
+
 class AssetTransactionsInvalidTypeException implements Exception {}
+
+class AssetTransactionsBroadcastTxFetchException implements Exception {}

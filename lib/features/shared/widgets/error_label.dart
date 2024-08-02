@@ -3,18 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ErrorLabel extends StatelessWidget {
   const ErrorLabel({
-    Key? key,
+    super.key,
     required this.text,
-  }) : super(key: key);
+  });
 
   final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 20.h,
-      alignment: Alignment.center,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             Icons.warning_rounded,
@@ -29,6 +29,8 @@ class ErrorLabel extends StatelessWidget {
                   .textTheme
                   .bodyMedium
                   ?.copyWith(color: Theme.of(context).colorScheme.error),
+              softWrap: true,
+              overflow: TextOverflow.visible,
             ),
           ),
         ],

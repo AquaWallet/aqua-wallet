@@ -1,6 +1,5 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/sideshift/screens/sideshift_orders_screen.dart';
-import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/boltz/screens/boltz_swaps_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -51,16 +50,6 @@ class State extends ConsumerState<AssetTransactionsScreen> {
             Navigator.of(context).pushNamed(SideShiftOrdersScreen.routeName);
           } else if (asset.isLayerTwo) {
             Navigator.of(context).pushNamed(BoltzSwapsScreen.routeName);
-          }
-        },
-        onTitlePressed: () {
-          // debug feature to show the boltz swap list
-          if (asset.isLayerTwo) {
-            ref
-                .read(boltzDebugCounterProvider.notifier)
-                .incrementTapCounter(() {
-              Navigator.of(context).pushNamed(BoltzSwapsScreen.routeName);
-            });
           }
         },
       ),

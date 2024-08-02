@@ -24,7 +24,8 @@ class BiometricAuthNotifier extends AsyncNotifier<BiometricAuthState> {
     final biometricEnabled =
         ref.watch(prefsProvider.select((p) => p.isBiometricEnabled));
     final biometrics = await auth.getAvailableBiometrics();
-    final canAuthenticateWithBiometric = await auth.canCheckBiometrics &&
+    final isDeviceSupported = await auth.canCheckBiometrics;
+    final canAuthenticateWithBiometric = isDeviceSupported &&
         biometrics.any((type) => kStrongBiometricTypes.contains(type));
 
     // If biometric auth is enabled but not available, disable it
@@ -34,6 +35,7 @@ class BiometricAuthNotifier extends AsyncNotifier<BiometricAuthState> {
     }
 
     return BiometricAuthState(
+      isDeviceSupported: isDeviceSupported,
       available: canAuthenticateWithBiometric,
       enabled: biometricEnabled,
     );

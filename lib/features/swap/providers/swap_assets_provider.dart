@@ -38,13 +38,13 @@ class SwapAssetsNotifier extends ChangeNotifier {
 
     final btcAsset = assets.firstWhere((asset) => asset.isBTC);
     final lbtcAsset = assets.firstWhere((asset) => asset.isLBTC);
-    final usdtLiquidAsset = assets.firstWhere((asset) => asset.isUsdtLiquid);
+    final usdtLiquidAsset = assets.firstWhereOrNull((asset) => asset
+        .isUsdtLiquid); // usdt can be null if removed from managed assets by user
 
     if (asset.isBTC) {
       return [lbtcAsset];
     } else if (asset.isLBTC) {
-      final isUsdtEnabled = ref.read(manageAssetsProvider).isUsdtEnabled;
-      return isUsdtEnabled ? [btcAsset, usdtLiquidAsset] : [btcAsset];
+      return usdtLiquidAsset != null ? [btcAsset, usdtLiquidAsset] : [btcAsset];
     } else if (asset.isUsdtLiquid) {
       return [lbtcAsset];
     }

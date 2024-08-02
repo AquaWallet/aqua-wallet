@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:aqua/data/provider/electrs_provider.dart';
+import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/data/provider/sideshift/sideshift.dart';
@@ -9,7 +9,6 @@ import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
 import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/logger.dart';
 
 final sendAssetSetupProvider = FutureProvider.autoDispose<bool>((ref) async {
@@ -28,7 +27,9 @@ class SendAssetSetupService {
     if (asset.isLightning && lnurlPayParams != null) {
       return await setupLnurlp();
     } else if (asset.isLightning) {
-      return await setupBoltz();
+      return await ref
+          .read(boltzSubmarineSwapProvider.notifier)
+          .prepareSubmarineSwap();
     } else if (asset.isSideshift) {
       return await setupSideshift();
     } else if (asset.isBTC) {
@@ -68,46 +69,13 @@ class SendAssetSetupService {
     // get invoice from lnurlp
     final invoice = await ref
         .read(lnurlProvider)
-        .callLNURLp(payParams: lnurlPayParams, amountSatoshis: amount);
+        .callLnurlPay(payParams: lnurlPayParams, amountSatoshis: amount);
     ref.read(sendAddressProvider.notifier).state = invoice;
 
     // now setup boltz
-    return await setupBoltz();
-  }
-
-  Future<bool> setupBoltz() async {
-    final address = ref.read(sendAddressProvider);
-
-    if (address != null && address.isNotEmpty) {
-      // check if swap with that invoice already exists
-      final existingSwap = await ref
-          .read(boltzDataProvider)
-          .getBoltzNormalSwapDataByInvoice(address);
-
-      if (existingSwap != null) {
-        ref.read(boltzSwapSuccessResponseProvider.notifier).state =
-            existingSwap.response;
-
-        // Check if this swap address already has broadcast
-        final existingTxs = await ref.read(electrsProvider).fetchTransactions(
-            existingSwap.response.address, NetworkType.liquid);
-        if (existingTxs != null && existingTxs.isNotEmpty) {
-          throw BoltzException(BoltzExceptionType.normalSwapAlreadyBroadcasted);
-        }
-
-        return true;
-      }
-
-      // call createSwap if none existing
-      try {
-        final _ = await ref.read(boltzProvider).createSwap(invoice: address);
-        return true;
-      } catch (error) {
-        rethrow;
-      }
-    } else {
-      throw Exception('Could not get address');
-    }
+    return await ref
+        .read(boltzSubmarineSwapProvider.notifier)
+        .prepareSubmarineSwap();
   }
 
   Future<bool> setupSideshift() async {

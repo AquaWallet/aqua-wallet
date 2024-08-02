@@ -21,7 +21,7 @@ class SwapReviewInfoCard extends HookConsumerWidget {
     final receiveAmount = useMemoized(() {
       final asset = input.receiveAsset;
       final receiveAmount = order.recvAmount;
-      if (asset != null && receiveAmount != null) {
+      if (asset != null) {
         final amount = ref.read(formatterProvider).formatAssetAmountDirect(
               amount: receiveAmount,
               precision: asset.precision,
@@ -103,7 +103,7 @@ class SwapReviewInfoCard extends HookConsumerWidget {
             //ANCHOR - Order ID
             LabelCopyableTextView(
               label: context.loc.pegOrderReviewOrderId,
-              value: order.orderId!,
+              value: order.orderId,
             ),
             SizedBox(height: 16.h),
           ],

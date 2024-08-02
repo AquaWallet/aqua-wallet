@@ -6,7 +6,6 @@ import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/features/boltz/boltz.dart';
 
 class ReceiveAmountInputWidget extends HookConsumerWidget {
   const ReceiveAmountInputWidget({super.key, required this.asset});
@@ -17,8 +16,6 @@ class ReceiveAmountInputWidget extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // amount
     final amountEntered = ref.watch(receiveAssetAmountProvider);
-    final boltzGetPairsResponse =
-        ref.watch(boltzGetPairsProvider).asData?.value;
 
     // amount input controller
     final controller = useTextEditingController(text: amountEntered);
@@ -27,7 +24,7 @@ class ReceiveAmountInputWidget extends HookConsumerWidget {
     });
 
     // fiat entry toggle
-    final isFiatToggled = ref.watch(amountEnteredIsFiatToggledProvider);
+    final isFiatToggled = ref.watch(amountCurrencyProvider) != null;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -77,13 +74,8 @@ class ReceiveAmountInputWidget extends HookConsumerWidget {
           ReceiveConversionWidget(asset: asset),
         ],
         SizedBox(height: 18.h),
-        if (asset.isLightning && boltzGetPairsResponse != null) ...[
-          BoltzFeeWidget(
-              asset: asset,
-              amountEntered: amountEntered,
-              reverseClaimFee: boltzGetPairsResponse.reverseClaimFee,
-              reversePercentage: boltzGetPairsResponse.reversePercentage,
-              reverseLockupFee: boltzGetPairsResponse.reverseLockupFee),
+        if (asset.isLightning) ...[
+          BoltzFeeWidget(amountEntered: amountEntered),
         ],
         SizedBox(height: 18.h),
       ],

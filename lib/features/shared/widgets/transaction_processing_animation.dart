@@ -12,8 +12,8 @@ class TransactionProcessingAnimation extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         body: Center(
           child: Column(
@@ -25,7 +25,7 @@ class TransactionProcessingAnimation extends HookConsumerWidget {
                 repeat: true,
                 width: 132.r,
                 height: 132.r,
-                frameRate: FrameRate(120),
+                frameRate: const FrameRate(120),
                 fit: BoxFit.contain,
               ),
               SizedBox(height: 26.h),

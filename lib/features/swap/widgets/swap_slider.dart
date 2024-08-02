@@ -6,7 +6,7 @@ import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SwapSlider extends ConsumerWidget {
-  const SwapSlider({Key? key, required this.onConfirm}) : super(key: key);
+  const SwapSlider({super.key, required this.onConfirm});
 
   final void Function() onConfirm;
 

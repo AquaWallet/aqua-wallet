@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class MenuItemWidget extends StatelessWidget {
   const MenuItemWidget({
-    Key? key,
+    super.key,
     this.assetName = '',
     required this.title,
     required this.onPressed,
@@ -13,7 +13,7 @@ class MenuItemWidget extends StatelessWidget {
     this.color,
     this.iconPadding,
     this.isEnabled = true,
-  }) : super(key: key);
+  });
 
   final String assetName;
   final String title;
@@ -93,6 +93,7 @@ class MenuItemWidget extends StatelessWidget {
   }
 
   factory MenuItemWidget.arrow({
+    Key? key,
     required BuildContext context,
     String assetName = '',
     Color? color,
@@ -101,6 +102,7 @@ class MenuItemWidget extends StatelessWidget {
     required VoidCallback onPressed,
   }) {
     return MenuItemWidget(
+      key: key,
       isEnabled: true,
       onPressed: onPressed,
       assetName: assetName,
@@ -155,6 +157,7 @@ class MenuItemWidget extends StatelessWidget {
     EdgeInsets? iconPadding,
     bool value = true,
     bool enabled = true,
+    bool multicolor = false,
   }) {
     return MenuItemWidget(
       isEnabled: enabled,
@@ -162,6 +165,7 @@ class MenuItemWidget extends StatelessWidget {
       assetName: assetName,
       title: title,
       iconPadding: iconPadding,
+      color: multicolor ? null : Theme.of(context).colorScheme.onBackground,
       trailing: Transform.scale(
         scaleY: .7,
         scaleX: .7,

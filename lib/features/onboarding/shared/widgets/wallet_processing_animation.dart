@@ -23,8 +23,8 @@ class WalletProcessingAnimation extends HookConsumerWidget {
       return null;
     }, []);
 
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         body: Center(
           child: Column(
@@ -36,7 +36,7 @@ class WalletProcessingAnimation extends HookConsumerWidget {
                 repeat: true,
                 width: 132.r,
                 height: 132.r,
-                frameRate: FrameRate(120),
+                frameRate: const FrameRate(120),
                 fit: BoxFit.contain,
               ),
               SizedBox(height: 26.h),

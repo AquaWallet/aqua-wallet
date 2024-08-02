@@ -17,6 +17,7 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asset = ref.watch(sendAssetProvider);
     final address = ref.watch(sendAddressProvider);
+    final sideShiftOrderId = ref.watch(sideshiftPendingOrderProvider)?.id ?? '';
 
     return BoxShadowCard(
       color: Theme.of(context).colors.altScreenSurface,
@@ -75,7 +76,7 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
                 SizedBox(height: 16.h),
                 LabelCopyableTextView(
                   label: context.loc.sendAssetReviewScreenConfirmShiftIdTitle,
-                  value: ref.watch(pendingOrderProvider)?.id ?? '',
+                  value: sideShiftOrderId,
                 ),
               ],
             ],

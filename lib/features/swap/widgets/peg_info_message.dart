@@ -2,8 +2,15 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/utils/utils.dart';
 
-class PegInfoMessage extends HookConsumerWidget {
-  const PegInfoMessage({Key? key}) : super(key: key);
+class PegInfoMessageView extends HookConsumerWidget {
+  const PegInfoMessageView({
+    super.key,
+    this.fontSize,
+    this.padding,
+  });
+
+  final double? fontSize;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -13,9 +20,34 @@ class PegInfoMessage extends HookConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    return PegInfoMessage(
+      padding: padding,
+      isPegIn: input.isPegIn,
+      fontSize: fontSize,
+    );
+  }
+}
+
+class PegInfoMessage extends StatelessWidget {
+  const PegInfoMessage({
+    super.key,
+    required this.isPegIn,
+    this.padding,
+    this.fontSize,
+  });
+
+  final bool isPegIn;
+  final EdgeInsets? padding;
+  final double? fontSize;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 30.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: padding ??
+          EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 16.h,
+          ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
@@ -23,12 +55,13 @@ class PegInfoMessage extends HookConsumerWidget {
         ),
       ),
       child: Text(
-        input.isPegIn
+        isPegIn
             ? context.loc.swapPanelPegInInfo
             : context.loc.swapPanelPegOutInfo,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w700,
-              fontSize: 12.sp,
+              fontSize: fontSize ?? 12.sp,
+              height: 1,
             ),
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:aqua/data/data.dart';
-import 'package:aqua/data/provider/secure_storage_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';

@@ -8,9 +8,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 class AssetDetailsHeader extends HookConsumerWidget {
   const AssetDetailsHeader({
-    Key? key,
+    super.key,
     required this.asset,
-  }) : super(key: key);
+  });
 
   final Asset asset;
 

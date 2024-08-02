@@ -1,53 +1,47 @@
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/receive/providers/providers.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
+import 'package:aqua/features/settings/shared/providers/providers.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/utils/utils.dart';
 
 class BoltzFeeWidget extends ConsumerWidget {
-  final Asset asset;
   final String? amountEntered;
-  final int reverseClaimFee;
-  final double reversePercentage;
-  final int reverseLockupFee;
 
   const BoltzFeeWidget({
-    Key? key,
-    required this.asset,
+    super.key,
     required this.amountEntered,
-    required this.reverseClaimFee,
-    required this.reversePercentage,
-    required this.reverseLockupFee,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isFiatToggled = ref.watch(amountEnteredIsFiatToggledProvider);
-    String? userEnteredValue = amountEntered;
-    if (amountEntered == null || userEnteredValue == "") {
-      userEnteredValue = '0';
-    }
-    String? userEnteredValueInSats = userEnteredValue;
-    if (isFiatToggled) {
-      userEnteredValueInSats =
-          ref.watch(receiveAssetAmountConversionDisplayProvider(asset)).when(
-                data: (value) => value,
-                loading: () => '0',
-                error: (error, stack) => '0',
-              );
-    }
-    final totalServiceFeeSats = reverseClaimFee +
-        reverseLockupFee +
-        (reversePercentage / 100 * double.parse(userEnteredValueInSats!));
+    // fiat conversion setup
+    final referenceCurrency = ref.read(prefsProvider).referenceCurrency;
+    final fiatCurrency = ref.watch(amountCurrencyProvider);
+    final fiatRates = ref.watch(fiatRatesProvider).asData?.value;
+    final rate = fiatRates
+        ?.firstWhere(
+            (element) => element.code == (fiatCurrency ?? referenceCurrency))
+        .rate;
+    final isFiatToggled = ref.watch(amountCurrencyProvider) != null;
 
-    final assetBalanceFiatAmount = ref
-            .watch(satsToFiatDisplayWithSymbolProvider(
-                totalServiceFeeSats.round()))
-            .asData
-            ?.value ??
-        '';
+    // fee in sats
+    final amountString = amountEntered != null && amountEntered!.isNotEmpty
+        ? amountEntered!
+        : "0";
+    final amountEnteredDouble = double.parse(amountString).toInt();
+    final amountFiatToSats =
+        rate != null ? amountEnteredDouble / (rate / satsPerBtc) : null;
+    final amountSats =
+        isFiatToggled ? amountFiatToSats!.toInt() : amountEnteredDouble;
+    final totalServiceFeeSats = BoltzFees.totalFeesForAmountReverse(amountSats);
+
+    // fee in fiat
+    final amountFiat = rate != null
+        ? (totalServiceFeeSats / (satsPerBtc / rate)).toStringAsFixed(2)
+        : '';
 
     return Text(
-        "${context.loc.boltzServiceFee}: ${totalServiceFeeSats.ceil()} sats ($assetBalanceFiatAmount)");
+        "${context.loc.boltzTotalFees}: ${totalServiceFeeSats.ceil()} sats (${fiatCurrency ?? referenceCurrency} $amountFiat)");
   }
 }

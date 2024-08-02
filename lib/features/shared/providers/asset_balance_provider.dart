@@ -9,10 +9,6 @@ final getBalanceProvider =
   return await ref.read(balanceProvider).getBalance(asset);
 });
 
-final getLBTCBalanceProvider = FutureProvider.autoDispose<int>((ref) async {
-  return await ref.read(balanceProvider).getBalance(Asset.liquid());
-});
-
 final getBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) async {
   return await ref.read(balanceProvider).getBalance(Asset.btc());
 });
@@ -52,5 +48,11 @@ class BalanceService {
   Future<int> getBitcoinBalance() async {
     final balances = await _ref.read(bitcoinProvider).getBalance();
     return balances?['btc'] as int? ?? 0;
+  }
+
+  Future<int> getUsdtLiquidBalance() async {
+    final balances = await _ref.read(liquidProvider).getBalance();
+    final usdtId = _ref.read(liquidProvider).usdtId;
+    return balances?[usdtId] as int? ?? 0;
   }
 }

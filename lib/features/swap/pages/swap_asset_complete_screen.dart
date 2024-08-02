@@ -1,8 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/animations.dart' as animation;
 import 'package:aqua/constants.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/utils/utils.dart';
@@ -11,14 +9,14 @@ import 'package:lottie/lottie.dart';
 class SwapAssetCompleteScreen extends HookConsumerWidget {
   static const routeName = '/swapAssetCompleteScreen';
 
-  const SwapAssetCompleteScreen({Key? key}) : super(key: key);
+  const SwapAssetCompleteScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final arguments =
-        ModalRoute.of(context)!.settings.arguments as (Asset, GdkTransaction);
+        ModalRoute.of(context)!.settings.arguments as SwapStateSuccess;
 
-    final model = ref.watch(swapDetailsProvider(arguments));
+    final uiModel = ref.read(swapDetailsProvider(arguments));
 
     return Scaffold(
       appBar: AquaAppBar(
@@ -26,11 +24,7 @@ class SwapAssetCompleteScreen extends HookConsumerWidget {
         showActionButton: false,
         title: context.loc.swapScreenTitle,
       ),
-      body: model.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e.toString())),
-        data: (uiModel) => _SuccessUi(uiModel: uiModel),
-      ),
+      body: _SuccessUi(uiModel: uiModel),
     );
   }
 }

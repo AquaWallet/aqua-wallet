@@ -10,7 +10,7 @@ const maxNoteLength = 3000;
 class AddNoteScreen extends HookConsumerWidget {
   static const routeName = '/addNoteScreen';
 
-  const AddNoteScreen({Key? key}) : super(key: key);
+  const AddNoteScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

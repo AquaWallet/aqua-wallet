@@ -1,7 +1,7 @@
 import 'package:aqua/features/shared/shared.dart';
 
 class CustomError extends HookConsumerWidget {
-  const CustomError({Key? key, this.errorMessage}) : super(key: key);
+  const CustomError({super.key, this.errorMessage});
 
   final String? errorMessage;
 
@@ -9,7 +9,7 @@ class CustomError extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
       height: 20.h,
-      child: errorMessage != null
+      child: errorMessage != null && errorMessage!.isNotEmpty
           ? ErrorLabel(text: errorMessage!)
           : const SizedBox.shrink(),
     );

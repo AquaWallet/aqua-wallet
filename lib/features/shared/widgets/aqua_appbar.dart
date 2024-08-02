@@ -4,7 +4,7 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-final kAppBarHeight = 74.h;
+final kAppBarHeight = 66.h;
 
 class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
   const AquaAppBar({
@@ -76,7 +76,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
       ),
       automaticallyImplyLeading: false,
       leadingWidth: 96.w,
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor ?? theme.colorScheme.background,
       leading: !showBackButton
           ? const SizedBox.shrink()
           : Center(

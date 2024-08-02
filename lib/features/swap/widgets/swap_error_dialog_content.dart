@@ -1,14 +1,17 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SwapErrorDialogContent extends HookConsumerWidget {
   const SwapErrorDialogContent({
     super.key,
     required this.message,
+    this.destinationRouteName = SwapScreen.routeName,
   });
 
   final String message;
+  final String destinationRouteName;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,7 +19,7 @@ class SwapErrorDialogContent extends HookConsumerWidget {
       ref.invalidate(sideswapInputStateProvider);
       ref.invalidate(sideswapWebsocketProvider);
       Navigator.of(context)
-          .popUntil((route) => route.settings.name == SwapScreen.routeName);
+          .popUntil((route) => route.settings.name == destinationRouteName);
     }, []);
 
     return Container(
@@ -26,7 +29,7 @@ class SwapErrorDialogContent extends HookConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Text(
-            AppLocalizations.of(context)!.swapError,
+            context.loc.swapError,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleLarge,
           ),
@@ -42,7 +45,7 @@ class SwapErrorDialogContent extends HookConsumerWidget {
               child: BoxShadowElevatedButton(
                 onPressed: onContinue,
                 child: Text(
-                  AppLocalizations.of(context)!.backupRecoveryAlertButton,
+                  context.loc.backupRecoveryAlertButton,
                 ),
               ),
             ),

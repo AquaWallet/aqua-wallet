@@ -1,9 +1,9 @@
 import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/logger.dart';
 import 'package:aqua/data/provider/sideshift/sideshift_http_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 
@@ -117,8 +117,8 @@ class SideshiftSetupProvider {
 
       yield const AsyncData(true);
     } catch (error) {
-      logger.e("[SideShift] Error occurred: $error");
-      yield AsyncValue.error(error, StackTrace.empty);
+      logger.e("[SideShift] Error occurred: $error", error, StackTrace.current);
+      yield AsyncValue.error(error, StackTrace.current);
     }
   }
 }

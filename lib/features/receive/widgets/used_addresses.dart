@@ -12,9 +12,9 @@ class UsedAddresses extends HookConsumerWidget {
 
   const UsedAddresses(
     this.arguments, {
-    Key? key,
+    super.key,
     required this.onItemClick,
-  }) : super(key: key);
+  });
 
   final Function(String) onItemClick;
 
@@ -74,10 +74,10 @@ class ReceiveAddressesHistoryScreenUsedItem extends StatelessWidget {
   final ReceiveUsedAddressItemUiModel itemUiModel;
 
   const ReceiveAddressesHistoryScreenUsedItem({
-    Key? key,
+    super.key,
     required this.itemUiModel,
     required this.onItemClick,
-  }) : super(key: key);
+  });
 
   final Function(String) onItemClick;
 

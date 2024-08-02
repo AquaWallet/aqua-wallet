@@ -4,9 +4,9 @@ import 'package:aqua/utils/utils.dart';
 
 class TransactionDetailsNotesItem extends StatelessWidget {
   const TransactionDetailsNotesItem({
-    Key? key,
+    super.key,
     required this.uiModel,
-  }) : super(key: key);
+  });
 
   final AssetTransactionDetailsUiModel uiModel;
 

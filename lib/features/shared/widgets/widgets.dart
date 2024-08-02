@@ -16,5 +16,6 @@ export 'label_copyable_text_view.dart';
 export 'outlined_buttons.dart';
 export 'qr_asset_icon.dart';
 export 'rounded_icon_button.dart';
+export 'tight_expand_icon.dart';
 export 'transaction_processing_animation.dart';
 export 'warning_label.dart';

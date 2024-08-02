@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:math';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/constants.dart' as constants;
@@ -9,7 +11,6 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -18,7 +19,6 @@ class SettingsTab extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final advancedSettingsExpanded = useState(false);
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
     final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
     final biometricAuth = ref.watch(biometricAuthProvider).asData?.value;
@@ -27,7 +27,13 @@ class SettingsTab extends HookConsumerWidget {
     final versionText = kDebugMode ? '$version (${env.name})' : version;
     final languageCode = ref.watch(languageProvider(context)
         .select((p) => p.currentLanguage.languageCode));
+    final currentRate =
+        ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
     final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
+    final isDirectPegInEnabled =
+        ref.watch(prefsProvider.select((p) => p.isDirectPegInEnabled));
+    final experimentalFeaturesEnabled = ref.watch(featureUnlockTapCountProvider
+        .select((p) => p.experimentalFeaturesEnabled));
 
     ref.listen(
       recoveryPhraseRequestProvider,
@@ -48,6 +54,8 @@ class SettingsTab extends HookConsumerWidget {
         title: context.loc.settingsScreenTitle,
         showActionButton: false,
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
+        onTitlePressed: () =>
+            ref.read(featureUnlockTapCountProvider.notifier).increment(),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -93,6 +101,15 @@ class SettingsTab extends HookConsumerWidget {
               onPressed: () => Navigator.of(context)
                   .pushNamed(LanguageSettingsScreen.routeName),
             ),
+            //ANCHOR - Reference rate
+            MenuItemWidget.labeledArrow(
+              context: context,
+              assetName: Svgs.exchangeRate,
+              title: context.loc.refExRateSettingsScreenTitle,
+              label: currentRate.currency.value,
+              onPressed: () => Navigator.of(context)
+                  .pushNamed(ExchangeRateSettingsScreen.routeName),
+            ),
             SizedBox(height: 4.h),
             //ANCHOR - Region
             MenuItemWidget.labeledArrow(
@@ -105,17 +122,26 @@ class SettingsTab extends HookConsumerWidget {
             ),
             SizedBox(height: 4.h),
             //ANCHOR - Biometric
-            if (biometricAuth != null && biometricAuth.available) ...[
+            if (biometricAuth != null && biometricAuth.isDeviceSupported) ...[
               MenuItemWidget.switchItem(
                 context: context,
                 value: biometricAuth.enabled,
                 assetName: Svgs.touch,
                 title: context.loc.settingsScreenItemBiometricAuth,
-                onPressed: () => ref
-                    .read(biometricAuthProvider.notifier)
-                    .toggle(
-                      reason: context.loc.biometricAuthenticationDescription,
-                    ),
+                onPressed: () {
+                  if (biometricAuth.available) {
+                    ref.read(biometricAuthProvider.notifier).toggle(
+                          reason:
+                              context.loc.biometricAuthenticationDescription,
+                        );
+                  } else if (Platform.isAndroid) {
+                    // on Android, open settings security screen
+                    AppSettings.openAppSettings(type: AppSettingsType.security);
+                  } else {
+                    // on iOS, security type is not supported, so open general settings
+                    AppSettings.openAppSettings();
+                  }
+                },
               ),
               SizedBox(height: 4.h),
             ],
@@ -136,6 +162,7 @@ class SettingsTab extends HookConsumerWidget {
               assetName: Svgs.botev,
               iconPadding: EdgeInsets.all(8.r),
               title: context.loc.settingsScreenItemBotevMode,
+              multicolor: true,
               onPressed: () => ref.read(prefsProvider).switchBotevMode(),
             ),
             SizedBox(height: 4.h),
@@ -147,54 +174,71 @@ class SettingsTab extends HookConsumerWidget {
               onPressed: () => Navigator.of(context)
                   .pushNamed(BlockExplorerSettingsScreen.routeName),
             ),
-            SizedBox(height: 40.h),
+            SizedBox(height: 36.h),
             //ANCHOR - Advanced Settings
             _SectionTitle(
               context.loc.settingsScreenSectionAdvanced,
-              collapsable: true,
-              expanded: advancedSettingsExpanded.value,
-              onExpanded: (value) => advancedSettingsExpanded.value = value,
             ),
-            if (advancedSettingsExpanded.value) ...[
-              SizedBox(height: 34.h),
-              //ANCHOR - Manage Assets
+            SizedBox(height: 22.h),
+            //ANCHOR - Direct Peg In
+            MenuItemWidget.switchItem(
+              context: context,
+              value: isDirectPegInEnabled,
+              assetName: Svgs.swap,
+              title: context.loc.settingsScreenItemDirectPegIn,
+              onPressed: () => ref.read(prefsProvider).switchDirectPegIn(),
+            ),
+            SizedBox(height: 4.h),
+            //ANCHOR - Manage Assets
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.assets,
+              title: context.loc.settingsScreenItemAssets,
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(ManageAssetsScreen.routeName),
+            ),
+            SizedBox(height: 4.h),
+            //ANCHOR - Recovery Phrase
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.recovery,
+              title: context.loc.settingsScreenItemPhrase,
+              onPressed: () => ref
+                  .read(recoveryPhraseRequestProvider.notifier)
+                  .requestRecoveryPhrase(),
+            ),
+            SizedBox(height: 4.h),
+            //ANCHOR - Poker Chip
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.pokerchip,
+              title: context.loc.settingsScreenItemPokerChip,
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(PokerchipScreen.routeName),
+            ),
+            SizedBox(height: 4.h),
+            //ANCHOR - Experimental Feature
+            if (experimentalFeaturesEnabled) ...[
               MenuItemWidget.arrow(
+                assetName: Svgs.flask,
                 context: context,
-                assetName: Svgs.assets,
-                title: context.loc.settingsScreenItemAssets,
+                title: AppLocalizations.of(context)!
+                    .settingsScreenItemExperimentalFeatures,
+                iconPadding: EdgeInsets.all(14.r),
                 onPressed: () => Navigator.of(context)
-                    .pushNamed(ManageAssetsScreen.routeName),
+                    .pushNamed(ExperimentalFeaturesScreen.routeName),
               ),
-              SizedBox(height: 4.h),
-              //ANCHOR - Recovery Phrase
-              MenuItemWidget.arrow(
-                context: context,
-                assetName: Svgs.recovery,
-                title: context.loc.settingsScreenItemPhrase,
-                onPressed: () => ref
-                    .read(recoveryPhraseRequestProvider.notifier)
-                    .requestRecoveryPhrase(),
-              ),
-              SizedBox(height: 4.h),
-              //ANCHOR - Poker Chip
-              MenuItemWidget.arrow(
-                context: context,
-                assetName: Svgs.pokerchip,
-                title: context.loc.settingsScreenItemPokerChip,
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(PokerchipScreen.routeName),
-              ),
-              SizedBox(height: 4.h),
-              //ANCHOR - Remove Wallet
-              MenuItemWidget.arrow(
-                assetName: Svgs.removeWallet,
-                context: context,
-                color: Theme.of(context).colors.walletRemoveTextColor,
-                title: context.loc.settingsScreenItemRemoveWallet,
-                onPressed: () => Navigator.of(context)
-                    .pushNamed(RemoveWalletConfirmScreen.routeName),
-              ),
+              SizedBox(height: 4.h), //ANCHOR - Remove Wallet
             ],
+            //ANCHOR - Remove Wallet
+            MenuItemWidget.arrow(
+              assetName: Svgs.removeWallet,
+              context: context,
+              color: Theme.of(context).colors.walletRemoveTextColor,
+              title: context.loc.settingsScreenItemRemoveWallet,
+              onPressed: () => Navigator.of(context)
+                  .pushNamed(RemoveWalletConfirmScreen.routeName),
+            ),
             Container(
               margin: EdgeInsets.only(
                 top: 30.h,

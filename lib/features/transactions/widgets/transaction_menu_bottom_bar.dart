@@ -62,8 +62,7 @@ class TransactionMenuBottomBar extends HookConsumerWidget {
                   QrScannerScreen.routeName,
                   arguments: QrScannerScreenArguments(
                     asset: asset,
-                    throwErrorOnAssetMismatch: true,
-                    parseAddress: true,
+                    parseAction: QrScannerParseAction.parse,
                   ),
                 )
                 // }
@@ -78,12 +77,11 @@ class TransactionMenuBottomBar extends HookConsumerWidget {
 
 class _MenuButton extends StatelessWidget {
   const _MenuButton({
-    Key? key,
     required this.svgAssetName,
     required this.label,
     this.radius,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   final BorderRadius? radius;
   final String svgAssetName;

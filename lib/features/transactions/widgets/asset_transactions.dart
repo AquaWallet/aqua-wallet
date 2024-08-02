@@ -9,8 +9,8 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class AssetTransactions extends HookConsumerWidget {
   const AssetTransactions({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,7 +55,7 @@ class AssetTransactions extends HookConsumerWidget {
                 controller.refreshCompleted();
               },
               header: ClassicHeader(
-                height: 40.h,
+                height: 60.h,
                 refreshingText: '',
                 releaseText: '',
                 completeText: '',

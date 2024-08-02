@@ -1,0 +1,41 @@
+{
+  "QueryResponse": {
+    "Assets": [
+      {
+        "Name": "Test Liquid Bitcoin",
+        "Id": "144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49",
+        "Ticker": "tL-BTC",
+        "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/L-BTC.svg",
+        "Default": true
+      },
+      {
+        "Name": "Tether USD",
+        "Id": "b612eb46313a2cd6ebabd8b7a8eed5696e29898b87a43bff41c94f51acef9d73",
+        "Ticker": "USDt",
+        "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/USDt.svg",
+        "Default": true
+      },
+      {
+        "Name": "Liquid CAD",
+        "Id": "ac3e0ff248c5051ffd61e00155b7122e5ebc04fd397a0ecbdd4f4e4a56232926",
+        "Ticker": "LCAD",
+        "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/LCAD.svg",
+        "Default": false
+      },
+      {
+        "Name": "PEGx EUR Testnet",
+        "Id": "58af36e1b529b42f3e4ccce812924380058cae18b2ad26c89805813a9db25980",
+        "Ticker": "EURx",
+        "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/EURx.svg",
+        "Default": false
+      },
+      {
+        "Name": "Mexas",
+        "Id": "485ff8a902ad063bd8886ef8cfc0d22a068d14dcbe6ae06cf3f904dc581fbd2b",
+        "Ticker": "MEX",
+        "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/MEX.svg",
+        "Default": false
+      }
+    ]
+  }
+}

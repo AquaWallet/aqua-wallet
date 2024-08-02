@@ -18,8 +18,7 @@ abstract class SideswapException {
 }
 
 class SideswapInvalidArgumentsException extends SideswapException {
-  SideswapInvalidArgumentsException({required String message})
-      : super(message: message);
+  SideswapInvalidArgumentsException({required super.message});
 
   @override
   String toString() => message;
@@ -28,8 +27,8 @@ class SideswapInvalidArgumentsException extends SideswapException {
 class SideswapInsufficientFundsException extends SideswapException {
   SideswapInsufficientFundsException({
     required this.isDeliver,
-    required String message,
-  }) : super(message: message);
+    required super.message,
+  });
 
   final bool isDeliver;
 
@@ -38,32 +37,28 @@ class SideswapInsufficientFundsException extends SideswapException {
 }
 
 class SideswapSendAmountException extends SideswapException {
-  SideswapSendAmountException({required String message})
-      : super(message: message);
+  SideswapSendAmountException({required super.message});
 
   @override
   String toString() => message;
 }
 
 class SideswapReceiveAmountException extends SideswapException {
-  SideswapReceiveAmountException({required String message})
-      : super(message: message);
+  SideswapReceiveAmountException({required super.message});
 
   @override
   String toString() => message;
 }
 
 class SideswapMinPegInAmountException extends SideswapException {
-  SideswapMinPegInAmountException({required String message})
-      : super(message: message);
+  SideswapMinPegInAmountException({required super.message});
 
   @override
   String toString() => message;
 }
 
 class SideswapMinPegOutAmountException extends SideswapException {
-  SideswapMinPegOutAmountException({required String message})
-      : super(message: message);
+  SideswapMinPegOutAmountException({required super.message});
 
   @override
   String toString() => message;

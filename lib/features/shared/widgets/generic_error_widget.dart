@@ -4,11 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class GenericErrorWidget extends StatelessWidget {
   const GenericErrorWidget(
-      {Key? key,
+      {super.key,
       this.description,
       this.buttonTitle,
-      required this.buttonAction})
-      : super(key: key);
+      required this.buttonAction});
 
   final String? description;
   final String? buttonTitle;

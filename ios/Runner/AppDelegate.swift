@@ -9,11 +9,12 @@ public func dummyMethodToEnforceBundling() {
 
     GA_auth_handler_call(nil)
     GA_auth_handler_get_status(nil, nil)
+    GA_blind_transaction(nil, nil, nil)    
+    GA_change_settings(nil, nil, nil)
     GA_connect(nil, nil)
     GA_convert_amount(nil, nil, nil)
     GA_convert_json_to_string(nil, nil)
     GA_convert_string_to_json(nil, nil)
-    GA_create_pset(nil, nil, nil)
     GA_create_session(nil)
     GA_create_subaccount(nil, nil, nil)
     GA_create_transaction(nil, nil, nil)
@@ -22,21 +23,26 @@ public func dummyMethodToEnforceBundling() {
     GA_destroy_session(nil)
     GA_destroy_string(nil)
     GA_generate_mnemonic_12(nil)
+    GA_get_available_currencies(nil, nil)
     GA_get_balance(nil, nil, nil)
     GA_get_fee_estimates(nil, nil)
     GA_get_networks(nil)
+    GA_get_previous_addresses(nil, nil, nil)
     GA_get_receive_address(nil, nil, nil)
+    GA_get_settings(nil, nil)
     GA_get_subaccount(nil, 0, nil)
     GA_get_transactions(nil, nil, nil)
     GA_get_unspent_outputs(nil, nil, nil)
     GA_init(nil)
     GA_login_user(nil, nil, nil, nil)
-    GA_refresh_assets(nil, nil, nil)
+    GA_refresh_assets(nil, nil)
     GA_get_assets(nil, nil, nil)
+    GA_register_network(nil, nil)
     GA_register_user(nil, nil, nil, nil)
     GA_send_transaction(nil, nil, nil)
     GA_set_notification_handler(nil, nil, nil)
-    GA_sign_pset(nil, nil, nil)
+    GA_set_transaction_memo(nil, nil, nil, 0)
+    GA_psbt_get_details(nil, nil, nil)
     GA_psbt_sign(nil, nil, nil)
     GA_sign_transaction(nil, nil, nil)
     GA_validate_mnemonic(nil, nil)
@@ -50,6 +56,11 @@ public func dummyMethodToEnforceBundling() {
     verify_signature_schnorr(nil, nil, nil)
     rust_cstr_free(nil)
 
+    create_taxi_transaction(0, nil, nil, nil, 0, nil, nil, false, false, false)
+    create_final_taxi_pset(nil, nil)
+
+    // this routes to boltz-dart's interface
+    dummy_method_to_enforce_bundling()
 }
 
 @UIApplicationMain
@@ -81,6 +92,12 @@ public func dummyMethodToEnforceBundling() {
     })
     
     GeneratedPluginRegistrant.register(with: self)
+    
+    // call `getMainBundlePath` to assure linking
+    if let path = String(cString: getMainBundlePath(), encoding: .utf8) {
+        print("Main bundle path: \(path)")
+    }
+      
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
     

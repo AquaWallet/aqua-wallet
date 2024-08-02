@@ -1,6 +1,5 @@
+import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-
-import 'models.dart';
 
 /// Asset extensions for send flow
 extension SendAssetExtensions on Asset {
@@ -35,7 +34,7 @@ extension SendAssetExtensions on Asset {
     } else if (isUSDt) {
       return 'USDt';
     }
-    return '';
+    return ticker;
   }
 
   // fee currency symbol
@@ -47,13 +46,10 @@ extension SendAssetExtensions on Asset {
   }
 
   // network
-  String get network {
-    if (isBTC) {
-      return 'Bitcoin';
-    } else {
-      return 'Liquid';
-    }
-  }
+  String get network => isBTC ? 'Bitcoin' : 'Liquid';
+
+  NetworkType get networkType =>
+      isBTC ? NetworkType.bitcoin : NetworkType.liquid;
 
   // provider name
   String get providerName {
@@ -63,14 +59,5 @@ extension SendAssetExtensions on Asset {
       return 'Shift';
     }
     return '';
-  }
-
-  // broadcast service
-  SendBroadcastServiceType get broadcastService {
-    if (isLightning) {
-      return SendBroadcastServiceType.boltz;
-    }
-
-    return SendBroadcastServiceType.blockstream;
   }
 }

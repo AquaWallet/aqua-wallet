@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'package:aqua/data/models/gdk_models.dart';
 import 'package:ffi/ffi.dart';
 import 'ffi/generated_bindings.dart';
 
@@ -166,9 +167,136 @@ class Elements {
     return result == 1;
   }
 
+  static TaxiResult createFinalTaxiPset(
+      String clientSignedPset, String serverSignedPset) {
+    final clientSignedPsetPtr = clientSignedPset.toNativeUtf8();
+    final serverSignedPsetPtr = serverSignedPset.toNativeUtf8();
+
+    final result = _bindings.create_final_taxi_pset(
+      clientSignedPsetPtr as Pointer<Char>,
+      serverSignedPsetPtr as Pointer<Char>,
+    );
+
+    calloc.free(clientSignedPsetPtr);
+    calloc.free(serverSignedPsetPtr);
+
+    final txPtr = result.tx_ptr;
+    final errorMsg = result.error_msg;
+
+    String? txString;
+    String? errorString;
+
+    if (txPtr != nullptr) {
+      txString = txPtr.cast<Utf8>().toDartString();
+      _free(txPtr);
+    }
+
+    if (errorMsg != nullptr) {
+      errorString = errorMsg.cast<Utf8>().toDartString();
+      _free(errorMsg);
+    }
+    return TaxiResult(
+      tx: txString,
+      errorMessage: errorString,
+    );
+  }
+
+  static TaxiResult createTaxiTransaction(
+      int sendAmount,
+      String sendAddress,
+      String changeAddress,
+      List<GdkUnspentOutputs> gdkOutputs,
+      String userAgent,
+      String apiKey,
+      bool sendAll,
+      bool isLowball,
+      bool isTestnet) {
+    final sendAddressPtr = sendAddress.toNativeUtf8();
+    final changeAddressPtr = changeAddress.toNativeUtf8();
+    final userAgentPtr = userAgent.toNativeUtf8();
+    final apiKeyPtr = apiKey.toNativeUtf8();
+
+    final Pointer<UtxoFFI> utxosPtr = calloc<UtxoFFI>(gdkOutputs.length);
+    for (var i = 0; i < gdkOutputs.length; i++) {
+      utxosPtr[i] = gdkOutputs[i].toUtxoFFI();
+    }
+
+    final result = _bindings.create_taxi_transaction(
+        sendAmount,
+        sendAddressPtr as Pointer<Char>,
+        changeAddressPtr as Pointer<Char>,
+        utxosPtr,
+        gdkOutputs.length,
+        userAgentPtr as Pointer<Char>,
+        apiKeyPtr as Pointer<Char>,
+        sendAll,
+        isLowball,
+        isTestnet);
+
+    calloc.free(sendAddressPtr);
+    calloc.free(changeAddressPtr);
+    calloc.free(utxosPtr);
+    calloc.free(userAgentPtr);
+    calloc.free(apiKeyPtr);
+
+    final txPtr = result.tx_ptr;
+    final errorMsg = result.error_msg;
+
+    String? txString;
+    String? errorString;
+
+    if (txPtr != nullptr) {
+      txString = txPtr.cast<Utf8>().toDartString();
+      _free(txPtr);
+    }
+
+    if (errorMsg != nullptr) {
+      errorString = errorMsg.cast<Utf8>().toDartString();
+      _free(errorMsg);
+    }
+    return TaxiResult(
+      tx: txString,
+      errorMessage: errorString,
+    );
+  }
+
   /// Releases the memory allocated to handle the given (result) value
   static void _free(Pointer<Char> value) {
     final ptr = value.cast<Int8>();
     return _bindings.rust_cstr_free(ptr as Pointer<Char>);
+  }
+}
+
+class TaxiResult {
+  final String? tx;
+  final String? errorMessage;
+
+  TaxiResult({
+    this.tx,
+    this.errorMessage,
+  });
+}
+
+extension GdkUnspentOutputsExtension on GdkUnspentOutputs {
+  UtxoFFI toUtxoFFI() {
+    final Pointer<UtxoFFI> ptr = calloc<UtxoFFI>();
+    ptr.ref
+      ..txid = stringToNativeUtf8(txhash)
+      ..vout = ptIdx ?? 0
+      ..script_pub_key = stringToNativeUtf8(prevoutScript)
+      ..asset_id = stringToNativeUtf8(assetId)
+      ..value = satoshi ?? 0
+      ..asset_bf = stringToNativeUtf8(assetBlinder)
+      ..value_bf = stringToNativeUtf8(amountBlinder)
+      ..asset_commitment = stringToNativeUtf8(assetTag)
+      ..value_commitment = stringToNativeUtf8(commitment);
+    return ptr.ref;
+  }
+
+  Pointer<Char> stringToNativeUtf8(String? str) {
+    if (str == null) {
+      return nullptr;
+    }
+    return str.toNativeUtf8().cast<Char>();
   }
 }

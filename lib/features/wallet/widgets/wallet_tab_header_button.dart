@@ -4,13 +4,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletTabHeaderButton extends StatelessWidget {
   const WalletTabHeaderButton({
-    Key? key,
+    super.key,
     required this.svgAssetName,
     required this.label,
     this.radius,
     required this.onPressed,
     this.isDark = false,
-  }) : super(key: key);
+  });
 
   final BorderRadius? radius;
   final String svgAssetName;

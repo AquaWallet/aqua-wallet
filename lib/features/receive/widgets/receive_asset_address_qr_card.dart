@@ -8,12 +8,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class ReceiveAssetAddressQrCard extends HookWidget {
   const ReceiveAssetAddressQrCard({
     super.key,
+    this.isDirectPegIn = false,
     required this.asset,
     required this.address,
   });
 
   final Asset asset;
   final String address;
+  final bool isDirectPegIn;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,7 @@ class ReceiveAssetAddressQrCard extends HookWidget {
             SizedBox(height: 20.h),
             ReceiveAssetAddressLabel(
               asset: asset,
+              isDirectPegIn: isDirectPegIn,
             ),
             SizedBox(height: 20.h),
             //ANCHOR - QR Code

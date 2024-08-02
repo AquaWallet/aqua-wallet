@@ -11,7 +11,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class ReceiveAddressesHistoryScreen extends HookConsumerWidget {
   static const routeName = '/receiveAddressesHistoryScreen';
 
-  const ReceiveAddressesHistoryScreen({Key? key}) : super(key: key);
+  const ReceiveAddressesHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

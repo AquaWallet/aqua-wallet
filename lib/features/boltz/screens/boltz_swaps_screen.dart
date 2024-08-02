@@ -7,7 +7,7 @@ import 'boltz_swaps_list.dart';
 class BoltzSwapsScreen extends ConsumerWidget {
   static const routeName = '/boltzSwapsScreen';
 
-  const BoltzSwapsScreen({Key? key}) : super(key: key);
+  const BoltzSwapsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -10,28 +10,32 @@ class ExchangeRateSettingsScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref
-        .watch(exchangeRatesProvider.select((p) => p.availableExchangeRates));
+    final items =
+        ref.watch(exchangeRatesProvider.select((p) => p.availableCurrencies));
     final currentRate =
         ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
 
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: true,
+        showActionButton: false,
         title: context.loc.refExRateSettingsScreenTitle,
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: SafeArea(
         child: SettingsSelectionList(
-          label: currentRate.displayName,
+          showSearch: false,
+          label: currentRate.displayName(context),
           items: items
               .mapIndexed((index, item) => SettingsItem.create(item,
-                  name: item.name, index: index, length: items.length))
+                  name: currencyLabelLookup(item.currency, context),
+                  index: index,
+                  length: items.length))
               .toList(),
           itemBuilder: (context, item) {
             final currency = item.object as ExchangeRate;
             return SettingsListSelectionItem(
-              content: Text(currency.displayName),
+              content: Text(currency.displayName(context)),
               position: item.position,
               onPressed: () => ref
                   .read(exchangeRatesProvider)

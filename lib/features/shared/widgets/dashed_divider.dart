@@ -3,13 +3,13 @@ import 'package:aqua/features/shared/shared.dart';
 
 class DashedDivider extends StatelessWidget {
   const DashedDivider({
-    Key? key,
+    super.key,
     this.height = 1,
     this.dashWidth = 5,
     this.dashSpace = 3,
     this.thickness = 1,
     this.color,
-  }) : super(key: key);
+  });
 
   final double height;
   final double dashWidth;

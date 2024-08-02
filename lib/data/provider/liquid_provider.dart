@@ -1,11 +1,8 @@
-import 'package:aqua/logger.dart';
-import 'package:aqua/data/backend/gdk_backend_event.dart';
 import 'package:aqua/data/backend/liquid_network.dart';
-import 'package:aqua/data/backend/network_backend.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:isolator/isolator.dart';
+import 'package:aqua/logger.dart';
 
 enum LiquidNetworkEnumType {
   regtest,
@@ -77,12 +74,16 @@ class LiquidNetworkFactory {
 
         params = GdkConnectionParams(
           name: networkName,
+          minFeeRate: 10,
         );
         break;
       case Env.testnet:
         networkName = 'electrum-testnet-liquid';
         networkType = LiquidNetworkEnumType.testnet;
-        params = GdkConnectionParams(name: networkName);
+        params = GdkConnectionParams(
+          name: networkName,
+          minFeeRate: 10,
+        );
         break;
       case Env.mainnet:
         networkName = 'electrum-liquid';
@@ -90,7 +91,10 @@ class LiquidNetworkFactory {
         params = GdkConnectionParams(name: networkName);
         networkName = 'electrum-liquid';
         networkType = LiquidNetworkEnumType.mainnet;
-        params = GdkConnectionParams(name: networkName);
+        params = GdkConnectionParams(
+          name: networkName,
+          minFeeRate: 10,
+        );
         break;
     }
     logger.i("[ENV] $envType - using liquid network: $networkName");
@@ -98,13 +102,15 @@ class LiquidNetworkFactory {
   }
 }
 
-final liquidProvider =
-    Provider<LiquidProvider>((ref) => LiquidProvider(ref: ref));
+final liquidProvider = Provider<LiquidProvider>((ref) => LiquidProvider(
+      ref: ref,
+      session: LiquidNetwork(),
+    ));
 
 class LiquidProvider extends NetworkFrontend {
   LiquidNetworkFactory? liquidNetworkFactory;
 
-  LiquidProvider({required ProviderRef ref}) : super(ref: ref) {
+  LiquidProvider({required super.ref, required super.session}) {
     addEventListener(listener: onGdkEvent);
   }
 
@@ -152,16 +158,10 @@ class LiquidProvider extends NetworkFrontend {
     logger.e('[$runtimeType] Liquid provider error: $error');
   }
 
+  @override
   Future<bool> init() async {
     logger.d('[$runtimeType] Initializing liquid backend');
-    await initBackend(
-      _createGdkBackend,
-      backendType: NetworkBackend,
-      uniqueId: 'LiquidBackend',
-      errorHandler: onBackendError,
-    );
-
-    final result = await runBackendMethod<Object, bool>(GdkBackendEvent.init);
+    final result = await super.init();
 
     if (!result) {
       throw InitializeNetworkFrontendException();
@@ -190,12 +190,16 @@ class LiquidProvider extends NetworkFrontend {
     };
   }
 
+  String get mexasId {
+    return switch (liquidNetworkFactory?.networkType) {
+      LiquidNetworkEnumType.mainnet =>
+        '26ac924263ba547b706251635550a8649545ee5c074fe5db8d7140557baaf32e',
+      _ => '485ff8a902ad063bd8886ef8cfc0d22a068d14dcbe6ae06cf3f904dc581fbd2b'
+    };
+  }
+
   @override
   Future<int> minFeeRate() async {
     return 100;
   }
-}
-
-void _createGdkBackend(BackendArgument<void> argument) {
-  NetworkBackend(argument, LiquidNetwork());
 }

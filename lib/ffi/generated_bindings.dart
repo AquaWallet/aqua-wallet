@@ -273,24 +273,19 @@ class NativeLibrary {
 
   /// Refresh the sessions internal cache of Liquid asset information.
   ///
+  /// Each release of GDK comes with a partial list of Liquid assets built-in.
+  /// This call is used to update it to include all the registered Liquid assets
+  /// or any new assets that have been registered since the last update.
+  ///
   /// :param session: The session to use.
   /// :param params: the :ref:`assets-params-data` of the server to connect to.
-  /// :param output: Destination for the output :ref:`asset-informations`.
-  /// |     Returned GA_json should be freed using `GA_destroy_json`.
-  ///
-  /// Each release of GDK comes with a list of the latest registered Liquid
-  /// assets built-in. This call is used to return this data and/or to update
-  /// it to include any new assets that have been registered since installation
-  /// or the last update.
   int GA_refresh_assets(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> params,
-    ffi.Pointer<ffi.Pointer<GA_json>> output,
   ) {
     return _GA_refresh_assets(
       session,
       params,
-      output,
     );
   }
 
@@ -301,13 +296,13 @@ class NativeLibrary {
 
   /// Query the Liquid asset registry.
   ///
-  /// :param session: The session to use.
-  /// :param params: the :ref:`get-assets-params` specifying the assets to query.
-  /// :param output: Destination for the output :ref:`asset-informations`.
-  /// |     Returned GA_json should be freed using `GA_destroy_json`.
-  ///
   /// This call is used to retrieve informations about a set of Liquid assets
   /// specified by their asset id.
+  ///
+  /// :param session: The session to use.
+  /// :param params: the :ref:`get-assets-params` specifying the assets to query.
+  /// :param output: Destination for the output :ref:`asset-details`.
+  /// |     Returned GA_json should be freed using `GA_destroy_json`.
   int GA_get_assets(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> params,
@@ -344,6 +339,32 @@ class NativeLibrary {
   late final _GA_validate_asset_domain_name = _GA_validate_asset_domain_namePtr
       .asFunction<DartGA_validate_asset_domain_name>();
 
+  /// Validate a gdk format JSON document.
+  ///
+  /// :param session: The session to use.
+  /// :param details: The :ref:`validate-details` to validate.
+  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     The call handlers result is :ref:`validate-result`.
+  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call
+  /// completes.
+  int GA_validate(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
+  ) {
+    return _GA_validate(
+      session,
+      details,
+      call,
+    );
+  }
+
+  late final _GA_validatePtr =
+      _lookup<ffi.NativeFunction<NativeGA_validate>>('GA_validate');
+  late final _GA_validate = _GA_validatePtr.asFunction<DartGA_validate>();
+
   /// Create a new user wallet.
   ///
   /// :param session: The session to use.
@@ -351,6 +372,9 @@ class NativeLibrary {
   /// :param details: The :ref:`login-credentials` for software wallet registration.
   /// :param call: Destination for the resulting GA_auth_handler to perform the registration.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameters ``hw_device`` and ``details`` will be emptied when the call
+  /// completes.
   int GA_register_user(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> hw_device,
@@ -382,6 +406,9 @@ class NativeLibrary {
   /// reconnected, the user will need to login again using this function. In
   /// this case, the caller can pass empty JSON for both ``hw_device`` and
   /// ``details`` to login using the previously passed credentials and device.
+  ///
+  /// .. note:: When calling from C/C++, the parameters ``hw_device`` and ``details`` will be emptied when the call
+  /// completes.
   int GA_login_user(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> hw_device,
@@ -488,6 +515,8 @@ class NativeLibrary {
   /// |     be populated, and ``"recovery_mnemonic"`` will contain the recovery mnemonic
   /// |     passphrase if one was generated. These values must be stored safely by the
   /// |     caller as they will not be returned again by any call such as `GA_get_subaccounts`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   int GA_create_subaccount(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -555,39 +584,14 @@ class NativeLibrary {
   late final _GA_get_subaccount =
       _GA_get_subaccountPtr.asFunction<DartGA_get_subaccount>();
 
-  /// Rename a subaccount.
-  ///
-  /// :param session: The session to use.
-  /// :param subaccount: The value of ``"pointer"`` from :ref:`subaccount-list` or
-  /// |                   :ref:`subaccount-detail` for the subaccount to rename.
-  /// :param new_name: New name for the subaccount.
-  ///
-  /// .. note:: This call is deprecated and will be removed in a future release. Use
-  /// |          `GA_update_subaccount` to rename subaccounts.
-  int GA_rename_subaccount(
-    ffi.Pointer<GA_session> session,
-    int subaccount,
-    ffi.Pointer<ffi.Char> new_name,
-  ) {
-    return _GA_rename_subaccount(
-      session,
-      subaccount,
-      new_name,
-    );
-  }
-
-  late final _GA_rename_subaccountPtr =
-      _lookup<ffi.NativeFunction<NativeGA_rename_subaccount>>(
-          'GA_rename_subaccount');
-  late final _GA_rename_subaccount =
-      _GA_rename_subaccountPtr.asFunction<DartGA_rename_subaccount>();
-
   /// Update subaccount information.
   ///
   /// :param session: The session to use.
   /// :param details: :ref:`subaccount-update` giving the details to update.
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes
   int GA_update_subaccount(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -613,7 +617,9 @@ class NativeLibrary {
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
   ///
-  /// .. note:: Transactions are returned from newest to oldest with up to 30 transactions per page.
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
+  ///
+  /// .. note:: Transactions are returned as :ref:`tx-list` from newest to oldest with up to 30 transactions per page.
   int GA_get_transactions(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -635,9 +641,12 @@ class NativeLibrary {
   /// Get a new address to receive coins to.
   ///
   /// :param session: The session to use.
-  /// :param details: :ref:`receive-address-details`.
+  /// :param details: :ref:`receive-address-request`.
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     The call handlers result is :ref:`receive-address-details`.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   int GA_get_receive_address(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -663,6 +672,8 @@ class NativeLibrary {
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
   /// |     The call handlers result is :ref:`previous-addresses`.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   ///
   /// .. note:: Iteration of all addresses is complete when 'last_pointer' is not
   /// |     present in the results.
@@ -691,6 +702,8 @@ class NativeLibrary {
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
   /// |     The call handlers result is :ref:`unspent-outputs`.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   int GA_get_unspent_outputs(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -712,26 +725,21 @@ class NativeLibrary {
   /// Get the unspent transaction outputs associated with a non-wallet private key.
   ///
   /// :param session: The session to use.
-  /// :param key: The private key in WIF or BIP 38 format.
-  /// :param password: The password the key is encrypted with, if any.
-  /// :param unused: unused, must be 0
-  /// :param utxos: Destination for the returned utxos (same format as :ref:`tx-list`).
-  /// |     Returned GA_json should be freed using `GA_destroy_json`.
+  /// :param details: :ref:`unspent-outputs-private-request` detailing the private key to check.
+  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     The call handlers result is :ref:`unspent-outputs`.
+  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
   ///
-  /// .. note:: Neither the private key or its derived public key are transmitted.
+  /// .. note:: Neither the private key or its derived public key are sent to any third party for this call.
   int GA_get_unspent_outputs_for_private_key(
     ffi.Pointer<GA_session> session,
-    ffi.Pointer<ffi.Char> private_key,
-    ffi.Pointer<ffi.Char> password,
-    int unused,
-    ffi.Pointer<ffi.Pointer<GA_json>> utxos,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
   ) {
     return _GA_get_unspent_outputs_for_private_key(
       session,
-      private_key,
-      password,
-      unused,
-      utxos,
+      details,
+      call,
     );
   }
 
@@ -748,6 +756,8 @@ class NativeLibrary {
   /// :param details: :ref:`unspent-outputs-status` detailing the unspent transaction outputs status to set.
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   int GA_set_unspent_outputs_status(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -797,6 +807,8 @@ class NativeLibrary {
   /// |    compute the balance from.
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   int GA_get_balance(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -858,13 +870,15 @@ class NativeLibrary {
   late final _GA_convert_amount =
       _GA_convert_amountPtr.asFunction<DartGA_convert_amount>();
 
-  /// Encrypt json with server provided key protected by a PIN.
+  /// Encrypt JSON with a server provided key protected by a PIN.
   ///
   /// :param session: The session to use.
   /// :param details: The :ref:`encrypt-with-pin-details` to encrypt.
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
   /// |     The call handlers result is :ref:`encrypt-with-pin-result` which the caller should persist.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   int GA_encrypt_with_pin(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -882,6 +896,33 @@ class NativeLibrary {
           'GA_encrypt_with_pin');
   late final _GA_encrypt_with_pin =
       _GA_encrypt_with_pinPtr.asFunction<DartGA_encrypt_with_pin>();
+
+  /// Decrypt JSON with a server provided key protected by a PIN.
+  ///
+  /// :param session: The session to use.
+  /// :param details: The :ref:`decrypt-with-pin-details` to decrypt.
+  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     The call handlers result is the decrypted JSON.
+  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
+  int GA_decrypt_with_pin(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
+  ) {
+    return _GA_decrypt_with_pin(
+      session,
+      details,
+      call,
+    );
+  }
+
+  late final _GA_decrypt_with_pinPtr =
+      _lookup<ffi.NativeFunction<NativeGA_decrypt_with_pin>>(
+          'GA_decrypt_with_pin');
+  late final _GA_decrypt_with_pin =
+      _GA_decrypt_with_pinPtr.asFunction<DartGA_decrypt_with_pin>();
 
   /// Disable all PIN logins previously set.
   ///
@@ -909,6 +950,8 @@ class NativeLibrary {
   /// :param transaction_details: The :ref:`create-tx-details` for constructing.
   /// :param call: Destination for the resulting GA_auth_handler to complete the action.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``transaction_details`` will be emptied when the call completes.
   int GA_create_transaction(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> transaction_details,
@@ -927,12 +970,41 @@ class NativeLibrary {
   late final _GA_create_transaction =
       _GA_create_transactionPtr.asFunction<DartGA_create_transaction>();
 
+  /// Blind a transaction.
+  ///
+  /// :param session: The session to use.
+  /// :param transaction_details: The :ref:`create-tx-details` for blinding.
+  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``transaction_details`` will be emptied when the call completes.
+  int GA_blind_transaction(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> transaction_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
+  ) {
+    return _GA_blind_transaction(
+      session,
+      transaction_details,
+      call,
+    );
+  }
+
+  late final _GA_blind_transactionPtr =
+      _lookup<ffi.NativeFunction<NativeGA_blind_transaction>>(
+          'GA_blind_transaction');
+  late final _GA_blind_transaction =
+      _GA_blind_transactionPtr.asFunction<DartGA_blind_transaction>();
+
   /// Sign the user's inputs to a transaction.
   ///
   /// :param session: The session to use.
-  /// :param transaction_details: The :ref:`sign-tx-details` for signing, previously returned from GA_create_transaction.
+  /// :param transaction_details: The :ref:`sign-tx-details` for signing, as previously
+  /// |     returned from `GA_create_transaction` or (for Liquid) `GA_blind_transaction`.
   /// :param call: Destination for the resulting GA_auth_handler to perform the signing.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``transaction_details`` will be emptied when the call completes.
   int GA_sign_transaction(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> transaction_details,
@@ -951,6 +1023,56 @@ class NativeLibrary {
   late final _GA_sign_transaction =
       _GA_sign_transactionPtr.asFunction<DartGA_sign_transaction>();
 
+  /// Construct the initiators side of a swap transaction.
+  ///
+  /// :param session: The session to use.
+  /// :param swap_details: The :ref:`create-swap-tx-details` for constructing.
+  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     The call handlers result is :ref:`create-swap-tx-result`.
+  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  int GA_create_swap_transaction(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> swap_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
+  ) {
+    return _GA_create_swap_transaction(
+      session,
+      swap_details,
+      call,
+    );
+  }
+
+  late final _GA_create_swap_transactionPtr =
+      _lookup<ffi.NativeFunction<NativeGA_create_swap_transaction>>(
+          'GA_create_swap_transaction');
+  late final _GA_create_swap_transaction = _GA_create_swap_transactionPtr
+      .asFunction<DartGA_create_swap_transaction>();
+
+  /// Complete construction of the callers side of a swap transaction.
+  ///
+  /// :param session: The session to use.
+  /// :param swap_details: The :ref:`complete-swap-tx-details` for completing.
+  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     The call handlers result is :ref:`complete-swap-tx-result`.
+  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  int GA_complete_swap_transaction(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> swap_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
+  ) {
+    return _GA_complete_swap_transaction(
+      session,
+      swap_details,
+      call,
+    );
+  }
+
+  late final _GA_complete_swap_transactionPtr =
+      _lookup<ffi.NativeFunction<NativeGA_complete_swap_transaction>>(
+          'GA_complete_swap_transaction');
+  late final _GA_complete_swap_transaction = _GA_complete_swap_transactionPtr
+      .asFunction<DartGA_complete_swap_transaction>();
+
   /// Sign one or more of a user's inputs in a PSBT or PSET.
   ///
   /// :param session: The session to use.
@@ -958,6 +1080,8 @@ class NativeLibrary {
   /// :param call: Destination for the resulting GA_auth_handler to perform the signing.
   /// |     The call handlers result is :ref:`sign-psbt-result`.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   ///
   /// .. note:: EXPERIMENTAL warning: this call may be changed in future releases.
   int GA_psbt_sign(
@@ -983,6 +1107,8 @@ class NativeLibrary {
   /// :param call: Destination for the resulting GA_auth_handler to get the wallet details.
   /// |     The call handlers result is :ref:`psbt-get-details-result`.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   ///
   /// .. note:: EXPERIMENTAL warning: this call may be changed in future releases.
   int GA_psbt_get_details(
@@ -1033,6 +1159,8 @@ class NativeLibrary {
   /// :param transaction_details: The :ref:`send-tx-details` for sending.
   /// :param call: Destination for the resulting GA_auth_handler to perform the send.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``transaction_details`` will be emptied when the call completes.
   int GA_send_transaction(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> transaction_details,
@@ -1051,50 +1179,31 @@ class NativeLibrary {
   late final _GA_send_transaction =
       _GA_send_transactionPtr.asFunction<DartGA_send_transaction>();
 
-  /// Create a PSETv2 filling UTXO details and receive/change outputs.
+  /// Sign a message with the private key of an address.
   ///
   /// :param session: The session to use.
-  /// :param pset_details: PSET :ref:`create-pset-details` for constructing.
-  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// :param details: The :ref:`sign-message-request` detailing the message to sign and how to sign it.
+  /// :param call: Destination for the resulting GA_auth_handler to perform the signing.
+  /// |     The call handlers result is :ref:`sign-message-result`.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
-  int GA_create_pset(
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
+  int GA_sign_message(
     ffi.Pointer<GA_session> session,
-    ffi.Pointer<GA_json> pset_details,
+    ffi.Pointer<GA_json> details,
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
   ) {
-    return _GA_create_pset(
+    return _GA_sign_message(
       session,
-      pset_details,
+      details,
       call,
     );
   }
 
-  late final _GA_create_psetPtr =
-      _lookup<ffi.NativeFunction<NativeGA_create_pset>>('GA_create_pset');
-  late final _GA_create_pset =
-      _GA_create_psetPtr.asFunction<DartGA_create_pset>();
-
-  /// Blind PSETv2 outputs and sign the user's inputs.
-  ///
-  /// :param session: The session to use.
-  /// :param pset_details: PSET PSET :ref:`sign-pset-details` used for constructing.
-  /// :param call: Destination for the resulting GA_auth_handler to perform the blinding and signing.
-  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
-  int GA_sign_pset(
-    ffi.Pointer<GA_session> session,
-    ffi.Pointer<GA_json> pset_details,
-    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
-  ) {
-    return _GA_sign_pset(
-      session,
-      pset_details,
-      call,
-    );
-  }
-
-  late final _GA_sign_psetPtr =
-      _lookup<ffi.NativeFunction<NativeGA_sign_pset>>('GA_sign_pset');
-  late final _GA_sign_pset = _GA_sign_psetPtr.asFunction<DartGA_sign_pset>();
+  late final _GA_sign_messagePtr =
+      _lookup<ffi.NativeFunction<NativeGA_sign_message>>('GA_sign_message');
+  late final _GA_sign_message =
+      _GA_sign_messagePtr.asFunction<DartGA_sign_message>();
 
   /// Request an email containing the user's nLockTime transactions.
   ///
@@ -1119,6 +1228,8 @@ class NativeLibrary {
   /// :param locktime_details: The :ref:`set-locktime-details` for setting the block value.
   /// :param call: Destination for the resulting GA_auth_handler to change the locktime.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``locktime_details`` will be emptied when the call completes.
   int GA_set_csvtime(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> locktime_details,
@@ -1222,6 +1333,8 @@ class NativeLibrary {
   /// :param call: Destination for the resulting GA_auth_handler to get the user's credentials.
   /// |     The call handlers result is :ref:`login-credentials`.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
   int GA_get_credentials(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -1317,6 +1430,8 @@ class NativeLibrary {
   /// :param settings: The new :ref:`settings` values.
   /// :param call: Destination for the resulting GA_auth_handler.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``settings`` will be emptied when the call completes.
   int GA_change_settings(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> settings,
@@ -1641,6 +1756,8 @@ class NativeLibrary {
   /// :param twofactor_details: The two factor method and associated data such as an email address. :ref:`twofactor-detail`
   /// :param call: Destination for the resulting GA_auth_handler to perform the action
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``twofactor_details`` will be emptied when the call completes.
   int GA_change_settings_twofactor(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<ffi.Char> method,
@@ -1755,6 +1872,8 @@ class NativeLibrary {
   /// :param limit_details: Details of the new :ref:`transaction-limits`
   /// :param call: Destination for the resulting GA_auth_handler to perform the change.
   /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``limit_details`` will be emptied when the call completes.
   int GA_twofactor_change_limits(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> limit_details,
@@ -1772,6 +1891,61 @@ class NativeLibrary {
           'GA_twofactor_change_limits');
   late final _GA_twofactor_change_limits = _GA_twofactor_change_limitsPtr
       .asFunction<DartGA_twofactor_change_limits>();
+
+  /// Encode CBOR into (potentially multi-part) UR-encoding.
+  ///
+  /// :param session: The session to use.
+  /// :param details: :ref:`bcur-encode` containing the CBOR data to encode.
+  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     The call handlers result is :ref:`bcur-encoded`.
+  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
+  int GA_bcur_encode(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
+  ) {
+    return _GA_bcur_encode(
+      session,
+      details,
+      call,
+    );
+  }
+
+  late final _GA_bcur_encodePtr =
+      _lookup<ffi.NativeFunction<NativeGA_bcur_encode>>('GA_bcur_encode');
+  late final _GA_bcur_encode =
+      _GA_bcur_encodePtr.asFunction<DartGA_bcur_encode>();
+
+  /// Decode (potentially multi-part) UR-encoded data to CBOR.
+  ///
+  /// :param session: The session to use.
+  /// :param details: :ref:`bcur-decode` containing the the first URI to decode.
+  /// :param call: Destination for the resulting GA_auth_handler to complete the action.
+  /// |     The call handlers result is :ref:`bcur-decoded`.
+  /// |     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+  ///
+  /// For multi-part data, the call hander will request further parts using
+  /// ``"request_code"`` with a method of ``"data"``. see: `auth-handler-status`.
+  ///
+  /// .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
+  int GA_bcur_decode(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call,
+  ) {
+    return _GA_bcur_decode(
+      session,
+      details,
+      call,
+    );
+  }
+
+  late final _GA_bcur_decodePtr =
+      _lookup<ffi.NativeFunction<NativeGA_bcur_decode>>('GA_bcur_decode');
+  late final _GA_bcur_decode =
+      _GA_bcur_decodePtr.asFunction<DartGA_bcur_decode>();
 
   /// Free a string returned by the api.
   ///
@@ -1929,6 +2103,1875 @@ class NativeLibrary {
   late final _GA_get_uniform_uint32_t =
       _GA_get_uniform_uint32_tPtr.asFunction<DartGA_get_uniform_uint32_t>();
 
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> signal(
+    int arg0,
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> arg1,
+  ) {
+    return _signal(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _signalPtr = _lookup<ffi.NativeFunction<NativeSignal>>('signal');
+  late final _signal = _signalPtr.asFunction<DartSignal>();
+
+  int getpriority(
+    int arg0,
+    int arg1,
+  ) {
+    return _getpriority(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _getpriorityPtr =
+      _lookup<ffi.NativeFunction<NativeGetpriority>>('getpriority');
+  late final _getpriority = _getpriorityPtr.asFunction<DartGetpriority>();
+
+  int getiopolicy_np(
+    int arg0,
+    int arg1,
+  ) {
+    return _getiopolicy_np(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _getiopolicy_npPtr =
+      _lookup<ffi.NativeFunction<NativeGetiopolicy_np>>('getiopolicy_np');
+  late final _getiopolicy_np =
+      _getiopolicy_npPtr.asFunction<DartGetiopolicy_np>();
+
+  int getrlimit(
+    int arg0,
+    ffi.Pointer<rlimit> arg1,
+  ) {
+    return _getrlimit(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _getrlimitPtr =
+      _lookup<ffi.NativeFunction<NativeGetrlimit>>('getrlimit');
+  late final _getrlimit = _getrlimitPtr.asFunction<DartGetrlimit>();
+
+  int getrusage(
+    int arg0,
+    ffi.Pointer<rusage> arg1,
+  ) {
+    return _getrusage(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _getrusagePtr =
+      _lookup<ffi.NativeFunction<NativeGetrusage>>('getrusage');
+  late final _getrusage = _getrusagePtr.asFunction<DartGetrusage>();
+
+  int setpriority(
+    int arg0,
+    int arg1,
+    int arg2,
+  ) {
+    return _setpriority(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _setpriorityPtr =
+      _lookup<ffi.NativeFunction<NativeSetpriority>>('setpriority');
+  late final _setpriority = _setpriorityPtr.asFunction<DartSetpriority>();
+
+  int setiopolicy_np(
+    int arg0,
+    int arg1,
+    int arg2,
+  ) {
+    return _setiopolicy_np(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _setiopolicy_npPtr =
+      _lookup<ffi.NativeFunction<NativeSetiopolicy_np>>('setiopolicy_np');
+  late final _setiopolicy_np =
+      _setiopolicy_npPtr.asFunction<DartSetiopolicy_np>();
+
+  int setrlimit(
+    int arg0,
+    ffi.Pointer<rlimit> arg1,
+  ) {
+    return _setrlimit(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _setrlimitPtr =
+      _lookup<ffi.NativeFunction<NativeSetrlimit>>('setrlimit');
+  late final _setrlimit = _setrlimitPtr.asFunction<DartSetrlimit>();
+
+  int wait1(
+    ffi.Pointer<ffi.Int> arg0,
+  ) {
+    return _wait1(
+      arg0,
+    );
+  }
+
+  late final _wait1Ptr = _lookup<ffi.NativeFunction<NativeWait>>('wait');
+  late final _wait1 = _wait1Ptr.asFunction<DartWait>();
+
+  int waitpid(
+    int arg0,
+    ffi.Pointer<ffi.Int> arg1,
+    int arg2,
+  ) {
+    return _waitpid(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _waitpidPtr =
+      _lookup<ffi.NativeFunction<NativeWaitpid>>('waitpid');
+  late final _waitpid = _waitpidPtr.asFunction<DartWaitpid>();
+
+  int waitid(
+    int arg0,
+    int arg1,
+    ffi.Pointer<siginfo_t> arg2,
+    int arg3,
+  ) {
+    return _waitid(
+      arg0,
+      arg1,
+      arg2,
+      arg3,
+    );
+  }
+
+  late final _waitidPtr = _lookup<ffi.NativeFunction<NativeWaitid>>('waitid');
+  late final _waitid = _waitidPtr.asFunction<DartWaitid>();
+
+  int wait3(
+    ffi.Pointer<ffi.Int> arg0,
+    int arg1,
+    ffi.Pointer<rusage> arg2,
+  ) {
+    return _wait3(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _wait3Ptr = _lookup<ffi.NativeFunction<NativeWait3>>('wait3');
+  late final _wait3 = _wait3Ptr.asFunction<DartWait3>();
+
+  int wait4(
+    int arg0,
+    ffi.Pointer<ffi.Int> arg1,
+    int arg2,
+    ffi.Pointer<rusage> arg3,
+  ) {
+    return _wait4(
+      arg0,
+      arg1,
+      arg2,
+      arg3,
+    );
+  }
+
+  late final _wait4Ptr = _lookup<ffi.NativeFunction<NativeWait4>>('wait4');
+  late final _wait4 = _wait4Ptr.asFunction<DartWait4>();
+
+  ffi.Pointer<ffi.Void> alloca(
+    int arg0,
+  ) {
+    return _alloca(
+      arg0,
+    );
+  }
+
+  late final _allocaPtr = _lookup<ffi.NativeFunction<NativeAlloca>>('alloca');
+  late final _alloca = _allocaPtr.asFunction<DartAlloca>();
+
+  late final ffi.Pointer<ffi.Int> ___mb_cur_max =
+      _lookup<ffi.Int>('__mb_cur_max');
+
+  int get __mb_cur_max => ___mb_cur_max.value;
+
+  set __mb_cur_max(int value) => ___mb_cur_max.value = value;
+
+  ffi.Pointer<ffi.Void> malloc_type_malloc(
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_malloc(
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_mallocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_malloc>>(
+          'malloc_type_malloc');
+  late final _malloc_type_malloc =
+      _malloc_type_mallocPtr.asFunction<DartMalloc_type_malloc>();
+
+  ffi.Pointer<ffi.Void> malloc_type_calloc(
+    int count,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_calloc(
+      count,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_callocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_calloc>>(
+          'malloc_type_calloc');
+  late final _malloc_type_calloc =
+      _malloc_type_callocPtr.asFunction<DartMalloc_type_calloc>();
+
+  void malloc_type_free(
+    ffi.Pointer<ffi.Void> ptr,
+    int type_id,
+  ) {
+    return _malloc_type_free(
+      ptr,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_freePtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_free>>('malloc_type_free');
+  late final _malloc_type_free =
+      _malloc_type_freePtr.asFunction<DartMalloc_type_free>();
+
+  ffi.Pointer<ffi.Void> malloc_type_realloc(
+    ffi.Pointer<ffi.Void> ptr,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_realloc(
+      ptr,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_reallocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_realloc>>(
+          'malloc_type_realloc');
+  late final _malloc_type_realloc =
+      _malloc_type_reallocPtr.asFunction<DartMalloc_type_realloc>();
+
+  ffi.Pointer<ffi.Void> malloc_type_valloc(
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_valloc(
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_vallocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_valloc>>(
+          'malloc_type_valloc');
+  late final _malloc_type_valloc =
+      _malloc_type_vallocPtr.asFunction<DartMalloc_type_valloc>();
+
+  ffi.Pointer<ffi.Void> malloc_type_aligned_alloc(
+    int alignment,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_aligned_alloc(
+      alignment,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_aligned_allocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_aligned_alloc>>(
+          'malloc_type_aligned_alloc');
+  late final _malloc_type_aligned_alloc =
+      _malloc_type_aligned_allocPtr.asFunction<DartMalloc_type_aligned_alloc>();
+
+  int malloc_type_posix_memalign(
+    ffi.Pointer<ffi.Pointer<ffi.Void>> memptr,
+    int alignment,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_posix_memalign(
+      memptr,
+      alignment,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_posix_memalignPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_posix_memalign>>(
+          'malloc_type_posix_memalign');
+  late final _malloc_type_posix_memalign = _malloc_type_posix_memalignPtr
+      .asFunction<DartMalloc_type_posix_memalign>();
+
+  ffi.Pointer<ffi.Void> malloc_type_zone_malloc(
+    ffi.Pointer<malloc_zone_t> zone,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_zone_malloc(
+      zone,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_zone_mallocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_malloc>>(
+          'malloc_type_zone_malloc');
+  late final _malloc_type_zone_malloc =
+      _malloc_type_zone_mallocPtr.asFunction<DartMalloc_type_zone_malloc>();
+
+  ffi.Pointer<ffi.Void> malloc_type_zone_calloc(
+    ffi.Pointer<malloc_zone_t> zone,
+    int count,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_zone_calloc(
+      zone,
+      count,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_zone_callocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_calloc>>(
+          'malloc_type_zone_calloc');
+  late final _malloc_type_zone_calloc =
+      _malloc_type_zone_callocPtr.asFunction<DartMalloc_type_zone_calloc>();
+
+  void malloc_type_zone_free(
+    ffi.Pointer<malloc_zone_t> zone,
+    ffi.Pointer<ffi.Void> ptr,
+    int type_id,
+  ) {
+    return _malloc_type_zone_free(
+      zone,
+      ptr,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_zone_freePtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_free>>(
+          'malloc_type_zone_free');
+  late final _malloc_type_zone_free =
+      _malloc_type_zone_freePtr.asFunction<DartMalloc_type_zone_free>();
+
+  ffi.Pointer<ffi.Void> malloc_type_zone_realloc(
+    ffi.Pointer<malloc_zone_t> zone,
+    ffi.Pointer<ffi.Void> ptr,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_zone_realloc(
+      zone,
+      ptr,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_zone_reallocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_realloc>>(
+          'malloc_type_zone_realloc');
+  late final _malloc_type_zone_realloc =
+      _malloc_type_zone_reallocPtr.asFunction<DartMalloc_type_zone_realloc>();
+
+  ffi.Pointer<ffi.Void> malloc_type_zone_valloc(
+    ffi.Pointer<malloc_zone_t> zone,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_zone_valloc(
+      zone,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_zone_vallocPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_valloc>>(
+          'malloc_type_zone_valloc');
+  late final _malloc_type_zone_valloc =
+      _malloc_type_zone_vallocPtr.asFunction<DartMalloc_type_zone_valloc>();
+
+  ffi.Pointer<ffi.Void> malloc_type_zone_memalign(
+    ffi.Pointer<malloc_zone_t> zone,
+    int alignment,
+    int size,
+    int type_id,
+  ) {
+    return _malloc_type_zone_memalign(
+      zone,
+      alignment,
+      size,
+      type_id,
+    );
+  }
+
+  late final _malloc_type_zone_memalignPtr =
+      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_memalign>>(
+          'malloc_type_zone_memalign');
+  late final _malloc_type_zone_memalign =
+      _malloc_type_zone_memalignPtr.asFunction<DartMalloc_type_zone_memalign>();
+
+  ffi.Pointer<ffi.Void> malloc(
+    int __size,
+  ) {
+    return _malloc(
+      __size,
+    );
+  }
+
+  late final _mallocPtr = _lookup<ffi.NativeFunction<NativeMalloc>>('malloc');
+  late final _malloc = _mallocPtr.asFunction<DartMalloc>();
+
+  ffi.Pointer<ffi.Void> calloc(
+    int __count,
+    int __size,
+  ) {
+    return _calloc(
+      __count,
+      __size,
+    );
+  }
+
+  late final _callocPtr = _lookup<ffi.NativeFunction<NativeCalloc>>('calloc');
+  late final _calloc = _callocPtr.asFunction<DartCalloc>();
+
+  void free(
+    ffi.Pointer<ffi.Void> arg0,
+  ) {
+    return _free(
+      arg0,
+    );
+  }
+
+  late final _freePtr = _lookup<ffi.NativeFunction<NativeFree>>('free');
+  late final _free = _freePtr.asFunction<DartFree>();
+
+  ffi.Pointer<ffi.Void> realloc(
+    ffi.Pointer<ffi.Void> __ptr,
+    int __size,
+  ) {
+    return _realloc(
+      __ptr,
+      __size,
+    );
+  }
+
+  late final _reallocPtr =
+      _lookup<ffi.NativeFunction<NativeRealloc>>('realloc');
+  late final _realloc = _reallocPtr.asFunction<DartRealloc>();
+
+  ffi.Pointer<ffi.Void> reallocf(
+    ffi.Pointer<ffi.Void> __ptr,
+    int __size,
+  ) {
+    return _reallocf(
+      __ptr,
+      __size,
+    );
+  }
+
+  late final _reallocfPtr =
+      _lookup<ffi.NativeFunction<NativeReallocf>>('reallocf');
+  late final _reallocf = _reallocfPtr.asFunction<DartReallocf>();
+
+  ffi.Pointer<ffi.Void> valloc(
+    int arg0,
+  ) {
+    return _valloc(
+      arg0,
+    );
+  }
+
+  late final _vallocPtr = _lookup<ffi.NativeFunction<NativeValloc>>('valloc');
+  late final _valloc = _vallocPtr.asFunction<DartValloc>();
+
+  ffi.Pointer<ffi.Void> aligned_alloc(
+    int __alignment,
+    int __size,
+  ) {
+    return _aligned_alloc(
+      __alignment,
+      __size,
+    );
+  }
+
+  late final _aligned_allocPtr =
+      _lookup<ffi.NativeFunction<NativeAligned_alloc>>('aligned_alloc');
+  late final _aligned_alloc = _aligned_allocPtr.asFunction<DartAligned_alloc>();
+
+  int posix_memalign(
+    ffi.Pointer<ffi.Pointer<ffi.Void>> __memptr,
+    int __alignment,
+    int __size,
+  ) {
+    return _posix_memalign(
+      __memptr,
+      __alignment,
+      __size,
+    );
+  }
+
+  late final _posix_memalignPtr =
+      _lookup<ffi.NativeFunction<NativePosix_memalign>>('posix_memalign');
+  late final _posix_memalign =
+      _posix_memalignPtr.asFunction<DartPosix_memalign>();
+
+  void abort() {
+    return _abort();
+  }
+
+  late final _abortPtr = _lookup<ffi.NativeFunction<NativeAbort>>('abort');
+  late final _abort = _abortPtr.asFunction<DartAbort>();
+
+  int abs(
+    int arg0,
+  ) {
+    return _abs(
+      arg0,
+    );
+  }
+
+  late final _absPtr = _lookup<ffi.NativeFunction<NativeAbs>>('abs');
+  late final _abs = _absPtr.asFunction<DartAbs>();
+
+  int atexit(
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0,
+  ) {
+    return _atexit(
+      arg0,
+    );
+  }
+
+  late final _atexitPtr = _lookup<ffi.NativeFunction<NativeAtexit>>('atexit');
+  late final _atexit = _atexitPtr.asFunction<DartAtexit>();
+
+  double atof(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _atof(
+      arg0,
+    );
+  }
+
+  late final _atofPtr = _lookup<ffi.NativeFunction<NativeAtof>>('atof');
+  late final _atof = _atofPtr.asFunction<DartAtof>();
+
+  int atoi(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _atoi(
+      arg0,
+    );
+  }
+
+  late final _atoiPtr = _lookup<ffi.NativeFunction<NativeAtoi>>('atoi');
+  late final _atoi = _atoiPtr.asFunction<DartAtoi>();
+
+  int atol(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _atol(
+      arg0,
+    );
+  }
+
+  late final _atolPtr = _lookup<ffi.NativeFunction<NativeAtol>>('atol');
+  late final _atol = _atolPtr.asFunction<DartAtol>();
+
+  int atoll(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _atoll(
+      arg0,
+    );
+  }
+
+  late final _atollPtr = _lookup<ffi.NativeFunction<NativeAtoll>>('atoll');
+  late final _atoll = _atollPtr.asFunction<DartAtoll>();
+
+  ffi.Pointer<ffi.Void> bsearch(
+    ffi.Pointer<ffi.Void> __key,
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar,
+  ) {
+    return _bsearch(
+      __key,
+      __base,
+      __nel,
+      __width,
+      __compar,
+    );
+  }
+
+  late final _bsearchPtr =
+      _lookup<ffi.NativeFunction<NativeBsearch>>('bsearch');
+  late final _bsearch = _bsearchPtr.asFunction<DartBsearch>();
+
+  div_t div(
+    int arg0,
+    int arg1,
+  ) {
+    return _div(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _divPtr = _lookup<ffi.NativeFunction<NativeDiv>>('div');
+  late final _div = _divPtr.asFunction<DartDiv>();
+
+  void exit(
+    int arg0,
+  ) {
+    return _exit(
+      arg0,
+    );
+  }
+
+  late final _exitPtr = _lookup<ffi.NativeFunction<NativeExit>>('exit');
+  late final _exit = _exitPtr.asFunction<DartExit>();
+
+  ffi.Pointer<ffi.Char> getenv(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _getenv(
+      arg0,
+    );
+  }
+
+  late final _getenvPtr = _lookup<ffi.NativeFunction<NativeGetenv>>('getenv');
+  late final _getenv = _getenvPtr.asFunction<DartGetenv>();
+
+  int labs(
+    int arg0,
+  ) {
+    return _labs(
+      arg0,
+    );
+  }
+
+  late final _labsPtr = _lookup<ffi.NativeFunction<NativeLabs>>('labs');
+  late final _labs = _labsPtr.asFunction<DartLabs>();
+
+  ldiv_t ldiv(
+    int arg0,
+    int arg1,
+  ) {
+    return _ldiv(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _ldivPtr = _lookup<ffi.NativeFunction<NativeLdiv>>('ldiv');
+  late final _ldiv = _ldivPtr.asFunction<DartLdiv>();
+
+  int llabs(
+    int arg0,
+  ) {
+    return _llabs(
+      arg0,
+    );
+  }
+
+  late final _llabsPtr = _lookup<ffi.NativeFunction<NativeLlabs>>('llabs');
+  late final _llabs = _llabsPtr.asFunction<DartLlabs>();
+
+  lldiv_t lldiv(
+    int arg0,
+    int arg1,
+  ) {
+    return _lldiv(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _lldivPtr = _lookup<ffi.NativeFunction<NativeLldiv>>('lldiv');
+  late final _lldiv = _lldivPtr.asFunction<DartLldiv>();
+
+  int mblen(
+    ffi.Pointer<ffi.Char> __s,
+    int __n,
+  ) {
+    return _mblen(
+      __s,
+      __n,
+    );
+  }
+
+  late final _mblenPtr = _lookup<ffi.NativeFunction<NativeMblen>>('mblen');
+  late final _mblen = _mblenPtr.asFunction<DartMblen>();
+
+  int mbstowcs(
+    ffi.Pointer<ffi.WChar> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+    int arg2,
+  ) {
+    return _mbstowcs(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _mbstowcsPtr =
+      _lookup<ffi.NativeFunction<NativeMbstowcs>>('mbstowcs');
+  late final _mbstowcs = _mbstowcsPtr.asFunction<DartMbstowcs>();
+
+  int mbtowc(
+    ffi.Pointer<ffi.WChar> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+    int arg2,
+  ) {
+    return _mbtowc(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _mbtowcPtr = _lookup<ffi.NativeFunction<NativeMbtowc>>('mbtowc');
+  late final _mbtowc = _mbtowcPtr.asFunction<DartMbtowc>();
+
+  void qsort(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar,
+  ) {
+    return _qsort(
+      __base,
+      __nel,
+      __width,
+      __compar,
+    );
+  }
+
+  late final _qsortPtr = _lookup<ffi.NativeFunction<NativeQsort>>('qsort');
+  late final _qsort = _qsortPtr.asFunction<DartQsort>();
+
+  int rand() {
+    return _rand();
+  }
+
+  late final _randPtr = _lookup<ffi.NativeFunction<NativeRand>>('rand');
+  late final _rand = _randPtr.asFunction<DartRand>();
+
+  void srand(
+    int arg0,
+  ) {
+    return _srand(
+      arg0,
+    );
+  }
+
+  late final _srandPtr = _lookup<ffi.NativeFunction<NativeSrand>>('srand');
+  late final _srand = _srandPtr.asFunction<DartSrand>();
+
+  double strtod(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+  ) {
+    return _strtod(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _strtodPtr = _lookup<ffi.NativeFunction<NativeStrtod>>('strtod');
+  late final _strtod = _strtodPtr.asFunction<DartStrtod>();
+
+  double strtof(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+  ) {
+    return _strtof(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _strtofPtr = _lookup<ffi.NativeFunction<NativeStrtof>>('strtof');
+  late final _strtof = _strtofPtr.asFunction<DartStrtof>();
+
+  int strtol(
+    ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
+  ) {
+    return _strtol(
+      __str,
+      __endptr,
+      __base,
+    );
+  }
+
+  late final _strtolPtr = _lookup<ffi.NativeFunction<NativeStrtol>>('strtol');
+  late final _strtol = _strtolPtr.asFunction<DartStrtol>();
+
+  int strtoll(
+    ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
+  ) {
+    return _strtoll(
+      __str,
+      __endptr,
+      __base,
+    );
+  }
+
+  late final _strtollPtr =
+      _lookup<ffi.NativeFunction<NativeStrtoll>>('strtoll');
+  late final _strtoll = _strtollPtr.asFunction<DartStrtoll>();
+
+  int strtoul(
+    ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
+  ) {
+    return _strtoul(
+      __str,
+      __endptr,
+      __base,
+    );
+  }
+
+  late final _strtoulPtr =
+      _lookup<ffi.NativeFunction<NativeStrtoul>>('strtoul');
+  late final _strtoul = _strtoulPtr.asFunction<DartStrtoul>();
+
+  int strtoull(
+    ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
+  ) {
+    return _strtoull(
+      __str,
+      __endptr,
+      __base,
+    );
+  }
+
+  late final _strtoullPtr =
+      _lookup<ffi.NativeFunction<NativeStrtoull>>('strtoull');
+  late final _strtoull = _strtoullPtr.asFunction<DartStrtoull>();
+
+  int system(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _system(
+      arg0,
+    );
+  }
+
+  late final _systemPtr = _lookup<ffi.NativeFunction<NativeSystem>>('system');
+  late final _system = _systemPtr.asFunction<DartSystem>();
+
+  int wcstombs(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.WChar> arg1,
+    int arg2,
+  ) {
+    return _wcstombs(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _wcstombsPtr =
+      _lookup<ffi.NativeFunction<NativeWcstombs>>('wcstombs');
+  late final _wcstombs = _wcstombsPtr.asFunction<DartWcstombs>();
+
+  int wctomb(
+    ffi.Pointer<ffi.Char> arg0,
+    int arg1,
+  ) {
+    return _wctomb(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _wctombPtr = _lookup<ffi.NativeFunction<NativeWctomb>>('wctomb');
+  late final _wctomb = _wctombPtr.asFunction<DartWctomb>();
+
+  void _Exit(
+    int arg0,
+  ) {
+    return __Exit(
+      arg0,
+    );
+  }
+
+  late final __ExitPtr = _lookup<ffi.NativeFunction<Native_Exit>>('_Exit');
+  late final __Exit = __ExitPtr.asFunction<Dart_Exit>();
+
+  int a64l(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _a64l(
+      arg0,
+    );
+  }
+
+  late final _a64lPtr = _lookup<ffi.NativeFunction<NativeA64l>>('a64l');
+  late final _a64l = _a64lPtr.asFunction<DartA64l>();
+
+  double drand48() {
+    return _drand48();
+  }
+
+  late final _drand48Ptr =
+      _lookup<ffi.NativeFunction<NativeDrand48>>('drand48');
+  late final _drand48 = _drand48Ptr.asFunction<DartDrand48>();
+
+  ffi.Pointer<ffi.Char> ecvt(
+    double arg0,
+    int arg1,
+    ffi.Pointer<ffi.Int> arg2,
+    ffi.Pointer<ffi.Int> arg3,
+  ) {
+    return _ecvt(
+      arg0,
+      arg1,
+      arg2,
+      arg3,
+    );
+  }
+
+  late final _ecvtPtr = _lookup<ffi.NativeFunction<NativeEcvt>>('ecvt');
+  late final _ecvt = _ecvtPtr.asFunction<DartEcvt>();
+
+  double erand48(
+    ffi.Pointer<ffi.UnsignedShort> arg0,
+  ) {
+    return _erand48(
+      arg0,
+    );
+  }
+
+  late final _erand48Ptr =
+      _lookup<ffi.NativeFunction<NativeErand48>>('erand48');
+  late final _erand48 = _erand48Ptr.asFunction<DartErand48>();
+
+  ffi.Pointer<ffi.Char> fcvt(
+    double arg0,
+    int arg1,
+    ffi.Pointer<ffi.Int> arg2,
+    ffi.Pointer<ffi.Int> arg3,
+  ) {
+    return _fcvt(
+      arg0,
+      arg1,
+      arg2,
+      arg3,
+    );
+  }
+
+  late final _fcvtPtr = _lookup<ffi.NativeFunction<NativeFcvt>>('fcvt');
+  late final _fcvt = _fcvtPtr.asFunction<DartFcvt>();
+
+  ffi.Pointer<ffi.Char> gcvt(
+    double arg0,
+    int arg1,
+    ffi.Pointer<ffi.Char> arg2,
+  ) {
+    return _gcvt(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _gcvtPtr = _lookup<ffi.NativeFunction<NativeGcvt>>('gcvt');
+  late final _gcvt = _gcvtPtr.asFunction<DartGcvt>();
+
+  int getsubopt(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2,
+  ) {
+    return _getsubopt(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _getsuboptPtr =
+      _lookup<ffi.NativeFunction<NativeGetsubopt>>('getsubopt');
+  late final _getsubopt = _getsuboptPtr.asFunction<DartGetsubopt>();
+
+  int grantpt(
+    int arg0,
+  ) {
+    return _grantpt(
+      arg0,
+    );
+  }
+
+  late final _grantptPtr =
+      _lookup<ffi.NativeFunction<NativeGrantpt>>('grantpt');
+  late final _grantpt = _grantptPtr.asFunction<DartGrantpt>();
+
+  ffi.Pointer<ffi.Char> initstate(
+    int arg0,
+    ffi.Pointer<ffi.Char> arg1,
+    int arg2,
+  ) {
+    return _initstate(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _initstatePtr =
+      _lookup<ffi.NativeFunction<NativeInitstate>>('initstate');
+  late final _initstate = _initstatePtr.asFunction<DartInitstate>();
+
+  int jrand48(
+    ffi.Pointer<ffi.UnsignedShort> arg0,
+  ) {
+    return _jrand48(
+      arg0,
+    );
+  }
+
+  late final _jrand48Ptr =
+      _lookup<ffi.NativeFunction<NativeJrand48>>('jrand48');
+  late final _jrand48 = _jrand48Ptr.asFunction<DartJrand48>();
+
+  ffi.Pointer<ffi.Char> l64a(
+    int arg0,
+  ) {
+    return _l64a(
+      arg0,
+    );
+  }
+
+  late final _l64aPtr = _lookup<ffi.NativeFunction<NativeL64a>>('l64a');
+  late final _l64a = _l64aPtr.asFunction<DartL64a>();
+
+  void lcong48(
+    ffi.Pointer<ffi.UnsignedShort> arg0,
+  ) {
+    return _lcong48(
+      arg0,
+    );
+  }
+
+  late final _lcong48Ptr =
+      _lookup<ffi.NativeFunction<NativeLcong48>>('lcong48');
+  late final _lcong48 = _lcong48Ptr.asFunction<DartLcong48>();
+
+  int lrand48() {
+    return _lrand48();
+  }
+
+  late final _lrand48Ptr =
+      _lookup<ffi.NativeFunction<NativeLrand48>>('lrand48');
+  late final _lrand48 = _lrand48Ptr.asFunction<DartLrand48>();
+
+  ffi.Pointer<ffi.Char> mktemp(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _mktemp(
+      arg0,
+    );
+  }
+
+  late final _mktempPtr = _lookup<ffi.NativeFunction<NativeMktemp>>('mktemp');
+  late final _mktemp = _mktempPtr.asFunction<DartMktemp>();
+
+  int mkstemp(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _mkstemp(
+      arg0,
+    );
+  }
+
+  late final _mkstempPtr =
+      _lookup<ffi.NativeFunction<NativeMkstemp>>('mkstemp');
+  late final _mkstemp = _mkstempPtr.asFunction<DartMkstemp>();
+
+  int mrand48() {
+    return _mrand48();
+  }
+
+  late final _mrand48Ptr =
+      _lookup<ffi.NativeFunction<NativeMrand48>>('mrand48');
+  late final _mrand48 = _mrand48Ptr.asFunction<DartMrand48>();
+
+  int nrand48(
+    ffi.Pointer<ffi.UnsignedShort> arg0,
+  ) {
+    return _nrand48(
+      arg0,
+    );
+  }
+
+  late final _nrand48Ptr =
+      _lookup<ffi.NativeFunction<NativeNrand48>>('nrand48');
+  late final _nrand48 = _nrand48Ptr.asFunction<DartNrand48>();
+
+  int posix_openpt(
+    int arg0,
+  ) {
+    return _posix_openpt(
+      arg0,
+    );
+  }
+
+  late final _posix_openptPtr =
+      _lookup<ffi.NativeFunction<NativePosix_openpt>>('posix_openpt');
+  late final _posix_openpt = _posix_openptPtr.asFunction<DartPosix_openpt>();
+
+  ffi.Pointer<ffi.Char> ptsname(
+    int arg0,
+  ) {
+    return _ptsname(
+      arg0,
+    );
+  }
+
+  late final _ptsnamePtr =
+      _lookup<ffi.NativeFunction<NativePtsname>>('ptsname');
+  late final _ptsname = _ptsnamePtr.asFunction<DartPtsname>();
+
+  int ptsname_r(
+    int fildes,
+    ffi.Pointer<ffi.Char> buffer,
+    int buflen,
+  ) {
+    return _ptsname_r(
+      fildes,
+      buffer,
+      buflen,
+    );
+  }
+
+  late final _ptsname_rPtr =
+      _lookup<ffi.NativeFunction<NativePtsname_r>>('ptsname_r');
+  late final _ptsname_r = _ptsname_rPtr.asFunction<DartPtsname_r>();
+
+  int putenv(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _putenv(
+      arg0,
+    );
+  }
+
+  late final _putenvPtr = _lookup<ffi.NativeFunction<NativePutenv>>('putenv');
+  late final _putenv = _putenvPtr.asFunction<DartPutenv>();
+
+  int random() {
+    return _random();
+  }
+
+  late final _randomPtr = _lookup<ffi.NativeFunction<NativeRandom>>('random');
+  late final _random = _randomPtr.asFunction<DartRandom>();
+
+  int rand_r(
+    ffi.Pointer<ffi.UnsignedInt> arg0,
+  ) {
+    return _rand_r(
+      arg0,
+    );
+  }
+
+  late final _rand_rPtr = _lookup<ffi.NativeFunction<NativeRand_r>>('rand_r');
+  late final _rand_r = _rand_rPtr.asFunction<DartRand_r>();
+
+  ffi.Pointer<ffi.Char> realpath(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+  ) {
+    return _realpath(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realpathPtr =
+      _lookup<ffi.NativeFunction<NativeRealpath>>('realpath');
+  late final _realpath = _realpathPtr.asFunction<DartRealpath>();
+
+  ffi.Pointer<ffi.UnsignedShort> seed48(
+    ffi.Pointer<ffi.UnsignedShort> arg0,
+  ) {
+    return _seed48(
+      arg0,
+    );
+  }
+
+  late final _seed48Ptr = _lookup<ffi.NativeFunction<NativeSeed48>>('seed48');
+  late final _seed48 = _seed48Ptr.asFunction<DartSeed48>();
+
+  int setenv(
+    ffi.Pointer<ffi.Char> __name,
+    ffi.Pointer<ffi.Char> __value,
+    int __overwrite,
+  ) {
+    return _setenv(
+      __name,
+      __value,
+      __overwrite,
+    );
+  }
+
+  late final _setenvPtr = _lookup<ffi.NativeFunction<NativeSetenv>>('setenv');
+  late final _setenv = _setenvPtr.asFunction<DartSetenv>();
+
+  void setkey(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _setkey(
+      arg0,
+    );
+  }
+
+  late final _setkeyPtr = _lookup<ffi.NativeFunction<NativeSetkey>>('setkey');
+  late final _setkey = _setkeyPtr.asFunction<DartSetkey>();
+
+  ffi.Pointer<ffi.Char> setstate(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _setstate(
+      arg0,
+    );
+  }
+
+  late final _setstatePtr =
+      _lookup<ffi.NativeFunction<NativeSetstate>>('setstate');
+  late final _setstate = _setstatePtr.asFunction<DartSetstate>();
+
+  void srand48(
+    int arg0,
+  ) {
+    return _srand48(
+      arg0,
+    );
+  }
+
+  late final _srand48Ptr =
+      _lookup<ffi.NativeFunction<NativeSrand48>>('srand48');
+  late final _srand48 = _srand48Ptr.asFunction<DartSrand48>();
+
+  void srandom(
+    int arg0,
+  ) {
+    return _srandom(
+      arg0,
+    );
+  }
+
+  late final _srandomPtr =
+      _lookup<ffi.NativeFunction<NativeSrandom>>('srandom');
+  late final _srandom = _srandomPtr.asFunction<DartSrandom>();
+
+  int unlockpt(
+    int arg0,
+  ) {
+    return _unlockpt(
+      arg0,
+    );
+  }
+
+  late final _unlockptPtr =
+      _lookup<ffi.NativeFunction<NativeUnlockpt>>('unlockpt');
+  late final _unlockpt = _unlockptPtr.asFunction<DartUnlockpt>();
+
+  int unsetenv(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _unsetenv(
+      arg0,
+    );
+  }
+
+  late final _unsetenvPtr =
+      _lookup<ffi.NativeFunction<NativeUnsetenv>>('unsetenv');
+  late final _unsetenv = _unsetenvPtr.asFunction<DartUnsetenv>();
+
+  int arc4random() {
+    return _arc4random();
+  }
+
+  late final _arc4randomPtr =
+      _lookup<ffi.NativeFunction<NativeArc4random>>('arc4random');
+  late final _arc4random = _arc4randomPtr.asFunction<DartArc4random>();
+
+  void arc4random_addrandom(
+    ffi.Pointer<ffi.UnsignedChar> arg0,
+    int arg1,
+  ) {
+    return _arc4random_addrandom(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _arc4random_addrandomPtr =
+      _lookup<ffi.NativeFunction<NativeArc4random_addrandom>>(
+          'arc4random_addrandom');
+  late final _arc4random_addrandom =
+      _arc4random_addrandomPtr.asFunction<DartArc4random_addrandom>();
+
+  void arc4random_buf(
+    ffi.Pointer<ffi.Void> __buf,
+    int __nbytes,
+  ) {
+    return _arc4random_buf(
+      __buf,
+      __nbytes,
+    );
+  }
+
+  late final _arc4random_bufPtr =
+      _lookup<ffi.NativeFunction<NativeArc4random_buf>>('arc4random_buf');
+  late final _arc4random_buf =
+      _arc4random_bufPtr.asFunction<DartArc4random_buf>();
+
+  void arc4random_stir() {
+    return _arc4random_stir();
+  }
+
+  late final _arc4random_stirPtr =
+      _lookup<ffi.NativeFunction<NativeArc4random_stir>>('arc4random_stir');
+  late final _arc4random_stir =
+      _arc4random_stirPtr.asFunction<DartArc4random_stir>();
+
+  int arc4random_uniform(
+    int __upper_bound,
+  ) {
+    return _arc4random_uniform(
+      __upper_bound,
+    );
+  }
+
+  late final _arc4random_uniformPtr =
+      _lookup<ffi.NativeFunction<NativeArc4random_uniform>>(
+          'arc4random_uniform');
+  late final _arc4random_uniform =
+      _arc4random_uniformPtr.asFunction<DartArc4random_uniform>();
+
+  ffi.Pointer<ffi.Char> cgetcap(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+    int arg2,
+  ) {
+    return _cgetcap(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _cgetcapPtr =
+      _lookup<ffi.NativeFunction<NativeCgetcap>>('cgetcap');
+  late final _cgetcap = _cgetcapPtr.asFunction<DartCgetcap>();
+
+  int cgetclose() {
+    return _cgetclose();
+  }
+
+  late final _cgetclosePtr =
+      _lookup<ffi.NativeFunction<NativeCgetclose>>('cgetclose');
+  late final _cgetclose = _cgetclosePtr.asFunction<DartCgetclose>();
+
+  int cgetent(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+    ffi.Pointer<ffi.Char> arg2,
+  ) {
+    return _cgetent(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _cgetentPtr =
+      _lookup<ffi.NativeFunction<NativeCgetent>>('cgetent');
+  late final _cgetent = _cgetentPtr.asFunction<DartCgetent>();
+
+  int cgetfirst(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+  ) {
+    return _cgetfirst(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _cgetfirstPtr =
+      _lookup<ffi.NativeFunction<NativeCgetfirst>>('cgetfirst');
+  late final _cgetfirst = _cgetfirstPtr.asFunction<DartCgetfirst>();
+
+  int cgetmatch(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+  ) {
+    return _cgetmatch(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _cgetmatchPtr =
+      _lookup<ffi.NativeFunction<NativeCgetmatch>>('cgetmatch');
+  late final _cgetmatch = _cgetmatchPtr.asFunction<DartCgetmatch>();
+
+  int cgetnext(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+  ) {
+    return _cgetnext(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _cgetnextPtr =
+      _lookup<ffi.NativeFunction<NativeCgetnext>>('cgetnext');
+  late final _cgetnext = _cgetnextPtr.asFunction<DartCgetnext>();
+
+  int cgetnum(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+    ffi.Pointer<ffi.Long> arg2,
+  ) {
+    return _cgetnum(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _cgetnumPtr =
+      _lookup<ffi.NativeFunction<NativeCgetnum>>('cgetnum');
+  late final _cgetnum = _cgetnumPtr.asFunction<DartCgetnum>();
+
+  int cgetset(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _cgetset(
+      arg0,
+    );
+  }
+
+  late final _cgetsetPtr =
+      _lookup<ffi.NativeFunction<NativeCgetset>>('cgetset');
+  late final _cgetset = _cgetsetPtr.asFunction<DartCgetset>();
+
+  int cgetstr(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2,
+  ) {
+    return _cgetstr(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _cgetstrPtr =
+      _lookup<ffi.NativeFunction<NativeCgetstr>>('cgetstr');
+  late final _cgetstr = _cgetstrPtr.asFunction<DartCgetstr>();
+
+  int cgetustr(
+    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2,
+  ) {
+    return _cgetustr(
+      arg0,
+      arg1,
+      arg2,
+    );
+  }
+
+  late final _cgetustrPtr =
+      _lookup<ffi.NativeFunction<NativeCgetustr>>('cgetustr');
+  late final _cgetustr = _cgetustrPtr.asFunction<DartCgetustr>();
+
+  int daemon(
+    int arg0,
+    int arg1,
+  ) {
+    return _daemon(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _daemonPtr = _lookup<ffi.NativeFunction<NativeDaemon>>('daemon');
+  late final _daemon = _daemonPtr.asFunction<DartDaemon>();
+
+  ffi.Pointer<ffi.Char> devname(
+    int arg0,
+    int arg1,
+  ) {
+    return _devname(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _devnamePtr =
+      _lookup<ffi.NativeFunction<NativeDevname>>('devname');
+  late final _devname = _devnamePtr.asFunction<DartDevname>();
+
+  ffi.Pointer<ffi.Char> devname_r(
+    int arg0,
+    int arg1,
+    ffi.Pointer<ffi.Char> buf,
+    int len,
+  ) {
+    return _devname_r(
+      arg0,
+      arg1,
+      buf,
+      len,
+    );
+  }
+
+  late final _devname_rPtr =
+      _lookup<ffi.NativeFunction<NativeDevname_r>>('devname_r');
+  late final _devname_r = _devname_rPtr.asFunction<DartDevname_r>();
+
+  ffi.Pointer<ffi.Char> getbsize(
+    ffi.Pointer<ffi.Int> arg0,
+    ffi.Pointer<ffi.Long> arg1,
+  ) {
+    return _getbsize(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _getbsizePtr =
+      _lookup<ffi.NativeFunction<NativeGetbsize>>('getbsize');
+  late final _getbsize = _getbsizePtr.asFunction<DartGetbsize>();
+
+  int getloadavg(
+    ffi.Pointer<ffi.Double> arg0,
+    int arg1,
+  ) {
+    return _getloadavg(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _getloadavgPtr =
+      _lookup<ffi.NativeFunction<NativeGetloadavg>>('getloadavg');
+  late final _getloadavg = _getloadavgPtr.asFunction<DartGetloadavg>();
+
+  ffi.Pointer<ffi.Char> getprogname() {
+    return _getprogname();
+  }
+
+  late final _getprognamePtr =
+      _lookup<ffi.NativeFunction<NativeGetprogname>>('getprogname');
+  late final _getprogname = _getprognamePtr.asFunction<DartGetprogname>();
+
+  void setprogname(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _setprogname(
+      arg0,
+    );
+  }
+
+  late final _setprognamePtr =
+      _lookup<ffi.NativeFunction<NativeSetprogname>>('setprogname');
+  late final _setprogname = _setprognamePtr.asFunction<DartSetprogname>();
+
+  int heapsort(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar,
+  ) {
+    return _heapsort(
+      __base,
+      __nel,
+      __width,
+      __compar,
+    );
+  }
+
+  late final _heapsortPtr =
+      _lookup<ffi.NativeFunction<NativeHeapsort>>('heapsort');
+  late final _heapsort = _heapsortPtr.asFunction<DartHeapsort>();
+
+  int mergesort(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar,
+  ) {
+    return _mergesort(
+      __base,
+      __nel,
+      __width,
+      __compar,
+    );
+  }
+
+  late final _mergesortPtr =
+      _lookup<ffi.NativeFunction<NativeMergesort>>('mergesort');
+  late final _mergesort = _mergesortPtr.asFunction<DartMergesort>();
+
+  void psort(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar,
+  ) {
+    return _psort(
+      __base,
+      __nel,
+      __width,
+      __compar,
+    );
+  }
+
+  late final _psortPtr = _lookup<ffi.NativeFunction<NativePsort>>('psort');
+  late final _psort = _psortPtr.asFunction<DartPsort>();
+
+  void psort_r(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<ffi.Void> arg3,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+                    ffi.Pointer<ffi.Void>)>>
+        __compar,
+  ) {
+    return _psort_r(
+      __base,
+      __nel,
+      __width,
+      arg3,
+      __compar,
+    );
+  }
+
+  late final _psort_rPtr =
+      _lookup<ffi.NativeFunction<NativePsort_r>>('psort_r');
+  late final _psort_r = _psort_rPtr.asFunction<DartPsort_r>();
+
+  void qsort_r(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<ffi.Void> arg3,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+                    ffi.Pointer<ffi.Void>)>>
+        __compar,
+  ) {
+    return _qsort_r(
+      __base,
+      __nel,
+      __width,
+      arg3,
+      __compar,
+    );
+  }
+
+  late final _qsort_rPtr =
+      _lookup<ffi.NativeFunction<NativeQsort_r>>('qsort_r');
+  late final _qsort_r = _qsort_rPtr.asFunction<DartQsort_r>();
+
+  int radixsort(
+    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
+    int __nel,
+    ffi.Pointer<ffi.UnsignedChar> __table,
+    int __endbyte,
+  ) {
+    return _radixsort(
+      __base,
+      __nel,
+      __table,
+      __endbyte,
+    );
+  }
+
+  late final _radixsortPtr =
+      _lookup<ffi.NativeFunction<NativeRadixsort>>('radixsort');
+  late final _radixsort = _radixsortPtr.asFunction<DartRadixsort>();
+
+  int rpmatch(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _rpmatch(
+      arg0,
+    );
+  }
+
+  late final _rpmatchPtr =
+      _lookup<ffi.NativeFunction<NativeRpmatch>>('rpmatch');
+  late final _rpmatch = _rpmatchPtr.asFunction<DartRpmatch>();
+
+  int sradixsort(
+    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
+    int __nel,
+    ffi.Pointer<ffi.UnsignedChar> __table,
+    int __endbyte,
+  ) {
+    return _sradixsort(
+      __base,
+      __nel,
+      __table,
+      __endbyte,
+    );
+  }
+
+  late final _sradixsortPtr =
+      _lookup<ffi.NativeFunction<NativeSradixsort>>('sradixsort');
+  late final _sradixsort = _sradixsortPtr.asFunction<DartSradixsort>();
+
+  void sranddev() {
+    return _sranddev();
+  }
+
+  late final _sranddevPtr =
+      _lookup<ffi.NativeFunction<NativeSranddev>>('sranddev');
+  late final _sranddev = _sranddevPtr.asFunction<DartSranddev>();
+
+  void srandomdev() {
+    return _srandomdev();
+  }
+
+  late final _srandomdevPtr =
+      _lookup<ffi.NativeFunction<NativeSrandomdev>>('srandomdev');
+  late final _srandomdev = _srandomdevPtr.asFunction<DartSrandomdev>();
+
+  int strtonum(
+    ffi.Pointer<ffi.Char> __numstr,
+    int __minval,
+    int __maxval,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __errstrp,
+  ) {
+    return _strtonum(
+      __numstr,
+      __minval,
+      __maxval,
+      __errstrp,
+    );
+  }
+
+  late final _strtonumPtr =
+      _lookup<ffi.NativeFunction<NativeStrtonum>>('strtonum');
+  late final _strtonum = _strtonumPtr.asFunction<DartStrtonum>();
+
+  int strtoq(
+    ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
+  ) {
+    return _strtoq(
+      __str,
+      __endptr,
+      __base,
+    );
+  }
+
+  late final _strtoqPtr = _lookup<ffi.NativeFunction<NativeStrtoq>>('strtoq');
+  late final _strtoq = _strtoqPtr.asFunction<DartStrtoq>();
+
+  int strtouq(
+    ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
+  ) {
+    return _strtouq(
+      __str,
+      __endptr,
+      __base,
+    );
+  }
+
+  late final _strtouqPtr =
+      _lookup<ffi.NativeFunction<NativeStrtouq>>('strtouq');
+  late final _strtouq = _strtouqPtr.asFunction<DartStrtouq>();
+
+  late final ffi.Pointer<ffi.Pointer<ffi.Char>> _suboptarg =
+      _lookup<ffi.Pointer<ffi.Char>>('suboptarg');
+
+  ffi.Pointer<ffi.Char> get suboptarg => _suboptarg.value;
+
+  set suboptarg(ffi.Pointer<ffi.Char> value) => _suboptarg.value = value;
+
   int validate_submarine(
     ffi.Pointer<ffi.Char> preimage_hash,
     ffi.Pointer<ffi.Char> claim_public_key,
@@ -2063,6 +4106,54 @@ class NativeLibrary {
   late final _verify_signature_schnorr =
       _verify_signature_schnorrPtr.asFunction<DartVerify_signature_schnorr>();
 
+  TxResult create_taxi_transaction(
+    int send_amount,
+    ffi.Pointer<ffi.Char> send_address,
+    ffi.Pointer<ffi.Char> change_address,
+    ffi.Pointer<UtxoFFI> utxos,
+    int utxos_len,
+    ffi.Pointer<ffi.Char> user_agent,
+    ffi.Pointer<ffi.Char> api_key,
+    bool subtract_fee_from_amount,
+    bool is_lowball,
+    bool is_testnet,
+  ) {
+    return _create_taxi_transaction(
+      send_amount,
+      send_address,
+      change_address,
+      utxos,
+      utxos_len,
+      user_agent,
+      api_key,
+      subtract_fee_from_amount,
+      is_lowball,
+      is_testnet,
+    );
+  }
+
+  late final _create_taxi_transactionPtr =
+      _lookup<ffi.NativeFunction<NativeCreate_taxi_transaction>>(
+          'create_taxi_transaction');
+  late final _create_taxi_transaction =
+      _create_taxi_transactionPtr.asFunction<DartCreate_taxi_transaction>();
+
+  TxResult create_final_taxi_pset(
+    ffi.Pointer<ffi.Char> client_signed_pset,
+    ffi.Pointer<ffi.Char> server_signed_pset,
+  ) {
+    return _create_final_taxi_pset(
+      client_signed_pset,
+      server_signed_pset,
+    );
+  }
+
+  late final _create_final_taxi_psetPtr =
+      _lookup<ffi.NativeFunction<NativeCreate_final_taxi_pset>>(
+          'create_final_taxi_pset');
+  late final _create_final_taxi_pset =
+      _create_final_taxi_psetPtr.asFunction<DartCreate_final_taxi_pset>();
+
   void rust_cstr_free(
     ffi.Pointer<ffi.Char> s,
   ) {
@@ -2111,7 +4202,7 @@ final class __mbstate_t extends ffi.Union {
 
 final class __darwin_pthread_handler_rec extends ffi.Struct {
   external ffi
-          .Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
+      .Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       __routine;
 
   external ffi.Pointer<ffi.Void> __arg;
@@ -2217,6 +4308,7 @@ final class fd_set extends ffi.Struct {
 }
 
 typedef __int32_t = ffi.Int;
+typedef Dart__int32_t = int;
 typedef Native__darwin_check_fd_set_overflow = ffi.Int Function(
     ffi.Int arg0, ffi.Pointer<ffi.Void> arg1, ffi.Int arg2);
 typedef Dart__darwin_check_fd_set_overflow = int Function(
@@ -2242,10 +4334,12 @@ typedef DartGA_create_session = int Function(
     ffi.Pointer<ffi.Pointer<GA_session>> session);
 
 /// A notification handler
-typedef GA_notification_handler = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(
-            ffi.Pointer<ffi.Void> context, ffi.Pointer<GA_json> details)>>;
+typedef GA_notification_handler
+    = ffi.Pointer<ffi.NativeFunction<GA_notification_handlerFunction>>;
+typedef GA_notification_handlerFunction = ffi.Void Function(
+    ffi.Pointer<ffi.Void> context, ffi.Pointer<GA_json> details);
+typedef DartGA_notification_handlerFunction = void Function(
+    ffi.Pointer<ffi.Void> context, ffi.Pointer<GA_json> details);
 typedef NativeGA_set_notification_handler = ffi.Int Function(
     ffi.Pointer<GA_session> session,
     GA_notification_handler handler,
@@ -2284,11 +4378,9 @@ typedef NativeGA_http_request = ffi.Int Function(
 typedef DartGA_http_request = int Function(ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> params, ffi.Pointer<ffi.Pointer<GA_json>> output);
 typedef NativeGA_refresh_assets = ffi.Int Function(
-    ffi.Pointer<GA_session> session,
-    ffi.Pointer<GA_json> params,
-    ffi.Pointer<ffi.Pointer<GA_json>> output);
-typedef DartGA_refresh_assets = int Function(ffi.Pointer<GA_session> session,
-    ffi.Pointer<GA_json> params, ffi.Pointer<ffi.Pointer<GA_json>> output);
+    ffi.Pointer<GA_session> session, ffi.Pointer<GA_json> params);
+typedef DartGA_refresh_assets = int Function(
+    ffi.Pointer<GA_session> session, ffi.Pointer<GA_json> params);
 typedef NativeGA_get_assets = ffi.Int Function(ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> params, ffi.Pointer<ffi.Pointer<GA_json>> output);
 typedef DartGA_get_assets = int Function(ffi.Pointer<GA_session> session,
@@ -2301,6 +4393,14 @@ typedef DartGA_validate_asset_domain_name = int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> params,
     ffi.Pointer<ffi.Pointer<GA_json>> output);
+typedef NativeGA_validate = ffi.Int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef DartGA_validate = int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef NativeGA_register_user = ffi.Int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> hw_device,
@@ -2360,12 +4460,6 @@ typedef NativeGA_get_subaccount = ffi.Int Function(
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef DartGA_get_subaccount = int Function(ffi.Pointer<GA_session> session,
     int subaccount, ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
-typedef NativeGA_rename_subaccount = ffi.Int Function(
-    ffi.Pointer<GA_session> session,
-    ffi.Uint32 subaccount,
-    ffi.Pointer<ffi.Char> new_name);
-typedef DartGA_rename_subaccount = int Function(ffi.Pointer<GA_session> session,
-    int subaccount, ffi.Pointer<ffi.Char> new_name);
 typedef NativeGA_update_subaccount = ffi.Int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -2408,16 +4502,12 @@ typedef DartGA_get_unspent_outputs = int Function(
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef NativeGA_get_unspent_outputs_for_private_key = ffi.Int Function(
     ffi.Pointer<GA_session> session,
-    ffi.Pointer<ffi.Char> private_key,
-    ffi.Pointer<ffi.Char> password,
-    ffi.Uint32 unused,
-    ffi.Pointer<ffi.Pointer<GA_json>> utxos);
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef DartGA_get_unspent_outputs_for_private_key = int Function(
     ffi.Pointer<GA_session> session,
-    ffi.Pointer<ffi.Char> private_key,
-    ffi.Pointer<ffi.Char> password,
-    int unused,
-    ffi.Pointer<ffi.Pointer<GA_json>> utxos);
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef NativeGA_set_unspent_outputs_status = ffi.Int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
@@ -2464,6 +4554,14 @@ typedef DartGA_encrypt_with_pin = int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> details,
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef NativeGA_decrypt_with_pin = ffi.Int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef DartGA_decrypt_with_pin = int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef NativeGA_disable_all_pin_logins = ffi.Int Function(
     ffi.Pointer<GA_session> session);
 typedef DartGA_disable_all_pin_logins = int Function(
@@ -2476,6 +4574,14 @@ typedef DartGA_create_transaction = int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> transaction_details,
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef NativeGA_blind_transaction = ffi.Int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> transaction_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef DartGA_blind_transaction = int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> transaction_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef NativeGA_sign_transaction = ffi.Int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> transaction_details,
@@ -2483,6 +4589,22 @@ typedef NativeGA_sign_transaction = ffi.Int Function(
 typedef DartGA_sign_transaction = int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> transaction_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef NativeGA_create_swap_transaction = ffi.Int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> swap_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef DartGA_create_swap_transaction = int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> swap_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef NativeGA_complete_swap_transaction = ffi.Int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> swap_details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef DartGA_complete_swap_transaction = int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> swap_details,
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef NativeGA_psbt_sign = ffi.Int Function(
     ffi.Pointer<GA_session> session,
@@ -2516,21 +4638,13 @@ typedef DartGA_send_transaction = int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> transaction_details,
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
-typedef NativeGA_create_pset = ffi.Int Function(
+typedef NativeGA_sign_message = ffi.Int Function(
     ffi.Pointer<GA_session> session,
-    ffi.Pointer<GA_json> pset_details,
+    ffi.Pointer<GA_json> details,
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
-typedef DartGA_create_pset = int Function(
+typedef DartGA_sign_message = int Function(
     ffi.Pointer<GA_session> session,
-    ffi.Pointer<GA_json> pset_details,
-    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
-typedef NativeGA_sign_pset = ffi.Int Function(
-    ffi.Pointer<GA_session> session,
-    ffi.Pointer<GA_json> pset_details,
-    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
-typedef DartGA_sign_pset = int Function(
-    ffi.Pointer<GA_session> session,
-    ffi.Pointer<GA_json> pset_details,
+    ffi.Pointer<GA_json> details,
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef NativeGA_send_nlocktimes = ffi.Int Function(
     ffi.Pointer<GA_session> session);
@@ -2719,6 +4833,22 @@ typedef DartGA_twofactor_change_limits = int Function(
     ffi.Pointer<GA_session> session,
     ffi.Pointer<GA_json> limit_details,
     ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef NativeGA_bcur_encode = ffi.Int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef DartGA_bcur_encode = int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef NativeGA_bcur_decode = ffi.Int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
+typedef DartGA_bcur_decode = int Function(
+    ffi.Pointer<GA_session> session,
+    ffi.Pointer<GA_json> details,
+    ffi.Pointer<ffi.Pointer<GA_auth_handler>> call);
 typedef NativeGA_destroy_string = ffi.Void Function(ffi.Pointer<ffi.Char> str);
 typedef DartGA_destroy_string = void Function(ffi.Pointer<ffi.Char> str);
 typedef NativeGA_get_random_bytes = ffi.Int Function(ffi.Size num_bytes,
@@ -2750,15 +4880,1583 @@ typedef NativeGA_get_uniform_uint32_t = ffi.Int Function(
 typedef DartGA_get_uniform_uint32_t = int Function(
     int upper_bound, ffi.Pointer<ffi.Uint32> output);
 
+abstract class idtype_t {
+  static const int P_ALL = 0;
+  static const int P_PID = 1;
+  static const int P_PGID = 2;
+}
+
+final class __darwin_arm_exception_state extends ffi.Struct {
+  @__uint32_t()
+  external int __exception;
+
+  @__uint32_t()
+  external int __fsr;
+
+  @__uint32_t()
+  external int __far;
+}
+
+typedef __uint32_t = ffi.UnsignedInt;
+typedef Dart__uint32_t = int;
+
+final class __darwin_arm_exception_state64 extends ffi.Struct {
+  @__uint64_t()
+  external int __far;
+
+  @__uint32_t()
+  external int __esr;
+
+  @__uint32_t()
+  external int __exception;
+}
+
+typedef __uint64_t = ffi.UnsignedLongLong;
+typedef Dart__uint64_t = int;
+
+final class __darwin_arm_thread_state extends ffi.Struct {
+  @ffi.Array.multi([13])
+  external ffi.Array<__uint32_t> __r;
+
+  @__uint32_t()
+  external int __sp;
+
+  @__uint32_t()
+  external int __lr;
+
+  @__uint32_t()
+  external int __pc;
+
+  @__uint32_t()
+  external int __cpsr;
+}
+
+final class __darwin_arm_thread_state64 extends ffi.Struct {
+  @ffi.Array.multi([29])
+  external ffi.Array<__uint64_t> __x;
+
+  @__uint64_t()
+  external int __fp;
+
+  @__uint64_t()
+  external int __lr;
+
+  @__uint64_t()
+  external int __sp;
+
+  @__uint64_t()
+  external int __pc;
+
+  @__uint32_t()
+  external int __cpsr;
+
+  @__uint32_t()
+  external int __pad;
+}
+
+final class __darwin_arm_vfp_state extends ffi.Struct {
+  @ffi.Array.multi([64])
+  external ffi.Array<__uint32_t> __r;
+
+  @__uint32_t()
+  external int __fpscr;
+}
+
+final class __darwin_arm_neon_state64 extends ffi.Opaque {}
+
+final class __darwin_arm_neon_state extends ffi.Opaque {}
+
+final class __arm_pagein_state extends ffi.Struct {
+  @ffi.Int()
+  external int __pagein_error;
+}
+
+final class __arm_legacy_debug_state extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint32_t> __bvr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint32_t> __bcr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint32_t> __wvr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint32_t> __wcr;
+}
+
+final class __darwin_arm_debug_state32 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint32_t> __bvr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint32_t> __bcr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint32_t> __wvr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint32_t> __wcr;
+
+  @__uint64_t()
+  external int __mdscr_el1;
+}
+
+final class __darwin_arm_debug_state64 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint64_t> __bvr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint64_t> __bcr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint64_t> __wvr;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint64_t> __wcr;
+
+  @__uint64_t()
+  external int __mdscr_el1;
+}
+
+final class __darwin_arm_cpmu_state64 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<__uint64_t> __ctrs;
+}
+
+final class __darwin_mcontext32 extends ffi.Struct {
+  external __darwin_arm_exception_state __es;
+
+  external __darwin_arm_thread_state __ss;
+
+  external __darwin_arm_vfp_state __fs;
+}
+
+final class __darwin_mcontext64 extends ffi.Opaque {}
+
+final class __darwin_sigaltstack extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> ss_sp;
+
+  @__darwin_size_t()
+  external int ss_size;
+
+  @ffi.Int()
+  external int ss_flags;
+}
+
+typedef __darwin_size_t = ffi.UnsignedLong;
+typedef Dart__darwin_size_t = int;
+
+final class __darwin_ucontext extends ffi.Struct {
+  @ffi.Int()
+  external int uc_onstack;
+
+  @__darwin_sigset_t()
+  external int uc_sigmask;
+
+  external __darwin_sigaltstack uc_stack;
+
+  external ffi.Pointer<__darwin_ucontext> uc_link;
+
+  @__darwin_size_t()
+  external int uc_mcsize;
+
+  external ffi.Pointer<__darwin_mcontext64> uc_mcontext;
+}
+
+typedef __darwin_sigset_t = __uint32_t;
+
+final class sigval extends ffi.Union {
+  @ffi.Int()
+  external int sival_int;
+
+  external ffi.Pointer<ffi.Void> sival_ptr;
+}
+
+final class sigevent extends ffi.Struct {
+  @ffi.Int()
+  external int sigev_notify;
+
+  @ffi.Int()
+  external int sigev_signo;
+
+  external sigval sigev_value;
+
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function(sigval)>>
+      sigev_notify_function;
+
+  external ffi.Pointer<pthread_attr_t> sigev_notify_attributes;
+}
+
+typedef pthread_attr_t = __darwin_pthread_attr_t;
+typedef __darwin_pthread_attr_t = _opaque_pthread_attr_t;
+
+final class __siginfo extends ffi.Struct {
+  @ffi.Int()
+  external int si_signo;
+
+  @ffi.Int()
+  external int si_errno;
+
+  @ffi.Int()
+  external int si_code;
+
+  @pid_t()
+  external int si_pid;
+
+  @uid_t()
+  external int si_uid;
+
+  @ffi.Int()
+  external int si_status;
+
+  external ffi.Pointer<ffi.Void> si_addr;
+
+  external sigval si_value;
+
+  @ffi.Long()
+  external int si_band;
+
+  @ffi.Array.multi([7])
+  external ffi.Array<ffi.UnsignedLong> __pad;
+}
+
+typedef pid_t = __darwin_pid_t;
+typedef __darwin_pid_t = __int32_t;
+typedef uid_t = __darwin_uid_t;
+typedef __darwin_uid_t = __uint32_t;
+
+final class sigvec extends ffi.Struct {
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>>
+      sv_handler;
+
+  @ffi.Int()
+  external int sv_mask;
+
+  @ffi.Int()
+  external int sv_flags;
+}
+
+final class sigstack extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> ss_sp;
+
+  @ffi.Int()
+  external int ss_onstack;
+}
+
+typedef NativeSignal
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> Function(
+        ffi.Int arg0,
+        ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> arg1);
+typedef DartSignal
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> Function(
+        int arg0,
+        ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> arg1);
+
+final class timeval extends ffi.Struct {
+  @__darwin_time_t()
+  external int tv_sec;
+
+  @__darwin_suseconds_t()
+  external int tv_usec;
+}
+
+typedef __darwin_time_t = ffi.Long;
+typedef Dart__darwin_time_t = int;
+typedef __darwin_suseconds_t = __int32_t;
+
+final class rusage extends ffi.Struct {
+  external timeval ru_utime;
+
+  external timeval ru_stime;
+
+  @ffi.Long()
+  external int ru_maxrss;
+
+  @ffi.Long()
+  external int ru_ixrss;
+
+  @ffi.Long()
+  external int ru_idrss;
+
+  @ffi.Long()
+  external int ru_isrss;
+
+  @ffi.Long()
+  external int ru_minflt;
+
+  @ffi.Long()
+  external int ru_majflt;
+
+  @ffi.Long()
+  external int ru_nswap;
+
+  @ffi.Long()
+  external int ru_inblock;
+
+  @ffi.Long()
+  external int ru_oublock;
+
+  @ffi.Long()
+  external int ru_msgsnd;
+
+  @ffi.Long()
+  external int ru_msgrcv;
+
+  @ffi.Long()
+  external int ru_nsignals;
+
+  @ffi.Long()
+  external int ru_nvcsw;
+
+  @ffi.Long()
+  external int ru_nivcsw;
+}
+
+final class rusage_info_v0 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint8> ri_uuid;
+
+  @ffi.Uint64()
+  external int ri_user_time;
+
+  @ffi.Uint64()
+  external int ri_system_time;
+
+  @ffi.Uint64()
+  external int ri_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_pageins;
+
+  @ffi.Uint64()
+  external int ri_wired_size;
+
+  @ffi.Uint64()
+  external int ri_resident_size;
+
+  @ffi.Uint64()
+  external int ri_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_proc_start_abstime;
+
+  @ffi.Uint64()
+  external int ri_proc_exit_abstime;
+}
+
+final class rusage_info_v1 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint8> ri_uuid;
+
+  @ffi.Uint64()
+  external int ri_user_time;
+
+  @ffi.Uint64()
+  external int ri_system_time;
+
+  @ffi.Uint64()
+  external int ri_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_pageins;
+
+  @ffi.Uint64()
+  external int ri_wired_size;
+
+  @ffi.Uint64()
+  external int ri_resident_size;
+
+  @ffi.Uint64()
+  external int ri_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_proc_start_abstime;
+
+  @ffi.Uint64()
+  external int ri_proc_exit_abstime;
+
+  @ffi.Uint64()
+  external int ri_child_user_time;
+
+  @ffi.Uint64()
+  external int ri_child_system_time;
+
+  @ffi.Uint64()
+  external int ri_child_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_pageins;
+
+  @ffi.Uint64()
+  external int ri_child_elapsed_abstime;
+}
+
+final class rusage_info_v2 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint8> ri_uuid;
+
+  @ffi.Uint64()
+  external int ri_user_time;
+
+  @ffi.Uint64()
+  external int ri_system_time;
+
+  @ffi.Uint64()
+  external int ri_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_pageins;
+
+  @ffi.Uint64()
+  external int ri_wired_size;
+
+  @ffi.Uint64()
+  external int ri_resident_size;
+
+  @ffi.Uint64()
+  external int ri_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_proc_start_abstime;
+
+  @ffi.Uint64()
+  external int ri_proc_exit_abstime;
+
+  @ffi.Uint64()
+  external int ri_child_user_time;
+
+  @ffi.Uint64()
+  external int ri_child_system_time;
+
+  @ffi.Uint64()
+  external int ri_child_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_pageins;
+
+  @ffi.Uint64()
+  external int ri_child_elapsed_abstime;
+
+  @ffi.Uint64()
+  external int ri_diskio_bytesread;
+
+  @ffi.Uint64()
+  external int ri_diskio_byteswritten;
+}
+
+final class rusage_info_v3 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint8> ri_uuid;
+
+  @ffi.Uint64()
+  external int ri_user_time;
+
+  @ffi.Uint64()
+  external int ri_system_time;
+
+  @ffi.Uint64()
+  external int ri_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_pageins;
+
+  @ffi.Uint64()
+  external int ri_wired_size;
+
+  @ffi.Uint64()
+  external int ri_resident_size;
+
+  @ffi.Uint64()
+  external int ri_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_proc_start_abstime;
+
+  @ffi.Uint64()
+  external int ri_proc_exit_abstime;
+
+  @ffi.Uint64()
+  external int ri_child_user_time;
+
+  @ffi.Uint64()
+  external int ri_child_system_time;
+
+  @ffi.Uint64()
+  external int ri_child_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_pageins;
+
+  @ffi.Uint64()
+  external int ri_child_elapsed_abstime;
+
+  @ffi.Uint64()
+  external int ri_diskio_bytesread;
+
+  @ffi.Uint64()
+  external int ri_diskio_byteswritten;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_default;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_maintenance;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_background;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_utility;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_legacy;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_user_initiated;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_user_interactive;
+
+  @ffi.Uint64()
+  external int ri_billed_system_time;
+
+  @ffi.Uint64()
+  external int ri_serviced_system_time;
+}
+
+final class rusage_info_v4 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint8> ri_uuid;
+
+  @ffi.Uint64()
+  external int ri_user_time;
+
+  @ffi.Uint64()
+  external int ri_system_time;
+
+  @ffi.Uint64()
+  external int ri_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_pageins;
+
+  @ffi.Uint64()
+  external int ri_wired_size;
+
+  @ffi.Uint64()
+  external int ri_resident_size;
+
+  @ffi.Uint64()
+  external int ri_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_proc_start_abstime;
+
+  @ffi.Uint64()
+  external int ri_proc_exit_abstime;
+
+  @ffi.Uint64()
+  external int ri_child_user_time;
+
+  @ffi.Uint64()
+  external int ri_child_system_time;
+
+  @ffi.Uint64()
+  external int ri_child_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_pageins;
+
+  @ffi.Uint64()
+  external int ri_child_elapsed_abstime;
+
+  @ffi.Uint64()
+  external int ri_diskio_bytesread;
+
+  @ffi.Uint64()
+  external int ri_diskio_byteswritten;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_default;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_maintenance;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_background;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_utility;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_legacy;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_user_initiated;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_user_interactive;
+
+  @ffi.Uint64()
+  external int ri_billed_system_time;
+
+  @ffi.Uint64()
+  external int ri_serviced_system_time;
+
+  @ffi.Uint64()
+  external int ri_logical_writes;
+
+  @ffi.Uint64()
+  external int ri_lifetime_max_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_instructions;
+
+  @ffi.Uint64()
+  external int ri_cycles;
+
+  @ffi.Uint64()
+  external int ri_billed_energy;
+
+  @ffi.Uint64()
+  external int ri_serviced_energy;
+
+  @ffi.Uint64()
+  external int ri_interval_max_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_runnable_time;
+}
+
+final class rusage_info_v5 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint8> ri_uuid;
+
+  @ffi.Uint64()
+  external int ri_user_time;
+
+  @ffi.Uint64()
+  external int ri_system_time;
+
+  @ffi.Uint64()
+  external int ri_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_pageins;
+
+  @ffi.Uint64()
+  external int ri_wired_size;
+
+  @ffi.Uint64()
+  external int ri_resident_size;
+
+  @ffi.Uint64()
+  external int ri_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_proc_start_abstime;
+
+  @ffi.Uint64()
+  external int ri_proc_exit_abstime;
+
+  @ffi.Uint64()
+  external int ri_child_user_time;
+
+  @ffi.Uint64()
+  external int ri_child_system_time;
+
+  @ffi.Uint64()
+  external int ri_child_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_pageins;
+
+  @ffi.Uint64()
+  external int ri_child_elapsed_abstime;
+
+  @ffi.Uint64()
+  external int ri_diskio_bytesread;
+
+  @ffi.Uint64()
+  external int ri_diskio_byteswritten;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_default;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_maintenance;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_background;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_utility;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_legacy;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_user_initiated;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_user_interactive;
+
+  @ffi.Uint64()
+  external int ri_billed_system_time;
+
+  @ffi.Uint64()
+  external int ri_serviced_system_time;
+
+  @ffi.Uint64()
+  external int ri_logical_writes;
+
+  @ffi.Uint64()
+  external int ri_lifetime_max_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_instructions;
+
+  @ffi.Uint64()
+  external int ri_cycles;
+
+  @ffi.Uint64()
+  external int ri_billed_energy;
+
+  @ffi.Uint64()
+  external int ri_serviced_energy;
+
+  @ffi.Uint64()
+  external int ri_interval_max_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_runnable_time;
+
+  @ffi.Uint64()
+  external int ri_flags;
+}
+
+final class rusage_info_v6 extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint8> ri_uuid;
+
+  @ffi.Uint64()
+  external int ri_user_time;
+
+  @ffi.Uint64()
+  external int ri_system_time;
+
+  @ffi.Uint64()
+  external int ri_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_pageins;
+
+  @ffi.Uint64()
+  external int ri_wired_size;
+
+  @ffi.Uint64()
+  external int ri_resident_size;
+
+  @ffi.Uint64()
+  external int ri_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_proc_start_abstime;
+
+  @ffi.Uint64()
+  external int ri_proc_exit_abstime;
+
+  @ffi.Uint64()
+  external int ri_child_user_time;
+
+  @ffi.Uint64()
+  external int ri_child_system_time;
+
+  @ffi.Uint64()
+  external int ri_child_pkg_idle_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_interrupt_wkups;
+
+  @ffi.Uint64()
+  external int ri_child_pageins;
+
+  @ffi.Uint64()
+  external int ri_child_elapsed_abstime;
+
+  @ffi.Uint64()
+  external int ri_diskio_bytesread;
+
+  @ffi.Uint64()
+  external int ri_diskio_byteswritten;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_default;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_maintenance;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_background;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_utility;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_legacy;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_user_initiated;
+
+  @ffi.Uint64()
+  external int ri_cpu_time_qos_user_interactive;
+
+  @ffi.Uint64()
+  external int ri_billed_system_time;
+
+  @ffi.Uint64()
+  external int ri_serviced_system_time;
+
+  @ffi.Uint64()
+  external int ri_logical_writes;
+
+  @ffi.Uint64()
+  external int ri_lifetime_max_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_instructions;
+
+  @ffi.Uint64()
+  external int ri_cycles;
+
+  @ffi.Uint64()
+  external int ri_billed_energy;
+
+  @ffi.Uint64()
+  external int ri_serviced_energy;
+
+  @ffi.Uint64()
+  external int ri_interval_max_phys_footprint;
+
+  @ffi.Uint64()
+  external int ri_runnable_time;
+
+  @ffi.Uint64()
+  external int ri_flags;
+
+  @ffi.Uint64()
+  external int ri_user_ptime;
+
+  @ffi.Uint64()
+  external int ri_system_ptime;
+
+  @ffi.Uint64()
+  external int ri_pinstructions;
+
+  @ffi.Uint64()
+  external int ri_pcycles;
+
+  @ffi.Uint64()
+  external int ri_energy_nj;
+
+  @ffi.Uint64()
+  external int ri_penergy_nj;
+
+  @ffi.Uint64()
+  external int ri_secure_time_in_system;
+
+  @ffi.Uint64()
+  external int ri_secure_ptime_in_system;
+
+  @ffi.Array.multi([12])
+  external ffi.Array<ffi.Uint64> ri_reserved;
+}
+
+final class rlimit extends ffi.Struct {
+  @rlim_t()
+  external int rlim_cur;
+
+  @rlim_t()
+  external int rlim_max;
+}
+
+typedef rlim_t = __uint64_t;
+
+final class proc_rlimit_control_wakeupmon extends ffi.Struct {
+  @ffi.Uint32()
+  external int wm_flags;
+
+  @ffi.Int32()
+  external int wm_rate;
+}
+
+typedef id_t = __darwin_id_t;
+typedef __darwin_id_t = __uint32_t;
+typedef NativeGetpriority = ffi.Int Function(ffi.Int arg0, id_t arg1);
+typedef DartGetpriority = int Function(int arg0, int arg1);
+typedef NativeGetiopolicy_np = ffi.Int Function(ffi.Int arg0, ffi.Int arg1);
+typedef DartGetiopolicy_np = int Function(int arg0, int arg1);
+typedef NativeGetrlimit = ffi.Int Function(
+    ffi.Int arg0, ffi.Pointer<rlimit> arg1);
+typedef DartGetrlimit = int Function(int arg0, ffi.Pointer<rlimit> arg1);
+typedef NativeGetrusage = ffi.Int Function(
+    ffi.Int arg0, ffi.Pointer<rusage> arg1);
+typedef DartGetrusage = int Function(int arg0, ffi.Pointer<rusage> arg1);
+typedef NativeSetpriority = ffi.Int Function(
+    ffi.Int arg0, id_t arg1, ffi.Int arg2);
+typedef DartSetpriority = int Function(int arg0, int arg1, int arg2);
+typedef NativeSetiopolicy_np = ffi.Int Function(
+    ffi.Int arg0, ffi.Int arg1, ffi.Int arg2);
+typedef DartSetiopolicy_np = int Function(int arg0, int arg1, int arg2);
+typedef NativeSetrlimit = ffi.Int Function(
+    ffi.Int arg0, ffi.Pointer<rlimit> arg1);
+typedef DartSetrlimit = int Function(int arg0, ffi.Pointer<rlimit> arg1);
+
+final class wait extends ffi.Opaque {}
+
+typedef NativeWait = pid_t Function(ffi.Pointer<ffi.Int> arg0);
+typedef DartWait = int Function(ffi.Pointer<ffi.Int> arg0);
+typedef NativeWaitpid = pid_t Function(
+    pid_t arg0, ffi.Pointer<ffi.Int> arg1, ffi.Int arg2);
+typedef DartWaitpid = int Function(
+    int arg0, ffi.Pointer<ffi.Int> arg1, int arg2);
+typedef siginfo_t = __siginfo;
+typedef NativeWaitid = ffi.Int Function(
+    ffi.Int32 arg0, id_t arg1, ffi.Pointer<siginfo_t> arg2, ffi.Int arg3);
+typedef DartWaitid = int Function(
+    int arg0, int arg1, ffi.Pointer<siginfo_t> arg2, int arg3);
+typedef NativeWait3 = pid_t Function(
+    ffi.Pointer<ffi.Int> arg0, ffi.Int arg1, ffi.Pointer<rusage> arg2);
+typedef DartWait3 = int Function(
+    ffi.Pointer<ffi.Int> arg0, int arg1, ffi.Pointer<rusage> arg2);
+typedef NativeWait4 = pid_t Function(pid_t arg0, ffi.Pointer<ffi.Int> arg1,
+    ffi.Int arg2, ffi.Pointer<rusage> arg3);
+typedef DartWait4 = int Function(
+    int arg0, ffi.Pointer<ffi.Int> arg1, int arg2, ffi.Pointer<rusage> arg3);
+typedef NativeAlloca = ffi.Pointer<ffi.Void> Function(ffi.Size arg0);
+typedef DartAlloca = ffi.Pointer<ffi.Void> Function(int arg0);
+
+final class div_t extends ffi.Struct {
+  @ffi.Int()
+  external int quot;
+
+  @ffi.Int()
+  external int rem;
+}
+
+final class ldiv_t extends ffi.Struct {
+  @ffi.Long()
+  external int quot;
+
+  @ffi.Long()
+  external int rem;
+}
+
+final class lldiv_t extends ffi.Struct {
+  @ffi.LongLong()
+  external int quot;
+
+  @ffi.LongLong()
+  external int rem;
+}
+
+typedef malloc_type_id_t = ffi.UnsignedLongLong;
+typedef Dartmalloc_type_id_t = int;
+typedef NativeMalloc_type_malloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Size size, malloc_type_id_t type_id);
+typedef DartMalloc_type_malloc = ffi.Pointer<ffi.Void> Function(
+    int size, int type_id);
+typedef NativeMalloc_type_calloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Size count, ffi.Size size, malloc_type_id_t type_id);
+typedef DartMalloc_type_calloc = ffi.Pointer<ffi.Void> Function(
+    int count, int size, int type_id);
+typedef NativeMalloc_type_free = ffi.Void Function(
+    ffi.Pointer<ffi.Void> ptr, malloc_type_id_t type_id);
+typedef DartMalloc_type_free = void Function(
+    ffi.Pointer<ffi.Void> ptr, int type_id);
+typedef NativeMalloc_type_realloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> ptr, ffi.Size size, malloc_type_id_t type_id);
+typedef DartMalloc_type_realloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> ptr, int size, int type_id);
+typedef NativeMalloc_type_valloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Size size, malloc_type_id_t type_id);
+typedef DartMalloc_type_valloc = ffi.Pointer<ffi.Void> Function(
+    int size, int type_id);
+typedef NativeMalloc_type_aligned_alloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Size alignment, ffi.Size size, malloc_type_id_t type_id);
+typedef DartMalloc_type_aligned_alloc = ffi.Pointer<ffi.Void> Function(
+    int alignment, int size, int type_id);
+typedef NativeMalloc_type_posix_memalign = ffi.Int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Void>> memptr,
+    ffi.Size alignment,
+    ffi.Size size,
+    malloc_type_id_t type_id);
+typedef DartMalloc_type_posix_memalign = int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Void>> memptr,
+    int alignment,
+    int size,
+    int type_id);
+
+final class _malloc_zone_t extends ffi.Opaque {}
+
+typedef malloc_zone_t = _malloc_zone_t;
+typedef NativeMalloc_type_zone_malloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone, ffi.Size size, malloc_type_id_t type_id);
+typedef DartMalloc_type_zone_malloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone, int size, int type_id);
+typedef NativeMalloc_type_zone_calloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone,
+    ffi.Size count,
+    ffi.Size size,
+    malloc_type_id_t type_id);
+typedef DartMalloc_type_zone_calloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone, int count, int size, int type_id);
+typedef NativeMalloc_type_zone_free = ffi.Void Function(
+    ffi.Pointer<malloc_zone_t> zone,
+    ffi.Pointer<ffi.Void> ptr,
+    malloc_type_id_t type_id);
+typedef DartMalloc_type_zone_free = void Function(
+    ffi.Pointer<malloc_zone_t> zone, ffi.Pointer<ffi.Void> ptr, int type_id);
+typedef NativeMalloc_type_zone_realloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone,
+    ffi.Pointer<ffi.Void> ptr,
+    ffi.Size size,
+    malloc_type_id_t type_id);
+typedef DartMalloc_type_zone_realloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone,
+    ffi.Pointer<ffi.Void> ptr,
+    int size,
+    int type_id);
+typedef NativeMalloc_type_zone_valloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone, ffi.Size size, malloc_type_id_t type_id);
+typedef DartMalloc_type_zone_valloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone, int size, int type_id);
+typedef NativeMalloc_type_zone_memalign = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone,
+    ffi.Size alignment,
+    ffi.Size size,
+    malloc_type_id_t type_id);
+typedef DartMalloc_type_zone_memalign = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<malloc_zone_t> zone, int alignment, int size, int type_id);
+typedef NativeMalloc = ffi.Pointer<ffi.Void> Function(ffi.Size __size);
+typedef DartMalloc = ffi.Pointer<ffi.Void> Function(int __size);
+typedef NativeCalloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Size __count, ffi.Size __size);
+typedef DartCalloc = ffi.Pointer<ffi.Void> Function(int __count, int __size);
+typedef NativeFree = ffi.Void Function(ffi.Pointer<ffi.Void> arg0);
+typedef DartFree = void Function(ffi.Pointer<ffi.Void> arg0);
+typedef NativeRealloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> __ptr, ffi.Size __size);
+typedef DartRealloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> __ptr, int __size);
+typedef NativeReallocf = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> __ptr, ffi.Size __size);
+typedef DartReallocf = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> __ptr, int __size);
+typedef NativeValloc = ffi.Pointer<ffi.Void> Function(ffi.Size arg0);
+typedef DartValloc = ffi.Pointer<ffi.Void> Function(int arg0);
+typedef NativeAligned_alloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Size __alignment, ffi.Size __size);
+typedef DartAligned_alloc = ffi.Pointer<ffi.Void> Function(
+    int __alignment, int __size);
+typedef NativePosix_memalign = ffi.Int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Void>> __memptr,
+    ffi.Size __alignment,
+    ffi.Size __size);
+typedef DartPosix_memalign = int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Void>> __memptr, int __alignment, int __size);
+typedef NativeAbort = ffi.Void Function();
+typedef DartAbort = void Function();
+typedef NativeAbs = ffi.Int Function(ffi.Int arg0);
+typedef DartAbs = int Function(int arg0);
+typedef NativeAtexit = ffi.Int Function(
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
+typedef DartAtexit = int Function(
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
+typedef NativeAtof = ffi.Double Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartAtof = double Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeAtoi = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartAtoi = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeAtol = ffi.Long Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartAtol = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeAtoll = ffi.LongLong Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartAtoll = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeBsearch = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> __key,
+    ffi.Pointer<ffi.Void> __base,
+    ffi.Size __nel,
+    ffi.Size __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef DartBsearch = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> __key,
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef NativeDiv = div_t Function(ffi.Int arg0, ffi.Int arg1);
+typedef DartDiv = div_t Function(int arg0, int arg1);
+typedef NativeExit = ffi.Void Function(ffi.Int arg0);
+typedef DartExit = void Function(int arg0);
+typedef NativeGetenv = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> arg0);
+typedef DartGetenv = ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeLabs = ffi.Long Function(ffi.Long arg0);
+typedef DartLabs = int Function(int arg0);
+typedef NativeLdiv = ldiv_t Function(ffi.Long arg0, ffi.Long arg1);
+typedef DartLdiv = ldiv_t Function(int arg0, int arg1);
+typedef NativeLlabs = ffi.LongLong Function(ffi.LongLong arg0);
+typedef DartLlabs = int Function(int arg0);
+typedef NativeLldiv = lldiv_t Function(ffi.LongLong arg0, ffi.LongLong arg1);
+typedef DartLldiv = lldiv_t Function(int arg0, int arg1);
+typedef NativeMblen = ffi.Int Function(ffi.Pointer<ffi.Char> __s, ffi.Size __n);
+typedef DartMblen = int Function(ffi.Pointer<ffi.Char> __s, int __n);
+typedef NativeMbstowcs = ffi.Size Function(
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
+typedef DartMbstowcs = int Function(
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
+typedef NativeMbtowc = ffi.Int Function(
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
+typedef DartMbtowc = int Function(
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
+typedef NativeQsort = ffi.Void Function(
+    ffi.Pointer<ffi.Void> __base,
+    ffi.Size __nel,
+    ffi.Size __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef DartQsort = void Function(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef NativeRand = ffi.Int Function();
+typedef DartRand = int Function();
+typedef NativeSrand = ffi.Void Function(ffi.UnsignedInt arg0);
+typedef DartSrand = void Function(int arg0);
+typedef NativeStrtod = ffi.Double Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
+typedef DartStrtod = double Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
+typedef NativeStrtof = ffi.Float Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
+typedef DartStrtof = double Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
+typedef NativeStrtol = ffi.Long Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
+typedef DartStrtol = int Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtoll = ffi.LongLong Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
+typedef DartStrtoll = int Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtoul = ffi.UnsignedLong Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
+typedef DartStrtoul = int Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtoull = ffi.UnsignedLongLong Function(
+    ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    ffi.Int __base);
+typedef DartStrtoull = int Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeSystem = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartSystem = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeWcstombs = ffi.Size Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, ffi.Size arg2);
+typedef DartWcstombs = int Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, int arg2);
+typedef NativeWctomb = ffi.Int Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.WChar arg1);
+typedef DartWctomb = int Function(ffi.Pointer<ffi.Char> arg0, int arg1);
+typedef Native_Exit = ffi.Void Function(ffi.Int arg0);
+typedef Dart_Exit = void Function(int arg0);
+typedef NativeA64l = ffi.Long Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartA64l = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeDrand48 = ffi.Double Function();
+typedef DartDrand48 = double Function();
+typedef NativeEcvt = ffi.Pointer<ffi.Char> Function(ffi.Double arg0,
+    ffi.Int arg1, ffi.Pointer<ffi.Int> arg2, ffi.Pointer<ffi.Int> arg3);
+typedef DartEcvt = ffi.Pointer<ffi.Char> Function(double arg0, int arg1,
+    ffi.Pointer<ffi.Int> arg2, ffi.Pointer<ffi.Int> arg3);
+typedef NativeErand48 = ffi.Double Function(
+    ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef DartErand48 = double Function(ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef NativeFcvt = ffi.Pointer<ffi.Char> Function(ffi.Double arg0,
+    ffi.Int arg1, ffi.Pointer<ffi.Int> arg2, ffi.Pointer<ffi.Int> arg3);
+typedef DartFcvt = ffi.Pointer<ffi.Char> Function(double arg0, int arg1,
+    ffi.Pointer<ffi.Int> arg2, ffi.Pointer<ffi.Int> arg3);
+typedef NativeGcvt = ffi.Pointer<ffi.Char> Function(
+    ffi.Double arg0, ffi.Int arg1, ffi.Pointer<ffi.Char> arg2);
+typedef DartGcvt = ffi.Pointer<ffi.Char> Function(
+    double arg0, int arg1, ffi.Pointer<ffi.Char> arg2);
+typedef NativeGetsubopt = ffi.Int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
+typedef DartGetsubopt = int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
+typedef NativeGrantpt = ffi.Int Function(ffi.Int arg0);
+typedef DartGrantpt = int Function(int arg0);
+typedef NativeInitstate = ffi.Pointer<ffi.Char> Function(
+    ffi.UnsignedInt arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
+typedef DartInitstate = ffi.Pointer<ffi.Char> Function(
+    int arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
+typedef NativeJrand48 = ffi.Long Function(ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef DartJrand48 = int Function(ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef NativeL64a = ffi.Pointer<ffi.Char> Function(ffi.Long arg0);
+typedef DartL64a = ffi.Pointer<ffi.Char> Function(int arg0);
+typedef NativeLcong48 = ffi.Void Function(ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef DartLcong48 = void Function(ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef NativeLrand48 = ffi.Long Function();
+typedef DartLrand48 = int Function();
+typedef NativeMktemp = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> arg0);
+typedef DartMktemp = ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeMkstemp = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartMkstemp = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeMrand48 = ffi.Long Function();
+typedef DartMrand48 = int Function();
+typedef NativeNrand48 = ffi.Long Function(ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef DartNrand48 = int Function(ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef NativePosix_openpt = ffi.Int Function(ffi.Int arg0);
+typedef DartPosix_openpt = int Function(int arg0);
+typedef NativePtsname = ffi.Pointer<ffi.Char> Function(ffi.Int arg0);
+typedef DartPtsname = ffi.Pointer<ffi.Char> Function(int arg0);
+typedef NativePtsname_r = ffi.Int Function(
+    ffi.Int fildes, ffi.Pointer<ffi.Char> buffer, ffi.Size buflen);
+typedef DartPtsname_r = int Function(
+    int fildes, ffi.Pointer<ffi.Char> buffer, int buflen);
+typedef NativePutenv = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartPutenv = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeRandom = ffi.Long Function();
+typedef DartRandom = int Function();
+typedef NativeRand_r = ffi.Int Function(ffi.Pointer<ffi.UnsignedInt> arg0);
+typedef DartRand_r = int Function(ffi.Pointer<ffi.UnsignedInt> arg0);
+typedef NativeRealpath = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1);
+typedef DartRealpath = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1);
+typedef NativeSeed48 = ffi.Pointer<ffi.UnsignedShort> Function(
+    ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef DartSeed48 = ffi.Pointer<ffi.UnsignedShort> Function(
+    ffi.Pointer<ffi.UnsignedShort> arg0);
+typedef NativeSetenv = ffi.Int Function(ffi.Pointer<ffi.Char> __name,
+    ffi.Pointer<ffi.Char> __value, ffi.Int __overwrite);
+typedef DartSetenv = int Function(ffi.Pointer<ffi.Char> __name,
+    ffi.Pointer<ffi.Char> __value, int __overwrite);
+typedef NativeSetkey = ffi.Void Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartSetkey = void Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeSetstate = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> arg0);
+typedef DartSetstate = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> arg0);
+typedef NativeSrand48 = ffi.Void Function(ffi.Long arg0);
+typedef DartSrand48 = void Function(int arg0);
+typedef NativeSrandom = ffi.Void Function(ffi.UnsignedInt arg0);
+typedef DartSrandom = void Function(int arg0);
+typedef NativeUnlockpt = ffi.Int Function(ffi.Int arg0);
+typedef DartUnlockpt = int Function(int arg0);
+typedef NativeUnsetenv = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartUnsetenv = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeArc4random = ffi.Uint32 Function();
+typedef DartArc4random = int Function();
+typedef NativeArc4random_addrandom = ffi.Void Function(
+    ffi.Pointer<ffi.UnsignedChar> arg0, ffi.Int arg1);
+typedef DartArc4random_addrandom = void Function(
+    ffi.Pointer<ffi.UnsignedChar> arg0, int arg1);
+typedef NativeArc4random_buf = ffi.Void Function(
+    ffi.Pointer<ffi.Void> __buf, ffi.Size __nbytes);
+typedef DartArc4random_buf = void Function(
+    ffi.Pointer<ffi.Void> __buf, int __nbytes);
+typedef NativeArc4random_stir = ffi.Void Function();
+typedef DartArc4random_stir = void Function();
+typedef NativeArc4random_uniform = ffi.Uint32 Function(
+    ffi.Uint32 __upper_bound);
+typedef DartArc4random_uniform = int Function(int __upper_bound);
+typedef NativeCgetcap = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Int arg2);
+typedef DartCgetcap = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
+typedef NativeCgetclose = ffi.Int Function();
+typedef DartCgetclose = int Function();
+typedef NativeCgetent = ffi.Int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
+    ffi.Pointer<ffi.Char> arg2);
+typedef DartCgetent = int Function(ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1, ffi.Pointer<ffi.Char> arg2);
+typedef NativeCgetfirst = ffi.Int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
+typedef DartCgetfirst = int Function(ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
+typedef NativeCgetmatch = ffi.Int Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1);
+typedef DartCgetmatch = int Function(
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1);
+typedef NativeCgetnext = ffi.Int Function(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
+typedef DartCgetnext = int Function(ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
+typedef NativeCgetnum = ffi.Int Function(ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Long> arg2);
+typedef DartCgetnum = int Function(ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Long> arg2);
+typedef NativeCgetset = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartCgetset = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeCgetstr = ffi.Int Function(ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
+typedef DartCgetstr = int Function(ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
+typedef NativeCgetustr = ffi.Int Function(ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
+typedef DartCgetustr = int Function(ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
+typedef NativeDaemon = ffi.Int Function(ffi.Int arg0, ffi.Int arg1);
+typedef DartDaemon = int Function(int arg0, int arg1);
+typedef dev_t = __darwin_dev_t;
+typedef __darwin_dev_t = __int32_t;
+typedef mode_t = __darwin_mode_t;
+typedef __darwin_mode_t = __uint16_t;
+typedef __uint16_t = ffi.UnsignedShort;
+typedef Dart__uint16_t = int;
+typedef NativeDevname = ffi.Pointer<ffi.Char> Function(dev_t arg0, mode_t arg1);
+typedef DartDevname = ffi.Pointer<ffi.Char> Function(int arg0, int arg1);
+typedef NativeDevname_r = ffi.Pointer<ffi.Char> Function(
+    dev_t arg0, mode_t arg1, ffi.Pointer<ffi.Char> buf, ffi.Int len);
+typedef DartDevname_r = ffi.Pointer<ffi.Char> Function(
+    int arg0, int arg1, ffi.Pointer<ffi.Char> buf, int len);
+typedef NativeGetbsize = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Int> arg0, ffi.Pointer<ffi.Long> arg1);
+typedef DartGetbsize = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Int> arg0, ffi.Pointer<ffi.Long> arg1);
+typedef NativeGetloadavg = ffi.Int Function(
+    ffi.Pointer<ffi.Double> arg0, ffi.Int arg1);
+typedef DartGetloadavg = int Function(ffi.Pointer<ffi.Double> arg0, int arg1);
+typedef NativeGetprogname = ffi.Pointer<ffi.Char> Function();
+typedef DartGetprogname = ffi.Pointer<ffi.Char> Function();
+typedef NativeSetprogname = ffi.Void Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartSetprogname = void Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeHeapsort = ffi.Int Function(
+    ffi.Pointer<ffi.Void> __base,
+    ffi.Size __nel,
+    ffi.Size __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef DartHeapsort = int Function(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef NativeMergesort = ffi.Int Function(
+    ffi.Pointer<ffi.Void> __base,
+    ffi.Size __nel,
+    ffi.Size __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef DartMergesort = int Function(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef NativePsort = ffi.Void Function(
+    ffi.Pointer<ffi.Void> __base,
+    ffi.Size __nel,
+    ffi.Size __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef DartPsort = void Function(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef NativePsort_r = ffi.Void Function(
+    ffi.Pointer<ffi.Void> __base,
+    ffi.Size __nel,
+    ffi.Size __width,
+    ffi.Pointer<ffi.Void> arg3,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+                    ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef DartPsort_r = void Function(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<ffi.Void> arg3,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+                    ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef NativeQsort_r = ffi.Void Function(
+    ffi.Pointer<ffi.Void> __base,
+    ffi.Size __nel,
+    ffi.Size __width,
+    ffi.Pointer<ffi.Void> arg3,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+                    ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef DartQsort_r = void Function(
+    ffi.Pointer<ffi.Void> __base,
+    int __nel,
+    int __width,
+    ffi.Pointer<ffi.Void> arg3,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
+                    ffi.Pointer<ffi.Void>)>>
+        __compar);
+typedef NativeRadixsort = ffi.Int Function(
+    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
+    ffi.Int __nel,
+    ffi.Pointer<ffi.UnsignedChar> __table,
+    ffi.UnsignedInt __endbyte);
+typedef DartRadixsort = int Function(
+    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
+    int __nel,
+    ffi.Pointer<ffi.UnsignedChar> __table,
+    int __endbyte);
+typedef NativeRpmatch = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
+typedef DartRpmatch = int Function(ffi.Pointer<ffi.Char> arg0);
+typedef NativeSradixsort = ffi.Int Function(
+    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
+    ffi.Int __nel,
+    ffi.Pointer<ffi.UnsignedChar> __table,
+    ffi.UnsignedInt __endbyte);
+typedef DartSradixsort = int Function(
+    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
+    int __nel,
+    ffi.Pointer<ffi.UnsignedChar> __table,
+    int __endbyte);
+typedef NativeSranddev = ffi.Void Function();
+typedef DartSranddev = void Function();
+typedef NativeSrandomdev = ffi.Void Function();
+typedef DartSrandomdev = void Function();
+typedef NativeStrtonum = ffi.LongLong Function(
+    ffi.Pointer<ffi.Char> __numstr,
+    ffi.LongLong __minval,
+    ffi.LongLong __maxval,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __errstrp);
+typedef DartStrtonum = int Function(ffi.Pointer<ffi.Char> __numstr,
+    int __minval, int __maxval, ffi.Pointer<ffi.Pointer<ffi.Char>> __errstrp);
+typedef NativeStrtoq = ffi.LongLong Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
+typedef DartStrtoq = int Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtouq = ffi.UnsignedLongLong Function(
+    ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    ffi.Int __base);
+typedef DartStrtouq = int Function(ffi.Pointer<ffi.Char> __str,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+
 final class Option______c_char extends ffi.Opaque {}
 
 final class TransactionType extends ffi.Opaque {}
 
-typedef NativeValidate_submarine = ffi.Int Function(
+final class TxResult extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> tx_ptr;
+
+  external ffi.Pointer<ffi.Char> error_msg;
+}
+
+final class UtxoFFI extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> txid;
+
+  @ffi.Uint32()
+  external int vout;
+
+  external ffi.Pointer<ffi.Char> script_pub_key;
+
+  external ffi.Pointer<ffi.Char> asset_id;
+
+  @ffi.Uint64()
+  external int value;
+
+  external ffi.Pointer<ffi.Char> asset_bf;
+
+  external ffi.Pointer<ffi.Char> value_bf;
+
+  external ffi.Pointer<ffi.Char> asset_commitment;
+
+  external ffi.Pointer<ffi.Char> value_commitment;
+}
+
+typedef NativeValidate_submarine = ffi.Int32 Function(
     ffi.Pointer<ffi.Char> preimage_hash,
     ffi.Pointer<ffi.Char> claim_public_key,
     ffi.Pointer<ffi.Char> refund_public_key,
-    ffi.Int timeout_block_height,
+    ffi.Uint32 timeout_block_height,
     ffi.Pointer<ffi.Char> lockup_address,
     ffi.Pointer<ffi.Char> redeem_script,
     ffi.Pointer<ffi.Char> blinding_key);
@@ -2782,7 +6480,7 @@ typedef NativeCreate_and_sign_claim_transaction
         ffi.Pointer<ffi.Char> private_key,
         ffi.Pointer<ffi.Char> preimage,
         ffi.Pointer<ffi.Char> tx,
-        ffi.Int fees);
+        ffi.Uint64 fees);
 typedef DartCreate_and_sign_claim_transaction = ffi.Pointer<ffi.Char> Function(
     ffi.Pointer<ffi.Char> redeem_script,
     ffi.Pointer<ffi.Char> blinding_key,
@@ -2798,7 +6496,7 @@ typedef NativeCreate_and_sign_refund_transaction
         ffi.Pointer<ffi.Char> onchain_address,
         ffi.Pointer<ffi.Char> private_key,
         ffi.Pointer<ffi.Char> tx,
-        ffi.Int fees);
+        ffi.Uint64 fees);
 typedef DartCreate_and_sign_refund_transaction = ffi.Pointer<ffi.Char> Function(
     ffi.Pointer<ffi.Char> redeem_script,
     ffi.Pointer<ffi.Char> blinding_key,
@@ -2812,7 +6510,7 @@ typedef NativeSign_message_schnorr = ffi.Pointer<ffi.Char> Function(
     ffi.Pointer<ffi.Char> message, ffi.Pointer<ffi.Char> private_key);
 typedef DartSign_message_schnorr = ffi.Pointer<ffi.Char> Function(
     ffi.Pointer<ffi.Char> message, ffi.Pointer<ffi.Char> private_key);
-typedef NativeVerify_signature_schnorr = ffi.Int Function(
+typedef NativeVerify_signature_schnorr = ffi.Int32 Function(
     ffi.Pointer<ffi.Char> signature,
     ffi.Pointer<ffi.Char> message,
     ffi.Pointer<ffi.Char> public_key);
@@ -2820,14 +6518,45 @@ typedef DartVerify_signature_schnorr = int Function(
     ffi.Pointer<ffi.Char> signature,
     ffi.Pointer<ffi.Char> message,
     ffi.Pointer<ffi.Char> public_key);
+typedef NativeCreate_taxi_transaction = TxResult Function(
+    ffi.Uint64 send_amount,
+    ffi.Pointer<ffi.Char> send_address,
+    ffi.Pointer<ffi.Char> change_address,
+    ffi.Pointer<UtxoFFI> utxos,
+    ffi.UintPtr utxos_len,
+    ffi.Pointer<ffi.Char> user_agent,
+    ffi.Pointer<ffi.Char> api_key,
+    ffi.Bool subtract_fee_from_amount,
+    ffi.Bool is_lowball,
+    ffi.Bool is_testnet);
+typedef DartCreate_taxi_transaction = TxResult Function(
+    int send_amount,
+    ffi.Pointer<ffi.Char> send_address,
+    ffi.Pointer<ffi.Char> change_address,
+    ffi.Pointer<UtxoFFI> utxos,
+    int utxos_len,
+    ffi.Pointer<ffi.Char> user_agent,
+    ffi.Pointer<ffi.Char> api_key,
+    bool subtract_fee_from_amount,
+    bool is_lowball,
+    bool is_testnet);
+typedef NativeCreate_final_taxi_pset = TxResult Function(
+    ffi.Pointer<ffi.Char> client_signed_pset,
+    ffi.Pointer<ffi.Char> server_signed_pset);
+typedef DartCreate_final_taxi_pset = TxResult Function(
+    ffi.Pointer<ffi.Char> client_signed_pset,
+    ffi.Pointer<ffi.Char> server_signed_pset);
 typedef NativeRust_cstr_free = ffi.Void Function(ffi.Pointer<ffi.Char> s);
 typedef DartRust_cstr_free = void Function(ffi.Pointer<ffi.Char> s);
-typedef LogCallback
-    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>;
+typedef LogCallback = ffi.Pointer<ffi.NativeFunction<LogCallbackFunction>>;
+typedef LogCallbackFunction = ffi.Void Function(ffi.Pointer<ffi.Char>);
+typedef DartLogCallbackFunction = void Function(ffi.Pointer<ffi.Char>);
 typedef NativeRegister_log_callback = ffi.Void Function(LogCallback callback);
 typedef DartRegister_log_callback = void Function(LogCallback callback);
 typedef NativeGet_last_error = ffi.Pointer<ffi.Char> Function();
 typedef DartGet_last_error = ffi.Pointer<ffi.Char> Function();
+
+const int __has_safe_buffers = 1;
 
 const int __DARWIN_ONLY_64_BIT_INO_T = 1;
 
@@ -3157,6 +6886,12 @@ const int __MAC_14_1 = 140100;
 
 const int __MAC_14_2 = 140200;
 
+const int __MAC_14_3 = 140300;
+
+const int __MAC_14_4 = 140400;
+
+const int __MAC_14_5 = 140500;
+
 const int __IPHONE_2_0 = 20000;
 
 const int __IPHONE_2_1 = 20100;
@@ -3283,6 +7018,10 @@ const int __IPHONE_15_5 = 150500;
 
 const int __IPHONE_15_6 = 150600;
 
+const int __IPHONE_15_7 = 150700;
+
+const int __IPHONE_15_8 = 150800;
+
 const int __IPHONE_16_0 = 160000;
 
 const int __IPHONE_16_1 = 160100;
@@ -3304,6 +7043,12 @@ const int __IPHONE_17_0 = 170000;
 const int __IPHONE_17_1 = 170100;
 
 const int __IPHONE_17_2 = 170200;
+
+const int __IPHONE_17_3 = 170300;
+
+const int __IPHONE_17_4 = 170400;
+
+const int __IPHONE_17_5 = 170500;
 
 const int __WATCHOS_1_0 = 10000;
 
@@ -3371,6 +7116,8 @@ const int __WATCHOS_8_6 = 80600;
 
 const int __WATCHOS_8_7 = 80700;
 
+const int __WATCHOS_8_8 = 80800;
+
 const int __WATCHOS_9_0 = 90000;
 
 const int __WATCHOS_9_1 = 90100;
@@ -3390,6 +7137,12 @@ const int __WATCHOS_10_0 = 100000;
 const int __WATCHOS_10_1 = 100100;
 
 const int __WATCHOS_10_2 = 100200;
+
+const int __WATCHOS_10_3 = 100300;
+
+const int __WATCHOS_10_4 = 100400;
+
+const int __WATCHOS_10_5 = 100500;
 
 const int __TVOS_9_0 = 90000;
 
@@ -3481,6 +7234,12 @@ const int __TVOS_17_1 = 170100;
 
 const int __TVOS_17_2 = 170200;
 
+const int __TVOS_17_3 = 170300;
+
+const int __TVOS_17_4 = 170400;
+
+const int __TVOS_17_5 = 170500;
+
 const int __BRIDGEOS_2_0 = 20000;
 
 const int __BRIDGEOS_3_0 = 30000;
@@ -3527,6 +7286,12 @@ const int __BRIDGEOS_8_1 = 80100;
 
 const int __BRIDGEOS_8_2 = 80200;
 
+const int __BRIDGEOS_8_3 = 80300;
+
+const int __BRIDGEOS_8_4 = 80400;
+
+const int __BRIDGEOS_8_5 = 80500;
+
 const int __DRIVERKIT_19_0 = 190000;
 
 const int __DRIVERKIT_20_0 = 200000;
@@ -3547,7 +7312,17 @@ const int __DRIVERKIT_23_1 = 230100;
 
 const int __DRIVERKIT_23_2 = 230200;
 
+const int __DRIVERKIT_23_3 = 230300;
+
+const int __DRIVERKIT_23_4 = 230400;
+
+const int __DRIVERKIT_23_5 = 230500;
+
 const int __VISIONOS_1_0 = 10000;
+
+const int __VISIONOS_1_1 = 10100;
+
+const int __VISIONOS_1_2 = 10200;
 
 const int MAC_OS_X_VERSION_10_0 = 1000;
 
@@ -3665,9 +7440,15 @@ const int MAC_OS_VERSION_14_1 = 140100;
 
 const int MAC_OS_VERSION_14_2 = 140200;
 
-const int __MAC_OS_X_VERSION_MIN_REQUIRED = 130000;
+const int MAC_OS_VERSION_14_3 = 140300;
 
-const int __MAC_OS_X_VERSION_MAX_ALLOWED = 140200;
+const int MAC_OS_VERSION_14_4 = 140400;
+
+const int MAC_OS_VERSION_14_5 = 140500;
+
+const int __MAC_OS_X_VERSION_MIN_REQUIRED = 140000;
+
+const int __MAC_OS_X_VERSION_MAX_ALLOWED = 140500;
 
 const int __ENABLE_LEGACY_MAC_AVAILABILITY = 1;
 
@@ -3704,5 +7485,429 @@ const int GA_DEBUG = 2;
 const int GA_TRUE = 1;
 
 const int GA_FALSE = 0;
+
+const int __GNUC_VA_LIST = 1;
+
+const int __bool_true_false_are_defined = 1;
+
+const int true1 = 1;
+
+const int false1 = 0;
+
+const int __DARWIN_NSIG = 32;
+
+const int NSIG = 32;
+
+const int _ARM_SIGNAL_ = 1;
+
+const int SIGHUP = 1;
+
+const int SIGINT = 2;
+
+const int SIGQUIT = 3;
+
+const int SIGILL = 4;
+
+const int SIGTRAP = 5;
+
+const int SIGABRT = 6;
+
+const int SIGIOT = 6;
+
+const int SIGEMT = 7;
+
+const int SIGFPE = 8;
+
+const int SIGKILL = 9;
+
+const int SIGBUS = 10;
+
+const int SIGSEGV = 11;
+
+const int SIGSYS = 12;
+
+const int SIGPIPE = 13;
+
+const int SIGALRM = 14;
+
+const int SIGTERM = 15;
+
+const int SIGURG = 16;
+
+const int SIGSTOP = 17;
+
+const int SIGTSTP = 18;
+
+const int SIGCONT = 19;
+
+const int SIGCHLD = 20;
+
+const int SIGTTIN = 21;
+
+const int SIGTTOU = 22;
+
+const int SIGIO = 23;
+
+const int SIGXCPU = 24;
+
+const int SIGXFSZ = 25;
+
+const int SIGVTALRM = 26;
+
+const int SIGPROF = 27;
+
+const int SIGWINCH = 28;
+
+const int SIGINFO = 29;
+
+const int SIGUSR1 = 30;
+
+const int SIGUSR2 = 31;
+
+const int __DARWIN_OPAQUE_ARM_THREAD_STATE64 = 0;
+
+const int SIGEV_NONE = 0;
+
+const int SIGEV_SIGNAL = 1;
+
+const int SIGEV_THREAD = 3;
+
+const int ILL_NOOP = 0;
+
+const int ILL_ILLOPC = 1;
+
+const int ILL_ILLTRP = 2;
+
+const int ILL_PRVOPC = 3;
+
+const int ILL_ILLOPN = 4;
+
+const int ILL_ILLADR = 5;
+
+const int ILL_PRVREG = 6;
+
+const int ILL_COPROC = 7;
+
+const int ILL_BADSTK = 8;
+
+const int FPE_NOOP = 0;
+
+const int FPE_FLTDIV = 1;
+
+const int FPE_FLTOVF = 2;
+
+const int FPE_FLTUND = 3;
+
+const int FPE_FLTRES = 4;
+
+const int FPE_FLTINV = 5;
+
+const int FPE_FLTSUB = 6;
+
+const int FPE_INTDIV = 7;
+
+const int FPE_INTOVF = 8;
+
+const int SEGV_NOOP = 0;
+
+const int SEGV_MAPERR = 1;
+
+const int SEGV_ACCERR = 2;
+
+const int BUS_NOOP = 0;
+
+const int BUS_ADRALN = 1;
+
+const int BUS_ADRERR = 2;
+
+const int BUS_OBJERR = 3;
+
+const int TRAP_BRKPT = 1;
+
+const int TRAP_TRACE = 2;
+
+const int CLD_NOOP = 0;
+
+const int CLD_EXITED = 1;
+
+const int CLD_KILLED = 2;
+
+const int CLD_DUMPED = 3;
+
+const int CLD_TRAPPED = 4;
+
+const int CLD_STOPPED = 5;
+
+const int CLD_CONTINUED = 6;
+
+const int POLL_IN = 1;
+
+const int POLL_OUT = 2;
+
+const int POLL_MSG = 3;
+
+const int POLL_ERR = 4;
+
+const int POLL_PRI = 5;
+
+const int POLL_HUP = 6;
+
+const int SA_ONSTACK = 1;
+
+const int SA_RESTART = 2;
+
+const int SA_RESETHAND = 4;
+
+const int SA_NOCLDSTOP = 8;
+
+const int SA_NODEFER = 16;
+
+const int SA_NOCLDWAIT = 32;
+
+const int SA_SIGINFO = 64;
+
+const int SA_USERTRAMP = 256;
+
+const int SA_64REGSET = 512;
+
+const int SA_USERSPACE_MASK = 127;
+
+const int SIG_BLOCK = 1;
+
+const int SIG_UNBLOCK = 2;
+
+const int SIG_SETMASK = 3;
+
+const int SI_USER = 65537;
+
+const int SI_QUEUE = 65538;
+
+const int SI_TIMER = 65539;
+
+const int SI_ASYNCIO = 65540;
+
+const int SI_MESGQ = 65541;
+
+const int SS_ONSTACK = 1;
+
+const int SS_DISABLE = 4;
+
+const int MINSIGSTKSZ = 32768;
+
+const int SIGSTKSZ = 131072;
+
+const int SV_ONSTACK = 1;
+
+const int SV_INTERRUPT = 2;
+
+const int SV_RESETHAND = 4;
+
+const int SV_NODEFER = 16;
+
+const int SV_NOCLDSTOP = 8;
+
+const int SV_SIGINFO = 64;
+
+const int PRIO_PROCESS = 0;
+
+const int PRIO_PGRP = 1;
+
+const int PRIO_USER = 2;
+
+const int PRIO_DARWIN_THREAD = 3;
+
+const int PRIO_DARWIN_PROCESS = 4;
+
+const int PRIO_MIN = -20;
+
+const int PRIO_MAX = 20;
+
+const int PRIO_DARWIN_BG = 4096;
+
+const int PRIO_DARWIN_NONUI = 4097;
+
+const int RUSAGE_SELF = 0;
+
+const int RUSAGE_CHILDREN = -1;
+
+const int RUSAGE_INFO_V0 = 0;
+
+const int RUSAGE_INFO_V1 = 1;
+
+const int RUSAGE_INFO_V2 = 2;
+
+const int RUSAGE_INFO_V3 = 3;
+
+const int RUSAGE_INFO_V4 = 4;
+
+const int RUSAGE_INFO_V5 = 5;
+
+const int RUSAGE_INFO_V6 = 6;
+
+const int RUSAGE_INFO_CURRENT = 6;
+
+const int RU_PROC_RUNS_RESLIDE = 1;
+
+const int RLIM_INFINITY = 9223372036854775807;
+
+const int RLIM_SAVED_MAX = 9223372036854775807;
+
+const int RLIM_SAVED_CUR = 9223372036854775807;
+
+const int RLIMIT_CPU = 0;
+
+const int RLIMIT_FSIZE = 1;
+
+const int RLIMIT_DATA = 2;
+
+const int RLIMIT_STACK = 3;
+
+const int RLIMIT_CORE = 4;
+
+const int RLIMIT_AS = 5;
+
+const int RLIMIT_RSS = 5;
+
+const int RLIMIT_MEMLOCK = 6;
+
+const int RLIMIT_NPROC = 7;
+
+const int RLIMIT_NOFILE = 8;
+
+const int RLIM_NLIMITS = 9;
+
+const int _RLIMIT_POSIX_FLAG = 4096;
+
+const int RLIMIT_WAKEUPS_MONITOR = 1;
+
+const int RLIMIT_CPU_USAGE_MONITOR = 2;
+
+const int RLIMIT_THREAD_CPULIMITS = 3;
+
+const int RLIMIT_FOOTPRINT_INTERVAL = 4;
+
+const int WAKEMON_ENABLE = 1;
+
+const int WAKEMON_DISABLE = 2;
+
+const int WAKEMON_GET_PARAMS = 4;
+
+const int WAKEMON_SET_DEFAULTS = 8;
+
+const int WAKEMON_MAKE_FATAL = 16;
+
+const int CPUMON_MAKE_FATAL = 4096;
+
+const int FOOTPRINT_INTERVAL_RESET = 1;
+
+const int IOPOL_TYPE_DISK = 0;
+
+const int IOPOL_TYPE_VFS_ATIME_UPDATES = 2;
+
+const int IOPOL_TYPE_VFS_MATERIALIZE_DATALESS_FILES = 3;
+
+const int IOPOL_TYPE_VFS_STATFS_NO_DATA_VOLUME = 4;
+
+const int IOPOL_TYPE_VFS_TRIGGER_RESOLVE = 5;
+
+const int IOPOL_TYPE_VFS_IGNORE_CONTENT_PROTECTION = 6;
+
+const int IOPOL_TYPE_VFS_IGNORE_PERMISSIONS = 7;
+
+const int IOPOL_TYPE_VFS_SKIP_MTIME_UPDATE = 8;
+
+const int IOPOL_TYPE_VFS_ALLOW_LOW_SPACE_WRITES = 9;
+
+const int IOPOL_TYPE_VFS_DISALLOW_RW_FOR_O_EVTONLY = 10;
+
+const int IOPOL_SCOPE_PROCESS = 0;
+
+const int IOPOL_SCOPE_THREAD = 1;
+
+const int IOPOL_SCOPE_DARWIN_BG = 2;
+
+const int IOPOL_DEFAULT = 0;
+
+const int IOPOL_IMPORTANT = 1;
+
+const int IOPOL_PASSIVE = 2;
+
+const int IOPOL_THROTTLE = 3;
+
+const int IOPOL_UTILITY = 4;
+
+const int IOPOL_STANDARD = 5;
+
+const int IOPOL_APPLICATION = 5;
+
+const int IOPOL_NORMAL = 1;
+
+const int IOPOL_ATIME_UPDATES_DEFAULT = 0;
+
+const int IOPOL_ATIME_UPDATES_OFF = 1;
+
+const int IOPOL_MATERIALIZE_DATALESS_FILES_DEFAULT = 0;
+
+const int IOPOL_MATERIALIZE_DATALESS_FILES_OFF = 1;
+
+const int IOPOL_MATERIALIZE_DATALESS_FILES_ON = 2;
+
+const int IOPOL_VFS_STATFS_NO_DATA_VOLUME_DEFAULT = 0;
+
+const int IOPOL_VFS_STATFS_FORCE_NO_DATA_VOLUME = 1;
+
+const int IOPOL_VFS_TRIGGER_RESOLVE_DEFAULT = 0;
+
+const int IOPOL_VFS_TRIGGER_RESOLVE_OFF = 1;
+
+const int IOPOL_VFS_CONTENT_PROTECTION_DEFAULT = 0;
+
+const int IOPOL_VFS_CONTENT_PROTECTION_IGNORE = 1;
+
+const int IOPOL_VFS_IGNORE_PERMISSIONS_OFF = 0;
+
+const int IOPOL_VFS_IGNORE_PERMISSIONS_ON = 1;
+
+const int IOPOL_VFS_SKIP_MTIME_UPDATE_OFF = 0;
+
+const int IOPOL_VFS_SKIP_MTIME_UPDATE_ON = 1;
+
+const int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_OFF = 0;
+
+const int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_ON = 1;
+
+const int IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_DEFAULT = 0;
+
+const int IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_ON = 1;
+
+const int IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_DEFAULT = 0;
+
+const int IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_ON = 1;
+
+const int WNOHANG = 1;
+
+const int WUNTRACED = 2;
+
+const int WCOREFLAG = 128;
+
+const int _WSTOPPED = 127;
+
+const int WEXITED = 4;
+
+const int WSTOPPED = 8;
+
+const int WCONTINUED = 16;
+
+const int WNOWAIT = 32;
+
+const int WAIT_ANY = -1;
+
+const int WAIT_MYPGRP = 0;
+
+const int EXIT_FAILURE = 1;
+
+const int EXIT_SUCCESS = 0;
+
+const int RAND_MAX = 2147483647;
 
 const int DEFAULT_ELECTRUM_TIMEOUT = 10;

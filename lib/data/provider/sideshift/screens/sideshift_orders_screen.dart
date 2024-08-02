@@ -8,17 +8,16 @@ import 'package:aqua/utils/utils.dart';
 class SideShiftOrdersScreen extends ConsumerWidget {
   static const routeName = '/sideShiftOrdersScreen';
 
-  const SideShiftOrdersScreen({Key? key}) : super(key: key);
+  const SideShiftOrdersScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      onPopInvoked: (_) async {
         ref.read(sideshiftOrderProvider).stopAllStreams();
-        logger.d('[Navigation] onWillPop in SideShiftOrdersScreen called');
-        return true;
+        logger.d('[Navigation] onPopInvoked in SideShiftOrdersScreen called');
       },
       child: Scaffold(
         extendBodyBehindAppBar: false,

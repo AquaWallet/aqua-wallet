@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:aqua/data/data.dart';
-import 'package:aqua/logger.dart';
 import 'package:aqua/gdk.dart';
+import 'package:aqua/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -45,6 +45,7 @@ class InitAppProvider extends AsyncNotifier<void> {
 
       state = const AsyncValue.data(null);
     } catch (error) {
+      logger.e('[InitAppProvider] Error initializing app: $error');
       state = AsyncValue.error(error, StackTrace.current);
     }
   }

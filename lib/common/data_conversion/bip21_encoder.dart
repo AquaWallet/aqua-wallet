@@ -1,7 +1,6 @@
+import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:decimal/decimal.dart';
-
-enum NetworkType { bitcoin, liquid }
 
 class Bip21Encoder {
   final String address;

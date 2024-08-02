@@ -5,7 +5,7 @@ import 'package:aqua/utils/utils.dart';
 
 class LanguageSettingsScreen extends HookConsumerWidget {
   static const routeName = '/languageSettingsScreen';
-  const LanguageSettingsScreen({Key? key}) : super(key: key);
+  const LanguageSettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

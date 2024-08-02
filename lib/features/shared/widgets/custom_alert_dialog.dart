@@ -6,24 +6,25 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomAlertDialog extends StatelessWidget {
   const CustomAlertDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.controlWidgets,
     this.height,
-    this.onWillPop,
-  }) : super(key: key);
+    this.onPopInvoked,
+  });
 
   final String title;
   final String subtitle;
   final List<Widget> controlWidgets;
   final double? height;
-  final WillPopCallback? onWillPop;
+  final PopInvokedCallback? onPopInvoked;
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: onWillPop,
+    return PopScope(
+      canPop: true,
+      onPopInvoked: onPopInvoked,
       child: Center(
         child: SingleChildScrollView(
           child: CustomDialog(
@@ -47,7 +48,7 @@ class CustomAlertDialog extends StatelessWidget {
                     padding: EdgeInsets.only(top: 26.h),
                     child: Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 14.sp,
                             color: Theme.of(context).colorScheme.onSecondary,
                           ),

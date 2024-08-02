@@ -1,8 +1,10 @@
+import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
 
 /// Does the authentication and displays the sensitive information based on its
 /// result
@@ -48,44 +50,42 @@ class AuthWrapper extends HookConsumerWidget {
       return const EntryPointWrapper();
     }
 
-    return Stack(
-      children: [
-        const SplashBackground(),
-        Container(
-          width: double.maxFinite,
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Spacer(flex: 10),
-              //ANCHOR - Logo
-              OnboardingAppLogo(description: context.loc.welcomeScreenDesc1),
-              Expanded(
-                flex: 7,
-                child: Center(
-                  child: OutlinedButton(
-                    onPressed: requestBiometricAuth,
-                    style: OutlinedButton.styleFrom(
-                      fixedSize: Size(140.w, 42.h),
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(
-                        color: Colors.white,
-                        width: 1,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    child: Text(context.loc.authenticationButtonText),
-                  ),
-                ),
-              ),
-              SizedBox(height: 188.h),
-            ],
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 46.h),
+          //ANCHOR - Logo
+          SvgPicture.asset(
+            Svgs.aquaLogo,
+            height: 42.h,
           ),
-        ),
-      ],
+          const Spacer(),
+          //ANCHOR - Auth Button
+          GestureDetector(
+            onTap: requestBiometricAuth,
+            child: SvgPicture.asset(
+              Svgs.unlock,
+              width: 106.w,
+              height: 112.h,
+            ),
+          ),
+          SizedBox(height: 36.h),
+          //ANCHOR - Description
+          Text(
+            context.loc.biometricUnlockScreenDescription,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  height: 1.2,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+          ),
+          const Spacer(),
+          SizedBox(height: 148.h),
+        ],
+      ),
     );
   }
 }

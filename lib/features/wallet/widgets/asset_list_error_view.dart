@@ -5,9 +5,9 @@ import 'package:aqua/utils/utils.dart';
 
 class AssetListErrorView extends ConsumerWidget {
   const AssetListErrorView({
-    Key? key,
+    super.key,
     this.message,
-  }) : super(key: key);
+  });
 
   final String? message;
 

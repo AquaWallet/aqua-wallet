@@ -26,14 +26,17 @@ class FormatterProvider {
     required int amount,
     required int precision,
     int? roundingOverride,
+    bool removeTrailingZeros = true,
   }) {
     final amountWithPrecision = Decimal.parse(amount.toString()) /
         Decimal.parse(pow(10, precision).toString());
     final formatter =
         _ref.watch(currencyFormatProvider(roundingOverride ?? precision));
     final formattedNumber = formatter.format(amountWithPrecision.toDouble());
-    return formattedNumber.replaceAllMapped(
-        reRemoveTrailingDecimals, (e) => e.group(1) ?? '');
+    return removeTrailingZeros
+        ? formattedNumber.replaceAllMapped(
+            reRemoveTrailingDecimals, (e) => e.group(1) ?? '')
+        : formattedNumber;
   }
 
   String signedFormatAssetAmount({

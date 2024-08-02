@@ -4,10 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 void showLoadingDialog(BuildContext context, String? description) {
   showGeneralDialog(
     context: context,
-    pageBuilder: (context, animation, secondaryAnimation) => WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+    pageBuilder: (context, animation, secondaryAnimation) => PopScope(
+      canPop: false,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: LoadingIndicator(
@@ -22,9 +20,9 @@ class LoadingIndicator extends StatelessWidget {
   final String? description;
 
   const LoadingIndicator({
-    Key? key,
+    super.key,
     this.description,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

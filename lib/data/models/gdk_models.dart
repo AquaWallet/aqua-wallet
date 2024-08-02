@@ -49,6 +49,7 @@ class GdkConnectionParams with _$GdkConnectionParams {
     @Default('aqua') @JsonKey(name: 'user_agent') String? userAgent,
     @JsonKey(name: 'spv_enabled') bool? spvEnabled,
     @JsonKey(name: 'cert_expiry_threshold') int? certExpiryThreshold,
+    @JsonKey(name: 'min_fee_rate') int? minFeeRate,
   }) = _GdkConnectionParams;
 
   factory GdkConnectionParams.fromJson(Map<String, dynamic> json) =>
@@ -225,7 +226,6 @@ class GdkAssetsParameters with _$GdkAssetsParameters {
   const factory GdkAssetsParameters({
     @Default(true) bool? icons,
     @Default(true) bool? assets,
-    @Default(true) bool? refresh,
   }) = _GdkAssetsParameters;
 
   factory GdkAssetsParameters.fromJson(Map<String, dynamic> json) =>
@@ -267,11 +267,13 @@ class GdkAuthHandlerStatusResult with _$GdkAuthHandlerStatusResult {
     List<GdkPreviousAddress>? list,
     @JsonKey(name: 'create_transaction')
     GdkNewTransactionReply? createTransaction,
+    @JsonKey(name: 'change_settings') GdkSettingsEvent? changeSettings,
+    @JsonKey(name: 'blind_transaction')
+    GdkNewTransactionReply? blindTransaction,
     @JsonKey(name: 'sign_tx') GdkNewTransactionReply? signTx,
     @JsonKey(name: 'send_raw_tx') GdkNewTransactionReply? sendRawTx,
-    @JsonKey(name: 'create_pset') GdkCreatePsetDetailsReply? createPset,
-    @JsonKey(name: 'sign_pset') GdkSignPsetDetailsReply? signPset,
-    @JsonKey(name: 'sign_psbt') GdkSignPsbtResult? signPsbt,
+    @JsonKey(name: 'psbt_sign') GdkNewTransactionReply? signPsbt,
+    @JsonKey(name: 'psbt_get_details') GdkNewTransactionReply? getDetailsPsbt,
     @JsonKey(name: 'unspent_outputs') GdkUnspentOutputsReply? unspentOutputs,
   }) = _GdkAuthHandlerStatusResult;
 
@@ -326,9 +328,19 @@ class GdkAuthHandlerStatus with _$GdkAuthHandlerStatus {
                 'get_receive_address': json['result']
               };
               break;
+            case 'change_settings':
+              json['result'] = <String, dynamic>{
+                'change_settings': json['result']
+              };
+              break;
             case 'create_transaction':
               json['result'] = <String, dynamic>{
                 'create_transaction': json['result']
+              };
+              break;
+            case 'blind_transaction':
+              json['result'] = <String, dynamic>{
+                'blind_transaction': json['result']
               };
               break;
             case 'sign_transaction':
@@ -340,8 +352,13 @@ class GdkAuthHandlerStatus with _$GdkAuthHandlerStatus {
             case 'create_pset':
               json['result'] = <String, dynamic>{'create_pset': json['result']};
               break;
-            case 'sign_pset':
-              json['result'] = <String, dynamic>{'sign_pset': json['result']};
+            case 'psbt_sign':
+              json['result'] = <String, dynamic>{'psbt_sign': json['result']};
+              break;
+            case 'psbt_get_details':
+              json['result'] = <String, dynamic>{
+                'psbt_get_details': json['result']
+              };
               break;
             case 'get_unspent_outputs':
               json['result'] = <String, dynamic>{
@@ -380,13 +397,13 @@ class GdkTransactionInOut with _$GdkTransactionInOut {
   const factory GdkTransactionInOut({
     String? address,
     @JsonKey(name: 'address_type') String? addressType,
+    @JsonKey(name: 'is_internal') bool? isInternal,
     @JsonKey(name: 'is_output') bool? isOutput,
     @JsonKey(name: 'is_relevant') bool? isRelevant,
     @JsonKey(name: 'is_spent') bool? isSpent,
     int? pointer,
     @JsonKey(name: 'pt_idx') int? ptIdx,
     int? satoshi,
-    @JsonKey(name: 'script_type') int? scriptType,
     @Default(1) int? subaccount,
     int? subtype,
     @JsonKey(name: 'asset_id') String? assetId,
@@ -433,18 +450,15 @@ class GdkTransaction with _$GdkTransaction {
     List<GdkTransactionInOut>? outputs,
     @JsonKey(name: 'rbf_optin') bool? rbfOptin,
     Map<String, int>? satoshi,
-    @JsonKey(name: 'server_signed') bool? serverSigned,
     @JsonKey(name: 'spv_verified') String? spvVerified,
     String? transaction,
     @JsonKey(name: 'transaction_locktime') int? transactionLocktime,
     @JsonKey(name: 'transaction_outputs') List<String>? transactionOutputs,
-    @JsonKey(name: 'transaction_size') int? transactionSize,
     @JsonKey(name: 'transaction_version') int? transactionVersion,
     @JsonKey(name: 'transaction_vsize') int? transactionVsize,
     @JsonKey(name: 'transaction_weight') int? transactionWeight,
     String? txhash,
     GdkTransactionTypeEnum? type,
-    @JsonKey(name: 'user_signed') bool? userSigned,
     int? vsize,
     String? swapOutgoingAssetId,
     int? swapOutgoingSatoshi,
@@ -640,7 +654,6 @@ class GdkReceiveAddressDetails with _$GdkReceiveAddressDetails {
     int? branch,
     int? pointer,
     String? script,
-    @JsonKey(name: 'script_type') int? scriptType,
     @Default(1) int? subaccount,
     int? subtype,
     @JsonKey(name: 'user_path') List<int>? userPath,
@@ -682,39 +695,17 @@ class GdkPreviousAddress with _$GdkPreviousAddress {
     @JsonKey(name: 'subaccount') @Default(1) int? subaccount,
     @JsonKey(name: 'is_internal') bool? isInternal,
     @JsonKey(name: 'pointer') int? pointer,
-    @JsonKey(name: 'script_pubkey') String? scriptPubkey,
+    @JsonKey(name: 'scriptpubkey') String? scriptPubkey,
     @JsonKey(name: 'user_path') List<int>? userPath,
     @JsonKey(name: 'tx_count') int? txCount,
     // For liquid only
     @JsonKey(name: 'is_blinded') bool? isBlinded,
-    @JsonKey(name: 'unblinded_address') String? unblindedAddress,
-    @JsonKey(name: 'blinding_script') String? blindingScript,
+    @JsonKey(name: 'unconfidential_address') String? unblindedAddress,
     @JsonKey(name: 'blinding_key') String? blindingKey,
   }) = _GdkPreviousAddress;
 
   factory GdkPreviousAddress.fromJson(Map<String, dynamic> json) =>
       _$GdkPreviousAddressFromJson(json);
-
-  String toJsonString() {
-    final json = toJson();
-    return jsonEncode(json);
-  }
-}
-
-@freezed
-class GdkCreatePsetDetails with _$GdkCreatePsetDetails {
-  const GdkCreatePsetDetails._();
-  const factory GdkCreatePsetDetails({
-    List<GdkAddressee>? addressees,
-    @Default(1) int? subaccount,
-    @JsonKey(name: 'send_asset') String? sendAsset,
-    @JsonKey(name: 'send_amount') int? sendAmount,
-    @JsonKey(name: 'recv_asset') String? recvAsset,
-    @JsonKey(name: 'recv_amount') int? recvAmount,
-  }) = _GdkCreatePsetDetails;
-
-  factory GdkCreatePsetDetails.fromJson(Map<String, dynamic> json) =>
-      _$GdkCreatePsetDetailsFromJson(json);
 
   String toJsonString() {
     final json = toJson();
@@ -735,63 +726,6 @@ class GdkCreatePsetInputs with _$GdkCreatePsetInputs {
 
   factory GdkCreatePsetInputs.fromJson(Map<String, dynamic> json) =>
       _$GdkCreatePsetInputsFromJson(json);
-}
-
-@freezed
-class GdkCreatePsetDetailsReply with _$GdkCreatePsetDetailsReply {
-  const GdkCreatePsetDetailsReply._();
-  const factory GdkCreatePsetDetailsReply({
-    @JsonKey(name: 'change_addr') String? changeAddr,
-    List<GdkCreatePsetInputs>? inputs,
-    @JsonKey(name: 'recv_addr') String? recvAddr,
-  }) = _GdkCreatePsetDetailsReply;
-
-  factory GdkCreatePsetDetailsReply.fromJson(Map<String, dynamic> json) =>
-      _$GdkCreatePsetDetailsReplyFromJson(json);
-
-  String toJsonString() {
-    final json = toJson();
-    return jsonEncode(json);
-  }
-}
-
-@freezed
-class GdkSignPsetDetails with _$GdkSignPsetDetails {
-  const GdkSignPsetDetails._();
-  const factory GdkSignPsetDetails({
-    List<GdkAddressee>? addressees,
-    @Default(1) int? subaccount,
-    @JsonKey(name: 'pset') String? pset,
-    @JsonKey(name: 'send_asset') String? sendAsset,
-    @JsonKey(name: 'send_amount') int? sendAmount,
-    @JsonKey(name: 'recv_asset') String? recvAsset,
-    @JsonKey(name: 'recv_amount') int? recvAmount,
-  }) = _GdkSignPsetDetails;
-
-  factory GdkSignPsetDetails.fromJson(Map<String, dynamic> json) =>
-      _$GdkSignPsetDetailsFromJson(json);
-
-  String toJsonString() {
-    final json = toJson();
-    return jsonEncode(json);
-  }
-}
-
-@freezed
-class GdkSignPsetDetailsReply with _$GdkSignPsetDetailsReply {
-  const GdkSignPsetDetailsReply._();
-  const factory GdkSignPsetDetailsReply({
-    List<GdkAddressee>? addressees,
-    @JsonKey(name: 'pset') String? pset,
-  }) = _GdkSignPsetDetailsReply;
-
-  factory GdkSignPsetDetailsReply.fromJson(Map<String, dynamic> json) =>
-      _$GdkSignPsetDetailsReplyFromJson(json);
-
-  String toJsonString() {
-    final json = toJson();
-    return jsonEncode(json);
-  }
 }
 
 @freezed
@@ -822,6 +756,40 @@ class GdkSignPsbtResult with _$GdkSignPsbtResult {
 
   factory GdkSignPsbtResult.fromJson(Map<String, dynamic> json) =>
       _$GdkSignPsbtResultFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
+}
+
+@freezed
+class GdkPsbtGetDetails with _$GdkPsbtGetDetails {
+  const GdkPsbtGetDetails._();
+  const factory GdkPsbtGetDetails({
+    @JsonKey(name: 'psbt') required String psbt,
+    @JsonKey(name: 'utxos') required List<Map<String, dynamic>> utxos,
+  }) = _GdkPsbtGetDetails;
+
+  factory GdkPsbtGetDetails.fromJson(Map<String, dynamic> json) =>
+      _$GdkPsbtGetDetailsFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
+}
+
+@freezed
+class GdkPsbtGetDetailsResult with _$GdkPsbtGetDetailsResult {
+  const GdkPsbtGetDetailsResult._();
+  const factory GdkPsbtGetDetailsResult({
+    @JsonKey(name: 'inputs') required List<GdkUnspentOutputs> inputs,
+    @JsonKey(name: 'outputs') required List<GdkUnspentOutputs> outputs,
+  }) = _GdkPsbtGetDetailsResult;
+
+  factory GdkPsbtGetDetailsResult.fromJson(Map<String, dynamic> json) =>
+      _$GdkPsbtGetDetailsResultFromJson(json);
 
   String toJsonString() {
     final json = toJson();
@@ -865,6 +833,7 @@ class GdkSettingsEventNotifications with _$GdkSettingsEventNotifications {
 
 @freezed
 class GdkSettingsEvent with _$GdkSettingsEvent {
+  const GdkSettingsEvent._();
   const factory GdkSettingsEvent({
     int? altimeout,
     int? csvtime,
@@ -879,6 +848,11 @@ class GdkSettingsEvent with _$GdkSettingsEvent {
 
   factory GdkSettingsEvent.fromJson(Map<String, dynamic> json) =>
       _$GdkSettingsEventFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
 }
 
 enum GdkTransactionEventEnum {
@@ -920,6 +894,7 @@ class GdkAddressee with _$GdkAddressee {
     String? address,
     int? satoshi,
     @JsonKey(name: 'asset_id') String? assetId,
+    @JsonKey(name: 'is_greedy') bool? isGreedy,
   }) = _GdkAddressee;
 
   factory GdkAddressee.fromJson(Map<String, dynamic> json) =>
@@ -940,13 +915,14 @@ class GdkNewTransaction with _$GdkNewTransaction {
     List<GdkAddressee>? addressees,
     @Default(1) int? subaccount,
     @Default(1000) @JsonKey(name: 'fee_rate') int? feeRate,
-    @Default(false) @JsonKey(name: 'send_all') bool? sendAll,
     @Default(GdkUtxoStrategyEnum.defaultStrategy)
     @JsonKey(name: 'utxo_strategy')
     GdkUtxoStrategyEnum? utxoStrategy,
-    @JsonKey(name: 'used_utxos') String? usedUtxos,
+    @JsonKey(name: 'transaction_inputs')
+    Map<String, dynamic>? transactionInputs,
     String? memo,
     Map<String, List<GdkUnspentOutputs>>? utxos,
+    @JsonKey(name: 'previous_transaction') GdkTransaction? previousTransaction,
   }) = _GdkNewTransaction;
 
   factory GdkNewTransaction.fromJson(Map<String, dynamic> json) =>
@@ -963,34 +939,31 @@ class GdkNewTransactionReply with _$GdkNewTransactionReply {
   const GdkNewTransactionReply._();
   const factory GdkNewTransactionReply({
     List<GdkAddressee>? addressees,
-    @JsonKey(name: 'addressees_have_assets') bool? addresseesHaveAssets,
-    @JsonKey(name: 'addressees_read_only') bool? addresseesReadOnly,
-    @JsonKey(name: 'changes_used') int? changesUsed,
-    @JsonKey(name: 'confidential_utxos_only') bool? confidentialUtxosOnly,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     String? error,
     int? fee,
     @JsonKey(name: 'fee_rate') int? feeRate,
+    @JsonKey(name: 'calculated_fee_rate') int? calculatedFeeRate,
+    @JsonKey(name: 'network_fee') int? networkFee,
     @JsonKey(name: 'is_sweep') bool? isSweep,
     String? network,
-    @JsonKey(name: 'num_confs') int? numConfs,
     @Default(true) @JsonKey(name: 'rbf_optin') bool? rbfOptin,
     Map<String, dynamic>? satoshi,
-    @JsonKey(name: 'send_all') bool? sendAll,
     @JsonKey(name: 'spv_verified') String? spvVerified,
+    @JsonKey(name: 'is_blinded') bool? isBlinded,
+    @JsonKey(name: 'is_partial') bool? isPartial,
     @Default(1) int? subaccount,
     int? timestamp,
     String? transaction,
-    @JsonKey(name: 'transaction_size') int? transactionSize,
+    String? psbt,
     @JsonKey(name: 'transaction_vsize') int? transactionVsize,
     @JsonKey(name: 'transaction_weight') int? transactionWeight,
     @JsonKey(name: 'transaction_version') int? transactionVersion,
     @JsonKey(name: 'transaction_locktime') int? transactionLocktime,
     @JsonKey(name: 'transaction_outputs') dynamic transactionOutputs,
-    @JsonKey(name: 'used_utxos') dynamic usedUtxos,
+    @JsonKey(name: 'transaction_inputs') dynamic transactionInputs,
     String? txhash,
     GdkTransactionTypeEnum? type,
-    @JsonKey(name: 'user_signed') bool? userSigned,
     @JsonKey(name: 'utxo_strategy') String? utxoStrategy,
     String? memo,
     Map<String, dynamic>? utxos,
@@ -1053,7 +1026,7 @@ class GdkConvertData with _$GdkConvertData {
   const factory GdkConvertData({
     @Default(0) int? satoshi,
     String? bits,
-    @JsonKey(name: 'fiat_currenct') String? fiatCurrency,
+    @JsonKey(name: 'fiat_currency') String? fiatCurrency,
     @JsonKey(name: 'fiat_rate') String? fiatRate,
   }) = _GdkConvertData;
 
@@ -1096,6 +1069,7 @@ class GdkGetUnspentOutputs with _$GdkGetUnspentOutputs {
     @JsonKey(name: 'expired_at') int? expiredAt,
     @Default(false) bool? confidential,
     @JsonKey(name: 'dust_limit') int? dustLimit,
+    @JsonKey(name: 'sort_by') GdkUnspentOutputSortEnum? sortBy,
   }) = _GdkGetUnspentOutputs;
 
   factory GdkGetUnspentOutputs.fromJson(Map<String, dynamic> json) =>
@@ -1106,6 +1080,8 @@ class GdkGetUnspentOutputs with _$GdkGetUnspentOutputs {
     return jsonEncode(json);
   }
 }
+
+enum GdkUnspentOutputSortEnum { oldest, newest, largest, smallest }
 
 @freezed
 class GdkUnspentOutputsReply with _$GdkUnspentOutputsReply {
@@ -1134,11 +1110,12 @@ class GdkUnspentOutputs with _$GdkUnspentOutputs {
     @JsonKey(name: 'user_path') List<int>? userPath,
     @JsonKey(name: 'public_key') String? publicKey,
     @JsonKey(name: 'expiry_height') int? expiryHeight,
-    @JsonKey(name: 'script_type') int? scriptType,
     @JsonKey(name: 'user_status') int? userStatus,
     int? subtype,
+    int? sequence,
     // Liquid specific
-    bool? confidential,
+    @JsonKey(name: 'is_blinded') bool? blinded,
+    @JsonKey(name: 'is_confidential') bool? confidential,
     @JsonKey(name: 'asset_id') String? assetId,
     @JsonKey(name: 'assetblinder') String? assetBlinder,
     @JsonKey(name: 'amountblinder') String? amountBlinder,

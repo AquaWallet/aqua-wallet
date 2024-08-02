@@ -24,7 +24,7 @@ class RegionSettings extends StatelessWidget {
 class RegionSettingsScreen extends HookConsumerWidget {
   static const routeName = '/regionSettingsScreen';
 
-  const RegionSettingsScreen({Key? key}) : super(key: key);
+  const RegionSettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,7 +51,10 @@ class RegionSettingsScreen extends HookConsumerWidget {
               ),
               content: Text(region.name),
               position: item.position,
-              onPressed: () => ref.read(regionsProvider).setRegion(region),
+              onPressed: () {
+                ref.read(regionsProvider).setRegion(region);
+                Navigator.pop(context);
+              },
             );
           },
         ),

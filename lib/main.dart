@@ -9,24 +9,32 @@ import 'package:aqua/routes.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final prefs = await SharedPreferences.getInstance();
 
+  const needsDevicePreview = String.fromEnvironment('DEVICE_PREVIEW') == 'true';
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-      ],
-      child: const AppWithDevicePreviewWrapper(),
-    ),
-  );
+  runApp(needsDevicePreview
+      ? DevicePreview(
+          enabled: !kReleaseMode,
+          builder: (_) => ProviderScope(
+                overrides: [
+                  sharedPreferencesProvider.overrideWithValue(prefs),
+                ],
+                child: const AquaApp(),
+              ))
+      : ProviderScope(overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ], child: const AquaApp()));
 }
 
 class AquaApp extends HookConsumerWidget {
@@ -59,8 +67,6 @@ class AquaApp extends HookConsumerWidget {
         designSize: const Size(428, 926),
         rebuildFactor: (old, data) => RebuildFactors.always(old, data),
         builder: (context, _) => MaterialApp(
-          // ignore: deprecated_member_use
-          useInheritedMediaQuery: true,
           navigatorObservers: [AquaNavigatorObserver()],
           theme: ref.watch(lightThemeProvider(context)),
           darkTheme: ref.watch(darkThemeProvider(context)),
@@ -82,7 +88,8 @@ class AquaApp extends HookConsumerWidget {
           debugShowCheckedModeBanner: false,
           home: const AuthWrapper(),
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(1)),
             child: child!,
           ),
         ),

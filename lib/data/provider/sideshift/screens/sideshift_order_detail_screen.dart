@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 class SideshiftOrderDetailScreen extends HookConsumerWidget {
   static const routeName = '/sideshiftOrderDetailScreen';
 
-  const SideshiftOrderDetailScreen({Key? key}) : super(key: key);
+  const SideshiftOrderDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,9 +138,8 @@ class SideshiftOrderDetailScreen extends HookConsumerWidget {
 
 class _SideshiftOrderDetailHeaderWidget extends StatelessWidget {
   const _SideshiftOrderDetailHeaderWidget({
-    Key? key,
     required this.order,
-  }) : super(key: key);
+  });
 
   final SideshiftOrderStatusResponse order;
 
@@ -165,9 +164,8 @@ class _SideshiftOrderDetailHeaderWidget extends StatelessWidget {
 
 class _SideshiftOrderDetailsWidget extends StatelessWidget {
   const _SideshiftOrderDetailsWidget({
-    Key? key,
     required this.order,
-  }) : super(key: key);
+  });
 
   final SideshiftOrderStatusResponse order;
 
@@ -211,10 +209,9 @@ class _SideshiftOrderDetailsWidget extends StatelessWidget {
 
 class _ShiftOrderAmountDetailWidget extends StatelessWidget {
   const _ShiftOrderAmountDetailWidget({
-    Key? key,
     required this.title,
     required this.amount,
-  }) : super(key: key);
+  });
 
   final String? amount;
   final String title;
@@ -246,11 +243,10 @@ class _ShiftOrderAmountDetailWidget extends StatelessWidget {
 
 class _SideshiftOrderDetailCopyableItemWidget extends StatelessWidget {
   const _SideshiftOrderDetailCopyableItemWidget({
-    Key? key,
     required this.title,
     required this.text,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   final String title;
   final String text;

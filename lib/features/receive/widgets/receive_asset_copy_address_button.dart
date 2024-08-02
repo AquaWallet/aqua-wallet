@@ -1,3 +1,4 @@
+import 'package:aqua/common/widgets/middle_ellipsis_text.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
@@ -35,13 +36,16 @@ class ReceiveAssetCopyAddressButton extends HookConsumerWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  address,
+                child: MiddleEllipsisText(
+                  text: address,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onBackground,
                         fontWeight: FontWeight.bold,
                         height: 1.38,
                       ),
+                  startLength: 40,
+                  endLength: 40,
+                  ellipsisLength: 3,
                 ),
               ),
               SizedBox(width: 24.w),

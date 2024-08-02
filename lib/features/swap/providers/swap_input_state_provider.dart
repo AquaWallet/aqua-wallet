@@ -111,4 +111,39 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
       setDeliverAmount(state.deliverAssetBalance);
     }
   }
+
+  // NOTE: Only used for testing
+  void setMinDeliverAmount() {
+    final asset = state.deliverAsset;
+    if (asset != null) {
+      final status = ref.read(sideswapStatusStreamResultStateProvider);
+      final serviceFee = state.isPegIn
+          ? status?.serverFeePercentPegIn ?? 0.1
+          : status?.serverFeePercentPegOut ?? 0.1;
+      final minPegAmount = state.isPegIn
+          ? ref.read(minPegInAmountWithFeeProvider)
+          : ref.read(minPegOutAmountWithFeeProvider);
+      final feeAmount = (minPegAmount * (serviceFee * 2) / 100).ceil();
+      final minPegAmountWithFee = minPegAmount + feeAmount;
+      final amount = ref.read(formatterProvider).formatAssetAmountDirect(
+            amount: minPegAmountWithFee,
+            precision: asset.precision,
+          );
+      setDeliverAmount(amount);
+    }
+  }
+
+  void switchAssets() {
+    final deliverAsset = state.deliverAsset;
+    final receiveAsset = state.receiveAsset;
+
+    setDeliverAsset(receiveAsset!);
+    setReceiveAsset(deliverAsset!);
+  }
+
+  void switchInputType() {
+    state = state.copyWith(
+      isFiat: !state.isFiat,
+    );
+  }
 }

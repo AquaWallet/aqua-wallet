@@ -24,7 +24,7 @@ class AmountTextField extends StatelessWidget {
   final TextEditingController? controller;
 
   AmountTextField({
-    Key? key,
+    super.key,
     this.onChanged,
     this.onEditingComplete,
     this.onSubmitted,
@@ -53,7 +53,7 @@ class AmountTextField extends StatelessWidget {
     this.readOnly = false,
     this.filled = false,
     this.controller,
-  }) : super(key: key) {
+  }) {
     internalController = controller ?? TextEditingController();
   }
 

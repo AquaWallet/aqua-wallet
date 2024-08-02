@@ -1,9 +1,10 @@
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/test.dart';
-import 'package:mocktail/mocktail.dart';
 
 import 'helpers.dart';
 
@@ -13,16 +14,22 @@ class MockDioResponse<T> extends Mock implements dio.Response<T> {}
 
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
+class MockLiquidProvider extends Mock implements LiquidProvider {}
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  const kLbtcId =
+      '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
+  const kUsdtId =
+      'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2';
 
   final assetsJson = <String, dynamic>{
     "QueryResponse": {
       "Assets": [
         {
           "Name": "Liquid Bitcoin",
-          "Id":
-              "6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d",
+          "Id": kLbtcId,
           "Ticker": "L-BTC",
           "Logo":
               "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/L-BTC.svg",
@@ -30,8 +37,7 @@ void main() {
         },
         {
           "Name": "Tether USDt",
-          "Id":
-              "ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2",
+          "Id": kUsdtId,
           "Ticker": "USDt",
           "Logo":
               "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/USDt.svg",
@@ -62,6 +68,15 @@ void main() {
           "Logo":
               "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/EURx.svg",
           "Default": false
+        },
+        {
+          "Name": "Mexas",
+          "Id":
+              "26ac924263ba547b706251635550a8649545ee5c074fe5db8d7140557baaf32e",
+          "Ticker": "MEX",
+          "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/MEX.svg",
+          "Default": false,
+          "IsRemovable": true
         }
       ]
     }
@@ -70,10 +85,12 @@ void main() {
   group('availableAssetsProvider', () {
     late dio.Dio client;
     late SharedPreferences mockSharedPreferences;
+    late LiquidProvider mockLiquidProvider;
 
     setUp(() {
       client = MockDio();
       mockSharedPreferences = MockSharedPreferences();
+      mockLiquidProvider = MockLiquidProvider();
     });
 
     test('fetchAssets success', () async {
@@ -88,9 +105,13 @@ void main() {
       when(() => mockSharedPreferences.setStringList(any(), any()))
           .thenAnswer((_) async => true);
 
+      when(() => mockLiquidProvider.policyAsset).thenReturn(kLbtcId);
+      when(() => mockLiquidProvider.usdtId).thenReturn(kUsdtId);
+
       final container = createContainer(overrides: [
         dioProvider.overrideWithValue(client),
-        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences)
+        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+        liquidProvider.overrideWithValue(mockLiquidProvider),
       ]);
 
       expect(
@@ -102,8 +123,7 @@ void main() {
 
       expect(container.read(availableAssetsProvider).value, [
         Asset(
-            id:
-                '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
+            id: kLbtcId,
             name: 'Liquid Bitcoin',
             ticker: 'L-BTC',
             logoUrl:
@@ -113,11 +133,10 @@ void main() {
             amount: 0,
             precision: 8,
             isLiquid: true,
-            isLBTC: false,
+            isLBTC: true,
             isUSDt: false),
         Asset(
-            id:
-                'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
+            id: kUsdtId,
             name: 'Tether USDt',
             ticker: 'USDt',
             logoUrl:
@@ -128,7 +147,7 @@ void main() {
             precision: 8,
             isLiquid: true,
             isLBTC: false,
-            isUSDt: false),
+            isUSDt: true),
         Asset(
             id:
                 '20f235a1096c05a5d9b1d40d09112d3d57eb3a7ac9959beebf0ae5f774a7fd68',
@@ -170,6 +189,20 @@ void main() {
             precision: 8,
             isLiquid: true,
             isLBTC: false,
+            isUSDt: false),
+        Asset(
+            id:
+                '26ac924263ba547b706251635550a8649545ee5c074fe5db8d7140557baaf32e',
+            name: 'Mexas',
+            ticker: 'MEX',
+            logoUrl:
+                'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/MEX.svg',
+            isDefaultAsset: false,
+            domain: null,
+            amount: 0,
+            precision: 8,
+            isLiquid: true,
+            isLBTC: false,
             isUSDt: false)
       ]);
 
@@ -191,9 +224,13 @@ void main() {
       when(() => mockSharedPreferences.setStringList(any(), any()))
           .thenAnswer((_) async => true);
 
+      when(() => mockLiquidProvider.policyAsset).thenReturn(kLbtcId);
+      when(() => mockLiquidProvider.usdtId).thenReturn(kUsdtId);
+
       final container = createContainer(overrides: [
         dioProvider.overrideWithValue(client),
-        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences)
+        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+        liquidProvider.overrideWithValue(mockLiquidProvider),
       ]);
 
       expect(
@@ -206,8 +243,7 @@ void main() {
       expect(
           container.read(availableAssetsProvider).value?.first,
           Asset(
-              id:
-                  '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
+              id: kLbtcId,
               name: 'Liquid Bitcoin',
               ticker: 'L-BTC',
               logoUrl:
@@ -218,17 +254,17 @@ void main() {
               amount: 0,
               precision: 8,
               isLiquid: true,
-              isLBTC: false,
+              isLBTC: true,
               isUSDt: false));
       expect(
           container.read(availableAssetsProvider).value?.last,
           Asset(
               id:
-                  '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec',
-              name: 'PEGx EURx',
-              ticker: 'EURx',
+                  '26ac924263ba547b706251635550a8649545ee5c074fe5db8d7140557baaf32e',
+              name: 'Mexas',
+              ticker: 'MEX',
               logoUrl:
-                  'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/EURx.svg',
+                  'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/MEX.svg',
               isDefaultAsset: false,
               domain: null,
               amount: 0,
@@ -236,7 +272,7 @@ void main() {
               isLiquid: true,
               isLBTC: false,
               isUSDt: false));
-      expect(container.read(availableAssetsProvider).value?.length, 5);
+      expect(container.read(availableAssetsProvider).value?.length, 6);
 
       // Verify the GET request was made to the correct URL.
       verify(

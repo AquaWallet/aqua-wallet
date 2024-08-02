@@ -4,14 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AquaElevatedButton extends StatelessWidget {
   const AquaElevatedButton({
-    Key? key,
+    super.key,
     this.child,
     this.onPressed,
     this.height,
     this.style,
     this.debounce = false,
     this.debounceMilliseconds = 300,
-  }) : super(key: key);
+  });
 
   final Widget? child;
   final VoidCallback? onPressed;
@@ -34,7 +34,8 @@ class AquaElevatedButton extends StatelessWidget {
       width: double.maxFinite,
       height: height ?? 48.h,
       child: ElevatedButton(
-        onPressed: debounce ? debouncedOnPressed : onPressed,
+        onPressed:
+            debounce && onPressed != null ? debouncedOnPressed : onPressed,
         style: style ??
             ElevatedButton.styleFrom(
               textStyle: Theme.of(context).textTheme.titleSmall,

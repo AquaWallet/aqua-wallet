@@ -1,6 +1,5 @@
-import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
@@ -13,9 +12,8 @@ final receiveAssetAmountProvider =
     StateProvider.autoDispose<String?>((ref) => null);
 
 /// Amount entered was fiat toggled
-final amountEnteredIsFiatToggledProvider =
-    StateProvider.autoDispose<bool>((ref) {
-  return false;
+final amountCurrencyProvider = StateProvider.autoDispose<String?>((ref) {
+  return null;
 });
 
 /// Amount to add to bip21 uri.
@@ -23,18 +21,23 @@ final amountEnteredIsFiatToggledProvider =
 final receiveAssetAmountForBip21Provider =
     Provider.family.autoDispose<String?, Asset>((ref, asset) {
   final userEntered = ref.watch(receiveAssetAmountProvider);
-  final isFiatToggled = ref.watch(amountEnteredIsFiatToggledProvider);
+  final fiatCurrency = ref.watch(amountCurrencyProvider);
+  final fiatRates = ref.watch(fiatRatesProvider).unwrapPrevious().valueOrNull;
 
-  // if fiat toggled and any btc/lbtc/lightning asset, we want to add the btc/lbtc amount to the bip21 uri
-  if (isFiatToggled && (asset.isBTC || asset.isLBTC || asset.isLightning)) {
-    var amountAsDecimal =
+  // if fiat currency and any btc/lbtc/lightning asset, we want to add the btc/lbtc amount to the bip21 uri
+  if (fiatCurrency != null &&
+      fiatRates != null &&
+      (asset.isBTC || asset.isLBTC || asset.isLightning)) {
+    final fiatAmount =
         ref.read(parsedAssetAmountAsDecimalProvider(userEntered));
-    if (asset.isLightning == true) {
-      amountAsDecimal = amountAsDecimal * Decimal.fromInt(satsPerBtc);
-    }
-    final btcConversion =
-        ref.watch(conversionFiatProvider((asset, amountAsDecimal)));
-    return btcConversion;
+
+    final fiatRate =
+        fiatRates.firstWhere((element) => element.code == fiatCurrency);
+    final bitcoinAmountDecimalFormat = (fiatAmount.toDouble() / fiatRate.rate);
+    // return amount in sats
+    return (bitcoinAmountDecimalFormat * satsPerBtc)
+        .toDouble()
+        .toStringAsFixed(0);
   } else {
     return userEntered;
   }
@@ -59,26 +62,37 @@ final parsedAssetAmountAsDecimalProvider =
 /// Conversion Displays
 
 /// Amount converted to fiat or btc/lbtc for display
-final receiveAssetAmountConversionDisplayProvider =
-    FutureProvider.autoDispose.family<String?, Asset>((ref, asset) {
-  final isFiatToggled = ref.watch(amountEnteredIsFiatToggledProvider);
-  final amountStr = ref.watch(receiveAssetAmountProvider);
+final receiveAssetAmountConversionDisplayProvider = FutureProvider.autoDispose
+    .family<String?, (Asset, String?, String?)>((ref, params) {
+  final asset = params.$1;
+  final fiatCurrency = params.$2 ?? ref.watch(amountCurrencyProvider);
+  final fiatRates = ref.watch(fiatRatesProvider).unwrapPrevious().valueOrNull;
+  final amountStr = params.$3 ?? ref.watch(receiveAssetAmountProvider);
   if (amountStr == null) {
     throw Exception("Amount is null");
   }
 
-  if (isFiatToggled) {
+  if (fiatCurrency != null) {
+    if (fiatRates == null) return '';
+
     var amountAsDecimal =
         ref.read(parsedAssetAmountAsDecimalProvider(amountStr));
-    if (asset.isLightning == true) {
+    if (asset.isLightning == true ||
+        asset.isLBTC == true ||
+        asset.isBTC == true) {
       amountAsDecimal = amountAsDecimal * Decimal.fromInt(satsPerBtc);
     }
 
-    return ref.watch(conversionFiatProvider((asset, amountAsDecimal)));
-  } else {
-    final amountInSats = ref
-        .read(formatterProvider)
-        .parseAssetAmountDirect(amount: amountStr, precision: asset.precision);
-    return ref.read(fiatProvider).getSatsToFiatDisplay(amountInSats, true);
+    final fiatRate =
+        fiatRates.firstWhere((element) => element.code == fiatCurrency);
+    final res = (amountAsDecimal.toDouble() / fiatRate.rate)
+        .toDouble()
+        .toStringAsFixed(0);
+
+    return res;
   }
+
+  return ref
+      .read(fiatProvider)
+      .getSatsToFiatDisplay(int.parse(amountStr), true);
 });

@@ -1,0 +1,41 @@
+import 'package:aqua/features/settings/region/models/region.dart';
+
+class RegionsIntegrations {
+  // Pocket excludes these regions: Albania, Kosovo, Belarus, Bosnia and Herzegovina, Cyprus, United Kingdom, Ireland, Isle of Man, Malta, Monaco, Turkey and Ukraine
+  static List<Region> get pocketBitcoinRegions => [
+        Region(name: 'Andorra', iso: 'AD'),
+        Region(name: 'Austria', iso: 'AT'),
+        Region(name: 'Belgium', iso: 'BE'),
+        Region(name: 'Bulgaria', iso: 'BG'),
+        Region(name: 'Croatia', iso: 'HR'),
+        Region(name: 'Czech Republic', iso: 'CZ'),
+        Region(name: 'Denmark', iso: 'DK'),
+        Region(name: 'Estonia', iso: 'EE'),
+        Region(name: 'Finland', iso: 'FI'),
+        Region(name: 'France', iso: 'FR'),
+        Region(name: 'Germany', iso: 'DE'),
+        Region(name: 'Greece', iso: 'GR'),
+        Region(name: 'Hungary', iso: 'HU'),
+        Region(name: 'Iceland', iso: 'IS'),
+        Region(name: 'Italy', iso: 'IT'),
+        Region(name: 'Latvia', iso: 'LV'),
+        Region(name: 'Liechtenstein', iso: 'LI'),
+        Region(name: 'Lithuania', iso: 'LT'),
+        Region(name: 'Luxembourg', iso: 'LU'),
+        Region(name: 'Moldova', iso: 'MD'),
+        Region(name: 'Montenegro', iso: 'ME'),
+        Region(name: 'Netherlands', iso: 'NL'),
+        Region(name: 'North Macedonia', iso: 'MK'),
+        Region(name: 'Norway', iso: 'NO'),
+        Region(name: 'Poland', iso: 'PL'),
+        Region(name: 'Portugal', iso: 'PT'),
+        Region(name: 'Romania', iso: 'RO'),
+        Region(name: 'San Marino', iso: 'SM'),
+        Region(name: 'Serbia', iso: 'RS'),
+        Region(name: 'Slovakia', iso: 'SK'),
+        Region(name: 'Slovenia', iso: 'SI'),
+        Region(name: 'Spain', iso: 'ES'),
+        Region(name: 'Sweden', iso: 'SE'),
+        Region(name: 'Switzerland', iso: 'CH'),
+      ];
+}

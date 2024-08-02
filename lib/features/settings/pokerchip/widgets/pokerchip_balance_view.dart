@@ -36,7 +36,7 @@ class PokerchipBalanceCard extends HookConsumerWidget {
             iconSize: 14.r,
             textAlign: TextAlign.center,
             textStyle: Theme.of(context).textTheme.titleLarge,
-            margin: EdgeInsets.symmetric(horizontal: 40.w),
+            margin: EdgeInsetsDirectional.symmetric(horizontal: 40.w),
           ),
           SizedBox(height: 24.h),
           //ANCHOR - Address

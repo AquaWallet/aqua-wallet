@@ -75,6 +75,7 @@ class WebviewScreen extends HookWidget {
   Widget build(BuildContext context) {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as WebviewArguments;
+    final isLoading = useState(true);
 
     final WebViewController controller = useMemoized(() => WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -82,7 +83,9 @@ class WebviewScreen extends HookWidget {
       ..setNavigationDelegate(NavigationDelegate(
         onProgress: (int progress) {},
         onPageStarted: (String url) {},
-        onPageFinished: (String url) {},
+        onPageFinished: (String url) {
+          isLoading.value = false;
+        },
         onWebResourceError: (WebResourceError error) {},
       ))
       ..loadRequest(arguments.uri));
@@ -97,7 +100,15 @@ class WebviewScreen extends HookWidget {
         title: arguments.title,
         showActionButton: false,
       ),
-      body: WebViewWidget(controller: controller),
+      body: Stack(
+        children: [
+          WebViewWidget(controller: controller),
+          if (isLoading.value)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
+      ),
     );
   }
 }

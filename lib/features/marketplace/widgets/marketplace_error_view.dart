@@ -4,9 +4,9 @@ import 'package:aqua/utils/utils.dart';
 
 class MarketplaceErrorView extends ConsumerWidget {
   const MarketplaceErrorView({
-    Key? key,
+    super.key,
     this.message,
-  }) : super(key: key);
+  });
 
   final String? message;
 

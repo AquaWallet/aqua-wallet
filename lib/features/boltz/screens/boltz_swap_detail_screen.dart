@@ -1,21 +1,21 @@
 import 'dart:convert';
 
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/features/boltz/boltz.dart';
+import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:aqua/utils/extensions/date_time_ext.dart';
+import 'package:boltz_dart/boltz_dart.dart';
 
 class BoltzSwapDetailScreen extends HookConsumerWidget {
   static const routeName = '/boltzSwapDetailScreen';
 
-  const BoltzSwapDetailScreen({Key? key}) : super(key: key);
+  const BoltzSwapDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final swapData = ModalRoute.of(context)?.settings.arguments;
-
-    bool isReverseSwap = swapData is BoltzReverseSwapData;
+    final swapData =
+        ModalRoute.of(context)?.settings.arguments as BoltzSwapDbModel;
 
     return Scaffold(
       body: SafeArea(
@@ -32,10 +32,7 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
                   icon: const Icon(Icons.close),
                 ),
               ),
-              if (isReverseSwap) _buildReverseSwapDetails(swapData, context),
-              if (!isReverseSwap)
-                _buildNormalSwapDetails(
-                    swapData as BoltzSwapData, ref, context),
+              _buildSwapDetails(swapData, ref, context),
             ],
           ),
         ),
@@ -43,8 +40,8 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildReverseSwapDetails(
-      BoltzReverseSwapData swapData, BuildContext context) {
+  Widget _buildSwapDetails(
+      BoltzSwapDbModel swapData, WidgetRef ref, BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
         top: 31.h,
@@ -56,29 +53,21 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ANCHOR - Order status
-          _BoltzDetailHeaderWidget(status: swapData.swapStatus),
+          _BoltzDetailHeaderWidget(
+              status: swapData.lastKnownStatus ?? BoltzSwapStatus.created),
           SizedBox(height: 24.h),
 
           _BoltzDetailWidget(
               title: context.loc.boltzSwapCreatedAt,
-              subtitle: swapData.created?.yMMMdHm() ?? '--'),
+              subtitle: swapData.createdAt?.yMMMdHm() ?? '--'),
           SizedBox(height: 6.h),
           _BoltzDetailWidget(
               title: context.loc.boltzInvoiceAmount,
-              subtitle: '${swapData.request.invoiceAmount}'),
-          SizedBox(height: 6.h),
-          _BoltzDetailWidget(
-              title: context.loc.boltzOnchainAmount,
-              subtitle: '${swapData.response.onchainAmount}'),
-          SizedBox(height: 6.h),
-          _BoltzDetailWidget(
-              title: context.loc.boltzTotalFees,
-              subtitle:
-                  '${BoltzService.calculateTotalServiceFeesReverse(swapData)}'),
+              subtitle: '${swapData.amountFromInvoice}'),
           SizedBox(height: 6.h),
           _BoltzDetailWidget(
               title: context.loc.boltzTimeoutBlockHeight,
-              subtitle: '${swapData.response.timeoutBlockHeight}'),
+              subtitle: '${swapData.locktime}'),
 
           SizedBox(height: 24.h),
           DashedDivider(
@@ -89,142 +78,44 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
           _CopyButton(data: swapData.toJson().toString()),
           SizedBox(height: 24.h),
 
-          LabelCopyableTextView(
-              label: context.loc.boltzId, value: swapData.response.id),
-          SizedBox(height: 24.h),
+          if (swapData.kind == SwapType.submarine)
+            FutureBuilder<BoltzRefundData?>(
+              future: ref
+                  .read(boltzSubmarineSwapProvider.notifier)
+                  .getRefundData(swapData),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  return _RefundButton(refundData: snapshot.data);
+                }
+              },
+            ),
+          if (swapData.kind == SwapType.submarine) SizedBox(height: 24.h),
 
           LabelCopyableTextView(
-              label: context.loc.lightningInvoice,
-              value: swapData.response.invoice),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzPreimage,
-              value: swapData.secureData.preimageHex ?? '-'),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzPreimageHash,
-              value: swapData.request.preimageHash),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzLockupAddress,
-              value: swapData.response.lockupAddress),
+              label: context.loc.boltzId, value: swapData.boltzId),
           SizedBox(height: 24.h),
 
           LabelCopyableTextView(
-              label: context.loc.boltzClaimPublicKey,
-              value: swapData.request.claimPublicKey),
+              label: context.loc.lightningInvoice, value: swapData.invoice),
           SizedBox(height: 24.h),
 
-          LabelCopyableTextView(
-              label: context.loc.boltzRedeemScript,
-              value: swapData.response.redeemScript),
-          SizedBox(height: 24.h),
+          if (swapData.kind == SwapType.submarine) ...[
+            LabelCopyableTextView(
+                label: context.loc.boltzRefundTx,
+                value: swapData.refundTxId ?? 'N/A'),
+            SizedBox(height: 24.h),
+          ],
 
-          LabelCopyableTextView(
-              label: context.loc.boltzFallbackAddress,
-              value: '${swapData.request.address ?? 'N/A'})'),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzClaimTx,
-              value: swapData.claimTx ?? 'N/A'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNormalSwapDetails(
-      BoltzSwapData swapData, WidgetRef ref, BuildContext context) {
-    final refundData = ref.read(boltzSwapRefundDataProvider(swapData));
-
-    return Container(
-      padding: EdgeInsets.only(
-        top: 31.h,
-        left: 16.w,
-        right: 16.w,
-        bottom: 71.h,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ANCHOR - Order status
-          _BoltzDetailHeaderWidget(status: swapData.swapStatus),
-          SizedBox(height: 24.h),
-
-          _BoltzDetailWidget(
-              title: context.loc.boltzSwapCreatedAt,
-              subtitle: swapData.created?.yMMMdHm() ?? '--'),
-          SizedBox(height: 6.h),
-          _BoltzDetailWidget(
-              title: context.loc.boltzInvoiceAmount,
-              subtitle:
-                  '${BoltzService.getAmountFromLightningInvoice(swapData.request.invoice)}'),
-          SizedBox(height: 6.h),
-          _BoltzDetailWidget(
-              title: context.loc.boltzExpectedAmount,
-              subtitle: '${swapData.response.expectedAmount}'),
-          SizedBox(height: 6.h),
-          _BoltzDetailWidget(
-              title: context.loc.boltzTotalFees,
-              subtitle:
-                  '${BoltzService.calculateTotalServiceFeesNormalSwap(swapData)}'),
-          SizedBox(height: 6.h),
-          _BoltzDetailWidget(
-              title: context.loc.boltzTimeoutBlockHeight,
-              subtitle: '${swapData.response.timeoutBlockHeight}'),
-
-          SizedBox(height: 24.h),
-          DashedDivider(
-            color: Theme.of(context).colorScheme.onBackground,
-          ),
-          SizedBox(height: 40.h),
-
-          _RefundButton(refundData: refundData),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzId, value: swapData.response.id),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.address, value: swapData.response.address),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.lightningInvoice,
-              value: swapData.request.invoice),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.bip21, value: swapData.response.bip21),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzRefundPrivateKey,
-              value: swapData.secureData.privateKeyHex),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzRefundPublicKey,
-              value: swapData.request.refundPublicKey),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzRedeemScript,
-              value: swapData.response.redeemScript),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzOnchainTx,
-              value: swapData.onchainTxHash ?? 'N/A'),
-          SizedBox(height: 24.h),
-
-          LabelCopyableTextView(
-              label: context.loc.boltzRefundTx,
-              value: swapData.refundTx ?? 'N/A'),
+          if (swapData.kind == SwapType.reverse) ...[
+            LabelCopyableTextView(
+                label: context.loc.boltzClaimTx,
+                value: swapData.claimTxId ?? 'N/A'),
+            SizedBox(height: 24.h),
+          ],
         ],
       ),
     );
@@ -233,9 +124,8 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
 
 class _BoltzDetailHeaderWidget extends StatelessWidget {
   const _BoltzDetailHeaderWidget({
-    Key? key,
     required this.status,
-  }) : super(key: key);
+  });
 
   final BoltzSwapStatus status;
 
@@ -257,10 +147,9 @@ class _BoltzDetailHeaderWidget extends StatelessWidget {
 
 class _BoltzDetailWidget extends StatelessWidget {
   const _BoltzDetailWidget({
-    Key? key,
     required this.title,
     required this.subtitle,
-  }) : super(key: key);
+  });
 
   final String title;
   final String? subtitle;

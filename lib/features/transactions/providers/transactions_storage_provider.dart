@@ -1,25 +1,11 @@
 import 'dart:async';
 
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
 
 const kTransactionBoxName = 'transactions';
-
-//ANCHOR - Isar Storage
-
-final _storageProvider = FutureProvider<Isar>((ref) async {
-  final dir = await getApplicationDocumentsDirectory();
-  final isar = Isar.getInstance() ??
-      await Isar.open(
-        [TransactionDbModelSchema],
-        directory: dir.path,
-      );
-  ref.onDispose(isar.close);
-  return isar;
-});
 
 //ANCHOR - Address Cache
 
@@ -49,13 +35,17 @@ abstract class TransactionStorage {
   Future<void> save(TransactionDbModel model);
   Future<void> clear();
   void cacheSideswapReceiveAddress(String address);
+  Future<void> updateTxHash({
+    required String serviceOrderId,
+    required String newTxHash,
+  });
 }
 
 class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
     implements TransactionStorage {
   @override
   FutureOr<List<TransactionDbModel>> build() async {
-    final storage = await ref.watch(_storageProvider.future);
+    final storage = await ref.watch(storageProvider.future);
     final transactions = await storage.transactionDbModels.all();
     return transactions;
   }
@@ -77,7 +67,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
       final item = model.copyWith(receiveAddress: address);
       logger.d('[TransactionStorage] Saving transaction: $item');
 
-      final storage = await ref.read(_storageProvider.future);
+      final storage = await ref.read(storageProvider.future);
       await storage.writeTxn(() => storage.transactionDbModels.put(item));
       final updated = await storage.transactionDbModels.all();
       state = AsyncValue.data(updated);
@@ -91,8 +81,50 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
 
   @override
   Future<void> clear() async {
-    final storage = await ref.read(_storageProvider.future);
+    final storage = await ref.read(storageProvider.future);
     await storage.writeTxn(() => storage.clear());
     state = AsyncValue.data(await storage.transactionDbModels.all());
+  }
+
+  @override
+  Future<void> updateTxHash({
+    required String serviceOrderId,
+    required String newTxHash,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      final transaction = await storage.transactionDbModels
+          .filter()
+          .serviceOrderIdEqualTo(serviceOrderId)
+          .findFirst();
+      if (transaction != null) {
+        final updated = transaction.copyWith(txhash: newTxHash);
+        await storage.transactionDbModels.put(updated);
+      }
+    });
+
+    final updated = await storage.transactionDbModels.all();
+    state = AsyncValue.data(updated);
+  }
+
+  //ANCHOR: Boltz-related convenience methods
+  Future<void> updateReceiveAddressForBoltzId({
+    required String boltzId,
+    required String newReceiveAddress,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      final transaction = await storage.transactionDbModels
+          .filter()
+          .serviceOrderIdEqualTo(boltzId)
+          .findFirst();
+      if (transaction != null) {
+        final updated = transaction.copyWith(receiveAddress: newReceiveAddress);
+        await storage.transactionDbModels.put(updated);
+      }
+    });
+
+    final updated = await storage.transactionDbModels.all();
+    state = AsyncValue.data(updated);
   }
 }

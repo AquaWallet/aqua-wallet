@@ -3,7 +3,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 
 class RecoveryPhraseWidget extends ConsumerWidget {
-  const RecoveryPhraseWidget({Key? key}) : super(key: key);
+  const RecoveryPhraseWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

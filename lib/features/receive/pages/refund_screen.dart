@@ -1,12 +1,12 @@
 import 'dart:convert';
+
 import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/logger.dart';
 import 'package:aqua/config/theme/theme.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
-import 'package:aqua/utils/extensions/date_time_ext.dart';
+import 'package:aqua/logger.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_file_saver/flutter_file_saver.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:share_plus/share_plus.dart';
@@ -14,7 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class RefundArguments {
   final String address;
-  final BoltzSwapData swapData;
+  final BoltzSwapDbModel swapData;
   final BoltzSwapStatus swapStatus;
 
   const RefundArguments(this.address, this.swapData, this.swapStatus);
@@ -64,16 +64,16 @@ class RefundScreen extends HookConsumerWidget {
         ref.watch(fetchBlockHeightProvider(NetworkType.liquid)).asData?.value;
     final unlockDate = currentBlockHeight != null
         ? DateTime.now().add(Duration(
-            minutes: (arguments.swapData.response.timeoutBlockHeight -
-                currentBlockHeight)))
+            minutes: (arguments.swapData.locktime - currentBlockHeight)))
         : null;
-    final refundData =
-        ref.read(boltzSwapRefundDataProvider(arguments.swapData));
+    final refundDataFuture = ref
+        .read(boltzSubmarineSwapProvider.notifier)
+        .getRefundData(arguments.swapData);
 
     useEffect(() {
       Future<void> determineUIState() async {
-        if (arguments.swapData.refundTx != null &&
-            arguments.swapData.refundTx!.isNotEmpty) {
+        if (arguments.swapData.refundTxId != null &&
+            arguments.swapData.refundTxId!.isNotEmpty) {
           uiState.value = RefundUIState.alreadyRefunded;
         } else {
           if (currentBlockHeight == null) {
@@ -81,8 +81,7 @@ class RefundScreen extends HookConsumerWidget {
             return;
           }
 
-          final timeoutBlockHeight =
-              arguments.swapData.response.timeoutBlockHeight;
+          final timeoutBlockHeight = arguments.swapData.locktime;
           logger.d(
               "[Boltz] Refund - currentBlockHeight: $currentBlockHeight - timeoutBlockHeight: $timeoutBlockHeight - blocks left: ${timeoutBlockHeight - currentBlockHeight}");
 
@@ -116,65 +115,78 @@ class RefundScreen extends HookConsumerWidget {
               SizedBox(height: 40.h),
               LabelCopyableTextView(
                 label: context.loc.boltzRefundTx,
-                value: '${arguments.swapData.refundTx}',
+                value: '${arguments.swapData.refundTxId}',
               ),
             ],
           ),
         );
         break;
       case RefundUIState.timelockNotExpired:
-        content = Container(
-          width: double.maxFinite,
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: 60.h),
-              Text('${context.loc.boltzRefundWaitingTimeoutTitle}:',
-                  style: Theme.of(context).textTheme.titleLarge,
-                  textAlign: TextAlign.center),
-              if (unlockDate != null) ...[
-                SizedBox(height: 40.h),
-                Text(
-                  unlockDate.formatFullDateTime,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                ),
-              ],
-              SizedBox(height: 40.h),
-              Text(
-                  '${context.loc.boltzRefundCurrentBlockHeightSubtitle}: $currentBlockHeight',
-                  style: Theme.of(context).textTheme.titleMedium),
-              SizedBox(height: 15.h),
-              Text(
-                  '${context.loc.boltzRefundTimeoutSubtitle}: ${arguments.swapData.response.timeoutBlockHeight}',
-                  style: Theme.of(context).textTheme.titleMedium),
+        content = FutureBuilder<BoltzRefundData?>(
+          future: refundDataFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            final refundData = snapshot.data;
+            if (refundData == null) {
+              return const Text('No refund data available');
+            }
 
-              SizedBox(height: 40.h),
-              DashedDivider(
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              SizedBox(height: 40.h),
+            return Container(
+              width: double.maxFinite,
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 60.h),
+                  Text('${context.loc.boltzRefundWaitingTimeoutTitle}:',
+                      style: Theme.of(context).textTheme.titleLarge,
+                      textAlign: TextAlign.center),
+                  if (unlockDate != null) ...[
+                    SizedBox(height: 40.h),
+                    Text(
+                      unlockDate.formatFullDateTime,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                    ),
+                  ],
+                  SizedBox(height: 40.h),
+                  Text(
+                      '${context.loc.boltzRefundCurrentBlockHeightSubtitle}: $currentBlockHeight',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  SizedBox(height: 15.h),
+                  Text(
+                      '${context.loc.boltzRefundTimeoutSubtitle}: ${arguments.swapData.locktime}',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  SizedBox(height: 40.h),
 
-              //ANCHOR - Copy Refund Data
-              Text('${context.loc.boltzManualRefundTitle}:',
-                  style: Theme.of(context).textTheme.titleLarge,
-                  textAlign: TextAlign.center),
-              SizedBox(height: 15.h),
-              TextButton(
-                style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.secondary,
-                    textStyle: Theme.of(context).textTheme.titleLarge),
-                onPressed: () async {
-                  final jsonString = jsonEncode(refundData?.toJson());
-                  context.copyToClipboard(jsonString);
-                },
-                child: Text(context.loc.boltzCopyRefundData),
+                  //ANCHOR - Copy Refund Data
+                  Text('${context.loc.boltzManualRefundTitle}:',
+                      style: Theme.of(context).textTheme.titleLarge,
+                      textAlign: TextAlign.center),
+                  SizedBox(height: 15.h),
+
+                  TextButton(
+                    style: TextButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        textStyle: Theme.of(context).textTheme.titleLarge),
+                    onPressed: () async {
+                      final jsonString = jsonEncode(refundData.toJson());
+                      context.copyToClipboard(jsonString);
+                    },
+                    child: Text(context.loc.boltzCopyRefundData),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
         break;
       case RefundUIState.refundReady:
@@ -215,9 +227,9 @@ class RefundScreen extends HookConsumerWidget {
 
                   try {
                     final refundTx = await ref
-                        .read(boltzProvider)
+                        .read(legacyBoltzProvider)
                         .performClaimOrRefundIfNeeded(
-                            arguments.swapData.response.id,
+                            arguments.swapData.boltzId,
                             null,
                             arguments.swapStatus);
 
@@ -229,8 +241,6 @@ class RefundScreen extends HookConsumerWidget {
                   } catch (e) {
                     uiState.value = RefundUIState.refundError;
                     logger.d("[Boltz] Error processing refund: $e");
-                  } finally {
-                    processRefundLoadingState.value = false;
                   }
                 },
                 child: Text(context.loc.boltzProcessRefund),
@@ -258,97 +268,111 @@ class RefundScreen extends HookConsumerWidget {
         );
         break;
       case RefundUIState.refundError:
-        content = Container(
-          width: double.maxFinite,
-          padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: 40.h),
-              Text(context.loc.boltzProcessRefundManualProcess,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center),
+        content = FutureBuilder<BoltzRefundData?>(
+          future: refundDataFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            final refundData = snapshot.data;
+            if (refundData == null) {
+              return const Text('No refund data available');
+            }
 
-              // Step 1: Download Refund Json
-              SizedBox(height: 50.h),
-              Text(context.loc.boltzSaveRefundFile,
-                  style: Theme.of(context).textTheme.titleMedium),
-              SizedBox(height: 22.h),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.onBackground,
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  side: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 1.r,
-                  ),
-                  textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontSize: 12.sp,
+            return Container(
+              width: double.maxFinite,
+              padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 40.h),
+                  Text(context.loc.boltzProcessRefundManualProcess,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center),
+
+                  // Step 1: Download Refund Json
+                  SizedBox(height: 50.h),
+                  Text(context.loc.boltzSaveRefundFile,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  SizedBox(height: 22.h),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onBackground,
+                      visualDensity: VisualDensity.compact,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.r),
                       ),
-                ),
-                onPressed: () async {
-                  final refundData =
-                      ref.read(boltzSwapRefundDataProvider(arguments.swapData));
-                  if (refundData != null) {
-                    final jsonString = jsonEncode(refundData.toJson());
-                    downloadJson(
-                        jsonString,
-                        'boltz_refund_data_${arguments.swapData.response.id}.json',
-                        context.loc.boltzSaveFilePrompt);
-                  }
-                },
-                child: Text(context.loc.boltzDownloadRefundInfo),
-              ),
-              SizedBox(height: 50.h),
-
-              // Step 2: Copy Refund Address
-              Text(context.loc.boltzCopyRefundAddress,
-                  style: Theme.of(context).textTheme.titleMedium),
-              SizedBox(height: 20.h),
-              FutureBuilder<GdkReceiveAddressDetails?>(
-                future: ref.read(liquidProvider).getReceiveAddress(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return LabelCopyableTextView(
-                        label: context.loc.boltzRefundAddress,
-                        value: snapshot.data!.address ?? '',
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text(
-                          '${context.loc.boltzReceiveAddressError}: ${snapshot.error}');
-                    } else {
-                      return Text(context.loc.boltzReceiveAddressError);
-                    }
-                  } else {
-                    return const CircularProgressIndicator();
-                  }
-                },
-              ),
-              SizedBox(height: 50.h),
-
-              // Step 3: Boltz Refund Page
-              Text(context.loc.boltzUploadJsonRefund,
-                  style: Theme.of(context).textTheme.titleMedium),
-              SizedBox(height: 20.h),
-              InkWell(
-                onTap: () => launchUrl(Uri.parse(boltzMainnetRefundUrl)),
-                child: Text(
-                  boltzMainnetRefundUrl,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      side: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
-                        decoration: TextDecoration.underline,
+                        width: 1.r,
                       ),
-                ),
+                      textStyle:
+                          Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontSize: 12.sp,
+                              ),
+                    ),
+                    onPressed: () {
+                      final jsonString = jsonEncode(refundData.toJson());
+                      downloadJson(
+                          jsonString,
+                          'boltz_refund_data_${arguments.swapData.boltzId}.json',
+                          context.loc.boltzSaveFilePrompt);
+                    },
+                    child: Text(context.loc.boltzDownloadRefundInfo),
+                  ),
+                  SizedBox(height: 50.h),
+
+                  // Step 2: Copy Refund Address
+                  Text(context.loc.boltzCopyRefundAddress,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  SizedBox(height: 20.h),
+                  FutureBuilder<GdkReceiveAddressDetails?>(
+                    future: ref.read(liquidProvider).getReceiveAddress(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return LabelCopyableTextView(
+                            label: context.loc.boltzRefundAddress,
+                            value: snapshot.data!.address ?? '',
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text(
+                              '${context.loc.boltzReceiveAddressError}: ${snapshot.error}');
+                        } else {
+                          return Text(context.loc.boltzReceiveAddressError);
+                        }
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
+                  ),
+                  SizedBox(height: 50.h),
+
+                  // Step 3: Boltz Refund Page
+                  Text(context.loc.boltzUploadJsonRefund,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  SizedBox(height: 20.h),
+                  InkWell(
+                    onTap: () => launchUrl(Uri.parse(boltzMainnetRefundUrl)),
+                    child: Text(
+                      boltzMainnetRefundUrl,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            decoration: TextDecoration.underline,
+                          ),
+                    ),
+                  ),
+                  SizedBox(height: 50.h),
+                ],
               ),
-              SizedBox(height: 50.h),
-            ],
-          ),
+            );
+          },
         );
         break;
       case RefundUIState.loading:

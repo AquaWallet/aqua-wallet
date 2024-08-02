@@ -1,15 +1,18 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class WalletHeaderBtcPrice extends StatelessWidget {
+class WalletHeaderBtcPrice extends ConsumerWidget {
   const WalletHeaderBtcPrice(this.uiModel, {super.key});
 
   final BtcPriceUiModel uiModel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentRate =
+        ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,7 +32,7 @@ class WalletHeaderBtcPrice extends StatelessWidget {
           children: [
             //ANCHOR - Price
             Text(
-              "\$${uiModel.price}",
+              "${currentRate.currency.symbol}${uiModel.price}",
               style: GoogleFonts.arimo(
                 fontWeight: FontWeight.w700,
                 fontSize: context.adaptiveDouble(

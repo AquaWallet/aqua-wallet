@@ -3,7 +3,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 
 class SwapConversionRateView extends HookConsumerWidget {
-  const SwapConversionRateView({Key? key}) : super(key: key);
+  const SwapConversionRateView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,7 +24,6 @@ class SwapConversionRateView extends HookConsumerWidget {
     return Container(
       height: 34.h,
       margin: EdgeInsets.symmetric(vertical: 12.h),
-      padding: EdgeInsets.all(1.h),
       child: amount == null || error != null
           ? const SizedBox.shrink()
           : BoxShadowContainer(

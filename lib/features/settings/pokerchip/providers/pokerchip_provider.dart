@@ -55,7 +55,7 @@ class PokerchipBalanceNotifier
       return PokerchipBalanceState(
         address: scanInput,
         balance: '0',
-        asset: isBtc ? Asset.btc() : Asset.liquid(),
+        asset: isBtc ? Asset.btc() : ref.read(manageAssetsProvider).lbtcAsset,
         explorerLink: explorerLink,
       );
     }

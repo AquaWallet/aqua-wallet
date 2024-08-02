@@ -1,12 +1,6 @@
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/common/widgets/custom_error.dart';
+import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_http_provider.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_provider.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/receive/receive.dart';
@@ -19,64 +13,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'models/models.dart';
 
-/// Contains the SideShift service logic, which is for `usdt-eth > usdt-liquid` and `usdt-trx > usdt-liquid` for the receive screen
-extension SideShiftExtension on ReceiveAssetScreen {
-  void performSideShiftOperations(BuildContext context, WidgetRef ref,
-      ValueNotifier<Asset> asset, ValueNotifier<String?> fixedErrorMessage) {
-    // useEffect to call sideshift service
-    useEffect(() {
-      if (asset.value.isSideshift) {
-        // clear pending order
-        ref.read(sideshiftOrderProvider).setPendingOrder(null);
-
-        // get asset.value
-        final SideshiftAssetPair assetPair = SideshiftAssetPair(
-          from: asset.value == Asset.usdtEth()
-              ? SideshiftAsset.usdtEth()
-              : SideshiftAsset.usdtTron(),
-          to: SideshiftAsset.usdtLiquid(),
-        );
-
-        // handle error
-        void handleError(Object e) {
-          final error = (e is ExceptionLocalized)
-              ? e.toLocalizedString(context)
-              : context.loc.sideshiftGenericError;
-
-          if (e is NoPermissionsException) {
-            fixedErrorMessage.value = error;
-          } else {
-            context.showErrorSnackbar(error);
-          }
-        }
-
-        // setup order
-        final sideshift =
-            ref.read(sideshiftSetupProvider(assetPair)).setupSideshiftOrder();
-        sideshift.listen((event) {
-          event.when(
-              data: (value) {
-                ref
-                    .read(sideshiftOrderProvider)
-                    .placeReceiveOrder(
-                        deliverAsset: assetPair.from,
-                        receiveAsset: assetPair.to)
-                    .catchError(handleError);
-              },
-              loading: () {},
-              error: (e, st) => handleError(e));
-        });
-      }
-
-      return () {
-        ref.read(sideshiftOrderProvider).setShiftCurrentOrderStreamStop();
-      };
-    }, [
-      asset.value,
-    ]);
-  }
-}
-
 class ReceiveAssetScreen extends HookConsumerWidget {
   const ReceiveAssetScreen({super.key});
 
@@ -85,131 +21,161 @@ class ReceiveAssetScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // asset (layerTwo option only visible for lightning and lbtc)
-    final asset =
-        useState<Asset>(ModalRoute.of(context)?.settings.arguments as Asset);
+    final asset = useState(ModalRoute.of(context)?.settings.arguments as Asset);
+    final errorMessage = useState<String?>(null);
 
-    // amount
+    final isDirectPegInEnabled =
+        ref.watch(prefsProvider.select((p) => p.isDirectPegInEnabled));
+    final boltzUiState = ref.watch(boltzReverseSwapProvider);
+    final boltzOrder = useMemoized(
+      () => boltzUiState.mapOrNull(qrCode: (s) => s.swap),
+      [boltzUiState],
+    );
+
+    final sideshiftOrder = ref.watch(sideshiftPendingOrderProvider);
+
     final amountForBip21 =
         ref.watch(receiveAssetAmountForBip21Provider(asset.value));
     final amountAsDecimal =
         ref.watch(parsedAssetAmountAsDecimalProvider(amountForBip21));
-    logger.d("[Receive] amount for bip21: $amountForBip21");
-    logger.d("[Receive] amount as double: $amountAsDecimal");
-
-    // receive address
     final address = ref
             .watch(receiveAssetAddressProvider((asset.value, amountAsDecimal)))
             .asData
             ?.value ??
         '';
-    logger.d("[Receive] receive address: $address");
 
-    // error message
-    final errorMessage = useState<String?>(null);
+    final enableShareButton = useMemoized(() {
+      return (asset.value.isLightning && boltzOrder == null) ||
+          (asset.value.isSideshift && sideshiftOrder == null);
+    }, [asset.value, boltzOrder, sideshiftOrder]);
 
-    // boltz ui state
-    final boltzUIState = useState(asset.value.isLightning
-        ? ReceiveBoltzUIState.loading
-        : ReceiveBoltzUIState.inactive);
-    BoltzCreateReverseSwapResponse? boltzOrder;
+    // ANCHOR: Boltz
+    final showGenerateButton = useMemoized(
+      () => asset.value.isLightning && boltzUiState.isAmountEntry,
+      [asset.value, boltzUiState],
+    );
 
-    // boltz create reverse swap
-    final createBoltzReverseSwap = useCallback(() async {
-      boltzUIState.value = ReceiveBoltzUIState.generatingInvoice;
-      if (amountAsDecimal == Decimal.zero) {
-        logger.e("[Receive] amount as double is null");
-        return;
+    final generateInvoice = useCallback(() {
+      if (context.mounted) {
+        if (amountAsDecimal < Decimal.fromInt(boltzMin)) {
+          ref.read(boltzReverseSwapUiErrorProvider.notifier).state =
+              context.loc.boltzMinAmountError(boltzMin);
+          return;
+        } else if (amountAsDecimal > Decimal.fromInt(boltzMax)) {
+          ref.read(boltzReverseSwapUiErrorProvider.notifier).state =
+              context.loc.boltzMaxAmountError(boltzMax);
+          return;
+        }
+        ref.read(boltzReverseSwapProvider.notifier).create(amountAsDecimal);
       }
-
-      ref
-          .read(boltzProvider)
-          .createReverseSwap(amountAsDecimal.toInt())
-          .then((response) {
-        boltzUIState.value = ReceiveBoltzUIState.qrCode;
-      }).catchError((e) {
-        errorMessage.value = e.toString();
-      });
     }, [amountAsDecimal]);
 
-    // boltz reverse swap success
-    final pushToLightningSuccessScreen = useCallback(() {
-      final receiveAmount = ref.read(boltzProvider).getReceiveAmount();
-      Navigator.of(context).pushReplacementNamed(
-        LightningTransactionSuccessScreen.routeName,
-        arguments: LightningSuccessArguments.receive(
-          satoshiAmount: receiveAmount,
-        ),
-      );
-    }, []);
+    if (boltzOrder != null) {
+      // listen for boltz claim to show lightning success screen
+      ref.listen(boltzSwapStatusProvider(boltzOrder.id), (_, event) async {
+        final status = event.value?.status;
+        logger.d('[Receive] Boltz Swap Status: $status');
+        if (status?.isSuccess == true) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            errorMessage.value = null;
+            Navigator.of(context).pushReplacementNamed(
+              LightningTransactionSuccessScreen.routeName,
+              arguments: LightningSuccessArguments.receive(
+                satoshiAmount: boltzOrder.outAmount,
+              ),
+            );
+          });
+        }
+      });
 
-    // boltz setup
-    if (asset.value.isLightning) {
-      final boltzGetPairsResponse =
-          ref.watch(boltzGetPairsProvider).asData?.value;
-
-      // change ui state when pairs response is received
-      if (boltzGetPairsResponse != null &&
-          boltzUIState.value == ReceiveBoltzUIState.loading) {
-        boltzUIState.value = ReceiveBoltzUIState.enterAmount;
-      }
-
-      // watch order status
-      boltzOrder =
-          ref.watch(boltzReverseSwapSuccessResponseProvider.notifier).state;
-      if (boltzOrder != null) {
-        errorMessage.value = null;
-
-        final _ = ref
-            .read(boltzProvider)
-            .getSwapStatusStream(boltzOrder.id)
-            .listen((event) {
-          if (event.status.isSuccess) {
-            pushToLightningSuccessScreen();
+      // listen for boltz-to-boltz receives to show lightning success screen
+      ref.listen<AsyncValue<List<String>?>>(
+          boltzToBoltzReceiveProvider(boltzOrder.id), (_, event) {
+        event.whenData((txs) {
+          if (txs != null && txs.isNotEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              errorMessage.value = null;
+              Navigator.of(context).pushReplacementNamed(
+                LightningTransactionSuccessScreen.routeName,
+                arguments: LightningSuccessArguments.receive(
+                  satoshiAmount: boltzOrder.outAmount,
+                ),
+              );
+            });
           }
-        }, onError: (e) {
-          errorMessage.value = e.toString();
         });
-      }
+      });
     }
 
-    // setup sidehift
-    SideshiftOrder? sideshiftOrder;
-    final isSideshiftLoading = useState(asset.value.isSideshift);
+    // ANCHOR: Sideshift
+    final handleSideshiftError = useCallback((Object e) {
+      final error = (e is ExceptionLocalized)
+          ? e.toLocalizedString(context)
+          : context.loc.sideshiftGenericError;
 
-    if (asset.value.isSideshift) {
-      performSideShiftOperations(context, ref, asset, errorMessage);
+      if (e is NoPermissionsException) {
+        errorMessage.value = error;
+      } else {
+        context.showErrorSnackbar(error);
+      }
+    });
 
-      sideshiftOrder = ref.watch(pendingOrderProvider);
-      logger.d(
-          "[Receive][SideShift] watching pending order: ${sideshiftOrder?.id}");
-      isSideshiftLoading.value = sideshiftOrder == null;
+    useEffect(() {
+      if (!asset.value.isAnyAltUsdt) {
+        return null;
+      }
+
+      // clear pending order
+      final sideshiftProvider = ref.read(sideshiftOrderProvider);
+      sideshiftProvider.setPendingOrder(null);
+
+      // get asset
+      final assetPair = SideshiftAssetPair(
+        from: asset.value == Asset.usdtEth()
+            ? SideshiftAsset.usdtEth()
+            : SideshiftAsset.usdtTron(),
+        to: SideshiftAsset.usdtLiquid(),
+      );
+
+      // setup order
+      ref
+          .read(sideshiftSetupProvider(assetPair))
+          .setupSideshiftOrder()
+          .listen((event) {
+        debugPrint('[Receive] Sideshift Order Status: ${event.asData?.value}');
+        event.when(
+          data: (value) {
+            if (context.mounted) {
+              ref
+                  .read(sideshiftOrderProvider)
+                  .placeReceiveOrder(
+                      deliverAsset: assetPair.from, receiveAsset: assetPair.to)
+                  .catchError(handleSideshiftError);
+            }
+          },
+          loading: () {},
+          error: (e, st) => handleSideshiftError(e),
+        );
+      });
+
+      final sideshiftOrder = ref.watch(sideshiftPendingOrderProvider);
+      logger.d("[Receive][SideShift] Pending order: ${sideshiftOrder?.id}");
 
       // inProgressOrderProvider caches a more complete order, so watch that as well
       ref.listen(inProgressOrderProvider, (_, inProgressOrder) {
         logger.d(
-            "[Receive][SideShift] in progress order: ${inProgressOrder?.id} - deposit address: ${inProgressOrder?.depositAddress} - settle address: ${inProgressOrder?.settleAddress}");
+            "[Receive][SideShift] In Progress order: ${inProgressOrder?.id} - deposit address: ${inProgressOrder?.depositAddress} - settle address: ${inProgressOrder?.settleAddress}");
       });
-    }
-
-    // reset on asset change
-    useEffect(() {
-      errorMessage.value = null;
-      ref.read(receiveAssetAmountProvider.notifier).state = null;
-      boltzUIState.value = asset.value.isLightning
-          ? ReceiveBoltzUIState.loading
-          : ReceiveBoltzUIState.inactive;
-      isSideshiftLoading.value = asset.value.isSideshift;
-
-      return null;
+      return sideshiftProvider.setShiftCurrentOrderStreamStop;
     }, [asset.value]);
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (_) async {
         logger.d('[Navigation] onWillPop in ReceiveAssetScreen called');
         ref.invalidate(receiveAssetAddressProvider);
         ref.invalidate(receiveAssetAmountProvider);
         ref.read(sideshiftOrderProvider).stopAllStreams();
-        return true;
       },
       child: Scaffold(
         appBar: AquaAppBar(
@@ -218,33 +184,24 @@ class ReceiveAssetScreen extends HookConsumerWidget {
               Theme.of(context).colors.addressFieldContainerBackgroundColor,
           showActionButton: false,
         ),
-        bottomNavigationBar: asset.value.isLightning &&
-                boltzUIState.value == ReceiveBoltzUIState.enterAmount
+        bottomNavigationBar: showGenerateButton
             ? Container(
                 height: 50.h,
                 margin: EdgeInsets.only(
-                    left: 30.w, top: 12.h, right: 30.w, bottom: 48.h),
+                  left: 30.w,
+                  top: 12.h,
+                  right: 30.w,
+                  bottom: 48.h,
+                ),
                 child: AquaElevatedButton(
-                  onPressed: () {
-                    if (amountAsDecimal < Decimal.fromInt(boltzMin)) {
-                      errorMessage.value =
-                          context.loc.sendMinAmountError(boltzMin);
-                      return;
-                    } else if (amountAsDecimal > Decimal.fromInt(boltzMax)) {
-                      errorMessage.value =
-                          context.loc.sendMaxAmountError(boltzMax);
-                      return;
-                    }
-
-                    createBoltzReverseSwap();
-                  },
+                  onPressed: generateInvoice,
                   child: Text(context.loc.boltzGenerateInvoice),
                 ),
               )
             : null,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: 32.h),
+            padding: EdgeInsets.only(top: 14.h, bottom: 32.h),
             physics: const BouncingScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -280,16 +237,8 @@ class ReceiveAssetScreen extends HookConsumerWidget {
                 ],
                 //ANCHOR - Receive Amount Input
                 if (asset.value.isLightning &&
-                    [
-                      ReceiveBoltzUIState.loading,
-                      ReceiveBoltzUIState.enterAmount,
-                      ReceiveBoltzUIState.generatingInvoice
-                    ].contains(boltzUIState.value)) ...[
-                  ReceiveLightningView(
-                    asset: asset.value,
-                    boltzUIState: boltzUIState.value,
-                    errorMessage: errorMessage.value,
-                  ),
+                    boltzUiState.isLightningView) ...[
+                  ReceiveLightningView(asset: asset.value),
                 ]
                 //ANCHOR - Main Address Card
                 else ...[
@@ -305,6 +254,11 @@ class ReceiveAssetScreen extends HookConsumerWidget {
                       assetNetwork:
                           asset.value.usdtOption.networkLabel(context),
                     ),
+                    SizedBox(height: 21.h),
+                  ],
+                  //ANCHOR - Direct Peg-In Button
+                  if (asset.value.isLBTC && isDirectPegInEnabled) ...[
+                    const _DirectPegInButton(),
                     SizedBox(height: 21.h),
                   ],
                   Container(
@@ -326,10 +280,7 @@ class ReceiveAssetScreen extends HookConsumerWidget {
                               ? 0
                               : 1,
                           child: ReceiveAssetAddressShareButton(
-                            isEnabled: (asset.value.isLightning &&
-                                    boltzOrder == null) ||
-                                (asset.value.isSideshift &&
-                                    sideshiftOrder == null),
+                            isEnabled: enableShareButton,
                             isExpanded:
                                 !asset.value.shouldShowAmountInputOnReceive,
                             address: address,
@@ -347,17 +298,40 @@ class ReceiveAssetScreen extends HookConsumerWidget {
                     ]),
                   ),
                   SizedBox(height: 40.h),
-                  //ANCHOR - Spinner
-                  if ((isSideshiftLoading.value ||
-                          boltzUIState.value == ReceiveBoltzUIState.loading) &&
-                      errorMessage.value == null) ...[
-                    const CircularProgressIndicator(),
-                  ],
                 ],
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DirectPegInButton extends StatelessWidget {
+  const _DirectPegInButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 28.w),
+      child: OutlinedButton(
+        onPressed: () =>
+            Navigator.of(context).pushNamed(DirectPegInScreen.routeName),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.onBackground,
+          fixedSize: Size(double.maxFinite, 38.h),
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          side: BorderSide(
+            width: 2.r,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        child: Text(context.loc.receiveAssetScreenDirectPegIn),
       ),
     );
   }

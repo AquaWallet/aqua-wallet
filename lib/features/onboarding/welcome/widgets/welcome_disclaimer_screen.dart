@@ -3,7 +3,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 
 class WelcomeDisclaimerScreen extends HookConsumerWidget {
-  const WelcomeDisclaimerScreen({Key? key}) : super(key: key);
+  const WelcomeDisclaimerScreen({super.key});
 
   static const routeName = '/welcomeDisclaimer';
 

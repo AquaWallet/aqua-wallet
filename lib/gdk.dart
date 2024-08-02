@@ -56,20 +56,20 @@ class LibGdkBindings {
   static LibGdkBindings? _instance;
 
   String get _libName {
-    if (Platform.isLinux || Platform.isAndroid) return 'libgreenaddress.so';
-    if (Platform.isMacOS) return 'libgreenaddress.dylib';
-    // if (Platform.isWindows) return 'libgreenaddress.dll';
+    if (Platform.isLinux || Platform.isAndroid) return 'libgreen_gdk_java.so';
+    if (Platform.isMacOS) return 'libgreen_gdk.dylib';
+    // if (Platform.isWindows) return 'libgreen_gdk.dll';
     throw Exception('${Platform.operatingSystem} is not supported');
   }
 
   String get _libHelperName {
     if (Platform.isLinux || Platform.isAndroid) return 'libdart_helper.so';
     if (Platform.isMacOS) return 'libdart_helper.dylib';
-    // if (Platform.isWindows) return 'libgreenaddress.dll';
+    // if (Platform.isWindows) return 'libgreen_gdk.dll';
     throw Exception('${Platform.operatingSystem} is not supported');
   }
 
-  late final DynamicLibrary greenAddressLib;
+  late final DynamicLibrary greenGdkLib;
   late final DynamicLibrary dartHelperLib;
 
   factory LibGdkBindings([String dllPath = '', String helperPath = '']) =>
@@ -77,21 +77,20 @@ class LibGdkBindings {
 
   LibGdkBindings._([String dllPath = '', String helperPath = '']) {
     if (Platform.isIOS) {
-      greenAddressLib = DynamicLibrary.process();
+      greenGdkLib = DynamicLibrary.process();
       dartHelperLib = DynamicLibrary.process();
     } else {
-      greenAddressLib =
-          DynamicLibrary.open(dllPath.isEmpty ? _libName : dllPath);
+      greenGdkLib = DynamicLibrary.open(dllPath.isEmpty ? _libName : dllPath);
       dartHelperLib =
           DynamicLibrary.open(helperPath.isEmpty ? _libHelperName : helperPath);
     }
   }
 
-  NativeLibrary get lib => NativeLibrary(greenAddressLib);
+  NativeLibrary get lib => NativeLibrary(greenGdkLib);
   NativeLibrary get hLib => NativeLibrary(dartHelperLib);
 
   void closeDll() {
-    _dlCloseFunc(greenAddressLib.handle);
+    _dlCloseFunc(greenGdkLib.handle);
     _dlCloseFunc(dartHelperLib.handle);
     _instance = null;
   }
@@ -703,64 +702,6 @@ class LibGdk {
     return _createAuthHandler(authHandler.value);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> createPset({
-    required Pointer<GA_session> session,
-    required GdkCreatePsetDetails details,
-  }) async {
-    final json = toJson(details.toJsonString());
-    if (json.isError) {
-      return Result.error(json.asError!.error, json.asError!.stackTrace);
-    }
-
-    final authHandler = arena<Pointer<GA_auth_handler>>();
-    final result = bindings.lib.GA_create_pset(
-      session,
-      json.asValue!.value,
-      authHandler,
-    );
-
-    if (result != 0) {
-      _destroyAuthHandler(authHandler.value);
-    }
-
-    final checkResult = _checkResult(result: result);
-    if (checkResult.isError) {
-      return Result.error(
-          checkResult.asError!.error, checkResult.asError!.stackTrace);
-    }
-
-    return _createAuthHandler(authHandler.value);
-  }
-
-  Future<Result<GdkAuthHandlerStatus>> signPset({
-    required Pointer<GA_session> session,
-    required GdkSignPsetDetails details,
-  }) async {
-    final json = toJson(details.toJsonString());
-    if (json.isError) {
-      return Result.error(json.asError!.error, json.asError!.stackTrace);
-    }
-
-    final authHandler = arena<Pointer<GA_auth_handler>>();
-    final result = bindings.lib.GA_sign_pset(
-      session,
-      json.asValue!.value,
-      authHandler,
-    );
-
-    if (result != 0) {
-      _destroyAuthHandler(authHandler.value);
-    }
-
-    final checkResult = _checkResult(result: result);
-    if (checkResult.isError) {
-      return Result.error(
-          checkResult.asError!.error, checkResult.asError!.stackTrace);
-    }
-
-    return _createAuthHandler(authHandler.value);
-  }
-
   Future<Result<GdkAuthHandlerStatus>> signPsbt({
     required Pointer<GA_session> session,
     required GdkSignPsbtDetails details,
@@ -790,54 +731,17 @@ class LibGdk {
     return _createAuthHandler(authHandler.value);
   }
 
-  Future<Result<void>> refreshAssets({
+  Future<Result<GdkAuthHandlerStatus>> getDetailsPsbt({
     required Pointer<GA_session> session,
-    required GdkAssetsParameters params,
+    required GdkPsbtGetDetails details,
   }) async {
-    // params to json
-    final json = toJson(params.toJsonString());
-    if (json.isError) {
-      return Result.error(json.asError!.error, json.asError!.stackTrace);
-    }
-
-    // call c function and map result to j
-    final output = arena<Pointer<GA_json>>();
-    final result = bindings.lib.GA_refresh_assets(
-      session,
-      json.asValue!.value,
-      output,
-    );
-
-    final checkResult = _checkResult(result: result);
-    if (checkResult.isError) {
-      return Result.error(
-          checkResult.asError!.error, checkResult.asError!.stackTrace);
-    }
-
-    return Result<void>.value(null);
-  }
-
-  Future<Result<GdkAuthHandlerStatus>> isValidAddress({
-    required Pointer<GA_session> session,
-    required String address,
-    required int subaccount,
-  }) async {
-    if (address.isEmpty) {
-      return Result.error('Address is empty', StackTrace.current);
-    }
-    final addressee = GdkNewTransaction(
-        addressees: [GdkAddressee(address: address, satoshi: 1)],
-        subaccount: subaccount);
-
-    logger.d(addressee.toJsonString());
-
-    final json = toJson(addressee.toJsonString());
+    final json = toJson(details.toJsonString());
     if (json.isError) {
       return Result.error(json.asError!.error, json.asError!.stackTrace);
     }
 
     final authHandler = arena<Pointer<GA_auth_handler>>();
-    final result = bindings.lib.GA_create_transaction(
+    final result = bindings.lib.GA_psbt_get_details(
       session,
       json.asValue!.value,
       authHandler,
@@ -854,6 +758,110 @@ class LibGdk {
     }
 
     return _createAuthHandler(authHandler.value);
+  }
+
+  Future<Result<Map<String, dynamic>>> getSettings({
+    required Pointer<GA_session> session,
+  }) async {
+    final output = arena<Pointer<GA_json>>();
+    final result = bindings.lib.GA_get_settings(
+      session,
+      output,
+    );
+
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return Result.error(
+          checkResult.asError!.error, checkResult.asError!.stackTrace);
+    }
+
+    final jsonStr = fromJson(output.value);
+    if (jsonStr.isError) {
+      return Result.error(jsonStr.asError!.error, jsonStr.asError!.stackTrace);
+    }
+
+    _destroyJson(output.value);
+
+    return Result.value(
+        jsonDecode(jsonStr.asValue!.value) as Map<String, dynamic>);
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> changeSettings({
+    required Pointer<GA_session> session,
+    required GdkSettingsEvent settings,
+  }) async {
+    final json = toJson(settings.toJsonString());
+    if (json.isError) {
+      return Result.error(json.asError!.error, json.asError!.stackTrace);
+    }
+
+    final authHandler = arena<Pointer<GA_auth_handler>>();
+    final result = bindings.lib.GA_change_settings(
+      session,
+      json.asValue!.value,
+      authHandler,
+    );
+
+    if (result != 0) {
+      _destroyAuthHandler(authHandler.value);
+    }
+
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return Result.error(
+          checkResult.asError!.error, checkResult.asError!.stackTrace);
+    }
+
+    return _createAuthHandler(authHandler.value);
+  }
+
+  Future<Result<void>> refreshAssets({
+    required Pointer<GA_session> session,
+    required GdkAssetsParameters params,
+  }) async {
+    // params to json
+    final json = toJson(params.toJsonString());
+    if (json.isError) {
+      return Result.error(json.asError!.error, json.asError!.stackTrace);
+    }
+
+    // call c function and map result to j
+    final result = bindings.lib.GA_refresh_assets(
+      session,
+      json.asValue!.value,
+    );
+
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return Result.error(
+          checkResult.asError!.error, checkResult.asError!.stackTrace);
+    }
+
+    return Result<void>.value(null);
+  }
+
+  // This is a bit of a hack to validate btc and lbtc addresses.
+  // We create a `GdkNewTransaction` with the address to validate and if it's invalid for the network then this will return false.
+  Future<Result<GdkAuthHandlerStatus>> isValidAddress({
+    required Pointer<GA_session> session,
+    required String address,
+    required int subaccount,
+  }) async {
+    if (address.isEmpty) {
+      return Result.error('Address is empty', StackTrace.current);
+    }
+    final addressee = GdkNewTransaction(
+        addressees: [GdkAddressee(address: address, satoshi: 1000)],
+        subaccount: subaccount);
+
+    logger.d(addressee.toJsonString());
+
+    final json = toJson(addressee.toJsonString());
+    if (json.isError) {
+      return Result.error(json.asError!.error, json.asError!.stackTrace);
+    }
+
+    return await createTransaction(session: session, transaction: addressee);
   }
 
   Future<Result<String>> generateMnemonic12() async {
@@ -955,26 +963,65 @@ class LibGdk {
         jsonDecode(jsonStr.asValue!.value) as Map<String, dynamic>);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> createTransaction({
-    required Pointer<GA_session> session,
-    required GdkNewTransaction transaction,
-  }) async {
+  Future<Result<GdkAuthHandlerStatus>> createTransaction(
+      {required Pointer<GA_session> session,
+      required GdkNewTransaction transaction,
+      bool rbfEnabled = true,
+      bool isRbfTx = false}) async {
     final details = GdkGetUnspentOutputs(subaccount: transaction.subaccount);
     final utxoResult =
         await getUnspentOutputs(session: session, details: details);
+    final utxos =
+        utxoResult.asValue!.value.result!.unspentOutputs!.unsentOutputs!;
 
-    transaction = transaction.copyWith(
-        utxos: utxoResult.asValue!.value.result!.unspentOutputs!.unsentOutputs);
+    Map<String, List<GdkUnspentOutputs>> uxtosWithSequence = {};
+    utxos.forEach((key, value) {
+      uxtosWithSequence[key] = value.map((utxo) {
+        // disable RBF
+        return utxo.copyWith(sequence: 0xFFFFFFFF);
+      }).toList();
+    });
 
-    logger.d('create transaction: ${transaction.toJsonString()}');
+    logger.d('[Send] gdk create transaction: ${transaction.toJsonString()}');
+    final transactionPayload = transaction.copyWith(
+        utxos: isRbfTx || rbfEnabled ? utxos : uxtosWithSequence);
 
-    final json = toJson(transaction.toJsonString());
+    final json = toJson(transactionPayload.toJsonString());
     if (json.isError) {
       return Result.error(json.asError!.error, json.asError!.stackTrace);
     }
 
     final authHandler = arena<Pointer<GA_auth_handler>>();
     final result = bindings.lib.GA_create_transaction(
+      session,
+      json.asValue!.value,
+      authHandler,
+    );
+
+    if (result != 0) {
+      _destroyAuthHandler(authHandler.value);
+    }
+
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return Result.error(
+          checkResult.asError!.error, checkResult.asError!.stackTrace);
+    }
+
+    return _createAuthHandler(authHandler.value);
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> blindTransaction({
+    required Pointer<GA_session> session,
+    required GdkNewTransactionReply transactionReply,
+  }) async {
+    final json = toJson(transactionReply.toJsonString());
+    if (json.isError) {
+      return Result.error(json.asError!.error, json.asError!.stackTrace);
+    }
+
+    final authHandler = arena<Pointer<GA_auth_handler>>();
+    final result = bindings.lib.GA_blind_transaction(
       session,
       json.asValue!.value,
       authHandler,

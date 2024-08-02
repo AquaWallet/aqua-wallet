@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:aqua/config/constants/urls.dart' as urls;
+import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
@@ -41,12 +42,13 @@ final availableRegionsProvider =
 
 final regionsProvider = Provider.autoDispose<RegionsProvider>((ref) {
   final prefs = ref.watch(prefsProvider);
-  return RegionsProvider(prefs);
+  return RegionsProvider(ref, prefs);
 });
 
 class RegionsProvider extends ChangeNotifier {
-  RegionsProvider(this.prefs);
+  RegionsProvider(this.ref, this.prefs);
 
+  final AutoDisposeProviderRef ref;
   final UserPreferencesNotifier prefs;
 
   Region? get currentRegion {
@@ -58,6 +60,10 @@ class RegionsProvider extends ChangeNotifier {
   bool get regionRequired => currentRegion == null;
 
   Future<void> setRegion(Region region) async {
+    region == RegionsStatic.mx
+        ? ref.read(prefsProvider).addAsset(ref.read(liquidProvider).mexasId)
+        : ref.read(prefsProvider).removeAsset(ref.read(liquidProvider).mexasId);
+
     prefs.setRegion(jsonEncode(region.toJson()));
     notifyListeners();
   }

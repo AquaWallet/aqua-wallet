@@ -1,66 +1,58 @@
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/provider/qr_scanner/qr_scanner_provider.dart';
+import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 enum QrOnSuccessAction { push, pull }
 
+enum QrScannerParseAction {
+  doNotParse,
+  parse,
+}
+
 class QrScannerScreenArguments {
   Asset? asset;
-
-  /// Throw an error if the scanned QR is a different asset than the one passed in
-  bool throwErrorOnAssetMismatch;
-
-  /// Try to parse the address per asset
-  /// If `false`, will return QR text to `onSuccessAction` as is
-  bool parseAddress;
+  QrScannerParseAction parseAction;
   QrOnSuccessAction onSuccessAction;
 
   QrScannerScreenArguments(
       {this.asset,
-      this.throwErrorOnAssetMismatch = false,
-      this.parseAddress = false,
+      this.parseAction = QrScannerParseAction.doNotParse,
       this.onSuccessAction = QrOnSuccessAction.push});
 }
 
-class QrScannerScreen extends ConsumerStatefulWidget {
+class QrScannerScreen extends HookConsumerWidget {
   static const routeName = '/qrScannerScreen';
 
-  const QrScannerScreen({Key? key}) : super(key: key);
+  const QrScannerScreen({super.key});
 
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _QrScannerScreenState();
-}
-
-class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
-  final GlobalKey _qrKey = GlobalKey(debugLabel: 'QR');
-  final _imagePicker = ImagePicker();
-  final MobileScannerController cameraController = MobileScannerController(
-    detectionSpeed: DetectionSpeed.normal,
-    facing: CameraFacing.back,
-    torchEnabled: false,
-  );
-
-  handleAddress(QrScannerScreenArguments arguments, String? address) async {
+  handleAddress(
+      QrScannerScreenArguments arguments,
+      String? input,
+      MobileScannerController cameraController,
+      BuildContext context,
+      WidgetRef ref) async {
     await cameraController.stop();
     logger.d(
-        '[QR] handleAddress - address: $address - parseAddress: ${arguments.parseAddress} - onSuccessAction: ${arguments.onSuccessAction}');
+        '[QR] handleAddress - address: $input - parseAddress: ${arguments.parseAction} - onSuccessAction: ${arguments.onSuccessAction}');
 
     try {
-      // If we don't need to parse the address, just return the QR text
-      if (arguments.parseAddress == false) {
-        if (address == null || arguments.asset == null) {
+      if (arguments.parseAction == QrScannerParseAction.doNotParse) {
+        if (input == null || arguments.asset == null) {
           throw QrScannerInvalidQrParametersException();
         }
-        var args = SendAssetArguments.fromAsset(arguments.asset!)
-            .copyWith(input: address);
+
+        final args = SendAssetArguments.fromAsset(arguments.asset!)
+            .copyWith(input: input);
+
         if (context.mounted) {
           if (arguments.onSuccessAction == QrOnSuccessAction.pull) {
             return Navigator.of(context).pop(args);
@@ -68,21 +60,24 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
             ref.read(sendNavigationEntryProvider(args)).call(context);
           }
         }
-      }
-      // Else, parse the address per asset
-      else {
+      } else {
         final result = await ref
             .read(qrScannerProvider(arguments))
-            .parseQrAddressScan(address, asset: arguments.asset);
+            .parseQrAddressScan(input, asset: arguments.asset);
 
         result?.maybeWhen(
-            parsedAddress: (parsedAddress) {
+            lnurlWithdraw: (lnurlParseResult) {
+              Navigator.of(context).pushNamed(
+                LnurlWithdrawScreen.routeName,
+                arguments: lnurlParseResult.withdrawalParams,
+              );
+            },
+            send: (parsedAddress) {
               // If we are expecting a specific asset, throw an error if the scanned QR is a not compatible asset
               if (arguments.asset != null &&
                   parsedAddress.asset != null &&
                   arguments.asset!.isCompatibleWith(parsedAddress.asset!) ==
-                      false &&
-                  arguments.throwErrorOnAssetMismatch) {
+                      false) {
                 throw QrScannerIncompatibleAssetIdException();
               }
 
@@ -103,7 +98,6 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
             orElse: () => null);
       }
     } catch (e) {
-      // ignore: use_build_context_synchronously
       if (!context.mounted) {
         return;
       }
@@ -111,34 +105,72 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
       final exceptionLocalized = e is ExceptionLocalized
           ? e.toLocalizedString(context)
           : QrScannerInvalidQrParametersException().toLocalizedString(context);
-      _showExceptionDialog(context, exceptionLocalized);
+      _showExceptionDialog(context, exceptionLocalized, cameraController);
     }
   }
 
   @override
-  void initState() {
-    cameraController.start();
-    super.initState();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final MobileScannerController cameraController =
+        useMemoized(() => MobileScannerController(
+              detectionSpeed: DetectionSpeed.normal,
+              facing: CameraFacing.back,
+              torchEnabled: false,
+            ));
 
-  @override
-  void dispose() {
-    super.dispose();
-    if (cameraController.isStarting) {
-      cameraController.stop();
-    }
-    cameraController.dispose();
-  }
+    final ImagePicker imagePicker = useMemoized(() => ImagePicker());
 
-  @override
-  Widget build(BuildContext context) {
+    useEffect(() {
+      cameraController.start();
+
+      return () {
+        if (cameraController.isStarting) {
+          cameraController.stop();
+        }
+        cameraController.dispose();
+      };
+    }, []);
+
     final arguments =
         ModalRoute.of(context)?.settings.arguments as QrScannerScreenArguments;
 
     ref.listen(
       qrScannerShowPermissionAlertProvider(arguments),
       (_, __) {
-        _showPermissionErrorDialog(context);
+        final arguments = ModalRoute.of(context)?.settings.arguments;
+        showDialog<CustomAlertDialog>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return CustomAlertDialog(
+              title: context.loc.scanQrCodePermissionAlertTitle,
+              subtitle: context.loc.scanQrCodePermissionAlertSubtitle,
+              controlWidgets: [
+                Expanded(
+                  child: OutlinedButton(
+                    child:
+                        Text(context.loc.scanQrCodePermissionAlertCancelButton),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                Container(width: 12.w),
+                Expanded(
+                  child: ElevatedButton(
+                    child:
+                        Text(context.loc.scanQrCodePermissionAlertGrantButton),
+                    onPressed: () async {
+                      ref
+                          .read(qrScannerProvider(arguments))
+                          .popWithRequiresRestartResult();
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
       },
     );
 
@@ -164,11 +196,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                       topRight: Radius.circular(30.r),
                     ),
                     child: MobileScanner(
-                      key: _qrKey,
                       controller: cameraController,
                       onDetect: (barcode) async {
                         await handleAddress(
-                            arguments, barcode.barcodes.first.rawValue);
+                            arguments,
+                            barcode.barcodes.first.rawValue,
+                            cameraController,
+                            context,
+                            ref);
                       },
                     ),
                   ),
@@ -209,8 +244,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                                 ClipboardData? data = await Clipboard.getData(
                                     Clipboard.kTextPlain);
 
-                                if (data?.text != null) {
-                                  await handleAddress(arguments, data!.text);
+                                if (data?.text != null && context.mounted) {
+                                  await handleAddress(arguments, data!.text,
+                                      cameraController, context, ref);
                                 }
                               },
                             ),
@@ -230,7 +266,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                                   onPressed: () async {
                                     //NOTE: Setting `maxWidth` and `maxHeight` to `double.infinity` is a workaround for a bug on mobile_scanner on iOS when trying to analyze an image from image_picker that comes from the same device.
                                     //SEE: https: //github.com/juliansteenbakker/mobile_scanner/issues/164
-                                    final image = await _imagePicker.pickImage(
+                                    final image = await imagePicker.pickImage(
                                       source: ImageSource.gallery,
                                       maxWidth: double.infinity,
                                       maxHeight: double.infinity,
@@ -245,7 +281,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                                               QrScannerInvalidQrParametersException()
                                                   .toLocalizedString(context);
                                           _showExceptionDialog(
-                                              context, exceptionString);
+                                              context,
+                                              exceptionString,
+                                              cameraController);
                                         }
                                       }
                                     }
@@ -292,12 +330,12 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
     );
   }
 
-  void _showExceptionDialog(BuildContext context, String alertSubtitle) {
+  void _showExceptionDialog(BuildContext context, String alertSubtitle,
+      MobileScannerController cameraController) {
     showDialog<CustomAlertDialog>(
       context: context,
       barrierDismissible: false,
       builder: (context) => CustomAlertDialog(
-        onWillPop: () async => false,
         title: context.loc.scanQrCodeValidationAlertTitle,
         subtitle: alertSubtitle,
         controlWidgets: [
@@ -312,44 +350,6 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showPermissionErrorDialog(BuildContext context) {
-    final arguments = ModalRoute.of(context)?.settings.arguments;
-    showDialog<CustomAlertDialog>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return CustomAlertDialog(
-          onWillPop: () async {
-            return false;
-          },
-          title: context.loc.scanQrCodePermissionAlertTitle,
-          subtitle: context.loc.scanQrCodePermissionAlertSubtitle,
-          controlWidgets: [
-            Expanded(
-              child: OutlinedButton(
-                child: Text(context.loc.scanQrCodePermissionAlertCancelButton),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-            Container(width: 12.w),
-            Expanded(
-              child: ElevatedButton(
-                child: Text(context.loc.scanQrCodePermissionAlertGrantButton),
-                onPressed: () async {
-                  ref
-                      .read(qrScannerProvider(arguments))
-                      .popWithRequiresRestartResult();
-                },
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

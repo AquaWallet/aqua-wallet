@@ -7,13 +7,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final prefsProvider = ChangeNotifierProvider<UserPreferencesNotifier>((ref) {
   final prefs = ref.read(sharedPreferencesProvider);
-  return UserPreferencesNotifier(prefs);
+  final env = ref.read(envProvider);
+  return UserPreferencesNotifier(prefs, env);
 });
 
 class UserPreferencesNotifier extends ChangeNotifier {
-  UserPreferencesNotifier(this._prefs);
+  UserPreferencesNotifier(this._prefs, this._env);
 
   final SharedPreferences _prefs;
+  final Env _env;
 
   // wallet has at least one transaction (used for backup notifications)
   bool get hasTransacted => _prefs.getBool(PrefKeys.hasTransacted) ?? false;
@@ -21,6 +23,26 @@ class UserPreferencesNotifier extends ChangeNotifier {
     _prefs.setBool(PrefKeys.hasTransacted, hasTransacted);
     notifyListeners();
   }
+
+  /// -------------------------------------------------------------------------------------
+  /// Conversion currencies
+  /// -------------------------------------------------------------------------------------
+  List<String> get enabledConversionCurrencies =>
+      _prefs.getStringList(PrefKeys.enabledConversionCurrencies) ?? [];
+
+  Future<void> addConversionCurrency(String currencyCode) async {
+    _prefs.setStringList(PrefKeys.enabledConversionCurrencies,
+        [...enabledConversionCurrencies, currencyCode]);
+    notifyListeners();
+  }
+
+  Future<void> removeConversionCurrency(String currencyCode) async {
+    final enabled = enabledConversionCurrencies;
+    enabled.remove(currencyCode);
+    _prefs.setStringList(PrefKeys.enabledConversionCurrencies, enabled);
+    notifyListeners();
+  }
+  // --------------------------------------------------------------------------------------
 
   //ANCHOR - Dark Mode
 
@@ -145,27 +167,54 @@ class UserPreferencesNotifier extends ChangeNotifier {
   }
 
   //ANCHOR Enabled Assets
+  String get _userAssetsKey {
+    switch (_env) {
+      case Env.mainnet:
+        return PrefKeys.userAssets;
+      case Env.testnet:
+        return PrefKeys.userTestnetAssets;
+      case Env.regtest:
+        return PrefKeys.userRegtestAssets;
+      default:
+        return PrefKeys
+            .userAssets; // Fallback to mainnet if somehow an unknown env is passed
+    }
+  }
 
-  List<String> get userAssetIds =>
-      _prefs.getStringList(PrefKeys.userAssets) ?? [];
+  List<String> get userAssetIds => _prefs.getStringList(_userAssetsKey) ?? [];
 
   Future<void> addAllAssets(List<String> assetIds) async {
-    await _prefs.remove(PrefKeys.userAssets);
-    await _prefs.setStringList(PrefKeys.userAssets, assetIds);
+    await _prefs.remove(_userAssetsKey);
+    await _prefs.setStringList(_userAssetsKey, assetIds);
     notifyListeners();
   }
 
   Future<void> addAsset(String assetId) async {
     if (!userAssetIds.contains(assetId)) {
       final updated = [...userAssetIds, assetId];
-      _prefs.setStringList(PrefKeys.userAssets, updated);
+      await _prefs.setStringList(_userAssetsKey, updated);
       notifyListeners();
     }
   }
 
   Future<void> removeAsset(String assetId) async {
     final updated = userAssetIds.where((id) => id != assetId).toList();
-    _prefs.setStringList(PrefKeys.userAssets, updated);
+    await _prefs.setStringList(_userAssetsKey, updated);
+    notifyListeners();
+  }
+
+  Future<void> removeAllAssets() async {
+    await _prefs.remove(_userAssetsKey);
+    notifyListeners();
+  }
+
+  //ANCHOR - Direct Peg In
+
+  bool get isDirectPegInEnabled =>
+      _prefs.getBool(PrefKeys.directPegIn) ?? false;
+
+  Future<void> switchDirectPegIn() async {
+    _prefs.setBool(PrefKeys.directPegIn, !isDirectPegInEnabled);
     notifyListeners();
   }
 }

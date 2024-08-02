@@ -9,7 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class WalletRestoreScreen extends HookConsumerWidget {
   static const routeName = '/walletRestorePrompt';
 
-  const WalletRestoreScreen({Key? key}) : super(key: key);
+  const WalletRestoreScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,10 +20,10 @@ class WalletRestoreScreen extends HookConsumerWidget {
       return null;
     }, []);
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (_) async {
         ref.read(systemOverlayColorProvider(context)).aqua();
-        return true;
       },
       child: Scaffold(
         appBar: AquaAppBar(

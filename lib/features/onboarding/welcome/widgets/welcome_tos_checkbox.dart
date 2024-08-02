@@ -49,6 +49,7 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
             ],
           ),
           child: Checkbox(
+            key: const Key('welcome-tos-checkbox'),
             visualDensity: VisualDensity.compact,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             side: BorderSide(

@@ -8,27 +8,27 @@ const int kLiquidBlockTimeoutMillis = 90000;
 const int kInitialDelaySeconds = 5;
 const int kLiquidStatusCheckPeriodSeconds = 10;
 
-final assetStatusProvider = AsyncNotifierProvider.autoDispose<
-    AssetConnectivityStatusNotifier, AssetConnectivityState>(
-  AssetConnectivityStatusNotifier.new,
+final connectionStatusProvider = AsyncNotifierProvider.autoDispose<
+    ConnectionStatusNotifier, ConnectionStatus>(
+  ConnectionStatusNotifier.new,
 );
 
-class AssetConnectivityStatusNotifier
-    extends AutoDisposeAsyncNotifier<AssetConnectivityState> {
-  AssetConnectivityStatusNotifier();
+class ConnectionStatusNotifier
+    extends AutoDisposeAsyncNotifier<ConnectionStatus> {
+  ConnectionStatusNotifier();
 
   Timer? _checkLastLiquidBlockTimer;
   //just start assuming we are online
   int lastLiquidBlockTime = DateTime.now().millisecondsSinceEpoch;
 
   @override
-  FutureOr<AssetConnectivityState> build() async {
+  FutureOr<ConnectionStatus> build() async {
     Future.delayed(
       const Duration(seconds: kInitialDelaySeconds),
       startSync,
     );
 
-    return const AssetConnectivityState(
+    return const ConnectionStatus(
       isDeviceConnected: null,
       lastBitcoinBlock: null,
       lastLiquidBlock: null,

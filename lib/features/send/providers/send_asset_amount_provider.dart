@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
@@ -7,7 +8,7 @@ import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
 import 'package:aqua/data/provider/sideshift/sideshift_provider.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/boltz/boltz_provider.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
 import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/send/widgets/widgets.dart';
@@ -15,7 +16,6 @@ import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:decimal/decimal.dart';
-import 'package:aqua/common/decimal/decimal_ext.dart';
 
 /// ---------------------
 /// Amount
@@ -58,13 +58,13 @@ class UserEnteredAmountStateNotifier extends AutoDisposeNotifier<Decimal?> {
         throw AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
       }
 
-      // check insufficient funds for fee
-      final lbtcBalance = await ref.read(balanceProvider).getLBTCBalance();
-      if (asset.isLiquid && lbtcBalance == 0) {
-        ref.read(insufficientBalanceProvider.notifier).state =
-            InsufficientFundsType.fee;
-        throw AmountParsingException(
-            AmountParsingExceptionType.notEnoughFundsForFee);
+      // check below dust
+      if ((amountWithPrecision != 0) && (amountWithPrecision < minSendAmount)) {
+        ref.read(sendAmountErrorProvider.notifier).state =
+            AmountParsingException(AmountParsingExceptionType.belowMin);
+        logger.d(
+            '[Send][Amount] validate amount - amount $amountWithPrecision is below min $minSendAmount');
+        throw AmountParsingException(AmountParsingExceptionType.belowMin);
       }
 
       // check min/max
@@ -164,6 +164,8 @@ class UseAllFundsStateNotifier extends AutoDisposeNotifier<bool> {
       ref
           .read(userEnteredAmountProvider.notifier)
           .updateAmount(amountWithoutPrecision);
+
+      ref.read(insufficientBalanceProvider.notifier).state = null;
     }
     state = useAllFunds;
   }
@@ -198,7 +200,7 @@ final enteredAmountWithPrecisionProvider =
 /// UI display of fiat conversion amount
 final amountConvertedToFiatWithSymbolDisplay =
     FutureProvider.autoDispose<String?>((ref) async {
-  final isFiatInput = ref.read(isFiatInputProvider);
+  final isFiatInput = ref.watch(isFiatInputProvider);
   if (isFiatInput) {
     return null;
   }
@@ -261,9 +263,9 @@ final amountWithFeesToDisplayProvider =
 
   // add service fees
   if (asset.isSideshift) {
-    final sideshiftFee = ref.watch(sideshiftServiceFeeProvider(asset));
-    serviceFee = Decimal.parse(sideshiftFee.toStringAsFixed(2));
-    fee = DecimalExt.fromDouble(0.01); // hardcoded liquid fee for now
+    final totalFee = ref.watch(totalFeeToDisplayProvider(asset)) ?? "0";
+    final totalFeeDecimal = DecimalExt.fromDouble(double.parse(totalFee));
+    return (userEnteredAmount + totalFeeDecimal).toStringAsFixed(2);
   } else if (asset.isLightning) {
     final boltzFee = ref.watch(boltzServiceFeeProvider(asset));
     serviceFee = Decimal.fromInt(boltzFee);

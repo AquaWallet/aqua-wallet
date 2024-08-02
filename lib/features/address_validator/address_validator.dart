@@ -1,14 +1,12 @@
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/common/data_conversion/bip21_encoder.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/elements.dart';
 import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
-import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
+import 'package:aqua/features/lightning/lightning.dart';
+import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
-import 'package:aqua/features/lightning/lnurl/dart_lnurl.dart';
-import 'package:aqua/common/data_conversion/bip21_encoder.dart';
-import 'package:aqua/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
 
 import 'models/address_validator_models.dart';
@@ -125,7 +123,7 @@ class AddressParser {
     try {
       // unified bip21 (lightning first)
       final parsedBip21 =
-          await _parseBIP21(input, asset, accountForCompatibleAssets);
+          await parseBIP21(input, asset, accountForCompatibleAssets);
       if (parsedBip21 != null) {
         return parsedBip21;
       }
@@ -209,9 +207,18 @@ class AddressParser {
   /// Parse LNURL
   Future<ParsedAddress?> _parseLNURL(String input) async {
     try {
-      final decoded = decodeUri(input);
+      final decoded = decodeLnurlUri(input);
+      logger.d("[LNURL] lnurl decoded: $decoded");
       final result = await getParamsFromLnurlServer(decoded);
-      logger.d("[LNURL] lnurl decoded: $decoded - result: $result");
+      final lnurlWithdrawEnabled =
+          ref.read(featureFlagsProvider.select((p) => p.lnurlWithdrawEnabled));
+
+      // lnurlWithdrawFeatureFlag check
+      if (result.withdrawalParams != null && !lnurlWithdrawEnabled) {
+        throw AddressParsingException(AddressParsingExceptionType.generic,
+            customMessage: "LNURL Withdraw not yet supported");
+      }
+
       if (result.error != null) {
         throw AddressParsingException(AddressParsingExceptionType.generic,
             customMessage: result.error!.reason);
@@ -302,7 +309,7 @@ class AddressParser {
   }
 
   /// Parse Bip21
-  Future<ParsedAddress?> _parseBIP21(
+  Future<ParsedAddress?> parseBIP21(
       String input, Asset asset, bool accountForCompatibleAssets) async {
     try {
       final decoder = Bip21Decoder(input);
@@ -375,11 +382,11 @@ class AddressParser {
 
         // fetch the bip21 from boltz using ln invoice for address and sig
         final reverseSwapBip21 =
-            await ref.read(boltzProvider).fetchReverseSwapBip21(invoice);
+            await ref.read(legacyBoltzProvider).fetchReverseSwapBip21(invoice);
         final signature = reverseSwapBip21.signature;
         final bip21 = reverseSwapBip21.bip21;
         final lbtcAsset = ref.read(manageAssetsProvider).lbtcAsset;
-        final parseBip21 = await _parseBIP21(bip21, lbtcAsset, false);
+        final parseBip21 = await parseBIP21(bip21, lbtcAsset, false);
         if (parseBip21 == null || parseBip21.amount == null) {
           return null;
         }
@@ -395,9 +402,7 @@ class AddressParser {
         logger.d(
             "[Boltz] routing hint - invoice amount: ${bolt11.amount} - bip21 amount: ${parseBip21.amount}");
 
-        // The amount boltz put in the bip21 is the invoice minus fees, to mimic a swap.
-        // However, we want to send the full invoice amount, so replace here.
-        return parseBip21.copyWith(amount: bolt11.amount);
+        return parseBip21;
       }
       return null;
     } on AddressParsingException catch (e) {

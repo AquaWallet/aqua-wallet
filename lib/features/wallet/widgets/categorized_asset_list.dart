@@ -2,7 +2,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 
 class CategorizedAssetList extends HookConsumerWidget {
-  const CategorizedAssetList({Key? key}) : super(key: key);
+  const CategorizedAssetList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

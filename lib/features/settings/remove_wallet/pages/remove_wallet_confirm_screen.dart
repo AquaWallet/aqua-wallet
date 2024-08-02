@@ -10,7 +10,7 @@ import 'package:restart_app/restart_app.dart';
 class RemoveWalletConfirmScreen extends HookConsumerWidget {
   static const routeName = '/removeWalletConfirmScreen';
 
-  const RemoveWalletConfirmScreen({Key? key}) : super(key: key);
+  const RemoveWalletConfirmScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

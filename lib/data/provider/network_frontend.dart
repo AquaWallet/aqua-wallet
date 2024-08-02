@@ -1,12 +1,14 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/data/backend/gdk_backend_event.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:aqua/wallet.dart';
 import 'package:async/async.dart';
-import 'package:isolator/isolator.dart';
 import 'package:rxdart/rxdart.dart';
 
 class InitializeNetworkFrontendException implements Exception {}
@@ -18,11 +20,15 @@ enum NetworkType {
 
 typedef OnEventCallback = Future<void> Function(dynamic)?;
 
-abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
+abstract class NetworkFrontend {
   NetworkFrontend({
     required this.ref,
+    required this.session,
   }) {
     addEventListener(listener: _onGdkEvent);
+    Timer.periodic(const Duration(minutes: 1), (timer) {
+      session.libGdk.freeOldAuthHandler();
+    });
   }
 
   int defaultFees = 0;
@@ -75,6 +81,9 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
       case '_\$_GdkBlockEvent':
         // refresh balances
         await getBalance(requiresRefresh: true);
+        break;
+      case '_\$_GdkSettingsEvent':
+        // do nothing for now
         break;
       case '_\$_GdkTransactionEvent':
         // refresh balances & transactions
@@ -149,7 +158,6 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
     }
   }
 
-  @override
   Future<void> onError(dynamic error) async {
     logger.e(error);
   }
@@ -172,11 +180,13 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
           switch (error) {
             case 'id_invalid_address':
               throw GdkNetworkInvalidAddress(error);
+            case 'id_fee_rate_is_below_minimum':
+              throw GdkNetworkFeeBelowMinimum(error);
             case 'id_invalid_amount':
               throw GdkNetworkInvalidAmount(error);
             case 'id_insufficient_funds':
               throw GdkNetworkInsufficientFunds(error);
-            case 'invalid subaccount 1':
+            case 'invalid subaccount 1' || 'Unknown subaccount':
               return true;
             default:
               final errorMessage = '${value?.action}: $error';
@@ -194,22 +204,11 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
     return false;
   }
 
-  @override
-  Map<GdkBackendEvent, Function> get tasks => {
-        GdkBackendEvent.onFeeEstimates: _onFeeEstimates,
-        GdkBackendEvent.onBlockHeight: _onBlockHeight,
-        GdkBackendEvent.onSettings: _onSettings,
-        GdkBackendEvent.onTransaction: _onTransaction,
-        GdkBackendEvent.onSession: _onSession,
-        GdkBackendEvent.onNetwork: _onNetwork,
-      };
-
   Future<bool> connect({GdkConnectionParams? params}) async {
     networkName = params!.name!;
 
     logger.d('[$runtimeType] Connecting to $networkName');
-    final result = await runBackendMethod<GdkConnectionParams, bool>(
-        GdkBackendEvent.connect, params);
+    final result = await session.connect(connectionParams: params);
 
     isConnected = result;
 
@@ -222,8 +221,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
     }
 
     logger.d('[$runtimeType] Disconnecting $networkName');
-    final result =
-        await runBackendMethod<Object, bool>(GdkBackendEvent.disconnect);
+    final result = await session.disconnect();
 
     if (result) {
       isConnected = false;
@@ -238,8 +236,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   Future<String?> loginUser({required GdkLoginCredentials credentials}) async {
     logger.d('[$runtimeType] Login to $networkName');
     internalMnemonic = credentials.mnemonic;
-    final result = await runBackendMethod<GdkLoginCredentials,
-        Result<GdkAuthHandlerStatus>>(GdkBackendEvent.loginUser, credentials);
+    final result = await session.loginUser(credentials: credentials);
 
     if (_isErrorResult(result)) {
       return null;
@@ -253,8 +250,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   }
 
   Future<GdkUnspentOutputsReply?> getUnspentOutputs() async {
-    final result = await runBackendMethod<int, Result<GdkAuthHandlerStatus>>(
-        GdkBackendEvent.getUnspentOutputs);
+    final result = await session.getUnspentOutputs();
 
     if (_isErrorResult(result)) {
       return null;
@@ -284,8 +280,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   }
 
   Future<List<GdkTransaction>?> _getTransactions({int first = 0}) async {
-    final result = await runBackendMethod<int, Result<GdkAuthHandlerStatus>>(
-        GdkBackendEvent.getTransactions, first);
+    final result = await session.getTransactions(first: first);
 
     if (_isErrorResult(result)) {
       return null;
@@ -341,9 +336,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
     GdkGetAssetsParameters params =
         GdkGetAssetsParameters(assetsId: userAssetIds);
 
-    final result = await runBackendMethod<GdkGetAssetsParameters,
-            Result<Map<String, GdkAssetInformation>?>>(
-        GdkBackendEvent.getAssets, params);
+    final result = await session.getAssets(params: params);
     if (result.asValue != null && result.asValue?.value != null) {
       allRawAssets = result.asValue!.value;
       return allRawAssets;
@@ -357,23 +350,20 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   Future<Result<void>> refreshAssets({bool requiresRefresh = false}) async {
     if (requiresRefresh || allRawAssets == null || allRawAssets!.isEmpty) {
       GdkAssetsParameters params = const GdkAssetsParameters();
-      await runBackendMethod<GdkAssetsParameters, ValueResult<void>>(
-          GdkBackendEvent.refreshAssets, params);
+      await session.refreshAssets(params: params);
       return Result<void>.value(null);
     }
     return Result<void>.value(null);
   }
 
   Future<List<String>?> generateMnemonic12() async {
-    final result = await runBackendMethod<Object, Result<List<String>?>>(
-        GdkBackendEvent.generateMnemonic12);
+    final result = await session.generateMnemonic12();
 
     return result.asValue!.value;
   }
 
   Future<bool> validateMnemonic(List<String> mnemonic) async {
-    final result = await runBackendMethod<List<String>, bool>(
-        GdkBackendEvent.validateMnemonic, mnemonic);
+    final result = await session.validateMnemonic(mnemonic);
 
     return result;
   }
@@ -395,9 +385,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   Future<Map<String, dynamic>?> _getBalance({
     GdkGetBalance details = const GdkGetBalance(),
   }) async {
-    final result =
-        await runBackendMethod<GdkGetBalance, Result<GdkAuthHandlerStatus>>(
-            GdkBackendEvent.getBalance, details);
+    final result = await session.getBalance(details: details);
 
     if (_isErrorResult(result)) {
       return null;
@@ -410,17 +398,14 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   }
 
   Future<GdkNetwork?> getNetwork() async {
-    final result = await runBackendMethod<Object, Result<GdkNetworks?>>(
-      GdkBackendEvent.getNetworks,
-    );
+    final result = await session.getNetworks();
 
     final network = result.asValue?.value?.networks?[networkName];
     return network;
   }
 
   Future<GdkWallet?> getSubaccount(int subaccount) async {
-    final result = await runBackendMethod<int, Result<GdkAuthHandlerStatus>>(
-        GdkBackendEvent.getSubaccount, subaccount);
+    final result = await session.getSubaccount(subaccount: subaccount);
 
     if (_isErrorResult(result)) {
       return null;
@@ -434,9 +419,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
         type: GdkSubaccountTypeEnum.type_p2wpkh,
         name: "aqua-wallet-subaccount");
 
-    final result =
-        await runBackendMethod<GdkSubaccount, Result<GdkAuthHandlerStatus>>(
-            GdkBackendEvent.createSubaccount, subaccount);
+    final result = await session.createSubaccount(details: subaccount);
 
     if (_isErrorResult(result)) {
       return null;
@@ -448,9 +431,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   Future<GdkReceiveAddressDetails?> getReceiveAddress({
     GdkReceiveAddressDetails details = const GdkReceiveAddressDetails(),
   }) async {
-    final result = await runBackendMethod<GdkReceiveAddressDetails,
-            Result<GdkAuthHandlerStatus>>(
-        GdkBackendEvent.getReceiveAddress, details);
+    final result = await session.getReceiveAddress(details: details);
 
     if (_isErrorResult(result)) {
       return null;
@@ -463,9 +444,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   Future<(List<GdkPreviousAddress>, int?)?> getPreviousAddresses({
     GdkPreviousAddressesDetails details = const GdkPreviousAddressesDetails(),
   }) async {
-    final result = await runBackendMethod<GdkPreviousAddressesDetails,
-            Result<GdkAuthHandlerStatus>>(
-        GdkBackendEvent.getPreviousAddresses, details);
+    final result = await session.getPreviousAddresses(details: details);
 
     final list = result.asValue?.value.result?.list;
     final lastPointer = result.asValue?.value.result?.lastPointer;
@@ -506,62 +485,61 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
         usedOutputAddress.contains(addr.unblindedAddress ?? addr.address)).toList();
   }
 
+  Future<GdkSettingsEvent> getSettings() async {
+    final result = await session.getSettings();
+
+    return result.asValue!.value!;
+  }
+
   Future<int> getDefaultFees() async {
-    final result =
-        await runBackendMethod<Object, Result<GdkGetFeeEstimatesEvent?>>(
-            GdkBackendEvent.getFeeEstimates);
+    final result = await session.getFeeEstimates();
 
     return result.asValue?.value?.fees?.last ?? await minFeeRate();
   }
 
   Future<int> getFastFees() async {
-    final result =
-        await runBackendMethod<Object, Result<GdkGetFeeEstimatesEvent?>>(
-            GdkBackendEvent.getFeeEstimates);
+    final result = await session.getFeeEstimates();
 
     return result.asValue?.value?.fees?[1] ?? await minFeeRate();
   }
 
   Future<bool> isValidAddress(String address) async {
-    final result = await runBackendMethod<Object, Result<bool>>(
-      GdkBackendEvent.isValidAddress,
-      address,
-    );
+    final result = await session.isValidAddress(address: address);
 
     return result.asValue!.value;
   }
 
-  Future<void> _onFeeEstimates(GdkGetFeeEstimatesEvent value) async {
+  Future<void> onFeeEstimates(GdkGetFeeEstimatesEvent value) async {
     defaultFees = value.fees?.last ?? await minFeeRate();
 
     await notifyEventListeners(value);
   }
 
-  Future<void> _onBlockHeight(GdkBlockEvent value) async {
+  Future<void> onBlockHeight(GdkBlockEvent value) async {
     await notifyEventListeners(value);
 
     blockHeightEventSubject.add(value.blockHeight ?? 0);
   }
 
-  Future<void> _onSettings(GdkSettingsEvent value) async {
+  Future<void> onSettings(GdkSettingsEvent value) async {
     settings = value;
 
     await notifyEventListeners(value);
   }
 
-  Future<void> _onTransaction(GdkTransactionEvent value) async {
+  Future<void> onTransaction(GdkTransactionEvent value) async {
     await notifyEventListeners(value);
 
     transactionEventSubject.add(value);
   }
 
-  Future<void> _onSession(GdkSessionEvent value) async {
+  Future<void> onSession(GdkSessionEvent value) async {
     isConnected = value.connected ?? false;
 
     await notifyEventListeners(value);
   }
 
-  Future<void> _onNetwork(GdkNetworkEvent value) async {
+  Future<void> onNetwork(GdkNetworkEvent value) async {
     isConnected = value.currentState == GdkNetworkEventStateEnum.connected;
 
     if (!isConnected) {
@@ -574,10 +552,11 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   }
 
   Future<GdkNewTransactionReply?> createTransaction(
-      GdkNewTransaction transaction) async {
-    final result =
-        await runBackendMethod<GdkNewTransaction, Result<GdkAuthHandlerStatus>>(
-            GdkBackendEvent.createTransaction, transaction);
+      {required GdkNewTransaction transaction,
+      bool rbfEnabled = true,
+      bool isRbfTx = false}) async {
+    final result = await session.createTransaction(
+        transaction: transaction, rbfEnabled: rbfEnabled, isRbfTx: isRbfTx);
 
     if (_isErrorResult(result)) {
       return null;
@@ -588,14 +567,36 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
     return result.asValue?.value.result?.createTransaction;
   }
 
+  Future<GdkSettingsEvent?> changeSettings(GdkSettingsEvent settings) async {
+    final result = await session.changeSettings(settings: settings);
+
+    if (_isErrorResult(result)) {
+      return null;
+    }
+
+    logger.d(result.asValue!.value);
+
+    return result.asValue?.value.result?.changeSettings;
+  }
+
+  Future<GdkNewTransactionReply?> blindTransaction(
+    GdkNewTransactionReply transactionReply,
+  ) async {
+    final result =
+        await session.blindTransaction(transactionReply: transactionReply);
+
+    if (_isErrorResult(result)) {
+      return null;
+    }
+
+    return result.asValue?.value.result?.blindTransaction;
+  }
+
   Future<GdkNewTransactionReply?> signTransaction(
     GdkNewTransactionReply transactionReply,
   ) async {
-    final result = await runBackendMethod<GdkNewTransactionReply,
-        Result<GdkAuthHandlerStatus>>(
-      GdkBackendEvent.signTransaction,
-      transactionReply,
-    );
+    final result =
+        await session.signTransaction(transactionReply: transactionReply);
 
     if (_isErrorResult(result)) {
       return null;
@@ -606,9 +607,8 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
 
   Future<GdkNewTransactionReply?> sendTransaction(
       GdkNewTransactionReply transactionReply) async {
-    final result = await runBackendMethod<GdkNewTransactionReply,
-            Result<GdkAuthHandlerStatus>>(
-        GdkBackendEvent.sendTransaction, transactionReply);
+    final result =
+        await session.sendTransaction(transactionReply: transactionReply);
 
     if (_isErrorResult(result)) {
       return null;
@@ -617,36 +617,8 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
     return result.asValue?.value.result?.sendRawTx;
   }
 
-  Future<GdkCreatePsetDetailsReply?> createPset(
-      GdkCreatePsetDetails details) async {
-    final result = await runBackendMethod<GdkCreatePsetDetails,
-        Result<GdkAuthHandlerStatus>>(GdkBackendEvent.createPset, details);
-
-    if (_isErrorResult(result)) {
-      return null;
-    }
-
-    logger.d(result.asValue!.value);
-
-    return result.asValue?.value.result?.createPset;
-  }
-
-  Future<GdkSignPsetDetailsReply?> signPset(GdkSignPsetDetails details) async {
-    final result = await runBackendMethod<GdkSignPsetDetails,
-        Result<GdkAuthHandlerStatus>>(GdkBackendEvent.signPset, details);
-
-    if (_isErrorResult(result)) {
-      return null;
-    }
-
-    logger.d(result.asValue!.value);
-
-    return result.asValue?.value.result?.signPset;
-  }
-
-  Future<GdkSignPsbtResult?> signPsbt(GdkSignPsbtDetails details) async {
-    final result = await runBackendMethod<GdkSignPsbtDetails,
-        Result<GdkAuthHandlerStatus>>(GdkBackendEvent.signPsbt, details);
+  Future<GdkNewTransactionReply?> signPsbt(GdkSignPsbtDetails details) async {
+    final result = await session.signPsbt(details: details);
 
     if (_isErrorResult(result)) {
       return null;
@@ -657,10 +629,21 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
     return result.asValue?.value.result?.signPsbt;
   }
 
+  Future<GdkNewTransactionReply?> getDetailsPsbt(
+      GdkPsbtGetDetails details) async {
+    final result = await session.getDetailsPsbt(details: details);
+
+    if (_isErrorResult(result)) {
+      return null;
+    }
+
+    logger.d(result.asValue!.value);
+
+    return result.asValue?.value.result?.getDetailsPsbt;
+  }
+
   Future<GdkAmountData?> convertAmount(GdkConvertData valueDetails) async {
-    final result =
-        await runBackendMethod<GdkConvertData, Result<GdkAmountData?>>(
-            GdkBackendEvent.convertAmount, valueDetails);
+    final result = await session.convertAmount(valueDetails: valueDetails);
 
     if (_isErrorResult(result)) {
       return null;
@@ -670,8 +653,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   }
 
   Future<bool> registerNetwork(GdkRegisterNetworkData networkData) async {
-    final result = await runBackendMethod<GdkRegisterNetworkData, Result<bool>>(
-        GdkBackendEvent.registerNetwork, networkData);
+    final result = await session.registerNetwork(networkData: networkData);
 
     if (_isErrorResult(result)) {
       return false;
@@ -681,9 +663,7 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   }
 
   Future<void> setTransactionMemo(String txhash, String memo) async {
-    final tuple = (txhash, memo);
-    final result = await runBackendMethod<(String, String), Result<void>>(
-        GdkBackendEvent.setTransactionMemo, tuple);
+    final result = await session.setTransactionMemo(txhash, memo);
     if (result.isError) {
       throw GdkNetworkUnhandledException(result.asError ?? Object());
     }
@@ -693,14 +673,76 @@ abstract class NetworkFrontend with Frontend<GdkBackendEvent> {
   Future<int> minFeeRate();
 
   Future<GdkCurrencyData?> getAvailableCurrencies() async {
-    final result = await runBackendMethod<Object, Result<GdkCurrencyData?>>(
-        GdkBackendEvent.getAvailableCurrencies);
+    final result = await session.getAvailableCurrencies();
 
     if (_isErrorResult(result)) {
       return null;
     }
 
     return result.asValue?.value;
+  }
+
+  final WalletService session;
+
+  Future<bool> init() async {
+    return session.init(callback: onNotificationEvent);
+  }
+
+  Future<void> onNotificationEvent(dynamic value) async {
+    if (value is String) {
+      try {
+        final jsonMap = jsonDecode(value) as Map<String, dynamic>;
+
+        if (jsonMap.containsKey('event')) {
+          switch (jsonMap['event']) {
+            case 'fees':
+              final result = GdkGetFeeEstimatesEvent.fromJson(jsonMap);
+              logger.d("${session.networkName} fees event: $result");
+
+              onFeeEstimates(result);
+              break;
+            case 'block':
+              final result = GdkBlockEvent.fromJson(
+                  jsonMap['block'] as Map<String, dynamic>);
+              logger.d("${session.networkName} block event: $result");
+
+              onBlockHeight(result);
+              break;
+            case 'settings':
+              final result = GdkSettingsEvent.fromJson(
+                  jsonMap['settings'] as Map<String, dynamic>);
+              logger.d("${session.networkName} settings event: $result");
+
+              onSettings(result);
+              break;
+            case 'transaction':
+              final result = GdkTransactionEvent.fromJson(
+                  jsonMap['transaction'] as Map<String, dynamic>);
+              logger.d("${session.networkName} transaction event: $result");
+
+              onTransaction(result);
+              break;
+            case 'session':
+              final result = GdkSessionEvent.fromJson(
+                  jsonMap['session'] as Map<String, dynamic>);
+              logger.d("${session.networkName} session event: $result");
+              onSession(result);
+              break;
+            case 'network':
+              final result = GdkNetworkEvent.fromJson(
+                  jsonMap['network'] as Map<String, dynamic>);
+              logger.d("${session.networkName} network event: $result");
+              onNetwork(result);
+              break;
+
+            default:
+              logger.w('${session.networkName} unhandled event: $jsonMap');
+          }
+        }
+      } catch (err) {
+        logger.e(err);
+      }
+    }
   }
 }
 
@@ -718,11 +760,11 @@ class GdkNetworkException implements Exception, ExceptionLocalized {
 }
 
 class GdkNetworkUnhandledException extends GdkNetworkException {
-  GdkNetworkUnhandledException(Object error) : super(error);
+  GdkNetworkUnhandledException(super.error);
 }
 
 class GdkNetworkInvalidAddress extends GdkNetworkException {
-  GdkNetworkInvalidAddress(Object error) : super(error);
+  GdkNetworkInvalidAddress(super.error);
 
   @override
   String toLocalizedString(BuildContext context) {
@@ -730,8 +772,17 @@ class GdkNetworkInvalidAddress extends GdkNetworkException {
   }
 }
 
+class GdkNetworkFeeBelowMinimum extends GdkNetworkException {
+  GdkNetworkFeeBelowMinimum(super.error);
+
+  @override
+  String toLocalizedString(BuildContext context) {
+    return context.loc.gdkNetworkFeeBelowMinimum;
+  }
+}
+
 class GdkNetworkInvalidAmount extends GdkNetworkException {
-  GdkNetworkInvalidAmount(Object error) : super(error);
+  GdkNetworkInvalidAmount(super.error);
 
   @override
   String toLocalizedString(BuildContext context) {
@@ -740,7 +791,7 @@ class GdkNetworkInvalidAmount extends GdkNetworkException {
 }
 
 class GdkNetworkInsufficientFunds extends GdkNetworkException {
-  GdkNetworkInsufficientFunds(Object error) : super(error);
+  GdkNetworkInsufficientFunds(super.error);
 
   @override
   String toLocalizedString(BuildContext context) {
@@ -749,7 +800,7 @@ class GdkNetworkInsufficientFunds extends GdkNetworkException {
 }
 
 class GdkNonExistentAccount extends GdkNetworkException {
-  GdkNonExistentAccount(Object error) : super(error);
+  GdkNonExistentAccount(super.error);
 
   @override
   String toLocalizedString(BuildContext context) {

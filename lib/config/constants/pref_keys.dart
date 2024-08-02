@@ -8,5 +8,19 @@ class PrefKeys {
   static const exchangeRate = 'exchange_rate';
   static const blockExplorer = 'block_explorer';
   static const userAssets = 'user_assets';
+  static const userRegtestAssets = 'user_regtest_assets';
+  static const userTestnetAssets = 'user_testnet_assets';
   static const hiddenLanguages = 'hidden_languages';
+  static const enabledConversionCurrencies = 'enabled_conversion_currencies';
+  static const directPegIn = 'direct_peg_in';
+  // Experimental Feature Flags
+  static const multipleOnramps = 'multiple_onramps';
+  static const addNoteEnabled = 'add_note_enabled';
+  static const statusIndicator = 'status_indicator';
+  static const lnurlWithdrawEnabled = 'lnurl_withdraw_enabled';
+  static const forceBoltzFailedNormalSwapEnabled =
+      'force_boltz_failed_normal_swap_enabled';
+  static const fakeBroadcastsEnabled = 'fake_broadcasts_enabled';
+  static const throwAquaBroadcastErrorEnabled =
+      'throw_aqua_broadcast_error_enabled';
 }

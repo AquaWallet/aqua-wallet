@@ -1,6 +1,7 @@
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 
 class AmountParsingException implements ExceptionLocalized {
   final AmountParsingExceptionType type;
@@ -14,6 +15,9 @@ class AmountParsingException implements ExceptionLocalized {
     switch (type) {
       case AmountParsingExceptionType.emptyAmount:
         return context.loc.sendAssetAmountScreenEmptyAmountError;
+      case AmountParsingExceptionType.belowMin:
+        return context.loc
+            .sendAssetAmountScreenMinAmountError(minSendAmount.toString());
       case AmountParsingExceptionType.notEnoughFunds:
         return context.loc.sendAssetAmountScreenNotEnoughFundsError;
       case AmountParsingExceptionType.notEnoughFundsForFee:
@@ -32,6 +36,7 @@ class AmountParsingException implements ExceptionLocalized {
 
 enum AmountParsingExceptionType {
   emptyAmount,
+  belowMin,
   notEnoughFunds,
   notEnoughFundsForFee,
   belowSendMin,

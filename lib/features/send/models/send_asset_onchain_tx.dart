@@ -9,16 +9,30 @@ class SendAssetOnchainTx with _$SendAssetOnchainTx {
   const factory SendAssetOnchainTx.gdkTx(GdkNewTransactionReply gdkTx) = _GdkTx;
 
   /// `gdkPsbt` is used for taxi sends, where we need to send a psbt to the rust-elements library
-  const factory SendAssetOnchainTx.gdkPsbt(GdkSignPsbtResult gdkPsbt) =
-      _GdkPsbt;
+  const factory SendAssetOnchainTx.gdkPsbt(String pset) = _GdkPsbt;
 }
 
 extension SendAssetOnchainTxExtension on SendAssetOnchainTx {
+  GdkNewTransactionReply? get txReply {
+    return maybeMap(
+      gdkTx: (tx) => tx.gdkTx,
+      orElse: () => null,
+    );
+  }
+
   /// Unwrap and return the tx hex
   String? get transactionHex {
     return maybeMap(
       gdkTx: (tx) => tx.gdkTx.transaction,
-      gdkPsbt: (tx) => tx.gdkPsbt.psbt,
+      gdkPsbt: (tx) => tx.pset,
+      orElse: () => null,
+    );
+  }
+
+  String? get signedTransaction {
+    return maybeMap(
+      gdkTx: (tx) => tx.gdkTx.transaction,
+      gdkPsbt: (tx) => tx.pset,
       orElse: () => null,
     );
   }

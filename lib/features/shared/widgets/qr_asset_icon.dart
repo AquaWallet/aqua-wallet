@@ -4,8 +4,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class QrAssetIcon extends ConsumerWidget {
   const QrAssetIcon(
-      {Key? key, this.size, required this.assetLogoUrl, required this.assetId})
-      : super(key: key);
+      {super.key,
+      this.size,
+      required this.assetLogoUrl,
+      required this.assetId});
 
   final double? size;
   final String assetId;
@@ -18,7 +20,7 @@ class QrAssetIcon extends ConsumerWidget {
     // local hardcoded cases
     switch (assetId) {
       case 'Layer2Bitcoin':
-        localAsset = Svgs.l2Asset;
+        localAsset = Svgs.layerTwoDual;
         break;
       case 'btc':
         localAsset = Svgs.qrIconBitcoin;

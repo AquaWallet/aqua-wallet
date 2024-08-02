@@ -65,12 +65,11 @@ class QrScannerProvider {
         throw QrScannerInvalidQrParametersException();
       }
 
-      final result =
-          QrScannerPopResult.parsedAddress(parsedAddress: parsedInput);
-
+      final result = QrScannerPopResult.send(parsedAddress: parsedInput);
       logger.d('[QR] scanner result: $result');
       return result;
     }
+
     // asset is null - validate address for all valid assets
     else {
       // swap app link
@@ -103,6 +102,13 @@ class QrScannerProvider {
         throw QrScannerInvalidQrParametersException();
       }
 
+      // lnurl withdraw
+      if (parsedInput.lnurlParseResult?.withdrawalParams != null) {
+        return QrScannerPopLnurlWithdrawResult(
+          lnurlParseResult: parsedInput.lnurlParseResult!,
+        );
+      }
+
       // if qr code assetId is not in user assets, throw exception
       final assets = ref.read(assetsProvider).asData?.value ?? [];
       if (asset.isLiquid) {
@@ -114,8 +120,7 @@ class QrScannerProvider {
         }
       }
 
-      final result =
-          QrScannerPopResult.parsedAddress(parsedAddress: parsedInput);
+      final result = QrScannerPopResult.send(parsedAddress: parsedInput);
 
       logger.d('[QR] scanner result: $result');
       return result;

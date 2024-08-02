@@ -1,4 +1,5 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -6,8 +7,6 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
-const kUsdtDisplayPrecision = 2;
 
 class AssetListItem extends HookConsumerWidget {
   const AssetListItem({
@@ -24,6 +23,7 @@ class AssetListItem extends HookConsumerWidget {
           amount: asset.amount,
           precision: asset.precision,
           roundingOverride: asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+          removeTrailingZeros: !asset.isAnyUsdt,
         );
     final usdAmount = ref.watch(conversionProvider((asset, asset.amount)));
     final subtitleTextStyle =

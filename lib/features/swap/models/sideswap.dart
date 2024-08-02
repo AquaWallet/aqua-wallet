@@ -12,6 +12,7 @@ const assets = 'assets';
 const subscribePriceStream = 'subscribe_price_stream';
 const startSwapWeb = 'start_swap_web';
 const startPeg = 'peg';
+const pegStatus = 'peg_status';
 const swapDone = 'swap_done';
 
 const notificationUpdatePriceStream = 'update_price_stream';
@@ -185,12 +186,12 @@ class SwapStartWebResponse with _$SwapStartWebResponse {
 @freezed
 class SwapStartWebResult with _$SwapStartWebResult {
   const factory SwapStartWebResult({
-    @JsonKey(name: 'order_id') String? orderId,
-    @JsonKey(name: 'send_asset') String? sendAsset,
-    @JsonKey(name: 'send_amount') int? sendAmount,
-    @JsonKey(name: 'recv_asset') String? recvAsset,
-    @JsonKey(name: 'recv_amount') int? recvAmount,
-    @JsonKey(name: 'upload_url') String? uploadUrl,
+    @JsonKey(name: 'order_id') required String orderId,
+    @JsonKey(name: 'send_asset') required String sendAsset,
+    @JsonKey(name: 'send_amount') required int sendAmount,
+    @JsonKey(name: 'recv_asset') required String recvAsset,
+    @JsonKey(name: 'recv_amount') required int recvAmount,
+    @JsonKey(name: 'upload_url') required String uploadUrl,
   }) = _SwapStartWebResult;
 
   factory SwapStartWebResult.fromJson(Map<String, dynamic> json) =>
@@ -218,14 +219,14 @@ class HttpStartWebRequest with _$HttpStartWebRequest {
 @freezed
 class HttpStartWebParams with _$HttpStartWebParams {
   const factory HttpStartWebParams({
-    @JsonKey(name: 'order_id') String? orderId,
-    List<GdkCreatePsetInputs>? inputs,
-    @JsonKey(name: 'recv_addr') String? recvAddr,
-    @JsonKey(name: 'change_addr') String? changeAddr,
-    @JsonKey(name: 'send_asset') String? sendAsset,
-    @JsonKey(name: 'send_amount') int? sendAmount,
-    @JsonKey(name: 'recv_asset') String? recvAsset,
-    @JsonKey(name: 'recv_amount') int? recvAmount,
+    @JsonKey(name: 'order_id') required String orderId,
+    required List<GdkCreatePsetInputs> inputs,
+    @JsonKey(name: 'recv_addr') required String recvAddr,
+    @JsonKey(name: 'change_addr') required String changeAddr,
+    @JsonKey(name: 'send_asset') required String sendAsset,
+    @JsonKey(name: 'send_amount') required int sendAmount,
+    @JsonKey(name: 'recv_asset') required String recvAsset,
+    @JsonKey(name: 'recv_amount') required int recvAmount,
   }) = _HttpStartWebParams;
 
   factory HttpStartWebParams.fromJson(Map<String, dynamic> json) =>
@@ -371,6 +372,65 @@ class SwapStartPegResult with _$SwapStartPegResult {
 
   factory SwapStartPegResult.fromJson(Map<String, dynamic> json) =>
       _$SwapStartPegResultFromJson(json);
+}
+
+@freezed
+class SwapPegStatusRequest with _$SwapPegStatusRequest {
+  const factory SwapPegStatusRequest({
+    @JsonKey(name: 'order_id') required String orderId,
+    @JsonKey(name: 'peg_in') required bool isPegIn,
+  }) = _SwapPegStatusRequest;
+
+  factory SwapPegStatusRequest.fromJson(Map<String, dynamic> json) =>
+      _$SwapPegStatusRequestFromJson(json);
+}
+
+@freezed
+class SwapPegStatusResponse with _$SwapPegStatusResponse {
+  factory SwapPegStatusResponse({
+    int? id,
+    String? method,
+    SwapPegStatusResult? result,
+  }) = _SwapPegStatusResponse;
+
+  factory SwapPegStatusResponse.fromJson(Map<String, dynamic> json) =>
+      _$SwapPegStatusResponseFromJson(json);
+}
+
+@freezed
+class SwapPegStatusResult with _$SwapPegStatusResult {
+  factory SwapPegStatusResult({
+    String? addr,
+    @JsonKey(name: 'addr_recv') String? addrRecv,
+    @JsonKey(name: 'created_at') int? createdAt,
+    @JsonKey(name: 'expires_at') int? expiresAt,
+    @JsonKey(name: 'list') @Default([]) List<PegStatusTxns> transactions,
+    @JsonKey(name: 'order_id') String? orderId,
+    @JsonKey(name: 'peg_in') bool? pegIn,
+  }) = _SwapPegStatusResult;
+
+  factory SwapPegStatusResult.fromJson(Map<String, dynamic> json) =>
+      _$SwapPegStatusResultFromJson(json);
+}
+
+@freezed
+class PegStatusTxns with _$PegStatusTxns {
+  factory PegStatusTxns({
+    int? amount,
+    @JsonKey(name: 'created_at') int? createdAt,
+    @JsonKey(name: 'detected_confs') dynamic detectedConfs,
+    dynamic payout,
+    @JsonKey(name: 'payout_txid') dynamic payoutTxid,
+    String? status,
+    @JsonKey(name: 'total_confs') dynamic totalConfs,
+    @JsonKey(name: 'tx_hash') String? txHash,
+    @JsonKey(name: 'tx_state') String? txState,
+    @JsonKey(name: 'tx_state_code') int? txStateCode,
+    int? vout,
+  }) = _PegStatusTxns;
+
+  factory PegStatusTxns.fromJson(Map<String, dynamic> json) =>
+      _$PegStatusTxnsFromJson(json);
 }
 
 @freezed

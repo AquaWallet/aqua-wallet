@@ -8,3 +8,5 @@ export 'sideswap_state.dart';
 export 'sideswap_warnings.dart';
 export 'swap_peg_review_data.dart';
 export 'swap_state.dart';
+export 'taxi_state.dart';
+export 'sideswap_fees.dart';

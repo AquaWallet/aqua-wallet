@@ -1,8 +1,17 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/services.dart';
 
 extension LocalizedBuildContext on BuildContext {
   AppLocalizations get loc => AppLocalizations.of(this)!;
+}
+
+extension ThemeContextExt on BuildContext {
+  AppColors get colors => Theme.of(this).colors;
+
+  ColorScheme get colorScheme => Theme.of(this).colorScheme;
+
+  TextTheme get textTheme => Theme.of(this).textTheme;
 }
 
 extension ContextExt on BuildContext {

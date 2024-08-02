@@ -21,10 +21,7 @@ class TransactionInfoItem extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w400,
-                ),
+            style: Theme.of(context).textTheme.titleSmall,
           ),
           Text(
             value,

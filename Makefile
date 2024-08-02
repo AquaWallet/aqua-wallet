@@ -1,18 +1,38 @@
+SHELL := /bin/bash
+GDK_VERSION := 0.72.1
+GDK_RELEASE_URL := https://github.com/Blockstream/gdk/releases/download/release_$(GDK_VERSION)
+
 install:
-	fvm flutter pub get
+	flutter pub get
+
+shell:
+	nix develop --experimental-features 'nix-command flakes'
 
 get-gdk:
 	rm -rf crypto
-	curl -L https://github.com/sideswap-io/gdk/releases/download/aqua_0.0.55/gdk0.0.55.tar.gz --output crypto.tar.gz
-	echo "d78f2f7a57f9ecb1bd2190e75051ff64b58a771df015514d67566a5bc5abf1ed  crypto.tar.gz" | shasum -a 256 --check
-	tar -xzf crypto.tar.gz
-	rm crypto.tar.gz
+	mkdir crypto
+	# gdk-iphone
+	curl --location $(GDK_RELEASE_URL)/gdk-iphone.tar.gz --output /tmp/gdk-iphone.tar.gz
+	echo "8835d8bf95c1534e8236b31dc84302511463aa631d4be1cae8da5f3b62ce5970  /tmp/gdk-iphone.tar.gz" | shasum -a 256 --check
+	tar --extract --file /tmp/gdk-iphone.tar.gz --directory crypto
+	# gdk-android-jni
+	curl --location $(GDK_RELEASE_URL)/gdk.tar.gz --output /tmp/gdk.tar.gz
+	echo "6418ceba757cefbb277c71730d084b0f41b61516372fa5d3e7fdd326951fcbc7  /tmp/gdk.tar.gz" | shasum -a 256 --check
+	tar --extract --file /tmp/gdk.tar.gz --directory crypto
+	cp -r gdk-includes/include crypto/gdk/
 
+patch-ios-sim:
+	# gdk-iphone-sim-x86_64
+	curl --location $(GDK_RELEASE_URL)/gdk-iphone-sim-x86_64.tar.gz --output /tmp/gdk-iphone-sim-x86_64.tar.gz
+	echo "33a7a4b05a3e02e0737dd4b107ee0fa562b5fcdf12b0cfb07e49a36ddc744842  /tmp/gdk-iphone-sim-x86_64.tar.gz" | shasum -a 256 --check
+	tar --extract --file /tmp/gdk-iphone-sim-x86_64.tar.gz --directory crypto
+	rm crypto/gdk-iphone/lib/iphoneos/libgreen_gdk_full.a
+	cp crypto/gdk-iphonesim-x86_64/lib/iphonesimulator/libgreen_gdk_full.a crypto/gdk-iphone/lib/iphoneos/
 
 get-boltz-rust:
 	rm -rf boltz-rust boltz-rust.tar.gz
 	curl -L https://github.com/AquaWallet/boltz-rust/releases/download/0.1.7/boltz-rust-0.1.7.tar.gz --output boltz-rust.tar.gz
-	echo "71d26bd79212ae4f7254505c2caf3edb35a07c6cad9080ff40afcceb249a84af  boltz-rust.tar.gz" | shasum -a 256 --check
+	echo "8b450b0f4584cfa819b21741e2c98a7dde757c9a61c6202956e843ff6434be9a  boltz-rust.tar.gz" | shasum -a 256 --check
 	tar -xzf boltz-rust.tar.gz
 	rm boltz-rust.tar.gz
 	mkdir -p android/app/src/main/jniLibs/arm64-v8a/ android/app/src/main/jniLibs/armeabi-v7a/ android/app/src/main/jniLibs/x86/ android/app/src/main/jniLibs/x86_64/
@@ -23,17 +43,25 @@ get-boltz-rust:
 	cp boltz-rust/ios/libboltz_rust.a ios
 
 generate-bindings:
-	fvm flutter pub run ffigen
+	dart run ffigen --ignore-source-errors
 
 freeze:
-	fvm flutter pub run build_runner build
+	dart run build_runner build --delete-conflicting-outputs
 
-setup-git-hooks:
-	cp pre-commit .git/hooks/pre-commit
-
-run-emulator:
+run-android-emulator-mac:
 	~/Library/Android/sdk/emulator/emulator -avd Pixel_3a_API_34_extension_level_7_arm64-v8a -netdelay none -netspeed full
 
-setup: install get-gdk get-boltz-rust generate-bindings freeze setup-git-hooks
+run-ios-emulator-mac:
+	open -a Simulator
 
-PHONY: setup run-emulator
+run-unit-tests:
+	flutter test
+
+run-integration-tests:
+	flutter test integration_test
+
+test-all: run-unit-tests run-integration-tests
+
+setup: install get-gdk get-boltz-rust generate-bindings freeze
+
+PHONY: setup run-ios-emulator-mac run-android-emulator-mac run-integration-tests run-unit-tests test-all

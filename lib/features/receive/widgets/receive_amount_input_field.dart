@@ -1,7 +1,9 @@
+import 'package:aqua/common/input_formatters/decimal_text_input_formatter.dart';
 import 'package:aqua/config/config.dart';
-import 'package:aqua/features/receive/pages/models/receive_asset_extensions.dart';
 import 'package:aqua/features/receive/providers/receive_asset_amount_provider.dart';
-import 'package:aqua/features/send/widgets/asset_currency_type_toggle_button.dart';
+import 'package:aqua/features/settings/exchange_rate/pages/currency_conversion_settings_screen.dart';
+import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
+import 'package:aqua/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
@@ -13,21 +15,31 @@ class AmountInputField extends HookConsumerWidget {
   final bool isFiatToggled;
 
   const AmountInputField({
-    Key? key,
+    super.key,
     required this.asset,
     required this.controller,
     required this.isFiatToggled,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // asset symbol
-    final assetSymbol = isFiatToggled
-        ? context.loc.sendAssetAmountScreenAmountUnitUsd
-        : asset.ticker;
+    final currentRate =
+        ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
+    final fiatRates = ref.watch(fiatRatesProvider).unwrapPrevious().valueOrNull;
+    final enabledCurrencies =
+        ref.watch(conversionCurrenciesProvider).enabledCurrencies;
+    final supportedCurrenciesList = fiatRates != null
+        ? enabledCurrencies + [context.loc.conversionCurrenciesOtherOption]
+        : [];
+    final selectedCurrency =
+        ref.read(amountCurrencyProvider.notifier).state ?? 'Sats';
+    final assetSymbol =
+        isFiatToggled ? currentRate.currency.value : asset.ticker;
     final allowedInputRegex = asset.isLightning && !isFiatToggled
         ? RegExp(r'^\d*')
         : RegExp(r'^\d*(\.|\,)?\d*');
+
+    final allConversionOptions = ['Sats', ...supportedCurrenciesList];
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -50,6 +62,13 @@ class AmountInputField extends HookConsumerWidget {
                 text: newValue.text.replaceAll(',', '.'),
               ),
             ),
+            if (isFiatToggled) ...[
+              // for fiat, limit to 2 decimal places
+              DecimalTextInputFormatter(decimalRange: 2)
+            ] else if (!asset.isLightning) ...[
+              // for bitcoin, limit to 8 decimal places
+              DecimalTextInputFormatter(decimalRange: 8)
+            ],
           ],
           decoration: Theme.of(context).inputDecoration.copyWith(
                 hintText: context.loc.sendAssetAmountScreenAmountHint,
@@ -62,7 +81,7 @@ class AmountInputField extends HookConsumerWidget {
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (!isFiatToggled) ...[
+                    if (selectedCurrency == 'Sats') ...[
                       AssetIcon(
                         assetId: asset.id,
                         assetLogoUrl: asset.logoUrl,
@@ -70,20 +89,47 @@ class AmountInputField extends HookConsumerWidget {
                       ),
                     ],
                     SizedBox(width: 6.w),
-                    Text(
-                      assetSymbol,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 24.sp,
+                    asset.isNonSatsAsset
+                        ? Text(
+                            assetSymbol,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontSize: 24.sp,
+                                ),
+                          )
+                        : DropdownButtonHideUnderline(
+                            child: DropdownButton(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(fontSize: 20.sp),
+                                items: allConversionOptions
+                                    .map((e) => DropdownMenuItem(
+                                          value: e,
+                                          child: Text(e),
+                                        ))
+                                    .toList(),
+                                value: selectedCurrency,
+                                onChanged: (newSelectedCurrency) {
+                                  if (newSelectedCurrency ==
+                                      context.loc
+                                          .conversionCurrenciesOtherOption) {
+                                    Navigator.of(context).pushNamed(
+                                        ConversionCurrenciesSettingsScreen
+                                            .routeName);
+                                  } else if (newSelectedCurrency == 'Sats') {
+                                    ref
+                                        .read(amountCurrencyProvider.notifier)
+                                        .state = null;
+                                  } else {
+                                    ref
+                                        .read(amountCurrencyProvider.notifier)
+                                        .state = newSelectedCurrency as String;
+                                  }
+                                }),
                           ),
-                    ),
-                    SizedBox(width: 14.w),
-                    if (asset.shouldAllowFiatToggleOnReceive) ...[
-                      AssetCurrencyTypeToggleButton(onTap: () {
-                        ref
-                            .read(amountEnteredIsFiatToggledProvider.notifier)
-                            .state = !isFiatToggled;
-                      }),
-                    ],
                     SizedBox(width: 23.w),
                   ],
                 ),

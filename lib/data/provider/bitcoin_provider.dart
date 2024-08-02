@@ -1,17 +1,16 @@
-import 'package:aqua/logger.dart';
 import 'package:aqua/data/backend/bitcoin_network.dart';
-import 'package:aqua/data/backend/gdk_backend_event.dart';
-import 'package:aqua/data/backend/network_backend.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:isolator/isolator.dart';
+import 'package:aqua/logger.dart';
 
-final bitcoinProvider =
-    Provider<BitcoinProvider>((ref) => BitcoinProvider(ref: ref));
+final bitcoinProvider = Provider<BitcoinProvider>((ref) => BitcoinProvider(
+      ref: ref,
+      session: BitcoinNetwork(),
+    ));
 
 class BitcoinProvider extends NetworkFrontend {
-  BitcoinProvider({required ProviderRef ref}) : super(ref: ref);
+  BitcoinProvider({required super.ref, required super.session});
 
   /// mainnet:
   /// mainnet
@@ -48,16 +47,10 @@ class BitcoinProvider extends NetworkFrontend {
     logger.e('[$runtimeType] Bitcoin backend error: $error');
   }
 
+  @override
   Future<bool> init() async {
     logger.d('[$runtimeType] Initializing bitcoin backend');
-    await initBackend(
-      _createGdkBackend,
-      backendType: NetworkBackend,
-      uniqueId: 'BitcoinBackend',
-      errorHandler: onBackendError,
-    );
-
-    final result = await runBackendMethod<Object, bool>(GdkBackendEvent.init);
+    final result = await super.init();
 
     if (!result) {
       throw InitializeNetworkFrontendException();
@@ -72,8 +65,4 @@ class BitcoinProvider extends NetworkFrontend {
   Future<int> minFeeRate() async {
     return 1000;
   }
-}
-
-void _createGdkBackend(BackendArgument<void> argument) {
-  NetworkBackend(argument, BitcoinNetwork());
 }

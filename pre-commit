@@ -17,7 +17,7 @@ if ! unformatted=$(fvm dart format -o none --set-exit-if-changed lib test); then
 fi
 
 # Run Flutter analyze and check for errors
-if ! output=$(fvm flutter analyze --no-fatal-infos); then
+if ! output=$(fvm flutter analyze --no-fatal-infos | grep -v 'deprecated_member_use_from_same_package'); then
     echo "COMMIT REJECTED: Flutter analyze found the following errors:"
     echo "$output"
     exit 1

@@ -5,22 +5,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ReceiveConversionWidget extends ConsumerWidget {
   final Asset asset;
+  final String? amountStr;
 
-  const ReceiveConversionWidget({
-    Key? key,
-    required this.asset,
-  }) : super(key: key);
+  const ReceiveConversionWidget(
+      {super.key, required this.asset, this.amountStr});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isFinalToggled = ref.watch(amountEnteredIsFiatToggledProvider);
-    final satsStr = isFinalToggled && asset.isLightning ? ' sats' : '';
-    String conversionValue =
-        ref.watch(receiveAssetAmountConversionDisplayProvider(asset)).when(
-              data: (value) => '≈ $value$satsStr',
-              loading: () => '≈ 0',
-              error: (error, stack) => '≈ 0',
-            );
+    final selectedFiatCurrency = ref.watch(amountCurrencyProvider);
+    final isFiatCurrency = selectedFiatCurrency != null;
+    final satsStr =
+        isFiatCurrency && (asset.isLightning || asset.isLBTC || asset.isBTC)
+            ? ' sats'
+            : '';
+    String conversionValue = ref
+        .watch(receiveAssetAmountConversionDisplayProvider(
+            (asset, selectedFiatCurrency, amountStr)))
+        .when(
+          data: (value) => '≈ $value$satsStr',
+          loading: () => '≈ 0',
+          error: (error, stack) => '≈ 0',
+        );
 
     return Text(conversionValue);
   }

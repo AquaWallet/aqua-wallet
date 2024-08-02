@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTabBar extends StatelessWidget {
   const CustomTabBar({
-    Key? key,
+    super.key,
     required this.tabTitles,
     required this.selectedIndex,
     required this.onSelected,
@@ -19,7 +19,7 @@ class CustomTabBar extends StatelessWidget {
     this.shape,
     this.width,
     this.padding = EdgeInsets.zero,
-  }) : super(key: key);
+  });
 
   final List<String> tabTitles;
   final List<String> tabSubtitles;

@@ -9,7 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class WalletBackupConfirmationFailure extends HookConsumerWidget {
   static const routeName = '/walletBackupConfirmationFailure';
 
-  const WalletBackupConfirmationFailure({Key? key}) : super(key: key);
+  const WalletBackupConfirmationFailure({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

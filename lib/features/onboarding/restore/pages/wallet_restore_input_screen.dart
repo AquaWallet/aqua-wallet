@@ -5,7 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class WalletRestoreInputScreen extends HookConsumerWidget {
   static const routeName = '/walletRestoreInput';
 
-  const WalletRestoreInputScreen({Key? key}) : super(key: key);
+  const WalletRestoreInputScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

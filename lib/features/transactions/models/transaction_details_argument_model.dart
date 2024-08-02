@@ -1,6 +1,5 @@
-import 'package:aqua/data/models/gdk_models.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/transactions/transactions.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'transaction_details_argument_model.freezed.dart';

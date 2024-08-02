@@ -140,6 +140,8 @@ abstract class AppColors {
 
   Color get versionForeground;
 
+  Color get copayableTextColor;
+
   ColorScheme get colorScheme;
 }
 
@@ -351,6 +353,9 @@ class DarkThemeColors implements AppColors {
   Color get versionForeground => Colors.white;
 
   @override
+  Color get copayableTextColor => Colors.white;
+
+  @override
   ColorScheme get colorScheme => ColorScheme(
         brightness: Brightness.dark,
         primary: AquaColors.blueGreen,
@@ -401,10 +406,10 @@ class LightThemeColors implements AppColors {
   Color get addressHistoryItemBackground => Colors.white;
 
   @override
-  Color get menuBackground => AquaColors.antiFlashWhite;
+  Color get menuBackground => AquaColors.lotion;
 
   @override
-  Color get menuSurface => AquaColors.lotion;
+  Color get menuSurface => AquaColors.antiFlashWhite;
 
   @override
   Color get receiveAddressCopySurface => AquaColors.splashGrey;
@@ -452,7 +457,7 @@ class LightThemeColors implements AppColors {
   Color get tabSelectedForeground => AquaColors.charcoal;
 
   @override
-  Color get tabUnselectedBackground => AquaColors.lotion;
+  Color get tabUnselectedBackground => AquaColors.darkGray;
 
   @override
   Color get tabUnselectedForeground => AquaColors.charcoal;
@@ -576,6 +581,9 @@ class LightThemeColors implements AppColors {
 
   @override
   Color get versionForeground => Colors.white;
+
+  @override
+  Color get copayableTextColor => AquaColors.charcoal;
 
   @override
   ColorScheme get colorScheme => const ColorScheme(

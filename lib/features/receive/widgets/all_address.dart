@@ -11,9 +11,9 @@ class AllAddresses extends ConsumerWidget {
 
   const AllAddresses(
     this.arguments, {
-    Key? key,
+    super.key,
     required this.onItemClick,
-  }) : super(key: key);
+  });
 
   final Function(String) onItemClick;
 
@@ -70,10 +70,10 @@ class ReceiveAddressesHistoryScreenAllItem extends ConsumerWidget {
   final ReceiveAllAddressItemUiModel itemUiModel;
 
   const ReceiveAddressesHistoryScreenAllItem({
-    Key? key,
+    super.key,
     required this.itemUiModel,
     required this.onItemClick,
-  }) : super(key: key);
+  });
 
   final Function(String) onItemClick;
 

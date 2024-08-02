@@ -1,36 +1,32 @@
 import 'dart:math';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class SeparatedReorderableListView extends ReorderableListView {
   SeparatedReorderableListView.separated({
-    Key? key,
+    super.key,
     required IndexedWidgetBuilder itemBuilder,
     required IndexedWidgetBuilder separatorBuilder,
     required int itemCount,
     required ReorderCallback onReorder,
-    double? itemExtent,
-    Widget? prototypeItem,
-    ReorderItemProxyDecorator? proxyDecorator,
-    bool buildDefaultDragHandles = true,
-    EdgeInsets? padding,
-    Widget? header,
-    Axis scrollDirection = Axis.vertical,
-    bool reverse = false,
-    ScrollController? scrollController,
-    bool? primary,
-    ScrollPhysics? physics,
-    bool shrinkWrap = false,
-    double anchor = 0.0,
-    double? cacheExtent,
-    DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior =
-        ScrollViewKeyboardDismissBehavior.manual,
-    String? restorationId,
-    Clip clipBehavior = Clip.hardEdge,
+    super.itemExtent,
+    super.prototypeItem,
+    super.proxyDecorator,
+    super.buildDefaultDragHandles,
+    super.padding,
+    super.header,
+    super.scrollDirection,
+    super.reverse,
+    super.scrollController,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.anchor,
+    super.cacheExtent,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
   }) : super.builder(
-          key: key,
           itemCount: max(0, itemCount * 2 - 1),
           itemBuilder: (BuildContext context, int index) {
             if (index % 2 == 1) {
@@ -69,23 +65,5 @@ class SeparatedReorderableListView extends ReorderableListView {
             oldIndex = oldIndex ~/ 2;
             onReorder.call(oldIndex, newIndex);
           },
-          itemExtent: itemExtent,
-          prototypeItem: prototypeItem,
-          proxyDecorator: proxyDecorator,
-          buildDefaultDragHandles: buildDefaultDragHandles,
-          padding: padding,
-          header: header,
-          scrollDirection: scrollDirection,
-          reverse: reverse,
-          scrollController: scrollController,
-          primary: primary,
-          physics: physics,
-          shrinkWrap: shrinkWrap,
-          anchor: anchor,
-          cacheExtent: cacheExtent,
-          dragStartBehavior: dragStartBehavior,
-          keyboardDismissBehavior: keyboardDismissBehavior,
-          restorationId: restorationId,
-          clipBehavior: clipBehavior,
         );
 }

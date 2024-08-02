@@ -9,19 +9,20 @@
 /* Begin PBXBuildFile section */
 		0C7A5040CA658EA5865F6D8A /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCFC6E05F387EF28E0EA6EF5 /* Pods_RunnerTests.framework */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
-		2C760118E3C32245DD28612E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D6BD61CA8D3E1F978CE7EF /* Pods_Runner.framework */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		B14E72712C5402D500033A73 /* libgreen_gdk_full.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B14E726C2C53FC6A00033A73 /* libgreen_gdk_full.a */; };
+		B15C67462C25C913009DF56A /* NSBundleHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B15C67452C25C913009DF56A /* NSBundleHelper.m */; };
 		B179D3A92A7ABAE80087EBED /* callbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = B179D3A82A7ABAE80087EBED /* callbacks.c */; };
+		B17A444D2C262F1200231BB3 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D6BD61CA8D3E1F978CE7EF /* Pods_Runner.framework */; };
 		B1D4246B2B7D779000017E39 /* libboltz_rust.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B1D4246A2B7D779000017E39 /* libboltz_rust.a */; };
 		B1DADEF52A7A99C300B018DD /* FlutterMethodChannel+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DADEF22A7A99C300B018DD /* FlutterMethodChannel+Extensions.swift */; };
 		B1DADEF62A7A99C300B018DD /* UserDefaults+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DADEF32A7A99C300B018DD /* UserDefaults+Extensions.swift */; };
 		B1DADEF92A7A99E400B018DD /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B1DADEF82A7A99E400B018DD /* libc++.tbd */; };
-		B1DADEFB2A7AA4E800B018DD /* libgreenaddress_full.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B1DADEFA2A7AA4E800B018DD /* libgreenaddress_full.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,19 +34,6 @@
 			remoteInfo = Runner;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		119786A298F86E626E145431 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
@@ -70,12 +58,19 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B11FBCC42C28C9780052842C /* NSBundleHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSBundleHelper.h; sourceTree = "<group>"; };
+		B14E726C2C53FC6A00033A73 /* libgreen_gdk_full.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgreen_gdk_full.a; path = "../crypto/gdk-iphone/lib/arm64-apple-ios13.00/libgreen_gdk_full.a"; sourceTree = "<group>"; };
+		B15C67322C24F1EC009DF56A /* EnforceBundling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnforceBundling.swift; sourceTree = "<group>"; };
+		B15C67332C24F1EC009DF56A /* frb_generated.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = frb_generated.h; sourceTree = "<group>"; };
+		B15C67372C24F1EC009DF56A /* boltz_dart.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = boltz_dart.podspec; sourceTree = "<group>"; };
+		B15C67382C24F1EC009DF56A /* libboltz.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libboltz.xcframework; sourceTree = "<group>"; };
+		B15C67452C25C913009DF56A /* NSBundleHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSBundleHelper.m; sourceTree = "<group>"; };
+		B15C674E2C25E93A009DF56A /* boltz_dart.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = boltz_dart.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B179D3A82A7ABAE80087EBED /* callbacks.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = callbacks.c; path = ../ffi/dart_helper/callbacks.c; sourceTree = "<group>"; };
 		B1D4246A2B7D779000017E39 /* libboltz_rust.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libboltz_rust.a; sourceTree = "<group>"; };
 		B1DADEF22A7A99C300B018DD /* FlutterMethodChannel+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FlutterMethodChannel+Extensions.swift"; sourceTree = "<group>"; };
 		B1DADEF32A7A99C300B018DD /* UserDefaults+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Extensions.swift"; sourceTree = "<group>"; };
 		B1DADEF82A7A99E400B018DD /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
-		B1DADEFA2A7AA4E800B018DD /* libgreenaddress_full.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgreenaddress_full.a; path = "../crypto/gdk-iphone/lib/iphone/libgreenaddress_full.a"; sourceTree = "<group>"; };
 		B2D6BD61CA8D3E1F978CE7EF /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCFC6E05F387EF28E0EA6EF5 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -85,10 +80,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B17A444D2C262F1200231BB3 /* Pods_Runner.framework in Frameworks */,
+				B14E72712C5402D500033A73 /* libgreen_gdk_full.a in Frameworks */,
 				B1D4246B2B7D779000017E39 /* libboltz_rust.a in Frameworks */,
-				B1DADEFB2A7AA4E800B018DD /* libgreenaddress_full.a in Frameworks */,
 				B1DADEF92A7A99E400B018DD /* libc++.tbd in Frameworks */,
-				2C760118E3C32245DD28612E /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,6 +142,7 @@
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				B1DADEF72A7A99E400B018DD /* Frameworks */,
 				187A614271A24F8D6FD0B9E3 /* Pods */,
+				B15C672D2C24D572009DF56A /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -162,6 +158,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				B15C67452C25C913009DF56A /* NSBundleHelper.m */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -170,15 +167,46 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				B11FBCC42C28C9780052842C /* NSBundleHelper.h */,
 			);
 			path = Runner;
+			sourceTree = "<group>";
+		};
+		B15C672D2C24D572009DF56A /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				B1D4246A2B7D779000017E39 /* libboltz_rust.a */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		B15C67342C24F1EC009DF56A /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				B15C67322C24F1EC009DF56A /* EnforceBundling.swift */,
+				B15C67332C24F1EC009DF56A /* frb_generated.h */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		B15C67392C24F1EC009DF56A /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				B15C67342C24F1EC009DF56A /* Classes */,
+				B15C67372C24F1EC009DF56A /* boltz_dart.podspec */,
+				B15C67382C24F1EC009DF56A /* libboltz.xcframework */,
+			);
+			name = ios;
+			path = "../../boltz-dart/ios";
 			sourceTree = "<group>";
 		};
 		B1DADEF72A7A99E400B018DD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B14E726C2C53FC6A00033A73 /* libgreen_gdk_full.a */,
+				B15C674E2C25E93A009DF56A /* boltz_dart.framework */,
+				B15C67392C24F1EC009DF56A /* ios */,
 				529D73F32B05506800EBD265 /* libboltz_rust.a */,
-				B1DADEFA2A7AA4E800B018DD /* libgreenaddress_full.a */,
 				B1DADEF82A7A99E400B018DD /* libc++.tbd */,
 				B2D6BD61CA8D3E1F978CE7EF /* Pods_Runner.framework */,
 				CCFC6E05F387EF28E0EA6EF5 /* Pods_RunnerTests.framework */,
@@ -217,9 +245,9 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
-				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				31E6E90238E81AE7A30DF529 /* [CP] Embed Pods Frameworks */,
+				DA4520C9E0476D3E36CBD77F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -236,7 +264,7 @@
 		97C146E61CF9000F007C117D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1300;
+				LastUpgradeCheck = 1510;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					331C8080294A63A400263BE5 = {
@@ -382,6 +410,23 @@
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
+		DA4520C9E0476D3E36CBD77F /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -397,6 +442,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B15C67462C25C913009DF56A /* NSBundleHelper.m in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				B179D3A92A7ABAE80087EBED /* callbacks.c in Sources */,
@@ -480,7 +526,7 @@
 					"../crypto/gdk-iphone/include",
 					"../crypto/gdk-iphone/include/gdk/libwally-core",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -499,7 +545,8 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 8KC4F7DWTY;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = X2ZH23CYYJ;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					"../crypto/gdk-iphone/include",
@@ -507,18 +554,130 @@
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AQUA;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"../crypto/gdk-iphone/lib/iphone",
+					"../crypto/gdk-iphone/lib/arm64-apple-ios13.00",
 					"$(PROJECT_DIR)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.aquawallet.ios;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-l\"c++\"",
+					"-l\"sqlite3\"",
+					"-l\"z\"",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"AVKit\"",
+					"-framework",
+					"\"Accelerate\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreImage\"",
+					"-framework",
+					"\"CoreMedia\"",
+					"-framework",
+					"\"CoreTelephony\"",
+					"-framework",
+					"\"CoreVideo\"",
+					"-framework",
+					"\"DKImagePickerController\"",
+					"-framework",
+					"\"DKPhotoGallery\"",
+					"-framework",
+					"\"FBLPromises\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"GTMSessionFetcher\"",
+					"-framework",
+					"\"GoogleDataTransport\"",
+					"-framework",
+					"\"GoogleToolboxForMac\"",
+					"-framework",
+					"\"GoogleUtilities\"",
+					"-framework",
+					"\"GoogleUtilitiesComponents\"",
+					"-framework",
+					"\"ImageIO\"",
+					"-framework",
+					"\"LocalAuthentication\"",
+					"-framework",
+					"\"MLImage\"",
+					"-framework",
+					"\"MLKitBarcodeScanning\"",
+					"-framework",
+					"\"MLKitCommon\"",
+					"-framework",
+					"\"MLKitVision\"",
+					"-framework",
+					"\"Photos\"",
+					"-framework",
+					"\"RxSwift\"",
+					"-framework",
+					"\"SDWebImage\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"SwiftyGif\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"app_settings\"",
+					"-framework",
+					"\"boltz_dart\"",
+					"-framework",
+					"\"file_picker\"",
+					"-framework",
+					"\"flutter_file_manager_ios\"",
+					"-framework",
+					"\"flutter_keyboard_visibility\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"image_picker_ios\"",
+					"-framework",
+					"\"integration_test\"",
+					"-framework",
+					"\"isar_flutter_libs\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"mobile_scanner\"",
+					"-framework",
+					"\"nanopb\"",
+					"-framework",
+					"\"package_info_plus\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"permission_handler_apple\"",
+					"-framework",
+					"\"restart_app\"",
+					"-framework",
+					"\"share_plus\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"url_launcher_ios\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-weak_framework",
+					"\"LinkPresentation\"",
+				);
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -632,7 +791,7 @@
 					"../crypto/gdk-iphone/include",
 					"../crypto/gdk-iphone/include/gdk/libwally-core",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -686,7 +845,7 @@
 					"../crypto/gdk-iphone/include",
 					"../crypto/gdk-iphone/include/gdk/libwally-core",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -707,7 +866,8 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 8KC4F7DWTY;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = X2ZH23CYYJ;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					"../crypto/gdk-iphone/include",
@@ -715,18 +875,130 @@
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AQUA;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"../crypto/gdk-iphone/lib/iphone",
+					"../crypto/gdk-iphone/lib/arm64-apple-ios13.00",
 					"$(PROJECT_DIR)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.aquawallet.ios;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-l\"c++\"",
+					"-l\"sqlite3\"",
+					"-l\"z\"",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"AVKit\"",
+					"-framework",
+					"\"Accelerate\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreImage\"",
+					"-framework",
+					"\"CoreMedia\"",
+					"-framework",
+					"\"CoreTelephony\"",
+					"-framework",
+					"\"CoreVideo\"",
+					"-framework",
+					"\"DKImagePickerController\"",
+					"-framework",
+					"\"DKPhotoGallery\"",
+					"-framework",
+					"\"FBLPromises\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"GTMSessionFetcher\"",
+					"-framework",
+					"\"GoogleDataTransport\"",
+					"-framework",
+					"\"GoogleToolboxForMac\"",
+					"-framework",
+					"\"GoogleUtilities\"",
+					"-framework",
+					"\"GoogleUtilitiesComponents\"",
+					"-framework",
+					"\"ImageIO\"",
+					"-framework",
+					"\"LocalAuthentication\"",
+					"-framework",
+					"\"MLImage\"",
+					"-framework",
+					"\"MLKitBarcodeScanning\"",
+					"-framework",
+					"\"MLKitCommon\"",
+					"-framework",
+					"\"MLKitVision\"",
+					"-framework",
+					"\"Photos\"",
+					"-framework",
+					"\"RxSwift\"",
+					"-framework",
+					"\"SDWebImage\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"SwiftyGif\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"app_settings\"",
+					"-framework",
+					"\"boltz_dart\"",
+					"-framework",
+					"\"file_picker\"",
+					"-framework",
+					"\"flutter_file_manager_ios\"",
+					"-framework",
+					"\"flutter_keyboard_visibility\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"image_picker_ios\"",
+					"-framework",
+					"\"integration_test\"",
+					"-framework",
+					"\"isar_flutter_libs\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"mobile_scanner\"",
+					"-framework",
+					"\"nanopb\"",
+					"-framework",
+					"\"package_info_plus\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"permission_handler_apple\"",
+					"-framework",
+					"\"restart_app\"",
+					"-framework",
+					"\"share_plus\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"url_launcher_ios\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-weak_framework",
+					"\"LinkPresentation\"",
+				);
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -749,7 +1021,8 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 8KC4F7DWTY;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = X2ZH23CYYJ;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					"../crypto/gdk-iphone/include",
@@ -757,18 +1030,130 @@
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AQUA;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"../crypto/gdk-iphone/lib/iphone",
 					"$(PROJECT_DIR)",
+					"../crypto/gdk-iphone/lib/arm64-apple-ios13.00",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.aquawallet.ios;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-l\"c++\"",
+					"-l\"sqlite3\"",
+					"-l\"z\"",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"AVKit\"",
+					"-framework",
+					"\"Accelerate\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreImage\"",
+					"-framework",
+					"\"CoreMedia\"",
+					"-framework",
+					"\"CoreTelephony\"",
+					"-framework",
+					"\"CoreVideo\"",
+					"-framework",
+					"\"DKImagePickerController\"",
+					"-framework",
+					"\"DKPhotoGallery\"",
+					"-framework",
+					"\"FBLPromises\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"GTMSessionFetcher\"",
+					"-framework",
+					"\"GoogleDataTransport\"",
+					"-framework",
+					"\"GoogleToolboxForMac\"",
+					"-framework",
+					"\"GoogleUtilities\"",
+					"-framework",
+					"\"GoogleUtilitiesComponents\"",
+					"-framework",
+					"\"ImageIO\"",
+					"-framework",
+					"\"LocalAuthentication\"",
+					"-framework",
+					"\"MLImage\"",
+					"-framework",
+					"\"MLKitBarcodeScanning\"",
+					"-framework",
+					"\"MLKitCommon\"",
+					"-framework",
+					"\"MLKitVision\"",
+					"-framework",
+					"\"Photos\"",
+					"-framework",
+					"\"RxSwift\"",
+					"-framework",
+					"\"SDWebImage\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"SwiftyGif\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"app_settings\"",
+					"-framework",
+					"\"boltz_dart\"",
+					"-framework",
+					"\"file_picker\"",
+					"-framework",
+					"\"flutter_file_manager_ios\"",
+					"-framework",
+					"\"flutter_keyboard_visibility\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"image_picker_ios\"",
+					"-framework",
+					"\"integration_test\"",
+					"-framework",
+					"\"isar_flutter_libs\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"mobile_scanner\"",
+					"-framework",
+					"\"nanopb\"",
+					"-framework",
+					"\"package_info_plus\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"permission_handler_apple\"",
+					"-framework",
+					"\"restart_app\"",
+					"-framework",
+					"\"share_plus\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"url_launcher_ios\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-weak_framework",
+					"\"LinkPresentation\"",
+				);
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

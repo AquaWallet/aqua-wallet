@@ -7,7 +7,6 @@ import 'package:aqua/utils/utils.dart';
 final swapValidationsProvider = Provider.autoDispose
     .family<SideswapException?, BuildContext>((ref, context) {
   final priceStream = ref.watch(sideswapPriceStreamResultStateProvider);
-  final statusStream = ref.watch(sideswapStatusStreamResultStateProvider);
   final inputState = ref.watch(sideswapInputStateProvider);
   final deliverIncomingSatoshi =
       ref.watch(swapIncomingDeliverSatoshiAmountProvider);
@@ -74,33 +73,20 @@ final swapValidationsProvider = Provider.autoDispose
   //ANCHOR - Sideswap Peg errors
   final deliverAmountSat = inputState.deliverAmountSatoshi;
   if (inputState.isPeg && deliverAmountSat > 0) {
-    final minPegInAmountSat = statusStream?.minPegInAmount;
-    final minPegOutAmountSat = statusStream?.minPegOutAmount;
-    final pegInServiceFee = statusStream?.serverFeePercentPegIn;
-    final pegOutServiceFee = statusStream?.serverFeePercentPegOut;
-
-    final minPegInAmountSatWithFee =
-        minPegInAmountSat != null && pegInServiceFee != null
-            ? (minPegInAmountSat + (minPegInAmountSat * pegInServiceFee / 100))
-                .ceil()
-            : null;
-    final minPegOutAmountSatWithFee = minPegOutAmountSat != null &&
-            pegOutServiceFee != null
-        ? (minPegOutAmountSat + (minPegOutAmountSat * pegOutServiceFee / 100))
-            .ceil()
-        : null;
+    final minPegInAmountSatWithFee = ref.watch(minPegInAmountWithFeeProvider);
+    final minPegOutAmountSatWithFee = ref.watch(minPegOutAmountWithFeeProvider);
 
     final minPegInAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: minPegInAmountSatWithFee ?? 0,
+          amount: minPegInAmountSatWithFee,
           precision: deliverAsset.precision,
         );
     final minPegOutAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: minPegOutAmountSatWithFee ?? 0,
+          amount: minPegOutAmountSatWithFee,
           precision: deliverAsset.precision,
         );
 
     if (inputState.isPegIn) {
-      final pegInAmountLessThanMinLimit = minPegInAmountSatWithFee != null &&
+      final pegInAmountLessThanMinLimit =
           deliverAmountSat < minPegInAmountSatWithFee;
       if (pegInAmountLessThanMinLimit) {
         return SideswapMinPegInAmountException(
@@ -108,7 +94,7 @@ final swapValidationsProvider = Provider.autoDispose
         );
       }
     } else {
-      final pegOutAmountLessThanMinLimit = minPegOutAmountSatWithFee != null &&
+      final pegOutAmountLessThanMinLimit =
           deliverAmountSat < minPegOutAmountSatWithFee;
       if (pegOutAmountLessThanMinLimit) {
         return SideswapMinPegOutAmountException(

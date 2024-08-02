@@ -2,7 +2,7 @@ import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/features/shared/shared.dart';
 
 class EnvSwitchScreen extends StatelessWidget {
-  const EnvSwitchScreen({Key? key}) : super(key: key);
+  const EnvSwitchScreen({super.key});
 
   static const routeName = '/envSwitchScreen';
 

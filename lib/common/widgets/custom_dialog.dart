@@ -3,10 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomDialog extends StatelessWidget {
   const CustomDialog({
-    Key? key,
+    super.key,
     this.backgroundColor,
     this.child,
-  }) : super(key: key);
+  });
 
   final Color? backgroundColor;
   final Widget? child;

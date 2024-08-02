@@ -21,16 +21,17 @@ class ReceiveAmountInputSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // amount
-    final amountEntered = ref.watch(receiveAssetAmountProvider);
+    final amountEntered =
+        useState<String?>(ref.read(receiveAssetAmountProvider));
 
     // amount input controller
-    final controller = useTextEditingController(text: amountEntered);
+    final controller = useTextEditingController(text: amountEntered.value);
     controller.addListener(() {
-      ref.read(receiveAssetAmountProvider.notifier).state = controller.text;
+      amountEntered.value = controller.text;
     });
 
     // fiat entry toggle
-    final isFiatToggled = ref.watch(amountEnteredIsFiatToggledProvider);
+    final isFiatToggled = ref.watch(amountCurrencyProvider) != null;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -61,7 +62,10 @@ class ReceiveAmountInputSheet extends HookConsumerWidget {
             ),
             SizedBox(height: 15.h),
             if (asset.shouldShowConversionOnReceive) ...[
-              ReceiveConversionWidget(asset: asset),
+              ReceiveConversionWidget(
+                asset: asset,
+                amountStr: amountEntered.value,
+              ),
             ],
 
             SizedBox(height: 18.h),
@@ -70,12 +74,13 @@ class ReceiveAmountInputSheet extends HookConsumerWidget {
               width: double.maxFinite,
               child: AquaElevatedButton(
                 // disable button if amount is 0
-                onPressed: amountEntered == null || amountEntered == ''
+                onPressed: amountEntered.value == null ||
+                        amountEntered.value == ''
                     ? null
                     : () {
                         // set amount
                         ref.read(receiveAssetAmountProvider.notifier).state =
-                            amountEntered;
+                            amountEntered.value;
 
                         // pop on confirm press if not lightning. if lightning, wait for boltz order to be created successfully then pop
                         if (!asset.isLightning) {

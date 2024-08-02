@@ -1,49 +1,45 @@
 import 'dart:async';
 
 import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/data/provider/sideshift/screens/sideshift_order_detail_screen.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_storage_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:aqua/utils/utils.dart';
-
-import '../sideshift_order_provider.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SideShiftOrdersList extends HookConsumerWidget {
   const SideShiftOrdersList({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cachedOrders = ref.watch(sideShiftCachedOrdersProvider);
-    cachedOrders.asData?.value?.forEach((order) => logger.d(
+    final cachedOrders = ref.watch(sideshiftStorageProvider);
+    cachedOrders.asData?.value.forEach((order) => logger.d(
         "[Sideshift] order update: ${order.status?.localizedString(context)} - shiftId: ${order.id}"));
 
     // orderStatusProvider opens a stream for each order status update, so refresh the cachedOrders list every 5 seconds
     useEffect(() {
       Timer.periodic(const Duration(seconds: 5), (_) {
-        final _ = ref.refresh(sideShiftCachedOrdersProvider);
+        final _ = ref.refresh(sideshiftStorageProvider);
       });
 
       final shiftIds = cachedOrders.asData?.value
-          ?.map((order) => order.id)
-          .where((id) => id != null)
+          .map((order) => order.orderId)
           .cast<String>()
           .toList();
       shiftIds?.forEach((shiftId) => ref.watch(orderStatusProvider(shiftId)));
       logger.d("[Sideshift] watching shifts : ${shiftIds?.length}");
 
       return null; // stream cancellation happens in SideShiftOrdersScreen
-    }, [cachedOrders.asData?.value?.length]);
+    }, [cachedOrders.asData?.value.length]);
 
     return cachedOrders.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text(error.toString())),
-      data: (items) => items == null || items.isEmpty
+      data: (items) => items.isEmpty
           ? Center(
               child: Text(
                 context.loc.sideshiftOrderListEmptyState,
@@ -72,7 +68,7 @@ class SideShiftOrdersList extends HookConsumerWidget {
 class _SideShiftOrderListItem extends HookConsumerWidget {
   const _SideShiftOrderListItem(this.order);
 
-  final SideshiftOrderStatusResponse order;
+  final SideshiftOrderDbModel order;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

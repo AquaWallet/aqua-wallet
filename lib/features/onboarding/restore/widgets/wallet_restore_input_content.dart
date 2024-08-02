@@ -8,9 +8,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 class WalletRestoreInputContent extends HookConsumerWidget {
   const WalletRestoreInputContent({
-    Key? key,
+    super.key,
     required this.error,
-  }) : super(key: key);
+  });
 
   final ValueNotifier<bool> error;
 
@@ -20,6 +20,21 @@ class WalletRestoreInputContent extends HookConsumerWidget {
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final focusedIndex = useState(0);
     final mnemonicComplete = ref.watch(walletRestoreInputCompleteProvider);
+    const devMnemonic = String.fromEnvironment('DEV_WALLET_MNEMONIC');
+
+    //ANCHOR - Fill mnemonic input fields with dev mnemonic
+    useEffect(() {
+      if (kDebugMode && devMnemonic.isNotEmpty) {
+        Future.microtask(() {
+          devMnemonic.split(' ').forEachIndexed((index, word) {
+            ref
+                .read(mnemonicWordInputStateProvider(index).notifier)
+                .update(text: word);
+          });
+        });
+      }
+      return null;
+    });
 
     //ANCHOR - Force status bar colors
     useEffect(() {

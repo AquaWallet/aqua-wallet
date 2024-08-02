@@ -1,3 +1,4 @@
+import 'package:aqua/common/widgets/middle_ellipsis_text.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 
@@ -34,12 +35,15 @@ class PasteFromClipboardView extends HookConsumerWidget {
                           ),
                     ),
                     SizedBox(height: 8.h),
-                    Text(
-                      text,
+                    MiddleEllipsisText(
+                      text: text,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: Theme.of(context).colorScheme.onBackground,
                             fontWeight: FontWeight.w700,
                           ),
+                      startLength: 40,
+                      endLength: 40,
+                      ellipsisLength: 3,
                     ),
                   ],
                 ),

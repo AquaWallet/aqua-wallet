@@ -1,6 +1,6 @@
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -87,11 +87,15 @@ extension AssetTransactionDetailsUiModelX on AssetTransactionDetailsUiModel {
   }
 
   bool get isDeliverLiquid {
-    final lbtc = Asset.liquid().ticker;
+    final lbtc = AssetExt.lBtcMainnetTicker;
+    final tLbtc = AssetExt.lBtcTestnetTicker;
     return map(
-      swap: (model) => model.deliverAssetTicker == lbtc,
-      redeposit: (model) => model.deliverAssetTicker == lbtc,
-      send: (model) => model.deliverAssetTicker == lbtc,
+      swap: (model) =>
+          model.deliverAssetTicker == lbtc || model.deliverAssetTicker == tLbtc,
+      redeposit: (model) =>
+          model.deliverAssetTicker == lbtc || model.deliverAssetTicker == tLbtc,
+      send: (model) =>
+          model.deliverAssetTicker == lbtc || model.deliverAssetTicker == tLbtc,
       receive: (model) => false,
     );
   }

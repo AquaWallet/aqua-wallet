@@ -9,7 +9,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletBackupScreen extends HookConsumerWidget {
-  const WalletBackupScreen({Key? key}) : super(key: key);
+  const WalletBackupScreen({super.key});
 
   static const routeName = '/backupInvite';
 

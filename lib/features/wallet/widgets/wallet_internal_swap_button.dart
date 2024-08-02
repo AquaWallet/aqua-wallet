@@ -6,9 +6,9 @@ import 'package:flutter_svg/svg.dart';
 
 class WalletInternalSwapButton extends StatelessWidget {
   const WalletInternalSwapButton({
-    Key? key,
+    super.key,
     this.isLoading = false,
-  }) : super(key: key);
+  });
 
   final bool isLoading;
 

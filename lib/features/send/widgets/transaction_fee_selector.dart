@@ -1,39 +1,48 @@
-import 'dart:math';
-
 import 'package:aqua/config/config.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/conversion_provider.dart';
+import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/exchange_rate/providers/providers.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
+import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 
-const usdFee = 0.01;
 const liquidUnit = FeeAsset.lbtc;
 const usdUnit = FeeAsset.tetherUsdt;
 
-class UsdtTransactionFeeSelector extends HookConsumerWidget {
-  const UsdtTransactionFeeSelector({
+class LiquidTransactionFeeSelector extends HookConsumerWidget {
+  const LiquidTransactionFeeSelector({
     required this.asset,
     required this.transaction,
+    required this.isSendAll,
     super.key,
   });
 
   final Asset asset;
   final SendAssetOnchainTx? transaction;
+  final bool isSendAll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isExpanded = useState<bool>(true);
-    final usdtFeeSelected = useState<bool>(false);
+    final usdtFeeSelected = useState<bool>(asset.isAnyUsdt);
+
+    final liquidFeeRatePerVb = ref.watch(liquidFeeRateProvider).asData?.value;
+    final liquidFeeRatePerKb =
+        liquidFeeRatePerVb != null ? (liquidFeeRatePerVb * 1000).toInt() : 0;
 
     useEffect(() {
       usdtFeeSelected.addListener(() {
         Future.microtask(() {
-          ref.read(userSelectedFeeAssetProvider.notifier).state =
+          ref.watch(userSelectedFeeAssetProvider.notifier).state =
               usdtFeeSelected.value ? usdUnit : liquidUnit;
           logger.d(
               '[Send][Taxi] fee selector toggled - isUsd: ${usdtFeeSelected.value}');
@@ -49,28 +58,72 @@ class UsdtTransactionFeeSelector extends HookConsumerWidget {
       );
     }, [transaction]);
 
-    final lbtcFee = ref.read(onchainFeeInSatsProvider);
+    // lbtc fee
+    final lbtcFee = gdkTransaction?.fee;
+    final lbtcAsset = ref.read(manageAssetsProvider).lbtcAsset;
     final hasEnoughFundsForLbtcFee = ref
             .watch(hasEnoughFundsForFeeProvider(
-                asset: ref.read(manageAssetsProvider).lbtcAsset,
-                fee: lbtcFee.toDouble()))
+                asset: lbtcAsset, fee: (lbtcFee ?? 0).toDouble()))
             .asData
             ?.value ??
         true;
 
+    // lbtc fee display
+    final satsFee = useState<String?>(null);
+    if (gdkTransaction?.fee != null && satsFee.value == null) {
+      satsFee.value = gdkTransaction?.fee.toString();
+    }
+    final satsFeeDisplay =
+        satsFee.value != null ? "${satsFee.value} Sats" : "Sats";
+
+    // lbtc fee in fiat
+    final referenceCurrency = ref.read(prefsProvider).referenceCurrency;
+    final fiatRates = ref.watch(fiatRatesProvider).asData?.value;
+    final rate = fiatRates
+        ?.firstWhere((element) => element.code == (referenceCurrency))
+        .rate;
+    final amountFiat = lbtcFee != null && rate != null
+        ? (lbtcFee / (satsPerBtc / rate)).toStringAsFixed(2)
+        : '';
+    final lbtcFeeInFiatDisplay = "$referenceCurrency $amountFiat";
+
+    // usdt fee estimate & display
+    final enteredAmount = ref.read(userEnteredAmountProvider);
+    final sendAmount = ref.read(
+        enteredAmountWithPrecisionProvider(enteredAmount ?? Decimal.zero));
+    final sendAll = ref.read(useAllFundsProvider);
+    final isUsdtAssetEnabled = ref.read(manageAssetsProvider).isUsdtEnabled;
+    // TODO: isLowball hardcoded true but need to refactor to read from state if lowball fails and we fallback to higher fees
+    final taxiFeeEstimate = ref
+        .watch(estimatedTaxiFeeUsdtProvider((sendAmount, sendAll, true)))
+        .asData
+        ?.value;
+    final taxiFeeDisplay = taxiFeeEstimate != null
+        ? '~${ref.read(formatterProvider).formatAssetAmountDirect(
+              amount: taxiFeeEstimate.toInt(),
+              precision:
+                  ref.read(manageAssetsProvider).liquidUsdtAsset.precision,
+              roundingOverride: kUsdtDisplayPrecision,
+              removeTrailingZeros: false,
+            )} USDt'
+        : "";
     final hasEnoughFundsForUsdtFee = ref
             .watch(hasEnoughFundsForFeeProvider(
                 asset: ref.read(manageAssetsProvider).liquidUsdtAsset,
-                fee: pow(usdFee, asset.precision).toDouble()))
+                fee: (taxiFeeEstimate ?? 0).toDouble()))
             .asData
             ?.value ??
         true;
 
-    final feeInFiat = (gdkTransaction != null)
-        ? ref.watch(conversionProvider((Asset.btc(), gdkTransaction.fee!)))
-        : "";
-    final satsString = gdkTransaction?.fee?.toString();
-    final feeInSats = satsString != null ? "$satsString Sats" : "";
+    // usdt fee enabled
+    final taxiDisabled = ref.watch(sideswapTaxiProvider).hasError;
+    if (taxiDisabled) {
+      usdtFeeSelected.value = false;
+    }
+    final usdtFeeEnabled = asset.isAnyUsdt &&
+        !taxiDisabled &&
+        isUsdtAssetEnabled &&
+        hasEnoughFundsForUsdtFee;
 
     // toggle automatically if one of the assets doesn't have enough funds and the other doesn't
     // if both don't have enough funds, will show error message below
@@ -80,10 +133,16 @@ class UsdtTransactionFeeSelector extends HookConsumerWidget {
       usdtFeeSelected.value = false;
     }
 
+    final onSelectionPressed = useCallback((bool isUsdtSelected) {
+      if (isUsdtSelected && hasEnoughFundsForUsdtFee) {
+        usdtFeeSelected.value = true;
+      } else if (!isUsdtSelected && hasEnoughFundsForLbtcFee) {
+        usdtFeeSelected.value = false;
+      }
+    }, [hasEnoughFundsForUsdtFee, hasEnoughFundsForLbtcFee, usdtFeeSelected]);
+
     logger.d(
         "[Send][Fee] liquid fee selector - hasEnoughFundsForLbtcFee: $hasEnoughFundsForLbtcFee - hasEnoughFundsForUsdtFee: $hasEnoughFundsForUsdtFee");
-    logger.d(
-        "[Send][Fee] liquid fee selector - feeInFiat: $feeInFiat - feeInSats: $feeInSats");
 
     return BoxShadowCard(
       color: Theme.of(context).colors.altScreenSurface,
@@ -135,16 +194,16 @@ class UsdtTransactionFeeSelector extends HookConsumerWidget {
                     child: _SelectionItem(
                       label: context.loc.layer2Bitcoin,
                       svgIcon: hasEnoughFundsForLbtcFee
-                          ? Svgs.l2Asset
+                          ? Svgs.layerTwoDual
                           : Svgs.l2AssetDisabled,
-                      fee: feeInSats,
+                      fee: satsFeeDisplay,
+                      feeInFiat: lbtcFeeInFiatDisplay,
                       satsPerByte: (liquidFeeRatePerKb / 1000),
                       feeUnit: liquidUnit.name,
-                      isSelected: hasEnoughFundsForLbtcFee,
+                      isSelected:
+                          hasEnoughFundsForLbtcFee && !usdtFeeSelected.value,
                       isEnabled: hasEnoughFundsForLbtcFee,
-                      onPressed: () => hasEnoughFundsForLbtcFee
-                          ? usdtFeeSelected.value = false
-                          : null,
+                      onPressed: () => onSelectionPressed(false),
                     ),
                   ),
                   SizedBox(width: 16.w),
@@ -153,19 +212,18 @@ class UsdtTransactionFeeSelector extends HookConsumerWidget {
                   Expanded(
                     child: _SelectionItem(
                       label: context.loc.sendAssetReviewScreenConfirmFeeTether,
-                      svgIcon: Svgs.usdtAssetDisabled,
-                      fee: hasEnoughFundsForUsdtFee ? "" : "",
+                      svgIcon: hasEnoughFundsForUsdtFee && usdtFeeEnabled
+                          ? Svgs.usdtAsset
+                          : Svgs.usdtAssetDisabled,
+                      fee: usdtFeeEnabled ? taxiFeeDisplay : "",
+                      feeInFiat: null,
                       feeUnit: usdUnit.name,
                       satsPerByte: (liquidFeeRatePerKb / 1000),
-                      // isSelected:
-                      //     hasEnoughFundsForUsdtFee && isUsdtPayment.value,
-                      isSelected: false,
-                      isEnabled: false,
-                      //TODO - Add a check to see if USDt is enabled
-                      // isEnabled: ref.read(manageAssetsProvider).isUsdtEnabled,
-                      onPressed: () => hasEnoughFundsForUsdtFee
-                          ? usdtFeeSelected.value = true
-                          : null,
+                      hideFiatConversion: true,
+                      isSelected:
+                          hasEnoughFundsForUsdtFee && usdtFeeSelected.value,
+                      isEnabled: usdtFeeEnabled,
+                      onPressed: () => onSelectionPressed(true),
                     ),
                   ),
                 ],
@@ -178,34 +236,54 @@ class UsdtTransactionFeeSelector extends HookConsumerWidget {
   }
 }
 
-class _SelectionItem extends StatelessWidget {
+class _SelectionItem extends HookConsumerWidget {
   const _SelectionItem({
     required this.label,
     required this.svgIcon,
     required this.fee,
+    required this.feeInFiat,
     required this.satsPerByte,
     required this.feeUnit,
     required this.isSelected,
     required this.isEnabled,
     required this.onPressed,
+    this.hideFiatConversion = false,
   });
 
   final String svgIcon;
   final String label;
   final String? fee;
+  final String? feeInFiat;
   final double satsPerByte;
   final String feeUnit;
   final bool isSelected;
   final bool isEnabled;
   final VoidCallback onPressed;
+  final bool hideFiatConversion;
 
   @override
-  Widget build(BuildContext context) {
-    // final feeText = fee % 1 == 0 ? fee.toInt() : fee.toStringAsFixed(2);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+
+    final textColor = useMemoized(
+      () {
+        if (isSelected && isEnabled) {
+          return Theme.of(context).colors.sendAssetPrioritySelectedText;
+        }
+        if (isEnabled) {
+          return isDarkMode ? Colors.grey : Colors.black;
+        }
+        return Colors.grey;
+      },
+      [isDarkMode, isSelected, isEnabled],
+    );
+
     return Material(
       color: isSelected
           ? Theme.of(context).colorScheme.primary
-          : Theme.of(context).colorScheme.background,
+          : isDarkMode
+              ? Theme.of(context).colorScheme.background
+              : Theme.of(context).colors.altScreenSurface,
       borderRadius: BorderRadius.circular(6.r),
       child: InkWell(
         onTap: isEnabled ? onPressed : null,
@@ -215,9 +293,7 @@ class _SelectionItem extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 16.h),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isSelected
-                  ? Theme.of(context).colors.sendAssetPriorityUnselectedBorder
-                  : Colors.transparent,
+              color: Theme.of(context).colors.sendAssetPriorityUnselectedBorder,
               width: 2.r,
             ),
             borderRadius: BorderRadius.circular(6.r),
@@ -235,40 +311,30 @@ class _SelectionItem extends StatelessWidget {
                 label,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 13.sp,
-                      fontWeight: FontWeight.w400,
-                      color: isSelected && isEnabled
-                          ? Theme.of(context)
-                              .colors
-                              .sendAssetPrioritySelectedText
-                          : Colors.grey,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
                     ),
               ),
-              SizedBox(height: 8.h),
               Text(
                 '$fee',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
-                      color: isSelected && isEnabled
-                          ? Theme.of(context)
-                              .colors
-                              .sendAssetPrioritySelectedText
-                          : Colors.grey,
+                      color: textColor,
                     ),
               ),
-              Text(
-                context.loc
-                    .sendAssetReviewScreenConfirmPrioritySats(satsPerByte),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w400,
-                      color: isSelected
-                          ? Theme.of(context)
-                              .colors
-                              .sendAssetPrioritySelectedText
-                          : Theme.of(context).colorScheme.onBackground,
-                    ),
-              ),
+              if (!hideFiatConversion && feeInFiat != null) ...[
+                Text(
+                  feeInFiat!,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w400,
+                        color: textColor,
+                      ),
+                ),
+              ] else ...[
+                SizedBox(height: 16.h),
+              ]
             ],
           ),
         ),

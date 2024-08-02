@@ -1,11 +1,7 @@
 import 'dart:async';
 
 import 'package:aqua/constants.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';

@@ -4,20 +4,17 @@ import 'dart:io';
 import 'package:aqua/common/utils/encode_query_component.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/marketplace/meld_provider.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/pages/swap_screen.dart';
-import 'package:aqua/screens/common/webview_screen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MarketplaceTab extends HookConsumerWidget {
-  const MarketplaceTab({Key? key}) : super(key: key);
+  const MarketplaceTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -129,26 +126,8 @@ class MarketplaceView extends HookConsumerWidget {
                 icon: Svgs.marketplaceBuy,
                 onPressed: Platform.isIOS && disableExchagesOnIOS
                     ? null
-                    : () async {
-                        if (multipleOnramps) {
-                          Navigator.of(context)
-                              .pushNamed(OnRampScreen.routeName);
-                        } else {
-                          final address = await ref
-                              .read(bitcoinProvider)
-                              .getReceiveAddress();
-                          final uri =
-                              ref.read(meldUriProvider(address?.address));
-                          if (context.mounted) {
-                            Navigator.of(context).pushNamed(
-                              WebviewScreen.routeName,
-                              arguments: WebviewArguments(
-                                uri,
-                                context.loc.buyWithFiatScreenTitle,
-                              ),
-                            );
-                          }
-                        }
+                    : () {
+                        Navigator.of(context).pushNamed(OnRampScreen.routeName);
                       },
               ),
               //ANCHOR - Swaps
