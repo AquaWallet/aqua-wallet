@@ -1,24 +1,24 @@
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_provider.dart';
 import 'package:aqua/features/send/providers/providers.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SideshiftMinMaxPanel extends HookConsumerWidget {
   const SideshiftMinMaxPanel({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String formatAmount(dynamic amount) {
+    final formatAmount = useCallback((dynamic amount) {
       if (amount == null) {
         return '--';
       } else {
         final formattedAmount = double.tryParse(amount)?.toStringAsFixed(2);
         return (formattedAmount == null) ? '--' : '$formattedAmount USDt';
       }
-    }
+    });
 
     final asset = ref.read(sendAssetProvider);
     final SideshiftAssetPair assetPair = SideshiftAssetPair(
@@ -28,7 +28,7 @@ class SideshiftMinMaxPanel extends HookConsumerWidget {
           : SideshiftAsset.usdtTron(),
     );
     final currentPairInfo =
-        ref.watch(sideshiftPairInfoProvider(assetPair)).asData?.value;
+        ref.watch(sideshiftAssetPairInfoProvider(assetPair)).asData?.value;
     final min = formatAmount(currentPairInfo?.min);
     final max = formatAmount(currentPairInfo?.max);
 

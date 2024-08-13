@@ -1,6 +1,5 @@
 import 'package:aqua/common/widgets/custom_error.dart';
 import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/receive/pages/models/models.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';

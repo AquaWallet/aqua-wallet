@@ -24,7 +24,7 @@ class ReceiveAssetAddressShareButton extends HookConsumerWidget {
       height: 48.h,
       width: isExpanded ? double.maxFinite : 52.w,
       child: OutlinedButton(
-        onPressed: isEnabled ? null : () => Share.share(address),
+        onPressed: isEnabled ? () => Share.share(address) : null,
         style: OutlinedButton.styleFrom(
           backgroundColor:
               Theme.of(context).colors.addressFieldContainerBackgroundColor,
@@ -48,7 +48,9 @@ class ReceiveAssetAddressShareButton extends HookConsumerWidget {
               width: 17.r,
               height: 17.r,
               colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.onBackground,
+                isEnabled
+                    ? Theme.of(context).colorScheme.onBackground
+                    : Theme.of(context).colorScheme.onSurface,
                 BlendMode.srcIn,
               ),
             ),
@@ -56,6 +58,12 @@ class ReceiveAssetAddressShareButton extends HookConsumerWidget {
               SizedBox(width: 10.w),
               Text(
                 AppLocalizations.of(context)!.receiveAssetScreenShare,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: isEnabled
+                          ? Theme.of(context).colorScheme.onBackground
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
               ),
             ],
           ],

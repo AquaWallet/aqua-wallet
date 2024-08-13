@@ -21,6 +21,7 @@ class SendAssetAddressScreen extends HookConsumerWidget {
     // watch these to keep them from being disposed throughout send flow
     final asset = ref.watch(sendAssetProvider);
     final address = ref.watch(sendAddressProvider);
+    final error = ref.watch(sendAddressErrorProvider);
 
     // addresss
     final addressInputController = useTextEditingController(text: address);
@@ -99,6 +100,19 @@ class SendAssetAddressScreen extends HookConsumerWidget {
                           .parseInput(addressInputController.text),
                       onPressed: onScan,
                     ),
+                    if (error != null) ...[
+                      Row(
+                        children: [
+                          Text(error.toLocalizedString(context),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.error)),
+                        ],
+                      )
+                    ],
                     SizedBox(height: 20.h),
                     //ANCHOR - Paste from Clipboard
                     if (clipboardCheck != null) ...[
@@ -116,7 +130,18 @@ class SendAssetAddressScreen extends HookConsumerWidget {
                       InternalSendMenu(asset: asset),
                       SizedBox(height: 50.h),
                     ],
-                    _ContinueButton(address: address),
+                    AquaElevatedButton(
+                      height: 52.h,
+                      onPressed:
+                          error == null && address != null && address.isNotEmpty
+                              ? () => ref
+                                  .read(sendNavigationAmountScreenProvider)
+                                  .call(context)
+                              : null,
+                      child: Text(
+                        context.loc.sendAssetAmountScreenContinueButton,
+                      ),
+                    ),
                     SizedBox(height: 62.h),
                   ],
                 ),
@@ -125,43 +150,6 @@ class SendAssetAddressScreen extends HookConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ContinueButton extends HookConsumerWidget {
-  const _ContinueButton({
-    required this.address,
-  });
-
-  final String? address;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final error = ref.watch(sendAddressErrorProvider);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        //ANCHOR - Error
-        if (error != null) ...[
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.w),
-            child: CustomError(
-              errorMessage: error.toLocalizedString(context),
-            ),
-          ),
-        ],
-        AquaElevatedButton(
-          height: 52.h,
-          onPressed: error == null && address != null && address!.isNotEmpty
-              ? () => ref.read(sendNavigationAmountScreenProvider).call(context)
-              : null,
-          child: Text(
-            context.loc.sendAssetAmountScreenContinueButton,
-          ),
-        ),
-      ],
     );
   }
 }

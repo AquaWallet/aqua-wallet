@@ -16,3 +16,4 @@ export 'transaction_id_card.dart';
 export 'transaction_info_card.dart';
 export 'transaction_info_item.dart';
 export 'transaction_priority_selector.dart';
+export 'mempool_conflict_dialog.dart';

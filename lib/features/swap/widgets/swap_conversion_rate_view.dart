@@ -14,7 +14,7 @@ class SwapConversionRateView extends HookConsumerWidget {
 
     if (isLoading) {
       return Container(
-        height: 34.h,
+        height: 42.h,
         margin: EdgeInsets.symmetric(vertical: 12.h),
         padding: EdgeInsets.symmetric(vertical: 9.h),
         child: const Text('1 BTC = 1 L-BTC'),
@@ -22,7 +22,7 @@ class SwapConversionRateView extends HookConsumerWidget {
     }
 
     return Container(
-      height: 34.h,
+      height: 42.h,
       margin: EdgeInsets.symmetric(vertical: 12.h),
       child: amount == null || error != null
           ? const SizedBox.shrink()

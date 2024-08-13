@@ -103,6 +103,7 @@
     "lnurlwWithdraw",
     "lnurlwTitle",
     "lnurlwWithdrawPrompt",
+    "lightningTransactionPendingScreenSendTitle",
     "swapPanelPegInInfo",
     "swapPanelPegOutInfo",
     "settingsScreenInviteButton",
@@ -180,7 +181,18 @@
     "internalSendSuccessTxnIdLabel",
     "internalSendSuccessOrderIdLabel",
     "swapScreenConvertMinButton",
-    "noOnrampOptionsAvailable"
+    "noOnrampOptionsAvailable",
+    "testSettingsScreenSectionTitle",
+    "testSettingsScreenItemFakeBroadcast",
+    "testSettingsScreenItemThrowAquaBroadcastError",
+    "testSettingsScreenItemForceAquaNodeNotSynced",
+    "cancel",
+    "tryAgain",
+    "mempoolConflictBroadcastTxExceptionTitle",
+    "mempoolConflictBroadcastTxExceptionMessage",
+    "mempoolConflictBroadcastTxExceptionTimerMessage",
+    "broadcastTxExceptionTitle",
+    "aquaBroadcastTxExceptionMessage"
   ],
 
   "ca": [
@@ -289,6 +301,7 @@
     "lnurlwWithdraw",
     "lnurlwTitle",
     "lnurlwWithdrawPrompt",
+    "lightningTransactionPendingScreenSendTitle",
     "lightningTransactionSuccessScreenReceiveMessage",
     "whatsappTitle",
     "zendeskTitle",
@@ -376,7 +389,18 @@
     "internalSendSuccessTxnIdLabel",
     "internalSendSuccessOrderIdLabel",
     "swapScreenConvertMinButton",
-    "noOnrampOptionsAvailable"
+    "noOnrampOptionsAvailable",
+    "testSettingsScreenSectionTitle",
+    "testSettingsScreenItemFakeBroadcast",
+    "testSettingsScreenItemThrowAquaBroadcastError",
+    "testSettingsScreenItemForceAquaNodeNotSynced",
+    "cancel",
+    "tryAgain",
+    "mempoolConflictBroadcastTxExceptionTitle",
+    "mempoolConflictBroadcastTxExceptionMessage",
+    "mempoolConflictBroadcastTxExceptionTimerMessage",
+    "broadcastTxExceptionTitle",
+    "aquaBroadcastTxExceptionMessage"
   ],
 
   "cs": [
@@ -485,6 +509,7 @@
     "lnurlwWithdraw",
     "lnurlwTitle",
     "lnurlwWithdrawPrompt",
+    "lightningTransactionPendingScreenSendTitle",
     "lightningTransactionSuccessScreenReceiveMessage",
     "whatsappTitle",
     "zendeskTitle",
@@ -572,7 +597,18 @@
     "internalSendSuccessTxnIdLabel",
     "internalSendSuccessOrderIdLabel",
     "swapScreenConvertMinButton",
-    "noOnrampOptionsAvailable"
+    "noOnrampOptionsAvailable",
+    "testSettingsScreenSectionTitle",
+    "testSettingsScreenItemFakeBroadcast",
+    "testSettingsScreenItemThrowAquaBroadcastError",
+    "testSettingsScreenItemForceAquaNodeNotSynced",
+    "cancel",
+    "tryAgain",
+    "mempoolConflictBroadcastTxExceptionTitle",
+    "mempoolConflictBroadcastTxExceptionMessage",
+    "mempoolConflictBroadcastTxExceptionTimerMessage",
+    "broadcastTxExceptionTitle",
+    "aquaBroadcastTxExceptionMessage"
   ],
 
   "es": [
@@ -683,6 +719,7 @@
     "lnurlwWithdraw",
     "lnurlwTitle",
     "lnurlwWithdrawPrompt",
+    "lightningTransactionPendingScreenSendTitle",
     "lightningTransactionSuccessScreenReceiveMessage",
     "boltzRedeemScriptValidationError",
     "swapPanelPegInInfo",
@@ -762,7 +799,18 @@
     "internalSendSuccessTxnIdLabel",
     "internalSendSuccessOrderIdLabel",
     "swapScreenConvertMinButton",
-    "noOnrampOptionsAvailable"
+    "noOnrampOptionsAvailable",
+    "testSettingsScreenSectionTitle",
+    "testSettingsScreenItemFakeBroadcast",
+    "testSettingsScreenItemThrowAquaBroadcastError",
+    "testSettingsScreenItemForceAquaNodeNotSynced",
+    "cancel",
+    "tryAgain",
+    "mempoolConflictBroadcastTxExceptionTitle",
+    "mempoolConflictBroadcastTxExceptionMessage",
+    "mempoolConflictBroadcastTxExceptionTimerMessage",
+    "broadcastTxExceptionTitle",
+    "aquaBroadcastTxExceptionMessage"
   ],
 
   "nl": [
@@ -871,6 +919,7 @@
     "lnurlwWithdraw",
     "lnurlwTitle",
     "lnurlwWithdrawPrompt",
+    "lightningTransactionPendingScreenSendTitle",
     "swapPanelPegInInfo",
     "swapPanelPegOutInfo",
     "settingsScreenInviteButton",
@@ -948,6 +997,17 @@
     "internalSendSuccessTxnIdLabel",
     "internalSendSuccessOrderIdLabel",
     "swapScreenConvertMinButton",
-    "noOnrampOptionsAvailable"
+    "noOnrampOptionsAvailable",
+    "testSettingsScreenSectionTitle",
+    "testSettingsScreenItemFakeBroadcast",
+    "testSettingsScreenItemThrowAquaBroadcastError",
+    "testSettingsScreenItemForceAquaNodeNotSynced",
+    "cancel",
+    "tryAgain",
+    "mempoolConflictBroadcastTxExceptionTitle",
+    "mempoolConflictBroadcastTxExceptionMessage",
+    "mempoolConflictBroadcastTxExceptionTimerMessage",
+    "broadcastTxExceptionTitle",
+    "aquaBroadcastTxExceptionMessage"
   ]
 }

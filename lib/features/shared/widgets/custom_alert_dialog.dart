@@ -12,6 +12,7 @@ class CustomAlertDialog extends StatelessWidget {
     required this.controlWidgets,
     this.height,
     this.onPopInvoked,
+    this.content,
   });
 
   final String title;
@@ -19,6 +20,7 @@ class CustomAlertDialog extends StatelessWidget {
   final List<Widget> controlWidgets;
   final double? height;
   final PopInvokedCallback? onPopInvoked;
+  final Widget? content;
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +56,13 @@ class CustomAlertDialog extends StatelessWidget {
                           ),
                     ),
                   ),
+                  if (content != null)
+                    Padding(
+                      padding: EdgeInsets.only(top: 20.h),
+                      child: content,
+                    ),
                   Padding(
-                    padding: EdgeInsets.only(top: 50.h),
+                    padding: EdgeInsets.only(top: 20.h),
                     child: Row(
                       children: controlWidgets,
                     ),
@@ -100,6 +107,7 @@ Future<T?> showCustomAlertDialog<T>({
       return CustomAlertDialog(
         title: uiModel.title,
         subtitle: uiModel.subtitle,
+        content: uiModel.content,
         controlWidgets: [
           Expanded(
             child: ElevatedButton(
@@ -107,6 +115,14 @@ Future<T?> showCustomAlertDialog<T>({
               child: Text(uiModel.buttonTitle),
             ),
           ),
+          if (uiModel.secondaryButtonTitle != null) SizedBox(width: 16.w),
+          if (uiModel.secondaryButtonTitle != null)
+            Expanded(
+              child: ElevatedButton(
+                onPressed: uiModel.onSecondaryButtonPressed,
+                child: Text(uiModel.secondaryButtonTitle!),
+              ),
+            ),
         ],
       );
     },

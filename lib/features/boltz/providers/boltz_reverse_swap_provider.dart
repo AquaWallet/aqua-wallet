@@ -49,7 +49,7 @@ class BoltzReverseSwapNotifier extends StateNotifier<ReceiveBoltzState> {
       final chain = _ref.read(envProvider) == Env.mainnet
           ? Chain.liquid
           : Chain.liquidTestnet;
-      final response = await LbtcLnV2Swap.newReverse(
+      final response = await LbtcLnSwap.newReverse(
         mnemonic: mnemonicString,
         index: 0,
         outAmount: amountAsDecimal.toInt(),

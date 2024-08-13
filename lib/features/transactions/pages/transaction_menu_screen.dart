@@ -27,101 +27,105 @@ class TransactionMenuScreen extends HookConsumerWidget {
     final otherAssets = ref
         .watch(manageAssetsProvider.select((p) => p.otherTransactableAssets));
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colors.menuSurface,
-      appBar: AquaAppBar(
-        showBackButton: true,
-        showActionButton: false,
-        backgroundColor: Theme.of(context).colors.menuBackground,
-        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        iconOutlineColor: Theme.of(context).colors.appBarIconOutlineColorAlt,
-        iconBackgroundColor:
-            Theme.of(context).colors.appBarIconBackgroundColorAlt,
-        iconForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        title: title,
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            //ANCHOR - Description
-            Container(
-              width: double.infinity,
-              height: 500.h,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colors.menuBackground,
-                border: Border.all(
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (_) => ref.invalidate(receiveAssetAddressProvider),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colors.menuSurface,
+        appBar: AquaAppBar(
+          showBackButton: true,
+          showActionButton: false,
+          backgroundColor: Theme.of(context).colors.menuBackground,
+          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+          iconOutlineColor: Theme.of(context).colors.appBarIconOutlineColorAlt,
+          iconBackgroundColor:
+              Theme.of(context).colors.appBarIconBackgroundColorAlt,
+          iconForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+          title: title,
+        ),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              //ANCHOR - Description
+              Container(
+                width: double.infinity,
+                height: 500.h,
+                decoration: BoxDecoration(
                   color: Theme.of(context).colors.menuBackground,
+                  border: Border.all(
+                    color: Theme.of(context).colors.menuBackground,
+                  ),
                 ),
               ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 24.h),
-              child: SingleChildScrollView(
-                padding: EdgeInsets.only(bottom: 125.h),
-                physics: const BouncingScrollPhysics(),
-                child: Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20.r),
-                      topRight: Radius.circular(20.r),
+              Container(
+                margin: EdgeInsets.only(top: 24.h),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: 125.h),
+                  physics: const BouncingScrollPhysics(),
+                  child: Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.r),
+                        topRight: Radius.circular(20.r),
+                      ),
                     ),
-                  ),
-                  color: Theme.of(context).colors.menuSurface,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 28.w,
-                      vertical: 30.h,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        //ANCHOR - Aqua Assets Section
-                        Text(
-                          context.loc.receiveMenuScreenSectionAquaAssets,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        SizedBox(height: 26.h),
-                        //ANCHOR - Aqua Assets List
-                        _AquaAssetsGrid(
-                          curatedAssets: curatedAssets,
-                          type: type,
-                        ),
-                        SizedBox(height: 32.h),
-                        if (otherAssets.isNotEmpty) ...[
-                          //ANCHOR - Other Assets Section
+                    color: Theme.of(context).colors.menuSurface,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 28.w,
+                        vertical: 30.h,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          //ANCHOR - Aqua Assets Section
                           Text(
-                            context.loc.receiveMenuScreenSectionOtherAssets,
+                            context.loc.receiveMenuScreenSectionAquaAssets,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           SizedBox(height: 26.h),
-                          //ANCHOR - Other Assets List
-                          _OtherAssetsGrid(
-                            otherAssets: otherAssets,
+                          //ANCHOR - Aqua Assets List
+                          _AquaAssetsGrid(
+                            curatedAssets: curatedAssets,
                             type: type,
                           ),
+                          SizedBox(height: 32.h),
+                          if (otherAssets.isNotEmpty) ...[
+                            //ANCHOR - Other Assets Section
+                            Text(
+                              context.loc.receiveMenuScreenSectionOtherAssets,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            SizedBox(height: 26.h),
+                            //ANCHOR - Other Assets List
+                            _OtherAssetsGrid(
+                              otherAssets: otherAssets,
+                              type: type,
+                            ),
+                          ],
+                          SizedBox(height: 32.h),
                         ],
-                        SizedBox(height: 32.h),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            //ANCHOR - Gradient Overlay
-            IgnorePointer(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: double.infinity,
-                  height: MediaQuery.sizeOf(context).height * .25,
-                  decoration: BoxDecoration(
-                    gradient: Theme.of(context).getFadeGradient(),
+              //ANCHOR - Gradient Overlay
+              IgnorePointer(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: double.infinity,
+                    height: MediaQuery.sizeOf(context).height * .25,
+                    decoration: BoxDecoration(
+                      gradient: Theme.of(context).getFadeGradient(),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

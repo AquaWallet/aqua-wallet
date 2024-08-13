@@ -103,7 +103,7 @@ class ReceiveAmountInputSheet extends HookConsumerWidget {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    context.loc.receiveAssetAmountSheetCancelButton,
+                    context.loc.cancel,
                   ),
                 ),
               ),

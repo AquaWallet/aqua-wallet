@@ -26,7 +26,8 @@ class InternalSendMenu extends HookConsumerWidget {
       [assets],
     );
     final usdtAsset = useMemoized(
-      () => assets.firstWhere((a) => a.isUsdtLiquid),
+      () => assets.firstWhereOrNull((a) => a
+          .isUsdtLiquid), // usdt can be null if removed from assets list by user
       [assets],
     );
 
@@ -51,23 +52,25 @@ class InternalSendMenu extends HookConsumerWidget {
             receiveAsset: lbtcAsset,
           ),
         },
-        if (asset.isUsdtLiquid) ...{
+        if (asset.isUsdtLiquid && usdtAsset != null) ...{
           _InternalSendCard(
             deliverAsset: usdtAsset,
             receiveAsset: lbtcAsset,
           ),
         },
-        if (asset.isLBTC) ...[
+        if (asset.isLBTC && usdtAsset != null) ...[
           _InternalSendCard(
             deliverAsset: lbtcAsset,
             receiveAsset: usdtAsset,
           ),
           SizedBox(height: 15.h),
+        ],
+        if (asset.isLBTC) ...{
           _InternalSendCard(
             deliverAsset: lbtcAsset,
             receiveAsset: btcAsset,
           ),
-        ]
+        },
       ],
     );
   }

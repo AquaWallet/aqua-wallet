@@ -31,6 +31,9 @@ class FeatureFlagsNotifier extends ChangeNotifier {
   bool get throwAquaBroadcastErrorEnabled =>
       _prefs.getBool(PrefKeys.throwAquaBroadcastErrorEnabled) ?? false;
 
+  bool get forceAquaNodeNotSyncedEnabled =>
+      _prefs.getBool(PrefKeys.forceAquaNodeNotSyncedEnabled) ?? false;
+
   void toggleFeatureFlag({
     required String key,
     required bool currentValue,

@@ -1,7 +1,5 @@
 import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/common/widgets/custom_error.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
@@ -121,21 +119,11 @@ class SendAssetAmountScreen extends HookConsumerWidget {
       }
     }, []);
 
-    // handle errors
-    List<Widget> handleError(BuildContext context, ExceptionLocalized error) {
-      if (error is AmountParsingException &&
-          error.type == AmountParsingExceptionType.notEnoughFundsForFee) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showInsufficientFundsModal(InsufficientFundsType.fee);
-        });
-      }
-
-      return [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30.w),
-          child: CustomError(errorMessage: error.toLocalizedString(context)),
-        )
-      ];
+    if (error is AmountParsingException &&
+        error.type == AmountParsingExceptionType.notEnoughFundsForFee) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showInsufficientFundsModal(InsufficientFundsType.fee);
+      });
     }
 
     return Scaffold(
@@ -250,8 +238,16 @@ class SendAssetAmountScreen extends HookConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
+                    if (error != null) ...{
+                      Text(error.toLocalizedString(context),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  color: Theme.of(context).colorScheme.error))
+                    }
                     //ANCHOR - Conversion to fiat
-                    if (conversionToFiatWithSymbolDisplay != null &&
+                    else if (conversionToFiatWithSymbolDisplay != null &&
                         asset.shouldShowConversionOnSend) ...{
                       Text("≈ $conversionToFiatWithSymbolDisplay",
                           style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -298,9 +294,6 @@ class SendAssetAmountScreen extends HookConsumerWidget {
               ),
             ],
             const Spacer(),
-
-            //ANCHOR - Error
-            if (error != null) ...handleError(context, error),
 
             //ANCHOR - Continue Button
             Container(

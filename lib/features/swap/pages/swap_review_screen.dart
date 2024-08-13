@@ -14,10 +14,6 @@ class SwapReviewScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final arg = ModalRoute.of(context)!.settings.arguments;
     final isProcessing = useState(false);
-    final amount = ref.read(swapIncomingDeliverAmountProvider);
-    final inputState = ref.read(sideswapInputStateProvider);
-    final deliverAssetTicker = inputState.deliverAsset?.ticker ?? '';
-    final receiveAssetTicker = inputState.receiveAsset?.ticker ?? '';
 
     final content = useMemoized(() {
       final input = ref.read(sideswapInputStateProvider);
@@ -93,13 +89,7 @@ class SwapReviewScreen extends HookConsumerWidget {
     );
 
     if (isProcessing.value) {
-      return TransactionProcessingAnimation(
-        message: context.loc.swapScreenLoadingMessage(
-          amount,
-          deliverAssetTicker,
-          receiveAssetTicker,
-        ),
-      );
+      return const TransactionProcessingAnimation();
     }
 
     return Scaffold(

@@ -98,7 +98,8 @@ class BoltzSwapSettlementService {
 
   Future<void> _handleReverseSwapStatus(
       BoltzSwapDbModel swap, BoltzSwapStatus status) async {
-    if (status.needsClaim) {
+    if (status.needsClaim &&
+        (swap.claimTxId == null || swap.claimTxId!.isEmpty)) {
       logger.d('[Boltz] Swap needs claim: ${swap.boltzId}');
       final boltzSwap = await _ref
           .read(boltzStorageProvider.notifier)
@@ -112,8 +113,8 @@ class BoltzSwapSettlementService {
     }
   }
 
-  Future<List<BoltzSwapDbModel>> _getSubmarineSwapsToMonitor() {
-    return _ref.read(boltzStorageProvider.future).then((swaps) {
+  Future<List<BoltzSwapDbModel>> _getSubmarineSwapsToMonitor() async {
+    return await _ref.read(boltzStorageProvider.future).then((swaps) {
       return swaps
           .where((swap) =>
               swap.kind == SwapType.submarine &&
@@ -128,8 +129,8 @@ class BoltzSwapSettlementService {
     });
   }
 
-  Future<List<BoltzSwapDbModel>> _getReverseSwapsToMonitor() {
-    return _ref.read(boltzStorageProvider.future).then((swaps) {
+  Future<List<BoltzSwapDbModel>> _getReverseSwapsToMonitor() async {
+    return await _ref.read(boltzStorageProvider.future).then((swaps) {
       return swaps
           .where((swap) =>
               swap.kind == SwapType.reverse &&
@@ -139,7 +140,7 @@ class BoltzSwapSettlementService {
               (swap.createdAt == null ||
                   (swap.createdAt != null &&
                       DateTime.now().difference(swap.createdAt!).inHours <=
-                          72)))
+                          672))) // bump to a month temporarily to allow claims for taproot claim bug in 0.2.0
           .toList();
     });
   }
@@ -154,7 +155,7 @@ class BoltzSwapSettlementService {
     }
   }
 
-  Future<String?> refund(LbtcLnV2Swap swap, {bool tryCoop = true}) async {
+  Future<String?> refund(LbtcLnSwap swap, {bool tryCoop = true}) async {
     logger.d('[Boltz] Refunding Boltz Swap: ${swap.id}');
 
     try {
@@ -164,19 +165,24 @@ class BoltzSwapSettlementService {
             'Receive address is null when trying to construct refund tx');
       }
 
-      final fees = await AllFees.fetch(boltzUrl: boltzMainnetUrl);
-      final refundResponse = await swap.refund(
+      final fees = await Fees.newInstance(boltzUrl: boltzV2MainnetUrl);
+      final subFees = await fees.submarine();
+      final refundBytes = await swap.refundBytes(
         outAddress: address.address!,
-        absFee: fees.lbtcReverse.claimFeesEstimate,
+        absFee: subFees.lbtcFees.minerFees,
         tryCooperate: tryCoop,
       );
 
+      logger.d('[Boltz] Boltz Swap Refund tx bytes: $refundBytes');
+
+      final broadcastResponse = await broadcast(refundBytes);
+
       await _ref
           .read(boltzStorageProvider.notifier)
-          .updateRefundTxId(boltzId: swap.id, txId: refundResponse);
+          .updateRefundTxId(boltzId: swap.id, txId: broadcastResponse);
 
-      logger.d('[Boltz] Boltz Swap Refund response: $refundResponse');
-      return refundResponse;
+      logger.d('[Boltz] Boltz Swap Refund response: $broadcastResponse');
+      return broadcastResponse;
     } catch (e) {
       // if coop/keypath refund fails, try the scriptpath (will only happen if boltz is down or uncooperative)
       if (tryCoop) {
@@ -187,7 +193,7 @@ class BoltzSwapSettlementService {
     }
   }
 
-  Future<String?> claim(LbtcLnV2Swap swap, {bool tryCoop = true}) async {
+  Future<String?> claim(LbtcLnSwap swap, {bool tryCoop = true}) async {
     logger.d('[Boltz] Claiming Boltz Swap: ${swap.id}');
     try {
       final address = await _ref.read(liquidProvider).getReceiveAddress();
@@ -196,18 +202,22 @@ class BoltzSwapSettlementService {
             'Receive address is null when trying to construct claim tx');
       }
 
-      final fees = await AllFees.fetch(boltzUrl: boltzMainnetUrl);
-      final claimResponse = await swap.claim(
+      final fees = await Fees.newInstance(boltzUrl: boltzV2MainnetUrl);
+      final reverseFees = await fees.reverse();
+      final claimBytes = await swap.claimBytes(
         outAddress: address.address!,
-        absFee: fees.lbtcReverse.claimFeesEstimate,
+        absFee: reverseFees.lbtcFees.minerFees.claim,
         tryCooperate: tryCoop,
       );
-      logger.d('[Boltz] Boltz Swap Claim response: $claimResponse');
+      logger.d('[Boltz] Boltz Swap Claim bytes: $claimBytes');
 
+      final broadcastResponse = await broadcast(claimBytes);
+
+      logger.d('[Boltz] Boltz Swap Claim response: $broadcastResponse');
       // update boltz cache
       await _ref
           .read(boltzStorageProvider.notifier)
-          .updateClaimTxId(boltzId: swap.id, txId: claimResponse);
+          .updateClaimTxId(boltzId: swap.id, txId: broadcastResponse);
 
       // update main tx cache
       await _ref
@@ -215,7 +225,7 @@ class BoltzSwapSettlementService {
           .updateReceiveAddressForBoltzId(
               boltzId: swap.id, newReceiveAddress: address.address!);
 
-      return claimResponse;
+      return broadcastResponse;
     } catch (e) {
       // if coop/keypath claim fails, try the scriptpath (will only happen if boltz is down or uncooperative)
       if (tryCoop) {
@@ -223,6 +233,19 @@ class BoltzSwapSettlementService {
       }
       logger.e('[Boltz] Error claiming Boltz Swap: ${swap.id}', e);
       rethrow;
+    }
+  }
+
+  Future<String> broadcast(String tx) async {
+    try {
+      return await _ref
+          .read(electrsProvider)
+          .broadcast(tx, NetworkType.liquid, isLowball: true);
+    } on AquaTxBroadcastException {
+      logger.e('[Boltz] Aqua broadcast error, retrying with Blockstream...');
+      return await _ref
+          .read(electrsProvider)
+          .broadcast(tx, NetworkType.liquid, isLowball: false);
     }
   }
 }

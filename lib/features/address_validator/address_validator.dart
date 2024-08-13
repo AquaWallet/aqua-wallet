@@ -128,9 +128,12 @@ class AddressParser {
         return parsedBip21;
       }
 
-      // try to parse lightning invoice or lightning address if layerTwo
+      // verify if layer2 and try to parse lightning invoice or lightning address if layerTwo
       if (asset.isLayerTwo) {
-        if (isValidLightningAddressFormat(input)) {
+        if (parsedAsset != null && !parsedAsset.isLayerTwo) {
+          throw AddressParsingException(
+              AddressParsingExceptionType.nonMatchingAssetId);
+        } else if (isValidLightningAddressFormat(input)) {
           return await _parseLightningAddress(input);
         } else if (isValidLNURL(input)) {
           return await _parseLNURL(input);

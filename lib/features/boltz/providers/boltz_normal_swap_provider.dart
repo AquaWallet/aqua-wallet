@@ -9,10 +9,10 @@ import 'package:flutter/foundation.dart';
 
 // ANCHOR - Submarine Swap Provider
 final boltzSubmarineSwapProvider =
-    StateNotifierProvider<BoltzSubmarineSwapNotifier, LbtcLnV2Swap?>(
+    StateNotifierProvider<BoltzSubmarineSwapNotifier, LbtcLnSwap?>(
         BoltzSubmarineSwapNotifier.new);
 
-class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnV2Swap?> {
+class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
   BoltzSubmarineSwapNotifier(this._ref) : super(null);
 
   final Ref _ref;
@@ -56,7 +56,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnV2Swap?> {
     final chain = _ref.read(envProvider) == Env.mainnet
         ? Chain.liquid
         : Chain.liquidTestnet;
-    final response = await LbtcLnV2Swap.newSubmarine(
+    final response = await LbtcLnSwap.newSubmarine(
       mnemonic: mnemonicString,
       index: 0,
       invoice: address,
@@ -101,7 +101,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnV2Swap?> {
       // For refund debugging purposes, sending an amount 1 sat less than the
       // expected amount will cause the swap to fail and put the swap in a state
       // where a refund is needed
-      final amount = kDebugMode && forceBoltzFailedNormalSwapEnabled
+      final amount = forceBoltzFailedNormalSwapEnabled
           ? boltzOrder.outAmount - 1
           : boltzOrder.outAmount;
 

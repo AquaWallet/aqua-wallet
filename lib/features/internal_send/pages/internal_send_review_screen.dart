@@ -78,9 +78,7 @@ class InternalSendReviewScreen extends HookConsumerWidget {
       );
 
     if (isProcessing.value) {
-      return TransactionProcessingAnimation(
-        message: context.loc.internalSendLoadingMessage,
-      );
+      return const TransactionProcessingAnimation();
     }
 
     return Scaffold(

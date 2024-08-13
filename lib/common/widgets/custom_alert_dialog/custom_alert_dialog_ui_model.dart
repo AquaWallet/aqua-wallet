@@ -1,5 +1,5 @@
+import 'package:aqua/features/shared/shared.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter/foundation.dart';
 
 part 'custom_alert_dialog_ui_model.freezed.dart';
 
@@ -9,6 +9,9 @@ class CustomAlertDialogUiModel with _$CustomAlertDialogUiModel {
     required String title,
     required String subtitle,
     required String buttonTitle,
-    required Function() onButtonPressed,
+    required VoidCallback onButtonPressed,
+    String? secondaryButtonTitle,
+    VoidCallback? onSecondaryButtonPressed,
+    Widget? content,
   }) = _CustomAlertDialogUiModel;
 }

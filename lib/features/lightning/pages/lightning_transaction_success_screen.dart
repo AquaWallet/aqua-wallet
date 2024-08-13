@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
 import 'package:aqua/features/lightning/lightning.dart';
+import 'package:aqua/features/lightning/widgets/lightning_status_text.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -106,35 +109,22 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
                   const Spacer(),
                   //ANCHOR - Lightning Graphic Placeholder
                   SizedBox(height: 180.h),
-                  //ANCHOR - Title
-                  Text(
-                    arguments.map(
-                      send: (_) => context
-                          .loc.lightningTransactionSuccessScreenSendTitle,
-                      receive: (_) => context
-                          .loc.lightningTransactionSuccessScreenReceiveTitle,
-                    ),
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          letterSpacing: .6,
-                          fontWeight: FontWeight.normal,
-                        ),
+                  //ANCHOR - Status Text
+                  LightningStatusText(
+                    type: arguments.type,
+                    orderId: arguments.orderId,
                   ),
                   SizedBox(height: 18.h),
                   //ANCHOR - Amount
                   Text(
-                    // ignore: unnecessary_null_comparison
-                    arguments.satoshiAmount == null
-                        ? context
-                            .loc.lightningTransactionSuccessScreenReceiveMessage
-                        : context.loc
-                            .lightningTransactionSuccessScreenAmountSats(
-                                satoshiAmountFormatted),
+                    context.loc.lightningTransactionSuccessScreenAmountSats(
+                        satoshiAmountFormatted),
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                           color: Theme.of(context).colorScheme.onPrimary,
                           fontSize: 48.sp,
                         ),
                   ),
+                  SizedBox(height: 18.h),
                   const Spacer(),
                   //ANCHOR - Button
                   SizedBox(

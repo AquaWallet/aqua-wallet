@@ -5,8 +5,6 @@ import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_provider.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
@@ -14,6 +12,7 @@ import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/send/widgets/widgets.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/logger.dart';
 import 'package:decimal/decimal.dart';
 
@@ -116,7 +115,7 @@ class UserEnteredAmountStateNotifier extends AutoDisposeNotifier<Decimal?> {
             : SideshiftAsset.usdtTron(),
       );
       final currentPairInfo =
-          ref.watch(sideshiftPairInfoProvider(assetPair)).asData?.value;
+          ref.watch(sideshiftAssetPairInfoProvider(assetPair)).asData?.value;
       final min = currentPairInfo?.min;
       final max = currentPairInfo?.max;
       if (min == null || max == null) {
@@ -298,7 +297,7 @@ final sendAssetAmountSetupProvider =
     // Return `true` only if pair info is available
     try {
       final pairInfo =
-          ref.watch(sideshiftPairInfoProvider(assetPair)).asData?.value;
+          ref.watch(sideshiftAssetPairInfoProvider(assetPair)).asData?.value;
       logger.d("[Send][Sideshift] pairInfo: $pairInfo");
       return pairInfo != null;
     } catch (e) {

@@ -341,7 +341,7 @@ class QrScannerScreen extends HookConsumerWidget {
         controlWidgets: [
           Expanded(
             child: ElevatedButton(
-              child: Text(context.loc.scanQrCodeValidationAlertRetryButton),
+              child: Text(context.loc.tryAgain),
               onPressed: () {
                 Navigator.pop(context);
                 cameraController.start();

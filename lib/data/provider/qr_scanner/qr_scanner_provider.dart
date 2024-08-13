@@ -160,7 +160,7 @@ final qrScannerShowPermissionAlertProvider =
 class QrScannerInvalidQrParametersException implements ExceptionLocalized {
   @override
   String toLocalizedString(BuildContext context) {
-    return context.loc.scanQrCodeValidationAlertRetryButton;
+    return context.loc.tryAgain;
   }
 }
 

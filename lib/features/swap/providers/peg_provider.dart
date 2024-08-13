@@ -218,7 +218,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
         await ref.read(electrsProvider).broadcast(signedReply.transaction!,
             asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid,
             isLowball: !asset.isBTC);
-      } on AquaBroadcastError {
+      } on AquaTxBroadcastException {
         if (asset.isBTC) {
           assert(false, 'BTC should not be broadcasted through aqua');
           final error = PegGdkTransactionException();

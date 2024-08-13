@@ -12,3 +12,4 @@ export "custom_tab_bar.dart";
 export "loading_dialog.dart";
 export "sliver_grid_delegate.dart";
 export "tab_switch_view_address_history.dart";
+export 'animated_status_text.dart';

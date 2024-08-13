@@ -77,11 +77,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "0.1.5"
-      resolved-ref: ef7e4d6cfec8c57ecde93c30b50bec346dada0b1
+      ref: trunk
+      resolved-ref: ddf03abdb7ed0119cbabcfd4d714fe5d59db0b9b
       url: "https://github.com/SatoshiPortal/boltz-dart.git"
     source: git
-    version: "0.1.4"
+    version: "0.1.5"
   boolean_selector:
     dependency: transitive
     description:

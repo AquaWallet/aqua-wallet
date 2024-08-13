@@ -8,7 +8,7 @@ part 'receive_boltz_ui_state.freezed.dart';
 class ReceiveBoltzState with _$ReceiveBoltzState {
   const factory ReceiveBoltzState.enterAmount() = _EnterAmountState;
   const factory ReceiveBoltzState.generatingInvoice() = _GenInvoiceState;
-  const factory ReceiveBoltzState.qrCode(LbtcLnV2Swap? swap) = _QrCodeState;
+  const factory ReceiveBoltzState.qrCode(LbtcLnSwap? swap) = _QrCodeState;
   const factory ReceiveBoltzState.success(int amountSats) = _SuccessState;
 }
 

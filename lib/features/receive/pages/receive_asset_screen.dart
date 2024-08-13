@@ -1,17 +1,19 @@
 import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
-import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import 'models/models.dart';
+final _kLightningAsset = Asset.lightning();
+final _kUsdtEthAsset = Asset.usdtEth();
+final _kUsdtTrxAsset = Asset.usdtTrx();
 
 class ReceiveAssetScreen extends HookConsumerWidget {
   const ReceiveAssetScreen({super.key});
@@ -22,32 +24,50 @@ class ReceiveAssetScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // asset (layerTwo option only visible for lightning and lbtc)
     final asset = useState(ModalRoute.of(context)?.settings.arguments as Asset);
-    final errorMessage = useState<String?>(null);
+    final isLightningOrLiquidAsset = useMemoized(
+      () => asset.value.isLightning || asset.value.isLBTC,
+      [asset.value],
+    );
+    final lbtcAsset =
+        useMemoized(() => ref.read(manageAssetsProvider).lbtcAsset);
+    final liquidUsdtAsset =
+        useMemoized(() => ref.read(manageAssetsProvider).liquidUsdtAsset);
+    final allAssets = useMemoized(() => [
+          lbtcAsset,
+          liquidUsdtAsset,
+          _kLightningAsset,
+          _kUsdtEthAsset,
+          _kUsdtTrxAsset,
+        ]);
+    final addressCards = useMemoized(() => {
+          for (final asset in allAssets) ...{
+            if (asset.isAnyAltUsdt)
+              asset.id: ReceiveSideshiftCard(
+                key: Key(asset.id),
+                asset: asset,
+              )
+            else
+              asset.id: ReceiveAddressCard(
+                key: Key(asset.id),
+                asset: asset,
+              ),
+          }
+        });
 
-    final isDirectPegInEnabled =
-        ref.watch(prefsProvider.select((p) => p.isDirectPegInEnabled));
+    // NOTE: Keep sideshift receive providers alive for the screen lifecylce
+    ref.watch(sideshiftReceiveProvider(_kUsdtTrxAsset));
+    ref.watch(sideshiftReceiveProvider(_kUsdtEthAsset));
+
     final boltzUiState = ref.watch(boltzReverseSwapProvider);
     final boltzOrder = useMemoized(
       () => boltzUiState.mapOrNull(qrCode: (s) => s.swap),
       [boltzUiState],
     );
 
-    final sideshiftOrder = ref.watch(sideshiftPendingOrderProvider);
-
     final amountForBip21 =
         ref.watch(receiveAssetAmountForBip21Provider(asset.value));
     final amountAsDecimal =
         ref.watch(parsedAssetAmountAsDecimalProvider(amountForBip21));
-    final address = ref
-            .watch(receiveAssetAddressProvider((asset.value, amountAsDecimal)))
-            .asData
-            ?.value ??
-        '';
-
-    final enableShareButton = useMemoized(() {
-      return (asset.value.isLightning && boltzOrder == null) ||
-          (asset.value.isSideshift && sideshiftOrder == null);
-    }, [asset.value, boltzOrder, sideshiftOrder]);
 
     // ANCHOR: Boltz
     final showGenerateButton = useMemoized(
@@ -77,12 +97,12 @@ class ReceiveAssetScreen extends HookConsumerWidget {
         logger.d('[Receive] Boltz Swap Status: $status');
         if (status?.isSuccess == true) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            errorMessage.value = null;
             Navigator.of(context).pushReplacementNamed(
               LightningTransactionSuccessScreen.routeName,
-              arguments: LightningSuccessArguments.receive(
-                satoshiAmount: boltzOrder.outAmount,
-              ),
+              arguments: LightningSuccessArguments(
+                  satoshiAmount: boltzOrder.outAmount,
+                  type: LightningSuccessType.receive,
+                  orderId: boltzOrder.id),
             );
           });
         }
@@ -94,12 +114,12 @@ class ReceiveAssetScreen extends HookConsumerWidget {
         event.whenData((txs) {
           if (txs != null && txs.isNotEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              errorMessage.value = null;
               Navigator.of(context).pushReplacementNamed(
                 LightningTransactionSuccessScreen.routeName,
-                arguments: LightningSuccessArguments.receive(
-                  satoshiAmount: boltzOrder.outAmount,
-                ),
+                arguments: LightningSuccessArguments(
+                    satoshiAmount: boltzOrder.outAmount,
+                    type: LightningSuccessType.receive,
+                    orderId: boltzOrder.id),
               );
             });
           }
@@ -107,75 +127,12 @@ class ReceiveAssetScreen extends HookConsumerWidget {
       });
     }
 
-    // ANCHOR: Sideshift
-    final handleSideshiftError = useCallback((Object e) {
-      final error = (e is ExceptionLocalized)
-          ? e.toLocalizedString(context)
-          : context.loc.sideshiftGenericError;
-
-      if (e is NoPermissionsException) {
-        errorMessage.value = error;
-      } else {
-        context.showErrorSnackbar(error);
-      }
-    });
-
-    useEffect(() {
-      if (!asset.value.isAnyAltUsdt) {
-        return null;
-      }
-
-      // clear pending order
-      final sideshiftProvider = ref.read(sideshiftOrderProvider);
-      sideshiftProvider.setPendingOrder(null);
-
-      // get asset
-      final assetPair = SideshiftAssetPair(
-        from: asset.value == Asset.usdtEth()
-            ? SideshiftAsset.usdtEth()
-            : SideshiftAsset.usdtTron(),
-        to: SideshiftAsset.usdtLiquid(),
-      );
-
-      // setup order
-      ref
-          .read(sideshiftSetupProvider(assetPair))
-          .setupSideshiftOrder()
-          .listen((event) {
-        debugPrint('[Receive] Sideshift Order Status: ${event.asData?.value}');
-        event.when(
-          data: (value) {
-            if (context.mounted) {
-              ref
-                  .read(sideshiftOrderProvider)
-                  .placeReceiveOrder(
-                      deliverAsset: assetPair.from, receiveAsset: assetPair.to)
-                  .catchError(handleSideshiftError);
-            }
-          },
-          loading: () {},
-          error: (e, st) => handleSideshiftError(e),
-        );
-      });
-
-      final sideshiftOrder = ref.watch(sideshiftPendingOrderProvider);
-      logger.d("[Receive][SideShift] Pending order: ${sideshiftOrder?.id}");
-
-      // inProgressOrderProvider caches a more complete order, so watch that as well
-      ref.listen(inProgressOrderProvider, (_, inProgressOrder) {
-        logger.d(
-            "[Receive][SideShift] In Progress order: ${inProgressOrder?.id} - deposit address: ${inProgressOrder?.depositAddress} - settle address: ${inProgressOrder?.settleAddress}");
-      });
-      return sideshiftProvider.setShiftCurrentOrderStreamStop;
-    }, [asset.value]);
-
     return PopScope(
       canPop: true,
       onPopInvoked: (_) async {
         logger.d('[Navigation] onWillPop in ReceiveAssetScreen called');
-        ref.invalidate(receiveAssetAddressProvider);
         ref.invalidate(receiveAssetAmountProvider);
-        ref.read(sideshiftOrderProvider).stopAllStreams();
+        ref.read(sideshiftSendProvider).stopAllStreams();
       },
       child: Scaffold(
         appBar: AquaAppBar(
@@ -189,8 +146,8 @@ class ReceiveAssetScreen extends HookConsumerWidget {
                 height: 50.h,
                 margin: EdgeInsets.only(
                   left: 30.w,
-                  top: 12.h,
                   right: 30.w,
+                  top: 12.h,
                   bottom: 48.h,
                 ),
                 child: AquaElevatedButton(
@@ -207,13 +164,12 @@ class ReceiveAssetScreen extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 //ANCHOR - LN/LQ Toggle Button
-                if (asset.value.isLightning || asset.value.isLBTC) ...[
+                if (isLightningOrLiquidAsset) ...[
                   LayerTwoToggleButton(
                     onOptionSelected: (selectedOption) {
                       asset.value = switch (selectedOption) {
-                        LayerTwoOption.lightning => Asset.lightning(),
-                        LayerTwoOption.lbtc =>
-                          ref.read(manageAssetsProvider).lbtcAsset,
+                        LayerTwoOption.lightning => _kLightningAsset,
+                        LayerTwoOption.lbtc => lbtcAsset,
                       };
                     },
                     initialIndex: asset.value.isLightning
@@ -226,112 +182,28 @@ class ReceiveAssetScreen extends HookConsumerWidget {
                   UsdtToggleButton(
                     onOptionSelected: (selectedOption) {
                       asset.value = switch (selectedOption) {
-                        UsdtOption.liquid =>
-                          ref.read(manageAssetsProvider).liquidUsdtAsset,
-                        UsdtOption.eth => Asset.usdtEth(),
-                        UsdtOption.trx => Asset.usdtTrx(),
+                        UsdtOption.liquid => liquidUsdtAsset,
+                        UsdtOption.eth => _kUsdtEthAsset,
+                        UsdtOption.trx => _kUsdtTrxAsset,
                       };
                     },
                     initialIndex: asset.value.usdtOption.index,
                   ),
                 ],
-                //ANCHOR - Receive Amount Input
                 if (asset.value.isLightning &&
-                    boltzUiState.isLightningView) ...[
+                    boltzUiState.isLightningView) ...{
+                  //ANCHOR - Receive Amount Input
                   ReceiveLightningView(asset: asset.value),
-                ]
-                //ANCHOR - Main Address Card
-                else ...[
-                  SizedBox(height: 24.h),
-                  ReceiveAssetAddressQrCard(
-                    asset: asset.value,
-                    address: address,
-                  ),
-                  //ANCHOR - Sideshift Info Container
-                  SizedBox(height: 21.h),
-                  if (asset.value.isSideshift) ...[
-                    ReceiveShiftInformation(
-                      assetNetwork:
-                          asset.value.usdtOption.networkLabel(context),
-                    ),
-                    SizedBox(height: 21.h),
-                  ],
-                  //ANCHOR - Direct Peg-In Button
-                  if (asset.value.isLBTC && isDirectPegInEnabled) ...[
-                    const _DirectPegInButton(),
-                    SizedBox(height: 21.h),
-                  ],
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 28.w),
-                    child: Row(
-                      children: [
-                        //ANCHOR - Set Amount Button (conditional)
-                        if (asset.value.shouldShowAmountInputOnReceive) ...[
-                          Expanded(
-                            child: ReceiveAssetAmountButton(
-                              asset: asset.value,
-                            ),
-                          ),
-                          SizedBox(width: 20.w),
-                        ],
-                        //ANCHOR - Share Button
-                        Flexible(
-                          flex: asset.value.shouldShowAmountInputOnReceive
-                              ? 0
-                              : 1,
-                          child: ReceiveAssetAddressShareButton(
-                            isEnabled: enableShareButton,
-                            isExpanded:
-                                !asset.value.shouldShowAmountInputOnReceive,
-                            address: address,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  //ANCHOR - Fixed Error
-                  SizedBox(height: 21.h),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 28.w),
-                    child: Column(children: [
-                      CustomError(errorMessage: errorMessage.value),
-                    ]),
-                  ),
+                } else ...{
+                  //ANCHOR - Main Address Card
+                  addressCards[asset.value.id] ??
+                      ReceiveAddressCard(asset: asset.value),
                   SizedBox(height: 40.h),
-                ],
+                },
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _DirectPegInButton extends StatelessWidget {
-  const _DirectPegInButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 28.w),
-      child: OutlinedButton(
-        onPressed: () =>
-            Navigator.of(context).pushNamed(DirectPegInScreen.routeName),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Theme.of(context).colorScheme.onBackground,
-          fixedSize: Size(double.maxFinite, 38.h),
-          padding: EdgeInsets.zero,
-          visualDensity: VisualDensity.compact,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          side: BorderSide(
-            width: 2.r,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        child: Text(context.loc.receiveAssetScreenDirectPegIn),
       ),
     );
   }

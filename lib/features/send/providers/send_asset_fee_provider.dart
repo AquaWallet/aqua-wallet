@@ -8,6 +8,7 @@ import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/logger.dart';
 import 'package:decimal/decimal.dart';

@@ -1,6 +1,5 @@
 import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
 import 'package:aqua/common/widgets/custom_bottom_navigation_bar.dart';
-import 'package:aqua/data/data.dart';
 import 'package:aqua/data/provider/aqua_node_provider.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/boltz.dart';
@@ -8,6 +7,7 @@ import 'package:aqua/features/home/providers/home_provider.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/lifecycle_observer.dart';
 import 'package:aqua/logger.dart';

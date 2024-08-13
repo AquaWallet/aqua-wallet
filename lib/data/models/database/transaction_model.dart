@@ -1,5 +1,5 @@
-import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
@@ -85,7 +85,7 @@ class TransactionDbModel with _$TransactionDbModel {
     required String txhash,
     required String assetId,
     required String settleAddress,
-    required LbtcLnV2Swap swap,
+    required LbtcLnSwap swap,
   }) {
     return TransactionDbModel(
       txhash: txhash,

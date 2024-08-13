@@ -8,6 +8,7 @@ import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/features/swap/models/taxi_state.dart';
 import 'package:aqua/features/swap/providers/sideswap_taxi_provider.dart';
 import 'package:aqua/logger.dart';
@@ -35,7 +36,7 @@ class SendAssetTransactionProvider
     if (asset.isSideshift) {
       final useAllFunds = ref.read(useAllFundsProvider);
       return await ref
-          .read(sideshiftOrderProvider)
+          .read(sideshiftSendProvider)
           .createGdkTxForSwap(useAllFunds, isLowball: isLowball);
     }
     if (asset.isLightning) {
@@ -44,8 +45,11 @@ class SendAssetTransactionProvider
           .createTxnForSubmarineSwap(isLowball: isLowball);
     }
 
-    final lbtcBalance = await ref.read(balanceProvider).getLBTCBalance();
-    if (lbtcBalance == 0) return Future.value(null);
+    // for any liquid asset, we don't need to create a lbtc fee tx if user has no ltbc funds. A taxi fee estimate will be created separately.
+    if (!asset.isBTC) {
+      final lbtcBalance = await ref.read(balanceProvider).getLBTCBalance();
+      if (lbtcBalance == 0) return Future.value(null);
+    }
 
     logger.d("[Send] send review - create transaction");
     return createGdkTransaction(isLowball: isLowball);
@@ -152,12 +156,13 @@ class SendAssetTransactionProvider
       throw Exception('Address or amount is null');
     }
 
-    return await executeTaxiTransaction(
-        resolvedAddress, amountSatoshi, sendAll, isLowball);
+    return await executeTaxiTransaction(resolvedAddress, amountSatoshi, sendAll,
+        isLowball: isLowball);
   }
 
   Future<String?> executeTaxiTransaction(
-      String address, int amount, bool sendAll, bool isLowball) async {
+      String address, int amount, bool sendAll,
+      {bool isLowball = true}) async {
     try {
       state = const AsyncLoading();
 
@@ -199,7 +204,7 @@ class SendAssetTransactionProvider
             .createTxnForSubmarineSwap(isLowball: isLowball);
       } else if (asset.isSideshift) {
         await ref
-            .read(sideshiftOrderProvider)
+            .read(sideshiftSendProvider)
             .createOnchainTxForSwap(feeAsset, sendAll, isLowball: isLowball);
       } else if (feeAsset == FeeAsset.tetherUsdt) {
         await ref
@@ -246,17 +251,27 @@ class SendAssetTransactionProvider
         return;
       }
 
-      try {
-        final txId = await broadcastTransaction(
-            rawTx: signedRawTx!, network: network, isLowball: isLowball);
+      final txId = await broadcastTransaction(
+          rawTx: signedRawTx!, network: network, isLowball: isLowball);
 
-        onSuccess(txId, DateTime.now().microsecondsSinceEpoch, network);
-      } on AquaBroadcastError {
-        return createAndSendFinalTransaction(
-            onSuccess: onSuccess, isLowball: false);
-      }
+      onSuccess(txId, DateTime.now().microsecondsSinceEpoch, network);
+    } on AquaTxBroadcastException {
+      // Retry broadcast with a higher fee, in case aqua endpoint is down.
+      // If aqua is up but there was a problem with the transaction itself,
+      // sending with lowball off should fail to with the same error which will then be propagated to the user.
+      // This is a catch-all fallback that's necessary so we don't block sends if aqua endpoint is down.
+      return createAndSendFinalTransaction(
+          onSuccess: onSuccess, isLowball: false);
+    } on MempoolConflictTxBroadcastException {
+      // Return exception directly so we can show a retry dialog
+      state = AsyncValue.error(
+          MempoolConflictTxBroadcastException(), StackTrace.current);
     } catch (e, stackTrace) {
-      state = AsyncError(e, stackTrace);
+      String? errorMessage;
+      if (e is DioException) {
+        errorMessage = e.response?.data?.toString() ?? e.message;
+      }
+      state = AsyncValue.error(errorMessage ?? e.toString(), stackTrace);
     }
   }
 
@@ -288,40 +303,25 @@ class SendAssetTransactionProvider
     SendBroadcastServiceType broadcastType = SendBroadcastServiceType.aqua,
     bool isLowball = true,
   }) async {
-    try {
-      String result;
-      switch (broadcastType) {
-        case SendBroadcastServiceType.boltz:
-          // REVIEW: Boltz Dart has swap.broadcastTx but it expects a pset
-          // Using old method to broadcast transaction
-          final response = await ref
-              .read(legacyBoltzProvider)
-              .broadcastTransaction(currency: "L-BTC", transactionHex: rawTx);
-          result = response.transactionId;
-        default:
-          result = await ref
-              .read(electrsProvider)
-              .broadcast(rawTx, network, isLowball: isLowball);
-      }
-
-      txHash = result;
-      await _success(txHash);
-
-      return result;
-    } on AquaBroadcastError {
-      rethrow;
-    } catch (e) {
-      _handleBroadcastException(e);
-      rethrow;
+    String result;
+    switch (broadcastType) {
+      case SendBroadcastServiceType.boltz:
+        // REVIEW: Boltz Dart has swap.broadcastTx but it expects a pset
+        // Using old method to broadcast transaction
+        final response = await ref
+            .read(legacyBoltzProvider)
+            .broadcastTransaction(currency: "L-BTC", transactionHex: rawTx);
+        result = response.transactionId;
+      default:
+        result = await ref
+            .read(electrsProvider)
+            .broadcast(rawTx, network, isLowball: isLowball);
     }
-  }
 
-  void _handleBroadcastException(dynamic e) {
-    String? errorMessage;
-    if (e is DioException) {
-      errorMessage = e.response?.data?.toString() ?? e.message;
-    }
-    state = AsyncValue.error(errorMessage ?? e.toString(), StackTrace.current);
+    txHash = result;
+    await _success(txHash);
+
+    return result;
   }
 
   //ANCHOR: - Success

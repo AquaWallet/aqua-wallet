@@ -45,7 +45,7 @@ extension SwapStatusExtension on BoltzSwapStatus {
   bool get needsClaim {
     return this == BoltzSwapStatus.transactionConfirmed ||
         this == BoltzSwapStatus.transactionMempool ||
-        this == BoltzSwapStatus.transactionClaimPending;
+        this == BoltzSwapStatus.invoiceSettled;
   }
 
   /// A normal swap failed, and needs a refund

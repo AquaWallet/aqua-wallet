@@ -3,12 +3,14 @@ import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ReceiveAssetAddressQrCard extends HookWidget {
   const ReceiveAssetAddressQrCard({
     super.key,
     this.isDirectPegIn = false,
+    this.sideshiftOrder,
     required this.asset,
     required this.address,
   });
@@ -16,6 +18,7 @@ class ReceiveAssetAddressQrCard extends HookWidget {
   final Asset asset;
   final String address;
   final bool isDirectPegIn;
+  final SideshiftOrder? sideshiftOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +73,7 @@ class ReceiveAssetAddressQrCard extends HookWidget {
             //ANCHOR - Shift min and max
             if (asset.isSideshift) ...[
               //ANCHOR - Expiry
-              const ReceiveSideshiftOrderExpireLabel(),
+              ReceiveSideshiftOrderExpireLabel(order: sideshiftOrder),
               SizedBox(height: 14.h),
               //ANCHOR - Min-Max Bound
               const SideshiftMinMaxPanel(),

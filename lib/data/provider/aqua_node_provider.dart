@@ -1,3 +1,4 @@
+import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/provider_extensions.dart';
@@ -34,16 +35,14 @@ final aquaNodeStatusProvider =
 });
 
 final isAquaNodeSyncedProvider = StateProvider.autoDispose<bool?>((ref) {
-  final status = ref.watch(aquaNodeStatusProvider).asData?.value;
-  final connStatus = ref.watch(connectionStatusProvider).asData?.value;
-
-  if (status == null ||
-      connStatus == null ||
-      connStatus.initialized == false ||
-      connStatus.lastLiquidBlock == null) {
-    return null;
+  if (ref.read(featureFlagsProvider).forceAquaNodeNotSyncedEnabled) {
+    return false;
   }
 
-  // node is considered out-of-sync if it's 3 or more blocks behind
-  return !(status.blockHeight <= connStatus.lastLiquidBlock! - 3);
+  final status = ref.watch(aquaNodeStatusProvider).asData?.value;
+  if (status == null) {
+    logger.e("[aquaNodeStatus] NOT CONNECTED: status: $status");
+    return null;
+  }
+  return true;
 });

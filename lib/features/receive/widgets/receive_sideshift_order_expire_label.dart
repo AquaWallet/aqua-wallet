@@ -1,13 +1,20 @@
-import 'package:aqua/data/provider/sideshift/sideshift.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intl/intl.dart';
 
 class ReceiveSideshiftOrderExpireLabel extends HookConsumerWidget {
-  const ReceiveSideshiftOrderExpireLabel({super.key});
+  const ReceiveSideshiftOrderExpireLabel({
+    super.key,
+    required this.order,
+  });
+
+  final SideshiftOrder? order;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sideshiftOrder = ref.watch(sideshiftPendingOrderProvider);
+    final sideshiftOrder = useMemoized(() => order);
 
     final formattedExpiresDate = sideshiftOrder?.expiresAt != null
         ? DateFormat('MMMM d, y').format(sideshiftOrder!.expiresAt!)

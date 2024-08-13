@@ -1,5 +1,5 @@
 import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
+import 'package:aqua/features/sideshift/providers/sideshift_send_provider.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';

@@ -1,5 +1,3 @@
-import 'package:aqua/data/provider/sideshift/screens/sideshift_order_detail_screen.dart';
-import 'package:aqua/data/provider/sideshift/screens/sideshift_orders_screen.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/screens/boltz_swap_detail_screen.dart';
 import 'package:aqua/features/home/home.dart';
@@ -15,6 +13,7 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/exchange_rate/pages/currency_conversion_settings_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/screens/common/webview_screen.dart';

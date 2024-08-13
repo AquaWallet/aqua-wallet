@@ -6,7 +6,7 @@ import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
+import 'package:aqua/features/sideshift/providers/sideshift_send_provider.dart';
 
 class SendAssetContainerScreen extends HookConsumerWidget {
   const SendAssetContainerScreen({super.key});

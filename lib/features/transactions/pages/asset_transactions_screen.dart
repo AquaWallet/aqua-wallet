@@ -1,5 +1,5 @@
 import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/sideshift/screens/sideshift_orders_screen.dart';
+import 'package:aqua/features/sideshift/pages/sideshift_orders_screen.dart';
 import 'package:aqua/features/boltz/screens/boltz_swaps_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';

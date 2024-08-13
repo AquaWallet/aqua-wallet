@@ -1,7 +1,6 @@
 import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -13,14 +12,16 @@ const kSideshiftUrl = 'https://sideshift.ai/?orderId=';
 class ReceiveShiftInformation extends HookConsumerWidget {
   const ReceiveShiftInformation({
     super.key,
+    required this.order,
     required this.assetNetwork,
   });
 
+  final SideshiftOrder? order;
   final String assetNetwork;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sideshiftOrder = ref.watch(sideshiftPendingOrderProvider);
+    final sideshiftOrder = useMemoized(() => order);
 
     final sectionTitleStyle = useMemoized(() {
       return Theme.of(context).textTheme.labelMedium?.copyWith(

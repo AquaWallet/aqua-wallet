@@ -25,9 +25,9 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
     final showSuccesScreen = useCallback((receiveSatoshiAmount) {
       Navigator.of(context).pushReplacementNamed(
         LightningTransactionSuccessScreen.routeName,
-        arguments: LightningSuccessArguments.receive(
-          satoshiAmount: receiveSatoshiAmount,
-        ),
+        arguments: LightningSuccessArguments(
+            satoshiAmount: receiveSatoshiAmount,
+            type: LightningSuccessType.receive),
       );
     }, []);
 

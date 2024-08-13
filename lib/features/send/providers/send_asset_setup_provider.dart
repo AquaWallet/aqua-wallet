@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/data/provider/sideshift/sideshift.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
 import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/logger.dart';
 
 final sendAssetSetupProvider = FutureProvider.autoDispose<bool>((ref) async {
@@ -112,7 +112,7 @@ class SendAssetSetupService {
     // start order
     final amount = ref.read(userEnteredAmountProvider);
     await ref
-        .read(sideshiftOrderProvider)
+        .read(sideshiftSendProvider)
         .placeSendOrder(
             deliverAsset: assetPair.from,
             receiveAsset: assetPair.to,

@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-GDK_VERSION := 0.72.1
+GDK_VERSION := 0.72.2
 GDK_RELEASE_URL := https://github.com/Blockstream/gdk/releases/download/release_$(GDK_VERSION)
 
 install:
@@ -13,18 +13,19 @@ get-gdk:
 	mkdir crypto
 	# gdk-iphone
 	curl --location $(GDK_RELEASE_URL)/gdk-iphone.tar.gz --output /tmp/gdk-iphone.tar.gz
-	echo "8835d8bf95c1534e8236b31dc84302511463aa631d4be1cae8da5f3b62ce5970  /tmp/gdk-iphone.tar.gz" | shasum -a 256 --check
+	echo "f77e292a0a308cd33771e2b17cac21db76f83cc85bc1b2a681f78a8178f57107  /tmp/gdk-iphone.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk-iphone.tar.gz --directory crypto
 	# gdk-android-jni
-	curl --location $(GDK_RELEASE_URL)/gdk.tar.gz --output /tmp/gdk.tar.gz
-	echo "6418ceba757cefbb277c71730d084b0f41b61516372fa5d3e7fdd326951fcbc7  /tmp/gdk.tar.gz" | shasum -a 256 --check
+	curl --location $(GDK_RELEASE_URL)/gdk-release_0.72.2.tar.gz --output /tmp/gdk.tar.gz
+	echo "a091a5e37f3ce69e1281d28bd2ea5a4898a5d48b6fb8059f412058b5e842b783  /tmp/gdk.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk.tar.gz --directory crypto
+	mv crypto/gdk-release_0.72.2 crypto/gdk
 	cp -r gdk-includes/include crypto/gdk/
 
 patch-ios-sim:
 	# gdk-iphone-sim-x86_64
 	curl --location $(GDK_RELEASE_URL)/gdk-iphone-sim-x86_64.tar.gz --output /tmp/gdk-iphone-sim-x86_64.tar.gz
-	echo "33a7a4b05a3e02e0737dd4b107ee0fa562b5fcdf12b0cfb07e49a36ddc744842  /tmp/gdk-iphone-sim-x86_64.tar.gz" | shasum -a 256 --check
+	echo "5a11fff9dc5c42e5d3287b75859ada27b59f85ed3164c58ebd71db5d5f753686  /tmp/gdk-iphone-sim-x86_64.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk-iphone-sim-x86_64.tar.gz --directory crypto
 	rm crypto/gdk-iphone/lib/iphoneos/libgreen_gdk_full.a
 	cp crypto/gdk-iphonesim-x86_64/lib/iphonesimulator/libgreen_gdk_full.a crypto/gdk-iphone/lib/iphoneos/

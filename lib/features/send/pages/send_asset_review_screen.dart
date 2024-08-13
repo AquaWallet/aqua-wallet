@@ -1,15 +1,19 @@
+import 'dart:async';
+
 import 'package:aqua/common/dialogs/dialog_manager.dart';
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
 import 'package:aqua/common/widgets/custom_error.dart';
 import 'package:aqua/config/config.dart';
+import 'package:aqua/data/provider/electrs_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/providers/sideshift_send_provider.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
@@ -56,36 +60,6 @@ class SendAssetReviewScreen extends HookConsumerWidget {
               orElse: () => {},
             ));
 
-    // send tx errors
-    ref.listen(
-        sendAssetTransactionProvider,
-        (_, state) => state.maybeWhen(
-              error: (error, stackTrace) async {
-                sliderState.value = SliderState.initial;
-
-                final String errorMessage;
-                if (error is ExceptionLocalized) {
-                  errorMessage = error.toLocalizedString(context);
-                } else if (error is NetworkException) {
-                  errorMessage = error.message != null
-                      ? context.loc.networkErrorSpecific(error.message!)
-                      : context.loc.networkErrorGeneric;
-                } else {
-                  errorMessage = error.toString();
-                }
-
-                final alertModel = CustomAlertDialogUiModel(
-                    title: context.loc.genericErrorMessage,
-                    subtitle: errorMessage,
-                    buttonTitle: context.loc.ok,
-                    onButtonPressed: () {
-                      Navigator.of(context).pop();
-                    });
-                DialogManager().showDialog(context, alertModel);
-              },
-              orElse: () => {},
-            ));
-
     final transaction = ref.watch(sendAssetTransactionProvider).asData?.value;
     final isSendAll = ref.read(useAllFundsProvider);
 
@@ -118,10 +92,13 @@ class SendAssetReviewScreen extends HookConsumerWidget {
       return null;
     }, [insufficientBalance]);
 
+    // completion screen
     void pushToCompleteScreen(String txId, int timestamp, NetworkType network) {
       sliderState.value = SliderState.completed;
 
       if (asset.isLightning) {
+        final boltzOrderId = ref.read(boltzSubmarineSwapProvider)!.id;
+
         final amountSatoshi =
             ref.read(formatterProvider).parseAssetAmountDirect(
                   amount: ref.read(userEnteredAmountProvider).toString(),
@@ -132,9 +109,10 @@ class SendAssetReviewScreen extends HookConsumerWidget {
           ..popUntil((r) => r.isFirst)
           ..pushNamed(
             LightningTransactionSuccessScreen.routeName,
-            arguments: LightningSuccessArguments.send(
-              satoshiAmount: amountSatoshi,
-            ),
+            arguments: LightningSuccessArguments(
+                satoshiAmount: amountSatoshi,
+                orderId: boltzOrderId,
+                type: LightningSuccessType.send),
           );
       } else {
         Navigator.of(context).pushNamed(
@@ -187,11 +165,54 @@ class SendAssetReviewScreen extends HookConsumerWidget {
       });
     });
 
+    // send tx errors
+    ref.listen(
+        sendAssetTransactionProvider,
+        (_, state) => state.maybeWhen(
+              error: (error, stackTrace) async {
+                sliderState.value = SliderState.initial;
+
+                final String errorMessage;
+                if (error is MempoolConflictTxBroadcastException) {
+                  // if mempool conflict broadcast error, show message prompting to retry in ~60 seconds
+                  // this error occurs because lowball txs don't appear in the mempool, so if a user tries to send a second lowball tx before the first one is mined,
+                  // gdk will double spend the utxos.
+                  MempoolConflictDialog.show(context, onRetry: () {
+                    ref
+                        .read(sendAssetTransactionProvider.notifier)
+                        .createAndSendFinalTransaction(
+                          onSuccess: pushToCompleteScreen,
+                          isLowball: true,
+                        );
+                  }, onCancel: () {});
+                  return;
+                } else if (error is ExceptionLocalized) {
+                  errorMessage = error.toLocalizedString(context);
+                } else if (error is NetworkException) {
+                  errorMessage = error.message != null
+                      ? context.loc.networkErrorSpecific(error.message!)
+                      : context.loc.networkErrorGeneric;
+                } else {
+                  errorMessage = error.toString();
+                }
+
+                final alertModel = CustomAlertDialogUiModel(
+                    title: context.loc.genericErrorMessage,
+                    subtitle: errorMessage,
+                    buttonTitle: context.loc.ok,
+                    onButtonPressed: () {
+                      Navigator.of(context).pop();
+                    });
+                DialogManager().showDialog(context, alertModel);
+              },
+              orElse: () => {},
+            ));
+
     return PopScope(
       canPop: true,
       onPopInvoked: (_) async {
         logger.d('[Navigation] onPopInvoked in SendAssetScreen called');
-        ref.read(sideshiftOrderProvider).stopAllStreams();
+        ref.read(sideshiftSendProvider).stopAllStreams();
       },
       child: Scaffold(
         appBar: AquaAppBar(

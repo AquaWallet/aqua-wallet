@@ -19,6 +19,8 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget {
         ref.watch(featureFlagsProvider.select((p) => p.fakeBroadcastsEnabled));
     final throwAquaBroadcastErrorEnabled = ref.watch(
         featureFlagsProvider.select((p) => p.throwAquaBroadcastErrorEnabled));
+    final forceAquaNodeNotSyncedEnabled = ref.watch(
+        featureFlagsProvider.select((p) => p.forceAquaNodeNotSyncedEnabled));
     final isMultiOnrampsEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.multipleOnramps));
     final isNotesEnabled =
@@ -200,6 +202,21 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget {
               ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
                     key: PrefKeys.throwAquaBroadcastErrorEnabled,
                     currentValue: throwAquaBroadcastErrorEnabled,
+                  );
+            },
+          ),
+          SizedBox(height: 16.h),
+
+          //ANCHOR: Force Aqua Node Not Synced State
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.testSettingsScreenItemForceAquaNodeNotSynced,
+            assetName: Svgs.walletSend,
+            value: forceAquaNodeNotSyncedEnabled,
+            onPressed: () {
+              ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                    key: PrefKeys.forceAquaNodeNotSyncedEnabled,
+                    currentValue: forceAquaNodeNotSyncedEnabled,
                   );
             },
           ),

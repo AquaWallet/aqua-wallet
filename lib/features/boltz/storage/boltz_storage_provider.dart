@@ -44,8 +44,8 @@ abstract class BoltzSwapStorage {
     required String boltzId,
     required BoltzSwapStatus status,
   });
-  Future<LbtcLnV2Swap?> getLbtcLnV2SwapById(String swapId);
-  Future<LbtcLnV2Swap?> getLbtcLnV2SwapByInvoice(String invoice);
+  Future<LbtcLnSwap?> getLbtcLnV2SwapById(String swapId);
+  Future<LbtcLnSwap?> getLbtcLnV2SwapByInvoice(String invoice);
   Future<List<BoltzSwapDbModel>> getSwaps(
       {BoltzVersion? version, SwapType? type});
 
@@ -350,7 +350,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
   }
 
   @override
-  Future<LbtcLnV2Swap?> getLbtcLnV2SwapById(String swapId) async {
+  Future<LbtcLnSwap?> getLbtcLnV2SwapById(String swapId) async {
     final swap = await _getSwapById(swapId);
 
     if (swap == null) return null;
@@ -373,7 +373,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
   }
 
   @override
-  Future<LbtcLnV2Swap?> getLbtcLnV2SwapByInvoice(String invoice) async {
+  Future<LbtcLnSwap?> getLbtcLnV2SwapByInvoice(String invoice) async {
     logger.d('[BoltzStorage] Swap for invoice $invoice');
     final secureStorage = ref.read(secureStorageProvider);
     final storage = await ref.read(storageProvider.future);
@@ -449,7 +449,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
 
     final updated = swap
         .copyWith(claimTxId: txId)
-        .copyWith(lastKnownStatus: BoltzSwapStatus.transactionClaimed);
+        .copyWith(lastKnownStatus: BoltzSwapStatus.invoiceSettled);
 
     await save(updated);
   }

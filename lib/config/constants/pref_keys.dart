@@ -23,4 +23,6 @@ class PrefKeys {
   static const fakeBroadcastsEnabled = 'fake_broadcasts_enabled';
   static const throwAquaBroadcastErrorEnabled =
       'throw_aqua_broadcast_error_enabled';
+  static const forceAquaNodeNotSyncedEnabled =
+      'force_aqua_node_not_synced_enabled';
 }

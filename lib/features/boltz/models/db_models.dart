@@ -60,7 +60,7 @@ class BoltzSwapDbModel with _$BoltzSwapDbModel {
   factory BoltzSwapDbModel.fromJson(Map<String, dynamic> json) =>
       _$BoltzSwapDbModelFromJson(json);
 
-  factory BoltzSwapDbModel.fromV2SwapResponse(LbtcLnV2Swap response) =>
+  factory BoltzSwapDbModel.fromV2SwapResponse(LbtcLnSwap response) =>
       BoltzSwapDbModel(
         boltzId: response.id,
         kind: response.kind,
@@ -201,11 +201,11 @@ extension BoltzSwapDbModelX on BoltzSwapDbModel {
   int? get amountFromInvoice =>
       Bolt11Ext.getAmountFromLightningInvoice(invoice);
 
-  LbtcLnV2Swap toV2SwapResponse(
+  LbtcLnSwap toV2SwapResponse(
     KeyPairStorageModel keyPair,
     PreImageStorageModel preImage,
   ) {
-    return LbtcLnV2Swap(
+    return LbtcLnSwap(
       id: boltzId,
       kind: kind,
       network: network,
@@ -220,12 +220,13 @@ extension BoltzSwapDbModelX on BoltzSwapDbModel {
         secretKey: keyPair.secretKey,
         publicKey: keyPair.publicKey,
       ),
+      keyIndex: 0,
       preimage: PreImage(
         value: preImage.value,
         sha256: preImage.sha256,
         hash160: preImage.hash160,
       ),
-      swapScript: LBtcSwapScriptV2Str(
+      swapScript: LBtcSwapScriptStr(
         swapType: kind,
         hashlock: hashlock,
         receiverPubkey: receiverPubkey,
