@@ -14,10 +14,8 @@ class ReceiveSideshiftOrderExpireLabel extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sideshiftOrder = useMemoized(() => order);
-
-    final formattedExpiresDate = sideshiftOrder?.expiresAt != null
-        ? DateFormat('MMMM d, y').format(sideshiftOrder!.expiresAt!)
+    final formattedExpiresDate = order?.expiresAt != null
+        ? DateFormat('MMMM d, y').format(order!.expiresAt!)
         : '---';
 
     //ANCHOR - Expiry

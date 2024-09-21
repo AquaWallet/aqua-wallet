@@ -5,8 +5,8 @@ import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
-class ReceiveAssetCopyAddressButton extends HookConsumerWidget {
-  const ReceiveAssetCopyAddressButton({
+class CopyAddressButton extends HookConsumerWidget {
+  const CopyAddressButton({
     super.key,
     required this.address,
   });

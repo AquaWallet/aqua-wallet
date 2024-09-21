@@ -167,7 +167,7 @@ class BoltzSwapSettlementService {
 
       final fees = await Fees.newInstance(boltzUrl: boltzV2MainnetUrl);
       final subFees = await fees.submarine();
-      final refundBytes = await swap.refundBytes(
+      final refundBytes = await swap.refund(
         outAddress: address.address!,
         absFee: subFees.lbtcFees.minerFees,
         tryCooperate: tryCoop,
@@ -204,7 +204,7 @@ class BoltzSwapSettlementService {
 
       final fees = await Fees.newInstance(boltzUrl: boltzV2MainnetUrl);
       final reverseFees = await fees.reverse();
-      final claimBytes = await swap.claimBytes(
+      final claimBytes = await swap.claim(
         outAddress: address.address!,
         absFee: reverseFees.lbtcFees.minerFees.claim,
         tryCooperate: tryCoop,
@@ -214,6 +214,7 @@ class BoltzSwapSettlementService {
       final broadcastResponse = await broadcast(claimBytes);
 
       logger.d('[Boltz] Boltz Swap Claim response: $broadcastResponse');
+
       // update boltz cache
       await _ref
           .read(boltzStorageProvider.notifier)
@@ -224,6 +225,11 @@ class BoltzSwapSettlementService {
           .read(transactionStorageProvider.notifier)
           .updateReceiveAddressForBoltzId(
               boltzId: swap.id, newReceiveAddress: address.address!);
+
+      await _ref.read(transactionStorageProvider.notifier).markBoltzGhostTxn(
+          swap.id,
+          amount: swap.outAmount,
+          fee: reverseFees.lbtcFees.minerFees.claim);
 
       return broadcastResponse;
     } catch (e) {

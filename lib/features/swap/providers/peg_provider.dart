@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
+import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
@@ -42,18 +43,29 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       throw error;
     }
 
-    final fee = txn.fee!;
+    final firstOnchainFee = txn.fee!;
     final inputAmount = input.deliverAmountSatoshi;
-    final amountMinusOnchainFee = inputAmount - fee;
+    final amountMinusOnchainFee = inputAmount - firstOnchainFee;
+
+    final feeEstimates = asset.isLBTC
+        ? ref.read(feeEstimateProvider).getLiquidFeeRate()
+        : (await ref
+            .read(feeEstimateProvider)
+            .fetchBitcoinFeeRates())[TransactionPriority.high]!;
+
     final amountMinusSideSwapFee =
         SideSwapFeeCalculator.subtractSideSwapFeeForPegDeliverAmount(
-            amountMinusOnchainFee, input.isPegIn, statusStream);
+            amountMinusOnchainFee, input.isPegIn, statusStream, feeEstimates);
+
+    final secondOnchainFee = asset.isBTC
+        ? SideSwapFeeCalculator.estimatedPegInSecondFee(feeEstimates)
+        : SideSwapFeeCalculator.estimatedPegOutSecondFee(feeEstimates);
 
     logger.d(
-        "[Peg] Verifying Order - Input Amount: $inputAmount - Onchain Fee: $fee - Amount (minus onchain fee): $amountMinusOnchainFee - Amount (minus sideswap fee): $amountMinusSideSwapFee");
+        "[Peg] Verifying Order - Input Amount: $inputAmount - First onchain Fee: $firstOnchainFee - Second onchain Fee: $secondOnchainFee - Amount (minus onchain fee): $amountMinusOnchainFee - Amount (minus sideswap fee): $amountMinusSideSwapFee");
 
-    if (fee > inputAmount) {
-      logger.d('[PEG] Fee ($fee) exceeds amount ($inputAmount)');
+    if (firstOnchainFee > inputAmount) {
+      logger.d('[PEG] Fee ($firstOnchainFee) exceeds amount ($inputAmount)');
       final error = PegGdkFeeExceedingAmountException();
       state = AsyncValue.error(error, StackTrace.current);
       throw error;
@@ -64,7 +76,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       order: order,
       transaction: txn,
       inputAmount: inputAmount,
-      feeAmount: fee,
+      feeAmount: firstOnchainFee + secondOnchainFee,
       sendTxAmount: amountMinusOnchainFee,
       receiveAmount: amountMinusSideSwapFee.toInt(),
       isSendAll: input.isSendAll,
@@ -148,32 +160,22 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
           satoshi: deliverAmountSatoshi,
           isGreedy: isSendAll);
 
-      int feeRatePerKb;
-      final networkType =
-          asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid;
-
-      if (networkType == NetworkType.bitcoin) {
-        final feeRatesMap = await ref.read(pegFeeRatesProvider.future);
-        final feeRatePerVb =
-            feeRatesMap.entries.firstWhere((entry) => entry.key.isBTC).value;
-        feeRatePerKb = (feeRatePerVb * 1000.0).ceil();
-      } else {
-        feeRatePerKb = ((ref
-                    .read(feeEstimateProvider)
-                    .fetchLiquidFeeRate(isLowball: isLowball)) *
-                1000)
-            .toInt();
-      }
+      final feeEstimateVb = asset.isLBTC
+          ? ref.read(feeEstimateProvider).getLiquidFeeRate()
+          : (await ref
+              .read(feeEstimateProvider)
+              .fetchBitcoinFeeRates())[TransactionPriority.high]!;
+      final feeEstimateKb = (feeEstimateVb * 1000).ceil();
 
       final transaction = GdkNewTransaction(
         addressees: [addressee],
-        feeRate: feeRatePerKb,
+        feeRate: feeEstimateKb,
         utxoStrategy: GdkUtxoStrategyEnum.defaultStrategy,
       );
 
       final txReply = await network.createTransaction(transaction: transaction);
       logger.d(
-          "[Peg] Create Gdk Tx - deliverAmountSatoshi $deliverAmountSatoshi - fee ${txReply?.fee} - feeRatePerKb $feeRatePerKb - isSendAll: $isSendAll");
+          "[Peg] Create Gdk Tx - deliverAmountSatoshi $deliverAmountSatoshi - fee ${txReply?.fee} - feeRatePerKb $feeEstimateKb - isSendAll: $isSendAll");
       return txReply;
     } on GdkNetworkInsufficientFunds {
       logger.d('[PEG] Insufficient funds');
@@ -215,6 +217,10 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
 
       // if liquid, try lowball. if fail, try again without lowball
       try {
+        if (ref.read(featureFlagsProvider).fakeBroadcastsEnabled) {
+          return signedReply;
+        }
+
         await ref.read(electrsProvider).broadcast(signedReply.transaction!,
             asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid,
             isLowball: !asset.isBTC);
@@ -240,8 +246,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
 
   Future<void> signAndSendNonLowballTx(GdkNewTransactionReply lowballTx) async {
     final nonLowballFeeKb =
-        ref.read(feeEstimateProvider).fetchLiquidFeeRate(isLowball: false) *
-            1000;
+        ref.read(feeEstimateProvider).getLiquidFeeRate(isLowball: false) * 1000;
     final nonLowbalTx = lowballTx.copyWith(feeRate: nonLowballFeeKb.toInt());
     final blindedTx =
         await ref.read(liquidProvider).blindTransaction(nonLowbalTx);
@@ -253,6 +258,11 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     if (signedReply == null || signedReply.transaction == null) {
       throw PegGdkTransactionException();
     }
+
+    if (ref.read(featureFlagsProvider).fakeBroadcastsEnabled) {
+      return;
+    }
+
     await ref.read(electrsProvider).broadcast(
         signedReply.transaction!, NetworkType.liquid,
         isLowball: false);

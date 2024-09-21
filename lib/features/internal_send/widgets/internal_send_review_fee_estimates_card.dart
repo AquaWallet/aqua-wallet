@@ -67,12 +67,8 @@ class InternalSendReviewFeeEstimatesCard extends HookConsumerWidget {
               SizedBox(height: 14.h),
             ],
             _FeeBreakdownItem(
-              title: context.loc.internalSendReviewNetworkFee(
-                input.isPegIn
-                    ? context.loc.internalSendReviewBitcoin
-                    : context.loc.internalSendReviewLiquid,
-              ),
-              value: '$feeAmount L-BTC',
+              title: context.loc.internalSendReviewNetworkFees,
+              value: '$feeAmount BTC',
             ),
             if (rate != null) ...[
               SizedBox(height: 14.h),

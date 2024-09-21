@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:app_settings/app_settings.dart';
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/constants.dart' as constants;
 import 'package:aqua/features/recovery/recovery.dart';
@@ -12,7 +11,6 @@ import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:share_plus/share_plus.dart';
 
 class SettingsTab extends HookConsumerWidget {
   const SettingsTab({super.key});
@@ -34,6 +32,8 @@ class SettingsTab extends HookConsumerWidget {
         ref.watch(prefsProvider.select((p) => p.isDirectPegInEnabled));
     final experimentalFeaturesEnabled = ref.watch(featureUnlockTapCountProvider
         .select((p) => p.experimentalFeaturesEnabled));
+    final isSeedQrEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.seedQrEnabled));
 
     ref.listen(
       recoveryPhraseRequestProvider,
@@ -64,20 +64,6 @@ class SettingsTab extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            //ANCHOR - Invite Button
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 8.w),
-              child: AquaElevatedButton(
-                onPressed: () => Share.share(
-                  context.loc.settingsScreenInviteMessage(
-                    constants.aquaWebsiteUrl,
-                  ),
-                ),
-                height: 52.h,
-                child: Text(context.loc.settingsScreenInviteButton),
-              ),
-            ),
-            SizedBox(height: 28.h),
             //ANCHOR - Get Help
             MenuItemWidget(
               assetName: Svgs.support,
@@ -180,15 +166,6 @@ class SettingsTab extends HookConsumerWidget {
               context.loc.settingsScreenSectionAdvanced,
             ),
             SizedBox(height: 22.h),
-            //ANCHOR - Direct Peg In
-            MenuItemWidget.switchItem(
-              context: context,
-              value: isDirectPegInEnabled,
-              assetName: Svgs.swap,
-              title: context.loc.settingsScreenItemDirectPegIn,
-              onPressed: () => ref.read(prefsProvider).switchDirectPegIn(),
-            ),
-            SizedBox(height: 4.h),
             //ANCHOR - Manage Assets
             MenuItemWidget.arrow(
               context: context,
@@ -206,6 +183,26 @@ class SettingsTab extends HookConsumerWidget {
               onPressed: () => ref
                   .read(recoveryPhraseRequestProvider.notifier)
                   .requestRecoveryPhrase(),
+            ),
+            SizedBox(height: 4.h),
+            //ANCHOR - SEEDQR
+            if (isSeedQrEnabled) ...[
+              MenuItemWidget.arrow(
+                context: context,
+                assetName: Svgs.qr,
+                title: context.loc.settingsScreenItemViewSeedQR,
+                onPressed: () => Navigator.of(context)
+                    .pushNamed(WalletRecoveryQRScreen.routeName),
+              ),
+              SizedBox(height: 4.h),
+            ],
+            //ANCHOR - Direct Peg In
+            MenuItemWidget.switchItem(
+              context: context,
+              value: isDirectPegInEnabled,
+              assetName: Svgs.directPegIn,
+              title: context.loc.settingsScreenItemDirectPegIn,
+              onPressed: () => ref.read(prefsProvider).switchDirectPegIn(),
             ),
             SizedBox(height: 4.h),
             //ANCHOR - Poker Chip
@@ -228,7 +225,7 @@ class SettingsTab extends HookConsumerWidget {
                 onPressed: () => Navigator.of(context)
                     .pushNamed(ExperimentalFeaturesScreen.routeName),
               ),
-              SizedBox(height: 4.h), //ANCHOR - Remove Wallet
+              SizedBox(height: 4.h),
             ],
             //ANCHOR - Remove Wallet
             MenuItemWidget.arrow(
@@ -324,8 +321,11 @@ class SettingsTab extends HookConsumerWidget {
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle(
     this._text, {
+    // ignore: unused_element
     this.collapsable = false,
+    // ignore: unused_element
     this.expanded = false,
+    // ignore: unused_element
     this.onExpanded,
   });
 

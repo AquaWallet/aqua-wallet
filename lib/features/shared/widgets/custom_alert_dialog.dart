@@ -50,6 +50,7 @@ class CustomAlertDialog extends StatelessWidget {
                     padding: EdgeInsets.only(top: 26.h),
                     child: Text(
                       subtitle,
+                      textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 14.sp,
                             color: Theme.of(context).colorScheme.onSecondary,

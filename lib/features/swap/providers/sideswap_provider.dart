@@ -1,12 +1,13 @@
+import 'package:aqua/data/provider/fee_estimate_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 
 final swapLoadingIndicatorStateProvider =
     StateProvider.autoDispose<SwapProgressState>((ref) {
-  final pegFeeRates = ref.watch(pegFeeRatesProvider);
+  final btcFeeRate = ref.watch(feeEstimateProvider).fetchBitcoinFeeRates();
   final sideswapAssets = ref.watch(swapAssetsProvider).assets;
-  if (sideswapAssets.isEmpty || pegFeeRates is AsyncLoading) {
+  if (sideswapAssets.isEmpty || btcFeeRate is AsyncLoading) {
     return const SwapProgressState.connecting();
   }
 
@@ -61,11 +62,7 @@ final sideswapConversionRateAmountProvider =
       final asset = assets.firstWhere((e) => e.id == subscribedAssetId);
 
       if (!(bestOffer.price == null || subscribedAssetId.isEmpty)) {
-        final d = ref
-            .watch(currencyFormatProvider(2))
-            .format(bestOffer.price!)
-            .replaceAllMapped(
-                reRemoveTrailingDecimals, (e) => e.group(1) ?? '');
+        final d = ref.watch(currencyFormatProvider(2)).format(bestOffer.price!);
         return '1 L-BTC = $d ${asset.ticker}';
       }
     }
@@ -117,8 +114,8 @@ final swapIncomingDeliverSatoshiAmountProvider =
 });
 
 /// Returns the display string for the receive amount field
-final swapIncomingReceiveAmountProvider =
-    Provider.autoDispose.family<String, BuildContext>((ref, context) {
+final swapIncomingReceiveAmountProvider = FutureProvider.autoDispose
+    .family<String, BuildContext>((ref, context) async {
   final inputState = ref.watch(sideswapInputStateProvider);
   final statusStream = ref.watch(sideswapStatusStreamResultStateProvider);
   final invalidConversion = inputState.deliverAsset != null &&
@@ -127,29 +124,36 @@ final swapIncomingReceiveAmountProvider =
   final swapValidationError = ref.watch(swapValidationsProvider(context));
 
   if (invalidConversion || swapValidationError != null) {
-    return '0';
+    return '';
   }
 
   final receiveAsset = inputState.receiveAsset;
+
+  // Pegs
   if (inputState.isPeg) {
     final amountMinusChainFee =
-        ref.watch(amountMinusChainFeeEstProvider).asData?.value ?? 0;
+        ref.watch(amountMinusFirstOnchainFeeEstProvider).asData?.value ?? 0;
     if (amountMinusChainFee == 0) {
-      return "0";
+      return '';
     } else {
-      // amount already has  fee estimate subtracted
+      final feeRate = receiveAsset!.isLBTC
+          ? ref.read(feeEstimateProvider).getLiquidFeeRate()
+          : (await ref
+              .read(feeEstimateProvider)
+              .fetchBitcoinFeeRates())[TransactionPriority.high];
+
       final amountAfterSideSwapFee =
           SideSwapFeeCalculator.subtractSideSwapFeeForPegDeliverAmount(
-              amountMinusChainFee, inputState.isPegIn, statusStream);
-      final amountFormatted =
-          ref.read(formatterProvider).formatAssetAmountDirect(
-                amount: amountAfterSideSwapFee.toInt(),
-                precision: inputState.deliverAsset!.precision,
-              );
-      return amountFormatted;
+              amountMinusChainFee, inputState.isPegIn, statusStream, feeRate);
+
+      return ref.read(formatterProvider).formatAssetAmountDirect(
+            amount: amountAfterSideSwapFee.toInt(),
+            precision: receiveAsset.precision,
+          );
     }
   }
 
+  // Swaps
   final priceStream = ref.watch(sideswapPriceStreamResultStateProvider);
 
   if (inputState.deliverAsset == null ||
@@ -172,11 +176,11 @@ final swapIncomingReceiveSatoshiAmountProvider =
     Provider.autoDispose.family<int, BuildContext>((ref, context) {
   final inputState = ref.watch(sideswapInputStateProvider);
   final receiveIncomingAmount =
-      ref.watch(swapIncomingReceiveAmountProvider(context));
+      ref.watch(swapIncomingReceiveAmountProvider(context)).valueOrNull;
 
   final receiveAsset = inputState.receiveAsset;
 
-  if (receiveAsset == null || receiveIncomingAmount.isEmpty) {
+  if (receiveAsset == null || receiveIncomingAmount!.isEmpty) {
     return 0;
   }
 

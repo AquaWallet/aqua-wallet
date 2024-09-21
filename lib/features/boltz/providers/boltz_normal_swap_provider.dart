@@ -3,9 +3,9 @@ import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
-import 'package:flutter/foundation.dart';
 
 // ANCHOR - Submarine Swap Provider
 final boltzSubmarineSwapProvider =
@@ -87,8 +87,10 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
   }
 
   // ANCHOR: - Send Onchain Normal Swap
-  Future<GdkNewTransactionReply> createTxnForSubmarineSwap(
-      {bool isLowball = true}) async {
+  Future<GdkNewTransactionReply> createTxnForSubmarineSwap({
+    bool isLowball = true,
+    bool isFeeEstimateTxn = false,
+  }) async {
     final boltzOrder = state;
     try {
       final forceBoltzFailedNormalSwapEnabled = _ref.watch(featureFlagsProvider
@@ -114,6 +116,13 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
             rbfEnabled: false,
             isLowball: isLowball,
           );
+
+      // Mark the Boltz txn as a ghost only if it's not a fee estimate txn
+      if (!isFeeEstimateTxn) {
+        await _ref
+            .read(transactionStorageProvider.notifier)
+            .markBoltzGhostTxn(boltzOrder.id);
+      }
 
       logger
           .d('[Send] Boltz Submarine Swap createGdkTransaction response: $tx}');

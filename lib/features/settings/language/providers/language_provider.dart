@@ -4,6 +4,7 @@ import 'package:aqua/features/shared/shared.dart';
 enum SupportedLanguageCodes {
   english('en'),
   spanish('es'),
+  portuguese('pt'),
   dutch('nl'),
   bulgarian('bg'),
   czech('cs'),
@@ -32,6 +33,7 @@ class LanguageProvider extends ChangeNotifier {
         Language(SupportedLanguageCodes.spanish.value),
         Language(SupportedLanguageCodes.dutch.value),
         Language(SupportedLanguageCodes.bulgarian.value),
+        Language(SupportedLanguageCodes.portuguese.value),
         if (prefs.isHiddenLanguagesEnabled) ...[
           //NOTE - Hidden languages go here
           Language(SupportedLanguageCodes.czech.value),

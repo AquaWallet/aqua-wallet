@@ -16,51 +16,58 @@ class SideShiftOrdersList extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cachedOrders = ref.watch(sideshiftStorageProvider);
-    cachedOrders.asData?.value.forEach((order) => logger.d(
-        "[Sideshift] order update: ${order.status?.localizedString(context)} - shiftId: ${order.id}"));
+    final cachedOrdersAsync = ref.watch(sideshiftStorageProvider);
+    final cachedOrders = cachedOrdersAsync.asData?.value ?? [];
 
-    // orderStatusProvider opens a stream for each order status update, so refresh the cachedOrders list every 5 seconds
+    // orderStatusProvider opens a stream for each order status update, so
+    // refresh the cachedOrders list every 5 seconds
     useEffect(() {
       Timer.periodic(const Duration(seconds: 5), (_) {
-        final _ = ref.refresh(sideshiftStorageProvider);
+        ref.invalidate(sideshiftStorageProvider);
       });
 
-      final shiftIds = cachedOrders.asData?.value
-          .map((order) => order.orderId)
-          .cast<String>()
-          .toList();
-      shiftIds?.forEach((shiftId) => ref.watch(orderStatusProvider(shiftId)));
-      logger.d("[Sideshift] watching shifts : ${shiftIds?.length}");
+      for (final order in cachedOrders) {
+        logger.d("[Sideshift] Update: ${order.status} - ShiftId: ${order.id}");
+      }
 
-      return null; // stream cancellation happens in SideShiftOrdersScreen
-    }, [cachedOrders.asData?.value.length]);
+      final shiftIds =
+          cachedOrders.map((order) => order.orderId).cast<String>().toList();
+      for (final shiftId in shiftIds) {
+        ref.watch(orderStatusProvider(shiftId));
+      }
+      logger.d("[Sideshift] watching shifts : ${shiftIds.length}");
 
-    return cachedOrders.when(
+      // stream cancellation happens in SideShiftOrdersScreen
+      return null;
+    }, [cachedOrders.length]);
+
+    return cachedOrdersAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text(error.toString())),
-      data: (items) => items.isEmpty
-          ? Center(
-              child: Text(
-                context.loc.sideshiftOrderListEmptyState,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            )
-          : Container(
-              padding: EdgeInsets.only(top: 40.h),
-              child: ListView.separated(
-                primary: false,
-                itemCount: items.length,
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
-                padding: EdgeInsets.only(left: 28.w, right: 28.w, top: 20.h),
-                separatorBuilder: (context, index) => SizedBox(height: 16.h),
-                itemBuilder: (_, index) =>
-                    _SideShiftOrderListItem(items[index]),
-              ),
+      data: (items) {
+        if (items.isEmpty) {
+          return Center(
+            child: Text(
+              context.loc.sideshiftOrderListEmptyState,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
+          );
+        }
+        return Container(
+          padding: EdgeInsets.only(top: 40.h),
+          child: ListView.separated(
+            primary: false,
+            itemCount: items.length,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            padding: EdgeInsets.only(left: 28.w, right: 28.w, top: 20.h),
+            separatorBuilder: (context, index) => SizedBox(height: 16.h),
+            itemBuilder: (_, index) => _SideShiftOrderListItem(items[index]),
+          ),
+        );
+      },
     );
   }
 }

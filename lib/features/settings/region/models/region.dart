@@ -54,6 +54,7 @@ extension RegionsStatic on Region {
   static final Region us = Region(name: 'United States of America', iso: 'US');
   static final Region ca = Region(name: 'Canada', iso: 'CA');
   static final Region mx = Region(name: 'Mexico', iso: 'MX');
+  static final Region br = Region(name: 'Brazil', iso: 'BR');
 
   // European countries
   static final Region ad = Region(name: 'Andorra', iso: 'AD');

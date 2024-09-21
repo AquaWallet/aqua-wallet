@@ -20,6 +20,8 @@ enum TransactionDbModelType {
   boltzReverseSwap,
   @JsonValue('sideshiftSwap')
   sideshiftSwap,
+  @JsonValue('aquaSend')
+  aquaSend,
 }
 
 extension TransactionDbModelTypeExtension on TransactionDbModelType {
@@ -42,6 +44,10 @@ class TransactionDbModel with _$TransactionDbModel {
     @Enumerated(EnumType.name) required TransactionDbModelType type,
     String? serviceOrderId,
     String? serviceAddress,
+    @Default(false) bool isGhost,
+    DateTime? ghostTxnCreatedAt,
+    int? ghostTxnAmount,
+    int? ghostTxnFee,
   }) = _TransactionDbModel;
 
   @override
@@ -115,6 +121,7 @@ class TransactionDbModel with _$TransactionDbModel {
 }
 
 extension TransactionDbModelX on TransactionDbModel {
+  bool get isAquaSend => type == TransactionDbModelType.aquaSend;
   bool get isSwap => type == TransactionDbModelType.sideswapSwap;
   bool get isPeg =>
       type == TransactionDbModelType.sideswapPegIn ||

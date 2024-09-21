@@ -28,6 +28,21 @@ abstract class WalletService {
     return networkName == 'Liquid' ? 0 : 1;
   }
 
+  Future<Result<GdkAuthHandlerStatus>> getSubaccounts({
+    required GdkGetSubaccountsDetails details,
+  }) async {
+    final status = await libGdk.getSubaccounts(
+      session: session!,
+      details: details,
+    );
+
+    if (isErrorResult(status)) {
+      return status;
+    }
+
+    return _resolveAuthHandlerStatus(status.asValue!.value);
+  }
+
   Future<Result<GdkAuthHandlerStatus>> _resolveAuthHandlerStatus(
     GdkAuthHandlerStatus status,
   ) async {

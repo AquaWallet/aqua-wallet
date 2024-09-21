@@ -1,4 +1,3 @@
-import 'package:aqua/features/send/providers/providers.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
@@ -7,7 +6,12 @@ import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SideshiftMinMaxPanel extends HookConsumerWidget {
-  const SideshiftMinMaxPanel({super.key});
+  final Asset asset;
+
+  const SideshiftMinMaxPanel({
+    required this.asset,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,7 +24,6 @@ class SideshiftMinMaxPanel extends HookConsumerWidget {
       }
     });
 
-    final asset = ref.read(sendAssetProvider);
     final SideshiftAssetPair assetPair = SideshiftAssetPair(
       from: SideshiftAsset.usdtLiquid(),
       to: asset == Asset.usdtEth()

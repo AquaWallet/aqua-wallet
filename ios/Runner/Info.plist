@@ -58,5 +58,7 @@
     <false/>
     <key>UIRequiresFullScreen</key>
     <string>YES</string>
+	<key>NSDocumentsUsageDescription</key>
+	<string>We need access to your documents to export swap data.</string>
 </dict>
 </plist>

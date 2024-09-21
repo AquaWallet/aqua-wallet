@@ -34,11 +34,18 @@ final transactionStorageProvider =
 abstract class TransactionStorage {
   Future<void> save(TransactionDbModel model);
   Future<void> clear();
+  Future<void> clearGhostTransactions();
   void cacheSideswapReceiveAddress(String address);
   Future<void> updateTxHash({
     required String serviceOrderId,
     required String newTxHash,
   });
+  Future<void> updateReceiveAddressForBoltzId({
+    required String boltzId,
+    required String newReceiveAddress,
+  });
+  Future<void> markBoltzGhostTxn(String serviceOrderId,
+      {int? amount, int? fee});
 }
 
 class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
@@ -87,6 +94,21 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
   }
 
   @override
+  Future<void> clearGhostTransactions() async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      final ghostTxns = await storage.transactionDbModels
+          .filter()
+          .isGhostEqualTo(true)
+          .findAll();
+      logger.d('[TransactionStorage] Removing Ghost Txns: ${ghostTxns.length}');
+      Future.wait(ghostTxns.map((txn) {
+        return storage.transactionDbModels.delete(txn.id);
+      }));
+    });
+  }
+
+  @override
   Future<void> updateTxHash({
     required String serviceOrderId,
     required String newTxHash,
@@ -108,6 +130,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
   }
 
   //ANCHOR: Boltz-related convenience methods
+  @override
   Future<void> updateReceiveAddressForBoltzId({
     required String boltzId,
     required String newReceiveAddress,
@@ -126,5 +149,25 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
 
     final updated = await storage.transactionDbModels.all();
     state = AsyncValue.data(updated);
+  }
+
+  @override
+  Future<void> markBoltzGhostTxn(String id, {int? amount, int? fee}) async {
+    final storage = await ref.read(storageProvider.future);
+    final transaction = await storage.transactionDbModels
+        .filter()
+        .serviceOrderIdEqualTo(id)
+        .findFirst();
+    logger.d('[TransactionStorage] Marking Boltz transaction: $transaction');
+    if (transaction != null) {
+      await ref
+          .read(transactionStorageProvider.notifier)
+          .save(transaction.copyWith(
+            isGhost: true,
+            ghostTxnCreatedAt: DateTime.now(),
+            ghostTxnAmount: amount,
+            ghostTxnFee: fee,
+          ));
+    }
   }
 }

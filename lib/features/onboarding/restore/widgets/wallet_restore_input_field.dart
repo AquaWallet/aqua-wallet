@@ -10,21 +10,21 @@ class WalletRestoreInputField extends HookConsumerWidget {
     required this.onFocused,
     this.onKeyboardInput,
     super.key,
+    required this.focusedIndex,
   });
 
   final int index;
   final Function(int index) onFocused;
   final Function(MnemonicKeyboardKey key)? onKeyboardInput;
-
+  final ValueNotifier<int> focusedIndex;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final key = useMemoized(GlobalKey.new);
     final focusNode = useFocusNode();
     final textController = useTextEditingController();
-
     //NOTE - Clear text field when focused (util feature to simplify correction)
     focusNode.addListener(() {
-      if (focusNode.hasFocus) {
+      if (focusNode.hasFocus && focusedIndex.value != index) {
         onFocused(index);
         textController.clear();
         ref.read(mnemonicWordInputStateProvider(index).notifier).clear();

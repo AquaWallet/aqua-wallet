@@ -198,6 +198,22 @@ class LiquidProvider extends NetworkFrontend {
     };
   }
 
+  String get depixId {
+    return switch (liquidNetworkFactory?.networkType) {
+      LiquidNetworkEnumType.mainnet =>
+        '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189',
+      _ => '' // testnet currently not available
+    };
+  }
+
+  String get eurXId {
+    return switch (liquidNetworkFactory?.networkType) {
+      LiquidNetworkEnumType.mainnet =>
+        '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec',
+      _ => '58af36e1b529b42f3e4ccce812924380058cae18b2ad26c89805813a9db25980'
+    };
+  }
+
   @override
   Future<int> minFeeRate() async {
     return 100;

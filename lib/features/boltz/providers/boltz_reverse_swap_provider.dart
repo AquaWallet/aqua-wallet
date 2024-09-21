@@ -62,16 +62,18 @@ class BoltzReverseSwapNotifier extends StateNotifier<ReceiveBoltzState> {
 
       logger.d("[Receive] Boltz Reverse Swap response: $response");
 
-      final swapDbModel = BoltzSwapDbModel.fromV2SwapResponse(response)
-          .copyWith(outAddress: address.address!)
-          .copyWith(lastKnownStatus: BoltzSwapStatus.created);
+      final swapDbModel =
+          BoltzSwapDbModel.fromV2SwapResponse(response).copyWith(
+        outAddress: address.address!,
+        lastKnownStatus: BoltzSwapStatus.created,
+      );
       final transactionDbModel = TransactionDbModel.fromV2SwapResponse(
-          txhash: "",
-          assetId: Asset.lightning().id,
-          swap: response,
-          settleAddress: address
-              .address! // this will be settle address if resolves as a boltz-to-boltz swap. if a regular ln swap, claim address will be settle address.
-          );
+        txhash: "",
+        assetId: Asset.lightning().id,
+        swap: response,
+        // this will be settle address if resolves as a boltz-to-boltz swap. if a regular ln swap, claim address will be settle address.
+        settleAddress: address.address!,
+      );
       await _ref.read(boltzStorageProvider.notifier).saveBoltzSwapResponse(
             txnDbModel: transactionDbModel,
             swapDbModel: swapDbModel,

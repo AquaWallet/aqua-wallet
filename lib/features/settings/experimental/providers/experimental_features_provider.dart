@@ -31,8 +31,15 @@ class FeatureFlagsNotifier extends ChangeNotifier {
   bool get throwAquaBroadcastErrorEnabled =>
       _prefs.getBool(PrefKeys.throwAquaBroadcastErrorEnabled) ?? false;
 
+  bool get dbExportEnabled => _prefs.getBool(PrefKeys.dbExportEnabled) ?? false;
+
   bool get forceAquaNodeNotSyncedEnabled =>
       _prefs.getBool(PrefKeys.forceAquaNodeNotSyncedEnabled) ?? false;
+
+  bool get seedQrEnabled => _prefs.getBool(PrefKeys.seedQrEnabled) ?? false;
+
+  bool get myFirstBitcoinEnabled =>
+      _prefs.getBool(PrefKeys.myFirstBitcoinEnabled) ?? false;
 
   void toggleFeatureFlag({
     required String key,

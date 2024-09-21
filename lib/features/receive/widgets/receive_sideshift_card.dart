@@ -6,6 +6,7 @@ import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:aqua/common/dialogs/dialog_manager.dart';
 
 class ReceiveSideshiftCard extends HookConsumerWidget {
   const ReceiveSideshiftCard({
@@ -17,8 +18,6 @@ class ReceiveSideshiftCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sideshiftPermissionError = useState<String?>(null);
-
     final order = ref.watch(sideshiftReceiveProvider(asset));
 
     final handleSideshiftError = useCallback((Object ex) {
@@ -30,13 +29,17 @@ class ReceiveSideshiftCard extends HookConsumerWidget {
                 : context.loc.sideshiftGenericError;
         logger.e('[Receive][Sideshift] Error: $error');
 
-        if (ex is NoPermissionsException) {
-          sideshiftPermissionError.value = error;
-        } else {
-          context.showErrorSnackbar(error);
-        }
+        final alertModel = CustomAlertDialogUiModel(
+          title: context.loc.genericErrorMessage,
+          subtitle: error,
+          buttonTitle: context.loc.ok,
+          onButtonPressed: () {
+            Navigator.of(context).pop();
+          },
+        );
+        DialogManager().showDialog(context, alertModel);
       });
-    });
+    }, [context]);
 
     useEffect(() {
       order.whenData((o) {
@@ -85,14 +88,6 @@ class ReceiveSideshiftCard extends HookConsumerWidget {
               ),
             ],
           ),
-        ),
-        //ANCHOR - Fixed Error
-        SizedBox(height: 21.h),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 28.w),
-          child: Column(children: [
-            CustomError(errorMessage: sideshiftPermissionError.value),
-          ]),
         ),
       ],
     );

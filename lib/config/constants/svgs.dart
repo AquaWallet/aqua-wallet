@@ -19,6 +19,7 @@ class Svgs {
   static const usdtAsset = 'assets/asset_icons/usdt.svg';
   static const usdtAssetDisabled = 'assets/asset_icons/usdt_disabled.svg';
   static const mexasAsset = 'assets/asset_icons/MEX.svg';
+  static const depixAsset = 'assets/asset_icons/DePix.svg';
   static const lightningAsset = 'assets/asset_icons/l2.svg';
   static const l2Asset = 'assets/asset_icons/l2.svg';
   static const l2AssetDisabled = 'assets/asset_icons/l2_disabled.svg';
@@ -42,6 +43,7 @@ class Svgs {
   static const tabSettings = 'assets/tab_settings.svg';
   static const pending = 'assets/pending.svg';
   static const incoming = 'assets/incoming.svg';
+  static const directPegIn = 'assets/direct_peg_in.svg';
   static const outgoing = 'assets/outgoing.svg';
   static const exchange = 'assets/exchange.svg';
   static const failure = 'assets/failure.svg';
@@ -94,6 +96,7 @@ class Svgs {
   static const unlock = 'assets/unlock.svg';
   static const layerTwoDual = 'assets/asset_icons/layer_two_dual.svg';
   static const internalSendArrow = 'assets/internal_send_arrow.svg';
+  static const mapIcon = 'assets/marketplace/map.svg';
 }
 
 extension SvgsMarketplace on Svgs {

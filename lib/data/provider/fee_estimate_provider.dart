@@ -28,13 +28,12 @@ class FeeEstimateClient {
 
   final ProviderRef ref;
 
-  Future<Map<TransactionPriority, double>> fetchBitcoinFeeRates(
-      NetworkType network) async {
+  Future<Map<TransactionPriority, double>> fetchBitcoinFeeRates() async {
     return await ref.read(onChainFeeProvider.future);
   }
 
   /// Returns sats/vbyte
-  double fetchLiquidFeeRate({bool isLowball = true}) {
+  double getLiquidFeeRate({bool isLowball = true}) {
     return isLowball ? liquidLowballFeeRates : liquidFallbackFeeRates;
   }
 
@@ -59,22 +58,25 @@ final feeEstimateProvider = Provider<FeeEstimateClient>(
 
 final onChainFeeProvider =
     FutureProvider.autoDispose<Map<TransactionPriority, double>>((ref) async {
+  ref.cacheFor(const Duration(seconds: 15));
+  ref.refreshAfter(const Duration(seconds: 60));
+
   try {
+    // fetch from mempool
     final fees = await ref.read(feeEstimateProvider).fetchMempoolFeeRates();
-    logger.d("[Fees] fetched from mempool.space: $fees");
-    ref.cacheFor(const Duration(seconds: 15));
-    ref.refreshAfter(const Duration(seconds: 60));
+    logger.d("[Fees] fetched from mempool: $fees");
     return fees;
   } catch (e) {
+    // if mempool fetch fails, fetch from blockstream
     logger.e('[Fees] mempool request failed:', e);
     final fees =
         await ref.read(electrsProvider).fetchFeeRates(NetworkType.bitcoin);
-    logger.d("[Fees] fallback to blockstream: $fees");
+    logger.d("[Fees] fetched from blockstream: $fees");
     return fees;
   }
 });
 
 final liquidFeeRateProvider = FutureProvider<double>((ref) async {
   final client = ref.read(feeEstimateProvider);
-  return client.fetchLiquidFeeRate();
+  return client.getLiquidFeeRate();
 });

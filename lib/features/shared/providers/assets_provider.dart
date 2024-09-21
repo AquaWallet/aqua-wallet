@@ -30,9 +30,6 @@ class AssetsNotifier extends AutoDisposeAsyncNotifier<List<Asset>> {
     _reloadAssetsController.add(null);
   }
 
-  Asset? liquidAssetById(String id) =>
-      state.value?.firstWhereOrNull((asset) => asset.id == id);
-
   Stream<List<Asset>> get stream => StreamGroup.merge<void>([
         Stream.periodic(const Duration(seconds: 5)),
         _reloadAssetsController.stream,

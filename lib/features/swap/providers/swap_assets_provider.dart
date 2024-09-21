@@ -1,3 +1,4 @@
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
@@ -25,10 +26,15 @@ class SwapAssetsNotifier extends ChangeNotifier {
     assets.addAll(allAssets
         .where((asset) => swapAssets.any((swap) => swap.assetId == asset.id)));
 
-    // TODO removing EURx from the list. We will have to support it later.
-    assets.removeWhere((item) => item.ticker == 'EURx');
+    // TODO: removing mexas from the list for now since no liquidity. Add later when market confirmed.
+    assets.removeWhere((item) => item.ticker == 'MEX');
 
     notifyListeners();
+  }
+
+  bool isSwappable(Asset deliverAsset, Asset settleAsset) {
+    final swappable = swappableAssets(deliverAsset);
+    return swappable.contains(settleAsset);
   }
 
   List<Asset> swappableAssets(Asset? asset) {
@@ -36,19 +42,33 @@ class SwapAssetsNotifier extends ChangeNotifier {
       return [];
     }
 
-    final btcAsset = assets.firstWhere((asset) => asset.isBTC);
-    final lbtcAsset = assets.firstWhere((asset) => asset.isLBTC);
-    final usdtLiquidAsset = assets.firstWhereOrNull((asset) => asset
-        .isUsdtLiquid); // usdt can be null if removed from managed assets by user
+    final liquid = ref.read(liquidProvider);
 
-    if (asset.isBTC) {
-      return [lbtcAsset];
-    } else if (asset.isLBTC) {
-      return usdtLiquidAsset != null ? [btcAsset, usdtLiquidAsset] : [btcAsset];
-    } else if (asset.isUsdtLiquid) {
-      return [lbtcAsset];
-    }
+    final btcAsset = assets.firstWhereOrNull((asset) => asset.isBTC);
+    final lbtcAsset = assets.firstWhereOrNull((asset) => asset.isLBTC);
+    final depixAsset =
+        assets.firstWhereOrNull((asset) => asset.id == liquid.depixId);
+    final eurXAsset =
+        assets.firstWhereOrNull((asset) => asset.id == liquid.eurXId);
+    final mexasAsset =
+        assets.firstWhereOrNull((asset) => asset.id == liquid.mexasId);
+    final usdtLiquidAsset =
+        assets.firstWhereOrNull((asset) => asset.isUsdtLiquid);
 
-    return [];
+    return switch (asset.id) {
+      _ when (asset.isBTC) => [lbtcAsset!],
+      _ when (asset.isLBTC) => [
+          btcAsset!,
+          if (usdtLiquidAsset != null) usdtLiquidAsset,
+          if (depixAsset != null) depixAsset,
+          if (eurXAsset != null) eurXAsset,
+          if (mexasAsset != null) mexasAsset,
+        ],
+      _ when (asset.isUsdtLiquid) => [lbtcAsset!],
+      _ when (asset.id == liquid.depixId || asset.id == liquid.eurXId) => [
+          lbtcAsset!
+        ],
+      _ => [],
+    };
   }
 }

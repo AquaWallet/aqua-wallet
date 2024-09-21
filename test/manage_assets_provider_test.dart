@@ -77,6 +77,16 @@ void main() {
           "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/MEX.svg",
           "Default": false,
           "IsRemovable": true
+        },
+        {
+          "Name": "DePix",
+          "Id":
+              "02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189",
+          "Ticker": "DePix",
+          "Logo":
+              "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/DePix.svg",
+          "Default": false,
+          "IsRemovable": true
         }
       ]
     }
@@ -203,6 +213,20 @@ void main() {
             precision: 8,
             isLiquid: true,
             isLBTC: false,
+            isUSDt: false),
+        Asset(
+            id:
+                '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189',
+            name: 'DePix',
+            ticker: 'DePix',
+            logoUrl:
+                'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/DePix.svg',
+            isDefaultAsset: false,
+            domain: null,
+            amount: 0,
+            precision: 8,
+            isLiquid: true,
+            isLBTC: false,
             isUSDt: false)
       ]);
 
@@ -260,11 +284,11 @@ void main() {
           container.read(availableAssetsProvider).value?.last,
           Asset(
               id:
-                  '26ac924263ba547b706251635550a8649545ee5c074fe5db8d7140557baaf32e',
-              name: 'Mexas',
-              ticker: 'MEX',
+                  '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189',
+              name: 'DePix',
+              ticker: 'DePix',
               logoUrl:
-                  'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/MEX.svg',
+                  'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/DePix.svg',
               isDefaultAsset: false,
               domain: null,
               amount: 0,
@@ -272,7 +296,7 @@ void main() {
               isLiquid: true,
               isLBTC: false,
               isUSDt: false));
-      expect(container.read(availableAssetsProvider).value?.length, 6);
+      expect(container.read(availableAssetsProvider).value?.length, 7);
 
       // Verify the GET request was made to the correct URL.
       verify(

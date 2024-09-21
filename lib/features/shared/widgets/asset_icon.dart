@@ -47,6 +47,8 @@ class AssetIcon extends ConsumerWidget {
           localAsset = Svgs.liquidAsset;
         } else if (assetId == liquidProviderRef.mexasId) {
           localAsset = Svgs.mexasAsset;
+        } else if (assetId == liquidProviderRef.depixId) {
+          localAsset = Svgs.depixAsset;
         }
         break;
     }

@@ -18,6 +18,17 @@ enum NetworkType {
   liquid,
 }
 
+extension NetworkTypeExt on NetworkType {
+  String get displayName {
+    switch (this) {
+      case NetworkType.bitcoin:
+        return 'Bitcoin';
+      case NetworkType.liquid:
+        return 'Liquid';
+    }
+  }
+}
+
 typedef OnEventCallback = Future<void> Function(dynamic)?;
 
 abstract class NetworkFrontend {
@@ -186,6 +197,8 @@ abstract class NetworkFrontend {
               throw GdkNetworkInvalidAmount(error);
             case 'id_insufficient_funds':
               throw GdkNetworkInsufficientFunds(error);
+            case 'Insufficient funds for fees':
+              throw GdkNetworkInsufficientFundsForFee(error);
             case 'invalid subaccount 1' || 'Unknown subaccount':
               return true;
             default:
@@ -412,6 +425,18 @@ abstract class NetworkFrontend {
     }
 
     return result.asValue?.value.result?.getSubaccount;
+  }
+
+  Future<List<GdkSubaccount>?> getSubaccounts({
+    GdkGetSubaccountsDetails details = const GdkGetSubaccountsDetails(),
+  }) async {
+    final result = await session.getSubaccounts(details: details);
+
+    if (_isErrorResult(result)) {
+      return null;
+    }
+
+    return result.asValue?.value.result?.subaccounts;
   }
 
   Future<GdkAuthHandlerStatus?> createSegwitSubaccount() async {
@@ -795,7 +820,16 @@ class GdkNetworkInsufficientFunds extends GdkNetworkException {
 
   @override
   String toLocalizedString(BuildContext context) {
-    return context.loc.gdkNetworkInsufficientFunds;
+    return context.loc.gdkNetworkInsufficientFundsForFee;
+  }
+}
+
+class GdkNetworkInsufficientFundsForFee extends GdkNetworkException {
+  GdkNetworkInsufficientFundsForFee(super.error);
+
+  @override
+  String toLocalizedString(BuildContext context) {
+    return context.loc.gdkNetworkInsufficientFundsForFee;
   }
 }
 

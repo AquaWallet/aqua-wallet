@@ -66,7 +66,7 @@ class ReceiveAssetAddressQrCard extends HookWidget {
                 assetIconUrl: asset.logoUrl),
             SizedBox(height: 21.h),
             //ANCHOR - Copy Address Button
-            ReceiveAssetCopyAddressButton(
+            CopyAddressButton(
               address: rawAddress,
             ),
             SizedBox(height: 20.h),
@@ -76,7 +76,7 @@ class ReceiveAssetAddressQrCard extends HookWidget {
               ReceiveSideshiftOrderExpireLabel(order: sideshiftOrder),
               SizedBox(height: 14.h),
               //ANCHOR - Min-Max Bound
-              const SideshiftMinMaxPanel(),
+              SideshiftMinMaxPanel(asset: asset),
               SizedBox(height: 20.h),
             ],
           ],

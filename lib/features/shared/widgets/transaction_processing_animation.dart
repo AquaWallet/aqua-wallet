@@ -11,11 +11,14 @@ class TransactionProcessingAnimation extends HookConsumerWidget {
       canPop: false,
       child: Scaffold(
         body: Center(
-          child: Lottie.asset(
-            animation.transactionProcessing,
-            repeat: true,
-            frameRate: const FrameRate(120),
-            fit: BoxFit.contain,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Lottie.asset(
+              animation.transactionProcessing,
+              repeat: true,
+              frameRate: const FrameRate(120),
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ),

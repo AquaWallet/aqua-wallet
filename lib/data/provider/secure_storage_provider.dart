@@ -121,4 +121,4 @@ class StorageKeys {
   static const mnemonic = 'mnemonic';
 }
 
-final secureStorageProvider = Provider<SecureStorage>((_) => SecureStorage());
+final secureStorageProvider = Provider<IStorage>((_) => SecureStorage());

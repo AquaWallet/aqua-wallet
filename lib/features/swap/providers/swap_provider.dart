@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -168,6 +169,10 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
         }
 
         logger.d('[Swap] signedPset: ', signedPsbtTx!.psbt);
+
+        if (ref.read(featureFlagsProvider).fakeBroadcastsEnabled) {
+          return;
+        }
 
         final signBody = await ref
             .read(sideswapHttpProvider)

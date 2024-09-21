@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-GDK_VERSION := 0.72.2
+GDK_VERSION := 0.73.0
 GDK_RELEASE_URL := https://github.com/Blockstream/gdk/releases/download/release_$(GDK_VERSION)
 
 install:
@@ -13,22 +13,22 @@ get-gdk:
 	mkdir crypto
 	# gdk-iphone
 	curl --location $(GDK_RELEASE_URL)/gdk-iphone.tar.gz --output /tmp/gdk-iphone.tar.gz
-	echo "f77e292a0a308cd33771e2b17cac21db76f83cc85bc1b2a681f78a8178f57107  /tmp/gdk-iphone.tar.gz" | shasum -a 256 --check
+	echo "53dc64ddbf71057fd493f1334eff9fa9d4b1fb712e520eb2bdba7191a47617c0  /tmp/gdk-iphone.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk-iphone.tar.gz --directory crypto
 	# gdk-android-jni
-	curl --location $(GDK_RELEASE_URL)/gdk-release_0.72.2.tar.gz --output /tmp/gdk.tar.gz
-	echo "a091a5e37f3ce69e1281d28bd2ea5a4898a5d48b6fb8059f412058b5e842b783  /tmp/gdk.tar.gz" | shasum -a 256 --check
-	tar --extract --file /tmp/gdk.tar.gz --directory crypto
-	mv crypto/gdk-release_0.72.2 crypto/gdk
+	curl --location $(GDK_RELEASE_URL)/gdk-release_$(GDK_VERSION).tar.gz --output /tmp/gdk-release.tar.gz
+	echo "2bb9d517b0a5f31a65154ab449db469fa3e19852c1f39d17c8622776bf40249d  /tmp/gdk-release.tar.gz" | shasum -a 256 --check
+	tar --extract --file /tmp/gdk-release.tar.gz --directory crypto
+	mv crypto/gdk-release_$(GDK_VERSION) crypto/gdk
 	cp -r gdk-includes/include crypto/gdk/
 
 patch-ios-sim:
 	# gdk-iphone-sim-x86_64
 	curl --location $(GDK_RELEASE_URL)/gdk-iphone-sim-x86_64.tar.gz --output /tmp/gdk-iphone-sim-x86_64.tar.gz
-	echo "5a11fff9dc5c42e5d3287b75859ada27b59f85ed3164c58ebd71db5d5f753686  /tmp/gdk-iphone-sim-x86_64.tar.gz" | shasum -a 256 --check
+	echo "c8fcee250be4f17563433bcc0a9ce3e198b3898fd1d082e67bac7ff9c308640a  /tmp/gdk-iphone-sim-x86_64.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk-iphone-sim-x86_64.tar.gz --directory crypto
-	rm crypto/gdk-iphone/lib/iphoneos/libgreen_gdk_full.a
-	cp crypto/gdk-iphonesim-x86_64/lib/iphonesimulator/libgreen_gdk_full.a crypto/gdk-iphone/lib/iphoneos/
+	rm crypto/gdk-iphone/lib/arm64-apple-ios13.00/libgreen_gdk_full.a
+	cp crypto/gdk-iphonesim-x86_64/lib/x86_64-apple-ios13.00/libgreen_gdk_full.a crypto/gdk-iphone/lib/arm64-apple-ios13.00/
 
 get-boltz-rust:
 	rm -rf boltz-rust boltz-rust.tar.gz

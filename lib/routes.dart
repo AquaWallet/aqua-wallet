@@ -1,3 +1,4 @@
+import 'package:aqua/features/address_list/address_list_screen.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/screens/boltz_swap_detail_screen.dart';
 import 'package:aqua/features/home/home.dart';
@@ -12,9 +13,11 @@ import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/exchange_rate/pages/currency_conversion_settings_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/transactions/pages/pages.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/screens/common/webview_screen.dart';
 import 'package:aqua/screens/qrscanner/qr_scanner_screen.dart';
@@ -67,6 +70,10 @@ mixin Routes {
     WalletRecoveryPhraseScreen.routeName: (settings) =>
         MaterialPageRoute<Object>(
           builder: (context) => const WalletRecoveryPhraseScreen(),
+          settings: settings,
+        ),
+    WalletRecoveryQRScreen.routeName: (settings) => MaterialPageRoute<Object>(
+          builder: (context) => const WalletRecoveryQRScreen(),
           settings: settings,
         ),
     WalletRestoreInputScreen.routeName: (settings) => MaterialPageRoute<Object>(
@@ -233,12 +240,6 @@ mixin Routes {
         settings: settings,
       );
     },
-    ReceiveAddressesHistoryScreen.routeName: (settings) {
-      return MaterialPageRoute<Object>(
-        builder: (context) => const ReceiveAddressesHistoryScreen(),
-        settings: settings,
-      );
-    },
     SideShiftOrdersScreen.routeName: (settings) {
       return MaterialPageRoute<Object>(
         builder: (context) => const SideShiftOrdersScreen(),
@@ -308,6 +309,24 @@ mixin Routes {
     DirectPegInScreen.routeName: (settings) {
       return MaterialPageRoute<Object>(
         builder: (context) => const DirectPegInScreen(),
+        settings: settings,
+      );
+    },
+    AddressListScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const AddressListScreen(),
+        settings: settings,
+      );
+    },
+    WatchOnlyListScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const WatchOnlyListScreen(),
+        settings: settings,
+      );
+    },
+    WatchOnlyDetailScreen.routeName: (settings) {
+      return MaterialPageRoute<Object>(
+        builder: (context) => const WatchOnlyDetailScreen(),
         settings: settings,
       );
     },

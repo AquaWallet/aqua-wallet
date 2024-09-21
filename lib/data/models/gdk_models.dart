@@ -150,21 +150,56 @@ enum GdkSubaccountTypeEnum {
   type_p2sh_p2wpkh,
 }
 
+extension GdkSubaccountTypeEnumExtension on GdkSubaccountTypeEnum {
+  String get displayName {
+    switch (this) {
+      case GdkSubaccountTypeEnum.type_2of2:
+        return '2-of-2 Multisig';
+      case GdkSubaccountTypeEnum.type_2of3:
+        return '2-of-3 Multisig';
+      case GdkSubaccountTypeEnum.type_2of2_no_recovery:
+        return '2-of-2 Multisig (No Recovery)';
+      case GdkSubaccountTypeEnum.type_p2pkh:
+        return 'Legacy';
+      case GdkSubaccountTypeEnum.type_p2wpkh:
+        return 'Native SegWit';
+      case GdkSubaccountTypeEnum.type_p2sh_p2wpkh:
+        return 'Nested SegWit';
+    }
+  }
+}
+
+@freezed
+class GdkGetSubaccountsDetails with _$GdkGetSubaccountsDetails {
+  const GdkGetSubaccountsDetails._();
+  const factory GdkGetSubaccountsDetails({
+    @JsonKey(name: 'refresh') bool? refresh,
+  }) = _GdkGetSubaccountsDetails;
+
+  factory GdkGetSubaccountsDetails.fromJson(Map<String, dynamic> json) =>
+      _$GdkGetSubaccountsDetailsFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
+}
+
 @freezed
 class GdkSubaccount with _$GdkSubaccount {
   const GdkSubaccount._();
+
   const factory GdkSubaccount({
-    @Default(false) bool? hidden,
-    @Default('Managed Assets') String? name,
+    @JsonKey(name: 'bip44_discovered') @Default(false) bool bip44Discovered,
+    @JsonKey(name: 'core_descriptors') List<String>? coreDescriptors,
+    @Default(false) bool hidden,
+    String? name,
     int? pointer,
     @JsonKey(name: 'receiving_id') String? receivingId,
-    @JsonKey(name: 'recovery_chain_code') String? recoveryChainCode,
-    @JsonKey(name: 'recovery_pub_key') String? recoveryPubKey,
-    @JsonKey(name: 'recovery_xpub') String? recoveryXpub,
     @JsonKey(name: 'required_ca') int? requiredCa,
-    @Default(GdkSubaccountTypeEnum.type_p2sh_p2wpkh)
+    @JsonKey(name: 'slip132_extended_pubkey') String? slip132ExtendedPubkey,
     GdkSubaccountTypeEnum? type,
-    @JsonKey(name: 'bip44_discovered') bool? bip44Discovered,
+    @JsonKey(name: 'user_path') List<int>? userPath,
   }) = _GdkSubaccount;
 
   factory GdkSubaccount.fromJson(Map<String, dynamic> json) =>
@@ -261,6 +296,7 @@ class GdkAuthHandlerStatusResult with _$GdkAuthHandlerStatusResult {
     List<GdkTransaction>? transactions,
     Map<String, dynamic>? balance,
     @JsonKey(name: 'get_subaccount') GdkWallet? getSubaccount,
+    @JsonKey(name: 'subaccounts') List<GdkSubaccount>? subaccounts,
     @JsonKey(name: 'get_receive_address')
     GdkReceiveAddressDetails? getReceiveAddress,
     @JsonKey(name: 'last_pointer') int? lastPointer,
@@ -317,6 +353,9 @@ class GdkAuthHandlerStatus with _$GdkAuthHandlerStatus {
               break;
             case 'get_balance':
               json['result'] = <String, dynamic>{'balance': json['result']};
+              break;
+            case 'subaccounts':
+              json['result'] = <String, dynamic>{'subaccounts': json['result']};
               break;
             case 'get_subaccount':
               json['result'] = <String, dynamic>{

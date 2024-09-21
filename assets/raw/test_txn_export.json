@@ -1,0 +1,164 @@
+{
+  "transactions": [
+    {
+      "id": 1,
+      "txhash": "hashPegIn",
+      "receiveAddress": "addressPegIn",
+      "assetId": "assetPegIn",
+      "type": "sideswapPegIn",
+      "serviceOrderId": "orderPegIn"
+    },
+    {
+      "id": 2,
+      "txhash": "hashSideswapPegOut",
+      "receiveAddress": "addressSideswapPegOut",
+      "assetId": "assetSideswapPegOut",
+      "type": "sideswapPegOut",
+      "serviceOrderId": "orderSideswapPegOut"
+    },
+    {
+      "id": 3,
+      "txhash": "hashBoltzSwap",
+      "receiveAddress": "addressBoltzSwap",
+      "assetId": "assetBoltzSwap",
+      "type": "boltzSwap",
+      "serviceOrderId": "orderBoltzSwap"
+    },
+    {
+      "id": 4,
+      "txhash": "hashBoltzReverseSwap",
+      "receiveAddress": "addressBoltzReverseSwap",
+      "assetId": "assetBoltzReverseSwap",
+      "type": "boltzReverseSwap",
+      "serviceOrderId": "orderBoltzReverseSwap"
+    },
+    {
+      "id": 5,
+      "txhash": "hashSideswapSwap",
+      "receiveAddress": "addressSideswapSwap",
+      "assetId": "assetSideswapSwap",
+      "type": "sideswapSwap",
+      "serviceOrderId": "orderSideswapSwap"
+    },
+    {
+      "id": 6,
+      "txhash": "hashSideshiftSwap",
+      "receiveAddress": "addressSideshiftSwap",
+      "assetId": "assetSideshiftSwap",
+      "type": "sideshiftSwap",
+      "serviceOrderId": "orderSideshiftSwap"
+    }
+  ],
+  "sideshiftOrders": [
+    {
+      "id": -9223372036854775808,
+      "orderId": "sideshiftOrder1",
+      "createdAt": "2023-01-01T00:00:00.000",
+      "depositCoin": "BTC",
+      "settleCoin": "USDT",
+      "depositNetwork": "Bitcoin",
+      "settleNetwork": "Liquid",
+      "depositAddress": "btcAddress1",
+      "settleAddress": "liquidAddress1",
+      "depositMin": "0.001",
+      "depositMax": "1.0",
+      "type": "fixed",
+      "depositAmount": "0.1",
+      "settleAmount": "3000",
+      "expiresAt": "2023-01-02T00:00:00.000",
+      "status": "pending",
+      "updatedAt": "2023-01-01T12:00:00.000",
+      "depositHash": "depositHash1",
+      "settleHash": "settleHash1",
+      "depositReceivedAt": "2023-01-01T12:30:00.000",
+      "rate": "30000",
+      "onchainTxHash": "onchainTxHash1"
+    },
+    {
+      "id": -9223372036854775808,
+      "orderId": "sideshiftOrder2",
+      "createdAt": "2023-02-01T00:00:00.000",
+      "depositCoin": "ETH",
+      "settleCoin": "BTC",
+      "depositNetwork": "Ethereum",
+      "settleNetwork": "Bitcoin",
+      "depositAddress": "ethAddress1",
+      "settleAddress": "btcAddress2",
+      "depositMin": "0.01",
+      "depositMax": "10.0",
+      "type": "variable",
+      "depositAmount": "1.0",
+      "settleAmount": "0.05",
+      "expiresAt": "2023-02-02T00:00:00.000",
+      "status": "settled",
+      "updatedAt": "2023-02-01T14:00:00.000",
+      "depositHash": "depositHash2",
+      "settleHash": "settleHash2",
+      "depositReceivedAt": "2023-02-01T14:30:00.000",
+      "rate": "0.05",
+      "onchainTxHash": "onchainTxHash2"
+    }
+  ],
+  "boltzSwaps": [
+    {
+      "version": "v2",
+      "_id": -9223372036854775808,
+      "id": "boltzId1",
+      "kind": "submarine",
+      "network": "liquid",
+      "hashlock": "hashlock1",
+      "receiverPubkey": "receiverPubkey1",
+      "senderPubkey": "senderPubkey1",
+      "invoice": "invoice1",
+      "outAmount": 0,
+      "blindingKey": "blindingKey1",
+      "locktime": 100,
+      "scriptAddress": "scriptAddress1"
+    },
+    {
+      "version": "v2",
+      "_id": -9223372036854775808,
+      "id": "boltzId2",
+      "kind": "submarine",
+      "network": "bitcoin",
+      "hashlock": "hashlock2",
+      "receiverPubkey": "receiverPubkey2",
+      "senderPubkey": "senderPubkey2",
+      "invoice": "invoice2",
+      "outAmount": 100,
+      "blindingKey": "blindingKey2",
+      "locktime": 0,
+      "scriptAddress": "scriptAddress2"
+    },
+    {
+      "version": "v2",
+      "_id": -9223372036854775808,
+      "id": "boltzId3",
+      "kind": "reverse",
+      "network": "liquid",
+      "hashlock": "hashlock3",
+      "receiverPubkey": "receiverPubkey3",
+      "senderPubkey": "senderPubkey3",
+      "invoice": "invoice3",
+      "outAmount": 0,
+      "blindingKey": "blindingKey3",
+      "locktime": 100,
+      "scriptAddress": "scriptAddress3"
+    },
+    {
+      "version": "v2",
+      "_id": -9223372036854775808,
+      "id": "boltzId4",
+      "kind": "reverse",
+      "network": "bitcoin",
+      "hashlock": "hashlock4",
+      "receiverPubkey": "receiverPubkey4",
+      "senderPubkey": "senderPubkey4",
+      "invoice": "invoice4",
+      "outAmount": 100,
+      "blindingKey": "blindingKey4",
+      "locktime": 0,
+      "scriptAddress": "scriptAddress4"
+    }
+  ]
+}

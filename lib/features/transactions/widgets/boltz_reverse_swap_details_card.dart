@@ -17,12 +17,9 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as TransactionUiModel;
-
     final swapDataFuture = ref
         .watch(boltzStorageProvider.notifier)
-        .getReverseSwapByTxId(arguments.transaction.txhash ?? '');
+        .getReverseSwapByTxId(uiModel.dbTransaction?.txhash ?? '');
 
     return FutureBuilder<BoltzSwapDbModel?>(
       future: swapDataFuture,
@@ -81,7 +78,7 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
                 //ANCHOR - Address
                 LabelCopyableTextView(
                   label: context.loc.address,
-                  value: arguments.dbTransaction?.receiveAddress ?? "",
+                  value: uiModel.dbTransaction?.receiveAddress ?? "",
                 ),
                 SizedBox(height: 24.h),
                 //ANCHOR - Status

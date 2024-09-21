@@ -59,13 +59,48 @@ class RegionsProvider extends ChangeNotifier {
 
   bool get regionRequired => currentRegion == null;
 
-  Future<void> setRegion(Region region) async {
-    region == RegionsStatic.mx
-        ? ref.read(prefsProvider).addAsset(ref.read(liquidProvider).mexasId)
-        : ref.read(prefsProvider).removeAsset(ref.read(liquidProvider).mexasId);
-
-    prefs.setRegion(jsonEncode(region.toJson()));
+  Future<void> setRegion(Region newRegion) async {
+    final previousRegion = currentRegion;
+    await updateRegionSpecificAssets(previousRegion, newRegion);
+    prefs.setRegion(jsonEncode(newRegion.toJson()));
     notifyListeners();
+  }
+
+  Future<void> updateRegionSpecificAssets(
+      Region? previousRegion, Region newRegion) async {
+    final liquid = ref.read(liquidProvider);
+    final prefs = ref.read(prefsProvider);
+
+    // Handle MX region assets
+    if (newRegion == RegionsStatic.mx && previousRegion != RegionsStatic.mx) {
+      prefs.addAsset(liquid.mexasId);
+    } else if (previousRegion == RegionsStatic.mx &&
+        newRegion != RegionsStatic.mx) {
+      await removeAssetIfZeroBalance(liquid.mexasId);
+    }
+
+    // Handle BR region assets
+    if (newRegion == RegionsStatic.br && previousRegion != RegionsStatic.br) {
+      prefs.addAsset(liquid.depixId);
+    } else if (previousRegion == RegionsStatic.br &&
+        newRegion != RegionsStatic.br) {
+      await removeAssetIfZeroBalance(liquid.depixId);
+    }
+  }
+
+  Future<void> removeAssetIfZeroBalance(String assetId) async {
+    final asset = await ref.read(assetsProvider.future).then(
+          (assets) => assets.firstWhereOrNull((a) => a.id == assetId),
+        );
+    if (asset != null) {
+      final assetBalanceInSats =
+          await ref.read(getBalanceProvider(asset).future);
+      if (assetBalanceInSats == 0) {
+        prefs.removeAsset(assetId);
+      } else {
+        logger.i('Asset $assetId not removed due to non-zero balance');
+      }
+    }
   }
 
   Future<void> setRegionRequired() async {

@@ -67,6 +67,11 @@ final availableAssetsProvider =
     if (region == RegionsStatic.mx) {
       ref.read(prefsProvider).addAsset(ref.read(liquidProvider).mexasId);
     }
+
+    // Add depix if region br
+    if (region == RegionsStatic.br) {
+      ref.read(prefsProvider).addAsset(ref.read(liquidProvider).depixId);
+    }
   }
 
   return allAssets;

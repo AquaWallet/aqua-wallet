@@ -19,12 +19,9 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as TransactionUiModel;
-
     final swapDataFuture = ref
         .watch(boltzStorageProvider.notifier)
-        .getSubmarineSwapByTxId(arguments.transaction.txhash ?? '');
+        .getSubmarineSwapByTxId(uiModel.dbTransaction?.txhash ?? '');
 
     return FutureBuilder<BoltzSwapDbModel?>(
       future: swapDataFuture,

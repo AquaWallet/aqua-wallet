@@ -1,11 +1,14 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-class ExperimentalFeaturesScreen extends HookConsumerWidget {
+class ExperimentalFeaturesScreen extends HookConsumerWidget
+    with RestoreTransactionMixin, ExportTransactionMixin {
   const ExperimentalFeaturesScreen({super.key});
 
   static const routeName = '/experimentalFeaturesScreen';
@@ -29,6 +32,12 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget {
         ref.watch(featureFlagsProvider.select((p) => p.statusIndicator));
     final isLnurlWithdrawEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.lnurlWithdrawEnabled));
+    final isDatabaseExportEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.dbExportEnabled));
+    final isSeedQrEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.seedQrEnabled));
+    final myFirstBitcoinEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.myFirstBitcoinEnabled));
 
     final showAlertDialog = useCallback(({
       required String message,
@@ -64,6 +73,14 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget {
             currentValue: forceBoltzFailEnabled,
           );
     }, [forceBoltzFailEnabled]);
+
+    listenToExportTransactionHistoryEvents(context, ref);
+
+    listenToRestoreTransactionHistoryEvents(
+      context,
+      ref,
+      useExperimentalProvider: true,
+    );
 
     return Scaffold(
       appBar: AquaAppBar(
@@ -125,6 +142,44 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget {
                       key: PrefKeys.lnurlWithdrawEnabled,
                       currentValue: isLnurlWithdrawEnabled,
                     ),
+          ),
+          SizedBox(height: 16.h),
+          //ANCHOR: Seed QR
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.expFeaturesScreenItemsSeedQr,
+            assetName: Svgs.qr,
+            value: isSeedQrEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.seedQrEnabled,
+                      currentValue: isSeedQrEnabled,
+                    ),
+          ),
+          SizedBox(height: 16.h),
+
+          //ANCHOR: My First Bitcoin
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.marketplaceScreenMyFirstBitcoinButton,
+            assetName: Svgs.website,
+            value: myFirstBitcoinEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.myFirstBitcoinEnabled,
+                      currentValue: myFirstBitcoinEnabled,
+                    ),
+          ),
+          SizedBox(height: 16.h),
+
+          //ANCHOR: Watch Only Export
+          MenuItemWidget.arrow(
+            context: context,
+            title: context.loc.watchOnlyScreenTitle,
+            assetName: Svgs.tabWallet,
+            color: context.colorScheme.onBackground,
+            onPressed: () => Navigator.of(context)
+                .pushNamed(WatchOnlyListScreen.routeName), //HERE
           ),
           SizedBox(height: 16.h),
 
@@ -234,6 +289,54 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
+            ),
+            SizedBox(height: 16.h),
+            //ANCHOR - Databse export and import
+            MenuItemWidget.switchItem(
+              context: context,
+              title: context.loc.testSettingsScreenItemDatabaseExport,
+              assetName: Svgs.history,
+              value: isDatabaseExportEnabled,
+              onPressed: () {
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.dbExportEnabled,
+                      currentValue: isDatabaseExportEnabled,
+                    );
+              },
+            ),
+            SizedBox(height: 16.h),
+            //ANCHOR - Initiate export txn db flow
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.outgoing,
+              color: context.colorScheme.onBackground,
+              title: context.loc.testTransactionDatabaseExport,
+              isEnabled: isDatabaseExportEnabled,
+              onPressed: ref
+                  .read(exportTransactionDatabaseProvider.notifier)
+                  .requestConfirmation,
+            ),
+            SizedBox(height: 16.h),
+            //ANCHOR - Initiate import txn db flow
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.incoming,
+              color: context.colorScheme.onBackground,
+              title: context.loc.testTransactionDatabaseImport,
+              isEnabled: isDatabaseExportEnabled,
+              onPressed: ref
+                  .read(experimentalRestoreTransactionsProvider.notifier)
+                  .checkForStatus,
+            ),
+            SizedBox(height: 16.h),
+            //ANCHOR - Clear all ghost transactions
+            MenuItemWidget(
+              title: context.loc.expFeaturesScreenItemsClearGhostTxns,
+              color: Theme.of(context).colorScheme.onBackground,
+              assetName: Svgs.removeWallet,
+              onPressed: ref
+                  .read(transactionStorageProvider.notifier)
+                  .clearGhostTransactions,
             ),
             SizedBox(height: 16.h),
           ],

@@ -11,6 +11,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/features/swap/models/taxi_state.dart';
 import 'package:aqua/features/swap/providers/sideswap_taxi_provider.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';
@@ -42,7 +43,10 @@ class SendAssetTransactionProvider
     if (asset.isLightning) {
       return await ref
           .read(boltzSubmarineSwapProvider.notifier)
-          .createTxnForSubmarineSwap(isLowball: isLowball);
+          .createTxnForSubmarineSwap(
+            isLowball: isLowball,
+            isFeeEstimateTxn: true,
+          );
     }
 
     // for any liquid asset, we don't need to create a lbtc fee tx if user has no ltbc funds. A taxi fee estimate will be created separately.
@@ -90,7 +94,7 @@ class SendAssetTransactionProvider
               : ref.read(userSelectedFeeRatePerVByteProvider)?.rate.toInt()
           : ref
               .read(feeEstimateProvider)
-              .fetchLiquidFeeRate(isLowball: isLowball);
+              .getLiquidFeeRate(isLowball: isLowball);
 
       final feeRatePerKb =
           feeRatePerVb != null ? (feeRatePerVb * 1000).toInt() : null;
@@ -133,8 +137,10 @@ class SendAssetTransactionProvider
       }
     } catch (e) {
       logger.d('[Send] create gdk tx - error: $e');
-
-      if (e is GdkNetworkException) {
+      final isUSDTFeeError = asset != null &&
+          asset.isUSDt &&
+          (e is GdkNetworkInsufficientFundsForFee); // We can ignore fee errors for USDT as it can be paid with USDT or LBTC
+      if (e is GdkNetworkException && !isUSDTFeeError) {
         state = AsyncValue.error(e, StackTrace.current);
       }
       rethrow;
@@ -191,8 +197,10 @@ class SendAssetTransactionProvider
     }
   }
 
-  Future<void> createAndSendFinalTransaction(
-      {required Function onSuccess, bool isLowball = true}) async {
+  Future<void> createAndSendFinalTransaction({
+    required Function onSuccess,
+    bool isLowball = true,
+  }) async {
     try {
       final asset = ref.read(sendAssetProvider);
       final feeAsset = ref.read(userSelectedFeeAssetProvider);
@@ -253,8 +261,28 @@ class SendAssetTransactionProvider
 
       final txId = await broadcastTransaction(
           rawTx: signedRawTx!, network: network, isLowball: isLowball);
+      final createdAt = DateTime.now();
 
-      onSuccess(txId, DateTime.now().microsecondsSinceEpoch, network);
+      // Save lowball transaction to db until it is detected by GDK
+      if (isLowball) {
+        final userEnteredAmount = ref.read(userEnteredAmountProvider);
+        final amountWithPrecision =
+            ref.read(enteredAmountWithPrecisionProvider(userEnteredAmount!));
+
+        await ref
+            .read(transactionStorageProvider.notifier)
+            .save(TransactionDbModel(
+              txhash: txId,
+              assetId: asset.id,
+              type: TransactionDbModelType.aquaSend,
+              isGhost: !asset.isBTC,
+              ghostTxnCreatedAt: createdAt,
+              ghostTxnAmount: amountWithPrecision,
+              ghostTxnFee: transaction.txReply?.fee,
+            ));
+      }
+
+      onSuccess(txId, createdAt.microsecondsSinceEpoch, network);
     } on AquaTxBroadcastException {
       // Retry broadcast with a higher fee, in case aqua endpoint is down.
       // If aqua is up but there was a problem with the transaction itself,

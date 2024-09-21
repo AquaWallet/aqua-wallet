@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:aqua/common/dialogs/dialog_manager.dart';
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
-import 'package:aqua/common/widgets/custom_error.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/electrs_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
@@ -324,18 +323,19 @@ class SendAssetReviewScreen extends HookConsumerWidget {
               errorMessage = error.toString();
             }
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                  child: CustomError(errorMessage: errorMessage),
-                ),
-                const SizedBox(height: 80.0),
-              ],
-            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final alertModel = CustomAlertDialogUiModel(
+                title: context.loc.genericErrorMessage,
+                subtitle: errorMessage,
+                buttonTitle: context.loc.ok,
+                onButtonPressed: () {
+                  Navigator.of(context).pop();
+                },
+              );
+              DialogManager().showDialog(context, alertModel);
+            });
+
+            return Container();
           },
           loading: (_) => const Center(
             child: CircularProgressIndicator(),

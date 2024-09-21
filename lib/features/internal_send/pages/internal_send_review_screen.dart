@@ -90,10 +90,6 @@ class InternalSendReviewScreen extends HookConsumerWidget {
         iconBackgroundColor:
             context.colors.addressFieldContainerBackgroundColor,
         iconForegroundColor: context.colorScheme.onBackground,
-        onBackPressed: () {
-          ref.invalidate(sideswapInputStateProvider);
-          ref.invalidate(sideswapWebsocketProvider);
-        },
       ),
       backgroundColor: context.colors.swapReviewScreenBackgroundColor,
       body: Container(

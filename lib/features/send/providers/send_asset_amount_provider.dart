@@ -55,6 +55,8 @@ class UserEnteredAmountStateNotifier extends AutoDisposeNotifier<Decimal?> {
         ref.read(insufficientBalanceProvider.notifier).state =
             InsufficientFundsType.sendAmount;
         throw AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
+      } else {
+        ref.read(insufficientBalanceProvider.notifier).state = null;
       }
 
       // check below dust

@@ -11,6 +11,7 @@ export 'custom_alert_dialog.dart';
 export 'dashed_divider.dart';
 export 'error_label.dart';
 export 'expandable_container.dart';
+export 'generic_alert_sheet.dart';
 export 'generic_error_widget.dart';
 export 'label_copyable_text_view.dart';
 export 'outlined_buttons.dart';

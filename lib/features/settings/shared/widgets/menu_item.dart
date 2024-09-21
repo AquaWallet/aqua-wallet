@@ -98,12 +98,13 @@ class MenuItemWidget extends StatelessWidget {
     String assetName = '',
     Color? color,
     EdgeInsets? iconPadding,
+    bool isEnabled = true,
     required String title,
     required VoidCallback onPressed,
   }) {
     return MenuItemWidget(
       key: key,
-      isEnabled: true,
+      isEnabled: isEnabled,
       onPressed: onPressed,
       assetName: assetName,
       title: title,

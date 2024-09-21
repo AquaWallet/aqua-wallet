@@ -1,5 +1,6 @@
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
+import 'package:aqua/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
@@ -23,14 +24,14 @@ final receiveAssetAmountForBip21Provider =
   final userEntered = ref.watch(receiveAssetAmountProvider);
   final fiatCurrency = ref.watch(amountCurrencyProvider);
   final fiatRates = ref.watch(fiatRatesProvider).unwrapPrevious().valueOrNull;
+  final fiatAmount = ref.read(parsedAssetAmountAsDecimalProvider(userEntered));
+  final currentRate =
+      ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
 
   // if fiat currency and any btc/lbtc/lightning asset, we want to add the btc/lbtc amount to the bip21 uri
   if (fiatCurrency != null &&
       fiatRates != null &&
       (asset.isBTC || asset.isLBTC || asset.isLightning)) {
-    final fiatAmount =
-        ref.read(parsedAssetAmountAsDecimalProvider(userEntered));
-
     final fiatRate =
         fiatRates.firstWhere((element) => element.code == fiatCurrency);
     final bitcoinAmountDecimalFormat = (fiatAmount.toDouble() / fiatRate.rate);
@@ -38,6 +39,11 @@ final receiveAssetAmountForBip21Provider =
     return (bitcoinAmountDecimalFormat * satsPerBtc)
         .toDouble()
         .toStringAsFixed(0);
+  } else if (fiatCurrency == currentRate.currency.value) {
+    final amountInSats =
+        ref.watch(fiatToSatsAsIntProvider((asset, fiatAmount))).asData?.value ??
+            0;
+    return amountInSats.toDouble().toStringAsFixed(0);
   } else {
     return userEntered;
   }
@@ -68,15 +74,25 @@ final receiveAssetAmountConversionDisplayProvider = FutureProvider.autoDispose
   final fiatCurrency = params.$2 ?? ref.watch(amountCurrencyProvider);
   final fiatRates = ref.watch(fiatRatesProvider).unwrapPrevious().valueOrNull;
   final amountStr = params.$3 ?? ref.watch(receiveAssetAmountProvider);
+  final currentRate =
+      ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
+  var amountAsDecimal = ref.read(parsedAssetAmountAsDecimalProvider(amountStr));
   if (amountStr == null) {
     throw Exception("Amount is null");
+  }
+
+  if (fiatRates == null && fiatCurrency == currentRate.currency.value) {
+    final amountInSats = ref
+            .watch(fiatToSatsAsIntProvider((asset, amountAsDecimal)))
+            .asData
+            ?.value ??
+        0;
+    return amountInSats.toDouble().toStringAsFixed(0);
   }
 
   if (fiatCurrency != null) {
     if (fiatRates == null) return '';
 
-    var amountAsDecimal =
-        ref.read(parsedAssetAmountAsDecimalProvider(amountStr));
     if (asset.isLightning == true ||
         asset.isLBTC == true ||
         asset.isBTC == true) {

@@ -5,6 +5,7 @@ import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/logger.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -32,30 +33,6 @@ final _rateStreamProvider = StreamProvider.autoDispose((ref) async* {
   yield* ref.read(fiatProvider).rateStream.distinctUnique();
 });
 
-final _transactionOtherAssetProvider = FutureProvider.autoDispose
-    .family<Asset?, (Asset, GdkTransaction)>((ref, tuple) async {
-  final asset = tuple.$1;
-  final transaction = tuple.$2;
-
-  if (transaction.type == GdkTransactionTypeEnum.swap) {
-    final assets = ref.read(assetsProvider).asData?.value ?? [];
-
-    if (asset.id == transaction.swapOutgoingAssetId) {
-      final rawAsset = await ref
-          .read(aquaProvider)
-          .gdkRawAssetForAssetId(transaction.swapIncomingAssetId!);
-      return assets.firstWhereOrNull((asset) => asset.id == rawAsset?.assetId);
-    }
-
-    final rawAsset = await ref
-        .read(aquaProvider)
-        .gdkRawAssetForAssetId(transaction.swapOutgoingAssetId!);
-    return assets.firstWhereOrNull((asset) => asset.id == rawAsset?.assetId);
-  }
-
-  return null;
-});
-
 final _currentBlockHeightProvider =
     StreamProvider.autoDispose.family<int, Asset>((ref, asset) {
   return asset.isBTC
@@ -69,7 +46,10 @@ final fiatAmountProvider = FutureProvider.autoDispose
 
   final fiats = ref.read(fiatProvider);
   if (rate != null) {
-    final amount = model.transaction.satoshi?[model.asset.id] as int;
+    final amount = model.map(
+      normal: (model) => model.transaction.satoshi?[model.asset.id] as int,
+      ghost: (model) => model.dbTransaction!.ghostTxnAmount!,
+    );
     final fiat = fiats.satoshiToFiat(model.asset, amount, rate);
     final formattedFiat = fiats.formattedFiat(fiat);
     final currency = await fiats.currencyStream.first;
@@ -81,47 +61,90 @@ final fiatAmountProvider = FutureProvider.autoDispose
 
 final transactionsProvider = FutureProvider.autoDispose
     .family<List<TransactionUiModel>, Asset>((ref, asset) async {
-  final rawTransactions =
-      ref.watch(rawTransactionsProvider(asset)).asData?.value ?? [];
-  final recordedTransactions =
+  final rawTxns = ref.watch(rawTransactionsProvider(asset)).asData?.value ?? [];
+  final recordedTxns =
       ref.watch(transactionStorageProvider).asData?.value ?? [];
+  final ghostTxns = recordedTxns.where((t) => t.isGhost).toList();
 
-  return Future.wait(rawTransactions.mapIndexed((index, transaction) async {
-    //TODO - Unify Boltz storage and DB storage
-    final boltzSwapData = ref
-        .watch(boltzSwapFromTxHashProvider(transaction.txhash ?? ''))
-        .asData
-        ?.value;
+  // Ghost transactions that have been discovered by GDK and can now be removed
+  final discoveredGhostTxns = ghostTxns.where((ghostTxn) {
+    return rawTxns.any((rawTxn) => rawTxn.txhash == ghostTxn.txhash);
+  });
+
+  logger.d('[Transactions] '
+      'Ghost: ${ghostTxns.length}, '
+      'Discovered: ${discoveredGhostTxns.length}');
+
+  // Unmark discovered ghost transactions
+  for (final txn in discoveredGhostTxns) {
+    logger.d('[Transactions] Unmarking ghost transaction: $txn');
+    await ref
+        .read(transactionStorageProvider.notifier)
+        .save(txn.copyWith(isGhost: false));
+  }
+
+  final ghostTxnUiModels = ghostTxns
+      .whereNot((ghostTxn) => discoveredGhostTxns.contains(ghostTxn))
+      .where((ghostTxn) {
+    //NOTE - Can't rely on asset ID matching for Boltz
+    final isLightningGhostTxn = asset.isLayerTwo &&
+        (ghostTxn.isBoltzReverseSwap || ghostTxn.isBoltzSwap);
+    return ghostTxn.assetId == asset.id || isLightningGhostTxn;
+  }).map((txn) {
+    final createdAt = DateFormat.yMMMd().format(txn.ghostTxnCreatedAt!);
+    final cryptoAmount = ref.read(formatterProvider).signedFormatAssetAmount(
+          amount: txn.ghostTxnAmount!,
+          precision: asset.precision,
+        );
+    // TODO: Add support for other transaction types as support grows
+    final icon = switch (txn) {
+      _ when (txn.isAquaSend) => Svgs.outgoing,
+      _ when (txn.isBoltzSwap) => Svgs.outgoing,
+      _ when (txn.isBoltzReverseSwap) => Svgs.incoming,
+      _ => Svgs.exchange,
+    };
+
+    return TransactionUiModel.ghost(
+      createdAt: createdAt,
+      cryptoAmount: cryptoAmount,
+      icon: icon,
+      asset: asset,
+      dbTransaction: txn,
+    );
+  });
+
+  final rawTxnUiModels = await Future.wait(rawTxns.map((txn) async {
+    final boltzSwapData =
+        ref.watch(boltzSwapFromTxHashProvider(txn.txhash ?? '')).asData?.value;
     final boltzRevSwapData = ref
-        .watch(boltzReverseSwapFromTxHashProvider(transaction.txhash ?? ''))
+        .watch(boltzReverseSwapFromTxHashProvider(txn.txhash ?? ''))
         .asData
         ?.value;
 
     final dbTransaction = switch (null) {
       _ when (boltzSwapData != null) => TransactionDbModel.fromBoltzSwap(
-          txhash: transaction.txhash ?? '',
+          txhash: txn.txhash ?? '',
           assetId: asset.id,
           swap: boltzSwapData,
         ),
       _ when (boltzRevSwapData != null) => TransactionDbModel.fromBoltzRevSwap(
-          txhash: transaction.txhash ?? '',
+          txhash: txn.txhash ?? '',
           assetId: asset.id,
           swap: boltzRevSwapData,
         ),
-      _ => recordedTransactions
-          .firstWhereOrNull((dbTxn) => dbTxn.txhash == transaction.txhash),
+      _ => recordedTxns.firstWhereOrNull((dbTxn) => dbTxn.txhash == txn.txhash),
     };
 
     final currentBlockHeight =
         ref.watch(_currentBlockHeightProvider(asset)).asData?.value ?? 0;
-    final transactionBlockHeight = transaction.blockHeight ?? 0;
+    final transactionBlockHeight = txn.blockHeight ?? 0;
     final confirmationCount = transactionBlockHeight == 0
         ? 0
         : currentBlockHeight - transactionBlockHeight + 1;
     final pending = asset.isBTC
         ? confirmationCount < onchainConfirmationBlockCount
         : confirmationCount < liquidConfirmationBlockCount;
-    final assetIcon = switch (transaction.type) {
+    final assetIcon = switch (txn.type) {
       _ when (pending) => Svgs.pending,
       _ when (dbTransaction?.isBoltzSwap == true) => Svgs.outgoing,
       _ when (dbTransaction?.isBoltzReverseSwap == true) => Svgs.incoming,
@@ -133,13 +156,13 @@ final transactionsProvider = FutureProvider.autoDispose
         Svgs.exchange,
       _ => throw AssetTransactionsInvalidTypeException(),
     };
-    final createdAt = transaction.createdAtTs != null
-        ? DateFormat.yMMMd().format(
-            DateTime.fromMicrosecondsSinceEpoch(transaction.createdAtTs!))
+    final createdAt = txn.createdAtTs != null
+        ? DateFormat.yMMMd()
+            .format(DateTime.fromMicrosecondsSinceEpoch(txn.createdAtTs!))
         : '';
     final formatter = ref.read(formatterProvider);
-    final amount = transaction.satoshi?[asset.id] as int;
-    final formattedAmount = switch (transaction.type) {
+    final amount = txn.satoshi?[asset.id] as int;
+    final formattedAmount = switch (txn.type) {
       GdkTransactionTypeEnum.swap ||
       GdkTransactionTypeEnum.incoming ||
       GdkTransactionTypeEnum.outgoing ||
@@ -152,21 +175,31 @@ final transactionsProvider = FutureProvider.autoDispose
     };
     final cryptoAmount = formattedAmount;
 
-    final otherAsset = ref
-        .watch(_transactionOtherAssetProvider((asset, transaction)))
-        .asData
-        ?.value;
+    final otherAsset = txn.type == GdkTransactionTypeEnum.swap
+        ? () {
+            final assets =
+                ref.read(availableAssetsProvider).asData?.value ?? [];
+            final otherAsset = asset.id == txn.swapOutgoingAssetId
+                ? assets
+                    .firstWhereOrNull((a) => a.id == txn.swapIncomingAssetId)
+                : assets
+                    .firstWhereOrNull((a) => a.id == txn.swapOutgoingAssetId);
+            return otherAsset;
+          }()
+        : null;
 
-    return TransactionUiModel(
+    return TransactionUiModel.normal(
       createdAt: createdAt,
       cryptoAmount: cryptoAmount,
       icon: assetIcon,
       asset: asset,
       otherAsset: otherAsset,
-      transaction: transaction,
+      transaction: txn,
       dbTransaction: dbTransaction,
     );
   }).toList());
+
+  return [...ghostTxnUiModels, ...rawTxnUiModels];
 });
 
 final completedTransactionProvider = FutureProvider.autoDispose

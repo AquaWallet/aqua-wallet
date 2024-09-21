@@ -3,6 +3,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/backup/providers/backup_reminder_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:restart_app/restart_app.dart';
@@ -50,11 +51,16 @@ class RemoveWalletConfirmScreen extends HookConsumerWidget {
   }
 }
 
-class _ConfirmationView extends ConsumerWidget {
+class _ConfirmationView extends HookConsumerWidget with ExportTransactionMixin {
   const _ConfirmationView();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDatabaseExportEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.dbExportEnabled));
+
+    listenToExportTransactionHistoryEvents(context, ref, removeWallet: true);
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 28.w),
       child: Column(
@@ -98,9 +104,13 @@ class _ConfirmationView extends ConsumerWidget {
           SizedBox(height: 27.h),
           //ANCHOR - Confirm button
           AquaElevatedButton(
-            onPressed: () => ref
-                .read(walletRemoveRequestProvider.notifier)
-                .requestWalletRemove(),
+            onPressed: isDatabaseExportEnabled
+                ? ref
+                    .read(exportTransactionDatabaseProvider.notifier)
+                    .requestConfirmation
+                : ref
+                    .read(walletRemoveRequestProvider.notifier)
+                    .requestWalletRemove,
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,

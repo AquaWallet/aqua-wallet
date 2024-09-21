@@ -143,6 +143,7 @@ class _MnemonicInputGrid extends StatelessWidget {
               index: index,
               onFocused: (index) => focusedIndex.value = index,
               onKeyboardInput: onKeyboardInput,
+              focusedIndex: focusedIndex,
             ),
           ),
         ),

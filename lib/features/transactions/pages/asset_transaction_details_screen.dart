@@ -9,36 +9,101 @@ import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:lottie/lottie.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'package:aqua/config/constants/animations.dart' as animation;
 
-class AssetTransactionDetailsScreen extends HookConsumerWidget {
+class AssetTransactionDetailsScreen extends StatelessWidget {
   static const routeName = '/assetTransactionDetailsScreen';
 
   const AssetTransactionDetailsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as TransactionUiModel;
-    final refresherKey = useMemoized(UniqueKey.new);
-    final controller =
-        useMemoized(() => RefreshController(initialRefresh: false));
-    final transactionProvider =
-        useMemoized(() => assetTransactionDetailsProvider((
-              arguments.asset,
-              arguments.transaction,
-              context,
-              arguments.dbTransaction,
-            )));
+
+    return Scaffold(
+      appBar: AquaAppBar(
+        showBackButton: false,
+        showActionButton: true,
+        iconBackgroundColor: Theme.of(context).colorScheme.background,
+        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        actionButtonAsset: Svgs.close,
+        actionButtonIconSize: 13.r,
+        onActionButtonPressed: () => Navigator.of(context).pop(),
+      ),
+      body: SafeArea(
+        child: arguments.map(
+          normal: (model) => _NormalTransactionDetails(txnUiModel: model),
+          ghost: (model) => _GhostTransactionDetails(txnUiModel: model),
+        ),
+      ),
+    );
+  }
+}
+
+class _GhostTransactionDetails extends HookConsumerWidget {
+  const _GhostTransactionDetails({
+    required this.txnUiModel,
+  });
+
+  final GhostTransactionUiModel txnUiModel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final transactionProvider = useMemoized(
+      () => ghostTransactionDetailsProvider((context, txnUiModel)),
+    );
+
+    final transaction = ref.watch(transactionProvider);
+
+    ref.listen(transactionsProvider(txnUiModel.asset), (_, __) {
+      ref.invalidate(transactionProvider);
+    });
+
+    return transaction.when(
+      data: (detailsUiModel) => _TransactionDetailsContent(
+        txnUiModel: txnUiModel,
+        detailsUiModel: detailsUiModel,
+        onRefresh: ref.read(transactionProvider.notifier).refresh,
+      ),
+      loading: () => Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(
+            Theme.of(context).colorScheme.secondaryContainer,
+          ),
+        ),
+      ),
+      error: (_, __) => Center(
+        child: GenericErrorWidget(
+          buttonTitle: context.loc.assetTransactionDetailsErrorButton,
+          buttonAction: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _NormalTransactionDetails extends HookConsumerWidget {
+  const _NormalTransactionDetails({
+    required this.txnUiModel,
+  });
+
+  final NormalTransactionUiModel txnUiModel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final transactionProvider = useMemoized(
+      () => assetTransactionDetailsProvider((context, txnUiModel)),
+    );
 
     final transaction = ref.watch(transactionProvider);
     final insufficientBalance = ref.watch(insufficientBalanceProvider);
 
     useEffect(() {
       final subscription = ref
-          .read(arguments.asset.isBTC ? bitcoinProvider : liquidProvider)
+          .read(txnUiModel.asset.isBTC ? bitcoinProvider : liquidProvider)
           .blockHeightEventSubject
           .stream
           .listen((lastBlock) {
@@ -48,7 +113,7 @@ class AssetTransactionDetailsScreen extends HookConsumerWidget {
       return subscription.cancel;
     }, []);
 
-    ref.listen(transactionsProvider(arguments.asset), (previous, next) {
+    ref.listen(transactionsProvider(txnUiModel.asset), (previous, next) {
       ref.invalidate(transactionProvider);
     });
 
@@ -81,8 +146,8 @@ class AssetTransactionDetailsScreen extends HookConsumerWidget {
         builder: (_) => CustomFeeInputSheet(
             title: context.loc.assetTransactionDetailsReplaceByFeeInputTitle,
             // original transaction fee (in sats per vb) + 1 sat
-            minimum: (arguments.transaction.feeRate! ~/ 1000) + 1,
-            transactionVsize: arguments.transaction.transactionVsize,
+            minimum: (txnUiModel.transaction.feeRate! ~/ 1000) + 1,
+            transactionVsize: txnUiModel.transaction.transactionVsize,
             onConfirm: () async {
               try {
                 final newFeeRatePerVb =
@@ -90,7 +155,7 @@ class AssetTransactionDetailsScreen extends HookConsumerWidget {
                         ?.toBigInt()
                         .toInt();
                 final tx = GdkNewTransaction(
-                    previousTransaction: arguments.transaction,
+                    previousTransaction: txnUiModel.transaction,
                     feeRate: (newFeeRatePerVb! * 1000).toInt());
 
                 final txReply = await ref
@@ -147,248 +212,257 @@ class AssetTransactionDetailsScreen extends HookConsumerWidget {
       return null;
     }, [insufficientBalance]);
 
-    return Scaffold(
-      appBar: AquaAppBar(
-        showBackButton: false,
-        showActionButton: true,
-        iconBackgroundColor: Theme.of(context).colorScheme.background,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
-        actionButtonAsset: Svgs.close,
-        actionButtonIconSize: 13.r,
-        onActionButtonPressed: () => Navigator.of(context).pop(),
+    return transaction.when(
+      data: (detailsUiModel) => _TransactionDetailsContent(
+        txnUiModel: txnUiModel,
+        detailsUiModel: detailsUiModel,
+        onRbfButtonPress: showCustomFeeInputSheet,
+        onRefresh: ref.read(transactionProvider.notifier).refresh,
       ),
-      body: SafeArea(
-        child: transaction.when(
-          data: (uiModel) => SmartRefresher(
-            enablePullDown: true,
-            key: refresherKey,
-            controller: controller,
-            physics: const BouncingScrollPhysics(),
-            onRefresh: () async {
-              ref.read(transactionProvider.notifier).refresh();
-              controller.refreshCompleted();
-            },
-            header: ClassicHeader(
-              height: 40.h,
-              refreshingText: '',
-              releaseText: '',
-              completeText: '',
-              failedText: '',
-              idleText: '',
-              idleIcon: null,
-              failedIcon: null,
-              releaseIcon: null,
-              completeIcon: SizedBox.square(
-                dimension: 28.r,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.w,
-                ),
-              ),
-              outerBuilder: (child) => Container(child: child),
-            ),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  //ANCHOR - Transaction Type
-                  Text(
-                    uiModel.type(context),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  SizedBox(height: 20.h),
+      loading: () => Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(
+            Theme.of(context).colorScheme.secondaryContainer,
+          ),
+        ),
+      ),
+      error: (_, __) => Center(
+        child: GenericErrorWidget(
+          buttonTitle: context.loc.assetTransactionDetailsErrorButton,
+          buttonAction: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
+  }
+}
 
-                  if ((uiModel.dbTransaction?.type.isBoltzSwap ?? false)) ...[
-                    //ANCHOR - Boltz Swap Transaction Details
-                    BoltzSwapDetailsCard(uiModel: uiModel),
-                    //ANCHOR - Boltz Reverse Transaction Details
-                    BoltzReverseSwapDetailsCard(uiModel: uiModel),
-                    SizedBox(height: 20.h),
-                  ],
-                  //ANCHOR - General Transaction Details
-                  BoxShadowCard(
-                    color: Theme.of(context).colors.altScreenSurface,
-                    bordered: true,
-                    borderColor: Theme.of(context).colors.cardOutlineColor,
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: Container(
-                      width: double.maxFinite,
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 20.w, vertical: 20.h),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...uiModel.map(
-                            swap: (item) => [
-                              TransactionDetailsDataItem(
-                                title: context
-                                    .loc.assetTransactionDetailsDelivered,
-                                value:
-                                    '${item.deliverAmount} ${item.deliverAssetTicker}',
-                              ),
-                              SizedBox(height: 18.h),
-                              TransactionDetailsDataItem(
-                                title:
-                                    context.loc.assetTransactionDetailsReceived,
-                                value:
-                                    '${item.receiveAmount} ${item.receiveAssetTicker}',
-                              ),
-                            ],
-                            redeposit: (item) => [
-                              if (!item.isConfidential) ...[
-                                TransactionDetailsDataItem(
-                                  title:
-                                      context.loc.assetTransactionsTotalAmount,
-                                  value:
-                                      '${item.deliverAmount} ${item.deliverAssetTicker}',
-                                ),
-                                SizedBox(height: 18.h),
-                              ],
-                              TransactionDetailsDataItem(
-                                title: context.loc.assetTransactionsNetworkFees,
-                                value:
-                                    '${item.feeAmount} ${item.feeAssetTicker}',
-                              ),
-                            ],
-                            send: (item) => [
-                              TransactionDetailsDataItem(
-                                title: context.loc.assetTransactionsTotalAmount,
-                                value:
-                                    '${item.deliverAmount} ${item.deliverAssetTicker}',
-                              ),
-                              SizedBox(height: 18.h),
-                              TransactionDetailsDataItem(
-                                title: context.loc.assetTransactionsNetworkFees,
-                                value:
-                                    '${item.feeAmount} ${item.feeAssetTicker}',
-                              ),
-                            ],
-                            receive: (item) => [
-                              TransactionDetailsDataItem(
-                                title: context.loc.assetTransactionsTotalAmount,
-                                value:
-                                    '${item.receivedAmount} ${item.receivedAssetTicker}',
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 18.h),
+class _TransactionDetailsContent extends HookWidget {
+  const _TransactionDetailsContent({
+    required this.txnUiModel,
+    required this.detailsUiModel,
+    required this.onRefresh,
+    this.onRbfButtonPress,
+  });
+
+  final TransactionUiModel txnUiModel;
+  final AssetTransactionDetailsUiModel detailsUiModel;
+  final VoidCallback? onRbfButtonPress;
+  final VoidCallback onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final refresherKey = useMemoized(UniqueKey.new);
+    final controller =
+        useMemoized(() => RefreshController(initialRefresh: false));
+
+    return SmartRefresher(
+      enablePullDown: true,
+      key: refresherKey,
+      controller: controller,
+      physics: const BouncingScrollPhysics(),
+      onRefresh: () {
+        onRefresh();
+        controller.refreshCompleted();
+      },
+      header: ClassicHeader(
+        height: 40.h,
+        refreshingText: '',
+        releaseText: '',
+        completeText: '',
+        failedText: '',
+        idleText: '',
+        idleIcon: null,
+        failedIcon: null,
+        releaseIcon: null,
+        completeIcon: SizedBox.square(
+          dimension: 28.r,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.w,
+          ),
+        ),
+        outerBuilder: (child) => Container(child: child),
+      ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            //ANCHOR - Transaction Type
+            Text(
+              detailsUiModel.type(context),
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            SizedBox(height: 20.h),
+
+            if ((detailsUiModel.dbTransaction?.type.isBoltzSwap ?? false)) ...[
+              //ANCHOR - Boltz Swap Transaction Details
+              BoltzSwapDetailsCard(uiModel: detailsUiModel),
+              //ANCHOR - Boltz Reverse Transaction Details
+              BoltzReverseSwapDetailsCard(uiModel: detailsUiModel),
+              SizedBox(height: 20.h),
+            ],
+            //ANCHOR - General Transaction Details
+            BoxShadowCard(
+              color: Theme.of(context).colors.altScreenSurface,
+              bordered: true,
+              borderColor: Theme.of(context).colors.cardOutlineColor,
+              borderRadius: BorderRadius.circular(12.r),
+              child: Container(
+                width: double.maxFinite,
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...detailsUiModel.map(
+                      swap: (item) => [
+                        TransactionDetailsDataItem(
+                          title: context.loc.assetTransactionDetailsDelivered,
+                          value:
+                              '${item.deliverAmount} ${item.deliverAssetTicker}',
+                        ),
+                        SizedBox(height: 18.h),
+                        TransactionDetailsDataItem(
+                          title: context.loc.assetTransactionDetailsReceived,
+                          value:
+                              '${item.receiveAmount} ${item.receiveAssetTicker}',
+                        ),
+                      ],
+                      redeposit: (item) => [
+                        if (!item.isConfidential) ...[
                           TransactionDetailsDataItem(
-                            title: context.loc.assetTransactionsDate,
-                            value: uiModel.date,
+                            title: context.loc.assetTransactionsTotalAmount,
+                            value:
+                                '${item.deliverAmount} ${item.deliverAssetTicker}',
                           ),
                           SizedBox(height: 18.h),
-                          LabelCopyableTextView(
-                            label: context
-                                .loc.assetTransactionDetailsTransactionId,
-                            value: uiModel.transactionId,
-                          ),
-                          SizedBox(height: 18.h),
-                          ...uiModel.maybeMap(
-                            swap: (model) {
-                              if (model.dbTransaction?.serviceAddress
-                                      ?.isNotEmpty ==
-                                  true) {
-                                return [
-                                  LabelCopyableTextView(
-                                    label: context.loc
-                                        .assetTransactionDetailsDepositAddress,
-                                    value: model.dbTransaction!.serviceAddress!,
-                                  ),
-                                ];
-                              }
-                              return [];
-                            },
-                            orElse: () => [],
-                          ),
-                          SizedBox(height: 18.h),
-                          // temp: don't show the liquid tx status if boltz - it's confusing.
-                          // will be changed in redesign soon
-                          if (!(uiModel.dbTransaction?.type.isBoltzSwap ??
-                              false)) ...[
-                            Center(
-                              child: TransactionDetailsStatusChip(
-                                color: uiModel.isPending
-                                    ? AquaColors.gray
-                                    : AquaColors.aquaGreen,
-                                text: !uiModel.isPending
-                                    ? context
-                                        .loc.assetTransactionDetailsConfirmed
-                                    : uiModel.isDeliverLiquid
-                                        ? context
-                                            .loc.assetTransactionDetailsAccepted
-                                        : context
-                                            .loc.assetTransactionDetailsPending,
-                              ),
-                            ),
-                            SizedBox(height: 18.h),
-                          ],
-                          // Increase fee button
-                          if (arguments.transaction.canRbf == true) ...[
-                            SizedBox(height: 12.h),
-                            Center(
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.error,
-                                  visualDensity: VisualDensity.compact,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4.r),
-                                  ),
-                                  side: BorderSide(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .errorContainer,
-                                    width: 1.r,
-                                  ),
-                                  textStyle: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(
-                                        fontSize: 12.sp,
-                                      ),
-                                ),
-                                onPressed: showCustomFeeInputSheet,
-                                child: Text(context.loc
-                                    .assetTransactionDetailsReplaceByFeeButton),
-                              ),
-                            ),
-                          ],
-                          SizedBox(height: 18.h),
-                          Center(
-                            child: TransactionDetailsExplorerButtons(
-                              model: arguments,
-                            ),
-                          ),
                         ],
+                        TransactionDetailsDataItem(
+                          title: context.loc.assetTransactionsNetworkFees,
+                          value: '${item.feeAmount} ${item.feeAssetTicker}',
+                        ),
+                      ],
+                      send: (item) => [
+                        TransactionDetailsDataItem(
+                          title: context.loc.assetTransactionsTotalAmount,
+                          value:
+                              '${item.deliverAmount} ${item.deliverAssetTicker}',
+                        ),
+                        SizedBox(height: 18.h),
+                        TransactionDetailsDataItem(
+                          title: context.loc.assetTransactionsNetworkFees,
+                          value: '${item.feeAmount} ${item.feeAssetTicker}',
+                        ),
+                      ],
+                      receive: (item) => [
+                        TransactionDetailsDataItem(
+                          title: context.loc.assetTransactionsTotalAmount,
+                          value:
+                              '${item.receivedAmount} ${item.receivedAssetTicker}',
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 18.h),
+                    TransactionDetailsDataItem(
+                      title: context.loc.assetTransactionsDate,
+                      value: detailsUiModel.date,
+                    ),
+                    SizedBox(height: 18.h),
+                    LabelCopyableTextView(
+                      label: context.loc.assetTransactionDetailsTransactionId,
+                      value: detailsUiModel.transactionId,
+                    ),
+                    SizedBox(height: 18.h),
+                    ...detailsUiModel.maybeMap(
+                      swap: (model) {
+                        if (model.dbTransaction?.serviceAddress?.isNotEmpty ==
+                            true) {
+                          return [
+                            LabelCopyableTextView(
+                              label: context
+                                  .loc.assetTransactionDetailsDepositAddress,
+                              value: model.dbTransaction!.serviceAddress!,
+                            ),
+                          ];
+                        }
+                        return [];
+                      },
+                      orElse: () => [],
+                    ),
+                    SizedBox(height: 18.h),
+                    // temp: don't show the liquid tx status if boltz - it's confusing.
+                    // will be changed in redesign soon
+                    if (!(detailsUiModel.dbTransaction?.type.isBoltzSwap ??
+                        false)) ...[
+                      Center(
+                        child: TransactionDetailsStatusChip(
+                          color: detailsUiModel.isPending
+                              ? AquaColors.gray
+                              : AquaColors.aquaGreen,
+                          text: !detailsUiModel.isPending
+                              ? context.loc.assetTransactionDetailsConfirmed
+                              : detailsUiModel.isDeliverLiquid
+                                  ? context.loc.assetTransactionDetailsAccepted
+                                  : context.loc.assetTransactionDetailsPending,
+                        ),
+                      ),
+                      SizedBox(height: 18.h),
+                    ],
+                    // Increase fee button
+                    ...txnUiModel.maybeMap(
+                      normal: (model) => (model.transaction.canRbf == true)
+                          ? [
+                              SizedBox(height: 12.h),
+                              Center(
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                    visualDensity: VisualDensity.compact,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                    side: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .errorContainer,
+                                      width: 1.r,
+                                    ),
+                                    textStyle: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(
+                                          fontSize: 12.sp,
+                                        ),
+                                  ),
+                                  onPressed: onRbfButtonPress,
+                                  child: Text(context.loc
+                                      .assetTransactionDetailsReplaceByFeeButton),
+                                ),
+                              ),
+                            ]
+                          : [],
+                      orElse: () => [],
+                    ),
+                    SizedBox(height: 18.h),
+                    Center(
+                      child: TransactionDetailsExplorerButtons(
+                        model: txnUiModel,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 20.h),
-                  //ANCHOR - Peg Transaction Details
-                  SideswapPegDetailsCard(uiModel: uiModel),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          loading: () => Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(
-                Theme.of(context).colorScheme.secondaryContainer,
-              ),
-            ),
-          ),
-          error: (_, __) => Center(
-            child: GenericErrorWidget(
-              buttonTitle: context.loc.assetTransactionDetailsErrorButton,
-              buttonAction: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
+            SizedBox(height: 20.h),
+            //ANCHOR - Peg Transaction Details
+            SideswapPegDetailsCard(uiModel: detailsUiModel),
+          ],
         ),
       ),
     );
@@ -423,43 +497,5 @@ class TransactionDetailsDataItem extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-class RbfSuccessSheet extends HookConsumerWidget {
-  const RbfSuccessSheet({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 21.h),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
-          child: Column(
-            children: [
-              SizedBox(height: 42.h),
-              //ANCHOR - Illustration
-              Lottie.asset(
-                animation.tick,
-                repeat: false,
-                width: 100.r,
-                height: 100.r,
-                fit: BoxFit.cover,
-              ),
-              SizedBox(height: 42.h),
-              //ANCHOR - Title
-              Text(
-                context.loc.assetTransactionDetailsReplaceByFeeSuccessMessage,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontSize: 16.sp,
-                    ),
-              ),
-              SizedBox(height: 42.h),
-            ],
-          ),
-        ));
   }
 }

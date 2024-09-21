@@ -1,6 +1,6 @@
 import 'package:aqua/config/config.dart';
-import 'package:aqua/features/sideshift/pages/sideshift_orders_screen.dart';
-import 'package:aqua/features/boltz/screens/boltz_swaps_screen.dart';
+import 'package:aqua/data/data.dart';
+import 'package:aqua/features/address_list/address_list.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -32,11 +32,9 @@ class State extends ConsumerState<AssetTransactionsScreen> {
         ),
       ),
       appBar: AquaAppBar(
-        title: asset.name == 'Liquid Bitcoin'
-            ? context.loc.layer2Bitcoin
-            : asset.name,
+        title: asset.isLBTC ? context.loc.layer2Bitcoin : asset.name,
         showBackButton: true,
-        showActionButton: asset.isUsdtLiquid || asset.isLayerTwo,
+        showActionButton: true,
         actionButtonAsset: Svgs.history,
         backgroundColor:
             Theme.of(context).colors.transactionAppBarBackgroundColor,
@@ -46,11 +44,14 @@ class State extends ConsumerState<AssetTransactionsScreen> {
             Theme.of(context).colors.appBarIconBackgroundColorAlt,
         iconForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         onActionButtonPressed: () {
-          if (asset.isUsdtLiquid) {
-            Navigator.of(context).pushNamed(SideShiftOrdersScreen.routeName);
-          } else if (asset.isLayerTwo) {
-            Navigator.of(context).pushNamed(BoltzSwapsScreen.routeName);
-          }
+          Navigator.of(context).pushNamed(
+            AddressListScreen.routeName,
+            arguments: AddressListArgs(
+              networkType:
+                  asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid,
+              asset: asset,
+            ),
+          );
         },
       ),
       body: Stack(

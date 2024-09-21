@@ -237,7 +237,7 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
         weightFee;
 
     double feeRateVb =
-        ref.read(feeEstimateProvider).fetchLiquidFeeRate(isLowball: isLowball);
+        ref.read(feeEstimateProvider).getLiquidFeeRate(isLowball: isLowball);
 
     int vsize = (weight + 3) ~/ 4;
     return (vsize * feeRateVb).ceil();

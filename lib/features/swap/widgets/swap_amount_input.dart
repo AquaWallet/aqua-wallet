@@ -31,7 +31,7 @@ class SwapAmountInput extends HookConsumerWidget {
     final readOnly = value == const SwapProgressState.connecting() ||
         value == const SwapProgressState.waiting();
     final amount = isReceive
-        ? ref.watch(swapIncomingReceiveAmountProvider(context))
+        ? ref.watch(swapIncomingReceiveAmountProvider(context)).valueOrNull
         : ref.watch(sideswapInputStateProvider).deliverAmount;
     final selectedAsset = ref.watch(sideswapInputStateProvider
         .select((p) => isReceive ? p.receiveAsset : p.deliverAsset));

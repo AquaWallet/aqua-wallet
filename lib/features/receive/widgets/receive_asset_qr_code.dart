@@ -1,5 +1,4 @@
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 const kPlaceholderQrUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
@@ -19,7 +18,6 @@ class ReceiveAssetQrCode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPlaceholder = assetAddress.isEmpty;
-    logger.d("[LN] assetAddress: $assetAddress");
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 12.h),
       decoration: BoxDecoration(

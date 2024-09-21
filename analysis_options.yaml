@@ -9,3 +9,4 @@ analyzer:
   errors:
     sdk_version_since: ignore
     invalid_annotation_target: ignore
+    deprecated_member_use_from_same_package: ignore

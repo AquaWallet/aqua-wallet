@@ -23,12 +23,16 @@ class BoltzSwapStatusNotifier
         .read(boltzEnvConfigProvider.select((env) => env.apiUrl))
         .replaceFirst('https://', 'wss://');
     final url = '$baseUrl/ws';
-    final _wssStream = IOWebSocketChannel.connect(url)
+    _wssStream = IOWebSocketChannel.connect(url)
       ..sink.add('{"op":"subscribe","channel":"swap.update","args":["$id"]}');
 
     logger.d('[Boltz] [WSS] Opening status stream for: $id at $url');
 
-    return _wssStream.stream
+    if (_wssStream == null) {
+      throw Exception('WebSocket stream is null');
+    }
+
+    return _wssStream!.stream
         .map((event) => jsonDecode(event))
         .where((json) => json['event'] == 'update')
         .map((json) => json['args'])

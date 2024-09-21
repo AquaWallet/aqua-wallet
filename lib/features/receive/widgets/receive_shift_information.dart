@@ -21,8 +21,6 @@ class ReceiveShiftInformation extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sideshiftOrder = useMemoized(() => order);
-
     final sectionTitleStyle = useMemoized(() {
       return Theme.of(context).textTheme.labelMedium?.copyWith(
             fontSize: 11.sp,
@@ -38,15 +36,16 @@ class ReceiveShiftInformation extends HookConsumerWidget {
     });
 
     String networkFee = '---';
-    if (sideshiftOrder is SideshiftVariableOrderResponse) {
-      if (sideshiftOrder.settleCoinNetworkFee != null) {
+    if (order is SideshiftVariableOrderResponse) {
+      final variableOrder = order as SideshiftVariableOrderResponse;
+      if (variableOrder.settleCoinNetworkFee != null) {
         double fee =
-            double.tryParse(sideshiftOrder.settleCoinNetworkFee!) ?? 0.0;
+            double.tryParse(variableOrder.settleCoinNetworkFee!) ?? 0.0;
         networkFee = fee.toStringAsFixed(2);
       }
     }
 
-    if (sideshiftOrder == null) {
+    if (order == null) {
       return const SizedBox.shrink();
     }
 
@@ -80,7 +79,7 @@ class ReceiveShiftInformation extends HookConsumerWidget {
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => ref
                                 .read(urlLauncherProvider)
-                                .open('$kSideshiftUrl${sideshiftOrder.id}'),
+                                .open('$kSideshiftUrl${order?.id}'),
                           text:
                               context.loc.receiveAssetScreenSideshiftServiceFee,
                           style: sectionContentStyle?.copyWith(
@@ -124,7 +123,7 @@ class ReceiveShiftInformation extends HookConsumerWidget {
             child: InkWell(
               onTap: () async {
                 HapticFeedback.mediumImpact();
-                await context.copyToClipboard(sideshiftOrder.id ?? 'N/A');
+                await context.copyToClipboard(order?.id ?? 'N/A');
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
@@ -142,7 +141,7 @@ class ReceiveShiftInformation extends HookConsumerWidget {
                         SizedBox(height: 6.h),
                         //ANCHOR - Shift ID
                         Text(
-                          sideshiftOrder.id ?? 'N/A',
+                          order?.id ?? 'N/A',
                           style: sectionContentStyle,
                         ),
                       ],

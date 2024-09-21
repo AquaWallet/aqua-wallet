@@ -45,10 +45,6 @@ class InternalSendAmountScreen extends HookConsumerWidget {
 
     ref
       ..listen(
-        pegFeeRatesProvider,
-        (_, __) {},
-      )
-      ..listen(
         sideswapWebsocketProvider,
         (_, __) {},
       )

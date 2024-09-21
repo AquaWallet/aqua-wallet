@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 export 'extensions/extensions.dart';
+export 'fake_data.dart';
 export 'responsive_utils.dart';
 
 class Debouncer {

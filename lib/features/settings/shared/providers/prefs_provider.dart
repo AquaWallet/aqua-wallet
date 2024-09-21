@@ -217,4 +217,14 @@ class UserPreferencesNotifier extends ChangeNotifier {
     _prefs.setBool(PrefKeys.directPegIn, !isDirectPegInEnabled);
     notifyListeners();
   }
+
+  //ANCHOR - Transaction DB Restore Reminder
+
+  bool get isTxnDatabaseRestoreReminded =>
+      _prefs.getBool(PrefKeys.txnDbRestoreReminder) ?? false;
+
+  Future<void> disableTxnDatabaseRestoreReminder() async {
+    _prefs.setBool(PrefKeys.txnDbRestoreReminder, false);
+    notifyListeners();
+  }
 }

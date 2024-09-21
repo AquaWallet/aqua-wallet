@@ -46,8 +46,18 @@ class QrScannerScreen extends HookConsumerWidget {
 
     try {
       if (arguments.parseAction == QrScannerParseAction.doNotParse) {
-        if (input == null || arguments.asset == null) {
+        if (input == null) {
           throw QrScannerInvalidQrParametersException();
+        }
+
+        if (arguments.asset == null) {
+          if (context.mounted) {
+            if (arguments.onSuccessAction == QrOnSuccessAction.pull) {
+              return Navigator.of(context).pop(input);
+            } else {
+              throw QrScannerInvalidQrParametersException();
+            }
+          }
         }
 
         final args = SendAssetArguments.fromAsset(arguments.asset!)

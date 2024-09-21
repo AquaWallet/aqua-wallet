@@ -8,32 +8,31 @@ import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:intl/intl.dart';
 
-typedef Transaction = (
-  Asset,
-  GdkTransaction,
+typedef AssetTransaction = (
   BuildContext,
-  TransactionDbModel?
+  NormalTransactionUiModel,
 );
 
 final assetTransactionDetailsProvider = AsyncNotifierProvider.family
     .autoDispose<
         AssetTransactionDetailsNotifier,
         AssetTransactionDetailsUiModel,
-        Transaction?>(AssetTransactionDetailsNotifier.new);
+        AssetTransaction?>(AssetTransactionDetailsNotifier.new);
 
 class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
-    AssetTransactionDetailsUiModel, Transaction?> {
+    AssetTransactionDetailsUiModel, AssetTransaction?> {
   @override
-  FutureOr<AssetTransactionDetailsUiModel> build(Transaction? arg) async {
+  FutureOr<AssetTransactionDetailsUiModel> build(AssetTransaction? arg) async {
     if (arg == null) {
       throw AssetTransactionDetailsInvalidArgumentsException();
     }
 
-    final asset = arg.$1;
-    final transaction = arg.$2;
-    final allAssets = ref.read(assetsProvider).asData?.value ?? [];
+    final asset = arg.$2.asset;
+    final transaction = arg.$2.transaction;
+    final allAssets = ref.read(availableAssetsProvider).asData?.value ?? [];
+    final allUserAssets = ref.read(assetsProvider).asData?.value ?? [];
     final feeAsset =
-        allAssets.firstWhere((a) => asset.isBTC ? a.isBTC : a.isLBTC);
+        allUserAssets.firstWhere((a) => asset.isBTC ? a.isBTC : a.isLBTC);
     final network =
         asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
 
@@ -47,7 +46,7 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
     }
 
     final assetList = updatedTransaction.satoshi?.keys
-        .map((id) => ref.read(assetsProvider.notifier).liquidAssetById(id))
+        .map((id) => allAssets.firstWhereOrNull((asset) => asset.id == id))
         .whereNotNull()
         .toList();
     final count = await ref
@@ -67,14 +66,14 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
       isPending: _isPending(asset, count),
       requiredConfirmationCount: _getRequiredConfirmationCount(asset),
       memo: updatedTransaction.memo,
-      dbTransaction: arg.$4,
+      dbTransaction: arg.$2.dbTransaction,
     );
 
     return switch (transaction.type) {
-      GdkTransactionTypeEnum.swap => _swapItemUiModels(arg.$3, arguments),
-      GdkTransactionTypeEnum.redeposit => _redepositItems(arg.$3, arguments),
-      GdkTransactionTypeEnum.outgoing => _outgoingItems(arg.$3, arguments),
-      GdkTransactionTypeEnum.incoming => _incomingItems(arg.$3, arguments),
+      GdkTransactionTypeEnum.swap => _swapItemUiModels(arg.$1, arguments),
+      GdkTransactionTypeEnum.redeposit => _redepositItems(arg.$1, arguments),
+      GdkTransactionTypeEnum.outgoing => _outgoingItems(arg.$1, arguments),
+      GdkTransactionTypeEnum.incoming => _incomingItems(arg.$1, arguments),
       _ => throw UnimplementedError(),
     };
   }
@@ -242,7 +241,7 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
   }
 
   Future<void> refresh() async {
-    final asset = arg?.$1;
+    final asset = arg?.$2.asset;
     if (asset != null) {
       ref.invalidate(rawTransactionsProvider(asset));
     }

@@ -204,7 +204,7 @@ class SendAssetAmountScreen extends HookConsumerWidget {
 
             //ANCHOR - Min/Max Range Panel
             if (asset.isSideshift) ...{
-              const SideshiftMinMaxPanel()
+              SideshiftMinMaxPanel(asset: ref.watch(sendAssetProvider))
             } else if (asset.isLightning) ...{
               SizedBox(height: 6.h),
               Row(

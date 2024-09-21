@@ -3,6 +3,7 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -84,9 +85,13 @@ class AssetTransactions extends HookConsumerWidget {
                 separatorBuilder: (context, index) => SizedBox(height: 16.h),
                 itemBuilder: (_, index) {
                   final item = listItems[index];
-                  return item == null
-                      ? const TransactionsTitle()
-                      : _AssetTransactionListItem(item);
+                  return switch (item) {
+                    _ when (item is NormalTransactionUiModel) =>
+                      _AssetTransactionListItem(item),
+                    _ when (item is GhostTransactionUiModel) =>
+                      _GhostAssetTransactionListItem(item),
+                    _ => const TransactionsTitle(),
+                  };
                 },
               ),
             ),
@@ -222,6 +227,25 @@ class _AssetTransactionListItem extends HookConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _GhostAssetTransactionListItem extends HookConsumerWidget {
+  const _GhostAssetTransactionListItem(this.itemUiModel);
+
+  final GhostTransactionUiModel itemUiModel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return DottedBorder(
+      strokeWidth: 1.w,
+      color: Theme.of(context).colorScheme.onSurface,
+      padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 0.h),
+      radius: Radius.circular(12.r),
+      borderType: BorderType.RRect,
+      dashPattern: [4.w, 6.w],
+      child: _AssetTransactionListItem(itemUiModel),
     );
   }
 }

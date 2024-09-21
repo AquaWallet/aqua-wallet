@@ -19,20 +19,28 @@ final swapValidationsProvider = Provider.autoDispose
       message: context.loc.swapErrorUnselectedAsset,
     );
   }
-  if (deliverAsset.isBTC && !receiveAsset.isLBTC) {
-    return SideswapInvalidArgumentsException(
-      message: context.loc.swapErrorInvalidBtcPair,
-    );
-  }
-  if (deliverAsset.isLBTC && (!receiveAsset.isBTC && !receiveAsset.isUSDt)) {
-    return SideswapInvalidArgumentsException(
-      message: context.loc.swapErrorInvalidLbtcPair,
-    );
-  }
-  if (deliverAsset.isUSDt && !receiveAsset.isLBTC) {
-    return SideswapInvalidArgumentsException(
-      message: context.loc.swapErrorInvalidUsdtPair,
-    );
+
+  //ANCHOR - Is swappable validation
+  final isSwappable = ref.read(swapAssetsProvider).isSwappable(
+        deliverAsset,
+        receiveAsset,
+      );
+
+  if (!isSwappable) {
+    return switch (deliverAsset) {
+      _ when (deliverAsset.isBTC) => SideswapInvalidArgumentsException(
+          message: context.loc.swapErrorInvalidBtcPair,
+        ),
+      _ when (deliverAsset.isLBTC) => SideswapInvalidArgumentsException(
+          message: context.loc.swapErrorInvalidLbtcPair,
+        ),
+      _ when (deliverAsset.isUSDt) => SideswapInvalidArgumentsException(
+          message: context.loc.swapErrorInvalidUsdtPair,
+        ),
+      _ => SideswapInvalidArgumentsException(
+          message: context.loc.swapErrorInvalidPair,
+        ),
+    };
   }
 
   //ANCHOR - Insufficient balance check
@@ -50,7 +58,7 @@ final swapValidationsProvider = Provider.autoDispose
     );
   }
 
-  final pegFeeError = ref.watch(amountMinusChainFeeEstProvider).hasError;
+  final pegFeeError = ref.watch(amountMinusFirstOnchainFeeEstProvider).hasError;
   if (inputState.isPeg && inputState.deliverAmountSatoshi > 0 && pegFeeError) {
     return SideswapInsufficientFundsException(
       isDeliver: isDeliver,

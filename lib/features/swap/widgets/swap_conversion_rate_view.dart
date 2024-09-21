@@ -16,8 +16,10 @@ class SwapConversionRateView extends HookConsumerWidget {
       return Container(
         height: 42.h,
         margin: EdgeInsets.symmetric(vertical: 12.h),
-        padding: EdgeInsets.symmetric(vertical: 9.h),
-        child: const Text('1 BTC = 1 L-BTC'),
+        child: const Align(
+          alignment: Alignment.center,
+          child: Text('1 BTC = 1 L-BTC'),
+        ),
       );
     }
 
@@ -35,15 +37,20 @@ class SwapConversionRateView extends HookConsumerWidget {
                   Theme.of(context).swapScreenRateConversionBoxShadows,
                 ],
               ),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
-              child: Text(
-                amount,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontSize: 13.sp,
-                      color: Theme.of(context)
-                          .colors
-                          .swapConversionRateViewTextColor,
-                    ),
+              child: Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Text(
+                    amount,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontSize: 13.sp,
+                          color: Theme.of(context)
+                              .colors
+                              .swapConversionRateViewTextColor,
+                        ),
+                  ),
+                ),
               ),
             ),
     );

@@ -1,5 +1,9 @@
+import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
+import 'package:aqua/features/recovery/providers/seed_qr_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
+import 'package:aqua/screens/qrscanner/qr_scanner_screen.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class WalletRestoreInputScreen extends HookConsumerWidget {
@@ -10,6 +14,21 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hasError = useState(false);
+
+    final onScan = useCallback(() async {
+      final result = await Navigator.of(context).pushNamed(
+        QrScannerScreen.routeName,
+        arguments: QrScannerScreenArguments(
+          asset: null,
+          parseAction: QrScannerParseAction.doNotParse,
+          onSuccessAction: QrOnSuccessAction.pull,
+        ),
+      ) as String?;
+
+      logger.d("[Restore][Input] scanned input: $result");
+
+      ref.read(seedQrProvider.notifier).populateFromQrCode(result ?? '');
+    });
 
     ref.listen(
       walletRestoreProvider,
@@ -34,13 +53,16 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: true,
-        showActionButton: false,
+        showActionButton: true,
         iconBackgroundColor: Theme.of(context).colorScheme.background,
         iconForegroundColor: Theme.of(context).colorScheme.onBackground,
         onBackPressed: () {
           ref.read(systemOverlayColorProvider(context)).aqua();
           Navigator.of(context).pop();
         },
+        actionButtonAsset: Svgs.qr,
+        actionButtonIconSize: 13.r,
+        onActionButtonPressed: onScan,
       ),
       body: SafeArea(
         child: ref.watch(walletHintWordListProvider).when(

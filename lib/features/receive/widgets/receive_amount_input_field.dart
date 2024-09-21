@@ -30,7 +30,7 @@ class AmountInputField extends HookConsumerWidget {
         ref.watch(conversionCurrenciesProvider).enabledCurrencies;
     final supportedCurrenciesList = fiatRates != null
         ? enabledCurrencies + [context.loc.conversionCurrenciesOtherOption]
-        : [];
+        : [currentRate.currency.value];
     final selectedCurrency =
         ref.read(amountCurrencyProvider.notifier).state ?? 'Sats';
     final assetSymbol =

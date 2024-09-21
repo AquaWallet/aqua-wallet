@@ -1,4 +1,5 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -161,6 +162,9 @@ extension AssetExt on Asset {
             ? UsdtOption.eth
             : UsdtOption.trx;
   }
+
+  NetworkType get networkType =>
+      isBTC ? NetworkType.bitcoin : NetworkType.liquid;
 }
 
 extension CompatibleExt on Asset {

@@ -1,4 +1,5 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/utils/utils.dart';
@@ -13,11 +14,11 @@ class SideshiftOrderDetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final order = ModalRoute.of(context)?.settings.arguments
-        as SideshiftOrderStatusResponse;
+    final order =
+        ModalRoute.of(context)?.settings.arguments as SideshiftOrderDbModel;
 
     // fetch fresh status
-    final orderStatus = ref.watch(orderStatusProvider(order.id ?? ''));
+    final orderStatus = ref.watch(orderStatusProvider(order.orderId));
     return orderStatus.when(
       data: (data) {
         return Scaffold(
@@ -140,7 +141,7 @@ class _SideshiftOrderDetailHeaderWidget extends StatelessWidget {
     required this.order,
   });
 
-  final SideshiftOrderStatusResponse order;
+  final SideshiftOrderDbModel order;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +167,7 @@ class _SideshiftOrderDetailsWidget extends StatelessWidget {
     required this.order,
   });
 
-  final SideshiftOrderStatusResponse order;
+  final SideshiftOrderDbModel order;
 
   @override
   Widget build(BuildContext context) {
