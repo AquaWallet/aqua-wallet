@@ -125,10 +125,7 @@ class MarketplaceView extends HookConsumerWidget {
                 title: context.loc.marketplaceScreenBuyButton,
                 subtitle: marketplaceCardsSubtitleText[0],
                 icon: Svgs.marketplaceBuy,
-                onPressed: Platform.isIOS &&
-                        disableExchagesOnIOS &&
-                        ref.watch(regionsProvider).currentRegion?.iso ==
-                            RegionsStatic.us.iso
+                onPressed: Platform.isIOS && disableExchagesOnIOS
                     ? null
                     : () {
                         Navigator.of(context).pushNamed(OnRampScreen.routeName);

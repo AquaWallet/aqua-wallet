@@ -92,10 +92,12 @@ final transactionsProvider = FutureProvider.autoDispose
     return ghostTxn.assetId == asset.id || isLightningGhostTxn;
   }).map((txn) {
     final createdAt = DateFormat.yMMMd().format(txn.ghostTxnCreatedAt!);
-    final cryptoAmount = ref.read(formatterProvider).signedFormatAssetAmount(
-          amount: txn.ghostTxnAmount!,
-          precision: asset.precision,
-        );
+    final cryptoAmount = txn.ghostTxnAmount != null
+        ? ref.read(formatterProvider).signedFormatAssetAmount(
+              amount: txn.ghostTxnAmount!,
+              precision: asset.precision,
+            )
+        : '-';
     // TODO: Add support for other transaction types as support grows
     final icon = switch (txn) {
       _ when (txn.isAquaSend) => Svgs.outgoing,
