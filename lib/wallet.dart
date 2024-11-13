@@ -354,17 +354,22 @@ abstract class WalletService {
     return Result.value(true);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> createTransaction(
-      {required GdkNewTransaction transaction,
-      bool rbfEnabled = true,
-      bool isRbfTx = false}) async {
+  Future<Result<GdkAuthHandlerStatus>> createTransaction({
+    required GdkNewTransaction transaction,
+    bool rbfEnabled = true,
+    bool isRbfTx = false,
+    Map<String, List<GdkUnspentOutputs>>? utxos,
+  }) async {
     GdkNewTransaction detailsWithSubaccount =
         transaction.copyWith(subaccount: getSubAccount());
+
     final status = await libGdk.createTransaction(
-        session: session!,
-        transaction: detailsWithSubaccount,
-        rbfEnabled: rbfEnabled,
-        isRbfTx: isRbfTx);
+      session: session!,
+      transaction: detailsWithSubaccount,
+      rbfEnabled: rbfEnabled,
+      isRbfTx: isRbfTx,
+      utxos: utxos,
+    );
 
     if (isErrorResult(status)) {
       return status;

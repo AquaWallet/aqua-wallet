@@ -194,7 +194,7 @@ class LiquidTransactionFeeSelector extends HookConsumerWidget {
                     child: _SelectionItem(
                       label: context.loc.layer2Bitcoin,
                       svgIcon: hasEnoughFundsForLbtcFee
-                          ? Svgs.layerTwoDual
+                          ? Svgs.liquidAsset
                           : Svgs.l2AssetDisabled,
                       fee: satsFeeDisplay,
                       feeInFiat: lbtcFeeInFiatDisplay,

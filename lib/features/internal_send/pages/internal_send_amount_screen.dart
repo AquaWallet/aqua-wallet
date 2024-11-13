@@ -26,6 +26,7 @@ class InternalSendAmountScreen extends HookConsumerWidget {
 
     final input = ref.watch(sideswapInputStateProvider);
     final swapAssets = ref.watch(swapAssetsProvider).assets;
+    final isDarkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
 
     final resetFormWithError = useCallback((String message) {
       ref.invalidate(sideswapInputStateProvider);
@@ -144,7 +145,9 @@ class InternalSendAmountScreen extends HookConsumerWidget {
                   //ANCHOR - Arrow Icon
                   SizedBox.square(
                     dimension: 24.r,
-                    child: SvgPicture.asset(Svgs.internalSendArrow),
+                    child: SvgPicture.asset(isDarkMode
+                        ? Svgs.internalSendArrowLight
+                        : Svgs.internalSendArrow),
                   ),
                   SizedBox(width: 10.w),
                   //ANCHOR - Receive Asset Logo

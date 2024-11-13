@@ -25,7 +25,7 @@ class AssetIcon extends ConsumerWidget {
     // local hardcoded cases
     switch (assetId) {
       case 'Layer2Bitcoin':
-        localAsset = Svgs.layerTwoDual;
+        localAsset = Svgs.layerTwoSingle;
         break;
       case 'btc':
         localAsset = Svgs.btcAsset;

@@ -185,6 +185,30 @@ class SendAssetReviewScreen extends HookConsumerWidget {
                         );
                   }, onCancel: () {});
                   return;
+                }
+                if (error is AquaTxBroadcastException) {
+                  // will happen if our lowball node is down, or if there is any other tx broadcast error
+                  final alertModel = CustomAlertDialogUiModel(
+                    title: context.loc.broadcastTxExceptionTitle,
+                    subtitle: context.loc.aquaBroadcastTxExceptionMessage,
+                    buttonTitle: context.loc.cancel,
+                    secondaryButtonTitle: context.loc.tryAgain,
+                    onButtonPressed: () {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
+                    onSecondaryButtonPressed: () {
+                      Navigator.of(context).pop();
+                      ref
+                          .read(sendAssetTransactionProvider.notifier)
+                          .createAndSendFinalTransaction(
+                            onSuccess: pushToCompleteScreen,
+                            isLowball: false,
+                          );
+                    },
+                  );
+                  await showCustomAlertDialog(
+                      context: context, uiModel: alertModel);
+                  return;
                 } else if (error is ExceptionLocalized) {
                   errorMessage = error.toLocalizedString(context);
                 } else if (error is NetworkException) {

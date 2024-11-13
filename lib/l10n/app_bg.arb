@@ -34,7 +34,6 @@
   "exchangeSwapButton": "Обмяна",
   "exchangeTransferFromTitle": "Обмени от",
   "exchangeTransferToTitle": "Обмени в",
-  "exchangeSwapBalance": "Баланс:",
   "exchangeSwapInsufficientFunds": "Недостатъчни средства",
   "languageSettingsTitle": "Език",
   "blockExplorerSettingsTitle": "Block Explorer",
@@ -301,5 +300,6 @@
   "zendeskTitle": "Zendesk",
   "getHelpSupportScreenTitle": "Потърси помощ",
   "contactUsHelpSupportScreenHeaderText": "Нужда от помощ? Свържи се с нас.",
-  "boltzRedeemScriptValidationError": "Скриптът за осребряване от Boltz не можа да бъде валидиран."
+  "boltzRedeemScriptValidationError": "Скриптът за осребряване от Boltz не можа да бъде валидиран.",
+  "balance": "Баланс"
 }

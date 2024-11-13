@@ -14,6 +14,11 @@ enum BoltzSwapStatus {
   transactionLockupFailed('transaction.lockupFailed'),
   invoiceSettled('invoice.settled'),
 
+  /// This is our own added state to indicate that we've successfully broadcasted the submarine swap tx,
+  /// and we're waiting for a status update from Boltz.
+  /// This is needed for the lowball no-mempool issue so we can mark send submarine lockup txs so we don't double-pay.
+  submarineBroadcasted('submarine.broadcasted'),
+
   /// This status indicates that Boltz is ready for the creation of a cooperative signature for a keypath spend. Taproot Swaps are not claimed immediately by Boltz after the invoice has been paid, but instead Boltz waits for the API client to post a signature for a key path spend. If the API client does not cooperate in a key path spend, Boltz will eventually claim via the script path.
   transactionClaimPending('transaction.claim.pending'),
   transactionClaimed('transaction.claimed'),
@@ -31,6 +36,13 @@ enum BoltzSwapStatus {
 }
 
 extension SwapStatusExtension on BoltzSwapStatus {
+  /// A submarine swap before the initial lockup tx is sent
+  bool get isSubmarineUnpaid {
+    return this == BoltzSwapStatus.created ||
+        this == BoltzSwapStatus.invoicePending ||
+        this == BoltzSwapStatus.invoiceSet;
+  }
+
   /// Pending state for normal or reverse swaps
   bool get isPending {
     return this == BoltzSwapStatus.created ||

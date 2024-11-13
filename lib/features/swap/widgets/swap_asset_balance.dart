@@ -32,7 +32,7 @@ class SwapAssetBalance extends HookConsumerWidget {
 
     if (isLoading) {
       return Text(
-        '${context.loc.exchangeSwapBalance} 12.34567890 XXX',
+        '${context.loc.balance}: 12.34567890 XXX',
         style: textStyle,
       );
     }
@@ -42,7 +42,7 @@ class SwapAssetBalance extends HookConsumerWidget {
         : Row(
             children: [
               Text(
-                context.loc.exchangeSwapBalance,
+                context.loc.balance + ': ',
                 style: textStyle,
               ),
               Text(

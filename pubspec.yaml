@@ -3,7 +3,7 @@ description: AQUA - Bitcoin & Layer 2 Wallet
 
 publish_to: "none"
 
-version: 0.2.4+136
+version: 0.2.5+144
 
 environment:
   sdk: "3.3.3"
@@ -77,6 +77,7 @@ dependencies:
 dev_dependencies:
   build_runner: ^2.4.6
   ffigen: ^11.0.0
+  flutter_gen_runner: ^5.8.0
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^3.0.2
   flutter_test:
@@ -105,16 +106,87 @@ flutter:
 
   assets:
     - assets/
+    - assets/svgs/
+    - assets/svgs/dark/
+    - assets/svgs/light/
     - assets/asset_icons/
     - assets/animations/
+    - assets/fonts/
+    - assets/fonts/helvetica/
+    - assets/fonts/dm_sans/
     - assets/icon/
     - assets/marketplace/
     - assets/flags/
 
+  fonts:
+    - family: HelveticaNeue
+      fonts:
+        - asset: assets/fonts/helvetica/HelveticaNeue-Medium.otf
+        - asset: assets/fonts/helvetica/HelveticaNeue-Thin.otf
+          weight: 100
+        - asset: assets/fonts/helvetica/HelveticaNeue-UltraLight.otf
+          weight: 200
+        - asset: assets/fonts/helvetica/HelveticaNeue-Light.otf
+          weight: 300
+        - asset: assets/fonts/helvetica/HelveticaNeue-Regular.otf
+          weight: 400
+        - asset: assets/fonts/helvetica/HelveticaNeue-Bold.otf
+          weight: 700
+        - asset: assets/fonts/helvetica/HelveticaNeue-Heavy.otf
+          weight: 800
+        - asset: assets/fonts/helvetica/HelveticaNeue-Black.otf
+          weight: 900
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/dm_sans/DMSans-Medium.ttf
+        - asset: assets/fonts/dm_sans/DMSans-MediumItalic.ttf
+          style: italic
+        - asset: assets/fonts/dm_sans/DMSans-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/dm_sans/DMSans-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: assets/fonts/dm_sans/DMSans-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/dm_sans/DMSans-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/fonts/dm_sans/DMSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/dm_sans/DMSans-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/dm_sans/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/dm_sans/DMSans-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/dm_sans/DMSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/dm_sans/DMSans-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/dm_sans/DMSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/dm_sans/DMSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/dm_sans/DMSans-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/dm_sans/DMSans-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: assets/fonts/dm_sans/DMSans-Black.ttf
+          weight: 900
+        - asset: assets/fonts/dm_sans/DMSans-BlackItalic.ttf
+          weight: 900
+          style: italic
+
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/app_icon.png"
+  image_path: "assets/icon/app_icon.jpg"
+  remove_alpha_channel_ios: true
 
 fonts:
   - family: HelveticaNeue
@@ -131,6 +203,22 @@ fonts:
         weight: 300
       - asset: assets/fonts/HelveticaNeueThin.ttf
         weight: 200
+
+flutter_gen:
+  integrations:
+    flutter_svg: true
+    flare_flutter: true
+    rive: true
+    lottie: true
+  assets:
+    enabled: true
+    outputs:
+      class_name: UiAssets
+      package_parameter_enabled: false
+  fonts:
+    enabled: true
+    outputs:
+      class_name: UiFontFamily
 
 ffigen:
   output: "lib/ffi/generated_bindings.dart"

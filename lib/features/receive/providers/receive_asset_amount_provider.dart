@@ -39,10 +39,16 @@ final receiveAssetAmountForBip21Provider =
     return (bitcoinAmountDecimalFormat * satsPerBtc)
         .toDouble()
         .toStringAsFixed(0);
-  } else if (fiatCurrency == currentRate.currency.value) {
-    final amountInSats =
-        ref.watch(fiatToSatsAsIntProvider((asset, fiatAmount))).asData?.value ??
-            0;
+  } else if (fiatCurrency == currentRate.currency.value &&
+      (asset.isBTC || asset.isLBTC || asset.isLightning)) {
+    final amountInSats = ref
+            .watch(fiatToSatsAsIntProvider((
+              Asset.btc(),
+              fiatAmount
+            ))) // We are using asset.btc here because the rates are per btc
+            .asData
+            ?.value ??
+        0;
     return amountInSats.toDouble().toStringAsFixed(0);
   } else {
     return userEntered;
@@ -81,9 +87,11 @@ final receiveAssetAmountConversionDisplayProvider = FutureProvider.autoDispose
     throw Exception("Amount is null");
   }
 
-  if (fiatRates == null && fiatCurrency == currentRate.currency.value) {
+  if (fiatRates == null &&
+      fiatCurrency == currentRate.currency.value &&
+      (asset.isBTC || asset.isLBTC || asset.isLightning)) {
     final amountInSats = ref
-            .watch(fiatToSatsAsIntProvider((asset, amountAsDecimal)))
+            .watch(fiatToSatsAsIntProvider((Asset.btc(), amountAsDecimal)))
             .asData
             ?.value ??
         0;

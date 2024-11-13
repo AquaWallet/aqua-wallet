@@ -34,7 +34,6 @@
   "exchangeSwapButton": "Swap",
   "exchangeTransferFromTitle": "Swap van",
   "exchangeTransferToTitle": "Swap naar",
-  "exchangeSwapBalance": "Balans:",
   "exchangeSwapInsufficientFunds": "Onvoldoende fondsen",
   "languageSettingsTitle": "Taal",
   "blockExplorerSettingsTitle": "Block Explorer",
@@ -299,5 +298,6 @@
   "settingsScreenItemDarkMode": "Donkere Modus",
   "boltzSupportEmail": "Contacteer Boltz",
   "lightningTransactionSuccessScreenReceiveMessage": "Je hebt Sats ontvangen",
-  "boltzRedeemScriptValidationError": "Inwisselscript van Boltz kon niet worden gevalideerd."
+  "boltzRedeemScriptValidationError": "Inwisselscript van Boltz kon niet worden gevalideerd.",
+  "balance": "Balans"
 }

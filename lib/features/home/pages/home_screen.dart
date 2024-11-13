@@ -5,6 +5,7 @@ import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/home/home.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
+import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
@@ -32,6 +33,7 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
     ref.watch(sideshiftStorageProvider);
     ref.watch(featureUnlockTapCountProvider);
     ref.watch(isAquaNodeSyncedProvider);
+    ref.watch(recentlySpentUtxosProvider);
 
     ref.watch(boltzInitProvider).maybeWhen(
           data: (_) {
@@ -56,10 +58,8 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
       if (state == AppLifecycleState.resumed) {
         logger.d("[Lifecycle] App resumed in foreground");
         Future.microtask(() {
-          // restart v2 boltz swaps checker
-          ref.invalidate(boltzSwapSettlementServiceProvider);
-          // restart v0 sboltz waps checker
-          ref.read(boltzStatusCheckProvider).streamAllPendingSwaps();
+          // Refresh v2 boltz swaps monitoring
+          ref.read(boltzSwapSettlementServiceProvider).refreshMonitoring();
         });
       }
     });

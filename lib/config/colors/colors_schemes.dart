@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:aqua/config/colors/aqua_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +13,10 @@ abstract class AppColors {
   Color get dottedDivider;
 
   Color get bottomNavBarBorder;
+
+  Color get bottomNavBarIconUnselected;
+
+  Color get bottomNavBarIconSelected;
 
   Color get notificationButtonBackground;
 
@@ -63,6 +69,8 @@ abstract class AppColors {
   Color get cardOutlineColor;
 
   Color get headerSubtitle;
+
+  Color get neutraBTCDeltaColor;
 
   Color get redBTCDeltaColor;
 
@@ -142,6 +150,10 @@ abstract class AppColors {
 
   Color get copayableTextColor;
 
+  Color get swapButtonForeground;
+
+  Color get swapButtonBackground;
+
   ColorScheme get colorScheme;
 }
 
@@ -152,7 +164,7 @@ class DarkThemeColors implements AppColors {
   Color get divider => AquaColors.charcoal;
 
   @override
-  Color get walletHeaderDivider => AquaColors.seaBlue;
+  Color get walletHeaderDivider => Colors.black;
 
   @override
   Color get dottedDivider => AquaColors.platinum;
@@ -161,7 +173,13 @@ class DarkThemeColors implements AppColors {
   Color get bottomNavBarBorder => Colors.transparent;
 
   @override
-  Color get notificationButtonBackground => AquaColors.blueGreen;
+  Color get bottomNavBarIconUnselected => AquaColors.dustyGrey;
+
+  @override
+  Color get bottomNavBarIconSelected => Colors.white;
+
+  @override
+  Color get notificationButtonBackground => Colors.white;
 
   @override
   Color get iconBackground => AquaColors.eerieBlack;
@@ -237,6 +255,9 @@ class DarkThemeColors implements AppColors {
 
   @override
   Color get headerSubtitle => AquaColors.brightGray;
+
+  @override
+  Color get neutraBTCDeltaColor => AquaColors.dustyGrey;
 
   @override
   Color get redBTCDeltaColor => Colors.red;
@@ -335,7 +356,7 @@ class DarkThemeColors implements AppColors {
   Color get recieveOtherAssetsTabBarSepratorColor => Colors.white;
 
   @override
-  Color get headerBackgroundColor => AquaColors.blueGreen;
+  Color get headerBackgroundColor => AquaColors.jet;
 
   @override
   Color get transactionAppBarBackgroundColor => Colors.transparent;
@@ -356,10 +377,17 @@ class DarkThemeColors implements AppColors {
   Color get copayableTextColor => Colors.white;
 
   @override
+  Color get swapButtonForeground => Colors.white;
+
+  @override
+  Color get swapButtonBackground => AquaColors.charcoal;
+
+  @override
   ColorScheme get colorScheme => ColorScheme(
         brightness: Brightness.dark,
         primary: AquaColors.blueGreen,
         onPrimary: Colors.white,
+        onPrimaryContainer: Colors.white,
         secondary: AquaColors.robinEggBlue,
         onSecondary: Colors.white,
         secondaryContainer: AquaColors.lightSilver,
@@ -391,7 +419,13 @@ class LightThemeColors implements AppColors {
   Color get bottomNavBarBorder => AquaColors.platinum;
 
   @override
-  Color get notificationButtonBackground => Colors.white;
+  Color get bottomNavBarIconUnselected => AquaColors.dustyGrey;
+
+  @override
+  Color get bottomNavBarIconSelected => Colors.black;
+
+  @override
+  Color get notificationButtonBackground => Colors.black;
 
   @override
   Color get iconBackground => AquaColors.eerieBlack;
@@ -467,6 +501,9 @@ class LightThemeColors implements AppColors {
 
   @override
   Color get headerSubtitle => AquaColors.graniteGray;
+
+  @override
+  Color get neutraBTCDeltaColor => AquaColors.dustyGrey;
 
   @override
   Color get redBTCDeltaColor => Colors.red;
@@ -586,6 +623,12 @@ class LightThemeColors implements AppColors {
   Color get copayableTextColor => AquaColors.charcoal;
 
   @override
+  Color get swapButtonForeground => AquaColors.charcoal;
+
+  @override
+  Color get swapButtonBackground => Colors.white;
+
+  @override
   ColorScheme get colorScheme => const ColorScheme(
         brightness: Brightness.light,
         primary: AquaColors.blueGreen,
@@ -599,7 +642,7 @@ class LightThemeColors implements AppColors {
         tertiary: AquaColors.indigo,
         onTertiary: AquaColors.eerieBlack,
         surface: Colors.white,
-        onSurface: AquaColors.cadetGrey,
+        onSurface: AquaColors.dimMarble,
         background: AquaColors.splashGrey,
         onBackground: AquaColors.eerieBlack,
         error: AquaColors.portlandOrange,

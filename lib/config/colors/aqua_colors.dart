@@ -11,9 +11,11 @@ class AquaColors {
 
   static const Color portlandOrange = Color(0xFFFF4B2B);
 
-  static const Color backgroundGradientStartColor = Color(0xFF046392);
+  static const Color aquaBlue = Color(0xFF022173);
 
-  static const Color backgroundGradientEndColor = Color(0xFF009CBF);
+  static const Color backgroundGradientStartColor = Color(0xFF022173);
+
+  static const Color backgroundGradientEndColor = Color(0xFF00C7F9);
 
   static const Color antiFlashWhite = Color(0xFFF2F2F2);
 
@@ -78,4 +80,10 @@ class AquaColors {
   static const Color periglacialBlue = Color(0xFFE3E3E3);
 
   static const Color aquaGreen = Color(0xFF13CDC2);
+
+  static const Color jet = Color(0xFF343434);
+
+  static const Color dimMarble = Color(0xFF7E7E7E);
+
+  static const Color vividSkyBlue = Color(0xFF00C7F9);
 }

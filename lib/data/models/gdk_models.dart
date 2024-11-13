@@ -1000,12 +1000,13 @@ class GdkNewTransactionReply with _$GdkNewTransactionReply {
     @JsonKey(name: 'transaction_version') int? transactionVersion,
     @JsonKey(name: 'transaction_locktime') int? transactionLocktime,
     @JsonKey(name: 'transaction_outputs') dynamic transactionOutputs,
-    @JsonKey(name: 'transaction_inputs') dynamic transactionInputs,
+    @JsonKey(name: 'transaction_inputs')
+    List<GdkUnspentOutputs>? transactionInputs,
     String? txhash,
     GdkTransactionTypeEnum? type,
     @JsonKey(name: 'utxo_strategy') String? utxoStrategy,
     String? memo,
-    Map<String, dynamic>? utxos,
+    Map<String, List<GdkUnspentOutputs>>? utxos,
   }) = _GdkNewTransactionReply;
 
   factory GdkNewTransactionReply.fromJson(Map<String, dynamic> json) =>
@@ -1140,11 +1141,14 @@ class GdkUnspentOutputs with _$GdkUnspentOutputs {
     @JsonKey(name: 'address_type') String? addressType,
     @JsonKey(name: 'block_height') int? blockHeight,
     @JsonKey(name: 'is_internal') bool? isInternal,
+    @JsonKey(name: 'is_relevant') bool? isRelevant,
+    @JsonKey(name: 'is_spent') bool? isSpent,
     int? pointer,
     @JsonKey(name: 'pt_idx') int? ptIdx,
     int? satoshi,
     @Default(1) int? subaccount,
     String? txhash,
+    String? script,
     @JsonKey(name: 'prevout_script') String? prevoutScript,
     @JsonKey(name: 'user_path') List<int>? userPath,
     @JsonKey(name: 'public_key') String? publicKey,
@@ -1161,6 +1165,7 @@ class GdkUnspentOutputs with _$GdkUnspentOutputs {
     @JsonKey(name: 'asset_tag') String? assetTag,
     String? commitment,
     @JsonKey(name: 'nonce_commitment') String? nonceCommitment,
+    @JsonKey(name: 'unconfidential_address') String? unconfidentialAddress,
   }) = _GdkUnspentOutputs;
 
   factory GdkUnspentOutputs.fromJson(Map<String, dynamic> json) =>

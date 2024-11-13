@@ -23,7 +23,7 @@ class WalletTab extends ConsumerWidget {
     );
 
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
+      builder: (context, constraints) {
         return const Stack(
           children: [
             CategorizedAssetList(),

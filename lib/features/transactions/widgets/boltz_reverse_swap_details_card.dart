@@ -19,7 +19,7 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final swapDataFuture = ref
         .watch(boltzStorageProvider.notifier)
-        .getReverseSwapByTxId(uiModel.dbTransaction?.txhash ?? '');
+        .getReverseSwapDbModelByTxId(uiModel.dbTransaction?.txhash ?? '');
 
     return FutureBuilder<BoltzSwapDbModel?>(
       future: swapDataFuture,

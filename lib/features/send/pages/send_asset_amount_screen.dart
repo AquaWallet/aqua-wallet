@@ -13,6 +13,7 @@ import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:intl/intl.dart';
 
 class SendAssetAmountScreen extends HookConsumerWidget {
   const SendAssetAmountScreen({super.key, this.arguments});
@@ -126,6 +127,9 @@ class SendAssetAmountScreen extends HookConsumerWidget {
       });
     }
 
+    //TODO: Temp until we have amount display widget with intl formatter
+    final numberFormatter = NumberFormat('#,##0', 'en_US');
+
     return Scaffold(
       appBar: AquaAppBar(
         title: context.loc.sendAssetScreenTitle,
@@ -219,12 +223,12 @@ class SendAssetAmountScreen extends HookConsumerWidget {
                 Row(
                   children: <Widget>[
                     Text(
-                      '${context.loc.min}: $sendMin sats',
+                      '${context.loc.min}: ${numberFormatter.format(sendMin)} sats',
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     const Spacer(),
                     Text(
-                      '${context.loc.max}: $sendMax sats',
+                      '${context.loc.max}: ${numberFormatter.format(sendMax)} sats',
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ],

@@ -44,7 +44,7 @@ class _SwapSendMinMaxButton extends HookConsumerWidget {
       style: TextButton.styleFrom(
         textStyle: Theme.of(context).textTheme.titleSmall,
         foregroundColor: Theme.of(context).colorScheme.onBackground,
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 9.h),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         visualDensity: VisualDensity.compact,
         shape: RoundedRectangleBorder(

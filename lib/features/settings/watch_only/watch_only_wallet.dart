@@ -20,8 +20,10 @@ class WatchOnlyWallet with _$WatchOnlyWallet {
       case NetworkType.bitcoin:
         return subaccount.slip132ExtendedPubkey ?? '';
       case NetworkType.liquid:
-        // NOTE: GDK returns a list of coreDescriptors, but we only need the first one. The second one is the change/internal descriptor.
-        return subaccount.coreDescriptors?.firstOrNull ?? '';
+        final descriptors = subaccount.coreDescriptors;
+        if (descriptors == null || descriptors.length < 2) return '';
+        // Combine both receive and change descriptors
+        return '${descriptors[0]}\n${descriptors[1]}';
     }
   }
 }

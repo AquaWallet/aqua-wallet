@@ -21,7 +21,7 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final swapDataFuture = ref
         .watch(boltzStorageProvider.notifier)
-        .getSubmarineSwapByTxId(uiModel.dbTransaction?.txhash ?? '');
+        .getSubmarineSwapDbModelByTxId(uiModel.dbTransaction?.txhash ?? '');
 
     return FutureBuilder<BoltzSwapDbModel?>(
       future: swapDataFuture,

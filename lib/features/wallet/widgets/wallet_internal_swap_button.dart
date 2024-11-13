@@ -1,8 +1,6 @@
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swap/swap.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter_svg/svg.dart';
 
 class WalletInternalSwapButton extends StatelessWidget {
   const WalletInternalSwapButton({
@@ -15,7 +13,7 @@ class WalletInternalSwapButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 34.h,
+      height: 33.h,
       child: OutlinedButton(
         onPressed: !isLoading
             ? () => Navigator.of(context).pushNamed(SwapScreen.routeName)
@@ -23,35 +21,38 @@ class WalletInternalSwapButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           visualDensity: VisualDensity.compact,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 9.h),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4.r),
           ),
           side: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1.w,
+            color: context.colors.swapButtonForeground,
+            width: 1.r,
           ),
         ),
         child: Row(
+          mainAxisSize:
+              MainAxisSize.min, // Let the Row take up only the space needed
           children: [
-            SvgPicture.asset(
-              Svgs.swap,
-              width: 14.r,
-              height: 14.r,
-              fit: BoxFit.scaleDown,
+            SizedBox(width: 1.w),
+            UiAssets.svgs.assetHeaderSwap.svg(
+              width: 10.w,
+              fit: BoxFit.contain,
               colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.onBackground,
+                context.colors.swapButtonForeground,
                 BlendMode.srcIn,
               ),
             ),
-            SizedBox(width: 7.w),
+            SizedBox(width: 9.w),
             Text(
               context.loc.convert,
-              style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
-                    fontSize: 14.sp,
-                  ),
-            )
+              style: TextStyle(
+                fontSize: 14.sp,
+                letterSpacing: 0,
+                fontWeight: FontWeight.w700,
+                color: context.colors.swapButtonForeground,
+              ),
+            ),
           ],
         ),
       ),

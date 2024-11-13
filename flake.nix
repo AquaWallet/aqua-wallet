@@ -72,7 +72,7 @@
               export PATH="$PATH:$PUB_CACHE/bin"
             fi
 
-            export PATH="$PATH:$(git rev-parse --show-toplevel)/flutter/bin"
+            export PATH="$(git rev-parse --show-toplevel)/flutter/bin:$PATH"
             git submodule update --init
           '';
         };

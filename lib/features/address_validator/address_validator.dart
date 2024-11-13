@@ -273,16 +273,11 @@ class AddressParser {
       }
 
       // check expiry
-      final expiryTag = result.tags.firstWhere(
+      final expiryTag = result.tags.firstWhereOrNull(
         (tag) => tag.type == 'expiry',
-        orElse: () => throw AddressParsingException(
-            AddressParsingExceptionType.unsupportedInvoice),
       );
-      final expiry = expiryTag.data as int?;
-      if (expiry == null) {
-        throw AddressParsingException(
-            AddressParsingExceptionType.unsupportedInvoice);
-      }
+      final expiry =
+          expiryTag?.data as int? ?? 3600; // Default expiry is 3600 by BOLT-11
       final timestamp = result.timestamp;
       final DateTime currentTime = DateTime.now();
       final DateTime invoiceExpiryTime = DateTime.fromMillisecondsSinceEpoch(

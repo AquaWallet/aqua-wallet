@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aqua/data/provider/register_wallet/register_wallet_provider.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 const _fadeAnimationDuration = Duration(milliseconds: 300);
@@ -13,21 +14,18 @@ class WelcomeScreen extends HookConsumerWidget {
 
   const WelcomeScreen({
     super.key,
-    this.description = '',
+    this.description,
+    this.onSwitchTagline,
   });
 
-  final String description;
+  final String? description;
+  final VoidCallback? onSwitchTagline;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     //ANCHOR - Slide animation
     final slideAnimationController =
         useAnimationController(duration: _slideAnimationDuration);
-    final slideAnimation = Tween(begin: const Offset(0, 2.2), end: Offset.zero)
-        .animate(CurvedAnimation(
-      parent: slideAnimationController,
-      curve: Curves.easeOut,
-    ));
 
     useEffect(() {
       Future.delayed(
@@ -56,7 +54,7 @@ class WelcomeScreen extends HookConsumerWidget {
     //ANCHOR - Force status bar colors
     useEffect(() {
       Future.delayed(const Duration(milliseconds: 250), () {
-        ref.read(systemOverlayColorProvider(context)).aqua();
+        ref.read(systemOverlayColorProvider(context)).aqua(aquaColorNav: true);
       });
       return null;
     }, []);
@@ -86,34 +84,34 @@ class WelcomeScreen extends HookConsumerWidget {
       );
     });
 
-    return Scaffold(
-      body: Stack(
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SplashBackground(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Spacer(flex: 15),
-              //ANCHOR - Logo
-              SlideTransition(
-                position: slideAnimation,
-                child: OnboardingAppLogo(
-                  description: description,
-                  onLongPress: () => unawaited(Navigator.of(context)
-                      .pushReplacementNamed(SplashScreen.routeName)),
-                  onTap: () {
-                    ref.read(envSwitchProvider).setTapEnv();
-                  },
-                ),
+          SizedBox(height: 75.h),
+          //ANCHOR - Logo
+          GestureDetector(
+            child: Container(
+              margin: EdgeInsetsDirectional.only(end: 9.w),
+              child: UiAssets.svgs.aquaLogoColorSpaced.svg(
+                height: 59.3.h,
               ),
-              const Spacer(flex: 8),
-              //ANCHOR - Wallet Menu
-              AnimatedOpacity(
-                opacity: fadeAnimation,
-                duration: const Duration(milliseconds: 500),
-                child: const WalletMenuSheet(),
-              ),
-            ],
+            ),
+          ),
+          const Spacer(),
+          //ANCHOR - Tagline
+          OnboardingTagline(
+            description: description ?? context.loc.welcomeScreenDesc1,
+            onTap: onSwitchTagline,
+            onLongPress: () =>
+                Navigator.of(context).pushNamed(SplashScreen.routeName),
+          ),
+          const Spacer(),
+          //ANCHOR - Wallet Menu
+          AnimatedOpacity(
+            opacity: fadeAnimation,
+            duration: const Duration(milliseconds: 500),
+            child: const WalletMenuSheet(),
           ),
         ],
       ),

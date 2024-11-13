@@ -5,6 +5,7 @@ import 'package:aqua/constants.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/lightning/widgets/lightning_status_text.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
@@ -15,15 +16,13 @@ const _scaleAnimationDuration = Duration(milliseconds: 300);
 const _fadeAnimationDuration = Duration(milliseconds: 200);
 
 class LightningTransactionSuccessScreen extends HookConsumerWidget {
-  const LightningTransactionSuccessScreen({super.key});
+  const LightningTransactionSuccessScreen({super.key, required this.arguments});
+  final LightningSuccessArguments arguments;
 
   static const routeName = '/lightningTransactionSuccessScreen';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as LightningSuccessArguments;
-
     final satoshiAmountFormatted = useMemoized(() {
       // TODO - remove the hardcoded 'en_US' but we need to be consistent
       // throughout the app
@@ -34,9 +33,9 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
     //ANCHOR - Force status bar colors
     useEffect(() {
       Future.delayed(const Duration(milliseconds: 250), () {
-        ref.read(systemOverlayColorProvider(context)).transparent();
+        ref.read(systemOverlayColorProvider(context)).aqua(aquaColorNav: true);
       });
-      return () => ref.read(systemOverlayColorProvider(context)).themeBased();
+      return null;
     }, []);
 
     //ANCHOR - Slide animation
@@ -90,8 +89,12 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppStyle.backgroundGradient,
+        ),
         padding: EdgeInsets.symmetric(horizontal: 28.w),
         child: Stack(
           children: [
@@ -100,57 +103,71 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
               duration: _fadeAnimationDuration,
               child: Column(
                 children: [
-                  SizedBox(height: 198.h),
+                  SizedBox(height: 122.h),
                   //ANCHOR - Aqua Logo
-                  SvgPicture.asset(
-                    Svgs.aquaLogoWhite,
-                    width: 200.w,
+                  UiAssets.svgs.dark.aquaLogo.svg(
+                    width: 321.w,
                   ),
                   const Spacer(),
                   //ANCHOR - Lightning Graphic Placeholder
-                  SizedBox(height: 180.h),
+                  SizedBox.square(dimension: 318.h),
                   //ANCHOR - Status Text
                   LightningStatusText(
                     type: arguments.type,
                     orderId: arguments.orderId,
                   ),
-                  SizedBox(height: 18.h),
                   //ANCHOR - Amount
+                  // TODO: asset amount widget
                   Text(
                     context.loc.lightningTransactionSuccessScreenAmountSats(
-                        satoshiAmountFormatted),
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 48.sp,
-                        ),
+                      satoshiAmountFormatted,
+                    ),
+                    style: TextStyle(
+                      height: 0,
+                      letterSpacing: 0,
+                      fontSize: 52.sp,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: UiFontFamily.dMSans,
+                      color: context.colorScheme.onPrimary,
+                    ),
                   ),
-                  SizedBox(height: 18.h),
                   const Spacer(),
                   //ANCHOR - Button
                   SizedBox(
                     width: double.maxFinite,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: Size.fromHeight(54.h),
-                        backgroundColor: Colors.transparent,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        textStyle: Theme.of(context).textTheme.titleSmall,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size.fromHeight(49.h),
+                        backgroundColor: Colors.white,
+                        foregroundColor: AquaColors.aquaBlue,
                         side: BorderSide(
                           width: 2.w,
                           color: Theme.of(context).colorScheme.onPrimary,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
+                          borderRadius: BorderRadius.circular(9.r),
+                        ),
+                        textStyle: TextStyle(
+                          height: 0,
+                          letterSpacing: 0,
+                          wordSpacing: 0,
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: UiFontFamily.dMSans,
                         ),
                       ),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        ref
+                            .read(systemOverlayColorProvider(context))
+                            .themeBased();
+                        Navigator.of(context).pop();
+                      },
                       child: Text(
                         context.loc.lightningTransactionSuccessScreenDoneButton,
                       ),
                     ),
                   ),
-                  SizedBox(height: kBottomPadding + 12.h),
+                  SizedBox(height: kBottomPadding + 52.h),
                 ],
               ),
             ),
@@ -165,8 +182,8 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
                   scale: scaleAnimation,
                   child: SvgPicture.asset(
                     Svgs.lightningBolt,
-                    width: 240.r,
-                    height: 240.r,
+                    width: 300.r,
+                    height: 300.r,
                   ),
                 ),
               ),

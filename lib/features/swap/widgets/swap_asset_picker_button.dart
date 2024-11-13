@@ -31,14 +31,8 @@ class SwapAssetPickerButton extends HookConsumerWidget {
 
     return PopupMenuButton(
       position: PopupMenuPosition.under,
-      offset: Offset(
-        2.w,
-        context.adaptiveDouble(
-          mobile: -10.h,
-          smallMobile: -7.h,
-          tablet: -12.h,
-        ),
-      ),
+      offset: Offset(2.r,
+          -18.r), // Use radius values to make offsets to match the shape cutout
       clipBehavior: Clip.hardEdge,
       elevation: 0,
       shape: _AssetSelectorFieldCutOutShape(

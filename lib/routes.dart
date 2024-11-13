@@ -266,7 +266,9 @@ mixin Routes {
     },
     LightningTransactionSuccessScreen.routeName: (settings) {
       return MaterialPageRoute<Object>(
-        builder: (context) => const LightningTransactionSuccessScreen(),
+        builder: (context) => LightningTransactionSuccessScreen(
+          arguments: settings.arguments as LightningSuccessArguments,
+        ),
         settings: settings,
       );
     },

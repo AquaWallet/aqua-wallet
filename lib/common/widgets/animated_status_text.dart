@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/gen/fonts.gen.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class AnimatedStatusText extends HookWidget {
@@ -32,16 +34,18 @@ class AnimatedStatusText extends HookWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // aids in centering, but really impossible to center since width animates
-        const SizedBox(
-          width: 12,
-        ),
+        const SizedBox(width: 12),
         Text(
           statusText,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimary,
-                letterSpacing: .6,
-                fontWeight: FontWeight.normal,
-              ),
+          style: TextStyle(
+            letterSpacing: 0,
+            wordSpacing: 0,
+            height: 0,
+            fontSize: 30.sp,
+            fontWeight: FontWeight.w500,
+            fontFamily: UiFontFamily.dMSans,
+            color: context.colorScheme.onPrimary,
+          ),
         ),
         if (showDots)
           SizedBox(
@@ -49,11 +53,15 @@ class AnimatedStatusText extends HookWidget {
             child: Text(
               '.' * dotCount.value,
               textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    letterSpacing: .6,
-                    fontWeight: FontWeight.normal,
-                  ),
+              style: context.textTheme.headlineSmall?.copyWith(
+                letterSpacing: 0,
+                wordSpacing: 0,
+                height: 0,
+                fontSize: 30.sp,
+                fontWeight: FontWeight.w500,
+                fontFamily: UiFontFamily.dMSans,
+                color: context.colorScheme.onPrimary,
+              ),
             ),
           ),
       ],

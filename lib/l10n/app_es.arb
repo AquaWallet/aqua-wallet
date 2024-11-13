@@ -34,7 +34,6 @@
   "exchangeSwapButton": "Intercambiar",
   "exchangeTransferFromTitle": "Intercambiar de",
   "exchangeTransferToTitle": "Intercambiar a",
-  "exchangeSwapBalance": "Saldo:",
   "exchangeSwapInsufficientFunds": "Fondos insuficientes",
   "languageSettingsTitle": "Idioma",
   "blockExplorerSettingsTitle": "Explorador de Bloque",
@@ -295,5 +294,6 @@
   "getHelpSupportScreenTitle": "Consigue ayuda",
   "contactUsHelpSupportScreenHeaderText": "¿Necesitas ayuda? Contáctenos",
   "settingsScreenItemHiddenLanguageDisabled": "Idiomas ocultos deshabilitados",
-  "settingsScreenItemHiddenLanguageEnabled": "Idiomas ocultos habilitados"
+  "settingsScreenItemHiddenLanguageEnabled": "Idiomas ocultos habilitados",
+  "balance": "Saldo"
 }

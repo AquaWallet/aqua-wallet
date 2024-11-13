@@ -34,7 +34,6 @@
   "exchangeSwapButton": "Směnit",
   "exchangeTransferFromTitle": "Směnit z",
   "exchangeTransferToTitle": "Směnit za",
-  "exchangeSwapBalance": "Zůstatek:",
   "exchangeSwapInsufficientFunds": "Nedostatečné prostředky",
   "languageSettingsTitle": "Jazyk",
   "blockExplorerSettingsTitle": "Průzkumník bloků",
@@ -291,5 +290,6 @@
   "lightningTransactionSuccessScreenReceiveTitle": "Přijali jste",
   "lightningTransactionSuccessScreenAmountSats": "{amount} Sats",
   "receiveLightningViewGeneratingStatusMessage": "Vytvářím fakturu",
-  "layer2Bitcoin": "2. Bitcoinová vrstva"
+  "layer2Bitcoin": "2. Bitcoinová vrstva",
+  "balance": "Zůstatek"
 }

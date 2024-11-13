@@ -13,16 +13,19 @@ class EntryPointWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final description = useMemoized(() {
-      final index = Random().nextInt(5);
-      return [
-        context.loc.welcomeScreenDesc1,
-        context.loc.welcomeScreenDesc2,
-        context.loc.welcomeScreenDesc3,
-        context.loc.welcomeScreenDesc4,
-        context.loc.welcomeScreenDesc5,
-      ][index];
-    });
+    final taglines = useMemoized(() => [
+          context.loc.welcomeScreenDesc1,
+          context.loc.welcomeScreenDesc2,
+          context.loc.welcomeScreenDesc3,
+          context.loc.welcomeScreenDesc4,
+          context.loc.welcomeScreenDesc5,
+        ]);
+    final description = useState(taglines[Random().nextInt(5)]);
+    final onSwitchTagline = useCallback(() {
+      final currentIndex = taglines.indexOf(description.value);
+      final nextTagline = taglines[(currentIndex + 1) % taglines.length];
+      description.value = nextTagline;
+    }, [description.value]);
 
     ref.listen(aquaConnectionProvider, (_, asyncValue) {
       return asyncValue.maybeWhen(
@@ -31,7 +34,7 @@ class EntryPointWrapper extends HookConsumerWidget {
              * When connected make sure we are on the HomeScreen.
              * Required for wallet restore flow.
              */
-            Navigator.of(context).popUntil((route) => route.isFirst);
+            Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
           },
           orElse: () {});
     });
@@ -41,12 +44,21 @@ class EntryPointWrapper extends HookConsumerWidget {
                 return ref.watch(aquaConnectionProvider).when(data: (data) {
                   return const HomeScreen();
                 }, error: (error, stackTrace) {
-                  return WelcomeScreen(description: description);
+                  return WelcomeScreen(
+                    description: description.value,
+                    onSwitchTagline: onSwitchTagline,
+                  );
                 }, loading: () {
-                  return SplashScreen(description: description);
+                  return SplashScreen(
+                    description: description.value,
+                    onSwitchTagline: onSwitchTagline,
+                  );
                 });
               },
-              orElse: () => SplashScreen(description: description),
+              orElse: () => SplashScreen(
+                description: description.value,
+                onSwitchTagline: onSwitchTagline,
+              ),
             ) ??
         Container();
   }

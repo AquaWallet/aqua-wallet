@@ -46,6 +46,13 @@ abstract class TransactionStorage {
   });
   Future<void> markBoltzGhostTxn(String serviceOrderId,
       {int? amount, int? fee});
+  Future<void> updateReverseSwapClaim({
+    required String boltzId,
+    required String claimTxId,
+    required String receiveAddress,
+    required int outAmount,
+    required int fee,
+  });
 }
 
 class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
@@ -169,5 +176,39 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
             ghostTxnFee: fee,
           ));
     }
+  }
+
+  @override
+  Future<void> updateReverseSwapClaim({
+    required String boltzId,
+    required String claimTxId,
+    required String receiveAddress,
+    required int outAmount,
+    required int fee,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      final transaction = await storage.transactionDbModels
+          .filter()
+          .serviceOrderIdEqualTo(boltzId)
+          .findFirst();
+      if (transaction == null) {
+        logger.w('[Transactions] No transaction found for Boltz ID: $boltzId');
+        return;
+      }
+
+      final updated = transaction.copyWith(
+        txhash: claimTxId,
+        receiveAddress: receiveAddress,
+        isGhost: true,
+        ghostTxnCreatedAt: DateTime.now(),
+        ghostTxnAmount: outAmount,
+        ghostTxnFee: fee,
+      );
+      await storage.transactionDbModels.put(updated);
+    });
+
+    final updated = await storage.transactionDbModels.all();
+    state = AsyncValue.data(updated);
   }
 }

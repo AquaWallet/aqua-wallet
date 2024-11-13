@@ -21,7 +21,7 @@ class InternalSendAssetIcon extends StatelessWidget {
       dimension: size ?? 52.r,
       child: isLayerTwoIcon
           ? SvgPicture.asset(
-              Svgs.layerTwoDual,
+              Svgs.layerTwoSingle,
               width: size,
               height: size,
             )

@@ -109,13 +109,14 @@ class SendAssetTransactionProvider
           assetId: asset.id != 'btc' ? asset.id : null,
           isGreedy: useAllFunds);
 
+      final filteredUtxos = await ref.read(liquidProvider).getUnspentOutputs();
       final notes = ref.read(noteProvider);
       final transaction = GdkNewTransaction(
-        addressees: [addressee],
-        feeRate: feeRatePerKb ?? await networkProvider.getDefaultFees(),
-        utxoStrategy: GdkUtxoStrategyEnum.defaultStrategy,
-        memo: notes,
-      );
+          addressees: [addressee],
+          feeRate: feeRatePerKb ?? await networkProvider.getDefaultFees(),
+          utxoStrategy: GdkUtxoStrategyEnum.defaultStrategy,
+          memo: notes,
+          utxos: filteredUtxos?.unsentOutputs);
 
       logger.d('[Send] provider tx: $transaction');
 
@@ -263,18 +264,29 @@ class SendAssetTransactionProvider
           rawTx: signedRawTx!, network: network, isLowball: isLowball);
       final createdAt = DateTime.now();
 
-      // Save lowball transaction to db until it is detected by GDK
+      // If boltz, mark as broadcasted
+      // - this isn't a boltz status, but our own added one. see comment on status for why this is necessary
+      if (asset.isLightning) {
+        await ref
+            .read(boltzSubmarineSwapProvider.notifier)
+            .updateStatusOnSubmarineLockupBroadcast(txId);
+      }
+
+      // Save lowball transaction to db until it is detected by GDK (for ghost txns)
       if (isLowball) {
         final userEnteredAmount = ref.read(userEnteredAmountProvider);
         final amountWithPrecision =
             ref.read(enteredAmountWithPrecisionProvider(userEnteredAmount!));
 
+        final type = asset.isLightning
+            ? TransactionDbModelType.boltzSwap
+            : TransactionDbModelType.aquaSend;
         await ref
             .read(transactionStorageProvider.notifier)
             .save(TransactionDbModel(
               txhash: txId,
               assetId: asset.id,
-              type: TransactionDbModelType.aquaSend,
+              type: type,
               isGhost: !asset.isBTC,
               ghostTxnCreatedAt: createdAt,
               ghostTxnAmount: amountWithPrecision,
@@ -282,14 +294,15 @@ class SendAssetTransactionProvider
             ));
       }
 
+      // Cache used utxos for lowball double-spend issue
+      if (!asset.isBTC) {
+        _cacheUsedUtxos(transaction);
+      }
+
       onSuccess(txId, createdAt.microsecondsSinceEpoch, network);
     } on AquaTxBroadcastException {
-      // Retry broadcast with a higher fee, in case aqua endpoint is down.
-      // If aqua is up but there was a problem with the transaction itself,
-      // sending with lowball off should fail to with the same error which will then be propagated to the user.
-      // This is a catch-all fallback that's necessary so we don't block sends if aqua endpoint is down.
-      return createAndSendFinalTransaction(
-          onSuccess: onSuccess, isLowball: false);
+      // Return exception directly so we can show a retry dialog and let user manually retry
+      state = AsyncValue.error(AquaTxBroadcastException(), StackTrace.current);
     } on MempoolConflictTxBroadcastException {
       // Return exception directly so we can show a retry dialog
       state = AsyncValue.error(
@@ -379,6 +392,44 @@ class SendAssetTransactionProvider
             .updateOrder(orderId: sideShiftCurrentOrder.id!, txHash: txHash);
       }
     }
+  }
+
+  //ANCHOR: - Used utxos caching
+  void _cacheUsedUtxos(SendAssetOnchainTx transaction) {
+    // NOTE: cache used utxos to fix lowball issue where spent utxos are not seen until block is mined.
+    // Without manually caching these, gdk will re-use these spent utxos if another tx is formed before the this tx is mined
+    Map<String, List<GdkUnspentOutputs>>? usedUtxos = transaction.when(
+      gdkTx: (GdkNewTransactionReply gdkTx) {
+        if (gdkTx.transactionInputs == null) return null;
+
+        final Map<String, List<GdkUnspentOutputs>> mappedUtxos = {};
+
+        for (var input in gdkTx.transactionInputs!) {
+          if (input.assetId == null) {
+            assert(false, "Malformed transactionInputs");
+            continue;
+          }
+
+          final assetId = input.assetId!;
+
+          if (!mappedUtxos.containsKey(assetId)) {
+            mappedUtxos[assetId] = [];
+          }
+
+          logger.d(
+              "[Lowball] caching used utxo: ${input.txhash}, ${input.ptIdx}, ${input.satoshi}");
+          mappedUtxos[assetId]!.add(input);
+        }
+
+        return mappedUtxos;
+      },
+      gdkPsbt: (_) {
+        return null; // cannot easily parse utxos from psbt at this point
+      },
+    );
+
+    if (usedUtxos == null) return;
+    ref.read(recentlySpentUtxosProvider.notifier).addUtxos(usedUtxos);
   }
 }
 

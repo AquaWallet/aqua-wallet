@@ -94,8 +94,9 @@ class Svgs {
   static const capsLock = 'assets/caps_lock.svg';
   static const flask = 'assets/flask.svg';
   static const unlock = 'assets/unlock.svg';
-  static const layerTwoDual = 'assets/asset_icons/layer_two_dual.svg';
+  static const layerTwoSingle = 'assets/asset_icons/layer_two_single.svg';
   static const internalSendArrow = 'assets/internal_send_arrow.svg';
+  static const internalSendArrowLight = 'assets/internal_send_arrow_light.svg';
   static const mapIcon = 'assets/marketplace/map.svg';
 }
 

@@ -86,7 +86,7 @@ class MarketplaceView extends HookConsumerWidget {
         context.loc.marketplaceScreenBuyButtonDescription,
         context.loc.marketplaceScreenExchangeButtonDescription,
         context.loc.marketplaceScreenBtcMapButtonDescription,
-        context.loc.marketplaceScreenMyFirstBitcoinButtonDescription,
+        context.loc.marketplaceScreenMyFirstBitcoinButton,
         context.loc.marketplaceScreenBankingButton,
       ];
     });

@@ -48,25 +48,28 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
               )
             ],
           ),
-          child: Checkbox(
-            key: const Key('welcome-tos-checkbox'),
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.surface,
-              width: 2.w,
+          child: Transform.scale(
+            scale: 1.5,
+            child: Checkbox(
+              key: const Key('welcome-tos-checkbox'),
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.surface,
+                width: 2.w,
+              ),
+              fillColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Theme.of(context).colorScheme.primary;
+                }
+                return Theme.of(context).colorScheme.surface;
+              }),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100.r),
+              ),
+              value: selected.value,
+              onChanged: (value) => selected.value = value!,
             ),
-            fillColor: MaterialStateProperty.resolveWith((states) {
-              if (states.contains(MaterialState.selected)) {
-                return Theme.of(context).colorScheme.primary;
-              }
-              return Theme.of(context).colorScheme.surface;
-            }),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6.r),
-            ),
-            value: selected.value,
-            onChanged: (value) => selected.value = value!,
           ),
         ),
         SizedBox(width: 8.w),
@@ -76,7 +79,9 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
             TextSpan(
               text: context.loc.welcomeScreenToSDescriptionNormal,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Colors.white,
+                    letterSpacing: -0.9,
+                    height: 1.5,
                   ),
               children: [
                 //ANCHOR - Terms of Service link
@@ -84,22 +89,32 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
                   recognizer: TapGestureRecognizer()..onTap = openToTermsUrl,
                   text: context.loc.welcomeScreenToSDescriptionBold,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white,
+                        letterSpacing: -1.2,
+                        height: 1.5,
                       ),
                 ),
                 TextSpan(
                   text: " & ",
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Colors.white,
+                        letterSpacing: -0.9,
+                        height: 1.5,
                       ),
                 ),
                 TextSpan(
                   recognizer: TapGestureRecognizer()..onTap = openToPrivacyUrl,
                   text: context.loc.welcomeScreenPrivacyDescriptionBold,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white,
+                        letterSpacing: -1.2,
+                        height: 1.5,
                       ),
                 ),
               ],

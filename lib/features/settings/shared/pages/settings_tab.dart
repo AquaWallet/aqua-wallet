@@ -6,6 +6,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/constants.dart' as constants;
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter/foundation.dart';
@@ -183,6 +184,16 @@ class SettingsTab extends HookConsumerWidget {
               onPressed: () => ref
                   .read(recoveryPhraseRequestProvider.notifier)
                   .requestRecoveryPhrase(),
+            ),
+            SizedBox(height: 4.h),
+            //ANCHOR: Watch Only Export
+            MenuItemWidget.arrow(
+              context: context,
+              title: context.loc.watchOnlyScreenTitle,
+              assetName: Svgs.tabWallet,
+              color: context.colorScheme.onBackground,
+              onPressed: () => Navigator.of(context)
+                  .pushNamed(WatchOnlyListScreen.routeName),
             ),
             SizedBox(height: 4.h),
             //ANCHOR - SEEDQR

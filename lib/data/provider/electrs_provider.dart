@@ -70,6 +70,7 @@ class ElectrsClient {
     if (isBitcoin || !isLowball) {
       try {
         // broadcast with Blockstream
+        logger.d('[Electrs] Attempt broadcast with blockstream');
         final response = await client.post(
             '${getElectrsUrl(network, env, server: ElectrsServer.blockstream)}/tx',
             data: rawTx);
@@ -85,6 +86,7 @@ class ElectrsClient {
       }
 
       // broadcast with Aqua node
+      logger.d('[Electrs] Attempt broadcast with lowball');
       final response = await client.post(
           '${getElectrsUrl(network, env, server: ElectrsServer.aqua)}/broadcast',
           data: {'txhex': rawTx});

@@ -47,7 +47,7 @@ class SystemOverlayColor {
   void aqua({bool aquaColorNav = false}) {
     _change(
       brightness: Brightness.light,
-      statusBarColor: AquaColors.backgroundGradientStartColor,
+      statusBarColor: AquaColors.backgroundGradientStartColor.withOpacity(.2),
       navBarColor: aquaColorNav
           ? AquaColors.backgroundGradientEndColor
           : ref.read(lightThemeProvider(context)).colorScheme.background,
@@ -58,6 +58,7 @@ class SystemOverlayColor {
     _change(
       brightness: Brightness.light,
       statusBarColor: Colors.transparent,
+      navBarColor: Colors.transparent,
     );
   }
 
@@ -79,6 +80,8 @@ class SystemOverlayColor {
         statusBarIconBrightness: brightness,
         statusBarColor: statusBarColor,
         systemNavigationBarColor: navBarColor,
+        systemNavigationBarIconBrightness: brightness,
+        systemStatusBarContrastEnforced: false,
       ),
     );
   }

@@ -1,9 +1,13 @@
+import 'package:aqua/data/provider/conversion_provider.dart';
+import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/receive/providers/providers.dart';
 import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
+import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/settings/shared/providers/providers.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:decimal/decimal.dart';
 
 class BoltzFeeWidget extends ConsumerWidget {
   final String? amountEntered;
@@ -30,18 +34,31 @@ class BoltzFeeWidget extends ConsumerWidget {
         ? amountEntered!
         : "0";
     final amountEnteredDouble = double.parse(amountString).toInt();
-    final amountFiatToSats =
-        rate != null ? amountEnteredDouble / (rate / satsPerBtc) : null;
+    final amountFiatToSats = rate != null
+        ? amountEnteredDouble / (rate / satsPerBtc)
+        : ref
+                .watch(fiatToSatsAsIntProvider((
+                  Asset.btc(),
+                  amountEnteredDouble.toDecimal()
+                ))) // We are using asset.btc here because the rates are per btc
+                .asData
+                ?.value ??
+            0;
     final amountSats =
-        isFiatToggled ? amountFiatToSats!.toInt() : amountEnteredDouble;
+        isFiatToggled ? amountFiatToSats.toInt() : amountEnteredDouble;
     final totalServiceFeeSats = BoltzFees.totalFeesForAmountReverse(amountSats);
 
     // fee in fiat
     final amountFiat = rate != null
-        ? (totalServiceFeeSats / (satsPerBtc / rate)).toStringAsFixed(2)
-        : '';
+        ? '${fiatCurrency ?? referenceCurrency} ${(totalServiceFeeSats / (satsPerBtc / rate)).toStringAsFixed(2)}'
+        : ref
+            .watch(satsToFiatDisplayWithSymbolProvider(totalServiceFeeSats))
+            .asData
+            ?.value;
+    ;
+    ;
 
     return Text(
-        "${context.loc.boltzTotalFees}: ${totalServiceFeeSats.ceil()} sats (${fiatCurrency ?? referenceCurrency} $amountFiat)");
+        "${context.loc.boltzTotalFees}: ${totalServiceFeeSats.ceil()} sats ($amountFiat)");
   }
 }

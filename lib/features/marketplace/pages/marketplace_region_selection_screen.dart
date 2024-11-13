@@ -44,11 +44,6 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
                             context.loc.marketplaceRegionScreenDescriptionBold,
                         style: Theme.of(context).textTheme.headlineLarge,
                       ),
-                      TextSpan(
-                        text: context
-                            .loc.marketplaceRegionScreenDescriptionEndNormal,
-                        style: normalTextStyle,
-                      ),
                     ],
                   ),
                 ),

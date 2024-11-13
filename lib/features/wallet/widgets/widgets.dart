@@ -12,4 +12,3 @@ export 'wallet_exchange_buttons_panel.dart';
 export 'wallet_header_btc_price.dart';
 export 'wallet_internal_swap_button.dart';
 export 'wallet_tab_header.dart';
-export 'wallet_tab_header_button.dart';

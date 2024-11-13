@@ -64,17 +64,18 @@ class AssetsList extends HookConsumerWidget {
           AssetListSectionHeader(
             text: context.loc.tabSavings,
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 18.h),
           //ANCHOR - Savings List
           SectionAssetList(items: savingAssetList),
-          SizedBox(height: 18.h),
+          SizedBox(height: 16.h),
           //ANCHOR - Spending Header
           AssetListSectionHeader(
             text: context.loc.tabSpending,
             children: [
               const Spacer(),
-              if (!(Platform.isIOS && disableSideswapOnIOS))
+              if (!(Platform.isIOS && disableSideswapOnIOS)) ...{
                 const WalletInternalSwapButton(),
+              }
             ],
           ),
           SizedBox(height: 18.h),

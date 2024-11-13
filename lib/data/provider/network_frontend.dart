@@ -3,8 +3,10 @@ import 'dart:convert';
 
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/models/gdk_models.dart';
+import 'package:aqua/features/send/providers/send_asset_used_utxo_provider.dart';
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:aqua/wallet.dart';
@@ -262,16 +264,42 @@ abstract class NetworkFrontend {
     return result.asValue?.value.result?.loginUser?.walletHashId;
   }
 
-  Future<GdkUnspentOutputsReply?> getUnspentOutputs() async {
+  Future<GdkUnspentOutputsReply?> getUnspentOutputs(
+      {bool filterCachedSpentOutputs = true}) async {
+    logger.d('[GDK] Fetching unspent outputs');
     final result = await session.getUnspentOutputs();
-
     if (_isErrorResult(result)) {
+      logger.e('[GDK] Error fetching unspent outputs');
+      return null;
+    }
+    final GdkUnspentOutputsReply? utxos =
+        result.asValue?.value.result?.unspentOutputs;
+
+    if (utxos == null || utxos.unsentOutputs == null) {
+      logger.w('[GDK] getUnspentOutputs: No UTXOs found');
       return null;
     }
 
-    final utxos = result.asValue?.value.result?.unspentOutputs;
+    if (!filterCachedSpentOutputs) {
+      logger.d('[GDK] getUnspentOutputs: Returning unfiltered UTXOs');
+      return utxos;
+    }
 
-    return utxos;
+    final spentUtxos = ref.read(recentlySpentUtxosProvider);
+    if (spentUtxos == null || spentUtxos.isEmpty) {
+      logger.d(
+          '[GDK] getUnspentOutputs: Used UTXOs not found, returning unfiltered UTXOs');
+      return utxos;
+    }
+
+    logger.d(
+        '[GDK] getUnspentOutputs: Found used UTXOs: ${spentUtxos.length}, filtering');
+    final filteredUtxos =
+        WalletUtils.filterRecentlySpentUtxos(utxos.unsentOutputs!, spentUtxos);
+
+    logger.d(
+        '[GDK] getUnspentOutputs: Returning filtered UTXOs - original: ${utxos.unsentOutputs!.length} - filtered: ${filteredUtxos.length}');
+    return GdkUnspentOutputsReply(unsentOutputs: filteredUtxos);
   }
 
   Future<List<GdkTransaction>?> getTransactions(
@@ -576,18 +604,38 @@ abstract class NetworkFrontend {
     await notifyEventListeners(value);
   }
 
-  Future<GdkNewTransactionReply?> createTransaction(
-      {required GdkNewTransaction transaction,
-      bool rbfEnabled = true,
-      bool isRbfTx = false}) async {
+  Future<GdkNewTransactionReply?> createTransaction({
+    required GdkNewTransaction transaction,
+    bool rbfEnabled = true,
+    bool isRbfTx = false,
+    Map<String, List<GdkUnspentOutputs>>? utxos,
+  }) async {
+    if (utxos == null) {
+      logger.d('[GDK] No UTXOs provided, fetching from getUnspentOutputs');
+      final utxoResult = await getUnspentOutputs();
+      if (utxoResult != null) {
+        utxos = utxoResult.unsentOutputs;
+      } else {
+        logger.e('[GDK] Failed to fetch UTXOs');
+      }
+    } else {
+      logger.d('[GDK] Using provided UTXOs');
+    }
+
     final result = await session.createTransaction(
-        transaction: transaction, rbfEnabled: rbfEnabled, isRbfTx: isRbfTx);
+      transaction: transaction,
+      rbfEnabled: rbfEnabled,
+      isRbfTx: isRbfTx,
+      utxos: utxos,
+    );
 
     if (_isErrorResult(result)) {
+      logger.e('[GDK] Error creating transaction: ${result.asError?.error}');
       return null;
     }
 
-    logger.d(result.asValue!.value);
+    logger.d('[GDK] Transaction created successfully');
+    logger.d('[GDK] ${result.asValue!.value}');
 
     return result.asValue?.value.result?.createTransaction;
   }

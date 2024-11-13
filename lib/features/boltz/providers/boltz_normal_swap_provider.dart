@@ -3,7 +3,6 @@ import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 
@@ -33,8 +32,21 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
       state = existingSwap;
       existingSwap.txSize();
 
-      // REVIEW: How to check if this swap address already has broadcast?
-      // Using the old method for now
+      // Check if swap already broadcast or settled. This is very important!
+      // We don't want to double pay for a swap!
+
+      // 1. Check status if already paid
+      final swapDbModel = await _ref
+          .read(boltzStorageProvider.notifier)
+          .getSubmarineSwapDbModelByInvoice(address);
+      logger.d(
+          "[Boltz] Found existing sub swap in cache with status: ${swapDbModel?.lastKnownStatus.toString()}");
+      if (swapDbModel?.lastKnownStatus != null &&
+          !swapDbModel!.lastKnownStatus!.isSubmarineUnpaid) {
+        throw BoltzException(BoltzExceptionType.normalSwapAlreadyBroadcasted);
+      }
+
+      // 2. Just to be safe, check if tx exist in chain (should never get here unless local db was wiped)
       final existingTxs = await _ref
           .read(electrsProvider)
           .fetchTransactions(existingSwap.scriptAddress, NetworkType.liquid);
@@ -42,6 +54,8 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
         throw BoltzException(BoltzExceptionType.normalSwapAlreadyBroadcasted);
       }
 
+      logger.d(
+          "[Boltz] Found existing unpaid sub swap in cache: ${existingSwap.id}");
       return true;
     }
 
@@ -76,7 +90,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
       assetId: Asset.lightning().id,
       swap: response,
     );
-    _ref.read(boltzStorageProvider.notifier).saveBoltzSwapResponse(
+    await _ref.read(boltzStorageProvider.notifier).saveBoltzSwapResponse(
           txnDbModel: transactionDbModel,
           swapDbModel: swapDbModel,
           keys: response.keys,
@@ -117,13 +131,6 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
             isLowball: isLowball,
           );
 
-      // Mark the Boltz txn as a ghost only if it's not a fee estimate txn
-      if (!isFeeEstimateTxn) {
-        await _ref
-            .read(transactionStorageProvider.notifier)
-            .markBoltzGhostTxn(boltzOrder.id);
-      }
-
       logger
           .d('[Send] Boltz Submarine Swap createGdkTransaction response: $tx}');
       return tx;
@@ -154,5 +161,14 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
         .getBoltzNormalSwapData(swapDbModel.boltzId);
     if (legacySwap == null) return null;
     return _ref.read(boltzSwapRefundDataProvider(legacySwap));
+  }
+
+  Future<void> updateStatusOnSubmarineLockupBroadcast(String txId) async {
+    if (state == null) return;
+    await _ref.read(boltzStorageProvider.notifier).updateBoltzSwapStatus(
+          boltzId: state!.id,
+          status: BoltzSwapStatus.submarineBroadcasted,
+        );
+    logger.d("[Boltz] Updated swap status to broadcasted for ID: ${state!.id}");
   }
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SplashScreen extends HookConsumerWidget {
@@ -10,10 +11,12 @@ class SplashScreen extends HookConsumerWidget {
 
   const SplashScreen({
     super.key,
-    this.description = '',
+    this.description,
+    this.onSwitchTagline,
   });
 
-  final String description;
+  final String? description;
+  final VoidCallback? onSwitchTagline;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,30 +36,43 @@ class SplashScreen extends HookConsumerWidget {
       return null;
     }, []);
 
-    return Stack(
-      children: [
-        const SplashBackground(),
-        if (!botevMode) ...{
-          Container(
-            width: double.maxFinite,
-            padding: EdgeInsets.symmetric(horizontal: 28.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Spacer(flex: 10),
-                //ANCHOR - Logo
-                OnboardingAppLogo(
-                  description: description,
-                  onTap: () => unawaited(Navigator.of(context)
-                      .pushReplacementNamed(WelcomeScreen.routeName)),
-                ),
-                const Spacer(flex: 7),
-                SizedBox(height: 188.h),
-              ],
+    if (botevMode) {
+      return LayoutBuilder(
+        builder: (_, constraints) => UiAssets.botevSplashScreen.image(
+          fit: BoxFit.cover,
+          alignment: Alignment.bottomCenter,
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+        ),
+      );
+    }
+
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 75.h),
+          //ANCHOR - Logo
+          GestureDetector(
+            child: Container(
+              margin: EdgeInsetsDirectional.only(end: 9.w),
+              child: UiAssets.svgs.aquaLogoColorSpaced.svg(
+                height: 59.3.h,
+              ),
             ),
           ),
-        },
-      ],
+          const Spacer(),
+          //ANCHOR - Tagline
+          OnboardingTagline(
+            description: description ?? context.loc.welcomeScreenDesc1,
+            onTap: onSwitchTagline,
+            onLongPress: () =>
+                Navigator.of(context).pushNamed(WelcomeScreen.routeName),
+          ),
+          const Spacer(),
+          SizedBox(height: 194.h),
+        ],
+      ),
     );
   }
 }

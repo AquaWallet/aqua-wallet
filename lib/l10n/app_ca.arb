@@ -34,7 +34,6 @@
   "exchangeSwapButton": "Convertir",
   "exchangeTransferFromTitle": "Convertir de",
   "exchangeTransferToTitle": "Convertir a",
-  "exchangeSwapBalance": "Saldo:",
   "exchangeSwapInsufficientFunds": "Fons insuficients",
   "languageSettingsTitle": "Idioma",
   "blockExplorerSettingsTitle": "Explorador de blocs",
@@ -291,5 +290,6 @@
   "lightningTransactionSuccessScreenReceiveTitle": "Has rebut",
   "lightningTransactionSuccessScreenAmountSats": "{amount} Sats",
   "receiveLightningViewGeneratingStatusMessage": "Generant factura",
-  "layer2Bitcoin": "Capa 2 Bitcoin"
+  "layer2Bitcoin": "Capa 2 Bitcoin",
+  "balance": "Saldo"
 }

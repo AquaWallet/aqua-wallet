@@ -29,12 +29,7 @@ class InitAppProvider extends AsyncNotifier<void> {
 
       logger.d('[InitAppProvider] Finished backends initialization');
 
-      /**
-      * App is initialized.
-      * Connect to remote network services.
-      */
-      ref.read(aquaConnectionProvider.notifier).connect();
-
+      // Splash Screen Delay
       // TODO: Handle this in a splash screen provider in the future
       final splashScreenRemainingDurationInMs = splashScreenMinDurationInMs -
           DateTime.now().difference(startTime).inMilliseconds;
@@ -42,6 +37,12 @@ class InitAppProvider extends AsyncNotifier<void> {
         await Future.delayed(
             Duration(milliseconds: splashScreenRemainingDurationInMs));
       }
+
+      /**
+      * App is initialized.
+      * Connect to remote network services.
+      */
+      ref.read(aquaConnectionProvider.notifier).connect();
 
       state = const AsyncValue.data(null);
     } catch (error) {

@@ -120,7 +120,7 @@ class _InternalSendCard extends HookConsumerWidget {
                   dimension: 50.r,
                   child: receiveAsset.isLBTC
                       ? SvgPicture.asset(
-                          Svgs.layerTwoDual,
+                          Svgs.layerTwoSingle,
                           width: 50.r,
                           height: 50.r,
                         )

@@ -7,3 +7,4 @@ export 'send_asset_provider.dart';
 export 'send_asset_setup_provider.dart';
 export 'send_asset_transaction_provider.dart';
 export 'send_asset_initialization_provider.dart';
+export 'send_asset_used_utxo_provider.dart';

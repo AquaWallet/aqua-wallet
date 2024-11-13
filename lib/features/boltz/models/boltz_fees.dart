@@ -3,6 +3,9 @@ import 'package:aqua/features/lightning/models/bolt11_ext.dart';
 
 const kBoltzLiquidLockupTxFeeLowball = 26;
 const kBoltzLiquidClaimTxFeeLowball = 14;
+// for lowball non-coop, tx is slightly bigger, and the absolute fee is 1 sat higher (if boltz doesn't change the taptree, but there will be other errors if that happens)
+// ignore: constant_identifier_names
+const kBoltzLiquidClaimTxFeeLowball_NonCoop = 15;
 const kBoltzLiquidLockupTxFee = 276;
 const kBoltzLiquidClaimTxFee = 152;
 const kBoltzReversePercentFee = 0.0025; // 0.25%

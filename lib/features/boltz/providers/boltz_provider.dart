@@ -793,11 +793,6 @@ class BoltzService {
         .read(boltzDataProvider)
         .saveBoltzReverseSwapData(updatedSwapData, swapId);
 
-    // cache to v2 provider because migration has probably already happened
-    await ref
-        .read(boltzStorageProvider.notifier)
-        .updateClaimTxId(boltzId: swapId, txId: tx);
-
     await ref.read(boltzStorageProvider.notifier).updateBoltzSwapStatus(
           boltzId: swapId,
           status: BoltzSwapStatus.transactionClaimed,

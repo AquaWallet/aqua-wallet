@@ -992,28 +992,36 @@ class LibGdk {
         jsonDecode(jsonStr.asValue!.value) as Map<String, dynamic>);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> createTransaction(
-      {required Pointer<GA_session> session,
-      required GdkNewTransaction transaction,
-      bool rbfEnabled = true,
-      bool isRbfTx = false}) async {
-    final details = GdkGetUnspentOutputs(subaccount: transaction.subaccount);
-    final utxoResult =
-        await getUnspentOutputs(session: session, details: details);
-    final utxos =
-        utxoResult.asValue!.value.result!.unspentOutputs!.unsentOutputs!;
+  Future<Result<GdkAuthHandlerStatus>> createTransaction({
+    required Pointer<GA_session> session,
+    required GdkNewTransaction transaction,
+    bool rbfEnabled = true,
+    bool isRbfTx = false,
+    Map<String, List<GdkUnspentOutputs>>? utxos,
+  }) async {
+    Map<String, List<GdkUnspentOutputs>> transactionUtxos;
 
-    Map<String, List<GdkUnspentOutputs>> uxtosWithSequence = {};
-    utxos.forEach((key, value) {
-      uxtosWithSequence[key] = value.map((utxo) {
-        // disable RBF
-        return utxo.copyWith(sequence: 0xFFFFFFFF);
+    if (utxos == null) {
+      final details = GdkGetUnspentOutputs(subaccount: transaction.subaccount);
+      final utxoResult =
+          await getUnspentOutputs(session: session, details: details);
+      transactionUtxos =
+          utxoResult.asValue!.value.result!.unspentOutputs!.unsentOutputs!;
+    } else {
+      transactionUtxos = utxos;
+    }
+
+    Map<String, List<GdkUnspentOutputs>> utxosWithSequence = {};
+    transactionUtxos.forEach((key, value) {
+      utxosWithSequence[key] = value.map((utxo) {
+        // disable RBF if not enabled
+        return utxo.copyWith(sequence: rbfEnabled ? utxo.sequence : 0xFFFFFFFF);
       }).toList();
     });
 
-    logger.d('[Send] gdk create transaction: ${transaction.toJsonString()}');
+    logger.d('[GDK] create transaction: ${transaction.toJsonString()}');
     final transactionPayload = transaction.copyWith(
-        utxos: isRbfTx || rbfEnabled ? utxos : uxtosWithSequence);
+        utxos: isRbfTx || rbfEnabled ? transactionUtxos : utxosWithSequence);
 
     final json = toJson(transactionPayload.toJsonString());
     if (json.isError) {

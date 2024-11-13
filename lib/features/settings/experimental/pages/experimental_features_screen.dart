@@ -172,17 +172,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           ),
           SizedBox(height: 16.h),
 
-          //ANCHOR: Watch Only Export
-          MenuItemWidget.arrow(
-            context: context,
-            title: context.loc.watchOnlyScreenTitle,
-            assetName: Svgs.tabWallet,
-            color: context.colorScheme.onBackground,
-            onPressed: () => Navigator.of(context)
-                .pushNamed(WatchOnlyListScreen.routeName), //HERE
-          ),
-          SizedBox(height: 16.h),
-
           //ANCHOR: Test Features
           Padding(
             padding: EdgeInsets.only(top: 32.h),

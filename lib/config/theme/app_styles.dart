@@ -1,6 +1,9 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:aqua/config/colors/aqua_colors.dart';
 import 'package:aqua/config/colors/colors_schemes.dart';
 import 'package:aqua/config/theme/typography.dart';
+import 'package:aqua/gen/fonts.gen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -16,7 +19,7 @@ class AppStyle {
   );
 
   static const backgroundGradient = LinearGradient(
-    begin: Alignment(0.00, -1.00),
+    begin: Alignment(0, -1),
     end: Alignment(0, 1),
     colors: [
       AquaColors.backgroundGradientStartColor,
@@ -32,18 +35,6 @@ class AppStyle {
       AquaColors.celadonBlue,
     ],
   );
-
-  static getHeaderDecoration({required Color color}) {
-    return ShapeDecoration(
-      color: color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20.r),
-          bottomRight: Radius.circular(20.r),
-        ),
-      ),
-    );
-  }
 
   static ThemeData createLightThemeData(BuildContext context) {
     final typography = AppTypography.createLight(context, lightColors);
@@ -62,9 +53,8 @@ class AppStyle {
 
   static ThemeData _create(AppColors colors, AppTypography typography) {
     return ThemeData(
-      // TODO: temoporary solution. migrate to Material 3
       useMaterial3: false,
-      fontFamily: 'HelveticaNeue',
+      fontFamily: UiFontFamily.helveticaNeue,
       colorScheme: colors.colorScheme,
       textTheme: typography.appTextTheme,
       dividerColor: colors.divider,

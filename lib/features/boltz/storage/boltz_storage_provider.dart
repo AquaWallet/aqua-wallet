@@ -32,9 +32,12 @@ abstract class BoltzSwapStorage {
     required String boltzId,
     required String txId,
   });
-  Future<void> updateClaimTxId({
+  Future<void> updateReverseSwapClaim({
     required String boltzId,
-    required String txId,
+    required String claimTxId,
+    required String receiveAddress,
+    required int outAmount,
+    required int fee,
   });
   Future<void> updateRefundTxId({
     required String boltzId,
@@ -49,15 +52,14 @@ abstract class BoltzSwapStorage {
   Future<List<BoltzSwapDbModel>> getSwaps(
       {BoltzVersion? version, SwapType? type});
 
-  Future<BoltzSwapDbModel?> getSubmarineSwapByTxId(String txId);
-  Future<BoltzSwapDbModel?> getReverseSwapByTxId(String txId);
+  Future<BoltzSwapDbModel?> getSubmarineSwapDbModelByInvoice(String invoice);
+  Future<BoltzSwapDbModel?> getSubmarineSwapDbModelByTxId(String txId);
+  Future<BoltzSwapDbModel?> getReverseSwapDbModelByTxId(String txId);
+  Future<BoltzSwapDbModel?> getSwapById(String swapId);
 }
 
 class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
     implements BoltzSwapStorage {
-  final _newSwapController = StreamController<BoltzSwapDbModel>.broadcast();
-  Stream<BoltzSwapDbModel> get newSwapStream => _newSwapController.stream;
-
   @override
   FutureOr<List<BoltzSwapDbModel>> build() async {
     // NOTE: This is a one-time migration
@@ -249,10 +251,9 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
             .findFirst();
         if (existing != null) {
           final updated = model.copyWith(id: existing.id);
-          storage.boltzSwapDbModels.put(updated);
+          await storage.boltzSwapDbModels.put(updated);
         } else {
-          storage.boltzSwapDbModels.put(model);
-          _newSwapController.add(model); // broadcast new swap
+          await storage.boltzSwapDbModels.put(model);
         }
       });
 
@@ -434,27 +435,6 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
   }
 
   @override
-  Future<void> updateClaimTxId({
-    required String boltzId,
-    required String txId,
-  }) async {
-    final swap = await _getSwapById(boltzId);
-    if (swap == null) return;
-
-    // for reverse swaps, the claim tx is what we want to cache for tx list
-    await ref.read(transactionStorageProvider.notifier).updateTxHash(
-          serviceOrderId: boltzId,
-          newTxHash: txId,
-        );
-
-    final updated = swap
-        .copyWith(claimTxId: txId)
-        .copyWith(lastKnownStatus: BoltzSwapStatus.invoiceSettled);
-
-    await save(updated);
-  }
-
-  @override
   Future<void> updateRefundTxId({
     required String boltzId,
     required String txId,
@@ -481,7 +461,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
   }
 
   @override
-  Future<BoltzSwapDbModel?> getSubmarineSwapByTxId(String txId) async {
+  Future<BoltzSwapDbModel?> getSubmarineSwapDbModelByTxId(String txId) async {
     final storage = await ref.read(storageProvider.future);
     final swap = await storage.boltzSwapDbModels
         .filter()
@@ -501,7 +481,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
   }
 
   @override
-  Future<BoltzSwapDbModel?> getReverseSwapByTxId(String txId) async {
+  Future<BoltzSwapDbModel?> getReverseSwapDbModelByTxId(String txId) async {
     final storage = await ref.read(storageProvider.future);
     final swap = await storage.boltzSwapDbModels
         .filter()
@@ -518,5 +498,75 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
     }
 
     return swap;
+  }
+
+  @override
+  Future<BoltzSwapDbModel?> getSubmarineSwapDbModelByInvoice(
+      String invoice) async {
+    final storage = await ref.read(storageProvider.future);
+    final swap = await storage.boltzSwapDbModels
+        .where()
+        .invoiceEqualTo(invoice)
+        .findFirst();
+
+    return swap;
+  }
+
+  @override
+  Future<void> updateReverseSwapClaim({
+    required String boltzId,
+    required String claimTxId,
+    required String receiveAddress,
+    required int outAmount,
+    required int fee,
+  }) async {
+    logger.d(
+        '[Boltz] Updating reverse swap claim for $boltzId with: tx $claimTxId - receive $receiveAddress - amount $outAmount - fee $fee');
+
+    // Update Boltz data model
+    final swap = await _getSwapById(boltzId);
+    if (swap != null) {
+      logger.d(
+          '[Boltz] Found existing swap for $boltzId. Current claimTxId: ${swap.claimTxId}');
+
+      final updated = swap
+          .copyWith(claimTxId: claimTxId)
+          .copyWith(lastKnownStatus: BoltzSwapStatus.invoiceSettled);
+
+      try {
+        await save(updated);
+        logger.d('[Boltz] Successfully saved updated swap for $boltzId');
+      } catch (e) {
+        logger.e('[Boltz] Error saving updated swap for $boltzId: $e');
+      }
+    } else {
+      logger.e(
+          '[Boltz] Error: Swap not found for $boltzId when trying to update claim');
+    }
+
+    // Update transaction data model
+    try {
+      await ref
+          .read(transactionStorageProvider.notifier)
+          .updateReverseSwapClaim(
+            boltzId: boltzId,
+            claimTxId: claimTxId,
+            receiveAddress: receiveAddress,
+            outAmount: outAmount,
+            fee: fee,
+          );
+      logger.d('[Boltz] Successfully updated transaction data for $boltzId');
+    } catch (e) {
+      logger.e('[Boltz] Error updating transaction data for $boltzId: $e');
+    }
+  }
+
+  @override
+  Future<BoltzSwapDbModel?> getSwapById(String swapId) async {
+    final storage = await ref.read(storageProvider.future);
+    return await storage.boltzSwapDbModels
+        .where()
+        .boltzIdEqualTo(swapId)
+        .findFirst();
   }
 }
