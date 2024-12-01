@@ -121,9 +121,15 @@ class TransactionsTitle extends StatelessWidget {
           color: Theme.of(context).colorScheme.background,
         ),
       ),
-      child: Text(
-        context.loc.assetTransactionsListTitle,
-        style: Theme.of(context).textTheme.titleMedium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 25.h), // Adds 25.h space above the text
+          Text(
+            context.loc.assetTransactionsListTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
       ),
     );
   }

@@ -337,17 +337,17 @@ class _AssetUsdBalance extends HookConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: context.colors.usdContainerBackgroundColor,
+        color: context.colors.usdPillBackgroundColor,
         borderRadius: BorderRadius.circular(30.r),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 2.h),
+      padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 3.h, bottom: 2.h),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             balance,
             style: context.textTheme.titleMedium?.copyWith(
-              color: context.colors.headerUsdContainerTextColor,
+              color: context.colors.usdPillTextColor,
             ),
           ),
         ],

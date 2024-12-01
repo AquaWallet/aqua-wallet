@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
+import 'package:aqua/features/backup/providers/backup_reminder_provider.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -90,8 +91,13 @@ class MarketplaceView extends HookConsumerWidget {
         context.loc.marketplaceScreenBankingButton,
       ];
     });
+
     final myFirstBitcoinEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.myFirstBitcoinEnabled));
+
+    final hasTransacted = ref.watch(hasTransactedProvider).asData?.value;
+    final disableExchanges =
+        Platform.isIOS && disableExchagesOnIOS && hasTransacted == false;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -125,7 +131,7 @@ class MarketplaceView extends HookConsumerWidget {
                 title: context.loc.marketplaceScreenBuyButton,
                 subtitle: marketplaceCardsSubtitleText[0],
                 icon: Svgs.marketplaceBuy,
-                onPressed: Platform.isIOS && disableExchagesOnIOS
+                onPressed: disableExchanges
                     ? null
                     : () {
                         Navigator.of(context).pushNamed(OnRampScreen.routeName);

@@ -21,6 +21,7 @@ class BoltzSwapSettlementService {
   final Set<String> _monitoredSwapIds = {};
   final Map<String, bool> _claimsInProgress = {};
   final Map<String, bool> _refundsInProgress = {};
+  final Map<String, bool> _coopCloseInProgress = {};
 
   void _initializeMonitoring() {
     _ref.listen<AsyncValue<List<BoltzSwapDbModel>>>(
@@ -59,7 +60,7 @@ class BoltzSwapSettlementService {
         '[Boltz] Refreshing swap monitoring for ${submarineSwaps.length} submarine swaps and ${reverseSwaps.length} reverse swaps');
 
     for (var swap in [...submarineSwaps, ...reverseSwaps]) {
-      _monitorSingleSwap(swap, forceRefresh: forceRefresh);
+      await _monitorSingleSwap(swap, forceRefresh: forceRefresh);
     }
   }
 
@@ -91,11 +92,12 @@ class BoltzSwapSettlementService {
         .toList();
   }
 
-  void _monitorSingleSwap(BoltzSwapDbModel swap, {bool forceRefresh = false}) {
+  Future<void> _monitorSingleSwap(BoltzSwapDbModel swap,
+      {bool forceRefresh = false}) async {
     if (!_monitoredSwapIds.contains(swap.boltzId) || forceRefresh) {
       if (forceRefresh) {
         logger.d('[Boltz] Force refresh status sub for ${swap.id}');
-        _ref
+        await _ref
             .read(boltzSwapStatusProvider(swap.boltzId).notifier)
             .refreshSubscription();
       }
@@ -131,19 +133,28 @@ class BoltzSwapSettlementService {
     }
 
     if (status == BoltzSwapStatus.transactionClaimPending) {
-      final subSwap = await _ref
-          .read(boltzStorageProvider.notifier)
-          .getLbtcLnV2SwapById(cachedOrder.boltzId);
-      if (subSwap == null) {
-        logger.e("[Boltz] Sub swap null, could not post coop close");
+      if (_coopCloseInProgress[swapId] == true) {
+        logger.d(
+            '[Boltz] Coop close already in progress for ${cachedOrder.boltzId}. Skipping.');
         return;
       }
-      logger.d("[Boltz] Posting sub swap coop close: ${cachedOrder.boltzId}");
+
+      _coopCloseInProgress[swapId] = true;
       try {
+        final subSwap = await _ref
+            .read(boltzStorageProvider.notifier)
+            .getLbtcLnV2SwapById(cachedOrder.boltzId);
+        if (subSwap == null) {
+          logger.e("[Boltz] Sub swap null, could not post coop close");
+          return;
+        }
+        logger.d("[Boltz] Posting sub swap coop close: ${cachedOrder.boltzId}");
         await subSwap.coopCloseSubmarine();
       } catch (e) {
         logger.e(
             '[Boltz] Error coop closing sub swap: ${cachedOrder.boltzId}', e);
+      } finally {
+        _coopCloseInProgress[swapId] = false;
       }
       return;
     }
@@ -223,6 +234,7 @@ class BoltzSwapSettlementService {
       _monitoredSwapIds.remove(boltzId);
       _claimsInProgress.remove(boltzId);
       _refundsInProgress.remove(boltzId);
+      _coopCloseInProgress.remove(boltzId);
       _ref.invalidate(boltzSwapStatusProvider(boltzId));
       _ref.read(boltzWebSocketProvider).unsubscribe(boltzId);
       logger.d('[Boltz] Closed swap: $boltzId');

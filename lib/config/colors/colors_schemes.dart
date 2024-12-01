@@ -48,6 +48,8 @@ abstract class AppColors {
 
   Color get headerUsdContainerTextColor;
 
+  Color get usdPillTextColor;
+
   Color get sendAssetPriorityUnselectedBorder;
 
   Color get sendAssetPrioritySelectedText;
@@ -85,6 +87,8 @@ abstract class AppColors {
   Color get appBarIconBackgroundColorAlt;
 
   Color get usdContainerBackgroundColor;
+
+  Color get usdPillBackgroundColor;
 
   Color get usdContainerSendRecieveAssets;
 
@@ -224,6 +228,9 @@ class DarkThemeColors implements AppColors {
   Color get headerUsdContainerTextColor => Colors.white;
 
   @override
+  Color get usdPillTextColor => Colors.white;
+
+  @override
   Color get sendAssetPriorityUnselectedBorder => AquaColors.charlestonGreen;
 
   @override
@@ -269,7 +276,10 @@ class DarkThemeColors implements AppColors {
   Color get walletTabButtonBackgroundColor => AquaColors.robinEggBlue;
 
   @override
-  Color get usdContainerBackgroundColor => AquaColors.celadonBlue;
+  Color get usdContainerBackgroundColor => Colors.black;
+
+  @override
+  Color get usdPillBackgroundColor => Colors.black;
 
   @override
   Color get usdContainerSendRecieveAssets => AquaColors.charcoal;
@@ -287,7 +297,7 @@ class DarkThemeColors implements AppColors {
   Color get appBarIconBackgroundColor => AquaColors.robinEggBlue;
 
   @override
-  Color get appBarIconBackgroundColorAlt => AquaColors.robinEggBlue;
+  Color get appBarIconBackgroundColorAlt => AquaColors.jet;
 
   @override
   Color get helpScreenLogoColor => Colors.white;
@@ -470,6 +480,9 @@ class LightThemeColors implements AppColors {
   Color get headerUsdContainerTextColor => AquaColors.eerieBlack;
 
   @override
+  Color get usdPillTextColor => AquaColors.eerieBlack;
+
+  @override
   Color get sendAssetPriorityUnselectedBorder => AquaColors.brightGray;
 
   @override
@@ -516,6 +529,9 @@ class LightThemeColors implements AppColors {
 
   @override
   Color get usdContainerBackgroundColor => AquaColors.periglacialBlue;
+
+  @override
+  Color get usdPillBackgroundColor => AquaColors.periglacialBlue;
 
   @override
   Color get usdContainerSendRecieveAssets => AquaColors.cloudGrey;
@@ -672,6 +688,9 @@ class BotevThemeColors extends DarkThemeColors {
   Color get headerUsdContainerTextColor => AquaColors.eerieBlack;
 
   @override
+  Color get usdPillTextColor => AquaColors.fcBotevPrimary;
+
+  @override
   Color get menuBackground => AquaColors.fcBotevPrimary;
 
   @override
@@ -681,7 +700,7 @@ class BotevThemeColors extends DarkThemeColors {
   Color get walletTabButtonBackgroundColor => AquaColors.fcBotevSecondary;
 
   @override
-  Color get usdContainerBackgroundColor => AquaColors.brightGray;
+  Color get usdContainerBackgroundColor => Colors.black;
 
   @override
   Color get conversionRateSwapScreenColor => AquaColors.fcBotevPrimary;

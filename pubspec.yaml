@@ -3,7 +3,7 @@ description: AQUA - Bitcoin & Layer 2 Wallet
 
 publish_to: "none"
 
-version: 0.2.5+144
+version: 0.2.6+148
 
 environment:
   sdk: "3.3.3"
@@ -37,6 +37,7 @@ dependencies:
   flutter_keyboard_visibility: ^6.0.0
   flutter_localizations:
     sdk: flutter
+  flutter_native_splash: ^2.3.13
   flutter_riverpod: ^2.4.0
   flutter_rust_bridge: 2.0.0-dev.31
   flutter_screenutil: ^5.8.4
@@ -187,6 +188,8 @@ flutter_launcher_icons:
   ios: true
   image_path: "assets/icon/app_icon.jpg"
   remove_alpha_channel_ios: true
+  adaptive_icon_background: "#00C7F9"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
 
 fonts:
   - family: HelveticaNeue
@@ -203,6 +206,11 @@ fonts:
         weight: 300
       - asset: assets/fonts/HelveticaNeueThin.ttf
         weight: 200
+
+flutter_native_splash:
+  color: "#00C7F9"
+  android_12:
+    color: "#00C7F9"
 
 flutter_gen:
   integrations:

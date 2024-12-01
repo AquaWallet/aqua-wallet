@@ -278,18 +278,23 @@ class SendAssetTransactionProvider
         final amountWithPrecision =
             ref.read(enteredAmountWithPrecisionProvider(userEnteredAmount!));
 
+        final underlyingAssetId = asset.isLightning
+            ? ref.read(manageAssetsProvider).lbtcAsset.id
+            : asset.id;
+
         final type = asset.isLightning
             ? TransactionDbModelType.boltzSwap
             : TransactionDbModelType.aquaSend;
+
         await ref
             .read(transactionStorageProvider.notifier)
             .save(TransactionDbModel(
               txhash: txId,
-              assetId: asset.id,
+              assetId: underlyingAssetId,
               type: type,
               isGhost: !asset.isBTC,
               ghostTxnCreatedAt: createdAt,
-              ghostTxnAmount: amountWithPrecision,
+              ghostTxnAmount: -amountWithPrecision,
               ghostTxnFee: transaction.txReply?.fee,
             ));
       }

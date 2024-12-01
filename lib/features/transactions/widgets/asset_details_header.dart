@@ -89,23 +89,23 @@ class AssetDetailsHeader extends HookConsumerWidget {
                 ? SizedBox(height: 28.h)
                 : Container(
                     decoration: BoxDecoration(
-                      color:
-                          Theme.of(context).colors.usdContainerBackgroundColor,
+                      color: Theme.of(context).colors.usdPillBackgroundColor,
                       borderRadius: BorderRadius.circular(30.r),
                     ),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 20.w, vertical: 2.h),
+                    padding: EdgeInsets.only(
+                        left: 20.w, right: 20.2, top: 3.h, bottom: 2.h),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           conversion,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Theme.of(context)
-                                        .colors
-                                        .headerUsdContainerTextColor,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                color:
+                                    Theme.of(context).colors.usdPillTextColor,
+                              ),
                         ),
                       ],
                     ),

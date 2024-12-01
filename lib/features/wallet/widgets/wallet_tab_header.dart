@@ -15,6 +15,7 @@ class WalletTabHeader extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
     final btcPrice = ref.watch(btcPriceProvider(2));
     final aquaLogoSize = useMemoized(() {
       return context.adaptiveDouble(
@@ -24,6 +25,15 @@ class WalletTabHeader extends HookConsumerWidget {
         tablet: 130.w,
       );
     }, [context.mounted]);
+
+    final logo = useMemoized(() {
+      if (botevMode) {
+        return UiAssets.svgs.light.aquaLogo;
+      }
+      return darkMode
+          ? UiAssets.svgs.dark.aquaLogo
+          : UiAssets.svgs.light.aquaLogo;
+    }, [darkMode, botevMode]);
 
     return Container(
       height: 262.h,
@@ -61,15 +71,7 @@ class WalletTabHeader extends HookConsumerWidget {
                     Row(
                       children: [
                         //ANCHOR - Logo
-                        if (darkMode) ...{
-                          UiAssets.svgs.dark.aquaLogo.svg(
-                            width: aquaLogoSize,
-                          )
-                        } else ...{
-                          UiAssets.svgs.light.aquaLogo.svg(
-                            width: aquaLogoSize,
-                          )
-                        },
+                        logo.svg(width: aquaLogoSize),
                         const Spacer(),
                         //ANCHOR - Notification Button
                         Opacity(

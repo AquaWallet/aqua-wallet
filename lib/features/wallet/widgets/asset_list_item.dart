@@ -121,7 +121,7 @@ class AssetListItem extends HookConsumerWidget {
                           Expanded(
                             child: Text(
                               asset.isLBTC
-                                  ? 'Lightning & Liquid'
+                                  ? 'LBTC'
                                   : asset.isUsdtLiquid
                                       ? 'Liquid USDt'
                                       : asset.ticker,

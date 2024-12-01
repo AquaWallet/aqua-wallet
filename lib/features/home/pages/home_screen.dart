@@ -38,6 +38,7 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
     ref.watch(boltzInitProvider).maybeWhen(
           data: (_) {
             ref.watch(boltzSwapSettlementServiceProvider);
+            ref.watch(boltzWebSocketProvider);
           },
           error: (e, stackTrace) async {
             final alertModel = CustomAlertDialogUiModel(

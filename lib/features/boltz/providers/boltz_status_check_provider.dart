@@ -42,10 +42,10 @@ class BoltzSwapStatusNotifier
     });
   }
 
-  void refreshSubscription() {
+  Future<void> refreshSubscription() async {
     logger.d('[Boltz] Refreshing subscription for: $_id');
-    state = const AsyncLoading();
-    state = AsyncValue.data(
-        BoltzSwapStatusResponse.fromJson({})); // Trigger rebuild
+
+    final boltzWebSocket = ref.read(boltzWebSocketProvider);
+    await boltzWebSocket.subscribe(_id);
   }
 }

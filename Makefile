@@ -66,3 +66,7 @@ test-all: run-unit-tests run-integration-tests
 setup: install get-gdk get-boltz-rust generate-bindings freeze
 
 PHONY: setup run-ios-emulator-mac run-android-emulator-mac run-integration-tests run-unit-tests test-all
+
+generate-assets: 
+	dart run flutter_launcher_icons
+	dart run flutter_native_splash:create

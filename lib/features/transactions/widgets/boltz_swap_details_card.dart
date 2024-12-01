@@ -98,11 +98,14 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
                       context.loc.boltzSendStatusSuccess,
                     _ when (swapStatus.isPending) =>
                       context.loc.boltzSendStatusPending,
+                    _ when (swapStatus == BoltzSwapStatus.swapRefunded) =>
+                      context.loc.swapStatusRefunded,
                     _ => context.loc.boltzSendUnknownStatus,
                   },
                 ),
                 //ANCHOR - Refund button
-                if (swapStatus.isFailed) ...[
+                if (swapStatus.isFailed &&
+                    swapStatus != BoltzSwapStatus.swapRefunded) ...[
                   SizedBox(height: 18.h),
                   TextButton(
                     style: TextButton.styleFrom(
