@@ -40,13 +40,106 @@ void main() {
         "0.046292",
       );
     });
+  });
 
-    test('1 INF', () async {
+  group('parseAssetAmountDirect', () {
+    test('simple positive number', () {
       expect(
-        container
-            .read(formatterProvider)
-            .convertAssetAmountToDisplayUnit(amount: 100, precision: 2),
-        "1",
+        container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "100",
+              precision: 2,
+            ),
+        10000,
+      );
+    });
+
+    test('negative number', () {
+      expect(
+        container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "-100",
+              precision: 2,
+            ),
+        -10000,
+      );
+    });
+
+    test('number with commas', () {
+      expect(
+        container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "2,000",
+              precision: 2,
+            ),
+        200000,
+      );
+    });
+
+    test('negative number with commas', () {
+      expect(
+        container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "-2,000",
+              precision: 2,
+            ),
+        -200000,
+      );
+    });
+
+    test('decimal number', () {
+      expect(
+        container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "100.50",
+              precision: 2,
+            ),
+        10050,
+      );
+    });
+
+    test('number with spaces', () {
+      expect(
+        container.read(formatterProvider).parseAssetAmountDirect(
+              amount: " 100.50 ",
+              precision: 2,
+            ),
+        10050,
+      );
+    });
+
+    test('throws on invalid precision (negative)', () {
+      expect(
+        () => container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "100",
+              precision: -1,
+            ),
+        throwsA(isA<ParseAmountWrongPrecissionException>()),
+      );
+    });
+
+    test('throws on invalid precision (too large)', () {
+      expect(
+        () => container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "100",
+              precision: 9,
+            ),
+        throwsA(isA<ParseAmountWrongPrecissionException>()),
+      );
+    });
+
+    test('throws on invalid number format', () {
+      expect(
+        () => container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "abc",
+              precision: 2,
+            ),
+        throwsA(isA<ParseAmountUnableParseFromStringWithPrecisionException>()),
+      );
+    });
+
+    test('throws on empty string', () {
+      expect(
+        () => container.read(formatterProvider).parseAssetAmountDirect(
+              amount: "",
+              precision: 2,
+            ),
+        throwsA(isA<ParseAmountUnableParseFromStringWithPrecisionException>()),
       );
     });
   });

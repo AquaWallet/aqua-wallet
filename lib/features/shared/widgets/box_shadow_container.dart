@@ -22,6 +22,7 @@ class BoxShadowContainer extends Container {
     this.error = false,
     this.bordered = false,
     this.borderColor,
+    this.borderWidth,
   }) : super(
           width: width,
           height: height,
@@ -34,6 +35,7 @@ class BoxShadowContainer extends Container {
   final bool error;
   final bool bordered;
   final Color? borderColor;
+  final double? borderWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +47,11 @@ class BoxShadowContainer extends Container {
             color: color ?? Theme.of(context).colorScheme.surface,
             border: bordered
                 ? Border.all(
-                    color: borderColor ??
-                        Theme.of(context).colorScheme.onBackground,
-                    width: 2.r,
+                    color: borderColor ?? Theme.of(context).colors.onBackground,
+                    width: borderWidth ?? 2,
                   )
                 : null,
-            borderRadius: borderRadius ?? BorderRadius.circular(12.r),
+            borderRadius: borderRadius ?? BorderRadius.circular(12.0),
             boxShadow: [Theme.of(context).shadow],
           ),
       child: super.child,

@@ -17,14 +17,14 @@ class AquaOutlinedIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: BorderRadius.circular(10.0),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            width: 2.r,
+            width: 2.0,
             color: Theme.of(context).colors.divider,
           ),
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(10.0),
         ),
         child: SizedBox.square(
           dimension: size,

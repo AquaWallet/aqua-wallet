@@ -1,6 +1,6 @@
+import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AquaElevatedButton extends StatelessWidget {
   const AquaElevatedButton({
@@ -32,13 +32,18 @@ class AquaElevatedButton extends StatelessWidget {
 
     return SizedBox(
       width: double.maxFinite,
-      height: height ?? 48.h,
+      height: height ?? 52,
       child: ElevatedButton(
         onPressed:
             debounce && onPressed != null ? debouncedOnPressed : onPressed,
         style: style ??
             ElevatedButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.titleSmall,
+              textStyle: const TextStyle(
+                fontSize: 20,
+                color: Colors.white,
+                fontFamily: UiFontFamily.inter,
+                fontWeight: FontWeight.w700,
+              ),
             ),
         child: child,
       ),

@@ -19,8 +19,8 @@ class AssetListSectionHeader extends StatelessWidget {
         children: [
           Text(
             text,
-            style: TextStyle(
-              fontSize: 16.sp,
+            style: const TextStyle(
+              fontSize: 16.0,
               fontWeight: FontWeight.w700,
             ),
           ),

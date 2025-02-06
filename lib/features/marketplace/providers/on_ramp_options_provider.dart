@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/features/marketplace/models/models.dart';
+import 'package:aqua/features/marketplace/services/on_ramp_price_fetcher_factory.dart';
+import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/settings/region/providers/region_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
-import 'package:dio/dio.dart';
 
 final onRampOptionsProvider =
     AutoDisposeNotifierProvider<OnRampOptionsNotifier, List<OnRampIntegration>>(
@@ -27,58 +28,38 @@ class OnRampOptionsNotifier
 
   void _init() {
     final region = ref.watch(regionsProvider).currentRegion;
+
     if (region == null) {
       assert(false);
       state = [];
       return;
     }
 
+    final isBtcDirectEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.btcDirectEnabled));
+
     final filteredIntegrations = OnRampIntegration.allIntegrations
         .where((integration) =>
-            integration.allRegions ||
-            integration.regions.any((r) => r.iso == region.iso))
+            // Filter by region
+            (integration.allRegions ||
+                integration.regions.any((r) => r.iso == region.iso)) &&
+            // FEATURE FLAG: Filter BTC Direct by feature flag
+            (integration.type != OnRampIntegrationType.btcDirect ||
+                isBtcDirectEnabled))
         .toList();
 
     state = filteredIntegrations;
   }
 
   Future<String?> fetchPrice(OnRampIntegration onRamp) async {
-    final client = ref.read(dioProvider);
-    final uri = onRamp.priceApi;
-
-    if (uri == null) return null;
-
     try {
-      final response = await client.get(uri);
-      logger.d("[Onramp] fetch price: $response for: ${onRamp.name}");
-
-      return parseAndFormatPrice(onRamp, response);
-    } on DioException catch (e) {
-      logger.e(
-          "[Onramp] on ramp dio error: ${e.response?.statusCode}, ${e.response?.data}");
-      throw Exception(e);
-    }
-  }
-
-  // Parse price response based on OnRampIntegration type. All providers will have different response formats.
-  Future<String?> parseAndFormatPrice(
-      OnRampIntegration onRamp, dynamic response) async {
-    switch (onRamp.type) {
-      case OnRampIntegrationType.beaverBitcoin:
-        final data = response.data;
-        final priceInCents = data['priceInCents'] as int;
-        final price = (priceInCents / 100);
-        final formatter = ref.read(currencyFormatProvider(0));
-        return "${onRamp.priceSymbol}${formatter.format(price)}";
-      case OnRampIntegrationType.pocketBitcoin:
-        final data = response.data;
-        final result = data['result']['XXBTZEUR'];
-        final price = double.parse(
-            result['a'][0]); // `['a'][0]` is the ask returned in quote
-        final formatter = ref.read(currencyFormatProvider(0));
-        return "${onRamp.priceSymbol}${formatter.format(price)}";
-      default:
-        return null;
+      final priceFetcher = OnRampPriceFetcherFactory.create(onRamp.type, ref);
+      final price = await priceFetcher.fetchPrice(onRamp, ref);
+      logger.debug("[Onramp] Price fetched for ${onRamp.name}: $price");
+      return price;
+    } catch (e) {
+      logger.error("[Onramp] Price fetch error for ${onRamp.name}: $e");
+      rethrow;
     }
   }
 
@@ -89,7 +70,7 @@ class OnRampOptionsNotifier
       return onRamp.refLinkTestnet!;
     }
 
-    return onRamp.refLinkMainnet;
+    return onRamp.refLinkMainnet ?? '';
   }
 
   Future<Uri> formattedUri(OnRampIntegration onRamp) async {

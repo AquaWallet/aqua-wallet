@@ -3,8 +3,9 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class SendAssetAmountInput extends HookConsumerWidget {
+class SendAssetAmountInput extends HookWidget {
   const SendAssetAmountInput({
     super.key,
     required this.controller,
@@ -14,6 +15,7 @@ class SendAssetAmountInput extends HookConsumerWidget {
     this.allowUsdToggle = true,
     this.disabled = false,
     required this.precision,
+    this.backgroundColor,
   });
 
   final TextEditingController controller;
@@ -23,22 +25,27 @@ class SendAssetAmountInput extends HookConsumerWidget {
   final bool allowUsdToggle;
   final bool disabled;
   final int precision;
+  final Color? backgroundColor;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final onAmountCleared = useCallback(() {
+      controller.clear();
+      onChanged('');
+    });
     return Container(
       decoration: Theme.of(context).solidBorderDecoration.copyWith(
-            color:
+            color: backgroundColor ??
                 Theme.of(context).colors.addressFieldContainerBackgroundColor,
           ),
-      //ANCHOR - Address Input
+      //ANCHOR - Amount Input
       child: TextField(
         enabled: !disabled,
         controller: controller,
         onChanged: onChanged,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w400,
-              fontSize: 24.sp,
+              fontSize: 24.0,
             ),
         keyboardType: const TextInputType.numberWithOptions(
           decimal: true,
@@ -65,7 +72,7 @@ class SendAssetAmountInput extends HookConsumerWidget {
         ],
         decoration: Theme.of(context).inputDecoration.copyWith(
               filled: false,
-              hintText: context.loc.sendAssetAmountScreenAmountHint,
+              hintText: context.loc.setAmount,
               hintStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Theme.of(context).colors.hintTextColor,
                     fontWeight: FontWeight.w700,
@@ -74,19 +81,27 @@ class SendAssetAmountInput extends HookConsumerWidget {
               suffixIcon: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (controller.text.isNotEmpty && !disabled) ...[
+                    //ANCHOR - Clear Amount
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 2.0),
+                      child: ClearInputButton(onTap: onAmountCleared),
+                    ),
+                    const SizedBox(width: 14.0),
+                  ],
                   //ANCHOR - Symbol
                   Text(
                     symbol,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontSize: 24.sp,
+                          fontSize: 24.0,
                         ),
                   ),
-                  SizedBox(width: 14.w),
+                  const SizedBox(width: 14.0),
                   //ANCHOR - Input Type Toggle Button
                   if (allowUsdToggle) ...[
                     AssetCurrencyTypeToggleButton(onTap: onCurrencyTypeToggle),
                   ],
-                  SizedBox(width: 16.w),
+                  const SizedBox(width: 16.0),
                 ],
               ),
             ),

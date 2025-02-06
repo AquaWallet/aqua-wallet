@@ -1,6 +1,7 @@
 import 'package:aqua/data/backend/bitcoin_network.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 
@@ -37,26 +38,43 @@ class BitcoinProvider extends NetworkFrontend {
       case Env.regtest || Env.mainnet:
         networkName = 'electrum-mainnet';
     }
-    logger.i("[ENV] $env - using bitcoin network: $networkName");
+    logger.info("[ENV] $env - using bitcoin network: $networkName");
+
+    final electrumConfig = ref.read(electrumServerProvider);
+    if (electrumConfig.isCustomElectrumServer) {
+      final networkRegistered = await super.registerNetwork(
+        GdkRegisterNetworkData(
+          name: networkName,
+          networkDetails: GdkNetwork(
+            electrumUrl: electrumConfig.customElectrumServerBtcUrl,
+          ),
+        ),
+      );
+
+      if (!networkRegistered) {
+        logger.error('[$runtimeType] Registering network $networkName failed!');
+        return false;
+      }
+    }
 
     params ??= GdkConnectionParams(name: networkName);
     return super.connect(params: params);
   }
 
   Future<void> onBackendError(dynamic error) async {
-    logger.e('[$runtimeType] Bitcoin backend error: $error');
+    logger.error('[$runtimeType] Bitcoin backend error: $error');
   }
 
   @override
   Future<bool> init() async {
-    logger.d('[$runtimeType] Initializing bitcoin backend');
+    logger.debug('[$runtimeType] Initializing bitcoin backend');
     final result = await super.init();
 
     if (!result) {
       throw InitializeNetworkFrontendException();
     }
 
-    logger.d('[$runtimeType] Bitcoin backend initialized: $result');
+    logger.debug('[$runtimeType] Bitcoin backend initialized: $result');
 
     return result;
   }

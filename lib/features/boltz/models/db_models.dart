@@ -1,4 +1,4 @@
-import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/models/bolt11_ext.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:boltz_dart/boltz_dart.dart';
@@ -79,68 +79,6 @@ class BoltzSwapDbModel with _$BoltzSwapDbModel {
         scriptAddress: response.scriptAddress,
         createdAt: DateTime.now(),
       );
-
-  @Deprecated('Only used for migration, use `fromV2SwapResponse` instead')
-  factory BoltzSwapDbModel.fromLegacySwap({
-    required BoltzSwapData data,
-    String? electrumUrl,
-    String? boltzUrl,
-  }) {
-    return BoltzSwapDbModel(
-      version: BoltzVersion.v0,
-      boltzId: data.response.id,
-      kind: SwapType.submarine,
-      network: Chain.liquid,
-      redeemScript: data.response.redeemScript,
-      invoice: data.request.invoice,
-      outAmount: data.response.expectedAmount,
-      scriptAddress: '',
-      blindingKey: data.response.blindingKey,
-      createdAt: data.created,
-      electrumUrl: electrumUrl,
-      boltzUrl: boltzUrl,
-      // REVIEW: V2 Fields, does not explicitly exist in the legacy response but most are required for V2
-      fundingAddrs: data.response.address,
-      hashlock: '',
-      receiverPubkey: '',
-      senderPubkey: '',
-      outAddress: '',
-      locktime: data.response.timeoutBlockHeight,
-      onchainSubmarineTxId: data.onchainTxHash,
-      refundTxId: data.refundTx,
-      lastKnownStatus: data.swapStatus,
-    );
-  }
-
-  @Deprecated('Only used for migration, use `fromV2SwapResponse` instead')
-  factory BoltzSwapDbModel.fromLegacyRevSwap({
-    required BoltzReverseSwapData data,
-    String? electrumUrl,
-    String? boltzUrl,
-  }) {
-    return BoltzSwapDbModel(
-      version: BoltzVersion.v0,
-      boltzId: data.response.id,
-      kind: SwapType.reverse,
-      network: Chain.liquid,
-      redeemScript: data.response.redeemScript,
-      invoice: data.response.invoice,
-      outAmount: data.request.invoiceAmount,
-      scriptAddress: data.response.lockupAddress,
-      blindingKey: data.response.blindingKey,
-      createdAt: data.created,
-      electrumUrl: electrumUrl,
-      boltzUrl: boltzUrl,
-      // REVIEW: V2 Fields, does not explicitly exist in the legacy response but most are required for V2
-      hashlock: '',
-      receiverPubkey: '',
-      senderPubkey: '',
-      outAddress: '',
-      locktime: data.response.timeoutBlockHeight,
-      claimTxId: data.claimTx,
-      lastKnownStatus: data.swapStatus,
-    );
-  }
 }
 
 @freezed

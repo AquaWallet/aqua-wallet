@@ -1,7 +1,5 @@
-import 'package:aqua/features/shared/widgets/custom_alert_dialog.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class WalletProcessError extends ConsumerWidget {
   const WalletProcessError({super.key});
@@ -14,8 +12,8 @@ class WalletProcessError extends ConsumerWidget {
       controlWidgets: [
         Expanded(
           child: ElevatedButton(
-            child: Text(context.loc.unknownErrorButton),
-            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.loc.retry),
+            onPressed: () => context.pop(),
           ),
         ),
       ],

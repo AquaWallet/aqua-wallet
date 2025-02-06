@@ -1,6 +1,5 @@
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AquaTextButton extends StatelessWidget {
   const AquaTextButton({
@@ -32,14 +31,14 @@ class AquaTextButton extends StatelessWidget {
 
     return SizedBox(
       width: double.maxFinite,
-      height: 48.h,
+      height: 48.0,
       child: TextButton(
         onPressed:
             debounce && onPressed != null ? debouncedOnPressed : onPressed,
         style: style ??
             ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(8),
               ),
               textStyle: context.textTheme.titleSmall,
               foregroundColor: context.colorScheme.primary,

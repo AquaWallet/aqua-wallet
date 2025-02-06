@@ -18,11 +18,11 @@ class CountryFlag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius ?? 2.r),
+      borderRadius: BorderRadius.circular(borderRadius ?? 2.0),
       child: SvgPicture.asset(
         svgAsset,
-        width: width ?? 16.r,
-        height: height ?? 16.r,
+        width: width ?? 16.0,
+        height: height ?? 16.0,
       ),
     );
   }

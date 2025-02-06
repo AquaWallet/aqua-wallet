@@ -1,4 +1,4 @@
-import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/boltz/screens/boltz_swap_detail_screen.dart';
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -17,7 +17,7 @@ class BoltzSwapsList extends HookConsumerWidget {
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(40.w, 20.h, 40.w, 20.h),
+          padding: const EdgeInsets.fromLTRB(40.0, 20.0, 40.0, 20.0),
           child: Text(context.loc.boltzSwapsListSendHeading,
               style: Theme.of(context).textTheme.headlineSmall),
         ),
@@ -33,16 +33,16 @@ class BoltzSwapsList extends HookConsumerWidget {
                     shrinkWrap: true,
                     itemCount: submarineSwaps.length,
                     physics: const NeverScrollableScrollPhysics(),
-                    padding:
-                        EdgeInsets.only(left: 28.w, right: 28.w, top: 20.h),
+                    padding: const EdgeInsets.only(
+                        left: 28.0, right: 28.0, top: 20.0),
                     separatorBuilder: (context, index) =>
-                        SizedBox(height: 16.h),
+                        const SizedBox(height: 16.0),
                     itemBuilder: (_, index) =>
                         _NormalSwapListItem(submarineSwaps[index]),
                   )
                 : Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 32.w, vertical: 20.h),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0, vertical: 20.0),
                     child: Text(
                       context.loc.boltzSwapsListEmptyState,
                       textAlign: TextAlign.center,
@@ -52,7 +52,7 @@ class BoltzSwapsList extends HookConsumerWidget {
           },
         ),
         Padding(
-          padding: EdgeInsets.fromLTRB(40.w, 20.h, 40.w, 20.h),
+          padding: const EdgeInsets.fromLTRB(40.0, 20.0, 40.0, 20.0),
           child: Text(context.loc.boltzSwapsListReceiveHeading,
               style: Theme.of(context).textTheme.headlineSmall),
         ),
@@ -68,16 +68,16 @@ class BoltzSwapsList extends HookConsumerWidget {
                     shrinkWrap: true,
                     itemCount: reverseSwaps.length,
                     physics: const NeverScrollableScrollPhysics(),
-                    padding:
-                        EdgeInsets.only(left: 28.w, right: 28.w, top: 20.h),
+                    padding: const EdgeInsets.only(
+                        left: 28.0, right: 28.0, top: 20.0),
                     separatorBuilder: (context, index) =>
-                        SizedBox(height: 16.h),
+                        const SizedBox(height: 16.0),
                     itemBuilder: (_, index) =>
                         _ReverseSwapListItem(reverseSwaps[index]),
                   )
                 : Padding(
-                    padding: EdgeInsets.only(
-                        left: 32.w, right: 32.w, top: 10.h, bottom: 10.h),
+                    padding: const EdgeInsets.only(
+                        left: 32.0, right: 32.0, top: 10.0, bottom: 10.0),
                     child: Text(
                       context.loc.boltzSwapsListEmptyState,
                       textAlign: TextAlign.center,
@@ -107,16 +107,17 @@ class BaseSwapListItem extends HookConsumerWidget {
 
     return BoxShadowCard(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12.0),
       bordered: !darkMode,
       child: Material(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12.0),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12.0),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 18.0, vertical: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -126,6 +127,7 @@ class BaseSwapListItem extends HookConsumerWidget {
                     "${context.loc.status}: ${swapData.lastKnownStatus?.value ?? 'Unknown'}",
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  //TODO: asset amount widget
                   //ANCHOR - Amount
                   Expanded(
                     child: Text(
@@ -135,17 +137,17 @@ class BaseSwapListItem extends HookConsumerWidget {
                     ),
                   ),
                 ]),
-                SizedBox(height: 10.h),
+                const SizedBox(height: 10.0),
                 Text('${context.loc.boltzId}: ${swapData.boltzId}',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontSize: 13.sp,
+                          fontSize: 13.0,
                           color: Theme.of(context).colorScheme.onSurface,
                         )),
-                SizedBox(height: 8.h),
+                const SizedBox(height: 8.0),
                 Text(
                     '${context.loc.boltzTimeoutBlockHeight}: ${swapData.locktime}',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontSize: 13.sp,
+                          fontSize: 13.0,
                           color: Theme.of(context).colorScheme.onSurface,
                         )),
               ],
@@ -167,9 +169,9 @@ class _NormalSwapListItem extends StatelessWidget {
     return BaseSwapListItem(
       swapData: swapData,
       onTap: () {
-        Navigator.of(context).pushNamed(
+        context.push(
           BoltzSwapDetailScreen.routeName,
-          arguments: swapData,
+          extra: swapData,
         );
       },
     );
@@ -186,9 +188,9 @@ class _ReverseSwapListItem extends StatelessWidget {
     return BaseSwapListItem(
       swapData: swapData,
       onTap: () {
-        Navigator.of(context).pushNamed(
+        context.push(
           BoltzSwapDetailScreen.routeName,
-          arguments: swapData,
+          extra: swapData,
         );
       },
     );

@@ -18,28 +18,31 @@ class AssetListSkeleton extends ConsumerWidget {
     return Skeletonizer(
       effect: darkMode
           ? ShimmerEffect(
-              baseColor: Theme.of(context).colorScheme.background,
+              baseColor: Theme.of(context).colors.background,
               highlightColor: Theme.of(context).colorScheme.surface,
             )
           : const ShimmerEffect(),
       child: Container(
-        padding: EdgeInsets.only(
-          left: 28.w,
-          right: 28.w,
-          top: 305.5.h,
-          bottom: 16.h,
+        padding: const EdgeInsets.only(
+          left: 28.0,
+          right: 28.0,
+          bottom: 80,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 18),
             //ANCHOR - Savings Header
             Skeleton.keep(
               child: AssetListSectionHeader(
-                text: context.loc.tabSavings,
-              ),
+                  text: context.loc.tabSavings,
+                  children: const [
+                    Spacer(),
+                    SizedBox(height: 33),
+                  ]),
             ),
-            SizedBox(height: 18.h),
+            const SizedBox(height: 18),
             //ANCHOR - Savings List
             SkeletonAssetListItem(
               asset: Asset(
@@ -49,7 +52,7 @@ class AssetListSkeleton extends ConsumerWidget {
                 logoUrl: '',
               ),
             ),
-            SizedBox(height: 16.h),
+            const SizedBox(height: 18),
             //ANCHOR - Spending Header
             Skeleton.keep(
               child: AssetListSectionHeader(
@@ -57,14 +60,16 @@ class AssetListSkeleton extends ConsumerWidget {
                 children: [
                   const Spacer(),
                   if (!(Platform.isIOS && disableSideswapOnIOS))
-                    const WalletInternalSwapButton(),
+                    const SizedBox(
+                        height:
+                            33), // Swap button is hidden until balance is shown
                 ],
               ),
             ),
-            SizedBox(height: 18.h),
+            const SizedBox(height: 18.0),
             //ANCHOR - Spending List
             const SkeletonAssetListItem(),
-            SizedBox(height: 14.h),
+            const SizedBox(height: 14.0),
             const SkeletonAssetListItem(
               ticker: '1234567',
             ),
@@ -96,8 +101,8 @@ class SkeletonAssetListItem extends HookConsumerWidget {
         fontWeight: FontWeight.w500,
         color: context.colorScheme.onSurface,
         fontSize: context.adaptiveDouble(
-          mobile: 14.sp,
-          wideMobile: 10.sp,
+          mobile: 14.0,
+          wideMobile: 10.0,
         ),
       ),
       [context.mounted],
@@ -106,16 +111,16 @@ class SkeletonAssetListItem extends HookConsumerWidget {
     return BoxShadowCard(
       bordered: !darkMode,
       color: context.colorScheme.surface,
-      borderRadius: BorderRadius.circular(9.r),
+      borderRadius: BorderRadius.circular(9.0),
       borderColor: Theme.of(context).colors.cardOutlineColor,
       child: Container(
-        height: 96.h,
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        height: 96.0,
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Material(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(9.r),
+          borderRadius: BorderRadius.circular(9.0),
           child: Container(
-            padding: EdgeInsets.only(top: 1.h),
+            padding: const EdgeInsets.only(top: 1.0),
             child: Row(
               children: [
                 //ANCHOR - Icon
@@ -125,15 +130,15 @@ class SkeletonAssetListItem extends HookConsumerWidget {
                       ? AssetIcon(
                           assetId: asset!.id,
                           assetLogoUrl: asset!.logoUrl,
-                          size: 50.r,
+                          size: 50.0,
                         )
-                      : Bone.square(
-                          size: 50.r,
-                          borderRadius: BorderRadius.all(Radius.circular(5.r)),
+                      : const Bone.square(
+                          size: 50.0,
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
                         ),
                 ),
                 SizedBox(
-                  width: asset?.id == 'btc' ? 16.w : 8.w,
+                  width: asset?.id == 'btc' ? 16.0 : 8.0,
                 ),
                 Expanded(
                   child: Column(
@@ -141,7 +146,7 @@ class SkeletonAssetListItem extends HookConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 1.h),
+                      const SizedBox(height: 1.0),
                       //ANCHOR - Name
                       Skeleton.keep(
                         keep: asset?.name.isNotEmpty ?? false,
@@ -155,13 +160,13 @@ class SkeletonAssetListItem extends HookConsumerWidget {
                             height: 1,
                             fontWeight: FontWeight.w700,
                             fontSize: context.adaptiveDouble(
-                              mobile: 18.sp,
-                              wideMobile: 14.sp,
+                              mobile: 18.0,
+                              wideMobile: 14.0,
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(height: asset?.isBTC ?? false ? 10.h : 2.h),
+                      SizedBox(height: asset?.isBTC ?? false ? 10.0 : 2.0),
                       //ANCHOR - Symbol
                       Skeleton.keep(
                         keep: asset?.name.isNotEmpty ?? false,
@@ -172,11 +177,11 @@ class SkeletonAssetListItem extends HookConsumerWidget {
                           style: subtitleTextStyle,
                         ),
                       ),
-                      SizedBox(height: asset?.id == 'btc' ? 2.h : 5.h),
+                      SizedBox(height: asset?.id == 'btc' ? 2.0 : 5.0),
                     ],
                   ),
                 ),
-                SizedBox(width: 18.w),
+                const SizedBox(width: 18.0),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -187,18 +192,18 @@ class SkeletonAssetListItem extends HookConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: context.adaptiveDouble(
-                          mobile: 16.sp,
-                          wideMobile: 10.sp,
+                          mobile: 16.0,
+                          wideMobile: 10.0,
                         ),
                       ),
                     ),
-                    SizedBox(height: 2.h),
+                    const SizedBox(height: 2.0),
                     //ANCHOR - USD Equivalent
                     Text(
                       '1234.5678',
                       style: subtitleTextStyle,
                     ),
-                    SizedBox(height: 5.h),
+                    const SizedBox(height: 5.0),
                   ],
                 ),
               ],

@@ -27,8 +27,12 @@ class WalletBackupScreen extends HookConsumerWidget {
       walletBackupNavigateToBackupPromptProvider,
       (_, action) {
         if (action != null) {
-          Navigator.of(context)
-              .pushReplacementNamed(WalletRecoveryPhraseScreen.routeName);
+          context.pushReplacement(
+            WalletRecoveryPhraseScreen.routeName,
+            extra: RecoveryPhraseScreenArguments(
+              isOnboarding: false,
+            ),
+          );
         }
       },
     );
@@ -37,34 +41,34 @@ class WalletBackupScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: false,
         showActionButton: true,
-        iconBackgroundColor: Theme.of(context).colorScheme.background,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        iconBackgroundColor: Theme.of(context).colors.background,
+        iconForegroundColor: Theme.of(context).colors.onBackground,
         actionButtonAsset: Svgs.close,
-        actionButtonIconSize: 13.r,
-        onActionButtonPressed: () => Navigator.of(context).pop(),
+        actionButtonIconSize: 13.0,
+        onActionButtonPressed: () => context.pop(),
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 4.h),
+              const SizedBox(height: 4.0),
               SvgPicture.asset(
                 Svgs.backupWallet,
-                width: 55.w,
-                height: 61.h,
+                width: 55.0,
+                height: 61.0,
               ),
-              SizedBox(height: 43.h),
+              const SizedBox(height: 43.0),
               Text(
                 context.loc.backupInviteTitle,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              SizedBox(height: 20.h),
+              const SizedBox(height: 20.0),
               Text(
                 context.loc.backupInviteDescription,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontSize: 16.sp,
+                      fontSize: 16.0,
                     ),
               ),
               const Spacer(),
@@ -75,14 +79,14 @@ class WalletBackupScreen extends HookConsumerWidget {
                   context.loc.backupInviteButtonNext,
                 ),
               ),
-              SizedBox(height: 30.h),
+              const SizedBox(height: 30.0),
               AquaElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => context.pop(),
                 child: Text(
                   context.loc.backupInviteButtonLater,
                 ),
               ),
-              SizedBox(height: 66.h),
+              const SizedBox(height: 66.0),
             ],
           ),
         ),

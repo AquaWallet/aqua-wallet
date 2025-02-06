@@ -18,18 +18,18 @@ class WalletRecoveryQRScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: false,
         showActionButton: true,
-        iconBackgroundColor: Theme.of(context).colorScheme.background,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        iconBackgroundColor: Theme.of(context).colors.background,
+        iconForegroundColor: Theme.of(context).colors.onBackground,
         actionButtonAsset: Svgs.close,
-        actionButtonIconSize: 13.r,
-        onActionButtonPressed: () => Navigator.of(context).pop(),
+        actionButtonIconSize: 13.0,
+        onActionButtonPressed: () => context.pop(),
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
           child: Column(
             children: [
-              SizedBox(height: 16.h),
+              const SizedBox(height: 16.0),
               Text(
                 context.loc.backupRecoveryPhraseQRTitle,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -37,7 +37,7 @@ class WalletRecoveryQRScreen extends HookConsumerWidget {
                       height: 1.2,
                     ),
               ),
-              SizedBox(height: 18.h),
+              const SizedBox(height: 18.0),
               Text(
                 context.loc.backupRecoveryPhraseQRSubtitle,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -57,17 +57,17 @@ class WalletRecoveryQRScreen extends HookConsumerWidget {
                         return const CircularProgressIndicator();
                       }
                       return Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 9.w, vertical: 12.h),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9.0, vertical: 12.0),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.r),
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: SizedBox.square(
                           child: QrImageView(
                             data: qrCode,
                             version: QrVersions.auto,
-                            size: 200.r,
+                            size: 200.0,
                           ),
                         ),
                       );
@@ -75,7 +75,7 @@ class WalletRecoveryQRScreen extends HookConsumerWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 66.h),
+              const SizedBox(height: 66.0),
             ],
           ),
         ),

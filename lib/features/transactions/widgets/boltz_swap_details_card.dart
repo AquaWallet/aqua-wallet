@@ -31,7 +31,7 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
           return const SizedBox.shrink();
         }
 
-        final boltzFee = BoltzFees.totalFeesSubmarine(swapData);
+        final boltzFee = BoltzFees.totalFeesSubmarine(swapData.invoice);
 
         final swapStatus =
             ref.watch(boltzSwapStatusProvider(swapData.boltzId)).when(
@@ -44,10 +44,11 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
           color: Theme.of(context).colors.altScreenSurface,
           bordered: true,
           borderColor: Theme.of(context).colors.cardOutlineColor,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12.0),
           child: Container(
             width: double.maxFinite,
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -60,13 +61,13 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
                         fontWeight: FontWeight.w600,
                       ),
                 ),
-                SizedBox(height: 24.h),
+                const SizedBox(height: 24.0),
                 //ANCHOR - Transaction Id
                 LabelCopyableTextView(
-                  label: context.loc.sendAssetCompleteScreenBoltzIdLabel,
+                  label: context.loc.boltzId,
                   value: swapData.boltzId,
                 ),
-                SizedBox(height: 18.h),
+                const SizedBox(height: 18.0),
                 //ANCHOR - Transaction Fee
                 Row(
                   children: [
@@ -76,13 +77,13 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 18.h),
+                const SizedBox(height: 18.0),
                 //ANCHOR - Deposit Address
                 LabelCopyableTextView(
                   label: context.loc.lightningInvoice,
                   value: swapData.invoice,
                 ),
-                SizedBox(height: 24.h),
+                const SizedBox(height: 24.0),
                 //ANCHOR - Status
                 TransactionDetailsStatusChip(
                   color: switch (swapStatus) {
@@ -99,14 +100,14 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
                     _ when (swapStatus.isPending) =>
                       context.loc.boltzSendStatusPending,
                     _ when (swapStatus == BoltzSwapStatus.swapRefunded) =>
-                      context.loc.swapStatusRefunded,
+                      context.loc.refunded,
                     _ => context.loc.boltzSendUnknownStatus,
                   },
                 ),
                 //ANCHOR - Refund button
                 if (swapStatus.isFailed &&
                     swapStatus != BoltzSwapStatus.swapRefunded) ...[
-                  SizedBox(height: 18.h),
+                  const SizedBox(height: 18.0),
                   TextButton(
                     style: TextButton.styleFrom(
                       foregroundColor: AquaColors.vermillion,
@@ -116,30 +117,30 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
                           await ref.read(liquidProvider).getReceiveAddress();
 
                       if (address != null && context.mounted) {
-                        Navigator.of(context).pushNamed(RefundScreen.routeName,
-                            arguments: RefundArguments(
+                        context.push(RefundScreen.routeName,
+                            extra: RefundArguments(
                                 address.address!, swapData, swapStatus));
                       }
                     },
-                    child: Text(context.loc.boltzRefund),
+                    child: Text(context.loc.refund),
                   ),
                 ],
-                SizedBox(height: 18.h),
+                const SizedBox(height: 18.0),
                 //ANCHOR - Boltz Support
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onBackground,
+                    foregroundColor: Theme.of(context).colors.onBackground,
                     visualDensity: VisualDensity.compact,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.r),
+                      borderRadius: BorderRadius.circular(4.0),
                     ),
                     side: BorderSide(
                       color: Theme.of(context).colorScheme.primary,
-                      width: 1.r,
+                      width: 1.0,
                     ),
                     textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontSize: 12.sp,
+                          fontSize: 12.0,
                         ),
                   ),
                   onPressed: () => launchUrl(Uri(
@@ -152,6 +153,7 @@ class BoltzSwapDetailsCard extends HookConsumerWidget {
                   )),
                   child: Text(context.loc.boltzSupportEmail),
                 ),
+                const SizedBox(height: 18.0),
               ],
             ),
           ),

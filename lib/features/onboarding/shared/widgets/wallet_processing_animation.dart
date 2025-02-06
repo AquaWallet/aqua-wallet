@@ -3,6 +3,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:lottie/lottie.dart';
+import 'package:aqua/config/config.dart';
 
 enum WalletProcessType {
   create,
@@ -34,19 +35,19 @@ class WalletProcessingAnimation extends HookConsumerWidget {
               Lottie.asset(
                 animation.walletProcessing,
                 repeat: true,
-                width: 132.r,
-                height: 132.r,
+                width: 132.0,
+                height: 132.0,
                 frameRate: const FrameRate(120),
                 fit: BoxFit.contain,
               ),
-              SizedBox(height: 26.h),
+              const SizedBox(height: 26.0),
               Text(
                 type == WalletProcessType.create
                     ? context.loc.walletCreateAnimationTitle
                     : context.loc.walletRestoreAnimationTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 20.sp,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      fontSize: 20.0,
+                      color: Theme.of(context).colors.onBackground,
                     ),
               ),
             ],

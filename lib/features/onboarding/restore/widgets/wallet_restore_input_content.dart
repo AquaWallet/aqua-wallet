@@ -67,7 +67,7 @@ class WalletRestoreInputContent extends HookConsumerWidget {
         ),
         //ANCHOR - Restore Button
         Container(
-          margin: EdgeInsets.symmetric(horizontal: 28.w),
+          margin: const EdgeInsets.symmetric(horizontal: 28.0),
           child: AquaElevatedButton(
             onPressed: mnemonicComplete
                 ? () => ref.watch(walletRestoreProvider.notifier).restore()
@@ -75,9 +75,9 @@ class WalletRestoreInputContent extends HookConsumerWidget {
             child: Text(context.loc.restoreInputButton),
           ),
         ),
-        SizedBox(height: 24.h),
+        const SizedBox(height: 24.0),
         SizedBox(
-          height: 254.h,
+          height: 254.0,
           child: Column(
             children: [
               //ANCHOR - Mnemonic Suggestions
@@ -123,8 +123,8 @@ class _MnemonicInputGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 28.w),
-      margin: EdgeInsets.only(top: 42.h),
+      padding: const EdgeInsets.symmetric(horizontal: 28.0),
+      margin: const EdgeInsets.only(top: 42.0),
       child: Form(
         key: formKey,
         child: FocusScope(
@@ -132,11 +132,11 @@ class _MnemonicInputGrid extends StatelessWidget {
           child: GridView.builder(
             shrinkWrap: true,
             gridDelegate:
-                SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                const SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
               crossAxisCount: 3,
-              mainAxisSpacing: 14.w,
-              crossAxisSpacing: 10.w,
-              height: 48.h,
+              mainAxisSpacing: 14.0,
+              crossAxisSpacing: 10.0,
+              height: 48.0,
             ),
             itemCount: 12,
             itemBuilder: (_, index) => WalletRestoreInputField(

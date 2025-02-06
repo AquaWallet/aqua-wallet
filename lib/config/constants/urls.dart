@@ -1,6 +1,7 @@
 // SOCIALS
 const aquaTwitterUrl = 'https://twitter.com/AquaBitcoin';
 const aquaInstagramUrl = 'https://instagram.com/aquabitcoin';
+const aquaTelegramUrl = 'https://t.me/aquawallet';
 
 // AQUA API
 
@@ -13,10 +14,10 @@ const testNetAssetsUrl = '$aquaApiBaseUrl/testnet/assets';
 const aquaEsploraBaseUrl = 'https://mempool.aquawallet.io';
 
 // AQUA WEBSITE
-const aquaSupportLink = "https://aquawallet.io/help";
-const aquaWebsiteUrl = 'https://aquawallet.io';
-const aquaTermsOfServiceUrl = 'https://aquawallet.io/terms';
-const aquaPrivacyUrl = 'https://aquawallet.io/privacy';
+const aquaSupportLink = "https://jan3.zendesk.com/hc/en-us";
+const aquaWebsiteUrl = 'https://aqua.net';
+const aquaTermsOfServiceUrl = 'https://aqua.net/terms';
+const aquaPrivacyUrl = 'https://aqua.net/privacy';
 const aquaZendeskUrl = "https://jan3.zendesk.com/hc/en-us";
 
 // BLOCKSTREAM.INFO
@@ -41,15 +42,24 @@ const boltzMainnetUrl = 'https://api.boltz.exchange';
 const boltzTestnetUrl = 'https://api.testnet.boltz.exchange';
 
 // SIDESWAP
-
 const sideswapMainnetUrl = "https://api.sideswap.io/";
 const sideswapTestnetUrl = "https://api-testnet.sideswap.io/";
 
 //SIDESHIFT
 const sideshiftUrl = 'https://sideshift.ai/api/v2/';
 
+//CHANGELLY
+const changellyUrl = 'https://mempool.aquawallet.io/api/changelly';
+
 // Mail
 const aquaSupportEmail = 'support@aquawallet.io';
 
 //MEMPOOL.SPACE
 const mempoolSpaceUrl = 'https://mempool.space/api/v1';
+
+// BTCDirect URLs
+const btcDirectProdUrl = 'https://api.btcdirect.eu';
+const btcDirectSandboxUrl = 'https://api-sandbox.btcdirect.eu';
+
+// Aqua Ankara API
+const aquaAnkaraApiUrl = 'https://test.aquabtc.com';

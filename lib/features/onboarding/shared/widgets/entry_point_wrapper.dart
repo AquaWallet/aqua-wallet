@@ -1,7 +1,6 @@
 import 'dart:math';
 
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/initialize_app_provider.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/home/home.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -28,20 +27,35 @@ class EntryPointWrapper extends HookConsumerWidget {
     }, [description.value]);
 
     ref.listen(aquaConnectionProvider, (_, asyncValue) {
+      if (ref.read(initAppProvider).isLoading == true) {
+        // ignore before app is initialized
+        return;
+      }
+
       return asyncValue.maybeWhen(
           data: (_) {
             /**
              * When connected make sure we are on the HomeScreen.
              * Required for wallet restore flow.
              */
-            Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+            context.pushReplacement(HomeScreen.routeName);
           },
           orElse: () {});
     });
+    final mnemonicFuture =
+        useFuture(ref.read(secureStorageProvider).get(StorageKeys.mnemonic));
 
     return ref.watch(initAppProvider).maybeWhen(
               data: (_) {
                 return ref.watch(aquaConnectionProvider).when(data: (data) {
+                  final (mnemonic, err) = mnemonicFuture.data!;
+                  if (err != null || mnemonic == null) {
+                    // Need to redirect users without wallet to onboarding
+                    return WelcomeScreen(
+                      description: description.value,
+                      onSwitchTagline: onSwitchTagline,
+                    );
+                  }
                   return const HomeScreen();
                 }, error: (error, stackTrace) {
                   return WelcomeScreen(

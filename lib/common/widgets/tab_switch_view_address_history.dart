@@ -29,14 +29,14 @@ class TabSwitchViewAddressHistory extends HookWidget {
     final getTabRadius = useCallback((int index) {
       if (index == 0) {
         return BorderRadius.horizontal(
-            left: Radius.circular(12.r),
-            right: Radius.circular(tabController.index == 0 ? 12.r : 12.r));
+            left: const Radius.circular(12.0),
+            right: Radius.circular(tabController.index == 0 ? 12.0 : 12.0));
       }
       if (index == labels.length - 1) {
         return BorderRadius.horizontal(
-            right: Radius.circular(12.r),
+            right: const Radius.circular(12.0),
             left: Radius.circular(
-                tabController.index == labels.length - 1 ? 12.r : 12.r));
+                tabController.index == labels.length - 1 ? 12.0 : 12.0));
       }
       return null;
     }, [tabController.index]);
@@ -48,7 +48,7 @@ class TabSwitchViewAddressHistory extends HookWidget {
     });
 
     return Container(
-      height: 40.h,
+      height: 40.0,
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(
         border: Border.all(
@@ -57,9 +57,9 @@ class TabSwitchViewAddressHistory extends HookWidget {
         ),
         color: backgroundColor ??
             Theme.of(context).colors.addressHistoryTabBarUnSelected,
-        borderRadius: BorderRadius.all(Radius.circular(12.r)),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
       ),
-      margin: EdgeInsets.symmetric(horizontal: 28.w),
+      margin: const EdgeInsets.symmetric(horizontal: 28.0),
       child: TabBar(
         controller: tabController,
         onTap: onChange,
@@ -74,7 +74,7 @@ class TabSwitchViewAddressHistory extends HookWidget {
         padding: EdgeInsets.zero,
         tabs: labels
             .mapIndexed((index, text) => Container(
-                  height: tabController.index == index ? 40.h : 39.h,
+                  height: tabController.index == index ? 40.0 : 39.0,
                   width: double.maxFinite,
                   decoration: BoxDecoration(
                     borderRadius: getTabRadius(index),

@@ -13,10 +13,12 @@ class CategorizedAssetList extends HookConsumerWidget {
 
     return ref.watch(assetsProvider).when(
           data: (assets) => Container(
-            margin: EdgeInsets.only(top: 260.h),
+            margin: const EdgeInsets.only(top: 262.0),
             child: AssetsList(assets: assets),
           ),
-          loading: () => const AssetListSkeleton(),
+          loading: () => Container(
+              margin: const EdgeInsets.only(top: 262.0),
+              child: const AssetListSkeleton()),
           error: (error, _) => const AssetListErrorView(),
         );
   }

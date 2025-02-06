@@ -17,13 +17,13 @@ class InternalSendReviewOrderIdCard extends HookConsumerWidget {
     return BoxShadowCard(
       color: context.colors.addressFieldContainerBackgroundColor,
       bordered: !darkMode,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12.0),
       borderColor: context.colors.cardOutlineColor,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
         //ANCHOR - Order ID
         child: LabelCopyableTextView(
-          label: context.loc.internalSendReviewOrderId,
+          label: context.loc.sideswapOrderID,
           value: arguments.maybeWhen(
             swapReview: (_, __, swap) => swap.result?.orderId ?? '',
             pegReview: (_, __, swap) => swap.order.orderId,

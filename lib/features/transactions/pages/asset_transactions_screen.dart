@@ -3,30 +3,34 @@ import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_list/address_list.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/utils.dart';
 
-class AssetTransactionsScreen extends StatefulHookConsumerWidget {
-  const AssetTransactionsScreen({super.key});
+class AssetTransactionsScreen extends HookConsumerWidget {
+  const AssetTransactionsScreen({super.key, required this.asset});
 
   static const routeName = '/assetTransactionsScreen';
+  final Asset asset;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => State();
-}
-
-class State extends ConsumerState<AssetTransactionsScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final asset = ModalRoute.of(context)?.settings.arguments as Asset;
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(
+      sideswapWebsocketProvider,
+      (_, __) {},
+    );
+    ref.listen(
+      swapAssetsProvider,
+      (_, __) {},
+    );
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       bottomNavigationBar: SizedBox(
-        height: 115.h,
+        height: 115.0,
         child: BottomAppBar(
-          height: 115.h,
-          elevation: 8.h,
+          height: 115.0,
+          elevation: 8.0,
           color: Theme.of(context).colors.colorScheme.surface,
           child: TransactionMenuBottomBar(asset: asset),
         ),
@@ -44,9 +48,9 @@ class State extends ConsumerState<AssetTransactionsScreen> {
             Theme.of(context).colors.appBarIconBackgroundColorAlt,
         iconForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         onActionButtonPressed: () {
-          Navigator.of(context).pushNamed(
+          context.push(
             AddressListScreen.routeName,
-            arguments: AddressListArgs(
+            extra: AddressListArgs(
               networkType:
                   asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid,
               asset: asset,
@@ -58,8 +62,10 @@ class State extends ConsumerState<AssetTransactionsScreen> {
         children: [
           //ANCHOR - List
           Container(
-            margin: EdgeInsets.only(top: 290.h),
-            child: const AssetTransactions(),
+            margin: const EdgeInsets.only(top: 290.0),
+            child: AssetTransactions(
+              asset: asset,
+            ),
           ),
           // ANCHOR - Header
           AssetDetailsHeader(asset: asset),

@@ -76,7 +76,7 @@ class GdkSettingsNotifier extends AsyncNotifier<GdkSettingsEvent> {
       await ref
           .read(prefsProvider)
           .setReferenceCurrency(settings.pricing!.currency!);
-      logger.d(
+      logger.debug(
           '[Settings] Reference currency not set. Setting ${settings.pricing!.currency}');
     }
 
@@ -84,13 +84,11 @@ class GdkSettingsNotifier extends AsyncNotifier<GdkSettingsEvent> {
   }
 
   Future<void> change(GdkSettingsEvent settings) async {
-    final newSettingsBit =
-        await ref.read(bitcoinProvider).changeSettings(settings);
-    final newSettingsLiq =
-        await ref.read(liquidProvider).changeSettings(settings);
-    if (newSettingsBit != null && newSettingsLiq != null) {
-      state = AsyncValue.data(newSettingsBit);
-    }
+    await ref.read(bitcoinProvider).changeSettings(settings);
+    await ref.read(liquidProvider).changeSettings(settings);
+
+    final newSettings = await ref.read(liquidProvider).getSettings();
+    state = AsyncValue.data(newSettings);
   }
 }
 
@@ -106,8 +104,7 @@ class GdkCurrenciesNotifier extends AsyncNotifier<GdkCurrencyData?> {
   }
 }
 
-final exchangeRatesProvider =
-    Provider.autoDispose<ReferenceExchangeRateProvider>((ref) {
+final exchangeRatesProvider = Provider<ReferenceExchangeRateProvider>((ref) {
   final prefs = ref.watch(prefsProvider);
   final availableCurrencies = ref.watch(gdkCurrenciesProvider).asData?.value;
   ref.watch(gdkSettingsProvider);
@@ -123,7 +120,7 @@ class ReferenceExchangeRateProvider extends ChangeNotifier {
       this.ref, this.prefs, this.gdkAvailableCurrencies);
 
   List<ExchangeRate> get availableCurrencies {
-    if (gdkAvailableCurrencies == null) {
+    if (gdkAvailableCurrencies == null || gdkAvailableCurrencies!.all == null) {
       return [currencyModelLookup[FiatCurrency.usd]!];
     }
 
@@ -143,6 +140,21 @@ class ReferenceExchangeRateProvider extends ChangeNotifier {
           prefs.referenceCurrency?.toLowerCase(),
       orElse: () => currencyModelLookup[FiatCurrency.usd]!,
     );
+  }
+
+  List<ExchangeRateSource> get sourcesForCurrentCurrency {
+    return [
+      ExchangeRateSource.bitfinex,
+      ExchangeRateSource.bitstamp,
+      ExchangeRateSource.bullbitcoin,
+      ExchangeRateSource.coingecko,
+      ExchangeRateSource.kraken
+    ]
+        .where((source) =>
+            gdkAvailableCurrencies!.perExchange!.containsKey(source.value) &&
+            gdkAvailableCurrencies!.perExchange![source.value]!
+                .contains(prefs.referenceCurrency))
+        .toList();
   }
 
   Future<void> setReferenceCurrency(ExchangeRate er) async {

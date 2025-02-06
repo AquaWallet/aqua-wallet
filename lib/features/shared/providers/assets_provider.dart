@@ -7,15 +7,13 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:async/async.dart';
 
 final assetsProvider =
-    AsyncNotifierProvider.autoDispose<AssetsNotifier, List<Asset>>(
-        AssetsNotifier.new);
+    AsyncNotifierProvider<AssetsNotifier, List<Asset>>(AssetsNotifier.new);
 
-class AssetsNotifier extends AutoDisposeAsyncNotifier<List<Asset>> {
+class AssetsNotifier extends AsyncNotifier<List<Asset>> {
   final _reloadAssetsController = StreamController<void>();
 
   @override
   FutureOr<List<Asset>> build() async {
-    ref.keepAlive();
     state = const AsyncValue.loading();
     await for (final assets in stream) {
       if (assets.isEmpty) continue;

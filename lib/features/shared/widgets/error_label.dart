@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ErrorLabel extends StatelessWidget {
   const ErrorLabel({
@@ -12,16 +11,16 @@ class ErrorLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             Icons.warning_rounded,
             color: Theme.of(context).colorScheme.error,
-            size: 20.r,
+            size: 20.0,
           ),
-          SizedBox(width: 4.w),
+          const SizedBox(width: 4.0),
           Expanded(
             child: Text(
               text,

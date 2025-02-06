@@ -1,8 +1,8 @@
 import 'package:aqua/gen/assets.gen.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:aqua/common/keys/common_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomBottomNavigationBar extends HookWidget {
   const CustomBottomNavigationBar({
@@ -22,13 +22,13 @@ class CustomBottomNavigationBar extends HookWidget {
         highlightColor: Colors.transparent,
       ),
       child: Container(
-        height: 115.h,
+        height: 115,
         decoration: BoxDecoration(
           color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           border: Border(
             top: BorderSide(
               color: context.colors.bottomNavBarBorder,
-              width: 1.h,
+              width: 1,
             ),
           ),
           boxShadow: [
@@ -40,15 +40,17 @@ class CustomBottomNavigationBar extends HookWidget {
             ),
           ],
         ),
-        padding: EdgeInsets.only(
-          left: 53.w,
-          right: 53.w,
-          bottom: 20.h,
+        padding: const EdgeInsets.only(
+          left: 53,
+          right: 53,
+          bottom: 20,
+          top: 20,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _CustomBottomNavigationBarItem(
+              key: CommonKeys.walletButton,
               icon: UiAssets.svgs.walletFooterWallet,
               label: context.loc.homeTabWalletTitle,
               selected: currentIndex == 0,
@@ -56,15 +58,17 @@ class CustomBottomNavigationBar extends HookWidget {
             ),
             const Spacer(),
             _CustomBottomNavigationBarItem(
+              key: CommonKeys.marketplaceButton,
               icon: UiAssets.svgs.walletFooterMarketplace,
-              label: context.loc.homeTabMarketplaceTitle,
+              label: context.loc.marketplaceTitle,
               selected: currentIndex == 1,
               onTap: () => onTap(1),
             ),
             const Spacer(),
             _CustomBottomNavigationBarItem(
+              key: CommonKeys.settingsButton,
               icon: UiAssets.svgs.walletFooterSettings,
-              label: context.loc.homeTabSettingsTitle,
+              label: context.loc.settings,
               selected: currentIndex == 2,
               onTap: () => onTap(2),
             ),
@@ -77,6 +81,7 @@ class CustomBottomNavigationBar extends HookWidget {
 
 class _CustomBottomNavigationBarItem extends StatelessWidget {
   const _CustomBottomNavigationBarItem({
+    super.key,
     required this.icon,
     required this.label,
     required this.selected,
@@ -96,8 +101,8 @@ class _CustomBottomNavigationBarItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           icon.svg(
-            width: 40.r,
-            height: 40.r,
+            width: context.adaptiveDouble(smallMobile: 32, mobile: 40),
+            height: context.adaptiveDouble(smallMobile: 32, mobile: 40),
             colorFilter: ColorFilter.mode(
               selected
                   ? context.colors.bottomNavBarIconSelected
@@ -105,13 +110,13 @@ class _CustomBottomNavigationBarItem extends StatelessWidget {
               BlendMode.srcIn,
             ),
           ),
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10.0),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 14.0,
               fontWeight: FontWeight.w700,
-              letterSpacing: 0,
+              letterSpacing: .0,
               color: selected
                   ? context.colors.bottomNavBarIconSelected
                   : context.colors.bottomNavBarIconUnselected,

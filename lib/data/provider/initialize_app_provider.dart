@@ -6,6 +6,8 @@ import 'package:aqua/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
+final _logger = CustomLogger(FeatureFlag.initAppProvider);
+
 final initAppProvider =
     AsyncNotifierProvider<InitAppProvider, void>(InitAppProvider.new);
 
@@ -13,6 +15,7 @@ class InitAppProvider extends AsyncNotifier<void> {
   @override
   Future<void> build() async {
     state = const AsyncValue.loading();
+    _logger.debug('state: loading');
     const int splashScreenMinDurationInMs = 2100; // 2.1 seconds
     final startTime = DateTime.now();
     try {
@@ -27,7 +30,7 @@ class InitAppProvider extends AsyncNotifier<void> {
 
       await ref.read(bitcoinProvider).init();
 
-      logger.d('[InitAppProvider] Finished backends initialization');
+      _logger.debug('Initialized bitcoin and liquid backend');
 
       // Splash Screen Delay
       // TODO: Handle this in a splash screen provider in the future
@@ -46,7 +49,7 @@ class InitAppProvider extends AsyncNotifier<void> {
 
       state = const AsyncValue.data(null);
     } catch (error) {
-      logger.e('[InitAppProvider] Error initializing app: $error');
+      _logger.error('Error initializing app: $error');
       state = AsyncValue.error(error, StackTrace.current);
     }
   }

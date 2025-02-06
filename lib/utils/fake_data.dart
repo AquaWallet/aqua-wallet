@@ -1,9 +1,10 @@
 //NOTE - Mock data for testing and skeleton loading
 
 import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
+import 'package:aqua/features/sideshift/models/sideshift_order.dart';
+import 'package:aqua/features/sideshift/models/sideshift_order_status.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 
 // Assets
@@ -105,11 +106,11 @@ final kMockDbSideshiftOrders = [
     settleAddress: 'liquidAddress1',
     depositMin: '0.001',
     depositMax: '1.0',
-    type: OrderType.fixed,
+    type: SideshiftOrderType.fixed,
     depositAmount: '0.1',
     settleAmount: '3000',
     expiresAt: DateTime(2023, 1, 2),
-    status: OrderStatus.pending,
+    status: SideshiftOrderStatus.pending,
     updatedAt: DateTime(2023, 1, 1, 12),
     depositHash: 'depositHash1',
     settleHash: 'settleHash1',
@@ -128,11 +129,11 @@ final kMockDbSideshiftOrders = [
     settleAddress: 'btcAddress2',
     depositMin: '0.01',
     depositMax: '10.0',
-    type: OrderType.variable,
+    type: SideshiftOrderType.variable,
     depositAmount: '1.0',
     settleAmount: '0.05',
     expiresAt: DateTime(2023, 2, 2),
-    status: OrderStatus.settled,
+    status: SideshiftOrderStatus.settled,
     updatedAt: DateTime(2023, 2, 1, 14),
     depositHash: 'depositHash2',
     settleHash: 'settleHash2',

@@ -8,6 +8,8 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 
+final _logger = CustomLogger(FeatureFlag.receive);
+
 final receiveQrCodeProvider = Provider.family
     .autoDispose<ReceiveQrCodeProvider, ReceiveQrCodeArguments>(
         (ref, arguments) => ReceiveQrCodeProvider(ref, arguments));
@@ -41,11 +43,11 @@ class ReceiveQrCodeProvider {
     final network = asset.isBTC ? 'bitcoin://' : 'liquidnetwork://';
     if (amount != null && amount.isNotEmpty) {
       final qrImageData = '$network$address?assetid=${asset.id}&amount=$amount';
-      logger.d('[RECEIVE] qrImageData: $qrImageData');
+      _logger.debug('qrImageData: $qrImageData');
       return ReceiveQrCodeData(address: address, qrImageData: qrImageData);
     } else {
       final qrImageData = address;
-      logger.d('[RECEIVE] qrImageData: $qrImageData');
+      _logger.debug('qrImageData: $qrImageData');
       return ReceiveQrCodeData(address: address, qrImageData: qrImageData);
     }
   }

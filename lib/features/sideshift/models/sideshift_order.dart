@@ -1,10 +1,10 @@
-import 'package:aqua/features/sideshift/sideshift.dart';
+import 'package:aqua/features/sideshift/models/sideshift_order_status.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sideshift_order.freezed.dart';
 part 'sideshift_order.g.dart';
 
-enum OrderType {
+enum SideshiftOrderType {
   @JsonValue('variable')
   variable,
   @JsonValue('fixed')
@@ -22,7 +22,7 @@ abstract class SideshiftOrder {
   String? get settleAddress;
   String? get depositMin;
   String? get depositMax;
-  OrderType? get type;
+  SideshiftOrderType? get orderType;
   DateTime? get expiresAt;
 }
 
@@ -54,13 +54,13 @@ class SideshiftFixedOrderResponse
     String? settleAddress,
     String? depositMin,
     String? depositMax,
-    OrderType? type,
+    SideshiftOrderType? orderType,
     DateTime? expiresAt,
     required String refundAddress,
     String? quoteId,
     String? depositAmount,
     String? settleAmount,
-    OrderStatus? status,
+    SideshiftOrderStatus? status,
     DateTime? updatedAt,
     String? rate,
   }) = _SideshiftFixedOrderResponse;
@@ -101,9 +101,9 @@ class SideshiftVariableOrderResponse
     String? settleAddress,
     String? depositMin,
     String? depositMax,
-    OrderType? type,
+    SideshiftOrderType? orderType,
     DateTime? expiresAt,
-    String? status,
+    SideshiftOrderStatus? status,
     String? settleCoinNetworkFee,
   }) = _SideshiftVariableOrderResponse;
 

@@ -1,6 +1,7 @@
+import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/screens/qrscanner/qr_scanner_screen.dart';
+import 'package:aqua/features/wallet/keys/wallet_keys.dart';
 import 'package:aqua/utils/utils.dart';
 
 class WalletExchangeButtonsPanel extends ConsumerWidget {
@@ -9,11 +10,11 @@ class WalletExchangeButtonsPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      height: 57.h,
+      height: 59.0,
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            width: 1.5.w,
+            width: 1.5,
             color: context.colors.walletHeaderDivider,
           ),
         ),
@@ -24,53 +25,56 @@ class WalletExchangeButtonsPanel extends ConsumerWidget {
           //ANCHOR - Receive Button
           Expanded(
             child: _Button(
-              spacing: 8.w,
+              key: WalletKeys.homeReceiveButton,
+              spacing: 8.0,
               label: context.loc.receive,
               svgAsset: UiAssets.svgs.walletHeaderReceive,
-              padding: EdgeInsetsDirectional.only(start: 2.w),
-              radius: BorderRadius.only(bottomLeft: Radius.circular(9.r)),
-              onPressed: () => Navigator.of(context).pushNamed(
+              padding: const EdgeInsetsDirectional.only(start: 2.0),
+              radius: const BorderRadius.only(bottomLeft: Radius.circular(9.0)),
+              onPressed: () => context.push(
                 TransactionMenuScreen.routeName,
-                arguments: TransactionType.receive,
+                extra: TransactionType.receive,
               ),
             ),
           ),
           VerticalDivider(
-            thickness: 1.5.w,
-            width: 1.5.w,
+            thickness: 1.5,
+            width: 1.5,
             color: context.colors.walletHeaderDivider,
           ),
           //ANCHOR - Send Button
           Expanded(
             child: _Button(
-              spacing: 8.w,
+              key: WalletKeys.homeSendButton,
+              spacing: 8.0,
               label: context.loc.send,
               svgAsset: UiAssets.svgs.walletHeaderSend,
-              padding: EdgeInsetsDirectional.only(end: 4.w),
-              onPressed: () => Navigator.of(context).pushNamed(
+              padding: const EdgeInsetsDirectional.only(end: 4.0),
+              onPressed: () => context.push(
                 TransactionMenuScreen.routeName,
-                arguments: TransactionType.send,
+                extra: TransactionType.send,
               ),
             ),
           ),
           VerticalDivider(
-            thickness: 1.5.w,
-            width: 1.5.w,
+            thickness: 1.5,
+            width: 1.5,
             color: context.colors.walletHeaderDivider,
           ),
           //ANCHOR - Scan Button
           Expanded(
             child: _Button(
-              spacing: 12.w,
-              padding: EdgeInsetsDirectional.only(end: 6.w),
+              key: WalletKeys.homeScanButton,
+              spacing: 12.0,
+              padding: const EdgeInsetsDirectional.only(end: 6.0),
               svgAsset: UiAssets.svgs.walletHeaderScan,
               label: context.loc.scan,
-              radius: BorderRadius.only(bottomRight: Radius.circular(9.r)),
-              onPressed: () => Navigator.of(context).pushNamed(
+              radius:
+                  const BorderRadius.only(bottomRight: Radius.circular(9.0)),
+              onPressed: () => context.push(
                 QrScannerScreen.routeName,
-                arguments: QrScannerScreenArguments(
-                  parseAction: QrScannerParseAction.parse,
-                ),
+                extra:
+                    QrScannerArguments(parseAction: QrScannerParseAction.parse),
               ),
             ),
           ),
@@ -82,6 +86,7 @@ class WalletExchangeButtonsPanel extends ConsumerWidget {
 
 class _Button extends StatelessWidget {
   const _Button({
+    super.key,
     required this.svgAsset,
     required this.label,
     required this.spacing,
@@ -116,8 +121,8 @@ class _Button extends StatelessWidget {
                 children: [
                   //ANCHOR - Icon
                   svgAsset.svg(
-                    width: 12.r,
-                    height: 12.r,
+                    width: 12.0,
+                    height: 12.0,
                     fit: BoxFit.scaleDown,
                     colorFilter: ColorFilter.mode(
                       context.colorScheme.onPrimaryContainer,
@@ -127,11 +132,11 @@ class _Button extends StatelessWidget {
                   SizedBox(width: spacing),
                   //ANCHOR - Label
                   Container(
-                    margin: EdgeInsets.only(top: 2.h),
+                    margin: const EdgeInsets.only(top: 2.0),
                     child: Text(
                       label,
                       style: TextStyle(
-                        fontSize: 13.sp,
+                        fontSize: 14.0,
                         fontWeight: FontWeight.bold,
                         color: context.colorScheme.onPrimaryContainer,
                       ),

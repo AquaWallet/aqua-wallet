@@ -28,6 +28,9 @@ class FeatureFlagsNotifier extends ChangeNotifier {
   bool get fakeBroadcastsEnabled =>
       _prefs.getBool(PrefKeys.fakeBroadcastsEnabled) ?? false;
 
+  bool get activateSubaccountsEnabled =>
+      _prefs.getBool(PrefKeys.activateSubaccountsEnabled) ?? false;
+
   bool get throwAquaBroadcastErrorEnabled =>
       _prefs.getBool(PrefKeys.throwAquaBroadcastErrorEnabled) ?? false;
 
@@ -36,10 +39,22 @@ class FeatureFlagsNotifier extends ChangeNotifier {
   bool get forceAquaNodeNotSyncedEnabled =>
       _prefs.getBool(PrefKeys.forceAquaNodeNotSyncedEnabled) ?? false;
 
+  bool get changellyForUSDtSwapsEnabled =>
+      _prefs.getBool(PrefKeys.changellyForUSDtSwapsEnabled) ?? false;
+
+  bool get btcDirectEnabled =>
+      _prefs.getBool(PrefKeys.btcDirectEnabled) ?? true;
+
   bool get seedQrEnabled => _prefs.getBool(PrefKeys.seedQrEnabled) ?? false;
 
   bool get myFirstBitcoinEnabled =>
       _prefs.getBool(PrefKeys.myFirstBitcoinEnabled) ?? false;
+
+  bool get payWithMoonEnabled =>
+      _prefs.getBool(PrefKeys.payWithMoonEnabled) ?? false;
+
+  bool get customElectrumUrlEnabled =>
+      _prefs.getBool(PrefKeys.customElectrumUrlEnabled) ?? false;
 
   void toggleFeatureFlag({
     required String key,

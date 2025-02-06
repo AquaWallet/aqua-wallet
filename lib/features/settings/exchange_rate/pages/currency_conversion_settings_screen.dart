@@ -46,17 +46,16 @@ class ConversionCurrenciesSettingsScreen extends HookConsumerWidget {
                 hintText: context.loc.conversionCurrenciesSearchHint,
                 hintStyle: TextStyle(
                   fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colors.onBackground,
                 ),
                 prefixIcon: Container(
-                  margin: EdgeInsets.only(left: 18.w, right: 12.w),
+                  margin: const EdgeInsets.only(left: 18.0, right: 12.0),
                   child: SvgPicture.asset(
                     Svgs.search,
-                    width: 16.r,
-                    height: 16.r,
+                    width: 16.0,
+                    height: 16.0,
                     colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.onBackground,
-                        BlendMode.srcIn),
+                        Theme.of(context).colors.onBackground, BlendMode.srcIn),
                   ),
                 ),
                 border: InputBorder.none,
@@ -64,7 +63,8 @@ class ConversionCurrenciesSettingsScreen extends HookConsumerWidget {
             ),
             Expanded(
               child: ListView.separated(
-                  padding: EdgeInsets.only(left: 28.w, right: 28.w, top: 20.h),
+                  padding:
+                      const EdgeInsets.only(left: 28.0, right: 28.0, top: 20.0),
                   separatorBuilder: (context, index) => const Divider(),
                   itemCount: listItems.length,
                   itemBuilder: (context, index) {

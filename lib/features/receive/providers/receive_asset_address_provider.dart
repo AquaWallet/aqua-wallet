@@ -15,33 +15,33 @@ final receiveAssetAddressProvider = AutoDisposeAsyncNotifierProviderFamily<
 
 class _Notifier
     extends AutoDisposeFamilyAsyncNotifier<String, ReceiveAddressParams> {
-  final _addresses = <String, String>{};
+  var _addresses = <String, String>{};
 
   @override
   FutureOr<String> build((Asset, Decimal?) arg) async {
-    //NOTE: Provider is marked AutoDispose only because boltz provider needs it.
-    // The keepAlive prevents the provider from being disposed. The provider is
-    // invalidated manually when the user leaves the [TransactionMenuScreen].
-    ref.keepAlive();
-
     final asset = arg.$1;
     final amount = arg.$2;
 
     final existingAddress = _addresses[asset.id];
 
     if (existingAddress?.isNotEmpty ?? false) {
-      logger.d('[Receive] Return ${asset.id}: ${_addresses[asset.id]}');
+      logger.debug('[Receive] Return ${asset.id}: ${_addresses[asset.id]}');
       return existingAddress!;
     }
 
     final address = await _generateAddress(asset, amount);
     //NOTE - The Sideshift implementation is too tightly coupled to have orders
     // cached reliably, so we are not caching the address for Sideshift.
-    if (!asset.isAnyAltUsdt) {
+    if (!asset.isAltUsdt) {
       _addresses[asset.id] = address;
     }
-    logger.d('[Receive] Generate ${asset.id}: $address');
+    logger.debug('[Receive] Generate ${asset.id}: $address');
     return address;
+  }
+
+  Future<void> forceRefresh() async {
+    ref.invalidateSelf();
+    _addresses = {};
   }
 
   Future<String> _generateAddress(Asset asset, Decimal? amount) async {
@@ -69,13 +69,14 @@ class _Notifier
                 .mapOrNull(qrCode: (res) => res.swap?.invoice) ??
             '';
 
-      // eth and tron addresses come from sideshift order
-      case 'eth-usdt':
-      case 'trx-usdt':
-        throw UnimplementedError('Use sideshift address from the order');
-
-      // default is all liquid assets
       default:
+        // Use the activeAltUSDtsProvider to check for alt-USDT assets
+        final activeAltUSDts = ref.read(activeAltUSDtsProvider);
+        if (activeAltUSDts.any((altUsdt) => altUsdt.id == asset.id)) {
+          throw UnimplementedError('Use alt-usdt address from the order');
+        }
+
+        // default is all liquid assets
         final gdkAddress = await ref.read(liquidProvider).getReceiveAddress();
         final address = gdkAddress?.address ?? '';
         if (amount != null && amount > Decimal.zero) {

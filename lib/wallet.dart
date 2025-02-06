@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:aqua/data/models/gdk_models.dart';
+import 'package:aqua/features/wallet/models/subaccount.dart';
 import 'package:aqua/gdk.dart';
 import 'package:aqua/logger.dart';
 import 'package:async/async.dart';
@@ -18,14 +19,23 @@ abstract class WalletService {
 
   late String networkName = '';
 
+  Subaccount? _currentSubaccount;
+  Subaccount? get currentSubaccount => _currentSubaccount;
+
   final receivePort = ReceivePort();
   StreamSubscription<dynamic>? receivePortSubscription;
 
   int getSubAccount() {
-    // we use account 1 of type segwit that we create for onchain
-    // we use account 0 of type nested segwit that is created by default for liquid
-    // why not use segwit for liquid - because sideswap breaks. need to fix later.
-    return networkName == 'Liquid' ? 0 : 1;
+    if (_currentSubaccount != null) {
+      return _currentSubaccount!.subaccount.pointer!;
+    }
+
+    return networkName == 'Liquid' ? 0 : 1; //TODO: Revise this fallback logic
+  }
+
+  Future<void> setCurrentSubaccount(Subaccount subaccount) async {
+    _currentSubaccount = subaccount;
+    //TODO: Persist value in local storage so will be active after app restart
   }
 
   Future<Result<GdkAuthHandlerStatus>> getSubaccounts({
@@ -51,7 +61,7 @@ abstract class WalletService {
         libGdk.cleanAuthHandler(status.authHandlerId);
         if (status.error != null && status.error!.isNotEmpty) {
           if (status.message != null) {
-            logger.w('${status.error}: ${status.message}');
+            logger.warning('${status.error}: ${status.message}');
           }
         }
         break;
@@ -59,10 +69,10 @@ abstract class WalletService {
         libGdk.cleanAuthHandler(status.authHandlerId);
         break;
       case GdkAuthHandlerStatusEnum.requestCode:
-        logger.w('Not implemented');
+        logger.warning('Not implemented');
         break;
       case GdkAuthHandlerStatusEnum.resolveCode:
-        logger.w('Not implemented');
+        logger.warning('Not implemented');
         break;
       case GdkAuthHandlerStatusEnum.call:
         final gdkAuthHandlerStatus =
@@ -116,6 +126,22 @@ abstract class WalletService {
     return true;
   }
 
+  Future<bool> reconnectHint({
+    required GdkReconnectParams reconnectParams,
+  }) async {
+    final result = await libGdk.reconnectHint(
+      session: session!,
+      reconnectParams: reconnectParams,
+      context: context,
+    );
+
+    if (isErrorResult(result)) {
+      return false;
+    }
+
+    return true;
+  }
+
   Future<bool> disconnect() async {
     libGdk.destroySession(session: session!);
 
@@ -141,10 +167,37 @@ abstract class WalletService {
     return _resolveAuthHandlerStatus(status.asValue!.value);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> getTransactions({int first = 0}) async {
+  Future<Result<GdkAuthHandlerStatus>> encryptWithPin({
+    required GdkEncryptWithPinParams params,
+  }) async {
+    final status =
+        await libGdk.encryptWithPin(session: session!, params: params);
+
+    if (isErrorResult(status)) {
+      return status;
+    }
+
+    return _resolveAuthHandlerStatus(status.asValue!.value);
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> decryptWithPin({
+    required GdkDecryptWithPinParams params,
+  }) async {
+    final status =
+        await libGdk.decryptWithPin(session: session!, params: params);
+
+    if (isErrorResult(status)) {
+      return status;
+    }
+
+    return _resolveAuthHandlerStatus(status.asValue!.value);
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> getTransactions(
+      {int first = 0, GdkGetTransactionsDetails? details}) async {
     final status = await libGdk.getTransactions(
       session: session!,
-      details:
+      details: details ??
           GdkGetTransactionsDetails(first: first, subaccount: getSubAccount()),
     );
 
@@ -254,10 +307,11 @@ abstract class WalletService {
     return await _resolveAuthHandlerStatus(status.asValue!.value);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> getReceiveAddress(
-      {required GdkReceiveAddressDetails details}) async {
+  Future<Result<GdkAuthHandlerStatus>> getReceiveAddress({
+    GdkReceiveAddressDetails? details,
+  }) async {
     GdkReceiveAddressDetails detailsWithSubaccount =
-        details.copyWith(subaccount: getSubAccount());
+        details ?? GdkReceiveAddressDetails(subaccount: getSubAccount());
 
     final status = await libGdk.getReceiveAddress(
         session: session!, details: detailsWithSubaccount);
@@ -274,6 +328,21 @@ abstract class WalletService {
   }) async {
     final status =
         await libGdk.createSubaccount(session: session!, details: details);
+
+    if (isErrorResult(status)) {
+      return status;
+    }
+
+    return await _resolveAuthHandlerStatus(status.asValue!.value);
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> updateSubaccount({
+    required GdkSubaccountUpdate details,
+  }) async {
+    final status = await libGdk.updateSubaccount(
+      session: session!,
+      details: details,
+    );
 
     if (isErrorResult(status)) {
       return status;
@@ -494,8 +563,8 @@ bool isErrorResult(Result result) {
   if (result.isError) {
     final error = result.asError!.error;
     final stackTrace = result.asError!.stackTrace;
-    logger.e(error);
-    logger.e(stackTrace);
+    logger.error(error);
+    logger.error(stackTrace);
 
     return true;
   }

@@ -46,7 +46,7 @@ class MaxDeliverAmountException implements ExceptionLocalized, OrderError {
 class FeeBalanceException implements ExceptionLocalized, OrderError {
   @override
   String toLocalizedString(BuildContext context) {
-    return context.loc.sideshiftFeeBalanceError;
+    return context.loc.insufficientBalanceToCoverFees;
   }
 }
 

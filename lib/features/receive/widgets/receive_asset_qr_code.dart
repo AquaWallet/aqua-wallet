@@ -1,4 +1,5 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 const kPlaceholderQrUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
@@ -19,10 +20,11 @@ class ReceiveAssetQrCode extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPlaceholder = assetAddress.isEmpty;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 12.h),
+      key: ReceiveAssetKeys.receiveAssetQrCodeContainer,
+      padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 12.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: SizedBox.square(
         child: Stack(
@@ -31,11 +33,12 @@ class ReceiveAssetQrCode extends StatelessWidget {
             Opacity(
               opacity: isPlaceholder ? 0.3 : 1,
               child: QrImageView(
+                key: ReceiveAssetKeys.receiveAssetQrCode,
                 data: isPlaceholder ? kPlaceholderQrUrl : assetAddress,
                 version: QrVersions.auto,
                 embeddedImage: null,
-                embeddedImageStyle: QrEmbeddedImageStyle(
-                  size: Size(45.r, 45.r),
+                embeddedImageStyle: const QrEmbeddedImageStyle(
+                  size: Size(45.0, 45.0),
                 ),
               ),
             ),
@@ -45,7 +48,7 @@ class ReceiveAssetQrCode extends StatelessWidget {
               QrAssetIcon(
                 assetId: assetId,
                 assetLogoUrl: assetIconUrl,
-                size: 60.r,
+                size: 60.0,
               ),
             },
           ],

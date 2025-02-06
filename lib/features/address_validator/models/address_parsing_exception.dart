@@ -14,13 +14,19 @@ class AddressParsingException implements ExceptionLocalized {
       case AddressParsingExceptionType.emptyAddress:
         return context.loc.sendAssetAmountScreenEmptyAddressError;
       case AddressParsingExceptionType.invalidAddress:
-        return context.loc.sendAssetAmountScreenInvalidAddressError;
+        return context.loc.invalidAddress;
       case AddressParsingExceptionType.unsupportedInvoice:
         return context.loc.sendAssetAmountScreenUnsupportedInvoiceError;
       case AddressParsingExceptionType.expiredInvoice:
         return context.loc.sendAssetAmountScreenExpiredInvoiceError;
       case AddressParsingExceptionType.noAmountInInvoice:
-        return context.loc.sendAssetAmountScreenNoAmountInnvoiceError;
+        return context.loc.invoicesWithoutAmountNotSupported;
+      case AddressParsingExceptionType.lessThanMinAmountInInvoice:
+        return context.loc.sendAssetAmountScreenLessThanMinAmountError;
+      case AddressParsingExceptionType.greaterThanMaxAmountInInvoice:
+        return context.loc.sendAssetAmountScreenGreaterThanMaxAmountError;
+      case AddressParsingExceptionType.invalidLightningAddress:
+        return context.loc.sendAssetAmountScreenInvalidLightningAddressError;
       case AddressParsingExceptionType.boltzInvoiceError:
         return context.loc.sendAssetAmountScreenBoltzInvoiceError;
       case AddressParsingExceptionType.nonMatchingAmountInInvoice:
@@ -43,6 +49,9 @@ enum AddressParsingExceptionType {
   unsupportedInvoice,
   expiredInvoice,
   noAmountInInvoice,
+  lessThanMinAmountInInvoice,
+  greaterThanMaxAmountInInvoice,
+  invalidLightningAddress,
   boltzInvoiceError,
   nonMatchingAmountInInvoice,
   nonMatchingAssetId,

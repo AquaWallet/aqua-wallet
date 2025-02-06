@@ -1,7 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/svg.dart';
 
 class AddressHistoryEmptyView extends StatelessWidget {
@@ -18,24 +18,24 @@ class AddressHistoryEmptyView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(Svgs.noHistoryIconAddressHistory,
-                width: 90.w,
-                height: 112.h,
+                width: 90.0,
+                height: 112.0,
                 colorFilter: ColorFilter.mode(
                   Theme.of(context).colors.addressHistoryNoHistoryIconColor,
                   BlendMode.srcIn,
                 )),
           ],
         ),
-        SizedBox(height: 30.h),
+        const SizedBox(height: 30.0),
         Text(
-          context.loc.addressHistoryAddressesEmptyTitle,
+          context.loc.noAddresses,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 color:
                     Theme.of(context).colors.addressHistoryNoHistoryTextColor,
               ),
         ),
-        SizedBox(height: 12.h),
+        const SizedBox(height: 12.0),
         Text(
           context.loc.addressHistoryAddressesEmptyDescription,
           textAlign: TextAlign.center,

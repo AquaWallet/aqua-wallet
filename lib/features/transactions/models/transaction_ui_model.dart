@@ -48,8 +48,9 @@ extension TransactionUiModelX on TransactionUiModel {
           context.loc.assetTransactionsTypeBoltzReverseSwap,
         _ when (dbTransaction?.isAquaSend == true) =>
           context.loc.assetTransactionsTypeSent,
-        GdkTransactionTypeEnum.incoming =>
-          context.loc.assetTransactionsTypeReceived,
+        _ when (dbTransaction?.isTopUp == true) => context.loc
+            .assetTransactionsTypeTopup(dbTransaction!.serviceAddress!),
+        GdkTransactionTypeEnum.incoming => context.loc.received,
         GdkTransactionTypeEnum.outgoing =>
           context.loc.assetTransactionsTypeSent,
         GdkTransactionTypeEnum.redeposit =>

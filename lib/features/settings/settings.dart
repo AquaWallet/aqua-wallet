@@ -1,4 +1,5 @@
 export 'block_explorer/block_explorer.dart';
+export 'electrum_server/electrum_server.dart';
 export 'exchange_rate/exchange_rate.dart';
 export 'experimental/experimental.dart';
 export 'help_support/help_support.dart';

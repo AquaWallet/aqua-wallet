@@ -1,5 +1,6 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:aqua/config/config.dart';
 
 class SendAssetMaxButton extends StatelessWidget {
   const SendAssetMaxButton({
@@ -21,25 +22,25 @@ class SendAssetMaxButton extends StatelessWidget {
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           backgroundColor:
               isSelected ? Theme.of(context).colorScheme.primary : null,
-          padding: EdgeInsets.symmetric(
-            horizontal: 12.w,
-            vertical: 12.h,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12.0,
+            vertical: 12.0,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: BorderRadius.circular(8.0),
           ),
           side: BorderSide(
             color: Theme.of(context).colorScheme.primary,
-            width: 2.r,
+            width: 2.0,
           ),
         ),
         child: Text(
           context.loc.sendAssetScreenUseAllFundsButton,
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                fontSize: 14.sp,
+                fontSize: 14.0,
                 color: isSelected
                     ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.onBackground,
+                    : Theme.of(context).colors.onBackground,
               ),
         ),
       ),

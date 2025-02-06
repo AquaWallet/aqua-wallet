@@ -12,8 +12,9 @@ import 'package:image_picker/image_picker.dart' as image_picker;
 
 class WebviewScreen extends HookWidget {
   static const routeName = '/webviewScreen';
+  final WebviewArguments arguments;
 
-  const WebviewScreen({super.key});
+  const WebviewScreen({super.key, required this.arguments});
 
   initFilePicker(WebViewController controller) async {
     if (Platform.isAndroid) {
@@ -73,8 +74,6 @@ class WebviewScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as WebviewArguments;
     final isLoading = useState(true);
 
     final WebViewController controller = useMemoized(() => WebViewController()

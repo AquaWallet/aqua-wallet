@@ -10,7 +10,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'on_ramp_integration.freezed.dart';
 part 'on_ramp_integration.g.dart';
 
-enum OnRampIntegrationType { beaverBitcoin, pocketBitcoin, meld, elektra }
+enum OnRampIntegrationType {
+  beaverBitcoin,
+  pocketBitcoin,
+  btcDirect,
+  meld,
+  elektra
+}
 
 @freezed
 class OnRampIntegration with _$OnRampIntegration {
@@ -26,8 +32,12 @@ class OnRampIntegration with _$OnRampIntegration {
     // launch the integration in an external browser or not
     // for integrations where we don't pass a receive address, we want to launch in an external browser so the user can flip back to aqua to generate a receive address
     required bool openInBrowser,
-    required String refLinkMainnet,
+    // indicates if an integration needs setup, e.g. BTC Direct needs user registration
+    // we can create a smoother u/x by setting up on first launch in flow
+    required bool needsSetup,
+    String? refLinkMainnet,
     String? refLinkTestnet,
+    required bool hasPriceApi,
     String? priceApi,
     String? priceSymbol,
     String? priceCurrencyCode,
@@ -41,6 +51,7 @@ class OnRampIntegration with _$OnRampIntegration {
   static List<OnRampIntegration> get allIntegrations => [
         OnRampIntegration.beaverBitcoin(),
         OnRampIntegration.pocketBitcoin(),
+        OnRampIntegration.btcDirect(),
         OnRampIntegration.meld(),
       ];
 
@@ -55,8 +66,10 @@ class OnRampIntegration with _$OnRampIntegration {
         regions: [RegionsStatic.ca],
         allRegions: false,
         openInBrowser: true,
+        needsSetup: false,
         refLinkMainnet: 'https://www.beaverbitcoin.com/aqua/',
         refLinkTestnet: 'https://dev.beaverbitcoin.com',
+        hasPriceApi: true,
         priceApi: 'https://api.prod.beaverbitcoin.com/bitcoin/price',
         priceSymbol: FiatCurrency.cad.symbol,
         priceCurrencyCode: FiatCurrency.cad.value,
@@ -72,10 +85,37 @@ class OnRampIntegration with _$OnRampIntegration {
         regions: RegionsIntegrations.pocketBitcoinRegions,
         allRegions: false,
         openInBrowser: true,
+        needsSetup: false,
         refLinkMainnet: 'https://pocketbitcoin.com/invite/jan3',
         refLinkTestnet: '',
+        hasPriceApi: true,
         priceApi:
             'https://api.kraken.com/0/public/Ticker?pair=XBTEUR', // they use kraken for price
+        priceSymbol: FiatCurrency.eur.symbol,
+        priceCurrencyCode: FiatCurrency.eur.value,
+      );
+
+  factory OnRampIntegration.btcDirect() => OnRampIntegration(
+        name: 'BTC Direct',
+        logoLight: SvgsMarketplace.btcDirectBlack,
+        logoDark: SvgsMarketplace.btcDirectWhite,
+        type: OnRampIntegrationType.btcDirect,
+        paymentOptions: [
+          PaymentOption.bankTransfer,
+          PaymentOption.creditCard
+        ], //TODO: BTC Direct supports more payment options, such as Apple Pay, iDEAL, Bancontact, Sofort, Cartes Bancaires, etc. Add logos later
+        deliveryOptions: [DeliveryOption.btc],
+        regions: RegionsIntegrations.btcDirectRegions,
+        allRegions: false,
+        openInBrowser: true,
+        needsSetup: true,
+        refLinkMainnet:
+            null, // NOTE: This is dynamic from API. See BTCDirectApiService.createCheckoutUrl()
+        refLinkTestnet:
+            null, // NOTE: This is dynamic from API. See BTCDirectApiService.createCheckoutUrl()
+        hasPriceApi: true,
+        priceApi:
+            null, // NOTE: Use BTCDirectApiService.getBTCPrice() as we need to be authed
         priceSymbol: FiatCurrency.eur.symbol,
         priceCurrencyCode: FiatCurrency.eur.value,
       );
@@ -91,6 +131,8 @@ class OnRampIntegration with _$OnRampIntegration {
       regions: [],
       allRegions: true,
       openInBrowser: false,
+      needsSetup: false,
+      hasPriceApi: false,
       refLinkMainnet: meldProdUrl,
       refLinkTestnet: meldSandboxUrl);
 }

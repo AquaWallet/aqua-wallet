@@ -1,9 +1,11 @@
 import 'package:aqua/data/backend/liquid_network.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 
+//TODO: This needs to be reconciled with NetworkType in Testnet cleanup
 enum LiquidNetworkEnumType {
   regtest,
   testnet,
@@ -23,9 +25,12 @@ class LiquidNetworkFactory {
     this.networkType,
   );
 
-  factory LiquidNetworkFactory.fromEnv(Env envType) {
+  factory LiquidNetworkFactory.fromEnv(
+    Env envType, {
+    String? customElectrumUrl,
+  }) {
     GdkConnectionParams params;
-    GdkRegisterNetworkData? networkData;
+    GdkRegisterNetworkData networkData;
     String networkName;
     LiquidNetworkEnumType networkType;
 
@@ -35,7 +40,7 @@ class LiquidNetworkFactory {
         networkType = LiquidNetworkEnumType.regtest;
         networkData = GdkRegisterNetworkData(
           name: networkName,
-          networkDetails: const GdkNetwork(
+          networkDetails: GdkNetwork(
             addressExplorerUrl:
                 'https://blockstream.info/liquidtestnet/address/',
             assetRegistryOnionUrl: '',
@@ -49,7 +54,7 @@ class LiquidNetworkFactory {
             ctExponent: 0,
             development: false,
             electrumTls: false,
-            electrumUrl: 'api.sideswap.io:10402',
+            electrumUrl: customElectrumUrl ?? 'api.sideswap.io:10402',
             liquid: true,
             mainnet: false,
             name: 'Testnet Liquid (Electrum)',
@@ -84,21 +89,37 @@ class LiquidNetworkFactory {
           name: networkName,
           minFeeRate: 10,
         );
+        networkData = GdkRegisterNetworkData(
+          name: networkName,
+          networkDetails: GdkNetwork(
+            electrumTls: true,
+            electrumUrl: customElectrumUrl,
+          ),
+        );
         break;
       case Env.mainnet:
         networkName = 'electrum-liquid';
         networkType = LiquidNetworkEnumType.mainnet;
-        params = GdkConnectionParams(name: networkName);
-        networkName = 'electrum-liquid';
-        networkType = LiquidNetworkEnumType.mainnet;
         params = GdkConnectionParams(
           name: networkName,
-          minFeeRate: 10,
+          useDiscountedFees: true,
+        );
+        networkData = GdkRegisterNetworkData(
+          name: networkName,
+          networkDetails: GdkNetwork(
+            electrumTls: true,
+            electrumUrl: customElectrumUrl,
+          ),
         );
         break;
     }
-    logger.i("[ENV] $envType - using liquid network: $networkName");
-    return LiquidNetworkFactory(networkData, params, networkName, networkType);
+    logger.info("[ENV] $envType - using liquid network: $networkName");
+    return LiquidNetworkFactory(
+      networkData,
+      params,
+      networkName,
+      networkType,
+    );
   }
 }
 
@@ -132,14 +153,20 @@ class LiquidProvider extends NetworkFrontend {
     GdkConnectionParams? params,
   }) async {
     final env = ref.read(envProvider);
-    liquidNetworkFactory = LiquidNetworkFactory.fromEnv(env);
+    final electrumConfig = ref.read(electrumServerProvider);
+    liquidNetworkFactory = electrumConfig.isCustomElectrumServer
+        ? LiquidNetworkFactory.fromEnv(
+            env,
+            customElectrumUrl: electrumConfig.customElectrumServerLiquidUrl,
+          )
+        : LiquidNetworkFactory.fromEnv(env);
 
     if (liquidNetworkFactory?.networkData != null) {
       final networkRegistered =
           await super.registerNetwork(liquidNetworkFactory!.networkData!);
 
       if (!networkRegistered) {
-        logger.e(
+        logger.error(
             '[$runtimeType] Registering network ${liquidNetworkFactory?.networkName} failed!');
         return false;
       }
@@ -149,25 +176,25 @@ class LiquidProvider extends NetworkFrontend {
       return super.connect(params: liquidNetworkFactory!.params);
     }
 
-    logger.e(
+    logger.error(
         '[$runtimeType] Unable connect to network: ${liquidNetworkFactory?.networkName}');
     return false;
   }
 
   Future<void> onBackendError(dynamic error) async {
-    logger.e('[$runtimeType] Liquid provider error: $error');
+    logger.error('[$runtimeType] Liquid provider error: $error');
   }
 
   @override
   Future<bool> init() async {
-    logger.d('[$runtimeType] Initializing liquid backend');
+    logger.debug('[$runtimeType] Initializing liquid backend');
     final result = await super.init();
 
     if (!result) {
       throw InitializeNetworkFrontendException();
     }
 
-    logger.d('[$runtimeType] Liquid backend initialized: $result');
+    logger.debug('[$runtimeType] Liquid backend initialized: $result');
 
     return result;
   }
@@ -216,6 +243,6 @@ class LiquidProvider extends NetworkFrontend {
 
   @override
   Future<int> minFeeRate() async {
-    return 100;
+    return 10;
   }
 }

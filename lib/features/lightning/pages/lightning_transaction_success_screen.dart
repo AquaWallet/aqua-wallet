@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
+import 'package:aqua/features/home/home.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/lightning/widgets/lightning_status_text.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -95,7 +96,7 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
         decoration: const BoxDecoration(
           gradient: AppStyle.backgroundGradient,
         ),
-        padding: EdgeInsets.symmetric(horizontal: 28.w),
+        padding: const EdgeInsets.symmetric(horizontal: 28.0),
         child: Stack(
           children: [
             AnimatedOpacity(
@@ -103,14 +104,14 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
               duration: _fadeAnimationDuration,
               child: Column(
                 children: [
-                  SizedBox(height: 122.h),
+                  const SizedBox(height: 122.0),
                   //ANCHOR - Aqua Logo
                   UiAssets.svgs.dark.aquaLogo.svg(
-                    width: 321.w,
+                    width: 321.0,
                   ),
                   const Spacer(),
                   //ANCHOR - Lightning Graphic Placeholder
-                  SizedBox.square(dimension: 318.h),
+                  const SizedBox.square(dimension: 318.0),
                   //ANCHOR - Status Text
                   LightningStatusText(
                     type: arguments.type,
@@ -125,7 +126,7 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
                     style: TextStyle(
                       height: 0,
                       letterSpacing: 0,
-                      fontSize: 52.sp,
+                      fontSize: 52.0,
                       fontWeight: FontWeight.w500,
                       fontFamily: UiFontFamily.dMSans,
                       color: context.colorScheme.onPrimary,
@@ -137,21 +138,21 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
                     width: double.maxFinite,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size.fromHeight(49.h),
+                        minimumSize: const Size.fromHeight(49.0),
                         backgroundColor: Colors.white,
                         foregroundColor: AquaColors.aquaBlue,
                         side: BorderSide(
-                          width: 2.w,
+                          width: 2.0,
                           color: Theme.of(context).colorScheme.onPrimary,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(9.r),
+                          borderRadius: BorderRadius.circular(9.0),
                         ),
-                        textStyle: TextStyle(
+                        textStyle: const TextStyle(
                           height: 0,
                           letterSpacing: 0,
                           wordSpacing: 0,
-                          fontSize: 20.sp,
+                          fontSize: 20.0,
                           fontWeight: FontWeight.w700,
                           fontFamily: UiFontFamily.dMSans,
                         ),
@@ -160,14 +161,14 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
                         ref
                             .read(systemOverlayColorProvider(context))
                             .themeBased();
-                        Navigator.of(context).pop();
+                        context.go(HomeScreen.routeName);
                       },
                       child: Text(
-                        context.loc.lightningTransactionSuccessScreenDoneButton,
+                        context.loc.done,
                       ),
                     ),
                   ),
-                  SizedBox(height: kBottomPadding + 52.h),
+                  const SizedBox(height: kBottomPadding + 52.0),
                 ],
               ),
             ),
@@ -175,15 +176,15 @@ class LightningTransactionSuccessScreen extends HookConsumerWidget {
             Container(
               alignment: Alignment.center,
               transformAlignment: Alignment.center,
-              margin: EdgeInsets.only(bottom: 120.h),
+              margin: const EdgeInsets.only(bottom: 120.0),
               child: SlideTransition(
                 position: slideAnimation,
                 child: ScaleTransition(
                   scale: scaleAnimation,
                   child: SvgPicture.asset(
                     Svgs.lightningBolt,
-                    width: 300.r,
-                    height: 300.r,
+                    width: 300.0,
+                    height: 300.0,
                   ),
                 ),
               ),

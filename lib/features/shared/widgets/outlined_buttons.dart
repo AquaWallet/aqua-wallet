@@ -22,14 +22,14 @@ class AquaOutlinedButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(10.0),
           side: BorderSide(
             color: Theme.of(context).colors.roundedButtonOutlineColor,
-            width: 2.w,
+            width: 2.0,
           ),
         ),
         foregroundColor:
-            iconForegroundColor ?? Theme.of(context).colorScheme.onBackground,
+            iconForegroundColor ?? Theme.of(context).colors.onBackground,
         backgroundColor: iconBackgroundColor ??
             Theme.of(context).colors.walletTabButtonBackgroundColor,
       ),

@@ -1,3 +1,4 @@
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class ConfirmationSlider extends StatefulWidget {
@@ -54,11 +55,13 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
   double _position = 0;
   int _duration = 0;
 
+  static const double _endPadding = 2;
+
   double getPosition() {
     if (_position < 0) {
       return 0;
-    } else if (_position > widget.width - widget.sliderWidth) {
-      return widget.width - widget.sliderWidth;
+    } else if (_position > widget.width - widget.sliderWidth - _endPadding) {
+      return widget.width - widget.sliderWidth - _endPadding;
     } else {
       return _position;
     }
@@ -69,8 +72,8 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
       setState(() {
         _duration = 600;
         if (widget.stickToEnd &&
-            _position > widget.width - widget.sliderWidth) {
-          _position = widget.width - widget.sliderWidth;
+            _position > widget.width - widget.sliderWidth - _endPadding) {
+          _position = widget.width - widget.sliderWidth - _endPadding;
         } else {
           _position = 0;
         }
@@ -84,7 +87,7 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
   }
 
   void sliderReleased(dynamic details) {
-    if (_position > widget.width - widget.sliderWidth) {
+    if (_position > widget.width - widget.sliderWidth - _endPadding) {
       widget.onConfirmation();
     }
     updatePosition(details);
@@ -93,10 +96,11 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
   double calculatePercent() {
     double percent;
 
-    if (_position > widget.width - widget.sliderWidth) {
+    if (_position > widget.width - widget.sliderWidth - _endPadding) {
       percent = 1.0;
-    } else if (_position / (widget.width - widget.sliderWidth) > 0) {
-      percent = _position / (widget.width - widget.sliderWidth);
+    } else if (_position / (widget.width - widget.sliderWidth - _endPadding) >
+        0) {
+      percent = _position / (widget.width - widget.sliderWidth - _endPadding);
     } else {
       percent = 0.0;
     }
@@ -129,15 +133,12 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
             ? widget.backgroundColor
             : widget.disabledBackgroundColor,
         boxShadow: [
-          if (widget.enabled)
-            widget.shadow ??
-                const BoxShadow(
-                  color: Colors.black38,
-                  offset: Offset(0, 2),
-                  blurRadius: 2,
-                  spreadRadius: 0,
-                )
+          if (widget.enabled && widget.shadow != null) widget.shadow!,
         ],
+        border: Border.all(
+          color: context.colors.cardOutlineColor,
+          width: 1,
+        ),
       ),
       child: Stack(
         children: <Widget>[

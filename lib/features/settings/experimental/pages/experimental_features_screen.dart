@@ -1,8 +1,12 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/logger_table/logger_table.dart';
+import 'package:aqua/features/settings/debug/debug_database_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
 import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -20,12 +24,12 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         .select((p) => p.forceBoltzFailedNormalSwapEnabled));
     final fakeBroadcastsEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.fakeBroadcastsEnabled));
+    final activateSubaccountsEnabled = ref.watch(
+        featureFlagsProvider.select((p) => p.activateSubaccountsEnabled));
     final throwAquaBroadcastErrorEnabled = ref.watch(
         featureFlagsProvider.select((p) => p.throwAquaBroadcastErrorEnabled));
     final forceAquaNodeNotSyncedEnabled = ref.watch(
         featureFlagsProvider.select((p) => p.forceAquaNodeNotSyncedEnabled));
-    final isMultiOnrampsEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.multipleOnramps));
     final isNotesEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
     final isStatusIndicatorEnabled =
@@ -34,10 +38,20 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         ref.watch(featureFlagsProvider.select((p) => p.lnurlWithdrawEnabled));
     final isDatabaseExportEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.dbExportEnabled));
+    final useChangellyForUSDtSwapsEnabled = ref.watch(
+        featureFlagsProvider.select((p) => p.changellyForUSDtSwapsEnabled));
+    final isBtcDirectEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.btcDirectEnabled));
     final isSeedQrEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.seedQrEnabled));
     final myFirstBitcoinEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.myFirstBitcoinEnabled));
+    final isPayWithMoonEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.payWithMoonEnabled));
+    final isCustomElectrumUrlEnabled = ref
+        .watch(featureFlagsProvider.select((p) => p.customElectrumUrlEnabled));
+    final displayUnit =
+        ref.watch(displayUnitsProvider.select((p) => p.currentDisplayUnit));
 
     final showAlertDialog = useCallback(({
       required String message,
@@ -54,7 +68,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
               child: TextButton(
                 onPressed: () {
                   onAccept();
-                  Navigator.of(context).pop();
+                  context.pop();
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.primary,
@@ -90,7 +104,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             .settingsScreenItemExperimentalFeatures,
       ),
       body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 24.h),
+        padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
         children: [
           //ANCHOR: Notes
           MenuItemWidget.switchItem(
@@ -104,20 +118,8 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                       currentValue: isNotesEnabled,
                     ),
           ),
-          SizedBox(height: 16.h),
-          //ANCHOR: Multi On-Ramps
-          MenuItemWidget.switchItem(
-            context: context,
-            title: context.loc.expFeaturesScreenItemsMultiOnramps,
-            assetName: Svgs.marketplaceRemittance,
-            value: isMultiOnrampsEnabled,
-            onPressed: () =>
-                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                      key: PrefKeys.multipleOnramps,
-                      currentValue: isMultiOnrampsEnabled,
-                    ),
-          ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
+
           //ANCHOR: Status Indicator
           MenuItemWidget.switchItem(
             context: context,
@@ -130,11 +132,11 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                       currentValue: isStatusIndicatorEnabled,
                     ),
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
           //ANCHOR: LNUrl Withdraw
           MenuItemWidget.switchItem(
             context: context,
-            title: context.loc.expFeaturesScreenItemsLnurlWithdraw,
+            title: context.loc.lnUrlWithdraw,
             assetName: Svgs.marketplaceBankings,
             value: isLnurlWithdrawEnabled,
             onPressed: () =>
@@ -143,7 +145,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                       currentValue: isLnurlWithdrawEnabled,
                     ),
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
           //ANCHOR: Seed QR
           MenuItemWidget.switchItem(
             context: context,
@@ -156,7 +158,45 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                       currentValue: isSeedQrEnabled,
                     ),
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR - Display Unit
+          MenuItemWidget.labeledArrow(
+            key: SettingsScreenKeys.settingsDisplayUnitButton,
+            context: context,
+            assetName: Svgs.displayUnits,
+            title: context.loc.displayUnits,
+            label: displayUnit.value,
+            onPressed: () => context.push(DisplayUnitsSettingsScreen.routeName),
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: Changelly USDt Swaps
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.expFeaturesScreenItemsChangellyUSDtSwaps,
+            assetName: Svgs.walletSend,
+            value: useChangellyForUSDtSwapsEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.changellyForUSDtSwapsEnabled,
+                      currentValue: useChangellyForUSDtSwapsEnabled,
+                    ),
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: BTC Direct
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.expFeaturesScreenItemsBtcDirect,
+            assetName: Svgs.walletSend,
+            value: isBtcDirectEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.btcDirectEnabled,
+                      currentValue: isBtcDirectEnabled,
+                    ),
+          ),
 
           //ANCHOR: My First Bitcoin
           MenuItemWidget.switchItem(
@@ -170,21 +210,93 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                       currentValue: myFirstBitcoinEnabled,
                     ),
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: Pay with Moon
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.marketplaceScreenBankingButton,
+            assetName: Svgs.marketplaceBankings,
+            value: isPayWithMoonEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.payWithMoonEnabled,
+                      currentValue: isPayWithMoonEnabled,
+                    ),
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: Watch Only Export
+          MenuItemWidget.arrow(
+            context: context,
+            title: context.loc.watchOnlyScreenTitle,
+            assetName: Svgs.tabWallet,
+            color: context.colors.onBackground,
+            onPressed: () => context.push(WatchOnlyListScreen.routeName),
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR - Logs
+          MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.history,
+              title: context.loc.settingsScreenItemLogs,
+              onPressed: () => context.push(LoggerScreen.routeName)),
+          const SizedBox(height: 4.0),
+
+          // ANCHOR: Danger Zone
+          Padding(
+            padding: const EdgeInsets.only(top: 32.0),
+            child: Text(
+              'Danger Zone',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: Subaccounts
+          MenuItemWidget.arrow(
+            context: context,
+            title: '${context.loc.subaccountsScreenTitle} (Debug Screen)',
+            assetName: Svgs.tabWallet,
+            color: Theme.of(context).colorScheme.error,
+            onPressed: () => context.push(SubaccountsDebugScreen.routeName),
+          ),
+          const SizedBox(height: 16.0),
+
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.expFeaturesScreenItemsSubaccounts,
+            assetName: Svgs.blockExplorer,
+            value: isTestEnv,
+            onPressed: () => showAlertDialog(
+              message: 'Warning: Should only be used with Testnet',
+              onAccept: () =>
+                  ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                        key: PrefKeys.activateSubaccountsEnabled,
+                        currentValue: activateSubaccountsEnabled,
+                      ),
+            ),
+          ),
+          const SizedBox(height: 16.0),
 
           //ANCHOR: Test Features
           Padding(
-            padding: EdgeInsets.only(top: 32.h),
+            padding: const EdgeInsets.only(top: 32.0),
             child: Text(
               context.loc.testSettingsScreenSectionTitle,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 16.sp,
+                fontSize: 16.0,
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
 
           //ANCHOR: Testnet
           MenuItemWidget.switchItem(
@@ -199,7 +311,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                   .setEnv(isTestEnv ? Env.mainnet : Env.testnet),
             ),
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
 
           //ANCHOR: Boltz Testing
           MenuItemWidget.switchItem(
@@ -219,7 +331,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
               }
             },
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
 
           //ANCHOR: Fake Broadcasts
           MenuItemWidget.switchItem(
@@ -234,7 +346,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                   );
             },
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
 
           //ANCHOR: Throw Aqua Broadcast Error
           MenuItemWidget.switchItem(
@@ -249,7 +361,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                   );
             },
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
 
           //ANCHOR: Force Aqua Node Not Synced State
           MenuItemWidget.switchItem(
@@ -264,23 +376,33 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                   );
             },
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
 
           // Debug Mode Only
           if (kDebugMode) ...[
             Padding(
-              padding: EdgeInsets.only(top: 32.h),
+              padding: const EdgeInsets.only(top: 32.0),
               child: Text(
                 context.loc.expFeaturesScreenSectionDebugMode,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
+                  fontSize: 16.0,
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
-            SizedBox(height: 16.h),
+            const SizedBox(height: 16.0),
             //ANCHOR - Databse export and import
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.history,
+              color: context.colors.onBackground,
+              title: context.loc.testSettingsScreenDebugDatabaseView,
+              isEnabled: true,
+              onPressed: () => context.push(DebugDatabaseScreen.routeName),
+            ),
+            const SizedBox(height: 16.0),
+            //ANCHOR - Database export and import
             MenuItemWidget.switchItem(
               context: context,
               title: context.loc.testSettingsScreenItemDatabaseExport,
@@ -293,41 +415,55 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                     );
               },
             ),
-            SizedBox(height: 16.h),
+            const SizedBox(height: 16.0),
             //ANCHOR - Initiate export txn db flow
             MenuItemWidget.arrow(
               context: context,
               assetName: Svgs.outgoing,
-              color: context.colorScheme.onBackground,
+              color: context.colors.onBackground,
               title: context.loc.testTransactionDatabaseExport,
               isEnabled: isDatabaseExportEnabled,
               onPressed: ref
                   .read(exportTransactionDatabaseProvider.notifier)
                   .requestConfirmation,
             ),
-            SizedBox(height: 16.h),
+            const SizedBox(height: 16.0),
             //ANCHOR - Initiate import txn db flow
             MenuItemWidget.arrow(
               context: context,
               assetName: Svgs.incoming,
-              color: context.colorScheme.onBackground,
+              color: context.colors.onBackground,
               title: context.loc.testTransactionDatabaseImport,
               isEnabled: isDatabaseExportEnabled,
               onPressed: ref
                   .read(experimentalRestoreTransactionsProvider.notifier)
                   .checkForStatus,
             ),
-            SizedBox(height: 16.h),
+            const SizedBox(height: 16.0),
             //ANCHOR - Clear all ghost transactions
             MenuItemWidget(
               title: context.loc.expFeaturesScreenItemsClearGhostTxns,
-              color: Theme.of(context).colorScheme.onBackground,
+              color: Theme.of(context).colors.onBackground,
               assetName: Svgs.removeWallet,
               onPressed: ref
                   .read(transactionStorageProvider.notifier)
                   .clearGhostTransactions,
             ),
-            SizedBox(height: 16.h),
+            const SizedBox(height: 16.0),
+            //ANCHOR - Enable Custom Electrum URL
+            MenuItemWidget.switchItem(
+              context: context,
+              title: context.loc.expFeaturesScreenItemsEnableElectrumServer,
+              assetName: Svgs.blockExplorer,
+              value: isCustomElectrumUrlEnabled,
+              onPressed: () {
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.customElectrumUrlEnabled,
+                      currentValue: isCustomElectrumUrlEnabled,
+                    );
+              },
+            ),
+            const SizedBox(height: 16.0),
           ],
         ],
       ),

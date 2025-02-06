@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -25,9 +25,9 @@ class InternalSendFeeBreakdownCard extends HookConsumerWidget {
       color: context.colors.addressFieldContainerBackgroundColor,
       bordered: !darkMode,
       borderColor: context.colors.cardOutlineColor,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12.0),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,23 +37,24 @@ class InternalSendFeeBreakdownCard extends HookConsumerWidget {
               children: [
                 //ANCHOR - Title
                 Text(
-                  context.loc.internalSendSuccessFeeTitle,
+                  context.loc.fees,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colors.onBackground,
                         fontWeight: FontWeight.bold,
-                        fontSize: 18.sp,
-                        // height: 1.5.h,
+                        fontSize: 18.0,
+                        // height: 1.5.0,
                       ),
                 ),
               ],
             ),
-            SizedBox(height: 16.h),
+            const SizedBox(height: 16.0),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 20.h),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14.0, vertical: 20.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.0),
                 border: Border.all(
-                  width: 2.w,
+                  width: 2.0,
                   color: context.colors.cardOutlineColor,
                 ),
               ),
@@ -63,23 +64,23 @@ class InternalSendFeeBreakdownCard extends HookConsumerWidget {
                     title: context.loc.internalSendReviewSideswapServiceFee,
                     value: '0.1%',
                   ),
-                  SizedBox(height: 14.h),
+                  const SizedBox(height: 14.0),
                   _FeeBreakdownItem(
                     title: context.loc.internalSendReviewNetworkFee(
                       input.isPegIn
                           ? context.loc.internalSendReviewBitcoin
-                          : context.loc.internalSendReviewLiquid,
+                          : context.loc.liquid,
                     ),
                     value: uiModel.networkFee,
                   ),
                   if (rate != null) ...[
-                    SizedBox(height: 14.h),
+                    const SizedBox(height: 14.0),
                     _FeeBreakdownItem(
                       title: context.loc.internalSendReviewCurrentRate,
                       value: rate,
                     ),
                   ],
-                  SizedBox(height: 6.h),
+                  const SizedBox(height: 6.0),
                 ],
               ),
             ),
@@ -107,18 +108,18 @@ class _FeeBreakdownItem extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colors.onBackground,
                 fontWeight: FontWeight.bold,
-                fontSize: 14.sp,
+                fontSize: 14.0,
                 letterSpacing: .5,
               ),
         ),
         Text(
           value,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colors.onBackground,
                 fontWeight: FontWeight.bold,
-                fontSize: 14.sp,
+                fontSize: 14.0,
                 letterSpacing: .5,
               ),
         ),
@@ -138,21 +139,21 @@ class _RefreshButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox.square(
-      dimension: 32.r,
+      dimension: 32.0,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
           child: Ink(
-            width: 14.r,
-            height: 14.r,
+            width: 14.0,
+            height: 14.0,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(4.r),
+              borderRadius: BorderRadius.circular(4.0),
               border: Theme.of(context).isLight
                   ? Border.all(
                       color: Theme.of(context).colors.divider,
-                      width: 2.r,
+                      width: 2.0,
                     )
                   : null,
             ),
@@ -161,10 +162,10 @@ class _RefreshButton extends ConsumerWidget {
               child: SvgPicture.asset(
                 Svgs.walletExchange,
                 fit: BoxFit.scaleDown,
-                width: 14.r,
-                height: 14.r,
+                width: 14.0,
+                height: 14.0,
                 colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onBackground,
+                  Theme.of(context).colors.onBackground,
                   BlendMode.srcIn,
                 ),
               ),

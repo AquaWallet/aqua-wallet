@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 void showLoadingDialog(BuildContext context, String? description) {
   showGeneralDialog(
@@ -37,7 +36,8 @@ class LoadingIndicator extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
             child: Text(
               description ?? '',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(

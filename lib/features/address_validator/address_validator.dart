@@ -1,13 +1,16 @@
 import 'package:aqua/common/data_conversion/bip21_encoder.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/elements.dart';
+import 'package:aqua/features/address_validator/money_badger_validator.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
+import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
 import 'package:decimal/decimal.dart';
+import 'package:aqua/features/boltz/providers/boltz_to_boltz_provider.dart';
 
 import 'models/address_validator_models.dart';
 
@@ -15,17 +18,33 @@ final altUsdtValidatorMap = {
   /// Basic Eth validation.
   /// - Checks for 0x prefix
   /// - Checks for 40 hex characters after prefix
-  ///
-  /// - DOES NOT check checksum
-  'eth-usdt': r'^0x[a-fA-F0-9]{40}$',
+  Asset.usdtEth().id: r'^0x[a-fA-F0-9]{40}$',
 
   /// Basic Tron validation.
   /// - Checks for T prefix
   /// - Checks for 33 characters after prefix
   /// - Checks for valid base58 characters
-  ///
-  /// - DOES NOT check checksum
-  'trx-usdt': r'^T[1-9A-HJ-NP-Za-km-z]{33}$'
+  Asset.usdtTrx().id: r'^T[1-9A-HJ-NP-Za-km-z]{33}$',
+
+  /// Basic Binance Smart Chain validation (similar to Ethereum).
+  /// - Checks for 0x prefix
+  /// - Checks for 40 hex characters after prefix
+  Asset.usdtBep().id: r'^0x[a-fA-F0-9]{40}$',
+
+  /// Basic Solana validation.
+  /// - Checks for 32-44 characters
+  /// - Checks for valid base58 characters
+  Asset.usdtSol().id: r'^[1-9A-HJ-NP-Za-km-z]{32,44}$',
+
+  /// Basic Polygon validation (similar to Ethereum).
+  /// - Checks for 0x prefix
+  /// - Checks for 40 hex characters after prefix
+  Asset.usdtPol().id: r'^0x[a-fA-F0-9]{40}$',
+
+  /// Basic TON validation.
+  /// - Checks for EQ prefix
+  /// - Checks for 48 base64 characters after prefix
+  Asset.usdtTon().id: r'^EQ[A-Za-z0-9+/]{48}$',
 };
 
 final addressParserProvider = Provider.autoDispose<AddressParser>((ref) {
@@ -65,6 +84,14 @@ class AddressParser {
       return isEthAddress(address);
     } else if (asset.isTrx) {
       return isTronAddress(address);
+    } else if (asset.isBep) {
+      return isBepAddress(address);
+    } else if (asset.isSol) {
+      return isSolAddress(address);
+    } else if (asset.isPol) {
+      return isPolAddress(address);
+    } else if (asset.isTon) {
+      return isTonAddress(address);
     }
 
     // If none of the specific asset checks match, try all liquid assets
@@ -72,16 +99,19 @@ class AddressParser {
   }
 
   /// Attempt to parse an Asset from an input
-  Future<Asset?> parseAsset({required String address}) async {
+  Future<Asset?> parseAsset({required String address, Asset? asset}) async {
     if (await ref.read(bitcoinProvider).isValidAddress(address)) {
       return Asset.btc();
     } else if (isLightning(address)) {
       return Asset.lightning();
-    } else if (isEthAddress(address) == true) {
-      return Asset.usdtEth();
-    } else if (isTronAddress(address) == true) {
-      return Asset.usdtTrx();
-    } else if (await ref.read(liquidProvider).isValidAddress(address)) {
+    }
+
+    final usdtAsset = _parseAltUsdtAsset(address, asset);
+    if (usdtAsset != null) {
+      return usdtAsset;
+    }
+
+    if (await ref.read(liquidProvider).isValidAddress(address)) {
       final uri = Uri.parse(address);
       if (uri.queryParameters['assetid'] != null) {
         final asset = ref.read(manageAssetsProvider).curatedAssets.firstWhere(
@@ -109,7 +139,7 @@ class AddressParser {
     }
 
     // replace asset with parsed asset if compatible, otherwise if asset is null set as parsedAsset
-    final parsedAsset = await parseAsset(address: input);
+    final parsedAsset = await parseAsset(address: input, asset: asset);
     final switchedAsset =
         _switchedAsset(asset, parsedAsset, accountForCompatibleAssets);
     if (switchedAsset != null) {
@@ -137,6 +167,12 @@ class AddressParser {
           return await _parseLightningAddress(input);
         } else if (isValidLNURL(input)) {
           return await _parseLNURL(input);
+        } else if (isMoneyBadgerLightningAddress(input)) {
+          final lightningAddress =
+              convertMoneyBadgerQRToLightningAddress(input);
+          if (lightningAddress != null) {
+            return await _parseLightningAddress(lightningAddress);
+          }
         } else if (isLightningInvoice(input: input)) {
           return await _parseLightningInvoice(input, asset);
         }
@@ -147,7 +183,7 @@ class AddressParser {
           asset: asset,
           address: input,
           accountForCompatibleAssets: accountForCompatibleAssets)) {
-        logger.d(
+        logger.debug(
             '[AddressParser] valid address: $input - asset: ${asset.name} - assetId: ${asset.id}');
         return ParsedAddress(address: input, asset: asset, assetId: asset.id);
       } else {
@@ -175,7 +211,7 @@ class AddressParser {
     if (originalAsset == null) {
       return parsedAsset;
     } else if (parsedAsset != null) {
-      if (originalAsset.isAnyAltUsdt && parsedAsset.isLiquid) {
+      if (originalAsset.isAltUsdt && parsedAsset.isLiquid) {
         return ref.read(manageAssetsProvider).liquidUsdtAsset;
       } else if (accountForCompatibleAssets &&
           originalAsset.isCompatibleWith(parsedAsset)) {
@@ -195,15 +231,28 @@ class AddressParser {
 
       // this calls the `.well-known/lnurlp` endpoint to get the params - will return an error if no a valid lightning address server
       final result = await getParamsFromLnurlServer(Uri.parse(lnurlp));
-      logger.d(
+      logger.debug(
           "[LNURL] lightning address params: ${result.payParams?.callback} - ${result.payParams?.minSendable}");
       if (result.error != null) {
         throw Exception("Not a valid lightning address");
       }
-      return ParsedAddress(
-          address: input, asset: Asset.lightning(), lnurlParseResult: result);
+
+      // If it's a fixed amount LNURL-pay, set the amount in sats
+      final amount = result.isLnurlPayFixedAmount
+          ? Decimal.fromInt(result.payParams!.minSendableSats)
+          : null;
+
+      final parsedLightningAddress = ParsedAddress(
+        address: input,
+        asset: Asset.lightning(),
+        lnurlParseResult: result,
+        amount: amount,
+      );
+
+      return parsedLightningAddress;
     } catch (e) {
-      return null;
+      throw AddressParsingException(
+          AddressParsingExceptionType.invalidLightningAddress);
     }
   }
 
@@ -211,7 +260,7 @@ class AddressParser {
   Future<ParsedAddress?> _parseLNURL(String input) async {
     try {
       final decoded = decodeLnurlUri(input);
-      logger.d("[LNURL] lnurl decoded: $decoded");
+      logger.debug("[LNURL] lnurl decoded: $decoded");
       final result = await getParamsFromLnurlServer(decoded);
       final lnurlWithdrawEnabled =
           ref.read(featureFlagsProvider.select((p) => p.lnurlWithdrawEnabled));
@@ -270,6 +319,19 @@ class AddressParser {
       if (amount == Decimal.zero) {
         throw AddressParsingException(
             AddressParsingExceptionType.noAmountInInvoice);
+      }
+
+      // validate minimum and maximum amounts
+      if (amount <
+          Decimal.fromInt(SendAssetAmountConstraints.lightning(null).minSats)) {
+        throw AddressParsingException(
+            AddressParsingExceptionType.lessThanMinAmountInInvoice);
+      }
+
+      if (amount >
+          Decimal.fromInt(SendAssetAmountConstraints.lightning(null).maxSats)) {
+        throw AddressParsingException(
+            AddressParsingExceptionType.greaterThanMaxAmountInInvoice);
       }
 
       // check expiry
@@ -337,7 +399,7 @@ class AddressParser {
         }
       }
 
-      final parseAsLightning = decoder.lightning != null && lbtcBalance > 0;
+      final parseAsLightning = parsedLNInvoice != null && lbtcBalance > 0;
       final parsedAddress = parsedLNInvoice ??
           ParsedAddress(
               address: decoder.address,
@@ -379,10 +441,10 @@ class AddressParser {
         }
 
         // fetch the bip21 from boltz using ln invoice for address and sig
-        final reverseSwapBip21 =
-            await ref.read(legacyBoltzProvider).fetchReverseSwapBip21(invoice);
-        final signature = reverseSwapBip21.signature;
-        final bip21 = reverseSwapBip21.bip21;
+        final reverseSwapBip21AsyncValue =
+            await ref.read(fetchReverseSwapBip21Provider(invoice).future);
+        final signature = reverseSwapBip21AsyncValue.signature;
+        final bip21 = reverseSwapBip21AsyncValue.bip21;
         final lbtcAsset = ref.read(manageAssetsProvider).lbtcAsset;
         final parseBip21 = await parseBIP21(bip21, lbtcAsset, false);
         if (parseBip21 == null || parseBip21.amount == null) {
@@ -397,7 +459,7 @@ class AddressParser {
               AddressParsingExceptionType.boltzInvoiceError);
         }
 
-        logger.d(
+        logger.debug(
             "[Boltz] routing hint - invoice amount: ${bolt11.amount} - bip21 amount: ${parseBip21.amount}");
 
         return parseBip21;
@@ -446,14 +508,26 @@ extension AddressParserExt on AddressParser {
     return isBip21WithInvoice(input: input) ||
         isLightningInvoice(input: input) ||
         isValidLightningAddressFormat(input) ||
-        isValidLNURL(input);
+        isValidLNURL(input) ||
+        isSpecialLightningAddressFormat(input);
   }
 
-  /// Initial check is valid lightning address format. However, since a lightning address `user@jan3.com` is really just in an email format,
+  /// Initial check is valid standard lightning address format. However, since a lightning address `user@jan3.com` is really just in an email format,
   ///   this is just checks that initial format.
   /// The real test of a lightning address is to try to convert it to a well-known lnurlp address, in `convertLnAddressToWellKnown` and make a request to it.
   bool isValidLightningAddressFormat(String input) {
     return ref.read(lnurlProvider).isValidLightningAddressFormat(input);
+  }
+
+  /// Checks if the input matches any special lightning address format
+  /// Currently supports:
+  /// - MoneyBadger QR codes
+  ///
+  /// This method serves as an extension point for future special lightning
+  /// address formats that may require custom parsing logic
+  bool isSpecialLightningAddressFormat(String input) {
+    return isMoneyBadgerLightningAddress(input);
+    // Add other special lightning address formats here in the future
   }
 
   /// Check is valid LNURL
@@ -497,30 +571,102 @@ extension AddressParserExt on AddressParser {
         await ref.read(liquidProvider).isValidAddress(address);
   }
 
-  /// Basic check if this is eth or tron address
-  bool isAltUsdtAddress({required String input}) {
-    for (final regex in altUsdtValidatorMap.values) {
-      if (RegExp(regex).hasMatch(input)) {
-        return true;
+  //ANCHOR - USDT Addresses
+  Asset? _parseAltUsdtAsset(String address, Asset? asset) {
+    final activeUsdts = ref.read(activeAltUSDtsProvider);
+
+    // First check the specific asset if provided
+    if (asset != null && asset.isAltUsdt) {
+      if ((asset.isEth && isEthAddress(address)) ||
+          (asset.isTrx && isTronAddress(address)) ||
+          (asset.isBep && isBepAddress(address)) ||
+          (asset.isSol && isSolAddress(address)) ||
+          (asset.isPol && isPolAddress(address)) ||
+          (asset.isTon && isTonAddress(address))) {
+        return asset;
       }
     }
 
-    return false;
+    // If no match with specific asset or no asset provided, check other compatible USDTs
+    if (isEthAddress(address) && activeUsdts.contains(Asset.usdtEth())) {
+      return Asset.usdtEth();
+    }
+    if (isTronAddress(address) && activeUsdts.contains(Asset.usdtTrx())) {
+      return Asset.usdtTrx();
+    }
+    if (isBepAddress(address) && activeUsdts.contains(Asset.usdtBep())) {
+      return Asset.usdtBep();
+    }
+    if (isSolAddress(address) && activeUsdts.contains(Asset.usdtSol())) {
+      return Asset.usdtSol();
+    }
+    if (isPolAddress(address) && activeUsdts.contains(Asset.usdtPol())) {
+      return Asset.usdtPol();
+    }
+    if (isTonAddress(address) && activeUsdts.contains(Asset.usdtTon())) {
+      return Asset.usdtTon();
+    }
+    return null;
   }
 
-  /// Basic check if this is a liquid, eth, or tron address
+  /// Basic check if this is a liquid, eth, tron, bep, sol, pol, or ton address
   Future<bool> isUsdtAddress(String address) async {
     return await ref.read(liquidProvider).isValidAddress(address) ||
         isAltUsdtAddress(input: address);
   }
 
-  /// Basic specific check for eth address
-  bool isEthAddress(String address) {
-    return RegExp(altUsdtValidatorMap['eth-usdt']!).hasMatch(address);
+  /// Basic check if this is an alt usdt address
+  bool isAltUsdtAddress({required String input}) {
+    final activeUsdts = ref.read(activeAltUSDtsProvider);
+    return (isEthAddress(input) && activeUsdts.contains(Asset.usdtEth())) ||
+        (isTronAddress(input) && activeUsdts.contains(Asset.usdtTrx())) ||
+        (isBepAddress(input) && activeUsdts.contains(Asset.usdtBep())) ||
+        (isSolAddress(input) && activeUsdts.contains(Asset.usdtSol())) ||
+        (isPolAddress(input) && activeUsdts.contains(Asset.usdtPol())) ||
+        (isTonAddress(input) && activeUsdts.contains(Asset.usdtTon()));
   }
 
-  /// Basic specific check for tron address
+  /// Basic check for eth address
+  bool isEthAddress(String address) {
+    return RegExp(altUsdtValidatorMap[Asset.usdtEth().id]!).hasMatch(address);
+  }
+
+  /// Basic check for tron address
   bool isTronAddress(String address) {
-    return RegExp(altUsdtValidatorMap['trx-usdt']!).hasMatch(address);
+    return RegExp(altUsdtValidatorMap[Asset.usdtTrx().id]!).hasMatch(address);
+  }
+
+  /// Basic check for Binance Smart Chain address
+  bool isBepAddress(String address) {
+    return RegExp(altUsdtValidatorMap[Asset.usdtBep().id]!).hasMatch(address);
+  }
+
+  /// Basic check for Solana address
+  bool isSolAddress(String address) {
+    return RegExp(altUsdtValidatorMap[Asset.usdtSol().id]!).hasMatch(address);
+  }
+
+  /// Basic check for Polygon address
+  bool isPolAddress(String address) {
+    return RegExp(altUsdtValidatorMap[Asset.usdtPol().id]!).hasMatch(address);
+  }
+
+  /// Basic check for TON address
+  bool isTonAddress(String address) {
+    return RegExp(altUsdtValidatorMap[Asset.usdtTon().id]!).hasMatch(address);
+  }
+}
+
+extension MoneyBadgerValidatorExt on AddressParser {
+  bool isMoneyBadgerLightningAddress(String input) {
+    return MoneyBadgerValidator.isValidRetailerQR(input);
+  }
+
+  /// Convert MoneyBadger QR to Lightning address if valid
+  String? convertMoneyBadgerQRToLightningAddress(String input) {
+    final env = ref.read(envProvider);
+    final isTestnet = env != Env.mainnet;
+    return MoneyBadgerValidator.convertToLightningAddress(input,
+        isTestnet: isTestnet);
   }
 }

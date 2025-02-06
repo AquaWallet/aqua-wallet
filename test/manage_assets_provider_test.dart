@@ -44,14 +44,6 @@ void main() {
           "Default": true
         },
         {
-          "Name": "INF",
-          "Id":
-              "20f235a1096c05a5d9b1d40d09112d3d57eb3a7ac9959beebf0ae5f774a7fd68",
-          "Ticker": "INF",
-          "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/INF.svg",
-          "Default": false
-        },
-        {
           "Name": "JPY Stablecoin",
           "Id":
               "3438ecb49fc45c08e687de4749ed628c511e326460ea4336794e1cf02741329e",
@@ -158,20 +150,6 @@ void main() {
             isLiquid: true,
             isLBTC: false,
             isUSDt: true),
-        Asset(
-            id:
-                '20f235a1096c05a5d9b1d40d09112d3d57eb3a7ac9959beebf0ae5f774a7fd68',
-            name: 'INF',
-            ticker: 'INF',
-            logoUrl:
-                'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/INF.svg',
-            isDefaultAsset: false,
-            domain: null,
-            amount: 0,
-            precision: 8,
-            isLiquid: true,
-            isLBTC: false,
-            isUSDt: false),
         Asset(
             id:
                 '3438ecb49fc45c08e687de4749ed628c511e326460ea4336794e1cf02741329e',
@@ -296,7 +274,7 @@ void main() {
               isLiquid: true,
               isLBTC: false,
               isUSDt: false));
-      expect(container.read(availableAssetsProvider).value?.length, 7);
+      expect(container.read(availableAssetsProvider).value?.length, 6);
 
       // Verify the GET request was made to the correct URL.
       verify(

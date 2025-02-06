@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/secure_storage_provider.dart';
+import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';

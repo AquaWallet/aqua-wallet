@@ -21,7 +21,7 @@ class BoltzInitProvider extends AsyncNotifier<void> {
               '${NSBundleHelper.mainBundlePath}/Frameworks/boltz_dart.framework/boltz_dart')
           : null;
       await BoltzCore.init(externalLibrary: externalLibrary);
-      logger.d('[Boltz] BoltzCore initialized successfully.');
+      logger.debug('[Boltz] BoltzCore initialized successfully.');
 
       state = const AsyncValue.data(null);
     } catch (error) {

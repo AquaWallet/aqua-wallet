@@ -3,7 +3,7 @@ import 'package:aqua/data/data.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -37,12 +37,12 @@ class DirectPegInScreen extends HookConsumerWidget {
         (_, __) {},
       )
       ..listen(pegStatusProvider, (_, value) {
-        logger.d('[DirectPegIn] PegStatus: $value');
+        logger.debug('[DirectPegIn] PegStatus: $value');
       });
 
     return Scaffold(
       appBar: AquaAppBar(
-        title: context.loc.receiveAssetScreenTitle,
+        title: context.loc.receive,
         iconBackgroundColor:
             Theme.of(context).colors.addressFieldContainerBackgroundColor,
         showActionButton: false,
@@ -51,22 +51,22 @@ class DirectPegInScreen extends HookConsumerWidget {
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            SizedBox(height: 26.h),
+            const SizedBox(height: 26.0),
             ReceiveAssetAddressQrCard(
               asset: Asset.btc(),
               isDirectPegIn: true,
               address: order?.pegAddress ?? '',
             ),
             if (minAmount != null) ...[
-              SizedBox(height: 21.h),
+              const SizedBox(height: 21.0),
               Text(
                 context.loc.receiveAssetScreenDirectPegInMinAmount(minAmount),
                 style: context.textTheme.titleSmall,
               ),
             ],
-            SizedBox(height: 21.h),
+            const SizedBox(height: 21.0),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 30.w),
+              margin: const EdgeInsets.symmetric(horizontal: 30.0),
               child: const PegInfoMessage(
                 isPegIn: true,
               ),

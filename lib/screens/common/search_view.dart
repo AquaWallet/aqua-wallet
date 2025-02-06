@@ -16,10 +16,10 @@ class SearchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BoxShadowCard(
-      margin: EdgeInsets.symmetric(horizontal: 28.w),
-      borderRadius: BorderRadius.circular(12.r),
+      margin: const EdgeInsets.symmetric(horizontal: 28.0),
+      borderRadius: BorderRadius.circular(12.0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: TextField(
         controller: controller,
@@ -29,22 +29,22 @@ class SearchView extends StatelessWidget {
           filled: true,
           isDense: true,
           fillColor: Theme.of(context).colors.inputBackground,
-          hintText: context.loc.receiveAddressSearchHint,
+          hintText: context.loc.searchHistory,
           hintStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).colors.addressHistoryHintTextColor,
               ),
           prefixIcon: Container(
-            padding: EdgeInsets.only(left: 18.w, right: 12.w),
+            padding: const EdgeInsets.only(left: 18.0, right: 12.0),
             child: SvgPicture.asset(Svgs.search,
-                width: 16.r,
-                height: 16.r,
+                width: 16.0,
+                height: 16.0,
                 colorFilter: ColorFilter.mode(
                     Theme.of(context).colors.addressHistoryHintTextColor,
                     BlendMode.srcIn)),
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide.none,
           ),
         ),

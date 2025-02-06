@@ -11,13 +11,21 @@ import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:aqua/wallet.dart';
 import 'package:async/async.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
 class InitializeNetworkFrontendException implements Exception {}
 
+@JsonEnum()
 enum NetworkType {
+  @JsonValue('bitcoin')
   bitcoin,
+  @JsonValue('bitcoin-testnet')
+  bitcoinTestnet,
+  @JsonValue('liquid')
   liquid,
+  @JsonValue('liquid-testnet')
+  liquidTestnet,
 }
 
 extension NetworkTypeExt on NetworkType {
@@ -25,8 +33,12 @@ extension NetworkTypeExt on NetworkType {
     switch (this) {
       case NetworkType.bitcoin:
         return 'Bitcoin';
+      case NetworkType.bitcoinTestnet:
+        return 'Bitcoin Testnet';
       case NetworkType.liquid:
         return 'Liquid';
+      case NetworkType.liquidTestnet:
+        return 'Liquid Testnet';
     }
   }
 }
@@ -78,7 +90,7 @@ abstract class NetworkFrontend {
         if (result.currentState == GdkNetworkEventStateEnum.connected &&
             !isLogged) {
           if (internalMnemonic.isNotEmpty) {
-            logger.d('[$runtimeType] Relogin to $networkName');
+            logger.debug('[$runtimeType] Relogin to $networkName');
             await loginUser(
                 credentials: GdkLoginCredentials(mnemonic: internalMnemonic));
           }
@@ -104,7 +116,7 @@ abstract class NetworkFrontend {
         await getTransactions(requiresRefresh: true);
         break;
       default:
-        logger.d(
+        logger.debug(
             '[$runtimeType] $networkName unimplemented event: ${value.runtimeType.toString()}');
     }
   }
@@ -165,22 +177,22 @@ abstract class NetworkFrontend {
       try {
         await _eventListeners[i]?.call(value);
       } catch (e) {
-        logger.e(e);
-        logger.e(StackTrace.current);
+        logger.error(e);
+        logger.error(StackTrace.current);
       }
     }
   }
 
   Future<void> onError(dynamic error) async {
-    logger.e(error);
+    logger.error(error);
   }
 
   bool _isErrorResult(Result result) {
     if (result.isError) {
       final error = result.asError!.error;
       final stackTrace = result.asError!.stackTrace;
-      logger.e(error);
-      logger.e(stackTrace);
+      logger.error(error);
+      logger.error(stackTrace);
 
       return true;
     }
@@ -208,9 +220,9 @@ abstract class NetworkFrontend {
               throw GdkNetworkUnhandledException(errorMessage);
           }
         } on GdkNetworkException catch (err, stackTrace) {
-          logger.e(err.toString());
-          logger.e('[$runtimeType] Gdk error: ${err.errorMessage()}');
-          logger.e(stackTrace);
+          logger.error(err.toString());
+          logger.error('[$runtimeType] Gdk error: ${err.errorMessage()}');
+          logger.error(stackTrace);
           rethrow;
         }
       }
@@ -222,10 +234,17 @@ abstract class NetworkFrontend {
   Future<bool> connect({GdkConnectionParams? params}) async {
     networkName = params!.name!;
 
-    logger.d('[$runtimeType] Connecting to $networkName');
+    logger.debug('[$runtimeType] Connecting to $networkName');
     final result = await session.connect(connectionParams: params);
 
     isConnected = result;
+
+    return result;
+  }
+
+  Future<bool> reconnectHint({required GdkReconnectParams params}) async {
+    logger.debug('[$runtimeType] Reconnecting to $networkName');
+    final result = await session.reconnectHint(reconnectParams: params);
 
     return result;
   }
@@ -235,7 +254,7 @@ abstract class NetworkFrontend {
       return true;
     }
 
-    logger.d('[$runtimeType] Disconnecting $networkName');
+    logger.debug('[$runtimeType] Disconnecting $networkName');
     final result = await session.disconnect();
 
     if (result) {
@@ -249,7 +268,7 @@ abstract class NetworkFrontend {
   }
 
   Future<String?> loginUser({required GdkLoginCredentials credentials}) async {
-    logger.d('[$runtimeType] Login to $networkName');
+    logger.debug('[$runtimeType] Login to $networkName');
     internalMnemonic = credentials.mnemonic;
     final result = await session.loginUser(credentials: credentials);
 
@@ -266,48 +285,50 @@ abstract class NetworkFrontend {
 
   Future<GdkUnspentOutputsReply?> getUnspentOutputs(
       {bool filterCachedSpentOutputs = true}) async {
-    logger.d('[GDK] Fetching unspent outputs');
+    logger.debug('[GDK] Fetching unspent outputs');
     final result = await session.getUnspentOutputs();
     if (_isErrorResult(result)) {
-      logger.e('[GDK] Error fetching unspent outputs');
+      logger.error('[GDK] Error fetching unspent outputs');
       return null;
     }
     final GdkUnspentOutputsReply? utxos =
         result.asValue?.value.result?.unspentOutputs;
 
     if (utxos == null || utxos.unsentOutputs == null) {
-      logger.w('[GDK] getUnspentOutputs: No UTXOs found');
+      logger.warning('[GDK] getUnspentOutputs: No UTXOs found');
       return null;
     }
 
     if (!filterCachedSpentOutputs) {
-      logger.d('[GDK] getUnspentOutputs: Returning unfiltered UTXOs');
+      logger.debug('[GDK] getUnspentOutputs: Returning unfiltered UTXOs');
       return utxos;
     }
 
     final spentUtxos = ref.read(recentlySpentUtxosProvider);
     if (spentUtxos == null || spentUtxos.isEmpty) {
-      logger.d(
+      logger.debug(
           '[GDK] getUnspentOutputs: Used UTXOs not found, returning unfiltered UTXOs');
       return utxos;
     }
 
-    logger.d(
+    logger.debug(
         '[GDK] getUnspentOutputs: Found used UTXOs: ${spentUtxos.length}, filtering');
     final filteredUtxos =
         WalletUtils.filterRecentlySpentUtxos(utxos.unsentOutputs!, spentUtxos);
 
-    logger.d(
+    logger.debug(
         '[GDK] getUnspentOutputs: Returning filtered UTXOs - original: ${utxos.unsentOutputs!.length} - filtered: ${filteredUtxos.length}');
     return GdkUnspentOutputsReply(unsentOutputs: filteredUtxos);
   }
 
   Future<List<GdkTransaction>?> getTransactions(
-      {bool requiresRefresh = false, int first = 0}) async {
+      {bool requiresRefresh = false,
+      int first = 0,
+      GdkGetTransactionsDetails? details}) async {
     if (requiresRefresh ||
         _allTransactions == null ||
         _allTransactions!.isEmpty) {
-      final transactions = await _getTransactions();
+      final transactions = await _getTransactions(details: details);
       _allTransactions = transactions;
     }
 
@@ -320,8 +341,10 @@ abstract class NetworkFrontend {
     return _allTransactions;
   }
 
-  Future<List<GdkTransaction>?> _getTransactions({int first = 0}) async {
-    final result = await session.getTransactions(first: first);
+  Future<List<GdkTransaction>?> _getTransactions(
+      {int first = 0, GdkGetTransactionsDetails? details}) async {
+    final result =
+        await session.getTransactions(first: first, details: details);
 
     if (_isErrorResult(result)) {
       return null;
@@ -331,6 +354,28 @@ abstract class NetworkFrontend {
     final transactionsWithSwap = _detectSwapTransaction(transactions);
 
     return transactionsWithSwap;
+  }
+
+  Future<GdkPinData?> encryptWithPin(
+      {required GdkEncryptWithPinParams params}) async {
+    final result = await session.encryptWithPin(params: params);
+
+    if (_isErrorResult(result)) {
+      return null;
+    }
+
+    return result.asValue?.value.result?.pinData;
+  }
+
+  Future<Object?> decryptWithPin(
+      {required GdkDecryptWithPinParams params}) async {
+    final result = await session.decryptWithPin(params: params);
+
+    if (_isErrorResult(result)) {
+      return null;
+    }
+
+    return result.asValue?.value.result?.pinData;
   }
 
   List<GdkTransaction>? _detectSwapTransaction(
@@ -382,7 +427,7 @@ abstract class NetworkFrontend {
       allRawAssets = result.asValue!.value;
       return allRawAssets;
     } else {
-      logger.e(
+      logger.error(
           "[ASSETS] NetworkFrontend: Received null value from backend method");
       return allRawAssets;
     }
@@ -432,7 +477,7 @@ abstract class NetworkFrontend {
       return null;
     }
 
-    logger.d(
+    logger.debug(
         "[$runtimeType] raw balances: ${result.asValue?.value.result?.balance}");
 
     return result.asValue?.value.result?.balance;
@@ -443,6 +488,13 @@ abstract class NetworkFrontend {
 
     final network = result.asValue?.value?.networks?[networkName];
     return network;
+  }
+
+  Subaccount? get currentSubaccount => session.currentSubaccount;
+
+  //WARNING: Do not set currentSubaccount here directly, use setActiveSubaccount in subaccounts_provider.dart so both bitcoin and liquid subaccounts can be set at the same time.
+  Future<void> setCurrentSubaccount(Subaccount subaccount) async {
+    await session.setCurrentSubaccount(subaccount);
   }
 
   Future<GdkWallet?> getSubaccount(int subaccount) async {
@@ -467,10 +519,34 @@ abstract class NetworkFrontend {
     return result.asValue?.value.result?.subaccounts;
   }
 
+  Future<GdkAuthHandlerStatus?> createSubaccount({
+    required GdkSubaccount details,
+  }) async {
+    final result = await session.createSubaccount(details: details);
+
+    if (_isErrorResult(result)) {
+      return null;
+    }
+
+    return result.asValue!.value;
+  }
+
+  Future<GdkAuthHandlerStatus?> updateSubaccount({
+    required GdkSubaccountUpdate details,
+  }) async {
+    final result = await session.updateSubaccount(details: details);
+
+    if (_isErrorResult(result)) {
+      return null;
+    }
+
+    return result.asValue!.value;
+  }
+
+  //TODO: We need to update names of main native subaccounts to "Main Account", and legacy subaccounts to "Legacy"
   Future<GdkAuthHandlerStatus?> createSegwitSubaccount() async {
     GdkSubaccount subaccount = const GdkSubaccount(
-        type: GdkSubaccountTypeEnum.type_p2wpkh,
-        name: "aqua-wallet-subaccount");
+        type: GdkSubaccountTypeEnum.type_p2wpkh, name: "Main Account");
 
     final result = await session.createSubaccount(details: subaccount);
 
@@ -482,7 +558,7 @@ abstract class NetworkFrontend {
   }
 
   Future<GdkReceiveAddressDetails?> getReceiveAddress({
-    GdkReceiveAddressDetails details = const GdkReceiveAddressDetails(),
+    GdkReceiveAddressDetails? details,
   }) async {
     final result = await session.getReceiveAddress(details: details);
 
@@ -611,15 +687,15 @@ abstract class NetworkFrontend {
     Map<String, List<GdkUnspentOutputs>>? utxos,
   }) async {
     if (utxos == null) {
-      logger.d('[GDK] No UTXOs provided, fetching from getUnspentOutputs');
+      logger.debug('[GDK] No UTXOs provided, fetching from getUnspentOutputs');
       final utxoResult = await getUnspentOutputs();
       if (utxoResult != null) {
         utxos = utxoResult.unsentOutputs;
       } else {
-        logger.e('[GDK] Failed to fetch UTXOs');
+        logger.error('[GDK] Failed to fetch UTXOs');
       }
     } else {
-      logger.d('[GDK] Using provided UTXOs');
+      logger.debug('[GDK] Using provided UTXOs');
     }
 
     final result = await session.createTransaction(
@@ -630,13 +706,12 @@ abstract class NetworkFrontend {
     );
 
     if (_isErrorResult(result)) {
-      logger.e('[GDK] Error creating transaction: ${result.asError?.error}');
+      logger
+          .error('[GDK] Error creating transaction: ${result.asError?.error}');
       return null;
     }
 
-    logger.d('[GDK] Transaction created successfully');
-    logger.d('[GDK] ${result.asValue!.value}');
-
+    logger.debug(result.asValue!.value);
     return result.asValue?.value.result?.createTransaction;
   }
 
@@ -647,7 +722,7 @@ abstract class NetworkFrontend {
       return null;
     }
 
-    logger.d(result.asValue!.value);
+    logger.debug(result.asValue!.value);
 
     return result.asValue?.value.result?.changeSettings;
   }
@@ -697,7 +772,7 @@ abstract class NetworkFrontend {
       return null;
     }
 
-    logger.d(result.asValue!.value);
+    logger.debug(result.asValue!.value);
 
     return result.asValue?.value.result?.signPsbt;
   }
@@ -710,7 +785,7 @@ abstract class NetworkFrontend {
       return null;
     }
 
-    logger.d(result.asValue!.value);
+    logger.debug(result.asValue!.value);
 
     return result.asValue?.value.result?.getDetailsPsbt;
   }
@@ -770,50 +845,51 @@ abstract class NetworkFrontend {
           switch (jsonMap['event']) {
             case 'fees':
               final result = GdkGetFeeEstimatesEvent.fromJson(jsonMap);
-              logger.d("${session.networkName} fees event: $result");
+              logger.debug("${session.networkName} fees event: $result");
 
               onFeeEstimates(result);
               break;
             case 'block':
               final result = GdkBlockEvent.fromJson(
                   jsonMap['block'] as Map<String, dynamic>);
-              logger.d("${session.networkName} block event: $result");
+              logger.debug("${session.networkName} block event: $result");
 
               onBlockHeight(result);
               break;
             case 'settings':
               final result = GdkSettingsEvent.fromJson(
                   jsonMap['settings'] as Map<String, dynamic>);
-              logger.d("${session.networkName} settings event: $result");
+              logger.debug("${session.networkName} settings event: $result");
 
               onSettings(result);
               break;
             case 'transaction':
               final result = GdkTransactionEvent.fromJson(
                   jsonMap['transaction'] as Map<String, dynamic>);
-              logger.d("${session.networkName} transaction event: $result");
+              logger.debug("${session.networkName} transaction event: $result");
 
               onTransaction(result);
               break;
             case 'session':
               final result = GdkSessionEvent.fromJson(
                   jsonMap['session'] as Map<String, dynamic>);
-              logger.d("${session.networkName} session event: $result");
+              logger.debug("${session.networkName} session event: $result");
               onSession(result);
               break;
             case 'network':
               final result = GdkNetworkEvent.fromJson(
                   jsonMap['network'] as Map<String, dynamic>);
-              logger.d("${session.networkName} network event: $result");
+              logger.debug("${session.networkName} network event: $result");
               onNetwork(result);
               break;
 
             default:
-              logger.w('${session.networkName} unhandled event: $jsonMap');
+              logger
+                  .warning('${session.networkName} unhandled event: $jsonMap');
           }
         }
       } catch (err) {
-        logger.e(err);
+        logger.error(err);
       }
     }
   }
@@ -841,7 +917,7 @@ class GdkNetworkInvalidAddress extends GdkNetworkException {
 
   @override
   String toLocalizedString(BuildContext context) {
-    return context.loc.gdkNetworkInvalidAddress;
+    return context.loc.invalidAddress;
   }
 }
 
@@ -886,6 +962,6 @@ class GdkNonExistentAccount extends GdkNetworkException {
 
   @override
   String toLocalizedString(BuildContext context) {
-    return context.loc.gdkNetworkInsufficientFunds;
+    return context.loc.insufficientFunds;
   }
 }

@@ -1,7 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
 import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -50,10 +49,9 @@ final fiatAmountProvider = FutureProvider.autoDispose
       normal: (model) => model.transaction.satoshi?[model.asset.id] as int,
       ghost: (model) => model.dbTransaction!.ghostTxnAmount!,
     );
-    final fiat = fiats.satoshiToFiat(model.asset, amount, rate);
+    final fiat = fiats.satoshiToFiat(model.asset, amount, rate.$1);
     final formattedFiat = fiats.formattedFiat(fiat);
-    final currency = await fiats.currencyStream.first;
-    return '$currency $formattedFiat';
+    return '${rate.$2} $formattedFiat';
   } else {
     return '';
   }
@@ -70,14 +68,8 @@ final transactionsProvider = FutureProvider.autoDispose
   final discoveredGhostTxns = ghostTxns.where((ghostTxn) {
     return rawTxns.any((rawTxn) => rawTxn.txhash == ghostTxn.txhash);
   });
-
-  logger.d('[Transactions] '
-      'Ghost: ${ghostTxns.length}, '
-      'Discovered: ${discoveredGhostTxns.length}');
-
   // Unmark discovered ghost transactions
   for (final txn in discoveredGhostTxns) {
-    logger.d('[Transactions] Unmarking ghost transaction: $txn');
     await ref
         .read(transactionStorageProvider.notifier)
         .save(txn.copyWith(isGhost: false));
@@ -100,6 +92,7 @@ final transactionsProvider = FutureProvider.autoDispose
         : '-';
     // TODO: Add support for other transaction types as support grows
     final icon = switch (txn) {
+      _ when (txn.isTopUp) => Svgs.creditCard,
       _ when (txn.isAquaSend) => Svgs.outgoing,
       _ when (txn.isBoltzSwap) => Svgs.outgoing,
       _ when (txn.isBoltzReverseSwap) => Svgs.incoming,
@@ -116,26 +109,10 @@ final transactionsProvider = FutureProvider.autoDispose
   });
 
   final rawTxnUiModels = await Future.wait(rawTxns.map((txn) async {
-    final boltzSwapData =
-        ref.watch(boltzSwapFromTxHashProvider(txn.txhash ?? '')).asData?.value;
-    final boltzRevSwapData = ref
-        .watch(boltzReverseSwapFromTxHashProvider(txn.txhash ?? ''))
-        .asData
-        ?.value;
+    final dbTransaction =
+        recordedTxns.firstWhereOrNull((dbTxn) => dbTxn.txhash == txn.txhash);
 
-    final dbTransaction = switch (null) {
-      _ when (boltzSwapData != null) => TransactionDbModel.fromBoltzSwap(
-          txhash: txn.txhash ?? '',
-          assetId: asset.id,
-          swap: boltzSwapData,
-        ),
-      _ when (boltzRevSwapData != null) => TransactionDbModel.fromBoltzRevSwap(
-          txhash: txn.txhash ?? '',
-          assetId: asset.id,
-          swap: boltzRevSwapData,
-        ),
-      _ => recordedTxns.firstWhereOrNull((dbTxn) => dbTxn.txhash == txn.txhash),
-    };
+    logger.debug("[Transactions] Resulting DB Transaction: $dbTransaction");
 
     final currentBlockHeight =
         ref.watch(_currentBlockHeightProvider(asset)).asData?.value ?? 0;
@@ -148,6 +125,8 @@ final transactionsProvider = FutureProvider.autoDispose
         : confirmationCount < liquidConfirmationBlockCount;
     final assetIcon = switch (txn.type) {
       _ when (pending) => Svgs.pending,
+      _ when (dbTransaction?.isTopUp == true) => Svgs.creditCard,
+      _ when (dbTransaction?.isAquaSend == true) => Svgs.outgoing,
       _ when (dbTransaction?.isBoltzSwap == true) => Svgs.outgoing,
       _ when (dbTransaction?.isBoltzReverseSwap == true) => Svgs.incoming,
       _ when (dbTransaction != null) => Svgs.exchange,

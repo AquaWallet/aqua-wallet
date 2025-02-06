@@ -10,29 +10,29 @@ class RbfSuccessSheet extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 21.h),
+      padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 21.0),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 28.w),
+        padding: const EdgeInsets.symmetric(horizontal: 28.0),
         child: Column(
           children: [
-            SizedBox(height: 42.h),
+            const SizedBox(height: 42.0),
             //ANCHOR - Illustration
             Lottie.asset(
               animation.tick,
               repeat: false,
-              width: 100.r,
-              height: 100.r,
+              width: 100.0,
+              height: 100.0,
               fit: BoxFit.cover,
             ),
-            SizedBox(height: 42.h),
+            const SizedBox(height: 42.0),
             //ANCHOR - Title
             Text(
               context.loc.assetTransactionDetailsReplaceByFeeSuccessMessage,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontSize: 16.sp,
+                    fontSize: 16.0,
                   ),
             ),
-            SizedBox(height: 42.h),
+            const SizedBox(height: 42.0),
           ],
         ),
       ),

@@ -4,12 +4,12 @@
 library dart_lnurl;
 
 import 'dart:convert';
-
+import 'package:dio/dio.dart';
+import 'package:aqua/features/shared/providers/dio_provider.dart';
 import 'package:aqua/features/lightning/lnurl_parser/src/bech32.dart';
 import 'package:aqua/features/lightning/lnurl_parser/src/lnurl.dart';
 import 'package:bech32/bech32.dart';
 import 'package:aqua/features/lightning/lnurl_parser/src/types.dart';
-import 'package:http/http.dart' as http;
 
 export 'src/types.dart';
 
@@ -55,17 +55,20 @@ Uri decodeLnurlUri(String encodedUrl) {
 ///
 /// Throws [ArgumentError] if the provided input is not a valid lnurl.
 Future<LNURLParseResult> getParamsFromLnurlServer(Uri encodedUrl) async {
-  try {
-    /// Call the lnurl to get a response
-    final res = await http.get(encodedUrl);
+  final dio = createDioInstance(addUserAgent: true);
 
-    /// If there's an error then throw it
-    if (res.statusCode >= 300) {
-      throw res.body;
+  try {
+    final response = await dio.get(encodedUrl.toString());
+
+    if (response.statusCode! >= 300) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      );
     }
 
-    /// Parse the response body to json
-    Map<String, dynamic> parsedJson = json.decode(res.body);
+    Map<String, dynamic> parsedJson = response.data;
 
     if (parsedJson['status'] == 'ERROR') {
       return LNURLParseResult(
@@ -79,7 +82,7 @@ Future<LNURLParseResult> getParamsFromLnurlServer(Uri encodedUrl) async {
       );
     }
 
-    /// If it contains a callback then add the domain as a key
+    // If it contains a callback then add the domain as a key
     if (parsedJson['callback'] != null) {
       parsedJson['domain'] = Uri.parse(parsedJson['callback']).host;
     }
@@ -125,13 +128,26 @@ Future<LNURLParseResult> getParamsFromLnurlServer(Uri encodedUrl) async {
         throw Exception('Unknown tag: ${parsedJson['tag']}');
     }
   } catch (e) {
-    return LNURLParseResult(
-      error: LNURLErrorResponse.fromJson({
-        'status': 'ERROR',
-        'reason': '${encodedUrl.toString()} returned error: ${e.toString()}',
-        'url': encodedUrl.toString(),
-        'domain': encodedUrl.host,
-      }),
-    );
+    if (e is DioException) {
+      return LNURLParseResult(
+        error: LNURLErrorResponse.fromJson({
+          'status': 'ERROR',
+          'reason': '${encodedUrl.toString()} returned error: ${e.message}',
+          'url': encodedUrl.toString(),
+          'domain': encodedUrl.host,
+        }),
+      );
+    } else {
+      return LNURLParseResult(
+        error: LNURLErrorResponse.fromJson({
+          'status': 'ERROR',
+          'reason': '${encodedUrl.toString()} returned error: ${e.toString()}',
+          'url': encodedUrl.toString(),
+          'domain': encodedUrl.host,
+        }),
+      );
+    }
+  } finally {
+    dio.close();
   }
 }

@@ -1,24 +1,21 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SideswapPegDetailsCard extends HookConsumerWidget {
-  const SideswapPegDetailsCard({
-    super.key,
-    required this.uiModel,
-  });
+  const SideswapPegDetailsCard(
+      {super.key, required this.uiModel, required this.arguments});
 
   final AssetTransactionDetailsUiModel uiModel;
+  final TransactionUiModel arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as TransactionUiModel;
-
     final TransactionDbModel? dbTransaction =
         useMemoized(() => arguments.dbTransaction);
 
@@ -26,14 +23,25 @@ class SideswapPegDetailsCard extends HookConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    // peg status
+    useEffect(() {
+      ref.read(pegStatusProvider.notifier).requestPegStatus(
+            orderId: dbTransaction.serviceOrderId!,
+            isPegIn: dbTransaction.isPegIn,
+          );
+      return () {};
+    }, [dbTransaction]);
+
+    final consolidatedStatus = ref.watch(pegStatusProvider).consolidatedStatus;
+
     return BoxShadowCard(
       color: Theme.of(context).colors.altScreenSurface,
       bordered: true,
       borderColor: Theme.of(context).colors.cardOutlineColor,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12.0),
       child: Container(
         width: double.maxFinite,
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -48,21 +56,58 @@ class SideswapPegDetailsCard extends HookConsumerWidget {
                     fontWeight: FontWeight.w600,
                   ),
             ),
-            SizedBox(height: 24.h),
+            const SizedBox(height: 24.0),
             //ANCHOR - Transaction Id
             LabelCopyableTextView(
-              label: context.loc.pegOrderReviewOrderId,
+              label: context.loc.orderId,
               value: dbTransaction.serviceOrderId ?? '-',
             ),
-            SizedBox(height: 18.h),
+            const SizedBox(height: 18.0),
             //ANCHOR - Deposit Address
             LabelCopyableTextView(
-              label: context.loc.sideshiftDepositAddress,
+              label: context.loc.depositAddress,
               value: dbTransaction.serviceAddress ?? '-',
             ),
+            const SizedBox(height: 18.0),
+            //ANCHOR - Status
+            TransactionDetailsStatusChip(
+              color: _getStatusColor(consolidatedStatus?.state),
+              text: _getStatusText(context, consolidatedStatus),
+            ),
+            const SizedBox(height: 18.0),
           ],
         ),
       ),
     );
+  }
+
+  Color _getStatusColor(PegTxState? state) {
+    switch (state) {
+      case PegTxState.done:
+        return AquaColors.aquaGreen;
+      case PegTxState.processing:
+      case PegTxState.detected:
+        return AquaColors.gray;
+      case PegTxState.insufficientAmount:
+        return AquaColors.vermillion;
+      case null:
+        return AquaColors.gray;
+    }
+  }
+
+  String _getStatusText(BuildContext context, ConsolidatedPegStatus? status) {
+    switch (status?.state) {
+      case PegTxState.done:
+        return context.loc.assetTransactionDetailSuccess;
+      case PegTxState.processing:
+        return context.loc.assetTransactionDetailInProgressTxs(
+            status?.detectedConfs, status?.totalConfs);
+      case PegTxState.detected:
+        return context.loc.assetTransactionDetailInProgress;
+      case PegTxState.insufficientAmount:
+        return context.loc.assetTransactionDetailInsufficientAmount;
+      case null:
+        return context.loc.assetTransactionDetailInProgress;
+    }
   }
 }

@@ -13,13 +13,13 @@ class TransactionDetailsStatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 8.h),
+      padding: const EdgeInsets.symmetric(horizontal: 26.0, vertical: 8.0),
       decoration: BoxDecoration(
         border: Border.all(
           color: color,
-          width: 2.r,
+          width: 2.0,
         ),
-        borderRadius: BorderRadius.circular(30.r),
+        borderRadius: BorderRadius.circular(30.0),
       ),
       child: Text(
         text,

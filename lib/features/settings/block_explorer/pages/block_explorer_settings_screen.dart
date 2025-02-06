@@ -1,10 +1,8 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/widgets/aqua_appbar.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class BlockExplorerSettingsScreen extends HookConsumerWidget {
   static const routeName = '/blockExplorerSettingsScreen';
@@ -13,8 +11,9 @@ class BlockExplorerSettingsScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final explorers =
-        ref.read(blockExplorerProvider.select((p) => p.availableBlockExplorer));
+    final availableExplorers = useMemoized(
+      () => BlockExplorer.availableBlockExplorers,
+    );
     final current =
         ref.watch(blockExplorerProvider.select((p) => p.currentBlockExplorer));
 
@@ -28,11 +27,13 @@ class BlockExplorerSettingsScreen extends HookConsumerWidget {
       body: SafeArea(
         child: SettingsSelectionList(
           label: current.name,
-          items: explorers
+          items: availableExplorers
               .mapIndexed((index, item) => SettingsItem.create(item,
-                  name: item.name, index: index, length: explorers.length))
+                  name: item.name,
+                  index: index,
+                  length: availableExplorers.length))
               .toList(),
-          itemBuilder: (context, item) {
+          itemBuilder: (_, item) {
             final explorer = item.object as BlockExplorer;
             return SettingsListSelectionItem(
               content: Text(item.name),

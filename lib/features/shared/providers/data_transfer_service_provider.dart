@@ -10,8 +10,15 @@ import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:pointycastle/api.dart';
 
+final _logger = CustomLogger(FeatureFlag.dataTransfer);
+
 const _kExportFileNamePrefix = 'aqua-export-';
 
+/// Provider used to persist wallet transaction data to a file which you can later import to app state.
+///
+/// use [export] to export all transactions to a file which later can be restored
+///
+/// use [import] to import exproted transactions and load them to dedicated providers
 final dataTransferProvider =
     Provider<DataTransferService>(_DataTransferService.new);
 
@@ -111,23 +118,23 @@ class _DataTransferService implements DataTransferService {
 
       return map;
     } on ArgumentError catch (e) {
-      logger.e(
-        '[DataTransfer] Failed to decrypt: ${e.message}. '
+      _logger.error(
+        'Failed to decrypt: ${e.message}. '
         'Likely caused by an invalid import key',
         e,
         StackTrace.current,
       );
       throw AquaDataTransferInvalidImportKeyError();
     } on InvalidCipherTextException catch (e) {
-      logger.e(
-        '[DataTransfer] Failed to decrypt: ${e.message}. '
+      _logger.error(
+        'Failed to decrypt: ${e.message}. '
         'Likely caused by an invalid import key or corrupted data',
         e,
         StackTrace.current,
       );
       throw AquaDataTransferInvalidImportKeyError();
     } catch (e) {
-      logger.e('[DataTransfer] Failed to decrypt: $e', e, StackTrace.current);
+      _logger.error('Failed to decrypt: $e', e, StackTrace.current);
       rethrow;
     }
   }

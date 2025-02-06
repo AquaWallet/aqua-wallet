@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/internal_send/internal_send.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -5,6 +7,8 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
+
+const _kAnimationDuration = Duration(milliseconds: 200);
 
 class InternalSendMenu extends HookConsumerWidget {
   const InternalSendMenu({
@@ -16,6 +20,7 @@ class InternalSendMenu extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isExpanded = useState(false);
     final assets = ref.watch(assetsProvider).asData?.value ?? [];
     final btcAsset = useMemoized(
       () => assets.firstWhere((a) => a.isBTC),
@@ -32,45 +37,76 @@ class InternalSendMenu extends HookConsumerWidget {
     );
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
         //ANCHOR - Internal Swap Title
-        Text(
-          context.loc.internalSendTitle,
-          textAlign: TextAlign.left,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontSize: 22.sp,
-                letterSpacing: .7,
+        GestureDetector(
+          onTap: () => isExpanded.value = !isExpanded.value,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                context.loc.internalSend,
+                textAlign: TextAlign.left,
+                style: context.textTheme.headlineSmall?.copyWith(
+                  fontSize: 22.0,
+                  letterSpacing: .7,
+                ),
               ),
+              const SizedBox(width: 8),
+              Transform.rotate(
+                angle: isExpanded.value ? 0 : pi / -2,
+                child: UiAssets.svgs.chevronDown.svg(
+                  width: 10,
+                  height: 6,
+                  color: context.colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
         ),
-        SizedBox(height: 16.h),
+        const SizedBox(height: 16.0),
+
         //ANCHOR - Internal Swap Buttons
-        if (asset.isBTC) ...{
-          _InternalSendCard(
-            deliverAsset: btcAsset,
-            receiveAsset: lbtcAsset,
+        AnimatedOpacity(
+          opacity: isExpanded.value ? 1 : 0,
+          duration: _kAnimationDuration,
+          child: AnimatedSize(
+            duration: _kAnimationDuration,
+            child: Column(
+              children: isExpanded.value
+                  ? [
+                      if (asset.isBTC) ...{
+                        _InternalSendCard(
+                          deliverAsset: btcAsset,
+                          receiveAsset: lbtcAsset,
+                        ),
+                      },
+                      if (asset.isUsdtLiquid && usdtAsset != null) ...{
+                        _InternalSendCard(
+                          deliverAsset: usdtAsset,
+                          receiveAsset: lbtcAsset,
+                        ),
+                      },
+                      if (asset.isLBTC && usdtAsset != null) ...[
+                        _InternalSendCard(
+                          deliverAsset: lbtcAsset,
+                          receiveAsset: usdtAsset,
+                        ),
+                        const SizedBox(height: 15.0),
+                      ],
+                      if (asset.isLBTC) ...{
+                        _InternalSendCard(
+                          deliverAsset: lbtcAsset,
+                          receiveAsset: btcAsset,
+                        ),
+                      },
+                    ]
+                  : [],
+            ),
           ),
-        },
-        if (asset.isUsdtLiquid && usdtAsset != null) ...{
-          _InternalSendCard(
-            deliverAsset: usdtAsset,
-            receiveAsset: lbtcAsset,
-          ),
-        },
-        if (asset.isLBTC && usdtAsset != null) ...[
-          _InternalSendCard(
-            deliverAsset: lbtcAsset,
-            receiveAsset: usdtAsset,
-          ),
-          SizedBox(height: 15.h),
-        ],
-        if (asset.isLBTC) ...{
-          _InternalSendCard(
-            deliverAsset: lbtcAsset,
-            receiveAsset: btcAsset,
-          ),
-        },
+        ),
       ],
     );
   }
@@ -91,47 +127,47 @@ class _InternalSendCard extends HookConsumerWidget {
 
     return BoxShadowCard(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: BorderRadius.circular(10.0),
       bordered: !darkMode,
       borderColor: Theme.of(context).colors.cardOutlineColor,
       child: Material(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10.0),
         child: InkWell(
           //ANCHOR - Navigate to Internal Send screen
-          onTap: () => Navigator.of(context).pushNamed(
+          onTap: () => context.push(
             InternalSendAmountScreen.routeName,
-            arguments: InternalSendArguments.amount(
+            extra: InternalSendArguments.amount(
               deliverAsset: deliverAsset,
               receiveAsset: receiveAsset,
             ),
           ),
           splashColor: Colors.transparent,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(10.0),
           child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 11.w,
-              vertical: 8.h,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 11.0,
+              vertical: 8.0,
             ),
             child: Row(
               children: [
                 //ANCHOR - Icon
                 SizedBox.square(
-                  dimension: 50.r,
+                  dimension: 50.0,
                   child: receiveAsset.isLBTC
                       ? SvgPicture.asset(
                           Svgs.layerTwoSingle,
-                          width: 50.r,
-                          height: 50.r,
+                          width: 50.0,
+                          height: 50.0,
                         )
                       : AssetIcon(
                           assetId: receiveAsset.id,
                           assetLogoUrl: receiveAsset.logoUrl,
                           fit: BoxFit.contain,
-                          size: 50.r,
+                          size: 50.0,
                         ),
                 ),
-                SizedBox(width: 12.w),
+                const SizedBox(width: 12.0),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -143,7 +179,7 @@ class _InternalSendCard extends HookConsumerWidget {
                           ? context.loc.internalSendLbtcTitle
                           : receiveAsset.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 18.sp,
+                            fontSize: 18.0,
                             letterSpacing: 0.4,
                           ),
                     ),
@@ -155,7 +191,7 @@ class _InternalSendCard extends HookConsumerWidget {
                               ? context.loc.internalSendUsdtSubtitle
                               : receiveAsset.ticker,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontSize: 13.sp,
+                            fontSize: 13.0,
                             letterSpacing: 0.5,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),

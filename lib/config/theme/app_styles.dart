@@ -5,7 +5,6 @@ import 'package:aqua/config/colors/colors_schemes.dart';
 import 'package:aqua/config/theme/typography.dart';
 import 'package:aqua/gen/fonts.gen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppStyle {
   const AppStyle._();
@@ -15,7 +14,7 @@ class AppStyle {
   static final botevColors = BotevThemeColors();
 
   static final roundedRectangleBorder = RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(32.r),
+    borderRadius: BorderRadius.circular(32.0),
   );
 
   static const backgroundGradient = LinearGradient(
@@ -58,7 +57,7 @@ class AppStyle {
       colorScheme: colors.colorScheme,
       textTheme: typography.appTextTheme,
       dividerColor: colors.divider,
-      scaffoldBackgroundColor: colors.colorScheme.background,
+      scaffoldBackgroundColor: colors.background,
       //ANCHOR - ElevatedButton
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -68,10 +67,10 @@ class AppStyle {
           disabledBackgroundColor:
               colors.disabledBackgroundColorAquaElevatedButton,
           textStyle: typography.appTextTheme.labelLarge,
-          minimumSize: Size(100.w, 52.h),
-          padding: EdgeInsets.symmetric(horizontal: 8.w),
+          minimumSize: const Size(100.0, 52.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(9),
           ),
         ),
       ),
@@ -82,7 +81,7 @@ class AppStyle {
           backgroundColor: colors.colorScheme.surface,
           shape: roundedRectangleBorder,
           side: BorderSide(color: colors.colorScheme.surface),
-          minimumSize: Size(100.w, 48.h),
+          minimumSize: const Size(100.0, 48.0),
         ),
       ),
       //ANCHOR - TextButton
@@ -94,25 +93,25 @@ class AppStyle {
       ),
       //ANCHOR - AppBar
       appBarTheme: AppBarTheme(
-        iconTheme: IconThemeData(color: colors.colorScheme.background),
-        backgroundColor: colors.colorScheme.background,
+        iconTheme: IconThemeData(color: colors.background),
+        backgroundColor: colors.background,
         shadowColor: Colors.transparent,
         titleTextStyle: typography.appTextTheme.titleMedium?.copyWith(
-          fontSize: 18.sp,
+          fontSize: 18.0,
           letterSpacing: 0.15,
-          color: colors.colorScheme.onBackground,
+          color: colors.onBackground,
         ),
       ),
       //ANCHOR - Chip
       chipTheme: ChipThemeData(
         brightness: Brightness.dark,
         selectedColor: colors.colorScheme.secondary,
-        backgroundColor: colors.colorScheme.background,
+        backgroundColor: colors.background,
         secondarySelectedColor: colors.colorScheme.secondary,
-        disabledColor: colors.colorScheme.background,
+        disabledColor: colors.background,
         padding: const EdgeInsets.all(0.0),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(16.0),
         ),
       ),
       //ANCHOR - Text Selection
@@ -127,43 +126,44 @@ class AppStyle {
         color: colors.colorScheme.surface,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(20.0),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colors.colorScheme.surface,
         hintStyle: typography.appTextTheme.labelLarge?.copyWith(
-          color: colors.colorScheme.onBackground,
-          fontSize: 14.sp,
+          color: colors.onBackground,
+          fontSize: 14.0,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(9),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(9),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(9),
           borderSide: BorderSide.none,
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(9),
           borderSide: BorderSide.none,
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(9),
           borderSide: BorderSide.none,
         ),
       ),
       //ANCHOR - Bottom Nav Bar
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: colors.colorScheme.surface,
-        selectedItemColor: colors.colorScheme.onBackground,
-        unselectedItemColor: colors.colorScheme.onBackground,
+        selectedItemColor: colors.onBackground,
+        unselectedItemColor: colors.onBackground,
         selectedLabelStyle: typography.bottomNavBarLabelStyle,
         unselectedLabelStyle: typography.bottomNavBarLabelStyle,
       ),
@@ -185,7 +185,7 @@ extension ThemeDataEx on ThemeData {
   bool get isDarkMode => colorScheme.brightness == Brightness.dark;
 
   TextStyle get richTextStyleNormal => textTheme.headlineLarge!.copyWith(
-        fontSize: 26.sp,
+        fontSize: 26.0,
         fontWeight: FontWeight.normal,
         height: 1.25,
       );
@@ -196,7 +196,7 @@ extension ThemeDataEx on ThemeData {
 
   BoxDecoration get roundedShadowBoxDecoration => BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(9),
         boxShadow: [
           BoxShadow(
             offset: const Offset(0, 4),
@@ -207,22 +207,22 @@ extension ThemeDataEx on ThemeData {
       );
 
   BoxDecoration get boxDecorationForMarketplaceCards => BoxDecoration(
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10.0),
         border: isDarkMode
             ? null
             : Border.all(
                 color: colors.cardOutlineColor,
-                width: 2.w,
+                width: 2.0,
               ),
       );
 
   BoxDecoration get solidBorderDecoration => BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color: colorScheme.onBackground,
+          color: colors.onBackground,
           // Make sure to define 'w' or replace it with a specific value
-          width: 2.w,
+          width: 2.0,
         ),
       );
 
@@ -233,8 +233,57 @@ extension ThemeDataEx on ThemeData {
         focusedBorder: inputBorder,
       );
 
+  InputDecoration get outlineInputDecoration => InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 21,
+          vertical: 16,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            width: 1,
+            color: colors.textFieldOutlineColor,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            width: 1,
+            color: colors.textFieldOutlineColor,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            width: 1,
+            color: colors.textFieldOutlineColor,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            width: 1,
+            color: colors.textFieldOutlineColor,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            width: 1,
+            color: colors.textFieldOutlineColor,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        hintStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 14,
+          fontFamily: UiFontFamily.inter,
+          fontWeight: FontWeight.w500,
+          height: 1.21,
+        ),
+      );
+
   InputBorder get inputBorder => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(9),
         borderSide: BorderSide.none,
       );
 

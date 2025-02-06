@@ -1,8 +1,10 @@
-import 'package:aqua/common/widgets/loading_dialog.dart';
+import 'package:aqua/common/common.dart';
+import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:aqua/config/config.dart';
 
 class WalletBackupConfirmation extends ConsumerWidget {
   static const routeName = '/walletBackupConfirmation';
@@ -14,30 +16,27 @@ class WalletBackupConfirmation extends ConsumerWidget {
     ref.listen(
       walletBackupConfirmationResultProvider,
       (_, asyncValue) => asyncValue?.when(
-        data: (_) => Navigator.of(context).popUntil((route) => route.isFirst),
-        loading: () => showLoadingDialog(
-          context,
-          context.loc.backupInviteLoadingIndicator,
-        ),
-        error: (e, _) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              WalletBackupConfirmationFailure.routeName,
-              (route) =>
-                  route is! RawDialogRoute &&
-                  route.settings.name != WalletBackupConfirmation.routeName);
-        },
-      ),
+          data: (_) => context.go(AuthWrapper.routeName),
+          loading: () => showLoadingDialog(
+                context,
+                context.loc.backupInviteLoadingIndicator,
+              ),
+          error: (e, _) {
+            context
+              ..popUntilPath(routeName)
+              ..push(WalletBackupConfirmationFailure.routeName);
+          }),
     );
 
     return Scaffold(
       appBar: AquaAppBar(
         showActionButton: false,
-        iconBackgroundColor: Theme.of(context).colorScheme.background,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        iconBackgroundColor: Theme.of(context).colors.background,
+        iconForegroundColor: Theme.of(context).colors.onBackground,
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
           child: const WalletBackupConfirmationContent(),
         ),
       ),

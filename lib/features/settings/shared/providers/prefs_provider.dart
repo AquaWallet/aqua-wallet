@@ -70,6 +70,15 @@ class UserPreferencesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  //ANCHOR - Balances Hidden
+
+  bool get isBalanceHidden => _prefs.getBool(PrefKeys.balanceHidden) ?? false;
+
+  Future<void> switchBalanceHidden() async {
+    _prefs.setBool(PrefKeys.balanceHidden, !isBalanceHidden);
+    notifyListeners();
+  }
+
   //ANCHOR - Biometric Auth
 
   bool get isBiometricEnabled => _prefs.getBool(PrefKeys.biometric) ?? false;
@@ -163,6 +172,37 @@ class UserPreferencesNotifier extends ChangeNotifier {
 
   Future<void> setBlockExplorer(String name) async {
     _prefs.setString(PrefKeys.blockExplorer, name);
+    notifyListeners();
+  }
+
+  String? get customElectrumServerBtcUrl =>
+      _prefs.getString(PrefKeys.customElectrumServerBtcUrl);
+
+  Future<void> setCustomElectrumServerBtcUrl(String url) async {
+    _prefs.setString(PrefKeys.customElectrumServerBtcUrl, url);
+    notifyListeners();
+  }
+
+  String? get customElectrumServerLiquidUrl =>
+      _prefs.getString(PrefKeys.customElectrumServerLiquidUrl);
+
+  Future<void> setCustomElectrumServerLiquidUrl(String url) async {
+    _prefs.setString(PrefKeys.customElectrumServerLiquidUrl, url);
+    notifyListeners();
+  }
+
+  Future<void> removeCustomElectrumServerUrls() async {
+    _prefs.remove(PrefKeys.customElectrumServerBtcUrl);
+    _prefs.remove(PrefKeys.customElectrumServerLiquidUrl);
+    notifyListeners();
+  }
+
+  //ANCHOR - Display Units
+
+  String? get displayUnits => _prefs.getString(PrefKeys.displayUnits);
+
+  Future<void> setDisplayUnits(String name) async {
+    _prefs.setString(PrefKeys.displayUnits, name);
     notifyListeners();
   }
 

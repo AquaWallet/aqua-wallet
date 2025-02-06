@@ -10,35 +10,35 @@ class ScreenshotWarningSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      height: 320.h,
-      padding: EdgeInsets.symmetric(horizontal: 28.w),
+      height: 320.0,
+      padding: const EdgeInsets.symmetric(horizontal: 28.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          SizedBox(height: 46.h),
+          const SizedBox(height: 46.0),
           //ANCHOR - Icon
           SvgPicture.asset(
             Svgs.failure,
-            width: 60.r,
-            height: 60.r,
+            width: 60.0,
+            height: 60.0,
           ),
-          SizedBox(height: 20.h),
+          const SizedBox(height: 20.0),
           //ANCHOR - Title
           Text(
             context.loc.backupRecoveryAlertTitle,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 20.sp,
+                  fontSize: 20.0,
                 ),
           ),
-          SizedBox(height: 8.h),
+          const SizedBox(height: 8.0),
           //ANCHOR - Description
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
               context.loc.backupRecoveryAlertSubtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colors.onBackground,
                   ),
             ),
           ),
@@ -46,11 +46,11 @@ class ScreenshotWarningSheet extends ConsumerWidget {
           //ANCHOR - Quit button
           AquaElevatedButton(
             child: Text(
-              context.loc.backupRecoveryAlertButton,
+              context.loc.continueLabel,
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
-          SizedBox(height: 27.h),
+          const SizedBox(height: 27.0),
         ],
       ),
     );

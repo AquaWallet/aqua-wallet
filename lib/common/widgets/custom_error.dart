@@ -8,7 +8,7 @@ class CustomError extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
-      height: 20.h,
+      height: 20.0,
       child: errorMessage != null && errorMessage!.isNotEmpty
           ? ErrorLabel(text: errorMessage!)
           : const SizedBox.shrink(),

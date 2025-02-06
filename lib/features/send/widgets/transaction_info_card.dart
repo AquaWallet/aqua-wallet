@@ -1,43 +1,54 @@
+import 'package:aqua/common/common.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:decimal/decimal.dart';
 
-class TransactionInfoCard extends HookConsumerWidget {
+class TransactionInfoCard extends StatelessWidget {
   const TransactionInfoCard({
     super.key,
+    required this.arguments,
   });
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final asset = ref.watch(sendAssetProvider);
-    final fee = ref.watch(totalFeeToDisplayProvider(asset));
+  final SendAssetCompletionArguments arguments;
 
-    final amountToDisplay = ref.read(amountMinusFeesToDisplayProvider);
+  @override
+  Widget build(BuildContext context) {
+    final asset = arguments.asset;
+    final amount = (Decimal.fromInt(arguments.feeSats ?? 0) /
+            DecimalExt.fromAssetPrecision(asset.precision))
+        .toDouble();
+    final feeAmount = arguments.feeAsset == FeeAsset.tetherUsdt
+        ? '\$${amount.toStringAsFixed(2)}'
+        : '${arguments.feeSats ?? '0'} ${SupportedDisplayUnits.sats.value}';
 
     return BoxShadowCard(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 22.h),
-          //ANCHOR - Amount
-          TransactionInfoItem(
-            label: context.loc.sendAssetCompleteScreenUsdAmountLabel,
-            value: '$amountToDisplay ${asset.symbol}',
-            padding: EdgeInsets.symmetric(horizontal: 26.w),
-          ),
-          const SizedBox(height: 18),
-          //ANCHOR - Network Fee
+          const SizedBox(height: 22.0),
+          if (arguments.amountFiat != null && !asset.isNonSatsAsset) ...{
+            //ANCHOR - Amount
+            TransactionInfoItem(
+              label: context.loc.amount,
+              value: '${arguments.amountFiat}',
+              padding: const EdgeInsets.symmetric(horizontal: 26.0),
+            ),
+            const SizedBox(height: 18),
+          },
           TransactionInfoItem(
             label: context.loc.sendAssetCompleteScreenFeeLabel,
-            value: fee ?? '-',
-            padding: EdgeInsets.symmetric(horizontal: 26.w),
+            value: arguments.feeSats != null ? feeAmount : '-',
+            padding: const EdgeInsets.symmetric(horizontal: 26.0),
           ),
-          SizedBox(height: 22.h),
+          const SizedBox(height: 22.0),
           //ANCHOR - Notes
           // ExpandableContainer(
-          //   padding: EdgeInsets.only(left: 26.w, right: 6.w),
+          //   padding: EdgeInsets.only(left: 26.0, right: 6.0),
           //   title: Text(
           //     context.loc.sendAssetCompleteScreenNoteLabel,
           //     style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -46,12 +57,12 @@ class TransactionInfoCard extends HookConsumerWidget {
           //         ),
           //   ),
           //   child: Container(
-          //     padding: EdgeInsets.only(bottom: 18.h),
+          //     padding: EdgeInsets.only(bottom: 18.0),
           //     child: Text(
           //       arguments.note ?? '',
           //       textAlign: TextAlign.start,
           //       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          //             color: Theme.of(context).colorScheme.onBackground,
+          //             color: Theme.of(context).colors.onBackground,
           //             fontWeight: FontWeight.w400,
           //           ),
           //     ),

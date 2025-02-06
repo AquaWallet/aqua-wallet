@@ -8,7 +8,11 @@ We use Nix package manager for reproducible dev environment. Make sure you have 
 
 2. **Only for Linux users**: Search for `Linux build:` in `gdk.dart` and `pubspec.yaml`, then follow instructions.
 
-3. Run `make setup` (run it whenever you pull from upstream.)
+3. Copy the `.env.example` file to create a `.env` file and fill in the values. You can leave the values empty if you don't plan on using the associated services.
+
+> Make sure to not commit the `.env` file to the repo.
+
+4. Run `make setup` (run it whenever you pull from upstream.)
 
 - `make setup` pulls all the dependencies configured in `pubspec.yaml` as well as pre-built binaries for GDK as well as `boltz-rust`.
 - The source for `GDK` can be found in https://github.com/Blockstream/gdk . Instead of using the pre-built binaries you can build it from source and use it as well.
@@ -23,6 +27,7 @@ Start your prefered emulator, then run app with:
 ```bash
 flutter run
 ```
+
 or through VSCODE: Run -> Start debugging (F5)
 
 ## IOS

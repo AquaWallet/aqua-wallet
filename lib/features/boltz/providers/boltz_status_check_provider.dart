@@ -5,6 +5,8 @@ import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 
+final _logger = CustomLogger(FeatureFlag.boltz);
+
 final boltzSwapStatusProvider = StreamNotifierProvider.autoDispose
     .family<BoltzSwapStatusNotifier, BoltzSwapStatusResponse, String>(
   BoltzSwapStatusNotifier.new,
@@ -12,40 +14,52 @@ final boltzSwapStatusProvider = StreamNotifierProvider.autoDispose
 
 class BoltzSwapStatusNotifier
     extends AutoDisposeFamilyStreamNotifier<BoltzSwapStatusResponse, String> {
-  late final String _id;
+  String? _id;
+  StreamSubscription? _subscription;
 
   @override
-  Stream<BoltzSwapStatusResponse> build(String arg) {
+  Stream<BoltzSwapStatusResponse> build(String arg) async* {
+    _logger.info(
+        '[Boltz] [WSS] Building status notifier for: $arg, current _id: $_id');
+
     _id = arg;
-    logger.d('[Boltz] [WSS] Opening status stream for: $_id');
-
-    // Ensure the WebSocket connection is initialized
     final boltzWebSocket = ref.read(boltzWebSocketProvider);
 
-    ref.onDispose(() {
-      logger.d('[Boltz] [WSS] Closing status stream for: $_id');
-      boltzWebSocket.unsubscribe(_id);
+    await _subscription?.cancel();
+    _subscription = null;
+
+    ref.onDispose(() async {
+      _logger.info('[Boltz] [WSS] Disposing status stream for: $_id');
+      await _subscription?.cancel();
     });
 
-    return boltzWebSocket
-        .getStream(_id, forceNewSubscription: true)
-        .map((json) {
-      logger.d('[Boltz] [WSS] Event for $_id: $json');
-      return BoltzSwapStatusResponse.fromJson(json);
-    }).asyncMap((response) async {
-      await ref
-          .read(boltzStorageProvider.notifier)
-          .updateBoltzSwapStatus(boltzId: _id, status: response.status);
-      return response;
-    }).handleError((e, st) {
-      logger.e("[Boltz] Stream subscription error for $_id: $e", e, st);
+    final stream =
+        await boltzWebSocket.getStream(_id!, forceNewSubscription: true);
+
+    _subscription = stream.listen(
+      null,
+      onError: (error, stack) {
+        _logger.error('[Boltz] Stream error for $_id', error, stack);
+      },
+    );
+
+    yield* stream.map((json) {
+      try {
+        final response = BoltzSwapStatusResponse.fromJson(json);
+        _logger.info(
+            '[Boltz] [WSS] Status response for $_id: ${response.status.value}');
+
+        Future(() async {
+          await ref
+              .read(boltzStorageProvider.notifier)
+              .updateBoltzSwapStatus(boltzId: _id!, status: response.status);
+        });
+
+        return response;
+      } catch (e, st) {
+        _logger.error("[Boltz] Stream parsing error for $_id: $e", e, st);
+        rethrow;
+      }
     });
-  }
-
-  Future<void> refreshSubscription() async {
-    logger.d('[Boltz] Refreshing subscription for: $_id');
-
-    final boltzWebSocket = ref.read(boltzWebSocketProvider);
-    await boltzWebSocket.subscribe(_id);
   }
 }

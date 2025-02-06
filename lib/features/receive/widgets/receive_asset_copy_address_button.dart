@@ -16,7 +16,7 @@ class CopyAddressButton extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Material(
-      borderRadius: BorderRadius.all(Radius.circular(8.r)),
+      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
       color: Theme.of(context).colors.receiveAddressCopySurface,
       child: InkWell(
         onTap: address.isEmpty
@@ -26,20 +26,20 @@ class CopyAddressButton extends HookConsumerWidget {
                 await context.copyToClipboard(address);
               },
         splashColor: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.all(Radius.circular(8.r)),
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         child: Container(
           width: double.maxFinite,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(8.r)),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 18.0),
           child: Row(
             children: [
               Expanded(
                 child: MiddleEllipsisText(
                   text: address,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colors.onBackground,
                         fontWeight: FontWeight.bold,
                         height: 1.38,
                       ),
@@ -48,13 +48,13 @@ class CopyAddressButton extends HookConsumerWidget {
                   ellipsisLength: 3,
                 ),
               ),
-              SizedBox(width: 24.w),
+              const SizedBox(width: 24.0),
               SvgPicture.asset(
                 Svgs.copy,
-                width: 12.r,
-                height: 12.r,
+                width: 12.0,
+                height: 12.0,
                 colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onBackground,
+                  Theme.of(context).colors.onBackground,
                   BlendMode.srcIn,
                 ),
               ),

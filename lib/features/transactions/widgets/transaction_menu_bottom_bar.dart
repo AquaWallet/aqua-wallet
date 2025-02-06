@@ -1,9 +1,9 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/screens/qrscanner/qr_scanner_screen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -21,55 +21,60 @@ class TransactionMenuBottomBar extends HookConsumerWidget {
         .watch(manageAssetsProvider.select((p) => p.curatedAssets))
         .firstWhere((lightningAsset) => lightningAsset.isLightning);
 
-    return SizedBox(
-      height: 64.h,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          //ANCHOR - Receive Button
-          Expanded(
-            child: _MenuButton(
-              svgAssetName: Svgs.walletReceive,
-              radius: BorderRadius.only(bottomLeft: Radius.circular(20.r)),
-              label: context.loc.receive,
-              onPressed: () => Navigator.of(context).pushNamed(
-                ReceiveAssetScreen.routeName,
-                arguments: asset.isLBTC ? lightningAsset : asset,
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: SizedBox(
+        height: 64.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            //ANCHOR - Receive Button
+            Expanded(
+              child: _MenuButton(
+                svgAssetName: Svgs.walletReceive,
+                radius:
+                    const BorderRadius.only(bottomLeft: Radius.circular(20.0)),
+                label: context.loc.receive,
+                onPressed: () => context.push(
+                  ReceiveAssetScreen.routeName,
+                  extra: ReceiveArguments.fromAsset(
+                    asset.isLBTC ? lightningAsset : asset,
+                  ),
+                ),
               ),
             ),
-          ),
-          //ANCHOR - Send Button
-          Expanded(
-            child: _MenuButton(
-              svgAssetName: Svgs.walletSend,
-              label: context.loc.send,
-              onPressed: () => {
-                ref
-                    .read(sendNavigationEntryProvider(
-                        SendAssetArguments.fromAsset(asset)))
-                    .call(context)
-              },
+            //ANCHOR - Send Button
+            Expanded(
+              child: _MenuButton(
+                svgAssetName: Svgs.walletSend,
+                label: context.loc.send,
+                onPressed: () => context.push(
+                  SendAssetScreen.routeName,
+                  extra: SendAssetArguments.fromAsset(asset),
+                ),
+              ),
             ),
-          ),
-          //ANCHOR - Scan Button
-          Expanded(
-            child: _MenuButton(
-              svgAssetName: Svgs.walletScan,
-              label: context.loc.scan,
-              radius: BorderRadius.only(bottomRight: Radius.circular(20.r)),
-              onPressed: () => {
-                Navigator.of(context).pushNamed(
-                  QrScannerScreen.routeName,
-                  arguments: QrScannerScreenArguments(
-                    asset: asset,
-                    parseAction: QrScannerParseAction.parse,
-                  ),
-                )
-                // }
-              },
+            //ANCHOR - Scan Button
+            Expanded(
+              child: _MenuButton(
+                svgAssetName: Svgs.walletScan,
+                label: context.loc.scan,
+                radius:
+                    const BorderRadius.only(bottomRight: Radius.circular(20.0)),
+                onPressed: () => {
+                  context.push(
+                    QrScannerScreen.routeName,
+                    extra: QrScannerArguments(
+                      asset: asset,
+                      parseAction: QrScannerParseAction.parse,
+                    ),
+                  )
+                  // }
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -104,19 +109,19 @@ class _MenuButton extends StatelessWidget {
               children: [
                 //ANCHOR - Icon
                 SvgPicture.asset(svgAssetName,
-                    width: 16.w,
-                    height: 16.w,
+                    width: 16.0,
+                    height: 16.0,
                     fit: BoxFit.scaleDown,
                     colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.onBackground,
+                        Theme.of(context).colors.onBackground,
                         BlendMode.srcIn)),
-                SizedBox(height: 12.h),
+                const SizedBox(height: 12.0),
                 //ANCHOR - Label
                 Text(
                   label,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colors.onBackground,
                       ),
                 ),
               ],

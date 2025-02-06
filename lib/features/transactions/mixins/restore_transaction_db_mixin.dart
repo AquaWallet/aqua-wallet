@@ -4,6 +4,8 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 
+final _logger = CustomLogger(FeatureFlag.restore);
+
 mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
   void listenToRestoreTransactionHistoryEvents(
     BuildContext context,
@@ -19,29 +21,29 @@ mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
         data: (data) => data.whenOrNull(
           permissionRequired: () => showGenericAlertSheet(
             context: context,
-            height: 400.h,
+            height: 400.0,
             isDismissible: false,
             svgPath: Svgs.backupWallet,
             title: context.loc.importTxnHistorySheetTitle,
             message: context.loc.checkTxnHistoryBackupSheetMessage,
             confirmButtonLabel: context.loc.importTxnHistorySheetConfirmButton,
-            cancelButtonLabel: context.loc.importTxnHistorySheetCancelButton,
+            cancelButtonLabel: context.loc.later,
             onConfirm: ref.read(provider.notifier).requestPermission,
           ),
           backupFound: () => showGenericAlertSheet(
             context: context,
-            height: 380.h,
+            height: 380.0,
             isDismissible: false,
             svgPath: Svgs.backupWallet,
             title: context.loc.importTxnHistorySheetTitle,
             message: context.loc.importTxnHistorySheetMessage,
             confirmButtonLabel: context.loc.importTxnHistorySheetRestoreButton,
-            cancelButtonLabel: context.loc.importTxnHistorySheetCancelButton,
+            cancelButtonLabel: context.loc.later,
             onConfirm: ref.read(provider.notifier).restore,
           ),
           noBackupFound: () => showGenericAlertSheet(
             context: context,
-            height: 320.h,
+            height: 320.0,
             isDismissible: false,
             showCancelButton: false,
             svgPath: Svgs.backupWallet,
@@ -51,39 +53,36 @@ mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
           ),
           permissionNotGranted: () => showGenericAlertSheet(
             context: context,
-            height: 380.h,
+            height: 380.0,
             isDismissible: false,
             svgPath: Svgs.backupWallet,
-            title: context.loc.importTxnHistoryPermissionDeniedSheetTitle,
+            title: context.loc.permissionDenied,
             message: context.loc.importTxnHistoryPermissionDeniedSheetMessage,
-            confirmButtonLabel:
-                context.loc.importTxnHistoryPermissionDeniedSheetConfirmButton,
-            cancelButtonLabel:
-                context.loc.importTxnHistoryPermissionDeniedSheetCancelButton,
+            confirmButtonLabel: context.loc.requestPermission,
+            cancelButtonLabel: context.loc.later,
             onConfirm: ref.read(provider.notifier).requestPermission,
           ),
           restoreSuccess: () => showGenericAlertSheet(
             context: context,
-            height: 320.h,
+            height: 320.0,
             isDismissible: false,
             showCancelButton: false,
             svgPath: Svgs.backupWallet,
             title: context.loc.importTxnHistorySuccessSheetTitle,
             message: context.loc.importTxnHistorySuccessSheetMessage,
-            confirmButtonLabel:
-                context.loc.importTxnHistorySuccessSheetConfirmButton,
+            confirmButtonLabel: context.loc.continueLabel,
           ),
         ),
         error: (error, stackTrace) {
-          logger.e('[Restore] Error restoring txn backup', error, stackTrace);
+          _logger.error('Error restoring txn backup', error, stackTrace);
           showGenericAlertSheet(
             context: context,
-            height: 320.h,
+            height: 320.0,
             isDismissible: false,
             showCancelButton: false,
             svgPath: Svgs.failure,
             title: context.loc.importTxnHistoryErrorSheetTitle,
-            message: error is ErrorLocalized
+            message: error is ExceptionLocalized
                 ? error.toLocalizedString(context)
                 : context.loc.importTxnHistoryErrorSheetMessage,
             confirmButtonLabel: context.loc.okay,

@@ -32,7 +32,7 @@ class BalanceService {
 
     final balances = await _ref.read(liquidProvider).getBalance();
 
-    if (asset == Asset.usdtEth() || asset == Asset.usdtTrx()) {
+    if (asset.isAltUsdt) {
       return balances?[_ref.read(liquidProvider).usdtId] as int? ?? 0;
     }
 

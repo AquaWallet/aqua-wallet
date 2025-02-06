@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/config/constants/api_keys.dart';
-import 'package:aqua/config/constants/urls.dart';
+import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
@@ -10,10 +9,9 @@ import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:http/http.dart' as http;
-import 'package:rxdart/rxdart.dart';
 
 const baseUrl = sideshiftUrl;
-const affiliateId = sideshiftAffiliateId;
+const sideshiftAffiliateId = 'PVmPh4Mp3';
 
 // Errors //////////////////////////////////////////////////////////////////////
 
@@ -54,26 +52,7 @@ class LoadAssetsException implements Exception {}
 
 class LoadPairsException implements Exception {}
 
-// Providers //////////////////////////////////////////////////////////////////
-
-// Order Error
-
-final _orderErrorSubject = PublishSubject<OrderError?>();
-
-void setOrderError(OrderError? error) {
-  _orderErrorSubject.add(error);
-  logger.d('[SideShift] setOrderError: $error');
-}
-
-// Asset List Error
-
-final _assetListErrorSubject = PublishSubject<LoadAssetsException?>();
-
-void setAssetListError(LoadAssetsException? error) {
-  _assetListErrorSubject.add(error);
-  logger.d('[SideShift] setAssetListError: $error');
-}
-
+// Providers //////////////////////////////////////////////////////////////////s
 // Sideshift Http
 
 final sideshiftHttpProvider = Provider.autoDispose<SideshiftHttpProvider>((_) {
@@ -97,9 +76,7 @@ class SideshiftHttpProvider {
           .toSet()
           .toList();
     } else {
-      final error = LoadAssetsException();
-      setAssetListError(error);
-      return Future.error(error);
+      throw LoadAssetsException();
     }
   }
 
@@ -107,17 +84,14 @@ class SideshiftHttpProvider {
     SideshiftAsset fromAsset,
     SideshiftAsset toAsset,
   ) async {
-    logger.d('[SideShift] Pair ${fromAsset.id}/${toAsset.id}');
+    logger.debug('[SideShift] Pair ${fromAsset.id}/${toAsset.id}');
     final url = "$baseUrl/pair/${fromAsset.id}/${toAsset.id}";
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      setAssetRateInfoError(null);
       return SideShiftAssetPairInfo.fromJson(json);
     } else {
-      final error = LoadPairsException();
-      setAssetRateInfoError(error);
-      return Future.error(error);
+      throw LoadPairsException();
     }
   }
 
@@ -128,7 +102,7 @@ class SideshiftHttpProvider {
     Decimal? settleAmount,
   }) async {
     const url = "$baseUrl/quotes";
-    logger.d('[SideShift] Requesting order quote: $url');
+    logger.debug('[SideShift] Requesting order quote: $url');
 
     final request = SideshiftQuoteRequest(
       depositCoin: fromAsset.coin,
@@ -137,7 +111,7 @@ class SideshiftHttpProvider {
       settleNetwork: toAsset.network,
       depositAmount: deliverAmount?.toStringAsFixed(8),
       settleAmount: settleAmount?.toStringAsFixed(8),
-      affiliateId: affiliateId,
+      affiliateId: sideshiftAffiliateId,
     );
     final response = await http.post(
       Uri.parse(url),
@@ -148,18 +122,15 @@ class SideshiftHttpProvider {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       return SideshiftQuoteResponse.fromJson(json);
     } else {
-      logger.d('[SideShift] Order Quote Error: ${response.body}');
+      logger.debug('[SideShift] Order Quote Error: ${response.body}');
       String? message;
       try {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         message = json['error']['message'] as String;
       } catch (e) {
-        // No-op
         message = null;
       }
-      final error = OrderQuoteException(message);
-      setOrderError(error);
-      return Future.error(error);
+      throw OrderQuoteException(message);
     }
   }
 
@@ -168,12 +139,11 @@ class SideshiftHttpProvider {
     final response = await http.get(Uri.parse(url));
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      logger.d('[SideShift] Check Permissions: $json');
+      logger.debug('[SideShift] Check Permissions: $json');
       return SideshiftPermissionsResponse.fromJson(json);
     } else {
-      logger.d('[SideShift] Check Permissions Error: ${response.body}');
-      final error = NoPermissionsException();
-      return Future.error(error);
+      logger.debug('[SideShift] Check Permissions Error: ${response.body}');
+      throw NoPermissionsException();
     }
   }
 
@@ -181,17 +151,14 @@ class SideshiftHttpProvider {
     required String quoteId,
     required String receiveAddress,
     String? refundAddress,
-    bool checkPermission = true,
+    bool checkPermission = false,
   }) async {
     const url = "$baseUrl/shifts/fixed";
-    logger.d('[SideShift] Placing fixed rate order: $url');
-    setOrderError(null);
+    logger.debug('[SideShift] Placing fixed rate order: $url');
     if (checkPermission) {
       final permissions = await checkPermissions();
       if (!permissions.createShift) {
-        final error = NoPermissionsException();
-        setOrderError(error);
-        return Future.error(error);
+        throw NoPermissionsException();
       }
     }
 
@@ -199,7 +166,7 @@ class SideshiftHttpProvider {
       quoteId: quoteId,
       settleAddress: receiveAddress,
       refundAddress: refundAddress,
-      affiliateId: affiliateId,
+      affiliateId: sideshiftAffiliateId,
     );
     final response = await http.post(
       Uri.parse(url),
@@ -210,18 +177,15 @@ class SideshiftHttpProvider {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       return SideshiftFixedOrderResponse.fromJson(json);
     } else {
-      logger.d('[SideShift] Fixed Order Error: ${response.body}');
+      logger.debug('[SideShift] Fixed Order Error: ${response.body}');
       String? message;
       try {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         message = json['error']['message'] as String;
       } catch (e) {
-        // No-op
         message = null;
       }
-      final error = OrderException(message);
-      setOrderError(error);
-      return Future.error(error);
+      throw OrderException(message);
     }
   }
 
@@ -232,17 +196,14 @@ class SideshiftHttpProvider {
     required String settleCoin,
     required String settleNetwork,
     String? refundAddress,
-    bool checkPermission = true,
+    bool checkPermission = false,
   }) async {
     const url = "$baseUrl/shifts/variable";
-    logger.d('[SideShift] Placing variable rate order: $url');
-    setOrderError(null);
+    logger.debug('[SideShift] Placing variable rate order: $url');
     if (checkPermission) {
       final permissions = await checkPermissions();
       if (!permissions.createShift) {
-        final error = NoPermissionsException();
-        setOrderError(error);
-        return Future.error(error);
+        throw NoPermissionsException();
       }
     }
 
@@ -253,7 +214,7 @@ class SideshiftHttpProvider {
       settleNetwork: settleNetwork,
       depositCoin: depositCoin,
       depositNetwork: depositNetwork,
-      affiliateId: affiliateId,
+      affiliateId: sideshiftAffiliateId,
     );
     final response = await http.post(
       Uri.parse(url),
@@ -264,24 +225,21 @@ class SideshiftHttpProvider {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       return SideshiftVariableOrderResponse.fromJson(json);
     } else {
-      logger.d('[SideShift] Variable Order Error: ${response.body}');
+      logger.debug('[SideShift] Variable Order Error: ${response.body}');
       String? message;
       try {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         message = json['error']['message'] as String;
       } catch (e) {
-        // No-op
         message = null;
       }
-      final error = OrderException(message);
-      setOrderError(error);
-      return Future.error(error);
+      throw OrderException(message);
     }
   }
 
   Future<SideshiftOrderStatusResponse> fetchOrderStatus(String orderId) async {
     final url = "$baseUrl/shifts/$orderId";
-    logger.d('[SideShift] Checking order status: $url');
+    logger.debug('[SideShift] Checking order status: $url');
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -292,27 +250,15 @@ class SideshiftHttpProvider {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       return SideshiftOrderStatusResponse.fromJson(json);
     } else {
-      logger.d('[SideShift] Order Status Error: ${response.body}');
+      logger.debug('[SideShift] Order Status Error: ${response.body}');
       String? message;
       try {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         message = json['error']['message'] as String;
       } catch (e) {
-        // No-op
         message = null;
       }
-      final error = OrderException(message);
-      setOrderError(error);
-      return Future.error(error);
-    }
-  }
-
-  final _assetsRateInfoErrorSubject = PublishSubject<LoadPairsException?>();
-
-  void setAssetRateInfoError(LoadPairsException? error) {
-    _assetsRateInfoErrorSubject.add(error);
-    if (error != null) {
-      logger.d('[SideShift] setAssetRateInfoError: $error');
+      throw OrderException(message);
     }
   }
 }

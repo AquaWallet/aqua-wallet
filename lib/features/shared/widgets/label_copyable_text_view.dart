@@ -2,7 +2,7 @@ import 'package:aqua/common/widgets/middle_ellipsis_text.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/utils/extensions/extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LabelCopyableTextView extends StatelessWidget {
@@ -24,17 +24,17 @@ class LabelCopyableTextView extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.titleSmall,
         ),
-        SizedBox(height: 4.h),
+        const SizedBox(height: 4.0),
         Row(
           children: [
             Expanded(
               child: MiddleEllipsisText(
                 text: value,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colors.onBackground,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13.sp,
-                      height: 1.5.h,
+                      fontSize: 13.0,
+                      height: 1.5,
                     ),
                 startLength: 30,
                 endLength: 30,
@@ -43,7 +43,7 @@ class LabelCopyableTextView extends StatelessWidget {
             ),
             Container(
               alignment: Alignment.centerRight,
-              margin: EdgeInsets.symmetric(horizontal: 12.w),
+              margin: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -51,10 +51,10 @@ class LabelCopyableTextView extends StatelessWidget {
                   child: InkWell(
                     child: SvgPicture.asset(
                       Svgs.copy,
-                      width: 16.r,
-                      height: 16.r,
+                      width: 16.0,
+                      height: 16.0,
                       colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.onBackground,
+                        Theme.of(context).colors.onBackground,
                         BlendMode.srcIn,
                       ),
                     ),

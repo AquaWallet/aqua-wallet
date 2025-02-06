@@ -4,7 +4,7 @@ import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/features/boltz/screens/boltz_swaps_screen.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/pages/sideshift_orders_screen.dart';
+import 'package:aqua/features/swaps/pages/swap_orders_screen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -12,13 +12,13 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'address_list.dart';
 
 class AddressListScreen extends HookConsumerWidget {
-  const AddressListScreen({super.key});
+  const AddressListScreen({super.key, required this.args});
+  final AddressListArgs args;
 
   static const routeName = '/addressList';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final args = ModalRoute.of(context)!.settings.arguments as AddressListArgs;
     final networkType = args.networkType;
     final asset = args.asset;
 
@@ -65,29 +65,29 @@ class AddressListScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AquaAppBar(
-        title: context.loc.addressHistoryTitle,
+        title: context.loc.addressHistory,
         showBackButton: true,
         showActionButton: asset.isUsdtLiquid || asset.isLayerTwo,
         actionButtonAsset: Svgs.history,
         onActionButtonPressed: () {
           if (asset.isUsdtLiquid) {
-            Navigator.of(context).pushNamed(SideShiftOrdersScreen.routeName);
+            context.push(SwapOrdersScreen.routeName);
           } else if (asset.isLayerTwo) {
-            Navigator.of(context).pushNamed(BoltzSwapsScreen.routeName);
+            context.push(BoltzSwapsScreen.routeName);
           }
         },
       ),
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(16.h),
+            padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: context.loc.addressHistorySearchHint,
+                hintText: context.loc.searchHistory,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.r),
+                  borderRadius: BorderRadius.circular(30.0),
                 ),
               ),
               onChanged: (value) {
@@ -97,16 +97,16 @@ class AddressListScreen extends HookConsumerWidget {
               },
             ),
           ),
-          SizedBox(height: 12.h),
+          const SizedBox(height: 12.0),
           TabSwitchView(
             labels: [
-              context.loc.addressHistoryUsed,
+              context.loc.usedAddresses,
               context.loc.addressHistoryUnused
             ],
             onChange: (index) => showUsedAddresses.value = index == 0,
             initialIndex: showUsedAddresses.value ? 0 : 1,
           ),
-          SizedBox(height: 12.h),
+          const SizedBox(height: 12.0),
           Expanded(
             child: addressListsAsync.when(
               loading: () => const AddressListSkeleton(),
@@ -125,9 +125,9 @@ class AddressListScreen extends HookConsumerWidget {
                     child: ListView.separated(
                       itemCount: filteredAddresses.length,
                       separatorBuilder: (context, index) =>
-                          SizedBox(height: 16.h),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 16.w, vertical: 20.h),
+                          const SizedBox(height: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 20.0),
                       itemBuilder: (context, index) => AddressListItem(
                         address: filteredAddresses[index],
                         isUsed: showUsedAddresses.value,
@@ -162,10 +162,10 @@ class AddressListItem extends HookConsumerWidget {
             ));
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       elevation: 0,
       child: Padding(
-        padding: EdgeInsets.all(20.h),
+        padding: const EdgeInsets.all(20.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -174,11 +174,11 @@ class AddressListItem extends HookConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 40.w,
-                  height: 40.h,
+                  width: 40.0,
+                  height: 40.0,
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(4.r),
+                    borderRadius: BorderRadius.circular(4.0),
                     border: Border.all(
                       color: Colors.grey[400]!,
                       width: 1,
@@ -193,14 +193,14 @@ class AddressListItem extends HookConsumerWidget {
                         ),
                   ),
                 ),
-                SizedBox(height: 10.h),
+                const SizedBox(height: 10.0),
                 Text(
                   'TX Count',
                   style: detailLabelStyle,
                 ),
               ],
             ),
-            SizedBox(width: 16.w),
+            const SizedBox(width: 16.0),
             //ANCHOR: Address, Amount, Date
             Expanded(
               child: Column(
@@ -209,11 +209,11 @@ class AddressListItem extends HookConsumerWidget {
                   //ANCHOR: Address
                   CopyableTextView(
                     text: address.address ?? '',
-                    margin: EdgeInsetsDirectional.only(
-                      top: 0.h,
-                      bottom: 0.h,
-                      start: 0.w,
-                      end: 12.w,
+                    margin: const EdgeInsetsDirectional.only(
+                      top: 0.0,
+                      bottom: 0.0,
+                      start: 0.0,
+                      end: 12.0,
                     ),
                   ),
                   // TODO: Uncomment this block when logic is implemented:
@@ -221,7 +221,7 @@ class AddressListItem extends HookConsumerWidget {
                   //   2. Total amount of txs in address
 
                   // if (isUsed) ...[
-                  //   SizedBox(height: 8.h),
+                  //   SizedBox(height: 8.0),
                   //   //ANCHOR: Amount + Date
                   //   Row(
                   //     children: [
@@ -249,7 +249,7 @@ class AddressListItem extends HookConsumerWidget {
                   //           ],
                   //         ),
                   //       ),
-                  //       SizedBox(width: 40.w),
+                  //       SizedBox(width: 40.0),
                   //     ],
                   //   ),
                   // ],

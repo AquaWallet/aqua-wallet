@@ -15,7 +15,7 @@ class WalletMnemonicSuggestions extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useScrollController();
     return Container(
-      height: 43.h,
+      height: 43.0,
       color: Theme.of(context).colorScheme.primary,
       child: suggestions.isEmpty
           ? const SizedBox.shrink()
@@ -25,25 +25,25 @@ class WalletMnemonicSuggestions extends HookConsumerWidget {
               scrollDirection: Axis.horizontal,
               itemCount: suggestions.length,
               separatorBuilder: (_, __) => VerticalDivider(
-                width: 16.w,
-                indent: 8.h,
-                endIndent: 8.h,
-                thickness: 1.w,
+                width: 16.0,
+                indent: 8.0,
+                endIndent: 8.0,
+                thickness: 1.0,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
               itemBuilder: (context, index) {
                 final text = suggestions[index];
                 return Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 4.h,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 4.0,
                   ),
                   child: TextButton(
                     onPressed: () => onSuggestionSelected(text),
                     style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6.r),
+                        borderRadius: BorderRadius.circular(6.0),
                       ),
                     ),
                     child: Text(text.toUpperCase()),

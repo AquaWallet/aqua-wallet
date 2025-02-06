@@ -15,7 +15,7 @@ class AddressTypeTabBar extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return TabSwitchViewAddressHistory(
       labels: [
-        context.loc.receiveAddressChipsUsed,
+        context.loc.usedAddresses,
         context.loc.receiveAddressChipsAll,
       ],
       onChange: onTabChange,

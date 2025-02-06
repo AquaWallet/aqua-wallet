@@ -5,6 +5,11 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+final _logger = CustomLogger(FeatureFlag.restore);
+
+/// Provider used to load wallet transactions state from persisted export file.
+///
+/// uses [dataTransferProvider] underneath to restore from export file.
 final restoreTransactionDatabaseBackupProvider =
     AutoDisposeAsyncNotifierProvider<_Notifier, TransactionDatabaseImportState>(
         _Notifier.new);
@@ -21,22 +26,22 @@ class _Notifier
     final isEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.dbExportEnabled));
     if (!isEnabled) {
-      logger.d('[Restore] Skipping import flow, feature flag is disabled');
+      _logger.debug('Skipping import flow, feature flag is disabled');
       return const TransactionDatabaseImportState.idle();
     }
 
     // Allow the app settle down before prompting
     await Future.delayed(const Duration(seconds: 5));
     final shouldPrompt = !ref.read(prefsProvider).isTxnDatabaseRestoreReminded;
-    logger.d('[Restore] Should prompt: $shouldPrompt');
+    logger.debug('Should prompt: $shouldPrompt');
     if (shouldPrompt) {
       final allowed = await Permission.manageExternalStorage.isGranted;
-      logger.d('[Restore] Permission granted: $allowed');
+      logger.debug('Permission granted: $allowed');
       if (!allowed) {
         return const TransactionDatabaseImportState.permissionRequired();
       }
       final exists = await ref.read(dataTransferProvider).isExportFileExist();
-      logger.d('[Restore] Backup file exists: $exists');
+      logger.debug('Backup file exists: $exists');
       if (exists) {
         return const TransactionDatabaseImportState.backupFound();
       }
@@ -48,10 +53,10 @@ class _Notifier
     state = await AsyncValue.guard(() async {
       final permissionGranted =
           await Permission.manageExternalStorage.request().isGranted;
-      logger.d('[Restore] Permission granted: $permissionGranted');
+      logger.debug('Permission granted: $permissionGranted');
       if (permissionGranted) {
         final exists = await ref.read(dataTransferProvider).isExportFileExist();
-        logger.d('[Restore] Backup file exists: $exists');
+        logger.debug('Backup file exists: $exists');
         return exists
             ? const TransactionDatabaseImportState.backupFound()
             : const TransactionDatabaseImportState.noBackupFound();
@@ -66,7 +71,7 @@ class _Notifier
     state = await AsyncValue.guard(() async {
       final result = await ref.read(dataTransferProvider).import();
       final count = result.entries.expand((e) => e.value).length;
-      logger.d('[Restore] Imported $count items');
+      logger.debug('Imported $count items');
       ref.read(prefsProvider).disableTxnDatabaseRestoreReminder();
       return const TransactionDatabaseImportState.restoreSuccess();
     });
@@ -82,12 +87,12 @@ class _ExperimentalNotifier extends _Notifier {
   Future<void> checkForStatus() async {
     state = await AsyncValue.guard(() async {
       final allowed = await Permission.manageExternalStorage.isGranted;
-      logger.d('[Restore][Exp] Permission granted: $allowed');
+      logger.debug('[Exp] Permission granted: $allowed');
       if (!allowed) {
         return const TransactionDatabaseImportState.permissionRequired();
       }
       final exists = await ref.read(dataTransferProvider).isExportFileExist();
-      logger.d('[Restore][Exp] Backup file exists: $exists');
+      logger.debug('[Exp] Backup file exists: $exists');
       return exists
           ? const TransactionDatabaseImportState.backupFound()
           : const TransactionDatabaseImportState.noBackupFound();

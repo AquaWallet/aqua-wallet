@@ -5,6 +5,7 @@ import 'package:aqua/features/settings/exchange_rate/pages/currency_conversion_s
 import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
 import 'package:aqua/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/services.dart';
@@ -46,10 +47,11 @@ class AmountInputField extends HookConsumerWidget {
       children: [
         // Input Field
         TextField(
+          key: ReceiveAssetKeys.receiveAssetSetAmountInputField,
           controller: controller,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w400,
-                fontSize: 24.sp,
+                fontSize: 24.0,
               ),
           keyboardType: const TextInputType.numberWithOptions(
             decimal: true,
@@ -71,11 +73,11 @@ class AmountInputField extends HookConsumerWidget {
             ],
           ],
           decoration: Theme.of(context).inputDecoration.copyWith(
-                hintText: context.loc.sendAssetAmountScreenAmountHint,
+                hintText: context.loc.setAmount,
                 hintStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Theme.of(context).colors.hintTextColor,
                       fontWeight: FontWeight.w400,
-                      fontSize: 24.sp,
+                      fontSize: 24.0,
                     ),
                 border: Theme.of(context).inputBorder,
                 suffixIcon: Row(
@@ -85,10 +87,10 @@ class AmountInputField extends HookConsumerWidget {
                       AssetIcon(
                         assetId: asset.id,
                         assetLogoUrl: asset.logoUrl,
-                        size: 24.r,
+                        size: 24.0,
                       ),
                     ],
-                    SizedBox(width: 6.w),
+                    const SizedBox(width: 6.0),
                     asset.isNonSatsAsset
                         ? Text(
                             assetSymbol,
@@ -96,7 +98,7 @@ class AmountInputField extends HookConsumerWidget {
                                 .textTheme
                                 .titleMedium
                                 ?.copyWith(
-                                  fontSize: 24.sp,
+                                  fontSize: 24.0,
                                 ),
                           )
                         : DropdownButtonHideUnderline(
@@ -104,7 +106,7 @@ class AmountInputField extends HookConsumerWidget {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
-                                    ?.copyWith(fontSize: 20.sp),
+                                    ?.copyWith(fontSize: 20.0),
                                 items: allConversionOptions
                                     .map((e) => DropdownMenuItem(
                                           value: e,
@@ -116,7 +118,7 @@ class AmountInputField extends HookConsumerWidget {
                                   if (newSelectedCurrency ==
                                       context.loc
                                           .conversionCurrenciesOtherOption) {
-                                    Navigator.of(context).pushNamed(
+                                    context.push(
                                         ConversionCurrenciesSettingsScreen
                                             .routeName);
                                   } else if (newSelectedCurrency == 'Sats') {
@@ -130,7 +132,7 @@ class AmountInputField extends HookConsumerWidget {
                                   }
                                 }),
                           ),
-                    SizedBox(width: 23.w),
+                    const SizedBox(width: 23.0),
                   ],
                 ),
               ),

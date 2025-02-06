@@ -21,7 +21,7 @@ class AddressListNotifier
   @override
   Future<AddressLists> build(NetworkType arg) async {
     _networkType = arg;
-    logger.d('[Address] Building AddressListNotifier for $_networkType');
+    logger.debug('[Address] Building AddressListNotifier for $_networkType');
     return await _loadAddresses();
   }
 
@@ -52,7 +52,7 @@ class AddressListNotifier
       final addresses = result.$1;
       final newLastPointer = result.$2;
 
-      logger.d('[Address] Total addresses received: ${addresses.length}');
+      logger.debug('[Address] Total addresses received: ${addresses.length}');
 
       final usedAddresses =
           addresses.where((addr) => addr.txCount! > 0).toList();
@@ -72,7 +72,7 @@ class AddressListNotifier
         );
       }
 
-      logger.d(
+      logger.debug(
           '[Address] Final used addresses: ${allUsedAddresses.length}, Final unused addresses: ${allUnusedAddresses.length}');
 
       return AddressLists(
@@ -82,7 +82,7 @@ class AddressListNotifier
         hasMore: hasMore,
       );
     } catch (e) {
-      logger.e('[Address] Error loading addresses: $e');
+      logger.error('[Address] Error loading addresses: $e');
       return Future.error(e);
     }
   }
@@ -101,7 +101,7 @@ class AddressListNotifier
     final newAddresses =
         await _loadAddresses(lastPointer: currentState.lastPointer);
 
-    logger.d(
+    logger.debug(
         '[Address] New addresses loaded. Used: ${newAddresses.usedAddresses.length}, Unused: ${newAddresses.unusedAddresses.length}');
 
     state = AsyncValue.data(AddressLists(
@@ -147,7 +147,7 @@ class AddressListNotifier
             false)
         .toList();
 
-    logger.d('[Address] Filtered addresses: ${filteredAddresses.length}');
+    logger.debug('[Address] Filtered addresses: ${filteredAddresses.length}');
 
     return filteredAddresses;
   }

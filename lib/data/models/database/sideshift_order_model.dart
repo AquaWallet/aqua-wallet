@@ -1,16 +1,22 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/models/sideshift_order_ext.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
+import 'package:aqua/features/swaps/models/swap_models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
 
 part 'sideshift_order_model.freezed.dart';
 part 'sideshift_order_model.g.dart';
 
+@Deprecated(
+    'Use SwapOrderDbModel instead. This class will be removed in a future version.')
 @freezed
 @Collection(ignore: {'copyWith'})
 class SideshiftOrderDbModel with _$SideshiftOrderDbModel {
   const SideshiftOrderDbModel._();
 
+  @Deprecated(
+      'Use SwapOrderDbModel instead. This class will be removed in a future version.')
   @JsonSerializable()
   const factory SideshiftOrderDbModel({
     @Default(Isar.autoIncrement) int id,
@@ -26,11 +32,11 @@ class SideshiftOrderDbModel with _$SideshiftOrderDbModel {
     String? settleAddress,
     String? depositMin,
     String? depositMax,
-    @Enumerated(EnumType.name) OrderType? type,
+    @Enumerated(EnumType.name) SideshiftOrderType? type,
     String? depositAmount,
     String? settleAmount,
     DateTime? expiresAt,
-    @Enumerated(EnumType.name) OrderStatus? status,
+    @Enumerated(EnumType.name) SideshiftOrderStatus? status,
     DateTime? updatedAt,
     String? depositHash,
     String? settleHash,
@@ -60,7 +66,7 @@ class SideshiftOrderDbModel with _$SideshiftOrderDbModel {
       settleAddress: response.settleAddress,
       depositMin: response.depositMin,
       depositMax: response.depositMax,
-      type: response.type,
+      type: response.orderType,
       depositAmount: response.depositAmount,
       settleAmount: response.settleAmount,
       expiresAt: response.expiresAt,
@@ -73,8 +79,31 @@ class SideshiftOrderDbModel with _$SideshiftOrderDbModel {
       onchainTxHash: response.onchainTxHash,
     );
   }
+
+  @Deprecated('Use SwapOrderDbModel.fromSwapOrder() instead.')
+  static SideshiftOrderDbModel fromSwapOrder(SwapOrder swapOrder) {
+    return SideshiftOrderDbModel(
+      orderId: swapOrder.id,
+      createdAt: swapOrder.createdAt,
+      depositCoin: swapOrder.from.ticker,
+      settleCoin: swapOrder.to.ticker,
+      depositNetwork: SideshiftAssetExt.getNetworkString(swapOrder.from.id),
+      settleNetwork: SideshiftAssetExt.getNetworkString(swapOrder.to.id),
+      depositAddress: swapOrder.depositAddress,
+      settleAddress: swapOrder.settleAddress,
+      depositMin: null,
+      depositMax: null,
+      type: SideshiftOrderTypeExt.fromSwapOrderType(swapOrder.type),
+      depositAmount: swapOrder.depositAmount.toString(),
+      settleAmount: swapOrder.settleAmount?.toString(),
+      expiresAt: swapOrder.expiresAt,
+      status: SideshiftOrderStatusExt.fromSwapOrderStatus(swapOrder.status),
+      updatedAt: DateTime.now(),
+    );
+  }
 }
 
+@Deprecated('Use SwapOrderDbModelListX instead.')
 extension SideshiftOrderDbModelListX on List<SideshiftOrderDbModel> {
   List<SideshiftOrderDbModel> sortByCreated() => sorted((a, b) {
         if (a.createdAt == null && b.createdAt == null) return 0;
@@ -84,6 +113,7 @@ extension SideshiftOrderDbModelListX on List<SideshiftOrderDbModel> {
       });
 }
 
+@Deprecated('Use SwapOrderFutureListX instead.')
 extension SideshiftOrderFutureListX on Future<List<SideshiftOrderDbModel>> {
   Future<List<SideshiftOrderDbModel>> sortByCreated() async {
     final orders = await this;

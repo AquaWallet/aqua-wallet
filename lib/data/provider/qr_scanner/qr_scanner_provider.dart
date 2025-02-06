@@ -9,6 +9,8 @@ import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:rxdart/rxdart.dart';
 
+final _logger = CustomLogger(FeatureFlag.qr);
+
 final qrScannerProvider = Provider.family
     .autoDispose<QrScannerProvider, Object?>(
         (ref, _) => QrScannerProvider(ref));
@@ -66,7 +68,7 @@ class QrScannerProvider {
       }
 
       final result = QrScannerPopResult.send(parsedAddress: parsedInput);
-      logger.d('[QR] scanner result: $result');
+      _logger.debug('scanner result: $result');
       return result;
     }
 
@@ -122,7 +124,7 @@ class QrScannerProvider {
 
       final result = QrScannerPopResult.send(parsedAddress: parsedInput);
 
-      logger.d('[QR] scanner result: $result');
+      _logger.debug('scanner result: $result');
       return result;
     }
   }

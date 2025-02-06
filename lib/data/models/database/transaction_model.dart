@@ -1,4 +1,3 @@
-import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
 import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -20,14 +19,20 @@ enum TransactionDbModelType {
   boltzReverseSwap,
   @JsonValue('sideshiftSwap')
   sideshiftSwap,
+  @JsonValue('moonTopUp')
+  moonTopUp,
   @JsonValue('aquaSend')
-  aquaSend,
+  aquaSend;
 }
 
 extension TransactionDbModelTypeExtension on TransactionDbModelType {
   bool get isBoltzSwap =>
       this == TransactionDbModelType.boltzSwap ||
       this == TransactionDbModelType.boltzReverseSwap;
+
+  bool get isPeg =>
+      this == TransactionDbModelType.sideswapPegIn ||
+      this == TransactionDbModelType.sideswapPegOut;
 }
 
 @freezed
@@ -40,14 +45,15 @@ class TransactionDbModel with _$TransactionDbModel {
     @Default(Isar.autoIncrement) int id,
     @JsonKey(required: true, disallowNullValue: true) required String txhash,
     @JsonKey(disallowNullValue: true) String? receiveAddress,
-    @JsonKey(required: true, disallowNullValue: true) required String assetId,
-    @Enumerated(EnumType.name) required TransactionDbModelType type,
+    String? assetId,
+    @Enumerated(EnumType.name) TransactionDbModelType? type,
     String? serviceOrderId,
     String? serviceAddress,
     @Default(false) bool isGhost,
     DateTime? ghostTxnCreatedAt,
     int? ghostTxnAmount,
     int? ghostTxnFee,
+    String? note,
   }) = _TransactionDbModel;
 
   @override
@@ -56,36 +62,6 @@ class TransactionDbModel with _$TransactionDbModel {
 
   factory TransactionDbModel.fromJson(Map<String, dynamic> json) =>
       _$TransactionDbModelFromJson(json);
-
-  @Deprecated('Only used for migration, use `fromV2SwapResponse` instead')
-  factory TransactionDbModel.fromBoltzSwap({
-    required String txhash,
-    required String assetId,
-    required BoltzSwapData swap,
-  }) {
-    return TransactionDbModel(
-      txhash: txhash,
-      assetId: assetId,
-      type: TransactionDbModelType.boltzSwap,
-      serviceOrderId: swap.response.id,
-      serviceAddress: swap.response.address,
-    );
-  }
-
-  @Deprecated('Only used for migration, use `fromV2SwapResponse` instead')
-  factory TransactionDbModel.fromBoltzRevSwap({
-    required String txhash,
-    required String assetId,
-    required BoltzReverseSwapData swap,
-  }) {
-    return TransactionDbModel(
-      txhash: txhash,
-      assetId: assetId,
-      type: TransactionDbModelType.boltzReverseSwap,
-      serviceOrderId: swap.response.id,
-      serviceAddress: swap.response.lockupAddress,
-    );
-  }
 
   factory TransactionDbModel.fromV2SwapResponse({
     required String txhash,
@@ -131,6 +107,7 @@ extension TransactionDbModelX on TransactionDbModel {
   bool get isBoltzSwap => type == TransactionDbModelType.boltzSwap;
   bool get isBoltzReverseSwap =>
       type == TransactionDbModelType.boltzReverseSwap;
+  bool get isTopUp => type == TransactionDbModelType.moonTopUp;
 }
 
 extension IsarCollectionX<T> on IsarCollection<T> {

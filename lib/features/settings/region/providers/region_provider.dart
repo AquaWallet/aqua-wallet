@@ -15,12 +15,12 @@ Future<Result<RegionResponse>> fetchRegions(
         await ref.read(dioProvider).get(urls.regionsUrl);
     final regionsJson = fetchedRegionsResponse.data as Map<String, dynamic>;
     final response = RegionResponse.fromJson(regionsJson);
-    logger.i(
+    logger.info(
         '[availableRegionsProvider] Fetched ${response.data?.regions.length} regions');
 
     return Result.value(response);
   } catch (e) {
-    logger.w('[availableRegionsProvider] Failed to fetch regions');
+    logger.warning('[availableRegionsProvider] Failed to fetch regions');
     return Result.error(e);
   }
 }
@@ -36,7 +36,7 @@ final availableRegionsProvider =
 
   final regions = fetchedRegionsJson.asValue?.value.data!.regions ??
       RegionResponse.fromJson(staticRegionsJson).data!.regions;
-  logger.i('[availableRegionsProvider] Set regions: ${regions.length}');
+  logger.info('[availableRegionsProvider] Set regions: ${regions.length}');
   return regions;
 });
 
@@ -98,7 +98,7 @@ class RegionsProvider extends ChangeNotifier {
       if (assetBalanceInSats == 0) {
         prefs.removeAsset(assetId);
       } else {
-        logger.i('Asset $assetId not removed due to non-zero balance');
+        logger.info('Asset $assetId not removed due to non-zero balance');
       }
     }
   }

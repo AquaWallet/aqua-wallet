@@ -14,7 +14,7 @@ class WalletTab extends ConsumerWidget {
       (_, value) => value?.maybeWhen(
         data: (event) {
           if (event.any((e) => e == GdkNetworkEventStateEnum.connected)) {
-            logger.d('Reconnected - reloading assets');
+            logger.debug('Reconnected - reloading assets');
             ref.read(assetsProvider.notifier).reloadAssets();
           }
         },
@@ -23,7 +23,7 @@ class WalletTab extends ConsumerWidget {
     );
 
     return LayoutBuilder(
-      builder: (context, constraints) {
+      builder: (_, __) {
         return const Stack(
           children: [
             CategorizedAssetList(),

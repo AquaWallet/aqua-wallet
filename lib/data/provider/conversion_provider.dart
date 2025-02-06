@@ -3,19 +3,18 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
 
-final _conversionProvider = Provider.family
-    .autoDispose<ConversionProvider, (Asset, int)>(
-        (ref, arguments) => ConversionProvider(ref, arguments));
+final _conversionProvider = Provider.family<ConversionProvider, (Asset, int)>(
+    (ref, arguments) => ConversionProvider(ref, arguments));
 
 class ConversionProvider {
   ConversionProvider(this._ref, this._arguments);
 
-  final AutoDisposeProviderRef _ref;
+  final ProviderRef _ref;
   final (Asset, int) _arguments;
 
-  Stream<String> _conversion() => _ref
+  Stream<SatoshiToFiatConversionModel> _conversion() => _ref
       .read(fiatProvider)
-      .satoshiToFiatWithCurrencyStream(_arguments.$1, _arguments.$2);
+      .satoshiToReferenceCurrencyStream(_arguments.$1, _arguments.$2);
 }
 
 final _conversionFiatProvider = Provider.family
@@ -33,13 +32,15 @@ class ConversionFiatProvider {
       .fiatToSatoshiStream(_arguments.$1, _arguments.$2.toString());
 }
 
-final _conversionStreamProvider = StreamProvider.family
-    .autoDispose<String, (Asset, int)>((ref, arguments) async* {
+final _conversionStreamProvider =
+    StreamProvider.family<SatoshiToFiatConversionModel, (Asset, int)>(
+        (ref, arguments) async* {
   yield* ref.watch(_conversionProvider(arguments))._conversion();
 });
 
 final conversionProvider =
-    Provider.family.autoDispose<String?, (Asset, int)>((ref, arguments) {
+    Provider.family<SatoshiToFiatConversionModel?, (Asset, int)>(
+        (ref, arguments) {
   return ref.watch(_conversionStreamProvider(arguments)).asData?.value;
 });
 

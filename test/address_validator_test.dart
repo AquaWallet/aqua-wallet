@@ -18,89 +18,49 @@ void main() {
   final mockBitcoinProvider = MockBitcoinProvider();
   final mockBalanceService = MockBalanceService();
 
-  // we call gdk for `isValidAddress` for liquid and bitcoin, so no need to test
-  when(() => mockLiquidProvider.isValidAddress(any()))
-      .thenAnswer((_) async => true);
-  when(() => mockBitcoinProvider.isValidAddress(any()))
-      .thenAnswer((_) async => true);
+  setUp(() {
+    when(() => mockBalanceService.getLBTCBalance())
+        .thenAnswer((_) async => 10000);
+  });
 
-  when(() => mockBalanceService.getLBTCBalance())
-      .thenAnswer((_) async => 10000);
-
-  final container = ProviderContainer(overrides: [
-    liquidProvider.overrideWithValue(mockLiquidProvider),
-    bitcoinProvider.overrideWithValue(mockBitcoinProvider),
-    balanceProvider.overrideWithValue(mockBalanceService),
-  ]);
-
-  group('Bitcoin', () {
-    test('invalid addresses return false', () async {
-      expect(
-        await container
-            .read(addressParserProvider)
-            .isValidAddressForAsset(address: '', asset: Asset.btc()),
-        false,
-      );
-      expect(
-        await container.read(addressParserProvider).isValidAddressForAsset(
-            address: '1111118Vm8AvDr9Bkvij6UfVR7MerCyrz3KS3h4,.,.,.,,.,',
-            asset: Asset.btc()),
-        false,
-      );
-      expect(
-          await container.read(addressParserProvider).isValidAddressForAsset(
-              address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
-              asset: Asset.btc()),
-          false);
+  group('Bitcoin and Liquid', () {
+    setUp(() {
+      when(() => mockLiquidProvider.isValidAddress(any()))
+          .thenAnswer((_) async => true);
+      when(() => mockBitcoinProvider.isValidAddress(any()))
+          .thenAnswer((_) async => true);
     });
 
-    test('bech32 addresses return true', () async {
-      expect(
-        await container.read(addressParserProvider).isValidAddressForAsset(
-            address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
-            asset: Asset.btc()),
-        true,
-      );
-      expect(
-        await container.read(addressParserProvider).isValidAddressForAsset(
-            address:
-                'bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewde450xdlk4ugp7szw5tk9',
-            asset: Asset.btc()),
-        true,
-      );
+    final container = ProviderContainer(overrides: [
+      liquidProvider.overrideWithValue(mockLiquidProvider),
+      bitcoinProvider.overrideWithValue(mockBitcoinProvider),
+      balanceProvider.overrideWithValue(mockBalanceService),
+    ]);
+
+    test('Bitcoin address', () async {
+      const address = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
+      final asset = await container
+          .read(addressParserProvider)
+          .parseAsset(address: address);
+      expect(asset, Asset.btc());
     });
 
-    test('P2PKH addresses return true', () async {
-      expect(
-        await container.read(addressParserProvider).isValidAddressForAsset(
-            address: '18Vm8AvDr9Bkvij6UfVR7MerCyrz3KS3h4', asset: Asset.btc()),
-        true,
-      );
+    test('Liquid address', () async {
+      const address =
+          'VJLEjJNWQsD4x7cFBiuj54m7BpVhvxcff8nVjynvBECE5QefcSV5zjcaXjsN8LTKLsQhPmMzGT';
+      final asset = await container
+          .read(addressParserProvider)
+          .parseAsset(address: address);
+      expect(asset, isNotNull); // Replace with actual Liquid asset check
+    });
+  });
 
-      expect(
-        await container.read(addressParserProvider).isValidAddressForAsset(
-            address: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2', asset: Asset.btc()),
-        true,
-      );
-    });
-    test('P2SH addresses return true', () async {
-      expect(
-        await container.read(addressParserProvider).isValidAddressForAsset(
-            address: '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy', asset: Asset.btc()),
-        true,
-      );
-    });
-
-    test('P3TR (taproot) addresses return false', () async {
-      expect(
-          await container.read(addressParserProvider).isValidAddressForAsset(
-              address:
-                  'bc1p8denc9m4sqe9hluasrvxkkdqgkydrk5ctxre5nkk4qwdvefn0sdsc6eqxe',
-              asset: Asset.btc()),
-          false);
-    });
-  }, skip: true);
   group('BIP21', () {
+    final container = ProviderContainer(overrides: [
+      liquidProvider.overrideWithValue(mockLiquidProvider),
+      bitcoinProvider.overrideWithValue(mockBitcoinProvider),
+      balanceProvider.overrideWithValue(mockBalanceService),
+    ]);
     test('returns parsed address for valid bitcoin BIP21 input', () async {
       const input =
           'bitcoin:1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2?amount=1.23&label=Example';
@@ -175,6 +135,11 @@ void main() {
   });
 
   group('Lightning', () {
+    final container = ProviderContainer(overrides: [
+      liquidProvider.overrideWithValue(mockLiquidProvider),
+      bitcoinProvider.overrideWithValue(mockBitcoinProvider),
+      balanceProvider.overrideWithValue(mockBalanceService),
+    ]);
     test('expired invoice return true (test for expiration elsewhere)',
         () async {
       expect(
@@ -230,38 +195,78 @@ void main() {
     });
   }, skip: true);
 
-  test('Ethereum address', () async {
-    expect(
-        await container.read(addressParserProvider).isValidAddressForAsset(
-            address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
-            asset: Asset.usdtEth()),
-        true);
-  }, skip: true);
+  group('Alt-USDts', () {
+    final container = ProviderContainer(overrides: [
+      liquidProvider.overrideWithValue(mockLiquidProvider),
+      bitcoinProvider.overrideWithValue(mockBitcoinProvider),
+      balanceProvider.overrideWithValue(mockBalanceService),
+    ]);
 
-  test('Tron address', () async {
-    expect(
-        await container.read(addressParserProvider).isValidAddressForAsset(
-            address: 'TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL',
-            asset: Asset.usdtTrx()),
-        true);
-  }, skip: true);
+    when(() => mockLiquidProvider.isValidAddress(any()))
+        .thenAnswer((_) async => false);
+    when(() => mockBitcoinProvider.isValidAddress(any()))
+        .thenAnswer((_) async => false);
 
-  test('check for all supported assets', () async {
-    expect(
-      await container.read(addressParserProvider).parseAsset(
-            address: '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy',
-          ),
-      equals(Asset.btc()),
-    );
-    expect(
+    test('Ethereum address', () async {
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+              asset: Asset.usdtEth()),
+          true);
+    }, skip: true);
+
+    test('Tron address', () async {
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address: 'TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL',
+              asset: Asset.usdtTrx()),
+          true);
+    }, skip: true);
+
+    test('check for all supported assets', () async {
+      expect(
+        await container.read(addressParserProvider).parseAsset(
+              address: '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy',
+            ),
+        equals(Asset.btc()),
+      );
+      expect(
         await container.read(addressParserProvider).parseAsset(
               address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
             ),
-        equals(Asset.usdtEth()));
-    expect(
+        equals(Asset.usdtEth()),
+      );
+      expect(
         await container.read(addressParserProvider).parseAsset(
               address: 'TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL',
             ),
-        equals(Asset.usdtTrx()));
-  }, skip: true);
+        equals(Asset.usdtTrx()),
+      );
+      // TODO: Uncomment when activated
+      // expect(
+      //   await container.read(addressParserProvider).parseAsset(
+      //         address: '0x55d398326f99059fF775485246999027B3197955',
+      //       ),
+      //   equals(Asset.usdtBep()),
+      // );
+      // expect(
+      //   await container.read(addressParserProvider).parseAsset(
+      //         address: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+      //       ),
+      //   equals(Asset.usdtSol()),
+      // );
+      // expect(
+      //   await container.read(addressParserProvider).parseAsset(
+      //         address: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+      //       ),
+      //   equals(Asset.usdtPol()),
+      // );
+      // expect(
+      //   await container.read(addressParserProvider).parseAsset(
+      //         address: 'EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA',
+      //       ),
+      //   equals(Asset.usdtTon()),
+      // );
+    }, skip: true);
+  });
 }

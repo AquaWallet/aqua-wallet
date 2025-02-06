@@ -1,27 +1,50 @@
 import 'dart:async';
 
-import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
+import 'package:dio/dio.dart';
 
-final fiatRatesProvider = AsyncNotifierProvider.autoDispose<FiatRatesNotifier,
-    List<BitcoinFiatRatesResponse>?>(FiatRatesNotifier.new);
+final fiatRatesProvider =
+    AsyncNotifierProvider<FiatRatesNotifier, List<BitcoinFiatRatesResponse>>(
+        FiatRatesNotifier.new);
 
 class FiatRatesUnavailableError implements Exception {}
 
-class FiatRatesNotifier
-    extends AutoDisposeAsyncNotifier<List<BitcoinFiatRatesResponse>?> {
+class FiatRatesNotifier extends AsyncNotifier<List<BitcoinFiatRatesResponse>> {
   @override
-  FutureOr<List<BitcoinFiatRatesResponse>?> build() async {
+  FutureOr<List<BitcoinFiatRatesResponse>> build() async {
     final client = ref.read(dioProvider);
     const endpoint =
-        'https://btcpay.aquawallet.io/api/rates?storeId=331kH4p4q1TUSdGsfCSmkaDEsP7EmrgrVHGq7zY5SPg9';
+        'https://btcpay.aquawallet.io/api/rates?storeId=6pQ5dngUNiack4TKgoehPFxDzwoXX961mYjHgWMrZC6X';
 
     try {
       final response = await client.get(endpoint);
       final json = response.data as List<dynamic>;
       final feeRatesResponse =
           json.map((map) => BitcoinFiatRatesResponse.fromJson(map));
+      ref.refreshAfter(const Duration(seconds: 15));
       return feeRatesResponse.toList();
+    } on DioException catch (e) {
+      //NOTE - Temp solution for failing BTC Pay link
+      if (e.type == DioExceptionType.receiveTimeout) {
+        // Use Mempool Space as fallback
+        const endpoint = '$mempoolSpaceUrl/fees/recommended';
+        final response = await client.get(endpoint);
+        final json = response.data as Map<String, dynamic>;
+        return ['fastestFee', 'halfHourFee', 'hourFee', 'minimumFee']
+            .where((option) => json.containsKey(option))
+            .map((option) => BitcoinFiatRatesResponse(
+                  name: 'Bitcoin',
+                  cryptoCode: 'BTC',
+                  currencyPair: 'USD',
+                  code: 'USD',
+                  rate: json[option].toDouble(),
+                ))
+            .toList();
+      }
+      rethrow;
     } catch (e) {
       throw FiatRatesUnavailableError();
     }

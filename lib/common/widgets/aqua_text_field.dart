@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AquaTextField extends TextField {
   const AquaTextField._({
@@ -60,7 +59,7 @@ class AquaTextField extends TextField {
             color:
                 borderColor ?? Theme.of(context).colorScheme.primaryContainer,
           ),
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12),
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
@@ -68,12 +67,12 @@ class AquaTextField extends TextField {
             color: backgroundColor ??
                 Theme.of(context).colorScheme.primaryContainer,
           ),
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12),
         ),
         hintText: hintText,
         hintStyle: hintTextStyle ??
             Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 16.sp,
+                  fontSize: 16.0,
                   fontWeight: FontWeight.w400,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),

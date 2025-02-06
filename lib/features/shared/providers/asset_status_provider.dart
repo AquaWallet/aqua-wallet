@@ -4,6 +4,8 @@ import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 
+final _logger = CustomLogger(FeatureFlag.statusManager);
+
 const int kLiquidBlockTimeoutMillis = 90000;
 const int kInitialDelaySeconds = 5;
 const int kLiquidStatusCheckPeriodSeconds = 10;
@@ -37,7 +39,7 @@ class ConnectionStatusNotifier
   }
 
   Future<void> _checkLastLiquidBlockTime() async {
-    logger.i("[StatusManager] fetch last liquid block time");
+    _logger.info("fetch last liquid block time");
     final now = DateTime.now().millisecondsSinceEpoch;
     // liquid block times are 1 minute, so we check for block staleness every
     // 90 seconds
@@ -49,7 +51,7 @@ class ConnectionStatusNotifier
   }
 
   Future<void> startSync() async {
-    logger.i("[StatusManager] start sync");
+    _logger.info("start sync");
     _checkLastLiquidBlockTimer?.cancel();
     _checkLastLiquidBlockTimer = Timer.periodic(
       const Duration(seconds: kLiquidStatusCheckPeriodSeconds),
@@ -59,7 +61,7 @@ class ConnectionStatusNotifier
     await _checkLastLiquidBlockTime();
 
     ref.read(bitcoinProvider).blockHeightEventSubject.stream.listen((block) {
-      logger.i("[StatusManager] last Bitcoin block: $block");
+      _logger.info("last Bitcoin block: $block");
 
       state = AsyncValue.data(
         state.requireValue.copyWith(lastBitcoinBlock: block),
@@ -67,7 +69,7 @@ class ConnectionStatusNotifier
     });
 
     ref.read(liquidProvider).blockHeightEventSubject.stream.listen((block) {
-      logger.i("[StatusManager] last Liquid block: $block");
+      _logger.info("last Liquid block: $block");
       lastLiquidBlockTime = DateTime.now().millisecondsSinceEpoch;
 
       state = AsyncValue.data(

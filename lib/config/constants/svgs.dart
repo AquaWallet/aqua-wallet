@@ -3,6 +3,7 @@ class Svgs {
   static const faceId = 'assets/face_id.svg';
   static const language = 'assets/language.svg';
   static const region = 'assets/region.svg';
+  static const displayUnits = 'assets/display_units.svg';
   static const exchangeRate = 'assets/exchange_rate.svg';
   static const darkMode = 'assets/dark_mode.svg';
   static const blockExplorer = 'assets/block.svg';
@@ -25,12 +26,14 @@ class Svgs {
   static const l2AssetDisabled = 'assets/asset_icons/l2_disabled.svg';
   static const ethUsdtAsset = 'assets/asset_icons/ETHUSDT.svg';
   static const tronUsdtAsset = 'assets/asset_icons/TRONUSDT.svg';
+  static const bepUsdtAsset = 'assets/asset_icons/BEPUSDT.svg';
+  static const tonUsdtAsset = 'assets/asset_icons/TONUSDT.svg';
+  static const solUsdtAsset = 'assets/asset_icons/SOLUSDT.svg';
+  static const polUsdtAsset = 'assets/asset_icons/POLUSDT.svg';
   static const backButton = 'assets/settings_back.svg';
   static const search = 'assets/search.svg';
   static const welcomeBackground = 'assets/welcome_bg.svg';
-  static const createWallet = 'assets/create_wallet.svg';
   static const backupWallet = 'assets/backup_wallet.svg';
-  static const restoreWallet = 'assets/restore_wallet.svg';
   static const welcomeWallet = 'assets/welcome_wallet.svg';
   static const close = 'assets/cross.svg';
   static const qr = 'assets/qr.svg';
@@ -51,6 +54,7 @@ class Svgs {
   static const addNote = 'assets/add_note.svg';
   static const setAmount = 'assets/set_amount.svg';
   static const share = 'assets/share.svg';
+  static const shareAlt = 'assets/share_alt.svg';
   static const walletAdd = 'assets/wallet_add.svg';
   static const walletExchange = 'assets/wallet_exchange.svg';
   static const arrowForward = 'assets/arrow_forward.svg';
@@ -59,6 +63,7 @@ class Svgs {
   static const album = 'assets/album.svg';
   static const exchangeSwap = 'assets/exchange_swap.svg';
   static const swap = 'assets/swap.svg';
+  static const clearInput = 'assets/clearInput.svg';
   static const history = 'assets/history.svg';
   static const emptyAddressHistory = 'assets/empty_address_history.svg';
   static const walletSend = 'assets/wallet_send.svg';
@@ -75,8 +80,9 @@ class Svgs {
   static const website = 'assets/website.svg';
   static const twitter = 'assets/twitter.svg';
   static const instagram = 'assets/instagram.svg';
-  static const jan3LogoDark = 'assets/jan3_logo_dark.svg';
-  static const jan3LogoLight = 'assets/jan3_logo_light.svg';
+  static const telegram = 'assets/telegram.svg';
+  static const jan3LogoWithAquaDark = 'assets/jan3_logo_with_aqua_dark.svg';
+  static const jan3LogoWithAquaLight = 'assets/jan3_logo_with_aqua_light.svg';
   static const lightningBolt = 'assets/lightning_bolt.svg';
   static const whatsappLogo = 'assets/asset_icons/whatsapp_logo.svg';
   static const zendeskLogo = 'assets/asset_icons/zendesk_logo.svg';
@@ -87,17 +93,30 @@ class Svgs {
   static const qrIconLightning = 'assets/asset_icons/qr_icon_lightning_btc.svg';
   static const qrIconEthUsdt = 'assets/asset_icons/qr_icon_ethereum_usdt.svg';
   static const qrIconTronUsdt = 'assets/asset_icons/qr_icon_tron_usdt.svg';
+  static const qrIconBepUsdt = 'assets/asset_icons/qr_icon_binance_usdt.svg';
+  static const qrIconSolUsdt = 'assets/asset_icons/qr_icon_solana_usdt.svg';
+  static const qrIconPolUsdt = 'assets/asset_icons/qr_icon_polygon_usdt.svg';
+  static const qrIconTonUsdt = 'assets/asset_icons/qr_icon_ton_usdt.svg';
   static const backspace = 'assets/backspace.svg';
   static const noHistoryIconAddressHistory =
       'assets/address_history_screen_no_history_logo.svg';
-  static const botev = 'assets/botev.svg';
+  static const botev = 'assets/svgs/light/botev.svg';
+  static const botevDark = 'assets/svgs/dark/botev_dark.svg';
   static const capsLock = 'assets/caps_lock.svg';
   static const flask = 'assets/flask.svg';
-  static const unlock = 'assets/unlock.svg';
+  static const passcode = 'assets/passcode.svg';
   static const layerTwoSingle = 'assets/asset_icons/layer_two_single.svg';
   static const internalSendArrow = 'assets/internal_send_arrow.svg';
   static const internalSendArrowLight = 'assets/internal_send_arrow_light.svg';
   static const mapIcon = 'assets/marketplace/map.svg';
+  static const refreshIcon = 'assets/arrow_clockwise.svg';
+  static const eyeIcon = 'assets/eye.svg';
+  static const eyeSlashIcon = 'assets/eye_slash.svg';
+  static const warningIcon = 'assets/warning.svg';
+  static const houseIcon = 'assets/house.svg';
+  static const shieldCheckIcon = 'assets/shield_check.svg';
+  static const watchOnly = 'assets/watch_only.svg';
+  static const creditCard = 'assets/svgs/credit_card.svg';
 }
 
 extension SvgsMarketplace on Svgs {
@@ -108,6 +127,8 @@ extension SvgsMarketplace on Svgs {
   static const meldBlack = 'assets/marketplace/meld_black.svg';
   static const pocketWhite = 'assets/marketplace/pocket_white.svg';
   static const pocketBlack = 'assets/marketplace/pocket_black.svg';
+  static const btcDirectWhite = 'assets/marketplace/btc_direct_white.svg';
+  static const btcDirectBlack = 'assets/marketplace/btc_direct_black.svg';
 
   // Payment Options
   static const paymentOptionBank = 'assets/marketplace/payment_bank.svg';

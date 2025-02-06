@@ -1,7 +1,7 @@
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -14,7 +14,6 @@ class MockLiquidProvider extends Mock implements LiquidProvider {}
 final mockSwapAssets = [
   SideSwapAsset(assetId: lbtcAsset.id),
   SideSwapAsset(assetId: usdtAsset.id),
-  SideSwapAsset(assetId: infAsset.id),
   SideSwapAsset(assetId: jpysAsset.id),
   SideSwapAsset(assetId: eurxAsset.id),
   SideSwapAsset(assetId: mexAsset.id),
@@ -39,7 +38,6 @@ void main() {
       btcAsset,
       lbtcAsset,
       usdtAsset,
-      infAsset,
       jpysAsset,
       eurxAsset,
       mexAsset,

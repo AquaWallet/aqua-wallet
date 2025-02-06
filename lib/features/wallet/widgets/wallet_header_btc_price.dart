@@ -1,62 +1,106 @@
-import 'package:aqua/config/config.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
-class WalletHeaderBtcPrice extends ConsumerWidget {
-  const WalletHeaderBtcPrice(this.uiModel, {super.key});
+class HeaderAmount extends ConsumerWidget {
+  const HeaderAmount({super.key, required this.amount});
 
-  final BtcPriceUiModel uiModel;
+  final String amount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isBalanceHidden =
+        ref.watch(prefsProvider.select((p) => p.isBalanceHidden));
+    return Text(
+      isBalanceHidden ? hiddenBalancePlaceholder : amount,
+      style: TextStyle(
+        fontWeight: FontWeight.w700,
+        color: context.colorScheme.onPrimaryContainer,
+        fontSize: context.adaptiveDouble(
+          smallMobile: 28.0,
+          mobile: 30.0,
+          wideMobile: 18.0,
+          tablet: 30.0,
+        ),
+      ),
+    );
+  }
+}
+
+class WalletHeaderBtcPrice extends ConsumerWidget {
+  const WalletHeaderBtcPrice({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final btcPriceAsync = ref.watch(btcPriceProvider(2));
+    final uiModel =
+        btcPriceAsync.valueOrNull?.valueOrNull ?? BtcPriceUiModel.placeholder;
     final currentRate =
         ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
+
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        //ANCHOR - Title
         Text(
           context.loc.walletBitcoinPriceTitle,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-                fontSize: context.adaptiveDouble(
-                  smallMobile: 12.sp,
-                  mobile: 14.sp,
-                  wideMobile: 10.sp,
-                ),
-              ),
+          style: TextStyle(
+            letterSpacing: -0.1,
+            fontWeight: FontWeight.w700,
+            color: context.colors.walletAmountLabel,
+            fontSize: context.adaptiveDouble(
+              mobile: 14.0,
+              smallMobile: 12.0,
+              wideMobile: 10.0,
+            ),
+          ),
         ),
-        Row(
-          children: [
-            //ANCHOR - Price
-            Text(
-              "${currentRate.currency.symbol}${uiModel.price}",
-              style: GoogleFonts.arimo(
-                fontWeight: FontWeight.w700,
-                fontSize: context.adaptiveDouble(
-                  smallMobile: 28.sp,
-                  mobile: 33.sp,
-                  wideMobile: 18.sp,
-                  tablet: 30.sp,
-                ),
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-            ),
-            SizedBox(width: 8.w),
-            //ANCHOR - Price change
-            Text(
-              '${uiModel.priceChange} ${uiModel.priceChangePercent}',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: uiModel.priceChange.isEmpty
-                        ? null
-                        : int.parse(uiModel.priceChange).isNegative
-                            ? Theme.of(context).colors.redBTCDeltaColor
-                            : Theme.of(context).colors.greenBTCDeltaColor,
+        const SizedBox(height: 4),
+        Skeletonizer(
+          enabled: btcPriceAsync.isLoading ||
+              (btcPriceAsync.value?.isLoading ?? false) ||
+              btcPriceAsync.valueOrNull == null,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              //ANCHOR - Price
+              Text(
+                "${currentRate.currency.symbol}${uiModel.price}",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: context.colorScheme.onPrimaryContainer,
+                  fontSize: context.adaptiveDouble(
+                    smallMobile: 28.0,
+                    mobile: 30.0,
+                    wideMobile: 18.0,
+                    tablet: 30.0,
                   ),
-            ),
-          ],
+                ),
+              ),
+              if (uiModel.priceChange != '') ...[
+                const SizedBox(width: 10.0),
+                // ANCHOR - Price change
+                Text(
+                  '${uiModel.priceChange} ${uiModel.priceChangePercent}',
+                  style: TextStyle(
+                    height: 1.5,
+                    fontSize: 14.0,
+                    letterSpacing: 0,
+                    fontWeight: FontWeight.w700,
+                    color: uiModel.priceChange.isEmpty
+                        ? context.colors.neutraBTCDeltaColor
+                        : int.parse(uiModel.priceChange).isNegative
+                            ? context.colors.redBTCDeltaColor
+                            : context.colors.greenBTCDeltaColor,
+                  ),
+                ),
+              ]
+            ],
+          ),
         ),
       ],
     );

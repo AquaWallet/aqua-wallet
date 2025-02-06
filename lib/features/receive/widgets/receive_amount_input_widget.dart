@@ -6,6 +6,7 @@ import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class ReceiveAmountInputWidget extends HookConsumerWidget {
   const ReceiveAmountInputWidget({super.key, required this.asset});
@@ -33,25 +34,25 @@ class ReceiveAmountInputWidget extends HookConsumerWidget {
         BoxShadowCard(
           elevation: 4,
           color: Theme.of(context).colorScheme.surface,
-          margin: EdgeInsets.symmetric(horizontal: 28.w),
-          borderRadius: BorderRadius.circular(12.r),
+          margin: const EdgeInsets.symmetric(horizontal: 28.0),
+          borderRadius: BorderRadius.circular(12.0),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12.0),
           ),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
               children: [
-                SizedBox(height: 24.h),
+                const SizedBox(height: 24.0),
 
                 //ANCHOR - Title
                 Text(
-                  context.loc.receiveAssetAmountSheetTitle,
+                  context.loc.setAmount,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontSize: 20.sp,
+                        fontSize: 20.0,
                       ),
                 ),
-                SizedBox(height: 24.h),
+                const SizedBox(height: 24.0),
 
                 //ANCHOR - Amount Input Field
                 Container(
@@ -62,23 +63,49 @@ class ReceiveAmountInputWidget extends HookConsumerWidget {
                     isFiatToggled: isFiatToggled,
                   ),
                 ),
-                SizedBox(height: 30.h),
+                const SizedBox(height: 30.0),
               ],
             ),
           ),
         ),
-        SizedBox(height: 18.h),
+        const SizedBox(height: 18.0),
 
         //ANCHOR - Conversion
         if (asset.shouldShowConversionOnReceive) ...[
           ReceiveConversionWidget(asset: asset),
         ],
-        SizedBox(height: 18.h),
+        const SizedBox(height: 18.0),
         if (asset.isLightning) ...[
           BoltzFeeWidget(amountEntered: amountEntered),
         ],
-        SizedBox(height: 18.h),
+        const SizedBox(height: 18.0),
       ],
     );
+  }
+}
+
+class ReceiveConversionWidget extends ConsumerWidget {
+  final Asset asset;
+  final String? amountStr;
+
+  const ReceiveConversionWidget(
+      {super.key, required this.asset, this.amountStr});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedFiatCurrency = ref.watch(amountCurrencyProvider);
+    final isFiatCurrency = selectedFiatCurrency != null;
+    final satsStr =
+        isFiatCurrency && (asset.isLightning || asset.isLBTC || asset.isBTC)
+            ? ' sats'
+            : '';
+    return ref
+        .watch(receiveAssetAmountConversionDisplayProvider(
+            (asset, selectedFiatCurrency, amountStr)))
+        .when(
+          data: (value) => Text('≈ $value$satsStr'),
+          loading: () => const Skeletonizer(enabled: true, child: Text('≈ 0')),
+          error: (error, stack) => const Text('≈ 0'),
+        );
   }
 }

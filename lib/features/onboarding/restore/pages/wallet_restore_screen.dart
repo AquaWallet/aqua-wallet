@@ -29,46 +29,46 @@ class WalletRestoreScreen extends HookConsumerWidget {
         appBar: AquaAppBar(
           showBackButton: false,
           showActionButton: true,
-          iconBackgroundColor: Theme.of(context).colorScheme.background,
-          iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+          iconBackgroundColor: Theme.of(context).colors.background,
+          iconForegroundColor: Theme.of(context).colors.onBackground,
           actionButtonAsset: Svgs.close,
-          actionButtonIconSize: 13.r,
+          actionButtonIconSize: 13.0,
           onActionButtonPressed: () {
             ref.read(systemOverlayColorProvider(context)).aqua();
-            Navigator.of(context).pop();
+            context.pop();
           },
         ),
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 28.w),
+            padding: const EdgeInsets.symmetric(horizontal: 28.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 4.h),
+                const SizedBox(height: 4.0),
                 SvgPicture.asset(
                   Svgs.recoveryPhrase,
-                  width: 73.w,
-                  height: 61.h,
+                  width: 73.0,
+                  height: 61.0,
                 ),
-                SizedBox(height: 43.h),
+                const SizedBox(height: 43.0),
                 Text(
                   context.loc.restorePromptTitle,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                SizedBox(height: 20.h),
+                const SizedBox(height: 20.0),
                 Text(
                   context.loc.restorePromptSubtitle,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        fontSize: 16.sp,
+                        fontSize: 16.0,
                       ),
                 ),
                 const Spacer(),
                 AquaElevatedButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushNamed(WalletRestoreInputScreen.routeName),
+                  onPressed: () =>
+                      context.push(WalletRestoreInputScreen.routeName),
                   child: Text(context.loc.restorePromptButton),
                 ),
-                SizedBox(height: 66.h),
+                const SizedBox(height: 66.0),
               ],
             ),
           ),

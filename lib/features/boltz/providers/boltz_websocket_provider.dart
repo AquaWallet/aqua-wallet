@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
-
 import 'package:web_socket_channel/io.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 
+final _logger = CustomLogger(FeatureFlag.boltz);
+
 final boltzWebSocketProvider = Provider<BoltzWebSocket>((ref) {
   final boltzWebSocket = BoltzWebSocket(ref);
   ref.onDispose(() {
-    boltzWebSocket.closeConnection();
+    if (boltzWebSocket.isConnected) {
+      boltzWebSocket.closeConnection();
+    }
   });
   return boltzWebSocket;
 });
@@ -19,20 +23,39 @@ class BoltzWebSocket {
   IOWebSocketChannel? _wssStream;
   StreamSubscription? _wsSubscription;
   final _subscriptions = <String, StreamController<Map<String, dynamic>>>{};
-  //TODO: Investigate using `_wssStream?.closeCode == null` instead of manually managing reconnection
   Timer? _reconnectTimer;
-  bool _isConnected = false;
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 5;
+  final _subscriptionQueue = <String>[];
 
   BoltzWebSocket(this._ref) {
-    _initializeWebSocket();
+    _logger.debug('[Boltz] -- BoltzWebSocket init --');
   }
 
   bool get hasActiveSubscriptions => _subscriptions.isNotEmpty;
 
-  Future<void> _initializeWebSocket() async {
-    if (_wssStream != null) return;
+  bool get isConnected {
+    if (_wssStream == null) {
+      _logger.info('[Boltz] [WSS] Connection check: WebSocket stream is null');
+      return false;
+    }
+
+    final isConnected =
+        _wssStream!.innerWebSocket?.readyState == WebSocket.open;
+    if (!isConnected) {
+      _logger
+          .info('[Boltz] [WSS] Connection check: WebSocket is not connected');
+    }
+    return isConnected;
+  }
+
+  Future<void> initializeWebSocket() async {
+    if (isConnected) {
+      _logger.info('[Boltz] [WSS] WebSocket already connected');
+      return;
+    }
+
+    _logger.info('[Boltz] [WSS] Initializing WebSocket connection');
 
     final baseUrl = _ref
         .read(boltzEnvConfigProvider.select((env) => env.apiUrl))
@@ -42,32 +65,32 @@ class BoltzWebSocket {
     try {
       _wssStream = IOWebSocketChannel.connect(
         url,
-        pingInterval: const Duration(seconds: 10),
+        connectTimeout: const Duration(seconds: 10),
       );
-      logger.d('[Boltz] [WSS] Opening shared WebSocket connection at $url');
+      _logger.info('[Boltz] [WSS] Opening shared WebSocket connection at $url');
 
-      // Wait for connection to be ready
-      await _wssStream!.ready;
+      _wsSubscription = _wssStream!.stream.listen(
+        _handleMessage,
+        onError: _handleError,
+        onDone: _handleDisconnection,
+      );
 
-      // Create a single subscription to the broadcast stream
-      _wsSubscription = _wssStream!.stream.asBroadcastStream().listen(
-            _handleMessage,
-            onError: _handleError,
-            onDone: _handleDisconnection,
-            cancelOnError: false,
-          );
+      await _wssStream!.ready.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('WebSocket initialization timed out');
+        },
+      );
 
-      _isConnected = true;
       _reconnectAttempts = 0;
-      logger.d('[Boltz] [WSS] WebSocket connection established');
+      _logger.info('[Boltz] [WSS] WebSocket connection established');
 
-      // Resubscribe to existing subscriptions if any
-      for (final swapId in _subscriptions.keys.toList()) {
-        _sendSubscription(swapId);
-      }
+      _processSubscriptionQueue();
     } catch (e) {
-      logger.e('[Boltz] [WSS] Failed to establish WebSocket connection: $e');
+      _logger
+          .error('[Boltz] [WSS] Failed to establish WebSocket connection: $e');
       _scheduleReconnection();
+      rethrow;
     }
   }
 
@@ -79,49 +102,47 @@ class BoltzWebSocket {
           json['args'].isNotEmpty) {
         final update = json['args'][0];
         final id = update['id'];
+
         if (_subscriptions.containsKey(id)) {
           _subscriptions[id]!.add(update);
         }
       }
 
-      logger.d('[Boltz] [WSS] Message received: $json');
+      _logger.info('[Boltz] [WSS] Message received: $json');
     } catch (e) {
-      logger.e('[Boltz] [WSS] Error handling message: $e');
+      _logger.error('[Boltz] [WSS] Error handling message: $e');
     }
   }
 
   void _handleError(error) {
-    logger.e('[Boltz] [WSS] WebSocket error: $error');
-    _isConnected = false;
+    _logger.error('[Boltz] [WSS] WebSocket error: $error');
     _scheduleReconnection();
   }
 
   void _handleDisconnection() {
-    logger.d('[Boltz] [WSS] WebSocket connection closed');
-    _isConnected = false;
+    _logger.info('[Boltz] [WSS] WebSocket connection closed');
 
     if (hasActiveSubscriptions) {
-      logger.d(
+      _logger.info(
           '[Boltz] [WSS] Active subscriptions found, scheduling reconnection');
       _scheduleReconnection();
     } else {
-      logger.d('[Boltz] [WSS] No active subscriptions, closing connection');
+      _logger.info('[Boltz] [WSS] No active subscriptions, closing connection');
     }
   }
 
   void _scheduleReconnection() {
     if (_reconnectTimer?.isActive ?? false) return;
     if (_reconnectAttempts >= _maxReconnectAttempts) {
-      logger.e('[Boltz] [WSS] Max reconnection attempts reached');
+      _logger.error('[Boltz] [WSS] Max reconnection attempts reached');
       return;
     }
 
-    // Exponential backoff
     final delay = Duration(seconds: pow(2, _reconnectAttempts).toInt());
-    logger.d('[Boltz] [WSS] Scheduling reconnection in $delay');
+    _logger.info('[Boltz] [WSS] Scheduling reconnection in $delay');
     _reconnectTimer = Timer(delay, () {
       if (hasActiveSubscriptions) {
-        logger.d(
+        _logger.info(
             '[Boltz] [WSS] Attempting to reconnect... (Attempt ${_reconnectAttempts + 1})');
         _reconnectAttempts++;
         _reestablishConnection();
@@ -130,88 +151,186 @@ class BoltzWebSocket {
   }
 
   Future<void> _reestablishConnection() async {
-    logger.d('[Boltz] [WSS] Reestablishing WebSocket connection');
-    _cleanupConnection();
-    await _initializeWebSocket();
-  }
+    _logger.info('[Boltz] [WSS] Reestablishing WebSocket connection');
 
-  void _cleanupConnection() {
-    _wsSubscription?.cancel();
-    _wsSubscription = null;
-    _wssStream?.sink.close();
-    _wssStream = null;
-  }
+    if (isConnected) {
+      _logger.info(
+          '[Boltz] [WSS] WebSocket already connected, skipping reestablishment');
+      return;
+    }
 
-  Future<void> _sendSubscription(String swapId) async {
-    if (_wssStream != null && _isConnected) {
-      await _wssStream!.sink.addStream(Stream.value(jsonEncode({
-        "op": "subscribe",
-        "channel": "swap.update",
-        "args": [swapId]
-      })));
-      logger.d('[Boltz] [WSS] Subscribed to updates for swap: $swapId');
+    try {
+      // Set a timeout for the entire reestablishment process
+      await Future.wait([
+        _cleanupConnection(),
+        initializeWebSocket(),
+      ]).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          _logger.error('[Boltz] [WSS] Connection reestablishment timed out');
+          throw TimeoutException('WebSocket reestablishment timed out');
+        },
+      );
+    } catch (e) {
+      _logger.error('[Boltz] [WSS] Failed to reestablish connection: $e');
+
+      // If we still have active subscriptions, schedule another reconnection attempt
+      if (hasActiveSubscriptions) {
+        _scheduleReconnection();
+      }
+
+      rethrow;
     }
   }
 
-  Future<void> subscribe(String swapId) async {
-    if (!_subscriptions.containsKey(swapId)) {
-      _subscriptions[swapId] =
-          StreamController<Map<String, dynamic>>.broadcast();
+  Future<void> _cleanupConnection() async {
+    _logger.info('[Boltz] [WSS] Cleaning up existing connection');
+    try {
+      // Set timeouts for each cleanup operation
+      await Future.wait([
+        _wsSubscription?.cancel().timeout(
+                  const Duration(seconds: 2),
+                  onTimeout: () => null,
+                ) ??
+            Future.value(),
+        _wssStream?.sink.close().timeout(
+                  const Duration(seconds: 2),
+                  onTimeout: () => null,
+                ) ??
+            Future.value(),
+      ]);
+    } catch (e) {
+      _logger.error('[Boltz] [WSS] Error during connection cleanup: $e');
+    } finally {
+      _wsSubscription = null;
+      _wssStream = null;
+    }
+  }
 
-      if (!_isConnected) {
-        await _reestablishConnection();
+  Future<void> _sendSubscriptions(List<String> swapIds) async {
+    try {
+      _wssStream!.sink.add(jsonEncode(
+          {"op": "subscribe", "channel": "swap.update", "args": swapIds}));
+
+      // Create or verify broadcast controllers for each swap ID
+      for (final swapId in swapIds) {
+        if (_subscriptions.containsKey(swapId)) {
+          if (_subscriptions[swapId]!.isClosed) {
+            _logger.info(
+                '[Boltz] [WSS] Recreating closed controller for swap: $swapId');
+            _subscriptions[swapId] =
+                StreamController<Map<String, dynamic>>.broadcast();
+          } else {
+            _logger.info(
+                '[Boltz] [WSS] Controller already exists and active for swap: $swapId');
+            continue;
+          }
+        } else {
+          _subscriptions[swapId] =
+              StreamController<Map<String, dynamic>>.broadcast();
+          _logger.info(
+              '[Boltz] [WSS] Created new broadcast controller for swap: $swapId');
+        }
       }
 
-      await _sendSubscription(swapId);
+      _logger.info('[Boltz] [WSS] Subscribed to updates for swaps: $swapIds');
+    } catch (e) {
+      _logger.error('[Boltz] [WSS] Failed to send subscriptions: $e');
+      rethrow;
+    }
+  }
 
-      logger.d('[Boltz] [WSS] Subscription requested for swap: $swapId');
+  Future<void> subscribe(String swapId,
+      {bool forceNewSubscription = false}) async {
+    if (forceNewSubscription) {
+      _logger.info(
+          '[Boltz] [WSS] Force refreshing subscription for swap: $swapId');
+      if (_subscriptions.containsKey(swapId)) {
+        _logger.info(
+            '[Boltz] [WSS] Removing existing subscription for swap: $swapId');
+        await unsubscribe(swapId);
+      }
+    }
+
+    if (forceNewSubscription || !_subscriptions.containsKey(swapId)) {
+      _subscriptionQueue.add(swapId);
+      _logger.info(
+          '[Boltz] [WSS] ${forceNewSubscription ? "Adding renewed" : "Adding new"} subscription for swap: $swapId. Queue size: ${_subscriptionQueue.length}');
+
+      await _processSubscriptionQueue();
+    } else {
+      _logger.info(
+          '[Boltz] [WSS] Subscription already exists for swap: $swapId. Skipping queue.');
+    }
+  }
+
+  Future<void> _processSubscriptionQueue() async {
+    if (!isConnected) {
+      _logger.info('[Boltz] [WSS] Connection lost, attempting to reconnect');
+      await Future.delayed(const Duration(milliseconds: 100));
+      await _reestablishConnection();
+    }
+
+    while (_subscriptionQueue.isNotEmpty) {
+      try {
+        final swapIds = List<String>.from(_subscriptionQueue);
+        await _sendSubscriptions(swapIds);
+        _subscriptionQueue.clear();
+      } catch (e) {
+        _logger.error('[Boltz] [WSS] Failed to process subscriptions: $e');
+        break;
+      }
     }
   }
 
   Future<void> unsubscribe(String swapId) async {
     if (_subscriptions.containsKey(swapId)) {
-      if (_wssStream != null && _isConnected) {
-        await _wssStream!.sink.addStream(Stream.value(jsonEncode({
-          "op": "unsubscribe",
-          "channel": "swap.update",
-          "args": [swapId]
-        })));
-        logger.d('[Boltz] [WSS] Unsubscribed from updates for swap: $swapId');
-      }
-
-      await _subscriptions[swapId]!.close();
-      _subscriptions.remove(swapId);
-
-      if (!hasActiveSubscriptions) {
-        await closeConnection();
+      try {
+        if (_wssStream != null && isConnected) {
+          _wssStream!.sink.add(jsonEncode({
+            "op": "unsubscribe",
+            "channel": "swap.update",
+            "args": [swapId]
+          }));
+          _logger.debug(
+              '[Boltz] [WSS] Unsubscribed from updates for swap: $swapId');
+        }
+      } catch (e) {
+        _logger.error(
+            '[Boltz] [WSS] Error unsubscribing from swap: $swapId', e);
+      } finally {
+        await _subscriptions[swapId]!.close();
+        _subscriptions.remove(swapId);
       }
     }
   }
 
-  Stream<Map<String, dynamic>> getStream(String swapId,
-      {bool forceNewSubscription = false}) {
+  Future<Stream<Map<String, dynamic>>> getStream(
+    String swapId, {
+    bool forceNewSubscription = false,
+  }) async {
     if (forceNewSubscription || !_subscriptions.containsKey(swapId)) {
-      if (_subscriptions.containsKey(swapId)) {
-        unsubscribe(swapId);
-      }
-      subscribe(swapId);
+      await subscribe(swapId, forceNewSubscription: forceNewSubscription);
     }
 
-    logger.d('[Boltz] [WSS] Stream requested for swap: $swapId');
+    if (!_subscriptions.containsKey(swapId)) {
+      throw StateError(
+          '[Boltz] [WSS] No subscription available for swap: $swapId after attempted subscription');
+    }
+
     return _subscriptions[swapId]!.stream;
   }
 
   Future<void> closeConnection() async {
-    logger.d('[Boltz] [WSS] Closing shared WebSocket connection');
+    _logger.info('[Boltz] [WSS] Closing shared WebSocket connection');
     for (var controller in _subscriptions.values) {
       await controller.close();
     }
     _subscriptions.clear();
-    _cleanupConnection();
+    await _cleanupConnection();
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
     _reconnectAttempts = 0;
-    _isConnected = false;
-    logger.d('[Boltz] [WSS] WebSocket connection closed');
+    _logger.info('[Boltz] [WSS] WebSocket connection closed');
   }
 }

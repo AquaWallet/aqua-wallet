@@ -1,3 +1,4 @@
+export 'asset_crypto_amount.dart';
 export 'asset_list.dart';
 export 'asset_list_error_view.dart';
 export 'asset_list_item.dart';
@@ -5,8 +6,6 @@ export 'asset_list_section_header.dart';
 export 'asset_list_skeleton.dart';
 export 'asset_status_indicator.dart';
 export 'categorized_asset_list.dart';
-export 'categorized_asset_list_smaller_screens.dart';
-export 'categorized_asset_list_tablet.dart';
 export 'section_asset_list.dart';
 export 'wallet_exchange_buttons_panel.dart';
 export 'wallet_header_btc_price.dart';

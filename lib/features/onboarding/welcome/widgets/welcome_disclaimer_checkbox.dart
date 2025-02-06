@@ -2,6 +2,7 @@ import 'package:aqua/features/onboarding/welcome/widgets/welcome_disclaimer_scre
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:aqua/config/config.dart';
 
 class WelcomeDisclaimerCheckbox extends HookConsumerWidget {
   const WelcomeDisclaimerCheckbox({
@@ -26,7 +27,7 @@ class WelcomeDisclaimerCheckbox extends HookConsumerWidget {
         Transform.scale(
           scale: 1.4,
           alignment: Alignment.centerRight,
-          origin: Offset(-8.w, 0),
+          origin: const Offset(-8.0, 0),
           child: Container(
             decoration: BoxDecoration(
               boxShadow: [
@@ -43,35 +44,35 @@ class WelcomeDisclaimerCheckbox extends HookConsumerWidget {
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               side: BorderSide(
                 color: Theme.of(context).colorScheme.surface,
-                width: 2.w,
+                width: 2.0,
               ),
-              fillColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              fillColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return Theme.of(context).colorScheme.primary;
                 }
                 return Theme.of(context).colorScheme.surface;
               }),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.0),
               ),
               value: selected.value,
               onChanged: (value) => selected.value = value!,
             ),
           ),
         ),
-        SizedBox(width: 8.w),
+        const SizedBox(width: 8.0),
         Expanded(
           child: Text.rich(
             TextSpan(
               text: 'I ',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colors.onBackground,
                   ),
               children: [
                 TextSpan(
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => Navigator.of(context)
-                        .pushNamed(WelcomeDisclaimerScreen.routeName),
+                    ..onTap =
+                        () => context.push(WelcomeDisclaimerScreen.routeName),
                   text: 'understand the risks',
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.primary,

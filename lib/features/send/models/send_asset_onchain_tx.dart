@@ -6,10 +6,10 @@ part 'send_asset_onchain_tx.freezed.dart';
 @freezed
 class SendAssetOnchainTx with _$SendAssetOnchainTx {
   /// `gdkTx` is used for most onchain transactions
-  const factory SendAssetOnchainTx.gdkTx(GdkNewTransactionReply gdkTx) = _GdkTx;
+  const factory SendAssetOnchainTx.gdkTx(GdkNewTransactionReply gdkTx) = GdkTx;
 
   /// `gdkPsbt` is used for taxi sends, where we need to send a psbt to the rust-elements library
-  const factory SendAssetOnchainTx.gdkPsbt(String pset) = _GdkPsbt;
+  const factory SendAssetOnchainTx.gdkPsbt(String pset) = GdkPsbt;
 }
 
 extension SendAssetOnchainTxExtension on SendAssetOnchainTx {

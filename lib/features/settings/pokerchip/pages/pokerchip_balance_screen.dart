@@ -5,13 +5,13 @@ import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class PokerchipBalanceScreen extends HookConsumerWidget {
-  const PokerchipBalanceScreen({super.key});
+  const PokerchipBalanceScreen({super.key, required this.address});
 
   static const routeName = '/pokerchipBalanceScreen';
+  final String address;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final address = ModalRoute.of(context)?.settings.arguments as String;
     final pokerchipBalance = ref.watch(pokerchipBalanceProvider(address));
     final error = pokerchipBalance.hasError;
 
@@ -27,11 +27,11 @@ class PokerchipBalanceScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: context.loc.pokerchipScreenTitle,
+        title: context.loc.bitcoinChip,
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
           child: Column(
             children: [
               //ANCHOR - Pokerchip Info
@@ -48,10 +48,10 @@ class PokerchipBalanceScreen extends HookConsumerWidget {
                       ref.read(urlLauncherProvider).open(value.explorerLink),
                 ),
                 child: Text(
-                  context.loc.pokerChipBalanceExplorerButton,
+                  context.loc.assetTransactionDetailsExplorerButton,
                 ),
               ),
-              SizedBox(height: 36.h),
+              const SizedBox(height: 36.0),
             ],
           ),
         ),

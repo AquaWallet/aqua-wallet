@@ -1,10 +1,11 @@
 import 'package:aqua/config/constants/urls.dart';
 import 'package:aqua/data/provider/fee_estimate_provider.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
-import 'package:aqua/logger.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
 import 'package:dio/dio.dart';
+
+final _logger = CustomLogger(FeatureFlag.electrs);
 
 enum ElectrsServer { aqua, blockstream }
 
@@ -21,6 +22,8 @@ String getElectrsUrl(NetworkType network, Env env,
           return env == Env.testnet
               ? '$baseUrl/liquidtestnet/api'
               : '$baseUrl/liquid/api';
+        case NetworkType.liquidTestnet:
+          return '$baseUrl/liquidtestnet/api';
         default:
           throw Exception('Unsupported network type');
       }
@@ -34,6 +37,8 @@ String getElectrsUrl(NetworkType network, Env env,
           return '$baseUrl/api/liquid';
         case NetworkType.bitcoin:
           throw Exception('Bitcoin not supported on aqua esplora');
+        default:
+          throw Exception('Unsupported network type');
       }
   }
 }
@@ -62,44 +67,38 @@ class ElectrsClient {
   }
 
   /// Returns transaction ID if broadcasted successfully
-  Future<String> broadcast(String rawTx, NetworkType network,
-      {bool isLowball = true}) async {
+  Future<String> broadcast(
+    String rawTx,
+    NetworkType network, {
+    bool useAquaNode = false,
+  }) async {
     final client = ref.read(dioProvider);
-    final isBitcoin = network == NetworkType.bitcoin;
-
-    if (isBitcoin || !isLowball) {
-      try {
-        // broadcast with Blockstream
-        logger.d('[Electrs] Attempt broadcast with blockstream');
-        final response = await client.post(
-            '${getElectrsUrl(network, env, server: ElectrsServer.blockstream)}/tx',
-            data: rawTx);
-        return response.data as String;
-      } on DioException catch (e) {
-        throw _handleBroadcastError(e, ElectrsServer.blockstream);
-      }
-    }
-
     try {
-      if (ref.read(featureFlagsProvider).throwAquaBroadcastErrorEnabled) {
-        throw AquaTxBroadcastException();
-      }
-
-      // broadcast with Aqua node
-      logger.d('[Electrs] Attempt broadcast with lowball');
-      final response = await client.post(
-          '${getElectrsUrl(network, env, server: ElectrsServer.aqua)}/broadcast',
-          data: {'txhex': rawTx});
+      final electrumServerUrl = useAquaNode
+          ? getElectrsUrl(network, env, server: ElectrsServer.aqua)
+          : getElectrsUrl(network, env, server: ElectrsServer.blockstream);
+      final broadcastUrl = useAquaNode
+          ? '$electrumServerUrl/broadcast'
+          : '$electrumServerUrl/tx';
+      final payload = useAquaNode ? {'txhex': rawTx} : rawTx;
+      final response = await client.post(broadcastUrl, data: payload);
       return response.data as String;
     } on DioException catch (e) {
-      throw _handleBroadcastError(e, ElectrsServer.aqua);
+      throw _handleBroadcastError(e, ElectrsServer.blockstream);
     }
   }
 
   Exception _handleBroadcastError(DioException e, ElectrsServer source) {
-    logger.e(
-        "[Electrs] $source broadcast error: ${e.response?.statusCode}, ${e.response?.data}");
+    _logger.error(
+        "$source broadcast error: ${e.response?.statusCode}, ${e.response?.data}");
 
+    // Check if response data is a string (error message)
+    if (e.response?.data is String) {
+      return Exception(e.response!.data as String);
+    }
+
+    // Check for mempool conflict in map response
+    // NOTE: This issue should be fixed with switch to DiscountCT. But this is a generic error catch and safe to leave in for a bit longer.
     // This error is happening with lowball txs when a user makes a second liquid tx within ~1 minute.
     // This is because lowball txs don't go through the mempool, and thus gdk doesn't see them until they're in a block.
     // We are catching this error and showing an alert to retry currently.
@@ -112,11 +111,9 @@ class ElectrsClient {
 
     if (source == ElectrsServer.aqua) {
       return AquaTxBroadcastException();
-    } else if (source == ElectrsServer.blockstream) {
-      return BlockstreamTxBroadcastException();
     }
 
-    return UnknownTxBroadcastException();
+    return e;
   }
 
   /// Returns liquid transaction ids for an address
@@ -131,8 +128,8 @@ class ElectrsClient {
           List<String>.from(response.data.map((tx) => tx['txid'].toString()));
       return txids;
     } on DioException catch (e) {
-      logger.e(
-          "[Electrs] fetch txs error: ${e.response?.statusCode}, ${e.response?.data}");
+      _logger.error(
+          "fetch txs error: ${e.response?.statusCode}, ${e.response?.data}");
       rethrow;
     }
   }
@@ -147,8 +144,8 @@ class ElectrsClient {
       final blockHeight = int.parse(response.data.toString());
       return blockHeight;
     } on DioException catch (e) {
-      logger.e(
-          "[Electrs] fetch block height error: ${e.response?.statusCode}, ${e.response?.data}");
+      _logger.error(
+          "fetch block height error: ${e.response?.statusCode}, ${e.response?.data}");
       rethrow;
     }
   }

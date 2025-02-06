@@ -11,16 +11,16 @@ class WarningLabel extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      height: 20.h,
+      height: 20.0,
       alignment: Alignment.center,
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.warning_rounded,
             color: Colors.amber,
-            size: 20.r,
+            size: 20.0,
           ),
-          SizedBox(width: 4.w),
+          const SizedBox(width: 4.0),
           Expanded(
             child: Text(
               text,

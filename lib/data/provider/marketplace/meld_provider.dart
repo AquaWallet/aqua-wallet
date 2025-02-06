@@ -10,7 +10,7 @@ part 'meld_provider.g.dart';
 Uri meldUri(Ref ref, String? receiveAddress) {
   final uri = ref.watch(meldEnvConfigProvider.select((env) => env.apiUrl));
   final key = ref.watch(meldEnvConfigProvider.select((env) => env.apiKey));
-  logger.i("[ENV] using meld base uri: $uri");
+  logger.info("[ENV] using meld base uri: $uri");
 
   final baseUri = Uri.parse(uri);
   final params = {

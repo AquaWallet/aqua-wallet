@@ -8,10 +8,14 @@ class BitcoinNetwork extends WalletService {
 
   @override
   Future<bool> connect({
-    GdkConnectionParams connectionParams = const GdkConnectionParams(
-      name: 'electrum-testnet',
-    ),
+    GdkConnectionParams? connectionParams,
   }) async {
-    return super.connect(connectionParams: connectionParams);
+    final params = connectionParams ??
+        const GdkConnectionParams(
+          name: 'electrum-bitcoin',
+        );
+
+    final result = await super.connect(connectionParams: params);
+    return result;
   }
 }

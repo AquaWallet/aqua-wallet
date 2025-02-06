@@ -14,48 +14,47 @@ class WalletBackupConfirmationFailure extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final onRetry = useCallback(
-      () => Navigator.of(context)
-          .pushReplacementNamed(WalletRecoveryPhraseScreen.routeName),
+      () => context.pushReplacement(WalletRecoveryPhraseScreen.routeName),
       [],
     );
 
     return Scaffold(
       appBar: AquaAppBar(
         showActionButton: false,
-        iconBackgroundColor: Theme.of(context).colorScheme.background,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        iconBackgroundColor: Theme.of(context).colors.background,
+        iconForegroundColor: Theme.of(context).colors.onBackground,
         onBackPressed: onRetry,
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
           child: Column(
             children: [
-              SizedBox(height: 60.h),
+              const SizedBox(height: 60.0),
               const Spacer(),
               //ANCHOR - Icon
               SvgPicture.asset(
                 Svgs.failure,
-                width: 60.r,
-                height: 60.r,
+                width: 60.0,
+                height: 60.0,
               ),
-              SizedBox(height: 20.h),
+              const SizedBox(height: 20.0),
               //ANCHOR - Title
               Text(
-                context.loc.backupFailureTitle,
+                context.loc.somethingWentWrong,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 20.sp,
+                      fontSize: 20.0,
                     ),
               ),
-              SizedBox(height: 8.h),
+              const SizedBox(height: 8.0),
               //ANCHOR - Description
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
                   context.loc.backupFailureDescription,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colors.onBackground,
                       ),
                 ),
               ),
@@ -65,9 +64,9 @@ class WalletBackupConfirmationFailure extends HookConsumerWidget {
                 child: Text(
                   context.loc.backupFailureQuitButton,
                 ),
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => context.pop(),
               ),
-              SizedBox(height: 27.h),
+              const SizedBox(height: 27.0),
               //ANCHOR - Retry button
               AquaElevatedButton(
                 onPressed: onRetry,
@@ -76,10 +75,10 @@ class WalletBackupConfirmationFailure extends HookConsumerWidget {
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
                 child: Text(
-                  context.loc.backupFailureRetryButton,
+                  context.loc.retry,
                 ),
               ),
-              SizedBox(height: 64.h),
+              const SizedBox(height: 64.0),
             ],
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -22,11 +23,12 @@ class AppbarButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final buttonSize = context.adaptiveDouble(smallMobile: 36, mobile: 40);
     final content = useMemoized(() {
       return SvgPicture.asset(
         svgAssetName,
-        width: 40.w,
-        height: 40.w,
+        width: buttonSize,
+        height: buttonSize,
         fit: BoxFit.scaleDown,
         colorFilter: ColorFilter.mode(
           foreground,
@@ -36,7 +38,7 @@ class AppbarButton extends HookWidget {
     }, [svgAssetName]);
 
     return SizedBox.square(
-      dimension: 40.w,
+      dimension: buttonSize,
       child: elevated
           ? BoxShadowElevatedButton(
               onPressed: onPressed,
@@ -47,10 +49,10 @@ class AppbarButton extends HookWidget {
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
+                  borderRadius: BorderRadius.circular(4),
                   side: BorderSide(
                     color: outlineColor,
-                    width: 2.w,
+                    width: 2.0,
                   ),
                 ),
                 backgroundColor: background,

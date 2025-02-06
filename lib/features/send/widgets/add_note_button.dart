@@ -1,15 +1,11 @@
 import 'package:aqua/config/config.dart';
-import 'package:aqua/features/note/note.dart';
-import 'package:aqua/features/send/providers/send_asset_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 class AddNoteButton extends ConsumerWidget {
-  const AddNoteButton({
-    super.key,
-  });
+  const AddNoteButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,17 +13,16 @@ class AddNoteButton extends ConsumerWidget {
 
     return BoxShadowElevatedButton(
       onPressed: () async {
-        final note = await Navigator.of(context)
-            .pushNamed(AddNoteScreen.routeName) as String?;
-        ref.read(noteProvider.notifier).state = note;
+        // final note = await context.push(AddNoteScreen.routeName) as String?;
+        //TODO: Move note state to [SendAssetInputStateNotifier]
       },
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 18.0),
       background: Theme.of(context).colorScheme.surface,
-      foreground: Theme.of(context).colorScheme.onBackground,
+      foreground: Theme.of(context).colors.onBackground,
       side: !darkMode
           ? BorderSide(
               color: Theme.of(context).colors.roundedButtonOutlineColor,
-              width: 1.w,
+              width: 1.0,
             )
           : null,
       child: Row(
@@ -35,18 +30,18 @@ class AddNoteButton extends ConsumerWidget {
           //ANCHOR - Icon
           SvgPicture.asset(
             Svgs.addNote,
-            width: 16.r,
-            height: 16.r,
+            width: 16.0,
+            height: 16.0,
             colorFilter: ColorFilter.mode(
-              Theme.of(context).colorScheme.onBackground,
+              Theme.of(context).colors.background,
               BlendMode.srcIn,
             ),
           ),
-          SizedBox(width: 14.w),
+          const SizedBox(width: 14.0),
           //ANCHOR - Label
           Expanded(
             child: Text(
-              context.loc.receiveAssetScreenAddNotes,
+              context.loc.addNotes,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),

@@ -29,7 +29,7 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
           return const SizedBox.shrink();
         }
 
-        final boltzFee = BoltzFees.totalFeesReverse(swapData);
+        final boltzFee = BoltzFees.totalFeesReverse(swapData.invoice);
 
         final swapStatus =
             ref.watch(boltzSwapStatusProvider(swapData.boltzId)).when(
@@ -42,10 +42,11 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
           color: Theme.of(context).colors.altScreenSurface,
           bordered: true,
           borderColor: Theme.of(context).colors.cardOutlineColor,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12.0),
           child: Container(
             width: double.maxFinite,
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,29 +59,29 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
                         fontWeight: FontWeight.w600,
                       ),
                 ),
-                SizedBox(height: 24.h),
+                const SizedBox(height: 24.0),
                 //ANCHOR - Transaction Id
                 LabelCopyableTextView(
-                  label: context.loc.sendAssetCompleteScreenBoltzIdLabel,
+                  label: context.loc.boltzId,
                   value: swapData.boltzId,
                 ),
-                SizedBox(height: 18.h),
+                const SizedBox(height: 18.0),
                 //ANCHOR - Transaction Fee
                 Row(
                   children: [
                     TransactionDetailsDataItem(
-                      title: context.loc.boltzTotalFees,
+                      title: context.loc.totalFees,
                       value: '$boltzFee sats',
                     ),
                   ],
                 ),
-                SizedBox(height: 18.h),
+                const SizedBox(height: 18.0),
                 //ANCHOR - Address
                 LabelCopyableTextView(
                   label: context.loc.address,
                   value: uiModel.dbTransaction?.receiveAddress ?? "",
                 ),
-                SizedBox(height: 24.h),
+                const SizedBox(height: 24.0),
                 //ANCHOR - Status
                 TransactionDetailsStatusChip(
                   color: switch (swapStatus) {
@@ -100,22 +101,22 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
                   },
                 ),
 
-                SizedBox(height: 18.h),
+                const SizedBox(height: 18.0),
                 //ANCHOR - Boltz Support
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onBackground,
+                    foregroundColor: Theme.of(context).colors.onBackground,
                     visualDensity: VisualDensity.compact,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.r),
+                      borderRadius: BorderRadius.circular(4.0),
                     ),
                     side: BorderSide(
                       color: Theme.of(context).colorScheme.primary,
-                      width: 1.r,
+                      width: 1.0,
                     ),
                     textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontSize: 12.sp,
+                          fontSize: 12.0,
                         ),
                   ),
                   onPressed: () => launchUrl(Uri(
@@ -128,6 +129,7 @@ class BoltzReverseSwapDetailsCard extends HookConsumerWidget {
                   )),
                   child: Text(context.loc.boltzSupportEmail),
                 ),
+                const SizedBox(height: 18.0),
               ],
             ),
           ),

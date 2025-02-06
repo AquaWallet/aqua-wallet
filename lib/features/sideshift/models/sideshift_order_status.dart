@@ -1,12 +1,13 @@
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
+import 'package:aqua/features/sideshift/models/sideshift_order.dart';
+import 'package:aqua/features/swaps/models/swap_models.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sideshift_order_status.freezed.dart';
 part 'sideshift_order_status.g.dart';
 
-enum OrderStatus {
+enum SideshiftOrderStatus {
   @JsonValue('waiting')
   waiting,
   @JsonValue('pending')
@@ -29,54 +30,107 @@ enum OrderStatus {
   expired,
 }
 
-extension OrderStatusExtension on OrderStatus {
+extension SideshiftOrderStatusExt on SideshiftOrderStatus {
   String localizedString(BuildContext context) {
     switch (this) {
-      case OrderStatus.waiting:
-        return context.loc.sideshiftOrderStatusWaiting;
-      case OrderStatus.pending:
-        return context.loc.sideshiftOrderStatusPending;
-      case OrderStatus.processing:
-        return context.loc.sideshiftOrderStatusProcessing;
-      case OrderStatus.review:
+      case SideshiftOrderStatus.waiting:
+        return context.loc.waiting;
+      case SideshiftOrderStatus.pending:
+        return context.loc.assetTransactionDetailsPending;
+      case SideshiftOrderStatus.processing:
+        return context.loc.processing;
+      case SideshiftOrderStatus.review:
         return context.loc.sideshiftOrderStatusReview;
-      case OrderStatus.settling:
+      case SideshiftOrderStatus.settling:
         return context.loc.sideshiftOrderStatusSettling;
-      case OrderStatus.settled:
+      case SideshiftOrderStatus.settled:
         return context.loc.sideshiftOrderStatusSettled;
-      case OrderStatus.refund:
-        return context.loc.sideshiftOrderStatusRefund;
-      case OrderStatus.refunding:
-        return context.loc.sideshiftOrderStatusRefunding;
-      case OrderStatus.refunded:
-        return context.loc.sideshiftOrderStatusRefunded;
-      case OrderStatus.expired:
-        return context.loc.sideshiftOrderStatusExpired;
+      case SideshiftOrderStatus.refund:
+        return context.loc.refund;
+      case SideshiftOrderStatus.refunding:
+        return context.loc.refunding;
+      case SideshiftOrderStatus.refunded:
+        return context.loc.refunded;
+      case SideshiftOrderStatus.expired:
+        return context.loc.expired;
       default:
-        return context.loc.sideshiftOrderStatusUnknown;
+        return context.loc.unknown;
     }
   }
 
   bool get isPending {
-    return this == OrderStatus.waiting ||
-        this == OrderStatus.pending ||
-        this == OrderStatus.processing ||
-        this == OrderStatus.review ||
-        this == OrderStatus.settling;
+    return this == SideshiftOrderStatus.waiting ||
+        this == SideshiftOrderStatus.pending ||
+        this == SideshiftOrderStatus.processing ||
+        this == SideshiftOrderStatus.review ||
+        this == SideshiftOrderStatus.settling;
   }
 
   bool get isFailed {
-    return this == OrderStatus.refund ||
-        this == OrderStatus.refunding ||
-        this == OrderStatus.refunded;
+    return this == SideshiftOrderStatus.refund ||
+        this == SideshiftOrderStatus.refunding ||
+        this == SideshiftOrderStatus.refunded;
   }
 
   bool get isSuccess {
-    return this == OrderStatus.settled;
+    return this == SideshiftOrderStatus.settled;
   }
 
   bool get isFinal {
-    return this == OrderStatus.refunded || this == OrderStatus.settled;
+    return this == SideshiftOrderStatus.refunded ||
+        this == SideshiftOrderStatus.settled;
+  }
+
+  SwapOrderStatus toSwapOrderStatus() {
+    switch (this) {
+      case SideshiftOrderStatus.waiting:
+        return SwapOrderStatus.waiting;
+      case SideshiftOrderStatus.pending:
+        return SwapOrderStatus.waiting;
+      case SideshiftOrderStatus.processing:
+        return SwapOrderStatus.processing;
+      case SideshiftOrderStatus.review:
+        return SwapOrderStatus.processing;
+      case SideshiftOrderStatus.settling:
+        return SwapOrderStatus.sending;
+      case SideshiftOrderStatus.settled:
+        return SwapOrderStatus.completed;
+      case SideshiftOrderStatus.refund:
+        return SwapOrderStatus.failed;
+      case SideshiftOrderStatus.refunding:
+        return SwapOrderStatus.refunding;
+      case SideshiftOrderStatus.refunded:
+        return SwapOrderStatus.refunded;
+      case SideshiftOrderStatus.expired:
+        return SwapOrderStatus.expired;
+      default:
+        return SwapOrderStatus.waiting;
+    }
+  }
+
+  static SideshiftOrderStatus fromSwapOrderStatus(SwapOrderStatus status) {
+    switch (status) {
+      case SwapOrderStatus.waiting:
+        return SideshiftOrderStatus.waiting;
+      case SwapOrderStatus.processing:
+        return SideshiftOrderStatus.processing;
+      case SwapOrderStatus.completed:
+        return SideshiftOrderStatus.settled;
+      case SwapOrderStatus.failed:
+        return SideshiftOrderStatus.refund;
+      case SwapOrderStatus.refunding:
+        return SideshiftOrderStatus.refunding;
+      case SwapOrderStatus.refunded:
+        return SideshiftOrderStatus.refunded;
+      case SwapOrderStatus.expired:
+        return SideshiftOrderStatus.expired;
+      case SwapOrderStatus.exchanging:
+        return SideshiftOrderStatus.processing;
+      case SwapOrderStatus.sending:
+        return SideshiftOrderStatus.settling;
+      default:
+        return SideshiftOrderStatus.waiting;
+    }
   }
 }
 
@@ -93,11 +147,11 @@ class SideshiftOrderStatusResponse with _$SideshiftOrderStatusResponse {
     String? settleAddress,
     String? depositMin,
     String? depositMax,
-    OrderType? type,
+    SideshiftOrderType? orderType,
     String? depositAmount,
     String? settleAmount,
     DateTime? expiresAt,
-    OrderStatus? status,
+    SideshiftOrderStatus? status,
     DateTime? updatedAt,
     String? depositHash,
     String? settleHash,

@@ -17,34 +17,37 @@ const labelForUnit = {
 };
 
 class GetBitcoinCard extends ConsumerWidget {
-  const GetBitcoinCard({super.key, required this.onTap});
+  const GetBitcoinCard({
+    super.key,
+    required this.feeAsset,
+    required this.onTap,
+  });
 
+  final FeeAsset feeAsset;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final feeAsset = ref.read(userSelectedFeeAssetProvider);
-
     return BoxShadowCard(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12.0),
       child: Material(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12.0),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12.0),
           child: Ink(
-            padding: EdgeInsets.symmetric(vertical: 16.h),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Row(
               children: [
-                SizedBox(width: 14.w),
+                const SizedBox(width: 14.0),
                 SvgPicture.asset(
                   iconsForUnit[feeAsset]!,
-                  width: 38.r,
-                  height: 38.r,
+                  width: 38.0,
+                  height: 38.0,
                 ),
-                SizedBox(width: 16.w),
+                const SizedBox(width: 16.0),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -55,44 +58,43 @@ class GetBitcoinCard extends ConsumerWidget {
                             labelForUnit[feeAsset]!),
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontSize: 18.sp,
+                                  fontSize: 18.0,
                                 ),
                       ),
-                      SizedBox(height: 6.h),
+                      const SizedBox(height: 6.0),
                       Text(
                         context.loc.insufficientFundsSheetAssetDescription,
                         style:
                             Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  fontSize: 12.sp,
+                                  fontSize: 12.0,
                                 ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  width: 40.r,
-                  height: 40.r,
+                  width: 40.0,
+                  height: 40.0,
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: Theme.of(context).isLight
                           ? Theme.of(context).colors.divider
                           : Colors.transparent,
-                      width: 2.r,
+                      width: 2.0,
                     ),
-                    borderRadius: BorderRadius.circular(10.r),
-                    color: Theme.of(context).colorScheme.background,
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Theme.of(context).colors.background,
                   ),
                   child: SvgPicture.asset(
                     Svgs.arrowForward,
-                    width: 14.r,
-                    height: 14.r,
+                    width: 14.0,
+                    height: 14.0,
                     colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.onBackground,
-                        BlendMode.srcIn),
+                        Theme.of(context).colors.onBackground, BlendMode.srcIn),
                     fit: BoxFit.scaleDown,
                   ),
                 ),
-                SizedBox(width: 18.w),
+                const SizedBox(width: 18.0),
               ],
             ),
           ),

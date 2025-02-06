@@ -1,5 +1,6 @@
-import 'package:aqua/config/constants/constants.dart';
+import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -24,7 +25,7 @@ class AssetIcon extends ConsumerWidget {
 
     // local hardcoded cases
     switch (assetId) {
-      case 'Layer2Bitcoin':
+      case kLayer2BitcoinId:
         localAsset = Svgs.layerTwoSingle;
         break;
       case 'btc':
@@ -33,11 +34,25 @@ class AssetIcon extends ConsumerWidget {
       case 'lightning':
         localAsset = Svgs.lightningAsset;
         break;
+      case 'LiquidBitcoin':
+        localAsset = Svgs.liquidAsset;
       case 'trx-usdt':
         localAsset = Svgs.tronUsdtAsset;
         break;
       case 'eth-usdt':
         localAsset = Svgs.ethUsdtAsset;
+        break;
+      case 'bep-usdt':
+        localAsset = Svgs.bepUsdtAsset;
+        break;
+      case 'sol-usdt':
+        localAsset = Svgs.solUsdtAsset;
+        break;
+      case 'pol-usdt':
+        localAsset = Svgs.polUsdtAsset;
+        break;
+      case 'ton-usdt':
+        localAsset = Svgs.tonUsdtAsset;
         break;
       default:
         // liquid assetIds
@@ -58,15 +73,15 @@ class AssetIcon extends ConsumerWidget {
       return SvgPicture.asset(
         localAsset,
         fit: fit ?? BoxFit.fitWidth,
-        width: size ?? 40.r,
-        height: size ?? 40.r,
+        width: size ?? 40.0,
+        height: size ?? 40.0,
       );
     } else {
       return SvgPicture.network(
         assetLogoUrl,
         fit: fit ?? BoxFit.fitWidth,
-        width: size ?? 40.r,
-        height: size ?? 40.r,
+        width: size ?? 40.0,
+        height: size ?? 40.0,
       );
     }
   }

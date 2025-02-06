@@ -71,16 +71,16 @@ class WalletRestoreInputField extends HookConsumerWidget {
         width: double.maxFinite,
         child: Row(children: [
           SizedBox(
-            width: 21.w,
+            width: 21.0,
             child: Text(
               '${index + 1}'.padLeft(2, '0'),
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
-                    fontSize: 14.sp,
+                    color: Theme.of(context).colors.onBackground,
+                    fontSize: 14.0,
                   ),
             ),
           ),
-          SizedBox(width: 8.w),
+          const SizedBox(width: 8.0),
           Expanded(
             child: Center(
               child: TextFormField(
@@ -96,27 +96,27 @@ class WalletRestoreInputField extends HookConsumerWidget {
                       fontWeight: FontWeight.w400,
                       color: focusNode.hasFocus
                           ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onBackground,
+                          : Theme.of(context).colors.onBackground,
                     ),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: AquaColors.chineseSilver.withOpacity(.1),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 8.h,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 8.0,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: const BorderSide(
                       color: AquaColors.chineseSilver,
-                      width: 1.w,
+                      width: 1.0,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(12.0),
                     borderSide: BorderSide(
                       color: Theme.of(context).colorScheme.primary,
-                      width: 1.w,
+                      width: 1.0,
                     ),
                   ),
                 ),

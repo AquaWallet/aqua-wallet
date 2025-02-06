@@ -14,37 +14,37 @@ class PokerchipBalanceCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return BoxShadowCard(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12.0),
       child: Column(
         children: [
           //ANCHOR: Balance Title
-          SizedBox(height: 31.h),
+          const SizedBox(height: 31.0),
           Text(
             context.loc.pokerChipBalanceLabel,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: 26.sp,
+                  fontSize: 26.0,
                   fontWeight: FontWeight.w400,
                 ),
           ),
-          SizedBox(height: 24.h),
+          const SizedBox(height: 24.0),
           //ANCHOR - Asset Icon
           PokerchipAssetIcon(data.asset),
-          SizedBox(height: 26.h),
+          const SizedBox(height: 26.0),
           //ANCHOR: Balance value
           CopyableTextView(
             text: data.balance.toUpperCase(),
-            iconSize: 14.r,
+            iconSize: 14.0,
             textAlign: TextAlign.center,
             textStyle: Theme.of(context).textTheme.titleLarge,
-            margin: EdgeInsetsDirectional.symmetric(horizontal: 40.w),
+            margin: const EdgeInsetsDirectional.symmetric(horizontal: 40.0),
           ),
-          SizedBox(height: 24.h),
+          const SizedBox(height: 24.0),
           //ANCHOR - Address
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 20.w),
+            margin: const EdgeInsets.symmetric(horizontal: 20.0),
             child: CopyableAddressView(address: data.address),
           ),
-          SizedBox(height: 21.h),
+          const SizedBox(height: 21.0),
         ],
       ),
     );

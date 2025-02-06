@@ -1,12 +1,14 @@
 import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/receive/pages/models/models.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:decimal/decimal.dart';
+
+final _logger = CustomLogger(FeatureFlag.receive);
 
 // NOTE: This is the home for new Reverse Swap functionality via Boltz Swap.
 // Initially only isolating the functional components from legacy setup here.
@@ -27,16 +29,29 @@ class BoltzReverseSwapNotifier extends StateNotifier<ReceiveBoltzState> {
 
   final Ref _ref;
 
+  Future<void> generateInvoice(
+      Decimal amountAsDecimal, AppLocalizations loc) async {
+    if (amountAsDecimal < Decimal.fromInt(boltzMin)) {
+      setErrorMessage(loc.amountBelowMin(boltzMin));
+      return;
+    }
+    if (amountAsDecimal > Decimal.fromInt(boltzMax)) {
+      setErrorMessage(loc.boltzMaxAmountError(boltzMax));
+      return;
+    }
+
+    await create(amountAsDecimal);
+  }
+
   Future<void> create(Decimal amountAsDecimal) async {
     try {
       state = const ReceiveBoltzState.generatingInvoice();
 
       if (amountAsDecimal == Decimal.zero) {
-        logger.e("[Receive] amount as double is zero");
+        _logger.error("amount as double is zero");
         return;
       }
 
-      // REVIEW: Is this the right way to get the electrum url?
       final network = await _ref.read(liquidProvider).getNetwork();
       final electrumUrl = network!.electrumUrl!;
 
@@ -60,7 +75,19 @@ class BoltzReverseSwapNotifier extends StateNotifier<ReceiveBoltzState> {
         referralId: 'AQUA',
       );
 
-      logger.d("[Receive] Boltz Reverse Swap response: $response");
+      // Mask sensitive data before logging
+      final maskedResponse = response.copyWith(
+        keys: response.keys.copyWith(
+          secretKey: '********',
+        ),
+        preimage: PreImage(
+          value: '********',
+          sha256: response.preimage.sha256,
+          hash160: response.preimage.hash160,
+        ),
+      );
+
+      _logger.debug("Boltz Reverse Swap response: $maskedResponse");
 
       final swapDbModel =
           BoltzSwapDbModel.fromV2SwapResponse(response).copyWith(
@@ -84,13 +111,13 @@ class BoltzReverseSwapNotifier extends StateNotifier<ReceiveBoltzState> {
       state = ReceiveBoltzState.qrCode(response);
     } catch (e) {
       state = const ReceiveBoltzState.enterAmount();
-      logger.e('[Receive] Boltz Reverse Swap Error', e);
+      _logger.error('Boltz Reverse Swap Error', e);
       setErrorMessage(e.toString());
     }
   }
 
   void setErrorMessage(String? message) {
-    logger.e('[Receive] Boltz Reverse Swap Error: $message');
+    _logger.error('Boltz Reverse Swap Error: $message');
     _ref.read(boltzReverseSwapUiErrorProvider.notifier).state = message;
   }
 }

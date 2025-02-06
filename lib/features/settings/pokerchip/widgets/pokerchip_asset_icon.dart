@@ -11,30 +11,30 @@ class PokerchipAssetIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: 267.r,
+      dimension: 267.0,
       child: Stack(
         alignment: Alignment.center,
         children: [
           //ANCHOR: Pokerchip frame
           SvgPicture.asset(
             Svgs.pokerchipFrameLight,
-            width: 267.r,
-            height: 267.r,
+            width: 267.0,
+            height: 267.0,
             colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.onBackground, BlendMode.srcIn),
+                Theme.of(context).colors.onBackground, BlendMode.srcIn),
           ),
           //ANCHOR: Asset Icon
           if (asset.isBTC || asset.isUnknown) ...{
             SvgPicture.asset(
               asset.logoUrl,
-              width: 100.r,
-              height: 100.r,
+              width: 100.0,
+              height: 100.0,
             ),
           } else ...{
             SvgPicture.network(
               asset.logoUrl,
-              width: 100.r,
-              height: 100.r,
+              width: 100.0,
+              height: 100.0,
             ),
           },
         ],

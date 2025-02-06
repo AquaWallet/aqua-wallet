@@ -3,7 +3,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class WalletBackupMnemonicWords extends HookConsumerWidget {
@@ -32,11 +32,12 @@ class WalletBackupGridView extends ConsumerWidget {
     final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
 
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
         crossAxisCount: 3,
-        crossAxisSpacing: 15.w,
-        mainAxisSpacing: 10.w,
-        height: 38.h,
+        crossAxisSpacing: 15.0,
+        mainAxisSpacing: 10.0,
+        height: 38.0,
       ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -65,35 +66,35 @@ class WalletBackupTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 12.w, right: 8.w),
+      padding: const EdgeInsets.only(left: 12.0, right: 8.0),
       decoration: isBotevMode
           ? BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(12.0),
             )
           : BoxDecoration(
               gradient: AppStyle.gridItemGradient,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(12.0),
             ),
       child: Row(
         children: [
           SizedBox(
-            width: 21.w,
+            width: 21.0,
             child: Text(
               number.padLeft(2, '0'),
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    fontSize: 14.sp,
+                    fontSize: 14.0,
                   ),
             ),
           ),
-          SizedBox(width: 4.w),
+          const SizedBox(width: 4.0),
           Text(
             title,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: Theme.of(context).colorScheme.onSecondaryContainer,
                   fontWeight: FontWeight.w400,
-                  fontSize: 14.sp,
+                  fontSize: 14.0,
                   height: 1.0,
                 ),
           ),

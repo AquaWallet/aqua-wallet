@@ -47,7 +47,7 @@ class LNUrlService {
       final apiResponse = await client.get(payParams.callback!,
           queryParameters: {"amount": amountMilliSatoshis});
       final json = _parseJsonResponse(apiResponse.data);
-      logger.d("[LNURL] LNURLp response: $json");
+      logger.debug("[LNURL] LNURLp response: $json");
       final response = LNURLPayResult.fromJson(json);
       final invoice = response.pr;
       final bolt11 = Bolt11PaymentRequest(invoice);
@@ -71,7 +71,7 @@ class LNUrlService {
     } on DioException catch (_) {
       throw LNUrlpException();
     } catch (e) {
-      logger.e("[LNURL] LNURLp error: $e");
+      logger.error("[LNURL] LNURLp error: $e");
       rethrow;
     }
   }
@@ -91,7 +91,7 @@ class LNUrlService {
     final queryParams = {"k1": withdrawParams.k1, "pr": invoice};
     final uri = Uri.parse(withdrawParams.callback!)
         .replace(queryParameters: queryParams);
-    logger.d("[LNURL] LNURLw Requesting URL: ${uri.toString()}");
+    logger.debug("[LNURL] LNURLw Requesting URL: ${uri.toString()}");
 
     try {
       // Lnurl withdraw calls take a while to response
@@ -100,7 +100,7 @@ class LNUrlService {
       );
       final apiResponse = await client.getUri(uri, options: options);
       final json = apiResponse.data as Map<String, dynamic>;
-      logger.d("[LNURL] LNURLw response: $json");
+      logger.debug("[LNURL] LNURLw response: $json");
       final response = LNURLWithdrawResult.fromJson(json);
       if (response.errorResponse != null) {
         throw Exception(response.errorResponse!.reason);
@@ -114,7 +114,7 @@ class LNUrlService {
         final responseError = LNURLErrorResponse.fromJson(e.response!.data);
         throw Exception(responseError.reason);
       }
-      logger.e("[LNURL] LNURLw error: $e");
+      logger.error("[LNURL] LNURLw error: $e");
       // Was seeing a lot of timeouts with no response on successful calls, so if a timeout occurs, just return
       if (e.type == DioExceptionType.receiveTimeout) {
         return;
@@ -132,7 +132,7 @@ class LNUrlService {
 
       // Construct the .well-known/lnurlp URL
       String lnurlp = 'https://$domain/.well-known/lnurlp/$user';
-      logger.d("[LNURL] lnurlp constructed: $lnurlp");
+      logger.debug("[LNURL] lnurlp constructed: $lnurlp");
       return lnurlp;
     } else {
       return null;

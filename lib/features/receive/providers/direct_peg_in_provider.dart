@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/logger.dart';
 
 final directPegInProvider =
@@ -19,7 +19,7 @@ class _Notifier extends AutoDisposeNotifier<DirectPegState> {
 
   void orderCreated(SwapStartPegResponse response) {
     final order = response.result!;
-    logger.d("[DirectPegIn] Created Order: $order");
+    logger.debug("[DirectPegIn] Created Order: $order");
     ref.read(pegStatusProvider.notifier).requestPegStatus(
           orderId: order.orderId,
           isPegIn: true,

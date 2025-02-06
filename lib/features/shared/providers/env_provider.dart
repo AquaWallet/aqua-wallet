@@ -1,7 +1,6 @@
-import 'package:aqua/config/constants/api_keys.dart';
-import 'package:aqua/config/constants/urls.dart';
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/providers/sideswap_websocket_provider.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,6 +45,9 @@ class EnvConfig with _$EnvConfig {
   const factory EnvConfig({
     required String apiUrl,
     required String apiKey,
+    String? username,
+    String? password,
+    String? secret,
   }) = _EnvConfig;
 }
 
@@ -56,14 +58,14 @@ final meldEnvConfigProvider = Provider<EnvConfig>((ref) {
 
   switch (env) {
     case Env.mainnet:
-      return const EnvConfig(
+      return EnvConfig(
         apiUrl: meldProdUrl,
-        apiKey: meldProdPublicKey,
+        apiKey: Secrets.kMeldProdPublicKey,
       );
     case Env.testnet || Env.regtest:
-      return const EnvConfig(
+      return EnvConfig(
         apiUrl: meldSandboxUrl,
-        apiKey: meldSandboxPublicKey,
+        apiKey: Secrets.kMeldSandboxPublicKey,
       );
     default:
       throw UnimplementedError('Unknown environment');
@@ -84,26 +86,6 @@ final boltzEnvConfigProvider = Provider<EnvConfig>((ref) {
     case Env.testnet || Env.regtest:
       return const EnvConfig(
         apiUrl: boltzV2TestnetUrl,
-        apiKey: '',
-      );
-    default:
-      throw UnimplementedError('Unknown environment');
-  }
-});
-
-@Deprecated('Only used for migration, use `boltzEnvConfigProvider` instead')
-final legacyBoltzEnvConfigProvider = Provider<EnvConfig>((ref) {
-  final env = ref.watch(envProvider);
-
-  switch (env) {
-    case Env.mainnet:
-      return const EnvConfig(
-        apiUrl: boltzMainnetUrl,
-        apiKey: '',
-      );
-    case Env.testnet || Env.regtest:
-      return const EnvConfig(
-        apiUrl: boltzTestnetUrl,
         apiKey: '',
       );
     default:
@@ -147,6 +129,32 @@ final aquaServiceEnvConfigProvider = Provider<EnvConfig>((ref) {
       return const EnvConfig(
         apiUrl: testNetAssetsUrl,
         apiKey: '',
+      );
+    default:
+      throw UnimplementedError('Unknown environment');
+  }
+});
+
+// ANCHOR - BTCDirect
+final btcDirectEnvConfigProvider = Provider<EnvConfig>((ref) {
+  final env = ref.watch(envProvider);
+
+  switch (env) {
+    case Env.mainnet:
+      return EnvConfig(
+        apiUrl: btcDirectProdUrl,
+        apiKey: Secrets.kBtcDirectProdApiKey,
+        username: Secrets.kBtcDirectProdUsername,
+        password: Secrets.kBtcDirectProdPassword,
+        secret: Secrets.kBtcDirectProdSecret,
+      );
+    case Env.testnet || Env.regtest:
+      return EnvConfig(
+        apiUrl: btcDirectSandboxUrl,
+        apiKey: Secrets.kBtcDirectSandboxApiKey,
+        username: Secrets.kBtcDirectSandboxUsername,
+        password: Secrets.kBtcDirectSandboxPassword,
+        secret: Secrets.kBtcDirectSandboxSecret,
       );
     default:
       throw UnimplementedError('Unknown environment');

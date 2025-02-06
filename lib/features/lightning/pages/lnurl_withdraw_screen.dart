@@ -7,25 +7,26 @@ import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class LnurlWithdrawScreen extends HookConsumerWidget {
-  const LnurlWithdrawScreen({super.key});
+  const LnurlWithdrawScreen({super.key, required this.arguments});
 
   static const routeName = '/lnurlWithdrawScreen';
+  final LNURLWithdrawParams arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final errorMessage = useState('');
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as LNURLWithdrawParams;
+
     final maxWithdrawableSats = arguments.maxWithdrawable ~/
         1000; // maxWithdrawable is in millisats, convert to sats
 
     final showSuccesScreen = useCallback((receiveSatoshiAmount) {
-      Navigator.of(context).pushReplacementNamed(
+      context.pushReplacement(
         LightningTransactionSuccessScreen.routeName,
-        arguments: LightningSuccessArguments(
+        extra: LightningSuccessArguments(
             satoshiAmount: receiveSatoshiAmount,
             type: LightningSuccessType.receive),
       );
@@ -34,26 +35,29 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
     final processWithdrawal = useCallback(() async {
       try {
         //TODO: Need to show spinner
+        await ref
+            .read(boltzReverseSwapProvider.notifier)
+            .create(Decimal.fromInt(maxWithdrawableSats));
+        final boltzState = ref.watch(boltzReverseSwapProvider);
+        final invoice = boltzState.mapOrNull(qrCode: (s) => s.swap?.invoice);
+        logger.debug("[LNURL] withdraw - invoice from boltz: $invoice");
 
-        final boltzResponse = await ref
-            .read(legacyBoltzProvider)
-            .createReverseSwap(maxWithdrawableSats);
-        logger.d(
-            "[LNURL] withdraw - invoice from boltz: ${boltzResponse.invoice}");
+        if (invoice != null) {
+          // call lnurlwithdraw callback with boltz invoice
+          await ref
+              .read(lnurlProvider)
+              .callLnurlWithdraw(withdrawParams: arguments, invoice: invoice);
 
-        // call lnurlwithdraw callback with boltz invoice
-        await ref.read(lnurlProvider).callLnurlWithdraw(
-            withdrawParams: arguments, invoice: boltzResponse.invoice);
-
-        //TODO: Need to show fee breakdown + Change success screen to show actual received sats
-        //TODO: Temp showing success screeen here, but need to listen to boltz swap status for claim completion before showing success screen
-        showSuccesScreen(maxWithdrawableSats);
+          //TODO: Need to show fee breakdown + Change success screen to show actual received sats
+          //TODO: Temp showing success screeen here, but need to listen to boltz swap status for claim completion before showing success screen
+          showSuccesScreen(maxWithdrawableSats);
+        }
       } on ExceptionLocalized catch (e) {
         if (context.mounted) {
           errorMessage.value = e.toLocalizedString(context);
         }
       } catch (e) {
-        logger.e("[LNURL] withdraw - error: $e");
+        logger.error("[LNURL] withdraw - error: $e");
         errorMessage.value = e.toString();
       }
 
@@ -70,8 +74,8 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
       backgroundColor: Theme.of(context).colors.altScreenBackground,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Container(
-        height: 50.h,
-        margin: EdgeInsets.all(18.w),
+        height: 50.0,
+        margin: const EdgeInsets.all(18.0),
         child: AquaElevatedButton(
           onPressed: () async {
             processWithdrawal();
@@ -85,10 +89,11 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 60.h),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 30.0, vertical: 60.0),
               alignment: Alignment.centerLeft,
               child: Text(
-                context.loc.lnurlwTitle,
+                context.loc.lnUrlWithdraw,
                 style: Theme.of(context).textTheme.headlineLarge,
                 textAlign: TextAlign.left,
               ),
@@ -98,10 +103,10 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
 
             //ANCHOR - Fixed Error
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30.w),
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: CustomError(errorMessage: errorMessage.value),
             ),
-            SizedBox(height: 140.h),
+            const SizedBox(height: 140.0),
           ],
         ),
       ),

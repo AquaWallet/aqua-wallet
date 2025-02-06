@@ -10,9 +10,9 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final normalTextStyle = useMemoized(() {
       return Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontSize: 34.sp,
+            fontSize: 34.0,
             fontWeight: FontWeight.w500,
-            height: 1.25.h,
+            height: 1.25,
           );
     });
 
@@ -23,7 +23,7 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
         appBar: AquaAppBar(
           showBackButton: false,
           showActionButton: false,
-          title: context.loc.marketplaceRegionScreenTitle,
+          title: context.loc.marketplaceTitle,
         ),
         body: SafeArea(
           child: Column(
@@ -31,8 +31,8 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
             children: [
               //ANCHOR - Description
               Container(
-                padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-                margin: EdgeInsets.only(top: 20.h),
+                padding: const EdgeInsets.only(left: 30.0, bottom: 10.0),
+                margin: const EdgeInsets.only(top: 20.0),
                 child: Text.rich(
                   TextSpan(
                     text: context
@@ -40,8 +40,7 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
                     style: normalTextStyle,
                     children: [
                       TextSpan(
-                        text:
-                            context.loc.marketplaceRegionScreenDescriptionBold,
+                        text: context.loc.region,
                         style: Theme.of(context).textTheme.headlineLarge,
                       ),
                     ],
@@ -80,7 +79,7 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
                 ),
               ),
 
-              // SizedBox(height: 33.h),
+              // SizedBox(height: 33.0),
             ],
           ),
         ),

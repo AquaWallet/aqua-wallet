@@ -17,25 +17,25 @@ class WalletBackupConfirmationContent extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        SizedBox(height: 30.h),
+        const SizedBox(height: 30.0),
         Text(
           context.loc.backupConfirmationTitle,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontSize: 21.sp,
+                fontSize: 21.0,
                 letterSpacing: .8,
               ),
         ),
         const Expanded(
           child: _SectionsContainerWidget(),
         ),
-        SizedBox(height: 16.h),
+        const SizedBox(height: 16.0),
         AquaElevatedButton(
           onPressed: !isFilled
               ? null
               : () => ref.read(walletBackupConfirmationProvider).confirm(),
           child: Text(context.loc.backupConfirmationButton),
         ),
-        SizedBox(height: 64.h),
+        const SizedBox(height: 64.0),
       ],
     );
   }
@@ -66,10 +66,10 @@ class _SectionsListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: EdgeInsets.only(top: 18.h),
+      padding: const EdgeInsets.only(top: 18.0),
       itemCount: sections.length,
       itemBuilder: (context, index) => _SectionWidget(section: sections[index]),
-      separatorBuilder: (context, _) => Container(height: 19.h),
+      separatorBuilder: (context, _) => Container(height: 19.0),
     );
   }
 }
@@ -93,16 +93,16 @@ class _SectionWidget extends ConsumerWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         Padding(
-          padding: EdgeInsets.only(top: 12.h),
+          padding: const EdgeInsets.only(top: 12.0),
           child: SizedBox(
-            height: 48.h,
+            height: 48.0,
             child: GridView.builder(
               gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                  const SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
                 crossAxisCount: 3,
-                mainAxisSpacing: 25.h,
-                crossAxisSpacing: 15.w,
-                height: 38.h,
+                mainAxisSpacing: 25.0,
+                crossAxisSpacing: 15.0,
+                height: 38.0,
               ),
               physics: const NeverScrollableScrollPhysics(),
               itemCount: section.words.length,
@@ -137,7 +137,7 @@ class _SectionWordWidget extends ConsumerWidget {
       backgroundColor: !selected ? AquaColors.eerieBlack : null,
       selectedColor: AquaColors.blueGreen,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12.0),
       ),
       label: Center(
         child: Text(word.title),

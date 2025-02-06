@@ -64,7 +64,8 @@ class FormatterProvider {
       throw ParseAmountWrongPrecissionException();
     }
 
-    final replacedAmount = amount.replaceAll(' ', '');
+    final replacedAmount = amount.replaceAll(' ', '').replaceAll(',', '');
+
     final amountWithPrecision =
         Decimal.tryParse(replacedAmount)?.toStringAsFixed(precision);
     if (amountWithPrecision == null) {

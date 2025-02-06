@@ -1,10 +1,13 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/theme_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/shared/keys/shared_keys.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/gen/fonts.gen.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-final kAppBarHeight = 66.h;
+const kAppBarHeight = 66.0;
 
 class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
   const AquaAppBar({
@@ -20,10 +23,15 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
     this.iconForegroundColor,
     this.iconOutlineColor,
     this.elevated = false,
+    this.shouldPopOnCustomBack = true,
     this.onBackPressed,
     this.onActionButtonPressed,
     this.onTitlePressed,
-  });
+    this.titleWidget,
+  }) : assert(
+          title == '' || titleWidget == null,
+          'title and titleWidget cannot be used together',
+        );
 
   final String title;
   final bool showBackButton;
@@ -36,9 +44,11 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
   final Color? iconForegroundColor;
   final Color? iconOutlineColor;
   final bool elevated;
+  final bool shouldPopOnCustomBack;
   final VoidCallback? onBackPressed;
   final VoidCallback? onActionButtonPressed;
   final VoidCallback? onTitlePressed;
+  final Widget? titleWidget;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,7 +60,11 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
       [darkMode],
     );
     final defaultIconForegroundColor = useMemoized(
-      () => theme.colorScheme.onBackground,
+      () => theme.colors.onBackground,
+      [darkMode],
+    );
+    final foregroundColor = useMemoized(
+      () => theme.colors.onBackground,
       [darkMode],
     );
     final defaultIconBackgroundColor = useMemoized(
@@ -65,22 +79,27 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       centerTitle: true,
       toolbarHeight: kAppBarHeight,
-      titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
-            color: foregroundColor,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+      titleTextStyle: TextStyle(
+        color: foregroundColor,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        fontFamily: UiFontFamily.helveticaNeue,
+      ),
       title: GestureDetector(
         onTap: onTitlePressed,
-        child: Text(title),
+        child: Container(
+          margin: const EdgeInsets.only(top: 6),
+          child: titleWidget ?? Text(title),
+        ),
       ),
       automaticallyImplyLeading: false,
-      leadingWidth: 96.w,
-      backgroundColor: backgroundColor ?? theme.colorScheme.background,
+      leadingWidth: 96.0,
+      backgroundColor: backgroundColor ?? theme.colors.background,
       leading: !showBackButton
           ? const SizedBox.shrink()
           : Center(
               child: AppbarButton(
+                key: SharedScreenKeys.sharedBackButton,
                 svgAssetName: Svgs.backButton,
                 elevated: darkMode && elevated,
                 outlineColor: iconOutlineColor ?? defaultIconOutlineColor,
@@ -88,7 +107,9 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
                 background: iconBackgroundColor ?? defaultIconBackgroundColor,
                 onPressed: () {
                   onBackPressed?.call();
-                  Navigator.of(context).maybePop();
+                  if (shouldPopOnCustomBack) {
+                    context.maybePop();
+                  }
                 },
               ),
             ),
@@ -109,26 +130,27 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
                             iconBackgroundColor ?? defaultIconBackgroundColor,
                       )
                     : SizedBox.square(
-                        dimension: 40.w,
+                        dimension: context.adaptiveDouble(
+                            smallMobile: 36, mobile: 40.0),
                         child: AquaOutlinedButton(
                           onPressed: onActionButtonPressed ?? () {},
                           iconBackgroundColor:
                               iconBackgroundColor ?? defaultIconBackgroundColor,
                           child: CountryFlag(
                             svgAsset: actionButtonAsset!,
-                            width: 20.r,
-                            height: 20.r,
-                            borderRadius: 5.r,
+                            width: 20.0,
+                            height: 20.0,
+                            borderRadius: 5.0,
                           ),
                         ),
                       ),
               ),
-              SizedBox(width: 28.w),
+              const SizedBox(width: 28.0),
             ]
           : null,
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kAppBarHeight);
+  Size get preferredSize => const Size.fromHeight(kAppBarHeight);
 }

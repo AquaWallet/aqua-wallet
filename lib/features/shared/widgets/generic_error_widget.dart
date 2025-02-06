@@ -1,6 +1,6 @@
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:aqua/config/config.dart';
 
 class GenericErrorWidget extends StatelessWidget {
   const GenericErrorWidget(
@@ -25,14 +25,14 @@ class GenericErrorWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           Padding(
-            padding: EdgeInsets.only(top: 20.h),
+            padding: const EdgeInsets.only(top: 20.0),
             child: TextButton(
               onPressed: buttonAction,
               style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.onBackground,
+                foregroundColor: Theme.of(context).colors.onBackground,
               ),
               child: Text(
-                buttonTitle ?? context.loc.unknownErrorButton,
+                buttonTitle ?? context.loc.retry,
               ),
             ),
           ),

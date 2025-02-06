@@ -1,21 +1,19 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/receive/widgets/receive_asset_copy_address_button.dart';
-import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/models/subaccount.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class WatchOnlyDetailScreen extends StatelessWidget {
   static const routeName = '/watchOnlyDetailScreen';
 
-  const WatchOnlyDetailScreen({super.key});
+  const WatchOnlyDetailScreen({super.key, required this.wallet});
+  final Subaccount wallet;
 
   @override
   Widget build(BuildContext context) {
-    final wallet =
-        ModalRoute.of(context)!.settings.arguments as WatchOnlyWallet;
-
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: true,
@@ -25,16 +23,16 @@ class WatchOnlyDetailScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(28.w),
+          padding: const EdgeInsets.all(28.0),
           child: BoxShadowCard(
-            elevation: 4.h,
+            elevation: 4.0,
             color:
                 Theme.of(context).colors.addressFieldContainerBackgroundColor,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12.0),
             bordered: true,
             borderColor: Theme.of(context).colors.cardOutlineColor,
             child: Padding(
-              padding: EdgeInsets.all(24.w),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
                   Text(
@@ -42,11 +40,11 @@ class WatchOnlyDetailScreen extends StatelessWidget {
                         .watchOnlyWalletTitle(wallet.networkType.displayName),
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  SizedBox(height: 28.h),
+                  const SizedBox(height: 28.0),
                   WatchOnlyQrCode(
                     exportData: wallet.exportData,
                   ),
-                  SizedBox(height: 36.h),
+                  const SizedBox(height: 36.0),
                   CopyAddressButton(
                     address: wallet.exportData,
                   ),
@@ -73,7 +71,7 @@ class WatchOnlyQrCode extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(8.0),
       ),
       child: Stack(
         alignment: Alignment.center,
@@ -81,7 +79,7 @@ class WatchOnlyQrCode extends StatelessWidget {
           QrImageView(
             data: exportData,
             version: QrVersions.auto,
-            size: 300.r,
+            size: 300.0,
           ),
         ],
       ),

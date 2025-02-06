@@ -33,7 +33,7 @@ class LightningStatusText extends HookConsumerWidget {
         context.loc.lightningTransactionSuccessScreenReceiveTitle,
         style: TextStyle(
           letterSpacing: .6,
-          fontSize: 30.sp,
+          fontSize: 30.0,
           wordSpacing: 0,
           height: 1,
           color: context.colorScheme.onPrimary,

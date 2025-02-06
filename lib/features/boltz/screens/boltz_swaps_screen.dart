@@ -1,6 +1,7 @@
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:aqua/config/config.dart';
 
 import 'boltz_swaps_list.dart';
 
@@ -22,7 +23,7 @@ class BoltzSwapsScreen extends ConsumerWidget {
         backgroundColor: darkMode
             ? Colors.transparent
             : Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onBackground,
+        foregroundColor: Theme.of(context).colors.onBackground,
       ),
       body: const BoltzSwapsList(),
     );

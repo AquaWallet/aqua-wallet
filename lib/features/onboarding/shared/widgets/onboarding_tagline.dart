@@ -22,11 +22,11 @@ class OnboardingTagline extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = useMemoized(() => TextStyle(
+    final textStyle = useMemoized(() => const TextStyle(
           height: 1.1,
           wordSpacing: 0,
           letterSpacing: -2.2,
-          fontSize: 52.sp,
+          fontSize: 52.0,
           color: Colors.white,
           fontWeight: FontWeight.w500,
           fontFamily: UiFontFamily.dMSans,
@@ -49,22 +49,23 @@ class OnboardingTagline extends HookWidget {
       onTap: kDebugMode ? onTap : null,
       onLongPress: kDebugMode ? onLongPress : null,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 28.w),
-        margin: EdgeInsetsDirectional.only(
-          bottom: 10.h,
-          end: 6.w, // FIXME: TEMP fix for design asymmetry
+        padding: const EdgeInsets.symmetric(horizontal: 28.0),
+        margin: const EdgeInsetsDirectional.only(
+          bottom: 10.0,
+          end: 6.0, // FIXME: TEMP fix for design asymmetry
         ),
         child: Material(
           color: Colors.transparent,
           child: Text.rich(
             style: textStyle,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.left,
             TextSpan(
               children: wordsWithSpaces
                   .map((word) => TextSpan(
                         text: word.text,
                         style: word.isBold
-                            ? textStyle.copyWith(color: AquaColors.vividSkyBlue)
+                            ? textStyle.copyWith(
+                                color: AquaColors.backgroundSkyBlue)
                             : textStyle,
                       ))
                   .toList(),

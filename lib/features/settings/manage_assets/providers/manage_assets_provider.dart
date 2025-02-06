@@ -17,11 +17,12 @@ Future<Result<AssetsResponse>> fetchAssets(
     final fetchedAssetsResponse = await ref.read(dioProvider).get(assetsUrl);
     final assetsJson = fetchedAssetsResponse.data as Map<String, dynamic>;
     final response = AssetsResponse.fromJson(assetsJson);
-    logger.i('[ManageAssets] Fetched ${response.data?.assets.length} assets');
+    logger
+        .info('[ManageAssets] Fetched ${response.data?.assets.length} assets');
 
     return Result.value(response);
   } catch (e) {
-    logger.w('[ManageAssets] Failed to fetch assets');
+    logger.warning('[ManageAssets] Failed to fetch assets');
     return Result.error(e);
   }
 }
@@ -137,8 +138,6 @@ class ManageAssetsProvider extends ChangeNotifier {
   Asset get liquidUsdtAsset =>
       allAssets.firstWhere((asset) => asset.ticker == "USDt");
 
-  List<Asset> get shitcoinAssets => [Asset.usdtEth(), Asset.usdtTrx()];
-
   List<Asset> get mainTransactableAssets =>
       [btcAsset, Asset.lightning(), ...allAssets];
 
@@ -159,15 +158,8 @@ class ManageAssetsProvider extends ChangeNotifier {
     ];
   }
 
-  /// Convenience getter for list of other transactable assets
-  List<Asset> get otherTransactableAssets =>
-      isUsdtEnabled ? [Asset.usdtEth(), Asset.usdtTrx()] : [];
-
   /// Validate `asset` is a USDt asset
-  bool isUsdt(Asset asset) =>
-      asset.id == liquidUsdtAsset.id ||
-      asset == Asset.usdtEth() ||
-      asset == Asset.usdtTrx();
+  bool isUsdt(Asset asset) => asset.isAnyUsdt;
   bool isLBTC(Asset asset) => asset.id == lbtcAsset.id;
 
   /// Validate `asset` is any active liquid asset

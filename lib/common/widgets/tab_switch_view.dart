@@ -31,10 +31,10 @@ class TabSwitchView extends HookConsumerWidget {
     );
     final getTabRadius = useCallback((int index) {
       if (index == 0) {
-        return BorderRadius.horizontal(left: Radius.circular(10.r));
+        return const BorderRadius.horizontal(left: Radius.circular(10.0));
       }
       if (index == labels.length - 1) {
-        return BorderRadius.horizontal(right: Radius.circular(10.r));
+        return const BorderRadius.horizontal(right: Radius.circular(10.0));
       }
       return null;
     }, [tabController.index]);
@@ -46,14 +46,14 @@ class TabSwitchView extends HookConsumerWidget {
     });
 
     return Container(
-      height: 40.h,
-      padding: labels.length > 2 ? EdgeInsets.all(2.h) : EdgeInsets.zero,
+      height: 40.0,
+      padding: labels.length > 2 ? const EdgeInsets.all(2.0) : EdgeInsets.zero,
       decoration: BoxDecoration(
         boxShadow: [Theme.of(context).shadow],
         color: null,
-        borderRadius: BorderRadius.all(Radius.circular(12.r)),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
       ),
-      margin: EdgeInsets.symmetric(horizontal: 28.w),
+      margin: const EdgeInsets.symmetric(horizontal: 28.0),
       child: TabBar(
         controller: tabController,
         onTap: onChange,
@@ -80,7 +80,7 @@ class TabSwitchView extends HookConsumerWidget {
                               color: Theme.of(context)
                                   .colors
                                   .tabSelectedBackground,
-                              width: 1.25.w,
+                              width: 1.25,
                             ),
                           )
                         : null,

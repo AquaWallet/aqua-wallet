@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
+import 'package:aqua/config/config.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:aqua/utils/extensions/date_time_ext.dart';
@@ -10,13 +11,12 @@ import 'package:boltz_dart/boltz_dart.dart';
 class BoltzSwapDetailScreen extends HookConsumerWidget {
   static const routeName = '/boltzSwapDetailScreen';
 
-  const BoltzSwapDetailScreen({super.key});
+  const BoltzSwapDetailScreen({super.key, required this.swapData});
+
+  final BoltzSwapDbModel swapData;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final swapData =
-        ModalRoute.of(context)?.settings.arguments as BoltzSwapDbModel;
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -24,11 +24,13 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20.h),
+              const SizedBox(height: 20.0),
               Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
-                  onPressed: () => Navigator.of(context).maybePop(),
+                  onPressed: () {
+                    context.maybePop();
+                  },
                   icon: const Icon(Icons.close),
                 ),
               ),
@@ -43,11 +45,11 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
   Widget _buildSwapDetails(
       BoltzSwapDbModel swapData, WidgetRef ref, BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(
-        top: 31.h,
-        left: 16.w,
-        right: 16.w,
-        bottom: 71.h,
+      padding: const EdgeInsets.only(
+        top: 31.0,
+        left: 16.0,
+        right: 16.0,
+        bottom: 71.0,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,30 +57,30 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
           // ANCHOR - Order status
           _BoltzDetailHeaderWidget(
               status: swapData.lastKnownStatus ?? BoltzSwapStatus.created),
-          SizedBox(height: 24.h),
+          const SizedBox(height: 24.0),
 
           _BoltzDetailWidget(
-              title: context.loc.boltzSwapCreatedAt,
+              title: context.loc.createdAt,
               subtitle: swapData.createdAt?.yMMMdHm() ?? '--'),
-          SizedBox(height: 6.h),
+          const SizedBox(height: 6.0),
           _BoltzDetailWidget(
               title: context.loc.boltzInvoiceAmount,
               subtitle: '${swapData.amountFromInvoice}'),
-          SizedBox(height: 6.h),
+          const SizedBox(height: 6.0),
           _BoltzDetailWidget(
               title: context.loc.boltzTimeoutBlockHeight,
               subtitle: '${swapData.locktime}'),
 
-          SizedBox(height: 24.h),
+          const SizedBox(height: 24.0),
           DashedDivider(
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colors.onBackground,
           ),
-          SizedBox(height: 40.h),
+          const SizedBox(height: 40.0),
 
           _CopyButton(data: swapData.toJson().toString()),
-          SizedBox(height: 24.h),
+          const SizedBox(height: 24.0),
 
-          if (swapData.kind == SwapType.submarine)
+          if (swapData.kind == SwapType.submarine) ...{
             FutureBuilder<BoltzRefundData?>(
               future: ref
                   .read(boltzSubmarineSwapProvider.notifier)
@@ -93,28 +95,35 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
                 }
               },
             ),
-          if (swapData.kind == SwapType.submarine) SizedBox(height: 24.h),
+            const SizedBox(height: 24)
+          },
+
+          if (swapData.kind == SwapType.reverse &&
+              swapData.claimTxId == null) ...{
+            _ClaimButton(swapDbModel: swapData),
+            const SizedBox(height: 24),
+          },
 
           LabelCopyableTextView(
               label: context.loc.boltzId, value: swapData.boltzId),
-          SizedBox(height: 24.h),
+          const SizedBox(height: 24.0),
 
           LabelCopyableTextView(
               label: context.loc.lightningInvoice, value: swapData.invoice),
-          SizedBox(height: 24.h),
+          const SizedBox(height: 24.0),
 
           if (swapData.kind == SwapType.submarine) ...[
             LabelCopyableTextView(
                 label: context.loc.boltzRefundTx,
                 value: swapData.refundTxId ?? 'N/A'),
-            SizedBox(height: 24.h),
+            const SizedBox(height: 24.0),
           ],
 
           if (swapData.kind == SwapType.reverse) ...[
             LabelCopyableTextView(
                 label: context.loc.boltzClaimTx,
                 value: swapData.claimTxId ?? 'N/A'),
-            SizedBox(height: 24.h),
+            const SizedBox(height: 24.0),
           ],
         ],
       ),
@@ -132,7 +141,7 @@ class _BoltzDetailHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 14.h),
+      padding: const EdgeInsets.only(bottom: 14.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -157,7 +166,7 @@ class _BoltzDetailWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 20.h),
+      padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
         children: [
           Text(
@@ -208,6 +217,30 @@ class _RefundButton extends StatelessWidget {
           context.copyToClipboard(jsonString);
         },
         child: Text(context.loc.boltzCopyRefundData),
+      ),
+    );
+  }
+}
+
+class _ClaimButton extends ConsumerWidget {
+  const _ClaimButton({required this.swapDbModel});
+
+  final BoltzSwapDbModel swapDbModel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Center(
+      child: AquaElevatedButton(
+        onPressed: () async {
+          final swap = await ref
+              .read(boltzStorageProvider.notifier)
+              .getLbtcLnV2SwapById(swapDbModel.boltzId);
+
+          if (swap != null) {
+            ref.read(boltzSwapSettlementServiceProvider).claim(swap);
+          }
+        },
+        child: Text(context.loc.boltzClaimSwap),
       ),
     );
   }

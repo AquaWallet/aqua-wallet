@@ -17,4 +17,9 @@ class DialogManager {
       ).then((_) => _isShowingDialog = false);
     }
   }
+
+  void dismissDialog(BuildContext context) {
+    _isShowingDialog = false;
+    context.pop();
+  }
 }

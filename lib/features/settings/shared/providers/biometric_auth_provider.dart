@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aqua/features/pin/pin_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
@@ -20,6 +21,7 @@ final localAuthProvider = Provider((_) => LocalAuthentication());
 class BiometricAuthNotifier extends AsyncNotifier<BiometricAuthState> {
   @override
   FutureOr<BiometricAuthState> build() async {
+    state = const AsyncValue.loading();
     final auth = ref.read(localAuthProvider);
     final biometricEnabled =
         ref.watch(prefsProvider.select((p) => p.isBiometricEnabled));
@@ -30,7 +32,7 @@ class BiometricAuthNotifier extends AsyncNotifier<BiometricAuthState> {
 
     // If biometric auth is enabled but not available, disable it
     if (biometricEnabled && !canAuthenticateWithBiometric) {
-      logger.d('[BiometricAuth] Biometric auth enabled but not available');
+      logger.debug('[BiometricAuth] Biometric auth enabled but not available');
       await ref.read(prefsProvider).switchBiometricAuth();
     }
 
@@ -49,11 +51,14 @@ class BiometricAuthNotifier extends AsyncNotifier<BiometricAuthState> {
   }
 
   Future<bool> authenticate({required String reason}) async {
+    final isPinEnabled =
+        ref.read(pinAuthProvider).asData?.value != PinAuthState.disabled;
     return ref.read(localAuthProvider).authenticate(
           localizedReason: reason,
-          options: const AuthenticationOptions(
-            stickyAuth: true,
-          ),
+          options: AuthenticationOptions(
+              stickyAuth: true,
+              // if PIN is enabled we don't allow OS PIN
+              biometricOnly: isPinEnabled),
         );
   }
 }

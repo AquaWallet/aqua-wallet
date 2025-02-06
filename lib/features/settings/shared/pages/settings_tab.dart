@@ -4,20 +4,45 @@ import 'dart:math';
 import 'package:app_settings/app_settings.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/constants.dart' as constants;
+import 'package:aqua/features/pin/pin_provider.dart';
+import 'package:aqua/features/pin/pin_screen.dart';
+import 'package:aqua/features/pin/pin_warning_screen.dart';
+import 'package:aqua/features/recovery/pages/warning_phrase_screen.dart';
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
 import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:talker_flutter/talker_flutter.dart';
+
+Future<void> downloadFile(String logs) async {
+  final dir = await getTemporaryDirectory();
+  final dirPath = dir.path;
+  final fmtDate = DateTime.now().toString().replaceAll(":", " ");
+  final file =
+      await File('$dirPath/aqua_logs_$fmtDate.txt').create(recursive: true);
+  await file.writeAsString(logs);
+  await Share.shareXFiles(
+    <XFile>[
+      XFile(file.path),
+    ],
+  );
+}
 
 class SettingsTab extends HookConsumerWidget {
   const SettingsTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final pinEnabled =
+        ref.watch(pinAuthProvider).asData?.value != PinAuthState.disabled;
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
     final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
     final biometricAuth = ref.watch(biometricAuthProvider).asData?.value;
@@ -26,6 +51,7 @@ class SettingsTab extends HookConsumerWidget {
     final versionText = kDebugMode ? '$version (${env.name})' : version;
     final languageCode = ref.watch(languageProvider(context)
         .select((p) => p.currentLanguage.languageCode));
+
     final currentRate =
         ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
     final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
@@ -35,82 +61,131 @@ class SettingsTab extends HookConsumerWidget {
         .select((p) => p.experimentalFeaturesEnabled));
     final isSeedQrEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.seedQrEnabled));
-
-    ref.listen(
-      recoveryPhraseRequestProvider,
-      (_, state) => state?.when(
-        authorized: () => Navigator.of(context).pushNamed(
-          WalletRecoveryPhraseScreen.routeName,
-          arguments: RecoveryPhraseScreenArguments(isOnboarding: false),
-        ),
-        verificationFailed: () => context.showErrorSnackbar(
-          context.loc.recoveryPhraseAuthorizationError,
-        ),
-      ),
-    );
+    final isCustomElectrumUrlEnabled = ref
+        .watch(featureFlagsProvider.select((p) => p.customElectrumUrlEnabled));
 
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: false,
-        title: context.loc.settingsScreenTitle,
+        title: context.loc.settings,
         showActionButton: false,
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
         onTitlePressed: () =>
             ref.read(featureUnlockTapCountProvider.notifier).increment(),
       ),
       body: SingleChildScrollView(
+        key: SettingsScreenKeys.settingsScrollableScreenMenu,
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 25.h),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 25.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            //ANCHOR - Get Help
-            MenuItemWidget(
-              assetName: Svgs.support,
-              title: context.loc.getHelpSupportScreenTitle,
-              color: AquaColors.lotion,
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(HelpSupportScreen.routeName),
-            ),
-            SizedBox(height: 22.h),
             //ANCHOR - General Settings
             _SectionTitle(
               context.loc.settingsScreenSectionGeneral,
             ),
-            SizedBox(height: 22.h),
+            const SizedBox(height: 22.0),
             //ANCHOR - Language
             MenuItemWidget.labeledArrow(
+              key: SettingsScreenKeys.settingsLanguageButton,
               context: context,
               assetName: Svgs.language,
-              title: context.loc.settingsScreenItemLanguage,
+              color: context.colors.onBackground,
+              title: context.loc.language,
               label: languageCode.toUpperCase(),
-              onPressed: () => Navigator.of(context)
-                  .pushNamed(LanguageSettingsScreen.routeName),
+              onPressed: () => context.push(LanguageSettingsScreen.routeName),
             ),
             //ANCHOR - Reference rate
             MenuItemWidget.labeledArrow(
+              key: SettingsScreenKeys.settingsReferenceRateButton,
               context: context,
               assetName: Svgs.exchangeRate,
+              color: context.colors.onBackground,
               title: context.loc.refExRateSettingsScreenTitle,
               label: currentRate.currency.value,
-              onPressed: () => Navigator.of(context)
-                  .pushNamed(ExchangeRateSettingsScreen.routeName),
+              onPressed: () =>
+                  context.push(ExchangeRateSettingsScreen.routeName),
             ),
-            SizedBox(height: 4.h),
+            const SizedBox(height: 4.0),
             //ANCHOR - Region
             MenuItemWidget.labeledArrow(
+              key: SettingsScreenKeys.settingsRegionButton,
               context: context,
               assetName: region?.flagSvg ?? Svgs.region,
-              title: context.loc.settingsScreenItemRegion,
+              color: context.colors.onBackground,
+              title: context.loc.region,
               label: region?.name ?? '',
-              onPressed: () => Navigator.of(context)
-                  .pushNamed(RegionSettingsScreen.routeName),
+              onPressed: () => context.push(RegionSettingsScreen.routeName),
             ),
-            SizedBox(height: 4.h),
+            const SizedBox(height: 4.0),
+
+            //ANCHOR - Dark Mode
+            MenuItemWidget.switchItem(
+              key: SettingsScreenKeys.settingsDarkModeButton,
+              context: context,
+              value: darkMode,
+              enabled: !botevMode,
+              assetName: Svgs.darkMode,
+              title: context.loc.settingsScreenItemDarkMode,
+              onPressed: () => ref.read(prefsProvider).switchDarkMode(),
+            ),
+            const SizedBox(height: 4.0),
+            //ANCHOR - Botev Mode
+            MenuItemWidget.switchItem(
+              key: SettingsScreenKeys.settingsBotevModeButton,
+              context: context,
+              value: botevMode,
+              assetName: darkMode ? Svgs.botevDark : Svgs.botev,
+              multicolor: true,
+              iconPadding: const EdgeInsets.all(8.0),
+              title: context.loc.settingsScreenItemBotevMode,
+              onPressed: () => ref.read(prefsProvider).switchBotevMode(),
+            ),
+            const SizedBox(height: 4.0),
+            //ANCHOR - Block Explorer
+            MenuItemWidget.arrow(
+              key: SettingsScreenKeys.settingsBlockExplorerButton,
+              context: context,
+              assetName: Svgs.blockExplorer,
+              color: context.colors.onBackground,
+              title: context.loc.settingsScreenItemExplorer,
+              onPressed: () =>
+                  context.push(BlockExplorerSettingsScreen.routeName),
+            ),
+            const SizedBox(height: 4.0),
+            //ANCHOR - Get Help
+            MenuItemWidget(
+              key: SettingsScreenKeys.settingsGetHelpSupportButton,
+              assetName: Svgs.support,
+              title: context.loc.getHelpSupportScreenTitle,
+              color: AquaColors.lotion,
+              onPressed: () => context.push(HelpSupportScreen.routeName),
+            ),
+            const SizedBox(height: 4.0),
+            //ANCHOR - Electrum Server
+            if (isCustomElectrumUrlEnabled) ...[
+              //TODO: In order to release this feature, we need to get broadcasting of hex txs and psbts working through GDK, so they can broadcast through the custom endpoint set by user
+              MenuItemWidget.arrow(
+                key: SettingsScreenKeys.settingsElectrumServerButton,
+                context: context,
+                assetName: Svgs.blockExplorer,
+                title: context.loc.electrumServer,
+                onPressed: () =>
+                    context.push(ElectrumServerSettingsScreen.routeName),
+              ),
+            ],
+            const SizedBox(height: 36.0),
+
+            //ANCHOR - Security Settings
+            _SectionTitle(
+              context.loc.settingsScreenSectionSecurity,
+            ),
+            const SizedBox(height: 22.0),
             //ANCHOR - Biometric
             if (biometricAuth != null && biometricAuth.isDeviceSupported) ...[
               MenuItemWidget.switchItem(
+                key: SettingsScreenKeys.settingsBiometricAuthenticationButton,
                 context: context,
                 value: biometricAuth.enabled,
                 assetName: Svgs.touch,
@@ -130,101 +205,106 @@ class SettingsTab extends HookConsumerWidget {
                   }
                 },
               ),
-              SizedBox(height: 4.h),
+              const SizedBox(height: 4.0),
             ],
-            //ANCHOR - Dark Mode
+            //ANCHOR - PIN
             MenuItemWidget.switchItem(
               context: context,
-              value: darkMode,
-              enabled: !botevMode,
-              assetName: Svgs.darkMode,
-              title: context.loc.settingsScreenItemDarkMode,
-              onPressed: () => ref.read(prefsProvider).switchDarkMode(),
+              value: pinEnabled,
+              assetName: Svgs.passcode,
+              title: context.loc.settingsScreenItemPin,
+              onPressed: () async {
+                if (!pinEnabled) {
+                  context.push(PinWarningScreen.routeName);
+                  return;
+                }
+
+                final success = await context.push(CheckPinScreen.routeName,
+                    extra: CheckPinScreenArguments(
+                        onSuccessAction: CheckAction.pull,
+                        canCancel: true,
+                        description: context.loc.pinScreenDisabledDescription));
+                if (success == true) {
+                  ref.read(pinAuthProvider.notifier).disable();
+                }
+              },
             ),
-            SizedBox(height: 4.h),
-            //ANCHOR - Botev Mode
-            MenuItemWidget.switchItem(
-              context: context,
-              value: botevMode,
-              assetName: Svgs.botev,
-              iconPadding: EdgeInsets.all(8.r),
-              title: context.loc.settingsScreenItemBotevMode,
-              multicolor: true,
-              onPressed: () => ref.read(prefsProvider).switchBotevMode(),
-            ),
-            SizedBox(height: 4.h),
-            //ANCHOR - Block Explorer
-            MenuItemWidget.arrow(
-              context: context,
-              assetName: Svgs.blockExplorer,
-              title: context.loc.settingsScreenItemExplorer,
-              onPressed: () => Navigator.of(context)
-                  .pushNamed(BlockExplorerSettingsScreen.routeName),
-            ),
-            SizedBox(height: 36.h),
+            const SizedBox(height: 36.0),
             //ANCHOR - Advanced Settings
             _SectionTitle(
               context.loc.settingsScreenSectionAdvanced,
             ),
-            SizedBox(height: 22.h),
+            const SizedBox(height: 22.0),
             //ANCHOR - Manage Assets
             MenuItemWidget.arrow(
+              key: SettingsScreenKeys.settingsManageAssetsButton,
               context: context,
               assetName: Svgs.assets,
-              title: context.loc.settingsScreenItemAssets,
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(ManageAssetsScreen.routeName),
+              color: context.colors.onBackground,
+              title: context.loc.manageAssets,
+              onPressed: () => context.push(ManageAssetsScreen.routeName),
             ),
-            SizedBox(height: 4.h),
+            const SizedBox(height: 4.0),
             //ANCHOR - Recovery Phrase
             MenuItemWidget.arrow(
+              key: SettingsScreenKeys.settingsViewSeedPhraseButton,
               context: context,
               assetName: Svgs.recovery,
+              color: context.colors.onBackground,
               title: context.loc.settingsScreenItemPhrase,
-              onPressed: () => ref
-                  .read(recoveryPhraseRequestProvider.notifier)
-                  .requestRecoveryPhrase(),
+              onPressed: () =>
+                  context.push(WalletPhraseWarningScreen.routeName),
             ),
-            SizedBox(height: 4.h),
+            const SizedBox(height: 4.0),
             //ANCHOR: Watch Only Export
             MenuItemWidget.arrow(
+              key: SettingsScreenKeys.settingsWatchOnlyButton,
               context: context,
               title: context.loc.watchOnlyScreenTitle,
-              assetName: Svgs.tabWallet,
-              color: context.colorScheme.onBackground,
-              onPressed: () => Navigator.of(context)
-                  .pushNamed(WatchOnlyListScreen.routeName),
+              assetName: Svgs.watchOnly,
+              color: context.colors.onBackground,
+              onPressed: () => context.push(WatchOnlyListScreen.routeName),
             ),
-            SizedBox(height: 4.h),
+            const SizedBox(height: 4.0),
             //ANCHOR - SEEDQR
             if (isSeedQrEnabled) ...[
               MenuItemWidget.arrow(
                 context: context,
                 assetName: Svgs.qr,
                 title: context.loc.settingsScreenItemViewSeedQR,
-                onPressed: () => Navigator.of(context)
-                    .pushNamed(WalletRecoveryQRScreen.routeName),
+                onPressed: () => context.push(WalletRecoveryQRScreen.routeName),
               ),
-              SizedBox(height: 4.h),
+              const SizedBox(height: 4.0),
             ],
             //ANCHOR - Direct Peg In
             MenuItemWidget.switchItem(
+              key: SettingsScreenKeys.settingsDirectPegInButton,
               context: context,
               value: isDirectPegInEnabled,
               assetName: Svgs.directPegIn,
-              title: context.loc.settingsScreenItemDirectPegIn,
+              title: context.loc.directPegIn,
               onPressed: () => ref.read(prefsProvider).switchDirectPegIn(),
             ),
-            SizedBox(height: 4.h),
+            const SizedBox(height: 4.0),
             //ANCHOR - Poker Chip
             MenuItemWidget.arrow(
               context: context,
               assetName: Svgs.pokerchip,
-              title: context.loc.settingsScreenItemPokerChip,
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(PokerchipScreen.routeName),
+              color: context.colors.onBackground,
+              title: context.loc.bitcoinChip,
+              onPressed: () => context.push(PokerchipScreen.routeName),
             ),
-            SizedBox(height: 4.h),
+            const SizedBox(height: 4.0),
+            //ANCHOR - Share logs
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.shareAlt,
+              color: context.colors.onBackground,
+              title: context.loc.settingsScreenItemShareLogs,
+              onPressed: () => downloadFile(logger.internalLogger.history
+                  .text(timeFormat: logger.internalLogger.settings.timeFormat)),
+            ),
+            const SizedBox(height: 4.0),
             //ANCHOR - Experimental Feature
             if (experimentalFeaturesEnabled) ...[
               MenuItemWidget.arrow(
@@ -232,39 +312,42 @@ class SettingsTab extends HookConsumerWidget {
                 context: context,
                 title: AppLocalizations.of(context)!
                     .settingsScreenItemExperimentalFeatures,
-                iconPadding: EdgeInsets.all(14.r),
-                onPressed: () => Navigator.of(context)
-                    .pushNamed(ExperimentalFeaturesScreen.routeName),
+                iconPadding: const EdgeInsets.all(14.0),
+                onPressed: () =>
+                    context.push(ExperimentalFeaturesScreen.routeName),
               ),
-              SizedBox(height: 4.h),
+              const SizedBox(height: 4.0),
             ],
             //ANCHOR - Remove Wallet
             MenuItemWidget.arrow(
+              key: SettingsScreenKeys.settingsRemoveWalletButton,
               assetName: Svgs.removeWallet,
               context: context,
               color: Theme.of(context).colors.walletRemoveTextColor,
               title: context.loc.settingsScreenItemRemoveWallet,
-              onPressed: () => Navigator.of(context)
-                  .pushNamed(RemoveWalletConfirmScreen.routeName),
+              onPressed: () =>
+                  context.push(RemoveWalletConfirmScreen.routeName),
             ),
             Container(
-              margin: EdgeInsets.only(
-                top: 30.h,
-                bottom: 36.h,
+              margin: const EdgeInsets.only(
+                top: 30.0,
+                bottom: 36.0,
               ),
               child: Divider(
                 height: 0,
-                thickness: 2.h,
+                thickness: 2.0,
                 color: Theme.of(context).colors.divider,
               ),
             ),
             //ANCHOR - Jan3 Logo
             Center(
               child: SvgPicture.asset(
-                darkMode ? Svgs.jan3LogoLight : Svgs.jan3LogoDark,
+                darkMode
+                    ? Svgs.jan3LogoWithAquaLight
+                    : Svgs.jan3LogoWithAquaDark,
               ),
             ),
-            SizedBox(height: 11.h),
+            const SizedBox(height: 11.0),
             //ANCHOR - T&C
             Center(
               child: RichText(
@@ -282,7 +365,7 @@ class SettingsTab extends HookConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(height: 14.h),
+            const SizedBox(height: 14.0),
             //ANCHOR - Socials
             Center(
               child: RichText(
@@ -293,26 +376,26 @@ class SettingsTab extends HookConsumerWidget {
                     ..onTap = () => ref
                         .read(urlLauncherProvider)
                         .open(constants.aquaPrivacyUrl),
-                  text: context.loc.settingsScreenPrivacyDescription,
+                  text: context.loc.privacyPolicy,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         decoration: TextDecoration.underline,
                       ),
                 ),
               ),
             ),
-            SizedBox(height: 20.h),
+            const SizedBox(height: 20.0),
             //ANCHOR - Socials
             SettingsSocialLinks(
               onLinkClick: (url) => ref.read(urlLauncherProvider).open(url),
             ),
-            SizedBox(height: 20.h),
+            const SizedBox(height: 20.0),
             //ANCHOR - Version
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 8.w),
-              padding: EdgeInsets.symmetric(vertical: 8.h),
+              margin: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               decoration: BoxDecoration(
                 color: Theme.of(context).colors.versionBackground,
-                borderRadius: BorderRadius.all(Radius.circular(5.r)),
+                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
               ),
               alignment: Alignment.center,
               child: Text(
@@ -350,13 +433,13 @@ class _SectionTitle extends StatelessWidget {
     return GestureDetector(
       onTap: collapsable ? () => onExpanded?.call(!expanded) : null,
       child: Container(
-        margin: EdgeInsets.only(left: 10.w),
+        margin: const EdgeInsets.only(left: 10.0),
         child: Row(
           children: [
             Text(
               _text,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 20.sp,
+                    fontSize: 20.0,
                   ),
             ),
             if (collapsable) ...{
@@ -365,11 +448,11 @@ class _SectionTitle extends StatelessWidget {
                 angle: expanded ? pi / 2 : 0,
                 child: Icon(
                   Icons.arrow_forward_ios_sharp,
-                  size: 15.r,
-                  color: Theme.of(context).colorScheme.onBackground,
+                  size: 15.0,
+                  color: Theme.of(context).colors.onBackground,
                 ),
               ),
-              SizedBox(width: 9.w),
+              const SizedBox(width: 9.0),
             }
           ],
         ),

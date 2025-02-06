@@ -1,4 +1,5 @@
 import 'package:aqua/config/constants/constants.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -19,7 +20,7 @@ class QrAssetIcon extends ConsumerWidget {
 
     // local hardcoded cases
     switch (assetId) {
-      case 'Layer2Bitcoin':
+      case kLayer2BitcoinId:
         localAsset = Svgs.layerTwoSingle;
         break;
       case 'btc':
@@ -34,13 +35,26 @@ class QrAssetIcon extends ConsumerWidget {
       case 'eth-usdt':
         localAsset = Svgs.qrIconEthUsdt;
         break;
+      case 'bep-usdt':
+        localAsset = Svgs.qrIconBepUsdt;
+        break;
+      case 'sol-usdt':
+        localAsset = Svgs.qrIconSolUsdt;
+        break;
+      case 'pol-usdt':
+        localAsset = Svgs.qrIconPolUsdt;
+        break;
+      case 'ton-usdt':
+        localAsset = Svgs.qrIconTonUsdt;
+        break;
       case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
         // TODO: the asset id should not be hardcoded here
         localAsset = Svgs.qrIconTetherUsdt;
+        break;
       case '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d':
         // TODO: the asset id should not be hardcoded here
         localAsset = Svgs.qrIconLiquidBitcoin;
-
+        break;
       default:
         break;
     }
@@ -50,15 +64,15 @@ class QrAssetIcon extends ConsumerWidget {
       return SvgPicture.asset(
         localAsset,
         fit: BoxFit.fitWidth,
-        width: size ?? 40.r,
-        height: size ?? 40.r,
+        width: size ?? 40.0,
+        height: size ?? 40.0,
       );
     } else {
       return SvgPicture.network(
         assetLogoUrl,
         fit: BoxFit.fitWidth,
-        width: size ?? 40.r,
-        height: size ?? 40.r,
+        width: size ?? 40.0,
+        height: size ?? 40.0,
       );
     }
   }

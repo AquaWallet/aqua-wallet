@@ -17,7 +17,7 @@ class PokerchipScannerOverlayPainter extends CustomPainter {
 
     final paint = Paint()
       ..color = borderColor
-      ..strokeWidth = 2.r
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 

@@ -13,20 +13,20 @@ class WelcomeDisclaimerScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: false,
         showActionButton: true,
-        iconBackgroundColor: Theme.of(context).colorScheme.background,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        iconBackgroundColor: Theme.of(context).colors.background,
+        iconForegroundColor: Theme.of(context).colors.onBackground,
         actionButtonAsset: Svgs.close,
-        actionButtonIconSize: 13.r,
-        onActionButtonPressed: () => Navigator.of(context).pop(),
+        actionButtonIconSize: 13.0,
+        onActionButtonPressed: () => context.pop(),
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 50.h,
+              const SizedBox(
+                height: 50.0,
               ),
               Text(
                 context.loc.welcomeScreenBetaDisclaimer,

@@ -13,7 +13,7 @@ class RegionSettings extends StatelessWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: context.loc.regionSettingsScreenTitle,
+        title: context.loc.region,
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: SafeArea(child: child),
@@ -46,14 +46,14 @@ class RegionSettingsScreen extends HookConsumerWidget {
             return SettingsListSelectionItem(
               icon: CountryFlag(
                 svgAsset: region.flagSvg,
-                width: 20.r,
-                height: 20.r,
+                width: 20.0,
+                height: 20.0,
               ),
               content: Text(region.name),
               position: item.position,
               onPressed: () {
                 ref.read(regionsProvider).setRegion(region);
-                Navigator.pop(context);
+                context.pop(context);
               },
             );
           },

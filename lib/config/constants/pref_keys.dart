@@ -7,6 +7,8 @@ class PrefKeys {
   static const region = 'region';
   static const exchangeRate = 'exchange_rate';
   static const blockExplorer = 'block_explorer';
+  static const customElectrumServerBtcUrl = 'custom_electrum_btc_url';
+  static const customElectrumServerLiquidUrl = 'custom_electrum_liquid_url';
   static const userAssets = 'user_assets';
   static const userRegtestAssets = 'user_regtest_assets';
   static const userTestnetAssets = 'user_testnet_assets';
@@ -19,6 +21,7 @@ class PrefKeys {
   static const addNoteEnabled = 'add_note_enabled';
   static const statusIndicator = 'status_indicator';
   static const lnurlWithdrawEnabled = 'lnurl_withdraw_enabled';
+  static const activateSubaccountsEnabled = 'activate_subaccounts_enabled';
   static const forceBoltzFailedNormalSwapEnabled =
       'force_boltz_failed_normal_swap_enabled';
   static const fakeBroadcastsEnabled = 'fake_broadcasts_enabled';
@@ -27,6 +30,12 @@ class PrefKeys {
   static const dbExportEnabled = 'db_export_enabled';
   static const forceAquaNodeNotSyncedEnabled =
       'force_aqua_node_not_synced_enabled';
+  static const changellyForUSDtSwapsEnabled = 'changelly_usdt_swaps_enabled';
+  static const btcDirectEnabled = 'btc_direct_enabled';
   static const seedQrEnabled = 'seed_qr_enabled';
   static const myFirstBitcoinEnabled = 'my_first_bitcoin_enabled';
+  static const balanceHidden = "balance_hidden";
+  static const displayUnits = 'display_units';
+  static const payWithMoonEnabled = 'payWithMoonEnabled';
+  static const customElectrumUrlEnabled = 'custom_electrum_url_enabled';
 }

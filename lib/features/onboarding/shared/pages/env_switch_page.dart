@@ -1,4 +1,5 @@
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
+import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/features/shared/shared.dart';
 
 class EnvSwitchScreen extends StatelessWidget {
@@ -63,11 +64,11 @@ class EnvSwitchScreen extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 28.w),
-                padding: EdgeInsets.only(bottom: 16.h),
+                margin: const EdgeInsets.symmetric(horizontal: 28.0),
+                padding: const EdgeInsets.only(bottom: 16.0),
                 child: AquaElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    context.go(AuthWrapper.routeName);
                   },
                   child: const Text('Done'),
                 ),

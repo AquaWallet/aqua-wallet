@@ -23,17 +23,6 @@ final usdtAsset = Asset(
   isLiquid: true,
 );
 
-final infAsset = Asset(
-  id: '20f235a1096c05a5d9b1d40d09112d3d57eb3a7ac9959beebf0ae5f774a7fd68',
-  name: 'INF',
-  ticker: 'INF',
-  logoUrl: 'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/INF.svg',
-  isDefaultAsset: false,
-  isRemovable: true,
-  precision: 2,
-  isLiquid: true,
-);
-
 final jpysAsset = Asset(
   id: '3438ecb49fc45c08e687de4749ed628c511e326460ea4336794e1cf02741329e',
   name: 'JPY Stablecoin',

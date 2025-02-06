@@ -38,4 +38,38 @@ class RegionsIntegrations {
         Region(name: 'Sweden', iso: 'SE'),
         Region(name: 'Switzerland', iso: 'CH'),
       ];
+
+  // BTC Direct supports these regions: at, be, bg, ch, cy, cz, de, dk, ee, es, fi, fr, gb, gr, hr, hu, ie, it, lt, lu, lv, mt, nl, no, pl, pt, ro, se, sk, sl
+  static List<Region> get btcDirectRegions => [
+        Region(name: 'Austria', iso: 'AT'),
+        Region(name: 'Belgium', iso: 'BE'),
+        Region(name: 'Bulgaria', iso: 'BG'),
+        Region(name: 'Switzerland', iso: 'CH'),
+        Region(name: 'Cyprus', iso: 'CY'),
+        Region(name: 'Czech Republic', iso: 'CZ'),
+        Region(name: 'Germany', iso: 'DE'),
+        Region(name: 'Denmark', iso: 'DK'),
+        Region(name: 'Estonia', iso: 'EE'),
+        Region(name: 'Spain', iso: 'ES'),
+        Region(name: 'Finland', iso: 'FI'),
+        Region(name: 'France', iso: 'FR'),
+        Region(name: 'United Kingdom', iso: 'GB'),
+        Region(name: 'Greece', iso: 'GR'),
+        Region(name: 'Croatia', iso: 'HR'),
+        Region(name: 'Hungary', iso: 'HU'),
+        Region(name: 'Ireland', iso: 'IE'),
+        Region(name: 'Italy', iso: 'IT'),
+        Region(name: 'Lithuania', iso: 'LT'),
+        Region(name: 'Luxembourg', iso: 'LU'),
+        Region(name: 'Latvia', iso: 'LV'),
+        Region(name: 'Malta', iso: 'MT'),
+        Region(name: 'Netherlands', iso: 'NL'),
+        Region(name: 'Norway', iso: 'NO'),
+        Region(name: 'Poland', iso: 'PL'),
+        Region(name: 'Portugal', iso: 'PT'),
+        Region(name: 'Romania', iso: 'RO'),
+        Region(name: 'Sweden', iso: 'SE'),
+        Region(name: 'Slovakia', iso: 'SK'),
+        Region(name: 'Slovenia', iso: 'SI'),
+      ];
 }

@@ -3,6 +3,7 @@ import 'package:aqua/constants.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/models/subaccount.dart';
 import 'package:aqua/utils/utils.dart';
 
 import 'watch_only.dart';
@@ -24,28 +25,28 @@ class WatchOnlyListScreen extends HookConsumerWidget {
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 28.w),
+        padding: const EdgeInsets.symmetric(horizontal: 28.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 32.h),
+            const SizedBox(height: 32.0),
             Text(
               context.loc.watchOnlyScreenSubtitle,
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            SizedBox(height: 12.h),
+            const SizedBox(height: 12.0),
             Text(
               context.loc.watchOnlyScreenDescription,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            SizedBox(height: 32.h),
+            const SizedBox(height: 32.0),
             Expanded(
               child: wallets.when(
                 data: (wallets) {
                   return ListView.separated(
                     itemCount: wallets.length,
                     physics: const BouncingScrollPhysics(),
-                    separatorBuilder: (_, __) => SizedBox(height: 16.h),
+                    separatorBuilder: (_, __) => const SizedBox(height: 16.0),
                     itemBuilder: (_, index) {
                       final wallet = wallets[index];
                       return WatchOnlyListItem(
@@ -60,23 +61,23 @@ class WatchOnlyListScreen extends HookConsumerWidget {
                 error: (error, stack) => Center(child: Text('Error: $error')),
               ),
             ),
-            SizedBox(height: kBottomPadding),
+            const SizedBox(height: kBottomPadding),
           ],
         ),
       ),
     );
   }
 
-  void _showWatchOnlyDetails(BuildContext context, WatchOnlyWallet wallet) {
-    Navigator.of(context).pushNamed(
+  void _showWatchOnlyDetails(BuildContext context, Subaccount wallet) {
+    context.push(
       WatchOnlyDetailScreen.routeName,
-      arguments: wallet,
+      extra: wallet,
     );
   }
 }
 
 class WatchOnlyListItem extends StatelessWidget {
-  final WatchOnlyWallet wallet;
+  final Subaccount wallet;
   final VoidCallback onTap;
 
   const WatchOnlyListItem({
@@ -90,16 +91,17 @@ class WatchOnlyListItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(16.r),
+        padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(8.0),
         ),
         child: Row(
           children: [
             Expanded(
               child: Padding(
-                padding: EdgeInsets.only(left: 8.w, top: 8.h, bottom: 8.h),
+                padding:
+                    const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -107,16 +109,16 @@ class WatchOnlyListItem extends StatelessWidget {
                       wallet.networkType.displayName,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    SizedBox(height: 8.h),
-                    Text(wallet.subaccount.type?.displayName ?? '',
+                    const SizedBox(height: 8.0),
+                    Text(wallet.subaccount.type?.typeName ?? '',
                         style: Theme.of(context).textTheme.labelMedium),
                   ],
                 ),
               ),
             ),
-            Icon(
+            const Icon(
               Icons.qr_code,
-              size: 32.r,
+              size: 32.0,
             ),
           ],
         ),

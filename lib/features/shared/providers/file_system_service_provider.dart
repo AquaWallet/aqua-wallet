@@ -36,7 +36,7 @@ class _FileSystemService implements DeviceIO {
     fileName ??= '${DateTime.now().toIso8601String().split('T').first}.txt';
     final file = File('${directory.path}/$fileName');
     final res = await file.writeAsString(content);
-    logger.d('[DeviceIO] File written to: ${res.path}');
+    logger.debug('[DeviceIO] File written to: ${res.path}');
     return res.path;
   }
 

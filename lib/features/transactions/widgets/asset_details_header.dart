@@ -1,6 +1,5 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
@@ -21,84 +20,72 @@ class AssetDetailsHeader extends HookConsumerWidget {
         .asData
         ?.value
         .firstWhereOrNull((a) => a.id == asset.id);
-    final balance = useMemoized(
-      () => balanceAsset != null
-          ? ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: balanceAsset.amount, precision: balanceAsset.precision)
-          : '-',
-      [balanceAsset],
-    );
     final conversion = useMemoized(
       () => balanceAsset != null
-          ? ref.read(conversionProvider((balanceAsset, balanceAsset.amount)))
+          ? ref
+              .read(conversionProvider((balanceAsset, balanceAsset.amount)))
+              ?.formattedWithCurrency
           : null,
       [balanceAsset],
     );
 
     return Card(
       shape: const ContinuousRectangleBorder(),
-      margin: EdgeInsets.only(top: 6.h),
+      margin: const EdgeInsets.only(top: 6.0),
       color: Theme.of(context).colors.headerBackgroundColor,
       elevation: 6,
       child: Container(
-        padding: EdgeInsets.only(top: kToolbarHeight + 45.h),
+        padding: const EdgeInsets.only(top: kToolbarHeight + 45.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: double.maxFinite,
-              height: 24.h,
+              height: 24.0,
               alignment: Alignment.centerRight,
-              padding: EdgeInsets.symmetric(horizontal: 40.w),
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: const AssetStatusIndicator(),
             ),
             //ANCHOR - Logo
             AssetIcon(
-              assetId: asset.isLBTC ? 'Layer2Bitcoin' : asset.id,
+              assetId: asset.isLBTC ? kLayer2BitcoinId : asset.id,
               assetLogoUrl: asset.logoUrl,
-              size: 60.r,
+              size: 60.0,
             ),
-            SizedBox(height: 22.h),
+            const SizedBox(height: 22.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 //ANCHOR - Amount
-                Text(
-                  balance,
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                ),
-                //ANCHOR - Symbol
-                Padding(
-                  padding: EdgeInsets.only(left: 8.w, bottom: 2.h),
-                  child: Text(
-                    asset.ticker,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).colors.headerSubtitle,
-                          fontWeight: FontWeight.w500,
+                GestureDetector(
+                  onTap: () => ref.read(prefsProvider).switchBalanceHidden(),
+                  child: AssetCryptoAmount(
+                    asset: balanceAsset ?? asset,
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
+                    isLoading: balanceAsset == null,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 14.h),
+            const SizedBox(height: 14.0),
             //ANCHOR - USD Equivalent
             conversion == null
-                ? SizedBox(height: 28.h)
+                ? const SizedBox(height: 28.0)
                 : Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colors.usdPillBackgroundColor,
-                      borderRadius: BorderRadius.circular(30.r),
+                      borderRadius: BorderRadius.circular(30.0),
                     ),
-                    padding: EdgeInsets.only(
-                        left: 20.w, right: 20.2, top: 3.h, bottom: 2.h),
+                    padding: const EdgeInsets.fromLTRB(20.0, 3.0, 20.0, 2.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          conversion,
+                        AssetCryptoAmount(
+                          amount: conversion,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
@@ -110,7 +97,7 @@ class AssetDetailsHeader extends HookConsumerWidget {
                       ],
                     ),
                   ),
-            SizedBox(height: 40.h),
+            const SizedBox(height: 40.0),
           ],
         ),
       ),

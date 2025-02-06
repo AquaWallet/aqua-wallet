@@ -1,15 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:isar/isar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
 
-const _orderPrefix = 'sideshiftOrder_';
+final _logger = CustomLogger(FeatureFlag.sideshiftOrderStorage);
+
 const kSideshiftBoxName = 'sideshift';
 
 //ANCHOR - Public-facing Sideshift Orders Storage Notifier
@@ -24,7 +22,7 @@ abstract class SideshiftOrderStorage {
   Future<void> updateOrder({
     required String orderId,
     String? txHash,
-    OrderStatus? status,
+    SideshiftOrderStatus? status,
   });
   Future<void> clear();
 }
@@ -34,40 +32,12 @@ class SideshiftOrderStorageNotifier
     implements SideshiftOrderStorage {
   @override
   FutureOr<List<SideshiftOrderDbModel>> build() async {
-    // NOTE: This is a one-time migration
-    _migrateFromSharedPreferencesToIsar();
-
-    final storage = await ref.watch(storageProvider.future);
-    return storage.sideshiftOrderDbModels.all().sortByCreated();
-  }
-
-  Future<void> _migrateFromSharedPreferencesToIsar() async {
-    final prefs = await SharedPreferences.getInstance();
-    final toMigrate = prefs.getKeys().where((k) => k.startsWith(_orderPrefix));
-
-    if (toMigrate.isNotEmpty) {
-      logger.d('[SideshiftStorage] Migrating ${toMigrate.length} to Isar');
-    }
-
-    for (String key in toMigrate) {
-      String? json = prefs.getString(key);
-      if (json != null) {
-        final order = SideshiftOrderStatusResponse.fromJson(jsonDecode(json));
-
-        logger
-            .d("[SideshiftStorage] Migrating order to secure storage: $order");
-
-        await ref
-            .read(transactionStorageProvider.notifier)
-            .save(TransactionDbModel.fromSideshiftOrder(order));
-        await ref
-            .read(sideshiftStorageProvider.notifier)
-            .save(SideshiftOrderDbModel.fromSideshiftOrderResponse(order));
-
-        prefs.remove(key);
-        logger.d(
-            "[SideshiftStorage] Migrated order to secure storage: ${order.id}");
-      }
+    try {
+      final storage = await ref.watch(storageProvider.future);
+      return storage.sideshiftOrderDbModels.all().sortByCreated();
+    } catch (e, st) {
+      _logger.error('Error building orders list', e, st);
+      return [];
     }
   }
 
@@ -91,7 +61,7 @@ class SideshiftOrderStorageNotifier
       final update = await storage.sideshiftOrderDbModels.all().sortByCreated();
       state = AsyncValue.data(update);
     } catch (e, st) {
-      logger.e('[SideshiftStorage] Error saving transaction', e, st);
+      _logger.error('Error saving transaction', e, st);
       rethrow;
     }
   }
@@ -100,7 +70,7 @@ class SideshiftOrderStorageNotifier
   Future<void> updateOrder({
     required String orderId,
     String? txHash,
-    OrderStatus? status,
+    SideshiftOrderStatus? status,
   }) async {
     final storage = await ref.read(storageProvider.future);
     await storage.writeTxn(() async {
@@ -110,7 +80,7 @@ class SideshiftOrderStorageNotifier
           .findFirst();
 
       if (model == null) {
-        logger.i('[SideshiftOrderStorage] Order not found: $orderId');
+        _logger.info('Order not found: $orderId');
         return;
       }
 

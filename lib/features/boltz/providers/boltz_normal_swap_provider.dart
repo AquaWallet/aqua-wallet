@@ -1,5 +1,5 @@
 import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -16,9 +16,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
 
   final Ref _ref;
 
-  Future<bool> prepareSubmarineSwap() async {
-    final address = _ref.read(sendAddressProvider);
-
+  Future<bool> prepareSubmarineSwap({String? address}) async {
     if (address == null || address.isEmpty) {
       throw Exception('Could not get address');
     }
@@ -39,7 +37,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
       final swapDbModel = await _ref
           .read(boltzStorageProvider.notifier)
           .getSubmarineSwapDbModelByInvoice(address);
-      logger.d(
+      logger.debug(
           "[Boltz] Found existing sub swap in cache with status: ${swapDbModel?.lastKnownStatus.toString()}");
       if (swapDbModel?.lastKnownStatus != null &&
           !swapDbModel!.lastKnownStatus!.isSubmarineUnpaid) {
@@ -54,7 +52,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
         throw BoltzException(BoltzExceptionType.normalSwapAlreadyBroadcasted);
       }
 
-      logger.d(
+      logger.debug(
           "[Boltz] Found existing unpaid sub swap in cache: ${existingSwap.id}");
       return true;
     }
@@ -80,7 +78,20 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
       referralId: 'AQUA',
     );
     state = response;
-    logger.d("[Send] Boltz Submarine Swap response: $response");
+
+    // Mask sensitive data before logging
+    final maskedResponse = response.copyWith(
+      keys: response.keys.copyWith(
+        secretKey: '********',
+      ),
+      preimage: PreImage(
+        value: '********',
+        sha256: response.preimage.sha256,
+        hash160: response.preimage.hash160,
+      ),
+    );
+
+    logger.debug("[Send] Boltz Submarine Swap response: $maskedResponse");
 
     final swapDbModel = BoltzSwapDbModel.fromV2SwapResponse(response)
         .copyWith(lastKnownStatus: BoltzSwapStatus.created);
@@ -101,8 +112,8 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
   }
 
   // ANCHOR: - Send Onchain Normal Swap
-  Future<GdkNewTransactionReply> createTxnForSubmarineSwap({
-    bool isLowball = true,
+  Future<SendAssetOnchainTx> createTxnForSubmarineSwap({
+    required SendAssetArguments arguments,
     bool isFeeEstimateTxn = false,
   }) async {
     final boltzOrder = state;
@@ -121,21 +132,25 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
           ? boltzOrder.outAmount - 1
           : boltzOrder.outAmount;
 
-      final tx = await _ref
-          .read(sendAssetTransactionProvider.notifier)
-          .createGdkTransaction(
-            address: boltzOrder.swapScript.fundingAddrs,
-            amountWithPrecision: amount,
-            asset: _ref.read(manageAssetsProvider).lbtcAsset,
+      final sendInput = SendAssetInputState(
+        addressFieldText: boltzOrder.swapScript.fundingAddrs,
+        amount: amount,
+        asset: _ref.read(manageAssetsProvider).lbtcAsset,
+      );
+
+      final txn = await _ref
+          .read(sendTransactionExecutorProvider(arguments))
+          .createTransaction(
+            sendInput: sendInput,
             rbfEnabled: false,
-            isLowball: isLowball,
           );
 
-      logger
-          .d('[Send] Boltz Submarine Swap createGdkTransaction response: $tx}');
-      return tx;
+      logger.debug(
+          '[Send] Boltz Submarine Swap createGdkTransaction response: $txn}');
+      return txn;
     } catch (e) {
-      logger.e('[Send] Boltz Submarine Swap createGdkTransaction error: $e');
+      logger
+          .error('[Send] Boltz Submarine Swap createGdkTransaction error: $e');
       return Future.error(e);
     }
   }
@@ -154,21 +169,6 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
         timeoutBlockHeight: swap.swapScript.locktime,
       );
     }
-
-    // try legacy
-    final legacySwap = await _ref
-        .read(boltzDataProvider)
-        .getBoltzNormalSwapData(swapDbModel.boltzId);
-    if (legacySwap == null) return null;
-    return _ref.read(boltzSwapRefundDataProvider(legacySwap));
-  }
-
-  Future<void> updateStatusOnSubmarineLockupBroadcast(String txId) async {
-    if (state == null) return;
-    await _ref.read(boltzStorageProvider.notifier).updateBoltzSwapStatus(
-          boltzId: state!.id,
-          status: BoltzSwapStatus.submarineBroadcasted,
-        );
-    logger.d("[Boltz] Updated swap status to broadcasted for ID: ${state!.id}");
+    return null;
   }
 }

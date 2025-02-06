@@ -16,7 +16,7 @@ class AssetListErrorView extends ConsumerWidget {
     return Center(
       child: GenericErrorWidget(
         description: message,
-        buttonTitle: context.loc.unknownErrorButton,
+        buttonTitle: context.loc.retry,
         buttonAction: () {
           ref.invalidate(availableAssetsProvider);
           ref.invalidate(reloadNotifier);

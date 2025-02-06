@@ -1,5 +1,6 @@
 import 'package:aqua/config/constants/constants.dart' as constants;
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/onboarding/keys/onboarding_screen_keys.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -51,28 +52,28 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
           child: Transform.scale(
             scale: 1.5,
             child: Checkbox(
-              key: const Key('welcome-tos-checkbox'),
+              key: OnboardingScreenKeys.welcomeTosCheckbox,
               visualDensity: VisualDensity.compact,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               side: BorderSide(
                 color: Theme.of(context).colorScheme.surface,
-                width: 2.w,
+                width: 2.0,
               ),
-              fillColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              fillColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return Theme.of(context).colorScheme.primary;
                 }
                 return Theme.of(context).colorScheme.surface;
               }),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100.r),
+                borderRadius: BorderRadius.circular(100.0),
               ),
               value: selected.value,
               onChanged: (value) => selected.value = value!,
             ),
           ),
         ),
-        SizedBox(width: 8.w),
+        const SizedBox(width: 8.0),
         Expanded(
           child: Text.rich(
             //ANCHOR - Description
@@ -107,7 +108,7 @@ class WelcomeToSCheckbox extends HookConsumerWidget {
                 ),
                 TextSpan(
                   recognizer: TapGestureRecognizer()..onTap = openToPrivacyUrl,
-                  text: context.loc.welcomeScreenPrivacyDescriptionBold,
+                  text: context.loc.privacyPolicy,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

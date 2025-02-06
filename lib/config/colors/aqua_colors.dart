@@ -65,8 +65,6 @@ class AquaColors {
 
   static const Color greyGoose = Color(0xFFCDCDCD);
 
-  static const Color spanishGray = Color(0xFF979797);
-
   static const Color platinum = Color(0xFFE5E5E5);
 
   static const Color vermillion = Color(0xFFFF4B2B);
@@ -86,4 +84,16 @@ class AquaColors {
   static const Color dimMarble = Color(0xFF7E7E7E);
 
   static const Color vividSkyBlue = Color(0xFF00C7F9);
+
+  static const Color aquaLightBlue = Color(0xFF294B53);
+
+  static const Color backgroundSkyBlue = Color(0xFF009AD6);
+
+  static const Color brightPastelOrange = Color(0xFFFFB650);
+
+  static const Color debitCardProgressGradientStartColor = Color(0xFFFFD300);
+
+  static const Color debitCardProgressGradientEndColor = Color(0xFFFFA800);
+
+  static const Color warningOrange = Color(0xFFFFCC00);
 }

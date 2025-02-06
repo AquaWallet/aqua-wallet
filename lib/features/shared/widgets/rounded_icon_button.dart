@@ -1,5 +1,6 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:aqua/config/config.dart';
 
 class RoundedIconButton extends StatelessWidget {
   const RoundedIconButton({
@@ -26,24 +27,24 @@ class RoundedIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: size ?? 74.r,
+      dimension: size ?? 74.0,
       child: BoxShadowElevatedButton(
         onPressed: onPressed,
         elevation: elevation ?? 4,
         background: background ?? Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(radius ?? 18.r),
+        borderRadius: BorderRadius.circular(radius ?? 18.0),
         side: BorderSide(
           color: Theme.of(context).colorScheme.primary,
-          width: 2.w,
+          width: 2.0,
         ),
         child: SvgPicture.asset(
           svgAssetName,
-          width: iconSize ?? 16.r,
-          height: iconSize ?? 16.r,
+          width: iconSize ?? 16.0,
+          height: iconSize ?? 16.0,
           fit: BoxFit.scaleDown,
           colorFilter: foreground != null
               ? ColorFilter.mode(
-                  Theme.of(context).colorScheme.onBackground, BlendMode.srcIn)
+                  Theme.of(context).colors.onBackground, BlendMode.srcIn)
               : null,
         ),
       ),

@@ -39,7 +39,7 @@ class LanguageSettingsScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: context.loc.languageSettingsTitle,
+        title: context.loc.language,
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
         onTitlePressed: () =>
             ref.read(featureUnlockTapCountProvider.notifier).increment(),

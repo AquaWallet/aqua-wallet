@@ -11,14 +11,14 @@ class AddressInputView extends HookConsumerWidget {
     this.hintText,
     this.disabled = false,
     required this.controller,
-    required this.onPressed,
+    required this.onScanPressed,
     required this.onChanged,
   });
 
   final bool disabled;
   final TextEditingController controller;
   final String? hintText;
-  final void Function() onPressed;
+  final void Function() onScanPressed;
   final void Function(String) onChanged;
   late final internalInputController =
       useTextEditingController(text: controller.text);
@@ -55,6 +55,10 @@ class AddressInputView extends HookConsumerWidget {
         controller.removeListener(setCompressedAddressView);
       });
     }, []);
+    final onAddressCleared = useCallback(() {
+      controller.clear();
+      onChanged('');
+    });
     return Row(children: [
       Expanded(
         child: Container(
@@ -72,10 +76,15 @@ class AddressInputView extends HookConsumerWidget {
             onChanged: onChangedAdapter,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colors.onBackground,
                 ),
             decoration: Theme.of(context).inputDecoration.copyWith(
                   filled: false,
+                  suffixIcon: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: controller.text.isNotEmpty && !disabled
+                          ? ClearInputButton(onTap: onAddressCleared)
+                          : null),
                   hintText: hintText,
                   hintStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colors.hintTextColor,
@@ -85,17 +94,17 @@ class AddressInputView extends HookConsumerWidget {
           ),
         ),
       ),
-      SizedBox(width: 14.w),
+      const SizedBox(width: 14.0),
       //ANCHOR - QR Scan Button
       RoundedIconButton(
         svgAssetName: Svgs.qr,
-        size: 68.r,
-        radius: 10.r,
+        size: 68.0,
+        radius: 10.0,
         elevation: 0,
-        foreground: Theme.of(context).colorScheme.background,
+        foreground: Theme.of(context).colors.background,
         background:
             Theme.of(context).colors.addressFieldContainerBackgroundColor,
-        onPressed: disabled ? null : onPressed,
+        onPressed: disabled ? null : onScanPressed,
       ),
     ]);
   }

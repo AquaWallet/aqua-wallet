@@ -17,7 +17,7 @@ extension Bolt11Ext on Bolt11PaymentRequest {
               satsPerBtc)); // Bolt11PaymentRequest returns amount in BTC, so convert to sats
       return amount.toInt();
     } catch (_) {
-      logger.d("[Boltz] Could not parse amount from invoice");
+      logger.debug("[Boltz] Could not parse amount from invoice");
       return null;
     }
   }

@@ -11,121 +11,115 @@ enum TransactionType {
 }
 
 class TransactionMenuScreen extends HookConsumerWidget {
-  const TransactionMenuScreen({super.key});
+  const TransactionMenuScreen({super.key, required this.type});
 
   static const routeName = '/transactionMenuScreen';
+  final TransactionType type;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final type = ModalRoute.of(context)!.settings.arguments as TransactionType;
-    final title = type == TransactionType.send
-        ? context.loc.sendAssetScreenTitle
-        : context.loc.receiveMenuScreenTitle;
+    final title =
+        type == TransactionType.send ? context.loc.send : context.loc.receive;
 
     final curatedAssets =
         ref.watch(manageAssetsProvider.select((p) => p.curatedAssets));
-    final otherAssets = ref
-        .watch(manageAssetsProvider.select((p) => p.otherTransactableAssets));
+    final altUSDtAssets = ref.watch(activeAltUSDtsProvider);
 
-    return PopScope(
-      canPop: true,
-      onPopInvoked: (_) => ref.invalidate(receiveAssetAddressProvider),
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: Theme.of(context).colors.menuSurface,
+      appBar: AquaAppBar(
+        showBackButton: true,
+        showActionButton: false,
         backgroundColor: Theme.of(context).colors.menuSurface,
-        appBar: AquaAppBar(
-          showBackButton: true,
-          showActionButton: false,
-          backgroundColor: Theme.of(context).colors.menuBackground,
-          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-          iconOutlineColor: Theme.of(context).colors.appBarIconOutlineColorAlt,
-          iconBackgroundColor:
-              Theme.of(context).colors.appBarIconBackgroundColorAlt,
-          iconForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-          title: title,
-        ),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              //ANCHOR - Description
-              Container(
-                width: double.infinity,
-                height: 500.h,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colors.menuBackground,
-                  border: Border.all(
-                    color: Theme.of(context).colors.menuBackground,
-                  ),
+        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        iconOutlineColor: Theme.of(context).colors.appBarIconOutlineColorAlt,
+        iconBackgroundColor:
+            Theme.of(context).colors.appBarIconBackgroundColorAlt,
+        iconForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        title: title,
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            //ANCHOR - Description
+            Container(
+              width: double.infinity,
+              height: 500.0,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colors.menuSurface,
+                border: Border.all(
+                  color: Theme.of(context).colors.menuSurface,
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(top: 24.h),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(bottom: 125.h),
-                  physics: const BouncingScrollPhysics(),
-                  child: Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.r),
-                        topRight: Radius.circular(20.r),
-                      ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(top: 24.0),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 125.0),
+                physics: const BouncingScrollPhysics(),
+                child: Card(
+                  elevation: 0,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
                     ),
-                    color: Theme.of(context).colors.menuSurface,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 28.w,
-                        vertical: 30.h,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //ANCHOR - Aqua Assets Section
+                  ),
+                  color: Theme.of(context).colors.menuSurface,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28.0,
+                      vertical: 30.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //ANCHOR - Aqua Assets Section
+                        Text(
+                          context.loc.receiveMenuScreenSectionAquaAssets,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 26.0),
+                        //ANCHOR - Aqua Assets List
+                        _AquaAssetsGrid(
+                          curatedAssets: curatedAssets,
+                          type: type,
+                        ),
+                        const SizedBox(height: 32.0),
+                        if (altUSDtAssets.isNotEmpty) ...[
+                          //ANCHOR - Other Assets Section
                           Text(
-                            context.loc.receiveMenuScreenSectionAquaAssets,
+                            context.loc.receiveMenuScreenSectionOtherAssets,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          SizedBox(height: 26.h),
-                          //ANCHOR - Aqua Assets List
-                          _AquaAssetsGrid(
-                            curatedAssets: curatedAssets,
+                          const SizedBox(height: 26.0),
+                          //ANCHOR - Other Assets List
+                          _OtherAssetsGrid(
+                            otherAssets: altUSDtAssets,
                             type: type,
                           ),
-                          SizedBox(height: 32.h),
-                          if (otherAssets.isNotEmpty) ...[
-                            //ANCHOR - Other Assets Section
-                            Text(
-                              context.loc.receiveMenuScreenSectionOtherAssets,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            SizedBox(height: 26.h),
-                            //ANCHOR - Other Assets List
-                            _OtherAssetsGrid(
-                              otherAssets: otherAssets,
-                              type: type,
-                            ),
-                          ],
-                          SizedBox(height: 32.h),
                         ],
-                      ),
+                        const SizedBox(height: 32.0),
+                      ],
                     ),
                   ),
                 ),
               ),
-              //ANCHOR - Gradient Overlay
-              IgnorePointer(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: double.infinity,
-                    height: MediaQuery.sizeOf(context).height * .25,
-                    decoration: BoxDecoration(
-                      gradient: Theme.of(context).getFadeGradient(),
-                    ),
+            ),
+            //ANCHOR - Gradient Overlay
+            IgnorePointer(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: double.infinity,
+                  height: MediaQuery.sizeOf(context).height * .25,
+                  decoration: BoxDecoration(
+                    gradient: Theme.of(context).getFadeGradient(),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -145,25 +139,25 @@ class _OtherAssetsGrid extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GridView.count(
       shrinkWrap: true,
-      crossAxisSpacing: 22.w,
-      mainAxisSpacing: 27.h,
+      crossAxisSpacing: 22.0,
+      mainAxisSpacing: 27.0,
       crossAxisCount: 2,
       physics: const NeverScrollableScrollPhysics(),
       children: otherAssets
           .map((asset) => _AssetMenuItem(
                 name: asset.name,
-                symbol: asset.isEth ? 'Ethereum USDt' : 'Tron USDt',
+                symbol: asset.network,
                 id: asset.id,
                 iconUrl: asset.logoUrl,
                 onTap: () {
-                  final sendArguments = SendAssetArguments.fromAsset(asset);
                   type == TransactionType.send
-                      ? ref
-                          .read(sendNavigationEntryProvider(sendArguments))
-                          .call(context)
-                      : Navigator.of(context).pushNamed(
+                      ? context.push(
+                          SendAssetScreen.routeName,
+                          extra: SendAssetArguments.fromAsset(asset),
+                        )
+                      : context.push(
                           ReceiveAssetScreen.routeName,
-                          arguments: asset,
+                          extra: ReceiveArguments.fromAsset(asset),
                         );
                 },
               ))
@@ -185,8 +179,8 @@ class _AquaAssetsGrid extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GridView.count(
       shrinkWrap: true,
-      crossAxisSpacing: 22.w,
-      mainAxisSpacing: 27.h,
+      crossAxisSpacing: 22.0,
+      mainAxisSpacing: 27.0,
       crossAxisCount: 2,
       physics: const NeverScrollableScrollPhysics(),
       //ANCHOR - Curated Assets List
@@ -197,14 +191,14 @@ class _AquaAssetsGrid extends ConsumerWidget {
                 id: asset.id,
                 iconUrl: asset.logoUrl,
                 onTap: () {
-                  final sendArguments = SendAssetArguments.fromAsset(asset);
                   type == TransactionType.send
-                      ? ref
-                          .read(sendNavigationEntryProvider(sendArguments))
-                          .call(context)
-                      : Navigator.of(context).pushNamed(
+                      ? context.push(
+                          SendAssetScreen.routeName,
+                          extra: SendAssetArguments.fromAsset(asset),
+                        )
+                      : context.push(
                           ReceiveAssetScreen.routeName,
-                          arguments: asset,
+                          extra: ReceiveArguments.fromAsset(asset),
                         );
                 },
               ))
@@ -235,34 +229,35 @@ class _AssetMenuItem extends ConsumerWidget {
       aspectRatio: 175 / 164,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10.0),
         child: Ink(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(10.r),
+            color: Theme.of(context).colors.listItemBackground,
+            borderRadius: BorderRadius.circular(10.0),
             border: darkMode
                 ? null
                 : Border.all(
                     color: Theme.of(context).colors.cardOutlineColor,
-                    width: 2.w,
+                    width: 2.0,
                   ),
           ),
           child: Opacity(
             opacity: onTap != null ? 1.0 : 0.5,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 19.w),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const SizedBox(height: 7),
                   //ANCHOR - Icon
                   AssetIcon(
-                    assetId: id,
-                    assetLogoUrl: iconUrl,
-                    size: 60.r,
-                  ),
-                  SizedBox(height: 35.h),
+                      assetId: id,
+                      assetLogoUrl: iconUrl,
+                      size:
+                          context.adaptiveDouble(smallMobile: 45, mobile: 50)),
+                  const SizedBox(height: 35.0),
                   //ANCHOR - Name
                   Text(
                     name,
@@ -270,11 +265,11 @@ class _AssetMenuItem extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontSize: context.adaptiveDouble(
-                              mobile: 18.sp, wideMobile: 14.sp),
+                              smallMobile: 14, mobile: 18.0, wideMobile: 14.0),
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                  SizedBox(height: 3.h),
+                  const SizedBox(height: 3.0),
                   //ANCHOR - Symbol
                   Text(
                     symbol,

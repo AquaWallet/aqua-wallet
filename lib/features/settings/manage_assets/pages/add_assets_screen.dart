@@ -16,13 +16,13 @@ class AddAssetsScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: context.loc.addAssetsScreenTitle,
+        title: context.loc.addMoreAssets,
       ),
       body: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 24.h),
+        padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
         itemCount: assets.length,
         physics: const BouncingScrollPhysics(),
-        separatorBuilder: (_, __) => SizedBox(height: 10.h),
+        separatorBuilder: (_, __) => const SizedBox(height: 10.0),
         itemBuilder: (_, index) => ManageAssetListItemTile(
           asset: assets[index],
           isUserAsset: false,

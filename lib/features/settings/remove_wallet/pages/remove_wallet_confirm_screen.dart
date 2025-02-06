@@ -29,7 +29,7 @@ class RemoveWalletConfirmScreen extends HookConsumerWidget {
           context.loc.removeWalletScreenRemoveFailed,
         ),
         verificationFailed: () => context.showErrorSnackbar(
-          context.loc.removeWalletScreenVerificationFailed,
+          context.loc.verificationFailed,
         ),
         orElse: () => null,
       ),
@@ -38,8 +38,8 @@ class RemoveWalletConfirmScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AquaAppBar(
         showActionButton: false,
-        iconBackgroundColor: Theme.of(context).colorScheme.background,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        iconBackgroundColor: Theme.of(context).colors.background,
+        iconForegroundColor: Theme.of(context).colors.onBackground,
       ),
       body: SafeArea(
         child: removeWalletState.maybeWhen(
@@ -62,34 +62,34 @@ class _ConfirmationView extends HookConsumerWidget with ExportTransactionMixin {
     listenToExportTransactionHistoryEvents(context, ref, removeWallet: true);
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 28.w),
+      padding: const EdgeInsets.symmetric(horizontal: 28.0),
       child: Column(
         children: [
-          SizedBox(height: 60.h),
+          const SizedBox(height: 60.0),
           const Spacer(),
           //ANCHOR - Icon
           SvgPicture.asset(
             Svgs.failure,
-            width: 60.r,
-            height: 60.r,
+            width: 60.0,
+            height: 60.0,
           ),
-          SizedBox(height: 20.h),
+          const SizedBox(height: 20.0),
           //ANCHOR - Title
           Text(
             context.loc.removeWalletScreenTitle,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 20.sp,
+                  fontSize: 20.0,
                 ),
           ),
-          SizedBox(height: 12.h),
+          const SizedBox(height: 12.0),
           //ANCHOR - Description
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
               context.loc.removeWalletScreenDesc,
               textAlign: TextAlign.left,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colors.onBackground,
                   ),
             ),
           ),
@@ -97,11 +97,11 @@ class _ConfirmationView extends HookConsumerWidget with ExportTransactionMixin {
           //ANCHOR - Cancel button
           AquaElevatedButton(
             child: Text(
-              context.loc.removeWalletScreenCancelButton,
+              context.loc.cancel,
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
-          SizedBox(height: 27.h),
+          const SizedBox(height: 27.0),
           //ANCHOR - Confirm button
           AquaElevatedButton(
             onPressed: isDatabaseExportEnabled
@@ -119,7 +119,7 @@ class _ConfirmationView extends HookConsumerWidget with ExportTransactionMixin {
               context.loc.removeWalletScreenConfirmButton,
             ),
           ),
-          SizedBox(height: 64.h),
+          const SizedBox(height: 64.0),
         ],
       ),
     );

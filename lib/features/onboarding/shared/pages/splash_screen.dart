@@ -51,14 +51,12 @@ class SplashScreen extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: 75.h),
+          const SizedBox(height: 75.0),
           //ANCHOR - Logo
-          GestureDetector(
-            child: Container(
-              margin: EdgeInsetsDirectional.only(end: 9.w),
-              child: UiAssets.svgs.aquaLogoColorSpaced.svg(
-                height: 59.3.h,
-              ),
+          Container(
+            margin: const EdgeInsetsDirectional.only(end: 9.0),
+            child: UiAssets.svgs.aquaLogoColorSpaced.svg(
+              height: 59.3,
             ),
           ),
           const Spacer(),
@@ -66,11 +64,10 @@ class SplashScreen extends HookConsumerWidget {
           OnboardingTagline(
             description: description ?? context.loc.welcomeScreenDesc1,
             onTap: onSwitchTagline,
-            onLongPress: () =>
-                Navigator.of(context).pushNamed(WelcomeScreen.routeName),
+            onLongPress: () => context.push(WelcomeScreen.routeName),
           ),
           const Spacer(),
-          SizedBox(height: 194.h),
+          const SizedBox(height: 194.0),
         ],
       ),
     );

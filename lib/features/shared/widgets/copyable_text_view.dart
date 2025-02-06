@@ -17,16 +17,16 @@ class CopyableTextView extends HookConsumerWidget {
   final TextStyle? textStyle;
   final TextAlign? textAlign;
   final double? iconSize;
-  final EdgeInsetsDirectional? margin;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: margin ??
-          EdgeInsetsDirectional.only(
-            bottom: 18.h,
-            start: 20.w,
-            end: 30.w,
+          const EdgeInsetsDirectional.only(
+            bottom: 18.0,
+            start: 20.0,
+            end: 30.0,
           ),
       child: Row(
         children: [
@@ -38,12 +38,12 @@ class CopyableTextView extends HookConsumerWidget {
                   Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colors.copayableTextColor,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
+                        fontSize: 14.0,
                         letterSpacing: .2,
                       ),
             ),
           ),
-          SizedBox(width: 16.w),
+          const SizedBox(width: 16.0),
           Container(
             alignment: Alignment.centerRight,
             child: Material(
@@ -53,10 +53,10 @@ class CopyableTextView extends HookConsumerWidget {
                 child: InkWell(
                   child: SvgPicture.asset(
                     Svgs.copy,
-                    width: iconSize ?? 12.r,
-                    height: iconSize ?? 12.r,
+                    width: iconSize ?? 12.0,
+                    height: iconSize ?? 12.0,
                     colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onBackground,
+                      Theme.of(context).colors.onBackground,
                       BlendMode.srcIn,
                     ),
                   ),

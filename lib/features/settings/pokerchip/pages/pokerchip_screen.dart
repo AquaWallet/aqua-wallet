@@ -18,26 +18,26 @@ class PokerchipScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: context.loc.pokerchipScreenTitle,
+        title: context.loc.bitcoinChip,
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 48.h),
+        padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 48.0),
         child: Column(children: [
           const Spacer(),
           //ANCHOR - Pokerchip Frame
           SvgPicture.asset(
             darkMode ? Svgs.pokerchipFrameLight : Svgs.pokerchipFrameDark,
-            width: 267.r,
-            height: 267.r,
+            width: 267.0,
+            height: 267.0,
           ),
-          SizedBox(height: 42.h),
+          const SizedBox(height: 42.0),
           //ANCHOR - Title
           Text(
-            context.loc.pokerchipScreenLabel,
+            context.loc.bitcoinChip,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          SizedBox(height: 12.h),
+          const SizedBox(height: 12.0),
           //ANCHOR - Description
           Text(
             context.loc.pokerchipScreenDescription,
@@ -48,13 +48,12 @@ class PokerchipScreen extends HookConsumerWidget {
           const Spacer(flex: 3),
           //ANCHOR: Read Button
           AquaElevatedButton(
-            onPressed: () => Navigator.of(context)
-                .pushNamed(PokerchipScannerScreen.routeName),
+            onPressed: () => context.push(PokerchipScannerScreen.routeName),
             child: Text(
               context.loc.pokerchipScreenReadButton,
             ),
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
         ]),
       ),
     );

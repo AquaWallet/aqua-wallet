@@ -35,6 +35,8 @@ extension DateTimeEx on DateTime {
 
   String formatMonthAndYearShort() => DateFormat('MMM yyyy').format(localDate);
 
+  String formatMonthAndYearNumeric() => DateFormat('MM/yy').format(localDate);
+
   String formatMonth() => DateFormat('MMMM').format(
         localDate,
       );

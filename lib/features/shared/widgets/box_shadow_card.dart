@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BoxShadowCard extends Card {
   const BoxShadowCard({
@@ -39,7 +38,7 @@ class BoxShadowCard extends Card {
                 color: error
                     ? Theme.of(context).colorScheme.error
                     : borderColor ?? Colors.transparent,
-                width: borderWidth ?? 2.r,
+                width: borderWidth ?? 2.0,
               )
             : null,
       ),

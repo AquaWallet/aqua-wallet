@@ -31,34 +31,32 @@ class SendAssetConfirmSlider extends HookConsumerWidget {
       return null;
     }, [sliderState]);
 
-    return BoxShadowContainer(
-      child: ConfirmationSlider(
-        key: sliderKey.value,
-        enabled: enabled && sliderState == SliderState.initial,
-        width: MediaQuery.sizeOf(context).width - 56.w,
-        height: 52.h,
-        stickToEnd: true,
-        backgroundShape: BorderRadius.circular(12.r),
-        backgroundColor: Theme.of(context).colorScheme.background,
-        text: text,
-        textStyle: Theme.of(context).textTheme.titleSmall,
-        onConfirmation: onConfirm,
-        sliderWidth: 74.w,
-        sliderHeight: 52.h,
-        sliderButtonContent: Container(
-          width: 74.w,
-          height: 40.h,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: BorderRadius.all(Radius.circular(12.r)),
-          ),
-          child: _buildSliderContent(context, sliderState),
+    return ConfirmationSlider(
+      key: sliderKey.value,
+      enabled: enabled && sliderState == SliderState.initial,
+      width: MediaQuery.sizeOf(context).width - 56,
+      height: 52,
+      stickToEnd: true,
+      backgroundShape: BorderRadius.circular(9),
+      backgroundColor: Theme.of(context).colors.altScreenSurface,
+      text: text,
+      textStyle: Theme.of(context).textTheme.titleMedium,
+      onConfirmation: onConfirm,
+      sliderWidth: 75,
+      sliderHeight: 50,
+      sliderButtonContent: Container(
+        width: 74,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: const BorderRadius.all(Radius.circular(9)),
         ),
-        backgroundEndContent: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-            borderRadius: BorderRadius.all(Radius.circular(12.r)),
-          ),
+        child: _buildSliderContent(context, sliderState),
+      ),
+      backgroundEndContent: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          borderRadius: const BorderRadius.all(Radius.circular(9)),
         ),
       ),
     );
@@ -69,26 +67,26 @@ class SendAssetConfirmSlider extends HookConsumerWidget {
       case SliderState.initial:
         return SvgPicture.asset(
           Svgs.slideConfirmArrow,
-          width: 15.r,
-          height: 15.r,
+          width: 15,
+          height: 15,
           fit: BoxFit.scaleDown,
           colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         );
       case SliderState.inProgress:
-        return Center(
+        return const Center(
           child: SizedBox(
-            width: 26.r,
-            height: 26.r,
-            child: const CircularProgressIndicator(
+            width: 26,
+            height: 26,
+            child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              strokeWidth: 3.0,
+              strokeWidth: 3,
             ),
           ),
         );
       case SliderState.completed:
-        return Icon(Icons.check, color: Colors.white, size: 26.r);
+        return const Icon(Icons.check, color: Colors.white, size: 26);
       case SliderState.error:
-        return Icon(Icons.error, color: Colors.white, size: 26.r);
+        return const Icon(Icons.error, color: Colors.white, size: 26);
     }
   }
 }

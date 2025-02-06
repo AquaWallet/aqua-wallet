@@ -5,6 +5,8 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:isar/isar.dart';
 
+final _logger = CustomLogger(FeatureFlag.transactionStorage);
+
 const kTransactionBoxName = 'transactions';
 
 //ANCHOR - Address Cache
@@ -53,6 +55,11 @@ abstract class TransactionStorage {
     required int outAmount,
     required int fee,
   });
+
+  Future<void> updateTransactionNote({
+    required String txHash,
+    required String note,
+  });
 }
 
 class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
@@ -66,7 +73,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
 
   @override
   void cacheSideswapReceiveAddress(String address) {
-    logger.d('[TransactionStorage] Caching address: $address');
+    _logger.debug('Caching address: $address');
     ref.read(_sideswapReceiveAddressCacheProvider.notifier).set(address);
   }
 
@@ -79,14 +86,14 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
       }
 
       final item = model.copyWith(receiveAddress: address);
-      logger.d('[TransactionStorage] Saving transaction: $item');
+      _logger.debug('Saving transaction: $item');
 
       final storage = await ref.read(storageProvider.future);
       await storage.writeTxn(() => storage.transactionDbModels.put(item));
       final updated = await storage.transactionDbModels.all();
       state = AsyncValue.data(updated);
     } catch (e, st) {
-      logger.e('[TransactionStorage] Error saving transaction', e, st);
+      _logger.error('Error saving transaction', e, st);
       rethrow;
     } finally {
       ref.read(_sideswapReceiveAddressCacheProvider.notifier).clear();
@@ -108,7 +115,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
           .filter()
           .isGhostEqualTo(true)
           .findAll();
-      logger.d('[TransactionStorage] Removing Ghost Txns: ${ghostTxns.length}');
+      _logger.debug('Removing Ghost Txns: ${ghostTxns.length}');
       Future.wait(ghostTxns.map((txn) {
         return storage.transactionDbModels.delete(txn.id);
       }));
@@ -165,7 +172,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
         .filter()
         .serviceOrderIdEqualTo(id)
         .findFirst();
-    logger.d('[TransactionStorage] Marking Boltz transaction: $transaction');
+    _logger.debug('Marking Boltz transaction: $transaction');
     if (transaction != null) {
       await ref
           .read(transactionStorageProvider.notifier)
@@ -193,7 +200,8 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
           .serviceOrderIdEqualTo(boltzId)
           .findFirst();
       if (transaction == null) {
-        logger.w('[Transactions] No transaction found for Boltz ID: $boltzId');
+        logger.warning(
+            '[Transactions] No transaction found for Boltz ID: $boltzId');
         return;
       }
 
@@ -205,6 +213,33 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
         ghostTxnAmount: outAmount,
         ghostTxnFee: fee,
       );
+      await storage.transactionDbModels.put(updated);
+    });
+
+    final updated = await storage.transactionDbModels.all();
+    state = AsyncValue.data(updated);
+  }
+
+  @override
+  Future<void> updateTransactionNote({
+    required String txHash,
+    required String note,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      final transaction = await storage.transactionDbModels
+          .filter()
+          .txhashEqualTo(txHash)
+          .findFirst();
+
+      if (transaction == null) {
+        logger.warning(
+            '[Transactions] No DB transaction found for TX ID: $txHash. Creating one.');
+        final transaction = TransactionDbModel(txhash: txHash, note: note);
+        return await storage.transactionDbModels.put(transaction);
+      }
+
+      final updated = transaction.copyWith(note: note);
       await storage.transactionDbModels.put(updated);
     });
 

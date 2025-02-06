@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart' hide SwapType;
+import 'package:aqua/features/boltz/models/boltz_swap_status.dart';
+import 'package:aqua/features/boltz/models/db_models.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:isar/isar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+final _logger = CustomLogger(FeatureFlag.boltzStorage);
 
 const kBoltzBoxName = 'boltz';
 
@@ -28,7 +30,7 @@ abstract class BoltzSwapStorage {
     required KeyPair keys,
     required PreImage preimage,
   });
-  Future<void> updateSubmarineOnchainTxId({
+  Future<void> updateSubmarineOnBroadcast({
     required String boltzId,
     required String txId,
   });
@@ -62,168 +64,8 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
     implements BoltzSwapStorage {
   @override
   FutureOr<List<BoltzSwapDbModel>> build() async {
-    // NOTE: This is a one-time migration
-    logger.d('[BoltzStorage] Preparing for migration to Isar');
-    _migrateNormalSwapsToIsar();
-    _migrateReverseSwapsToIsar();
-
     final storage = await ref.watch(storageProvider.future);
     return storage.boltzSwapDbModels.all().sortByCreated();
-  }
-
-  Future<void> _migrateNormalSwapsToIsar() async {
-    try {
-      final storage = await ref.read(storageProvider.future);
-      final prefs = await SharedPreferences.getInstance();
-      final toMigrate = prefs
-          .getKeys()
-          .where((k) => k.startsWith(BoltzStorageKeys.normalSwapPrefsPrefix));
-      final network = await ref.read(liquidProvider).getNetwork();
-      final electrumUrl = network!.electrumUrl!;
-      final boltzUrl = ref.read(boltzEnvConfigProvider).apiUrl;
-
-      if (toMigrate.isNotEmpty) {
-        final count = toMigrate.length;
-        logger.d('[BoltzStorage] Migrating $count normal swaps to Isar');
-      }
-
-      for (String key in toMigrate) {
-        String? json = prefs.getString(key);
-        if (json != null) {
-          final id = key.split('_').last;
-          final existingSwap = await storage.boltzSwapDbModels
-              .where()
-              .boltzIdEqualTo(id)
-              .findFirst();
-          if (existingSwap != null) {
-            logger.d('[BoltzStorage] Swap already migrated: $id');
-            continue;
-          }
-
-          final swap = BoltzSwapData.fromJson(jsonDecode(json));
-          final storageKey = BoltzStorageKeys.getNormalSwapSecureStorageKey(id);
-          final secureDataMap = await ref
-              .read(boltzDataProvider)
-              .fetchAndDecodeSecureData(storageKey);
-
-          if (secureDataMap == null) {
-            logger
-                .d('[BoltzStorage] No secure data, skipping normal swap: $id');
-            continue;
-          }
-
-          logger.d("[BoltzStorage] Migrating normal swap to db: $swap");
-
-          // Save general transaction data
-          final swapDbModel = BoltzSwapDbModel.fromLegacySwap(
-            data: swap,
-            electrumUrl: electrumUrl,
-            boltzUrl: boltzUrl,
-          );
-          final transactionDbModel = TransactionDbModel.fromBoltzSwap(
-            txhash: swap.onchainTxHash ?? '',
-            assetId: ref.read(liquidProvider).lbtcId,
-            swap: swap,
-          );
-
-          await _saveLegacyBoltzSwapResponse(
-            txnDbModel: transactionDbModel,
-            swapDbModel: swapDbModel,
-            redeemScript: swap.response.redeemScript,
-            secureData: swap.secureData,
-          );
-
-          logger.d("[BoltzStorage] Migrated normal swap to db: $id");
-
-          // TODO: Enable once db caching has gone live, we want to keep a backup
-          // prefs.remove(key);
-          // await ref.read(secureStorageProvider).delete(secureStorageKey);
-
-          final items = await storage.boltzSwapDbModels.all().sortByCreated();
-          state = AsyncValue.data(items);
-        }
-      }
-    } catch (e) {
-      logger.e("[BoltzStorage] Submarine swap migration error: $e");
-    }
-  }
-
-  Future<void> _migrateReverseSwapsToIsar() async {
-    final storage = await ref.watch(storageProvider.future);
-    final prefs = await SharedPreferences.getInstance();
-    final toMigrate = prefs
-        .getKeys()
-        .where((k) => k.startsWith(BoltzStorageKeys.reverseSwapPrefsPrefix));
-    final network = await ref.read(liquidProvider).getNetwork();
-    final electrumUrl = network!.electrumUrl!;
-    final boltzUrl = ref.read(boltzEnvConfigProvider).apiUrl;
-
-    if (toMigrate.isNotEmpty) {
-      final count = toMigrate.length;
-      logger.d('[BoltzStorage] Migrating $count reverse swaps to Isar');
-    }
-
-    for (String key in toMigrate) {
-      try {
-        String? json = prefs.getString(key);
-        if (json != null) {
-          final id = key.split('_').last;
-          final existingSwap = await storage.boltzSwapDbModels
-              .where()
-              .boltzIdEqualTo(id)
-              .findFirst();
-          if (existingSwap != null) {
-            logger.d('[BoltzStorage] Swap already migrated: $id');
-            continue;
-          }
-
-          final swap = BoltzReverseSwapData.fromJson(jsonDecode(json));
-          final storageKey =
-              BoltzStorageKeys.getReverseSwapSecureStorageKey(id);
-          final secureDataMap = await ref
-              .read(boltzDataProvider)
-              .fetchAndDecodeSecureData(storageKey);
-
-          if (secureDataMap == null) {
-            logger
-                .d('[BoltzStorage] No secure data, skipping reverse swap: $id');
-            continue;
-          }
-
-          logger.d("[BoltzStorage] Migrating reverse swap to db: $swap");
-
-          // Save general transaction data
-          final swapDbModel = BoltzSwapDbModel.fromLegacyRevSwap(
-            data: swap,
-            electrumUrl: electrumUrl,
-            boltzUrl: boltzUrl,
-          );
-          final transactionDbModel = TransactionDbModel.fromBoltzRevSwap(
-            txhash: swap.onchainTxHash ?? '',
-            assetId: ref.read(liquidProvider).lbtcId,
-            swap: swap,
-          );
-
-          await _saveLegacyBoltzSwapResponse(
-            txnDbModel: transactionDbModel,
-            swapDbModel: swapDbModel,
-            redeemScript: swap.response.redeemScript,
-            secureData: swap.secureData,
-          );
-
-          logger.d("[BoltzStorage] Migrated reverse swap to db: $id");
-
-          // TODO: Enable once db caching has gone live, we want to keep a backup
-          // prefs.remove(key);
-          // await ref.read(secureStorageProvider).delete(secureStorageKey);
-
-          final items = await storage.boltzSwapDbModels.all().sortByCreated();
-          state = AsyncValue.data(items);
-        }
-      } catch (e) {
-        logger.e("[BoltzStorage] Reverse swap migration error: $e");
-      }
-    }
   }
 
   Future<BoltzSwapDbModel?> _getSwapById(String boltzId) async {
@@ -234,7 +76,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
         .findFirst();
 
     if (swap == null) {
-      logger.d('[BoltzStorage] Swap not found for id $boltzId');
+      _logger.debug('Swap not found for id $boltzId');
     }
 
     return swap;
@@ -260,7 +102,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
       final update = await storage.boltzSwapDbModels.all().sortByCreated();
       state = AsyncValue.data(update);
     } catch (e, st) {
-      logger.e('[BoltzStorage] Error saving transaction', e, st);
+      _logger.error('Error saving transaction', e, st);
       rethrow;
     }
   }
@@ -311,45 +153,6 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
     await save(swapDbModel);
   }
 
-  // Utility method to consolidate the saving of legacy boltz swap data
-  Future<void> _saveLegacyBoltzSwapResponse({
-    required TransactionDbModel txnDbModel,
-    required BoltzSwapDbModel swapDbModel,
-    required String redeemScript,
-    required BoltzSwapSecureData secureData,
-  }) async {
-    // Save keys to secure storage
-    final keyPairStorageModel = KeyPairStorageModel(
-      publicKey: '', // don't need to store public key
-      secretKey: secureData.privateKeyHex,
-    );
-    await ref.read(secureStorageProvider).save(
-          key: swapDbModel.privateKeyStorageKey,
-          value: jsonEncode(keyPairStorageModel.toJson()),
-        );
-
-    // Save pre-image to secure storage
-    final preImageStorageModel = PreImageStorageModel(
-      value: secureData.preimageHex ?? '',
-      sha256: '',
-      hash160: '',
-    );
-    await ref.read(secureStorageProvider).save(
-          key: swapDbModel.preImageStorageKey,
-          value: jsonEncode(preImageStorageModel.toJson()),
-        );
-
-    // Save general transaction data
-    if (txnDbModel.txhash.isNotEmpty) {
-      await ref.read(transactionStorageProvider.notifier).save(txnDbModel);
-    }
-
-    // Save boltz swap data
-    await save(swapDbModel);
-
-    // start
-  }
-
   @override
   Future<LbtcLnSwap?> getLbtcLnV2SwapById(String swapId) async {
     final swap = await _getSwapById(swapId);
@@ -375,7 +178,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
 
   @override
   Future<LbtcLnSwap?> getLbtcLnV2SwapByInvoice(String invoice) async {
-    logger.d('[BoltzStorage] Swap for invoice $invoice');
+    logger.debug('[BoltzStorage] Get swap for invoice $invoice');
     final secureStorage = ref.read(secureStorageProvider);
     final storage = await ref.read(storageProvider.future);
     final swap = await storage.boltzSwapDbModels
@@ -384,7 +187,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
         .findFirst();
 
     if (swap == null) {
-      logger.d('[BoltzStorage] Swap not found for invoice $invoice');
+      _logger.debug('Swap not found for invoice $invoice');
       return null;
     }
 
@@ -417,7 +220,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
   }
 
   @override
-  Future<void> updateSubmarineOnchainTxId({
+  Future<void> updateSubmarineOnBroadcast({
     required String boltzId,
     required String txId,
   }) async {
@@ -430,7 +233,10 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
           newTxHash: txId,
         );
 
-    final updated = swap.copyWith(onchainSubmarineTxId: txId);
+    final updated = swap.copyWith(
+        onchainSubmarineTxId: txId,
+        // - this isn't a boltz status, but our own added one. see comment on status for why this is necessary
+        lastKnownStatus: BoltzSwapStatus.submarineBroadcasted);
     await save(updated);
   }
 
@@ -468,15 +274,6 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
         .onchainSubmarineTxIdEqualTo(txId)
         .findFirst();
 
-    if (swap == null) {
-      final legacySwap = await ref
-          .read(boltzDataProvider)
-          .getBoltzNormalSwapDataByOnchainTx(txId);
-      if (legacySwap == null) return null;
-
-      return BoltzSwapDbModel.fromLegacySwap(data: legacySwap);
-    }
-
     return swap;
   }
 
@@ -487,15 +284,6 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
         .filter()
         .claimTxIdEqualTo(txId)
         .findFirst();
-
-    if (swap == null) {
-      final legacySwap = await ref
-          .read(boltzDataProvider)
-          .getBoltzReverseSwapDataByOnchainTx(txId);
-      if (legacySwap == null) return null;
-
-      return BoltzSwapDbModel.fromLegacyRevSwap(data: legacySwap);
-    }
 
     return swap;
   }
@@ -520,13 +308,13 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
     required int outAmount,
     required int fee,
   }) async {
-    logger.d(
+    logger.debug(
         '[Boltz] Updating reverse swap claim for $boltzId with: tx $claimTxId - receive $receiveAddress - amount $outAmount - fee $fee');
 
     // Update Boltz data model
     final swap = await _getSwapById(boltzId);
     if (swap != null) {
-      logger.d(
+      logger.debug(
           '[Boltz] Found existing swap for $boltzId. Current claimTxId: ${swap.claimTxId}');
 
       final updated = swap
@@ -535,12 +323,12 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
 
       try {
         await save(updated);
-        logger.d('[Boltz] Successfully saved updated swap for $boltzId');
+        logger.debug('[Boltz] Successfully saved updated swap for $boltzId');
       } catch (e) {
-        logger.e('[Boltz] Error saving updated swap for $boltzId: $e');
+        logger.error('[Boltz] Error saving updated swap for $boltzId: $e');
       }
     } else {
-      logger.e(
+      logger.error(
           '[Boltz] Error: Swap not found for $boltzId when trying to update claim');
     }
 
@@ -555,9 +343,10 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
             outAmount: outAmount,
             fee: fee,
           );
-      logger.d('[Boltz] Successfully updated transaction data for $boltzId');
+      logger
+          .debug('[Boltz] Successfully updated transaction data for $boltzId');
     } catch (e) {
-      logger.e('[Boltz] Error updating transaction data for $boltzId: $e');
+      logger.error('[Boltz] Error updating transaction data for $boltzId: $e');
     }
   }
 

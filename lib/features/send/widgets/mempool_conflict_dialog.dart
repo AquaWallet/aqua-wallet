@@ -35,7 +35,7 @@ class MempoolConflictDialog {
       buttonTitle: context.loc.cancel,
       onButtonPressed: () {
         countdownTimer.cancel();
-        Navigator.of(context).pop();
+        context.pop();
         onCancel();
       },
       content: StatefulBuilder(
@@ -51,24 +51,24 @@ class MempoolConflictDialog {
                     remainingSeconds),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 30.h),
+              const SizedBox(height: 30.0),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: remainingSeconds == 0
                       ? () {
                           countdownTimer.cancel();
-                          Navigator.of(context).pop();
+                          context.pop();
                           onRetry();
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: remainingSeconds == 0 ? null : Colors.grey,
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
                   ),
                   child: Text(
                     context.loc.tryAgain,
-                    style: TextStyle(fontSize: 16.sp),
+                    style: const TextStyle(fontSize: 16.0),
                   ),
                 ),
               ),

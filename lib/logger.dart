@@ -1,16 +1,82 @@
-import 'package:logger/logger.dart';
+import 'package:flutter/foundation.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
-class AnyModeFilter extends LogFilter {
+enum FeatureFlag {
+  dataTransfer('DataTransfer'),
+  aquaNodeStatus('AquaNodeStatus'),
+  initAppProvider('InitAppProvider'),
+  lifecycle('Lifecycle'),
+  onramp('Onramp'),
+  restore('Restore'),
+  lnurl('LNURL'),
+  boltz('BOLTZ'),
+  boltzStorage('BoltzStorage'),
+  btcDirect('BTCDirect'),
+  statusManager('StatusManager'),
+  swap('Swap'),
+  swapOrderStorage('SwapOrderStorage'),
+  sideswap('Sideswap'),
+  sideshift('Sideshift'),
+  sideshiftOrderStorage('SideshiftOrderStorage'),
+  peg('Peg'),
+  subaccounts('Subaccounts'),
+  env('ENV'),
+  export('Export'),
+  receive('Receive'),
+  send('Send'),
+  transactionStorage('TransactionStorage'),
+  fees('Fees'),
+  isar('Isar'),
+  qr('QR'),
+  electrs('Electrs'),
+  network('Network'),
+  tx('TX'),
+  user('User'),
+  unifiedBalance('UnifiedBalance'),
+  jan3Account('Jan3Account'),
+  debitCard('DebitCard');
+
+  const FeatureFlag(this.value);
+
+  final String value;
+}
+
+// to see logs only for selected feature flags -> add them in the list
+final List<FeatureFlag> enabledLogFlags = [];
+
+/// This filter checks that message contains a feature flag
+class FeatureFilter implements TalkerFilter {
+  const FeatureFilter(this.enabledFeatureFlags);
+
+  final List<FeatureFlag> enabledFeatureFlags;
+
   @override
-  bool shouldLog(LogEvent event) {
-    return true;
+  bool filter(TalkerData item) {
+    final lowercaseMessage = item.message?.toLowerCase();
+
+    if (lowercaseMessage == null) {
+      return false;
+    }
+
+    for (final featureFlag in enabledFeatureFlags) {
+      final featureFlagFormatted = "[${featureFlag.value.toLowerCase()}]";
+
+      if (lowercaseMessage.startsWith(featureFlagFormatted)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 
-CustomLogger logger = CustomLogger();
+String formatFeatureFlag(FeatureFlag? feature) {
+  return feature != null ? "[${feature.value}]" : '';
+}
 
 class CustomLogger {
-  factory CustomLogger() {
+  factory CustomLogger(FeatureFlag? feature) {
+    feature = feature;
     return _customLogger;
   }
 
@@ -19,55 +85,28 @@ class CustomLogger {
   static final CustomLogger _customLogger = CustomLogger._internal();
 
   static const String appName = 'Aqua';
+  FeatureFlag? feature;
 
-  Logger internalLogger = Logger(
-    printer: SimplePrinter(printTime: true),
-    output: ConsoleOutput(),
-  );
+  Talker internalLogger = TalkerFlutter.init(
+      filter: kDebugMode && enabledLogFlags.isNotEmpty
+          ? FeatureFilter(enabledLogFlags)
+          : null);
 
-  void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    internalLogger.t('$appName: $message',
-        error: error, stackTrace: stackTrace);
+  void debug(dynamic message, [Object? exception, StackTrace? stackTrace]) {
+    internalLogger.debug('$appName: ${formatFeatureFlag(feature)} $message');
   }
 
-  void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    internalLogger.d('$appName: $message',
-        error: error, stackTrace: stackTrace);
+  void info(dynamic message, [Object? exception, StackTrace? stackTrace]) {
+    internalLogger.info('$appName: ${formatFeatureFlag(feature)} $message');
   }
 
-  void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    internalLogger.i('$appName: $message',
-        error: error, stackTrace: stackTrace);
+  void warning(dynamic message, [Object? exception, StackTrace? stackTrace]) {
+    internalLogger.warning('$appName: ${formatFeatureFlag(feature)} $message');
   }
 
-  void w(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    internalLogger.w('$appName: $message',
-        error: error, stackTrace: stackTrace);
-  }
-
-  void e(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    internalLogger.e('$appName: $message',
-        error: error, stackTrace: stackTrace);
-  }
-
-  void fatal(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    internalLogger.f('$appName: $message',
-        error: error, stackTrace: stackTrace);
+  void error(dynamic message, [Object? exception, StackTrace? stackTrace]) {
+    internalLogger.error('$appName: ${formatFeatureFlag(feature)} $message');
   }
 }
 
-class ConsoleOutput extends LogOutput {
-  void printWrapped(Object object) {
-    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
-    pattern.allMatches('$object').forEach((match) async {
-      final line = '${DateTime.now().millisecondsSinceEpoch} ${match.group(0)}';
-      // ignore: avoid_print
-      print(line);
-    });
-  }
-
-  @override
-  void output(OutputEvent event) {
-    event.lines.forEach(printWrapped);
-  }
-}
+CustomLogger logger = CustomLogger(null);

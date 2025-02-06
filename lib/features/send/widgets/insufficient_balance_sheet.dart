@@ -1,7 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -21,44 +21,44 @@ class InsufficientBalanceSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 28.w),
+      padding: const EdgeInsets.symmetric(horizontal: 28.0),
       child: Column(
         children: [
-          SizedBox(height: 88.h),
+          const SizedBox(height: 88.0),
           //ANCHOR - Illustration
           SvgPicture.asset(
             Svgs.insufficientBalance,
-            width: 92.w,
-            height: 80.h,
+            width: 92.0,
+            height: 80.0,
           ),
-          SizedBox(height: 42.h),
+          const SizedBox(height: 42.0),
           //ANCHOR - Title
           Text(
             type == InsufficientFundsType.fee
                 ? context.loc.insufficientFundsForFeesSheetMessage
                 : context.loc.insufficientFundsSheetMessage,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontSize: 20.sp,
+                  fontSize: 20.0,
                 ),
           ),
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16.0),
           //ANCHOR - Required Fee
           // Text(
           //   context.loc
           //       .insufficientFundsSheetRequiredFee(fee),
           //   style: Theme.of(context).textTheme.labelMedium,
           // ),
-          SizedBox(height: 11.h),
+          const SizedBox(height: 11.0),
           //ANCHOR - Current Balance
           // Text(
           //   context.loc
           //       .insufficientFundsSheetCurrentBalance(balance),
           //   style: Theme.of(context).textTheme.labelMedium,
           // ),
-          SizedBox(height: 11.h),
+          const SizedBox(height: 11.0),
           //ANCHOR - Bitcoin Card
           // GetBitcoinCard(onTap: () {
-          //   Navigator.of(context).popUntil((route) => route.isFirst);
+          //   context.go(AuthWrapper.routeName);
           //   ref.read(homeProvider).selectTab(1);
           // }),
           //ANCHOR - Reques Bitcoin Message

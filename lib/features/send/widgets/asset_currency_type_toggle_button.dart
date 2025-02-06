@@ -13,31 +13,30 @@ class AssetCurrencyTypeToggleButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox.square(
-      dimension: 32.r,
+      dimension: 32,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => onTap(),
+          borderRadius: BorderRadius.circular(100),
           child: Ink(
-            width: 14.r,
-            height: 14.r,
+            width: 14.0,
+            height: 14.0,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(4.r),
               border: Theme.of(context).isLight
                   ? Border.all(
                       color: Theme.of(context).colors.divider,
-                      width: 2.r,
+                      width: 2.0,
                     )
                   : null,
             ),
             child: SvgPicture.asset(Svgs.walletExchange,
                 fit: BoxFit.scaleDown,
-                width: 14.r,
-                height: 14.r,
+                width: 14.0,
+                height: 14.0,
                 colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onBackground,
-                    BlendMode.srcIn)),
+                    Theme.of(context).colors.onBackground, BlendMode.srcIn)),
           ),
         ),
       ),

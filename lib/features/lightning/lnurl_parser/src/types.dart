@@ -1,3 +1,7 @@
+// TODO: Convert all of these models to freezed
+
+import 'package:aqua/features/shared/shared.dart';
+
 class LNURLErrorResponse {
   LNURLErrorResponse.fromJson(Map<String, dynamic> json)
       : status = json['status'],
@@ -71,6 +75,16 @@ class LNURLPayParams {
         minSendable = json['minSendable'] ?? 0,
         maxSendable = json['maxSendable'] ?? 0,
         metadata = json['metadata'];
+
+  @visibleForTesting
+  LNURLPayParams({
+    this.tag,
+    this.callback,
+    this.minSendable = 0,
+    this.maxSendable = 0,
+    this.metadata,
+  });
+
   final String? tag;
   final String? callback;
   final int minSendable; // returned in millisats

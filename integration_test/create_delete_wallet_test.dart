@@ -1,4 +1,5 @@
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
+import 'package:aqua/features/onboarding/keys/onboarding_screen_keys.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -22,13 +23,13 @@ void main() {
     // -----------------------------------------------------------------
     // Welcome screen
     // -----------------------------------------------------------------
-    final createButton = find.byKey(const Key('welcome-create-btn'));
+    final createButton = find.byKey(OnboardingScreenKeys.welcomeCreateButton);
     expect(createButton, findsOneWidget);
 
-    final restoreButton = find.byKey(const Key('welcome-restore-btn'));
+    final restoreButton = find.byKey(OnboardingScreenKeys.welcomeRestoreButton);
     expect(restoreButton, findsOneWidget);
 
-    final tosCheckbox = find.byKey(const Key('welcome-tos-checkbox'));
+    final tosCheckbox = find.byKey(OnboardingScreenKeys.welcomeTosCheckbox);
     expect(tosCheckbox, findsOneWidget);
 
     await tester.tap(createButton);

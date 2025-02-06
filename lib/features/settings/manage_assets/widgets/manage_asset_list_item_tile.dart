@@ -1,8 +1,9 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:aqua/config/config.dart';
 
 class ManageAssetListItemTile extends StatelessWidget {
   const ManageAssetListItemTile({
@@ -21,17 +22,17 @@ class ManageAssetListItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BoxShadowCard(
-      borderRadius: BorderRadius.circular(20.r),
+      borderRadius: BorderRadius.circular(20.0),
       bordered: false,
       child: Material(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(20.0),
         child: InkWell(
           onTap: () {},
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(20.0),
           child: Container(
-            height: 82.h,
-            padding: EdgeInsets.only(left: 17.w, right: 8.w),
+            height: 82.0,
+            padding: const EdgeInsets.only(left: 17.0, right: 8.0),
             child: Row(
               children: [
                 //ANCHOR - Icon
@@ -39,17 +40,17 @@ class ManageAssetListItemTile extends StatelessWidget {
                   SvgPicture.asset(
                     Svgs.layerTwoSingle,
                     fit: BoxFit.fitWidth,
-                    width: 52.r,
-                    height: 52.r,
+                    width: 52.0,
+                    height: 52.0,
                   ),
                 if (!asset.isLBTC)
                   SvgPicture.network(
                     asset.logoUrl,
-                    width: 52.r,
-                    height: 52.r,
+                    width: 52.0,
+                    height: 52.0,
                   ),
 
-                SizedBox(width: 14.w),
+                const SizedBox(width: 14.0),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +62,7 @@ class ManageAssetListItemTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontSize: 18.sp,
+                              fontSize: 18.0,
                               fontWeight: FontWeight.bold,
                             ),
                       ),
@@ -83,40 +84,44 @@ class ManageAssetListItemTile extends StatelessWidget {
                   //ANCHOR - Remove Button
                   if (asset.isRemovable) ...[
                     AquaOutlinedIconButton(
+                      key: ManageAssetsScreenKeys.manageAssetRemoveButton,
                       onPressed: () => onRemove?.call(asset),
-                      size: 40.r,
+                      size: 40.0,
                       child: Icon(
                         Icons.remove,
-                        size: 24.r,
-                        color: Theme.of(context).colorScheme.onBackground,
+                        size: 24.0,
+                        color: Theme.of(context).colors.onBackground,
                       ),
                     ),
-                    SizedBox(width: 4.w),
+                    const SizedBox(width: 4.0),
                   ],
                   //ANCHOR - Drag Button
                   IconButton(
+                    key: ManageAssetsScreenKeys.manageAssetDragButton,
                     onPressed: () {},
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
-                    splashRadius: 20.r,
+                    splashRadius: 20.0,
                     icon: Icon(
                       Icons.menu,
-                      size: 22.r,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      size: 22.0,
+                      color: Theme.of(context).colors.onBackground,
                     ),
                   )
                 ] else ...[
                   //ANCHOR - Add Button
                   AquaOutlinedIconButton(
+                    key: ManageAssetsScreenKeys
+                        .manageAssetAddSpecificAssetButton,
                     onPressed: () => onAdd?.call(asset),
-                    size: 40.r,
+                    size: 40.0,
                     child: Icon(
                       Icons.add,
-                      size: 24.r,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      size: 24.0,
+                      color: Theme.of(context).colors.onBackground,
                     ),
                   ),
-                  SizedBox(width: 12.w),
+                  const SizedBox(width: 12.0),
                 ],
               ],
             ),

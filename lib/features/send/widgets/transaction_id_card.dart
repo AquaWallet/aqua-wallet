@@ -1,8 +1,9 @@
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class TransactionIdCard extends HookConsumerWidget {
   const TransactionIdCard({
@@ -14,85 +15,95 @@ class TransactionIdCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.d('arguments: $arguments');
-    final asset = ref.read(sendAssetProvider);
-    final timestamp = arguments.timestamp;
-    final formattedTime = timestamp != null
-        ? DateTime.fromMicrosecondsSinceEpoch(timestamp).HHmmaUTC()
-        : '-';
-    final formattedDate = timestamp != null
-        ? DateTime.fromMicrosecondsSinceEpoch(timestamp).ddMMMMyyyy()
-        : '-';
+    final asset = useMemoized(() => arguments.asset, [arguments]);
+    final timestamp = useMemoized(() => arguments.createdAt, [arguments]);
+    final formattedTime = useMemoized(
+      () => DateTime.fromMicrosecondsSinceEpoch(timestamp).HHmmaUTC(),
+      [timestamp],
+    );
+    final formattedDate = useMemoized(
+      () => DateTime.fromMicrosecondsSinceEpoch(timestamp).ddMMMMyyyy(),
+      [timestamp],
+    );
+
     return BoxShadowCard(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(12.r),
+      color: context.colors.altScreenSurface,
+      bordered: true,
+      borderColor: context.colors.cardOutlineColor,
+      borderRadius: BorderRadius.circular(12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 6.h),
+          const SizedBox(height: 20),
           //ANCHOR - Transaction ID
-          ExpandableContainer(
-            padding: EdgeInsets.only(left: 26.w, right: 6.w),
-            title: Text(
-              context.loc.sendAssetCompleteScreenIdLabel,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w400,
-                  ),
-            ),
-            child: CopyableTextView(text: arguments.txId ?? ''),
+          _CopyableTransactionId(
+            label: context.loc.transactionID,
+            transactionId: arguments.txId,
           ),
+          const SizedBox(height: 18),
           //ANCHOR - Shift ID
-          if (asset.isSideshift || asset.isLightning) ...{
-            const ExternalServiceIdView(),
+          if (asset.isAltUsdt || asset.isLightning) ...{
+            _CopyableTransactionId(
+              label:
+                  asset.isAltUsdt ? context.loc.shiftID : context.loc.boltzId,
+              transactionId: arguments.txId,
+            ),
+            const SizedBox(height: 18),
           },
           //ANCHOR - Time
           TransactionInfoItem(
-            label: context.loc.sendAssetCompleteScreenTimeLabel,
+            label: context.loc.time,
             value: formattedTime,
-            padding: EdgeInsets.symmetric(horizontal: 26.w),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
           ),
-          SizedBox(height: 18.h),
+          const SizedBox(height: 14),
           //ANCHOR - Date
           TransactionInfoItem(
-            label: context.loc.sendAssetCompleteScreenDateLabel,
+            label: context.loc.date,
             value: formattedDate,
-            padding: EdgeInsets.symmetric(horizontal: 26.w),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
           ),
-          SizedBox(height: 26.h),
+          const SizedBox(height: 22),
         ],
       ),
     );
   }
 }
 
-class ExternalServiceIdView extends HookConsumerWidget {
-  const ExternalServiceIdView({
-    super.key,
+class _CopyableTransactionId extends HookConsumerWidget {
+  const _CopyableTransactionId({
+    required this.label,
+    required this.transactionId,
   });
+
+  final String label;
+  final String transactionId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asset = ref.read(sendAssetProvider);
-
-    return Container(
-      padding: EdgeInsets.only(left: 26.w, right: 6.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            asset.isSideshift
-                ? context.loc.sendAssetCompleteScreenShiftIdLabel
-                : context.loc.sendAssetCompleteScreenBoltzIdLabel,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w400,
-                ),
-          ),
-          SizedBox(height: 4.h),
-          CopyableTextView(
-              text: ref.read(externalServiceTxIdProvider(asset)) ?? ''),
-        ],
+    return ExpandableContainer(
+      padding: const EdgeInsetsDirectional.only(start: 24, end: 20),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          color: context.colors.onBackground,
+          fontFamily: UiFontFamily.helveticaNeue,
+          fontWeight: FontWeight.w700,
+          height: 1.5,
+        ),
+      ),
+      child: CopyableTextView(
+        text: transactionId,
+        iconSize: 14,
+        margin: const EdgeInsetsDirectional.only(top: 2, end: 4),
+        textStyle: TextStyle(
+          color: context.colorScheme.onTertiaryContainer,
+          fontSize: 14,
+          fontFamily: UiFontFamily.helveticaNeue,
+          fontWeight: FontWeight.w700,
+          height: 1.50,
+        ),
       ),
     );
   }

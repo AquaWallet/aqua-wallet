@@ -1,3 +1,5 @@
+import 'package:aqua/gen/fonts.gen.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class TransactionInfoItem extends StatelessWidget {
@@ -21,10 +23,13 @@ class TransactionInfoItem extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w400,
-                ),
+            style: TextStyle(
+              color: context.colors.onBackground,
+              fontSize: 14,
+              fontFamily: UiFontFamily.helveticaNeue,
+              fontWeight: FontWeight.w700,
+              height: 1.50,
+            ),
           ),
           Text(
             value,

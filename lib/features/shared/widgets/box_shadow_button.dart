@@ -64,7 +64,7 @@ class BoxShadowElevatedButton extends HookConsumerWidget {
         disabledBackgroundColor:
             Theme.of(context).colorScheme.onSurface.withOpacity(.5),
         shape: RoundedRectangleBorder(
-          borderRadius: borderRadius ?? BorderRadius.circular(12.r),
+          borderRadius: borderRadius ?? BorderRadius.circular(12.0),
           side: side ?? BorderSide.none,
         ),
         textStyle: Theme.of(context).textTheme.titleSmall,
@@ -74,7 +74,7 @@ class BoxShadowElevatedButton extends HookConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: borderRadius ?? BorderRadius.circular(12.r),
+        borderRadius: borderRadius ?? BorderRadius.circular(12.0),
         boxShadow: [Theme.of(context).shadow],
       ),
       child: icon == null

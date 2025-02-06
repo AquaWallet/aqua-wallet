@@ -17,7 +17,7 @@ class SectionAssetList extends StatelessWidget {
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       itemCount: items.length,
-      separatorBuilder: (_, __) => SizedBox(height: 14.h),
+      separatorBuilder: (_, __) => const SizedBox(height: 14.0),
       itemBuilder: (context, index) => AssetListItem(
         asset: items[index],
       ),

@@ -1,22 +1,22 @@
 import 'dart:async';
 
-import 'package:aqua/logger.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/data/provider/secure_storage_provider.dart';
+import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/gdk.dart';
+import 'package:aqua/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 final aquaConnectionProvider =
-    AsyncNotifierProvider<AquaConnectionProvider, void>(
-        AquaConnectionProvider.new);
+    AsyncNotifierProvider<AquaConnectionNotifier, void>(
+        AquaConnectionNotifier.new);
 
-class AquaConnectionProvider extends AsyncNotifier<void> {
+class AquaConnectionNotifier extends AsyncNotifier<void> {
   @override
   FutureOr<void> build() => null;
 
@@ -52,11 +52,11 @@ class AquaConnectionProvider extends AsyncNotifier<void> {
         await ref.read(bitcoinProvider).createSegwitSubaccount();
       }
 
-      logger.d('[AquaConnectionProvider] Connected');
+      logger.debug('[AquaConnectionProvider] Connected');
 
       state = const AsyncValue.data(null);
     } catch (error) {
-      logger.d('[AquaConnectionProvider] Failed to connect');
+      logger.debug('[AquaConnectionProvider] Failed to connect');
       state = AsyncValue.error(error, StackTrace.current);
     }
   }
@@ -161,7 +161,7 @@ class AquaProvider {
     ref.read(liquidProvider).gdkNetworkEventSubject,
     ref.read(bitcoinProvider).gdkNetworkEventSubject
   ], (e) => e)
-          .doOnData((value) => logger.d('Connection changed to: $value'))
+          .doOnData((value) => logger.debug('Connection changed to: $value'))
           .map<AsyncValue<List<GdkNetworkEventStateEnum?>>>(
               (value) => AsyncValue.data(value))
           .startWith(const AsyncValue.loading())
@@ -177,7 +177,7 @@ class AquaProvider {
     if (isFirstRun) {
       await ref.read(secureStorageProvider).deleteAll();
       prefs.setBool(key, false);
-      logger.d('[Aqua] Clearing secure storage on first run');
+      logger.debug('[Aqua] Clearing secure storage on first run');
     }
   }
 }

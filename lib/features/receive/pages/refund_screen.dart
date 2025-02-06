@@ -36,27 +36,26 @@ Future<void> downloadJson(
       data: jsonString,
     );
 
-    logger.d('File saved at $savedFilePath');
+    logger.debug('File saved at $savedFilePath');
     final result =
         await Share.shareXFiles([XFile(savedFilePath)], text: dialogTitle);
 
     if (result.status == ShareResultStatus.success) {
-      logger.d('Shared filed success');
+      logger.debug('Shared filed success');
     }
   } catch (e) {
-    logger.d('An error occurred while saving the file: $e');
+    logger.debug('An error occurred while saving the file: $e');
   }
 }
 
 class RefundScreen extends HookConsumerWidget {
   static const routeName = '/refundScreen';
 
-  const RefundScreen({super.key});
+  const RefundScreen({super.key, required this.arguments});
+  final RefundArguments arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as RefundArguments;
     final uiState = useState(RefundUIState.timelockNotExpired);
     final processRefundLoadingState = useState<bool>(false);
     final refundTxState = useState<String?>(null);
@@ -82,7 +81,7 @@ class RefundScreen extends HookConsumerWidget {
           }
 
           final timeoutBlockHeight = arguments.swapData.locktime;
-          logger.d(
+          logger.debug(
               "[Boltz] Refund - currentBlockHeight: $currentBlockHeight - timeoutBlockHeight: $timeoutBlockHeight - blocks left: ${timeoutBlockHeight - currentBlockHeight}");
 
           if (currentBlockHeight < timeoutBlockHeight) {
@@ -103,16 +102,16 @@ class RefundScreen extends HookConsumerWidget {
       case RefundUIState.alreadyRefunded:
         content = Container(
           width: double.maxFinite,
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: 60.h),
+              const SizedBox(height: 60.0),
               Text(context.loc.boltzRefundAlreadyProcessedTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                   textAlign: TextAlign.left),
-              SizedBox(height: 40.h),
+              const SizedBox(height: 40.0),
               LabelCopyableTextView(
                 label: context.loc.boltzRefundTx,
                 value: '${arguments.swapData.refundTxId}',
@@ -138,17 +137,18 @@ class RefundScreen extends HookConsumerWidget {
 
             return Container(
               width: double.maxFinite,
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(height: 60.h),
+                  const SizedBox(height: 60.0),
                   Text('${context.loc.boltzRefundWaitingTimeoutTitle}:',
                       style: Theme.of(context).textTheme.titleLarge,
                       textAlign: TextAlign.center),
                   if (unlockDate != null) ...[
-                    SizedBox(height: 40.h),
+                    const SizedBox(height: 40.0),
                     Text(
                       unlockDate.formatFullDateTime,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -156,21 +156,21 @@ class RefundScreen extends HookConsumerWidget {
                           ),
                     ),
                   ],
-                  SizedBox(height: 40.h),
+                  const SizedBox(height: 40.0),
                   Text(
                       '${context.loc.boltzRefundCurrentBlockHeightSubtitle}: $currentBlockHeight',
                       style: Theme.of(context).textTheme.titleMedium),
-                  SizedBox(height: 15.h),
+                  const SizedBox(height: 15.0),
                   Text(
                       '${context.loc.boltzRefundTimeoutSubtitle}: ${arguments.swapData.locktime}',
                       style: Theme.of(context).textTheme.titleMedium),
-                  SizedBox(height: 40.h),
+                  const SizedBox(height: 40.0),
 
                   //ANCHOR - Copy Refund Data
                   Text('${context.loc.boltzManualRefundTitle}:',
                       style: Theme.of(context).textTheme.titleLarge,
                       textAlign: TextAlign.center),
-                  SizedBox(height: 15.h),
+                  const SizedBox(height: 15.0),
 
                   TextButton(
                     style: TextButton.styleFrom(
@@ -192,32 +192,32 @@ class RefundScreen extends HookConsumerWidget {
       case RefundUIState.refundReady:
         content = Container(
           width: double.maxFinite,
-          padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: 60.h),
+              const SizedBox(height: 60.0),
               Text(context.loc.boltzRefundReadyToProcessTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                   textAlign: TextAlign.center),
 
               // Refund Button
-              SizedBox(height: 40.h),
+              const SizedBox(height: 40.0),
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.error,
                   visualDensity: VisualDensity.compact,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                   side: BorderSide(
                     color: Theme.of(context).colorScheme.errorContainer,
-                    width: 2.r,
+                    width: 2.0,
                   ),
                   textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontSize: 18.sp,
+                        fontSize: 18.0,
                       ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -226,12 +226,17 @@ class RefundScreen extends HookConsumerWidget {
                   processRefundLoadingState.value = true;
 
                   try {
+                    final swap = await ref
+                        .read(boltzStorageProvider.notifier)
+                        .getLbtcLnV2SwapById(arguments.swapData.boltzId);
+                    if (swap == null) {
+                      uiState.value = RefundUIState.refundError;
+                      return;
+                    }
+
                     final refundTx = await ref
-                        .read(legacyBoltzProvider)
-                        .performClaimOrRefundIfNeeded(
-                            arguments.swapData.boltzId,
-                            null,
-                            arguments.swapStatus);
+                        .read(boltzSwapSettlementServiceProvider)
+                        .refund(swap);
 
                     if (refundTx != null) {
                       refundTxState.value = refundTx;
@@ -240,12 +245,12 @@ class RefundScreen extends HookConsumerWidget {
                     }
                   } catch (e) {
                     uiState.value = RefundUIState.refundError;
-                    logger.d("[Boltz] Error processing refund: $e");
+                    logger.debug("[Boltz] Error processing refund: $e");
                   }
                 },
                 child: Text(context.loc.boltzProcessRefund),
               ),
-              SizedBox(height: 40.h),
+              const SizedBox(height: 40.0),
 
               // Refund Success - Show tx
               if (refundTxState.value != null) ...[
@@ -256,7 +261,7 @@ class RefundScreen extends HookConsumerWidget {
               ],
 
               if (processRefundLoadingState.value) ...[
-                SizedBox(height: 40.h),
+                const SizedBox(height: 40.0),
                 CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation(
                     Theme.of(context).colorScheme.secondaryContainer,
@@ -284,37 +289,37 @@ class RefundScreen extends HookConsumerWidget {
 
             return Container(
               width: double.maxFinite,
-              padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(height: 40.h),
+                  const SizedBox(height: 40.0),
                   Text(context.loc.boltzProcessRefundManualProcess,
                       style: Theme.of(context).textTheme.titleMedium,
                       textAlign: TextAlign.center),
 
                   // Step 1: Download Refund Json
-                  SizedBox(height: 50.h),
+                  const SizedBox(height: 50.0),
                   Text(context.loc.boltzSaveRefundFile,
                       style: Theme.of(context).textTheme.titleMedium),
-                  SizedBox(height: 22.h),
+                  const SizedBox(height: 22.0),
                   OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onBackground,
+                      foregroundColor: Theme.of(context).colors.onBackground,
                       visualDensity: VisualDensity.compact,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.r),
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
                       side: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
-                        width: 1.r,
+                        width: 1.0,
                       ),
                       textStyle:
                           Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontSize: 12.sp,
+                                fontSize: 12.0,
                               ),
                     ),
                     onPressed: () {
@@ -324,14 +329,14 @@ class RefundScreen extends HookConsumerWidget {
                           'boltz_refund_data_${arguments.swapData.boltzId}.json',
                           context.loc.boltzSaveFilePrompt);
                     },
-                    child: Text(context.loc.boltzDownloadRefundInfo),
+                    child: Text(context.loc.save),
                   ),
-                  SizedBox(height: 50.h),
+                  const SizedBox(height: 50.0),
 
                   // Step 2: Copy Refund Address
                   Text(context.loc.boltzCopyRefundAddress,
                       style: Theme.of(context).textTheme.titleMedium),
-                  SizedBox(height: 20.h),
+                  const SizedBox(height: 20.0),
                   FutureBuilder<GdkReceiveAddressDetails?>(
                     future: ref.read(liquidProvider).getReceiveAddress(),
                     builder: (context, snapshot) {
@@ -352,12 +357,12 @@ class RefundScreen extends HookConsumerWidget {
                       }
                     },
                   ),
-                  SizedBox(height: 50.h),
+                  const SizedBox(height: 50.0),
 
                   // Step 3: Boltz Refund Page
                   Text(context.loc.boltzUploadJsonRefund,
                       style: Theme.of(context).textTheme.titleMedium),
-                  SizedBox(height: 20.h),
+                  const SizedBox(height: 20.0),
                   InkWell(
                     onTap: () => launchUrl(Uri.parse(boltzMainnetRefundUrl)),
                     child: Text(
@@ -368,7 +373,7 @@ class RefundScreen extends HookConsumerWidget {
                           ),
                     ),
                   ),
-                  SizedBox(height: 50.h),
+                  const SizedBox(height: 50.0),
                 ],
               ),
             );
@@ -397,7 +402,7 @@ class RefundScreen extends HookConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: false,
       appBar: AquaAppBar(
-        title: context.loc.boltzRefund,
+        title: context.loc.refund,
         showBackButton: true,
         showActionButton: false,
         backgroundColor:

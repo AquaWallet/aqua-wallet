@@ -2,9 +2,10 @@ import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/internal_send/internal_send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:aqua/config/config.dart';
 
 class InternalSendReviewFeeEstimatesCard extends HookConsumerWidget {
   const InternalSendReviewFeeEstimatesCard({
@@ -42,42 +43,42 @@ class InternalSendReviewFeeEstimatesCard extends HookConsumerWidget {
       color: context.colors.addressFieldContainerBackgroundColor,
       bordered: !darkMode,
       borderColor: context.colors.cardOutlineColor,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12.0),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 15.h),
+        padding: const EdgeInsets.symmetric(horizontal: 26.0, vertical: 15.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              context.loc.internalSendReviewFeeEstimate,
+              context.loc.feeEstimate,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colors.onBackground,
                     fontWeight: FontWeight.bold,
-                    fontSize: 11.sp,
-                    // height: 1.5.h,
+                    fontSize: 11.0,
+                    // height: 1.5.0,
                   ),
             ),
-            SizedBox(height: 6.h),
+            const SizedBox(height: 6.0),
             if (sideswapServiceFeePercent != null) ...[
               _FeeBreakdownItem(
                 title: context.loc.internalSendReviewSideswapServiceFee,
                 value: '$sideswapServiceFeePercent%',
               ),
-              SizedBox(height: 14.h),
+              const SizedBox(height: 14.0),
             ],
             _FeeBreakdownItem(
-              title: context.loc.internalSendReviewNetworkFees,
+              title: context.loc.networkFees,
               value: '$feeAmount BTC',
             ),
             if (rate != null) ...[
-              SizedBox(height: 14.h),
+              const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.internalSendReviewCurrentRate,
                 value: rate,
               ),
             ],
-            SizedBox(height: 6.h),
+            const SizedBox(height: 6.0),
           ],
         ),
       ),
@@ -102,18 +103,18 @@ class _FeeBreakdownItem extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colors.onBackground,
                 fontWeight: FontWeight.bold,
-                fontSize: 14.sp,
+                fontSize: 14.0,
                 letterSpacing: .5,
               ),
         ),
         Text(
           value,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colors.onBackground,
                 fontWeight: FontWeight.bold,
-                fontSize: 14.sp,
+                fontSize: 14.0,
                 letterSpacing: .5,
               ),
         ),

@@ -19,19 +19,19 @@ class AddNoteScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AquaAppBar(
-        title: context.loc.addNoteScreenTitle,
+        title: context.loc.addNotes,
         showActionButton: false,
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 28.w),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               //ANCHOR - Input
               Container(
-                margin: EdgeInsets.only(top: 32.h),
-                constraints: BoxConstraints(minHeight: 140.h),
+                margin: const EdgeInsets.only(top: 32.0),
+                constraints: const BoxConstraints(minHeight: 140.0),
                 decoration: Theme.of(context).solidBorderDecoration,
                 child: TextField(
                   minLines: 6,
@@ -41,7 +41,7 @@ class AddNoteScreen extends HookConsumerWidget {
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colors.onBackground,
                       ),
                   decoration: Theme.of(context).inputDecoration.copyWith(
                         border: Theme.of(context).inputBorder,
@@ -64,7 +64,7 @@ class AddNoteScreen extends HookConsumerWidget {
                     : null,
                 child: Container(
                   alignment: Alignment.centerRight,
-                  margin: EdgeInsets.only(top: 16.h),
+                  margin: const EdgeInsets.only(top: 16.0),
                   child: Text(
                     '${controller.text.length}/$maxNoteLength',
                     style: Theme.of(context).textTheme.titleSmall,
@@ -79,12 +79,12 @@ class AddNoteScreen extends HookConsumerWidget {
                         FocusScope.of(context).unfocus();
                         Future.delayed(
                           const Duration(milliseconds: 200),
-                          () => Navigator.of(context).pop(controller.text),
+                          () => context.pop(controller.text),
                         );
                       }
                     : null,
                 child: Text(
-                  context.loc.addNoteScreenSaveButton,
+                  context.loc.save,
                 ),
               ),
             ],

@@ -1,7 +1,7 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/widgets/tight_expand_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ExpandableContainer extends HookConsumerWidget {
@@ -15,7 +15,7 @@ class ExpandableContainer extends HookConsumerWidget {
 
   final Widget title;
   final Widget child;
-  final EdgeInsets? padding;
+  final EdgeInsetsGeometry? padding;
   final Color? color;
 
   @override
@@ -59,11 +59,11 @@ class _Header extends StatelessWidget {
         children: [
           Expanded(child: title),
           TightExpandIcon(
-            size: 20.r,
+            size: 20.0,
             onPressed: null,
             padding: EdgeInsets.zero,
-            disabledColor: Theme.of(context).colorScheme.onBackground,
-            expandedColor: Theme.of(context).colorScheme.onBackground,
+            disabledColor: Theme.of(context).colors.onBackground,
+            expandedColor: Theme.of(context).colors.onBackground,
             isExpanded: isExpanded.value,
           ),
         ],

@@ -18,7 +18,7 @@ class InternalSendAssetIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: size ?? 52.r,
+      dimension: size ?? 52.0,
       child: isLayerTwoIcon
           ? SvgPicture.asset(
               Svgs.layerTwoSingle,

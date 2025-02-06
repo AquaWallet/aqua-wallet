@@ -34,14 +34,14 @@ class AnimatedStatusText extends HookWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // aids in centering, but really impossible to center since width animates
-        const SizedBox(width: 12),
+        const SizedBox(width: 12.0),
         Text(
           statusText,
           style: TextStyle(
             letterSpacing: 0,
             wordSpacing: 0,
             height: 0,
-            fontSize: 30.sp,
+            fontSize: 30.0,
             fontWeight: FontWeight.w500,
             fontFamily: UiFontFamily.dMSans,
             color: context.colorScheme.onPrimary,
@@ -49,7 +49,7 @@ class AnimatedStatusText extends HookWidget {
         ),
         if (showDots)
           SizedBox(
-            width: 30,
+            width: 30.0,
             child: Text(
               '.' * dotCount.value,
               textAlign: TextAlign.left,
@@ -57,7 +57,7 @@ class AnimatedStatusText extends HookWidget {
                 letterSpacing: 0,
                 wordSpacing: 0,
                 height: 0,
-                fontSize: 30.sp,
+                fontSize: 30.0,
                 fontWeight: FontWeight.w500,
                 fontFamily: UiFontFamily.dMSans,
                 color: context.colorScheme.onPrimary,

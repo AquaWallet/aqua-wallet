@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:aqua/config/config.dart';
 
 class CustomTabBar extends StatelessWidget {
   const CustomTabBar({
@@ -50,11 +50,11 @@ class CustomTabBar extends StatelessWidget {
               secondarySelectedColor ?? Theme.of(context).colorScheme.surface,
           disabledColor:
               disabledColor ?? Theme.of(context).colorScheme.primaryContainer,
-          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.h),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
           labelStyle: labelStyle ??
               Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colors.onBackground,
                   ) ??
               const TextStyle(),
           secondaryLabelStyle: secondaryLabelStyle ??
@@ -64,20 +64,20 @@ class CustomTabBar extends StatelessWidget {
                   ) ??
               const TextStyle(),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
       ),
       child: Container(
-        height: 68.h,
+        height: 68.0,
         padding: padding,
         child: Row(
           mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
           children: tabTitles.mapIndexed((index, tab) {
             final left = index == 0
-                ? 0.w
+                ? .0
                 : padding == EdgeInsets.zero
-                    ? 12.w
+                    ? 12.0
                     : .0;
             return Padding(
               padding: EdgeInsets.only(left: left),
@@ -92,7 +92,7 @@ class CustomTabBar extends StatelessWidget {
                       children: [
                         if (tabSubtitles.length > index)
                           Container(
-                            margin: EdgeInsets.only(bottom: 4.h),
+                            margin: const EdgeInsets.only(bottom: 4.0),
                             child: Text(
                               tabSubtitles[index],
                               style: index == selectedIndex

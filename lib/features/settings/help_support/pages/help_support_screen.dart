@@ -23,25 +23,25 @@ class HelpSupportScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //ANCHOR - Description
-            SizedBox(height: 28.h),
+            const SizedBox(height: 28.0),
             Padding(
-                padding: EdgeInsets.only(left: 30.w),
+                padding: const EdgeInsets.only(left: 30.0),
                 child: Text(context.loc.contactUsHelpSupportScreenHeaderText,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 26.sp,
+                          fontSize: 26.0,
                           fontWeight: FontWeight.w500,
                           height: 1.25,
                         ))),
-            SizedBox(height: 57.h),
+            const SizedBox(height: 57.0),
             //ANCHOR - Buttons
             GridView.count(
               crossAxisCount: 2,
-              crossAxisSpacing: 20.w,
-              mainAxisSpacing: 25.h,
+              crossAxisSpacing: 20.0,
+              mainAxisSpacing: 25.0,
               childAspectRatio: 175 / 190,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 28.w),
+              padding: const EdgeInsets.symmetric(horizontal: 28.0),
               children: [
                 HelpSupportWidgetButton(
                   svgPicture: Svgs.zendeskLogo,
@@ -84,11 +84,11 @@ class HelpSupportWidgetButton extends StatelessWidget {
       opacity: onPressed != null ? 1 : 0.5,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12.0),
         child: Ink(
-          padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 14.w),
+          padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 14.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12.0),
             color: Theme.of(context).colorScheme.surface,
           ),
           child: Column(
@@ -97,7 +97,7 @@ class HelpSupportWidgetButton extends StatelessWidget {
               //ANCHOR - Logo
               SvgPicture.asset(
                 svgPicture,
-                height: 65.h,
+                height: 65.0,
                 fit: BoxFit.scaleDown,
                 colorFilter: ColorFilter.mode(
                   enabled
@@ -112,11 +112,11 @@ class HelpSupportWidgetButton extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge
-                    ?.copyWith(fontSize: 20.sp),
+                    ?.copyWith(fontSize: 20.0),
               ),
               //ANCHOR - Subtitle
               Text(
-                !enabled ? context.loc.marketplaceScreenComingSoon : '',
+                !enabled ? context.loc.comingSoon : '',
               ),
             ],
           ),

@@ -1,4 +1,3 @@
-import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/receive/providers/providers.dart';
@@ -55,8 +54,6 @@ class BoltzFeeWidget extends ConsumerWidget {
             .watch(satsToFiatDisplayWithSymbolProvider(totalServiceFeeSats))
             .asData
             ?.value;
-    ;
-    ;
 
     return Text(
         "${context.loc.boltzTotalFees}: ${totalServiceFeeSats.ceil()} sats ($amountFiat)");

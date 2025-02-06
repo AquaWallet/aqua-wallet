@@ -14,7 +14,9 @@ extension CacheForExtension on AutoDisposeRef<Object?> {
     // we cancel the pending timer.
     onDispose(timer.cancel);
   }
+}
 
+extension RefreshAfterExtension on Ref<Object?> {
   /// Refresh provider state after [duration].
   void refreshAfter(Duration duration) {
     // After duration has elapsed, refresh state.

@@ -25,7 +25,7 @@ class _Notifier
     state = await AsyncValue.guard(() async {
       final permissionGranted =
           await Permission.manageExternalStorage.request().isGranted;
-      logger.d('[Export] Permission granted: $permissionGranted');
+      logger.debug('[Export] Permission granted: $permissionGranted');
       if (permissionGranted) {
         final backupPath = await ref.read(dataTransferProvider).export();
         return TransactionDatabaseExportState.exportSuccess(path: backupPath);

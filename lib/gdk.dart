@@ -130,7 +130,7 @@ class LibGdk {
     final newAuthHandler = AuthHandler(id: id, authHandler: authHandler);
     _authHandlers[id] = newAuthHandler;
 
-    logger.d('Handler created: $id');
+    logger.debug('Handler created: $id');
 
     return id;
   }
@@ -146,7 +146,7 @@ class LibGdk {
 
   void cleanAuthHandler(String? id) {
     if (id == null) {
-      logger.w('Auth handler id is empty');
+      logger.warning('Auth handler id is empty');
       return;
     }
 
@@ -154,7 +154,7 @@ class LibGdk {
       _destroyAuthHandler(_authHandlers[id]!.authHandler);
       _authHandlers.remove(id);
 
-      logger.d('Handler deleted: $id');
+      logger.debug('Handler deleted: $id');
     }
   }
 
@@ -227,20 +227,20 @@ class LibGdk {
 
     final json = toJson(config.toJsonString());
     if (json.isError) {
-      logger.e(json.asError!.error);
-      logger.e(json.asError!.stackTrace);
+      logger.error(json.asError!.error);
+      logger.error(json.asError!.stackTrace);
       throw json.asError!.error;
     }
 
     final result = bindings.lib.GA_init(json.asValue!.value);
     final checkResult = _checkResult(result: result);
     if (checkResult.isError) {
-      logger.e(checkResult.asError!.error);
-      logger.e(checkResult.asError!.stackTrace);
+      logger.error(checkResult.asError!.error);
+      logger.error(checkResult.asError!.stackTrace);
       throw checkResult.asError!.error;
     }
 
-    logger.d('Gdk initialized');
+    logger.debug('Gdk initialized');
     return;
   }
 
@@ -262,6 +262,62 @@ class LibGdk {
     return Result.value(false);
   }
 
+  Future<Result<GdkAuthHandlerStatus>> encryptWithPin(
+      {required Pointer<GA_session> session,
+      required GdkEncryptWithPinParams params}) async {
+    final json = toJson(params.toJsonString());
+    if (json.isError) {
+      return Result.error(json.asError!.error, json.asError!.stackTrace);
+    }
+
+    final authHandler = arena<Pointer<GA_auth_handler>>();
+    var result = bindings.lib.GA_encrypt_with_pin(
+      session,
+      json.asValue!.value,
+      authHandler,
+    );
+
+    if (result != 0) {
+      _destroyAuthHandler(authHandler.value);
+    }
+
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return Result.error(
+          checkResult.asError!.error, checkResult.asError!.stackTrace);
+    }
+
+    return _createAuthHandler(authHandler.value);
+  }
+
+  Future<Result<GdkAuthHandlerStatus>> decryptWithPin(
+      {required Pointer<GA_session> session,
+      required GdkDecryptWithPinParams params}) async {
+    final json = toJson(params.toJsonString());
+    if (json.isError) {
+      return Result.error(json.asError!.error, json.asError!.stackTrace);
+    }
+
+    final authHandler = arena<Pointer<GA_auth_handler>>();
+    var result = bindings.lib.GA_decrypt_with_pin(
+      session,
+      json.asValue!.value,
+      authHandler,
+    );
+
+    if (result != 0) {
+      _destroyAuthHandler(authHandler.value);
+    }
+
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return Result.error(
+          checkResult.asError!.error, checkResult.asError!.stackTrace);
+    }
+
+    return _createAuthHandler(authHandler.value);
+  }
+
   Result<Pointer<GA_session>> createSession() {
     final pointer = arena<Pointer<GA_session>>();
     var result = bindings.lib.GA_create_session(pointer);
@@ -277,8 +333,8 @@ class LibGdk {
     final result = bindings.lib.GA_destroy_session(session);
     final checkResult = _checkResult(result: result);
     if (checkResult.isError) {
-      logger.e(checkResult.asError!.error);
-      logger.e(checkResult.asError!.stackTrace);
+      logger.error(checkResult.asError!.error);
+      logger.error(checkResult.asError!.stackTrace);
     }
   }
 
@@ -294,7 +350,7 @@ class LibGdk {
       return checkResult;
     }
 
-    logger.d(connectionParams.toJsonString());
+    logger.debug(connectionParams.toJsonString());
     final pointerJson = toJson(connectionParams.toJsonString());
 
     if (pointerJson.isError) {
@@ -311,12 +367,35 @@ class LibGdk {
     return Result.value(true);
   }
 
+  Future<Result<bool>> reconnectHint({
+    required Pointer<GA_session> session,
+    required GdkReconnectParams reconnectParams,
+    required Pointer<Void> context,
+  }) async {
+    logger.debug(reconnectParams.toJsonString());
+    final pointerJson = toJson(reconnectParams.toJsonString());
+
+    if (pointerJson.isError) {
+      return Result.error(
+          pointerJson.asError!.error, pointerJson.asError!.stackTrace);
+    }
+
+    final result =
+        bindings.lib.GA_reconnect_hint(session, pointerJson.asValue!.value);
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return checkResult;
+    }
+
+    return Result.value(true);
+  }
+
   void _destroyAuthHandler(Pointer<GA_auth_handler> authHandler) {
     final result = bindings.lib.GA_destroy_auth_handler(authHandler);
     final checkResult = _checkResult(result: result);
     if (checkResult.isError) {
-      logger.e(checkResult.asError!.error);
-      logger.e(checkResult.asError!.stackTrace);
+      logger.error(checkResult.asError!.error);
+      logger.error(checkResult.asError!.stackTrace);
     }
   }
 
@@ -324,8 +403,8 @@ class LibGdk {
     final result = bindings.lib.GA_destroy_json(json);
     final checkResult = _checkResult(result: result);
     if (checkResult.isError) {
-      logger.e(checkResult.asError!.error);
-      logger.e(checkResult.asError!.stackTrace);
+      logger.error(checkResult.asError!.error);
+      logger.error(checkResult.asError!.stackTrace);
     }
   }
 
@@ -347,7 +426,7 @@ class LibGdk {
 
     final output = arena<Pointer<GA_json>>();
     var result = bindings.lib.GA_auth_handler_get_status(authHandler, output);
-    logger.d('auth_handler_get_status result: $result');
+    logger.debug('auth_handler_get_status result: $result');
     if (result != 0) {
       cleanAuthHandler(id);
     }
@@ -363,7 +442,7 @@ class LibGdk {
     }
     _destroyJson(output.value);
 
-    logger.d('auth handler status: ${jsonStr.asValue!.value}');
+    logger.debug('auth handler status: ${jsonStr.asValue!.value}');
 
     var status = GdkAuthHandlerStatus.fromJson(
         jsonDecode(jsonStr.asValue!.value) as Map<String, dynamic>);
@@ -389,9 +468,9 @@ class LibGdk {
 
     var result = bindings.lib.GA_auth_handler_call(authHandler);
     if (result < 0) {
-      logger.e('auth_handler_call result: $result');
+      logger.error('auth_handler_call result: $result');
     } else {
-      logger.d('auth_handler_call result: $result');
+      logger.debug('auth_handler_call result: $result');
     }
 
     if (result != 0) {
@@ -406,7 +485,7 @@ class LibGdk {
 
     final output = arena<Pointer<GA_json>>();
     result = bindings.lib.GA_auth_handler_get_status(authHandler, output);
-    logger.d('auth_handler_get_status result: $result');
+    logger.debug('auth_handler_get_status result: $result');
     if (result != 0) {
       cleanAuthHandler(id);
     }
@@ -422,7 +501,7 @@ class LibGdk {
       return Result.error(jsonStr.asError!.error, jsonStr.asError!.stackTrace);
     }
 
-    logger.d('output: ${jsonStr.asValue!.value}');
+    logger.debug('output: ${jsonStr.asValue!.value}');
 
     final status = GdkAuthHandlerStatus.fromJson(
         jsonDecode(jsonStr.asValue!.value) as Map<String, dynamic>);
@@ -481,7 +560,7 @@ class LibGdk {
       return Result.error(json.asError!.error, json.asError!.stackTrace);
     }
 
-    logger.d('Register credentials: ${credentials.toJsonString()}');
+    logger.debug('Register credentials: ${credentials.toJsonString()}');
     final credentialsJson = toJson(credentials.toJsonString());
     if (credentialsJson.isError) {
       return Result.error(
@@ -523,7 +602,7 @@ class LibGdk {
   ///   GdkBackendResultEnum.createSubaccount,
   /// );
   ///
-  /// logger.d(gdkBackendResult);
+  /// logger.debug(gdkBackendResult);
   ///
   /// send<GdkBackendResult>(GdkEvent.backendResult, gdkBackendResult);
   /// ```
@@ -532,7 +611,7 @@ class LibGdk {
     required Pointer<GA_session> session,
     required GdkSubaccount details,
   }) async {
-    logger.d(details.toJsonString());
+    logger.debug(details.toJsonString());
 
     final json = toJson(details.toJsonString());
     if (json.isError) {
@@ -559,11 +638,42 @@ class LibGdk {
     return _createAuthHandler(authHandler.value);
   }
 
+  Future<Result<GdkAuthHandlerStatus>> updateSubaccount({
+    required Pointer<GA_session> session,
+    required GdkSubaccountUpdate details,
+  }) async {
+    logger.debug(details.toJsonString());
+
+    final json = toJson(details.toJsonString());
+    if (json.isError) {
+      return Result.error(json.asError!.error, json.asError!.stackTrace);
+    }
+
+    final authHandler = arena<Pointer<GA_auth_handler>>();
+    final result = bindings.lib.GA_update_subaccount(
+      session,
+      json.asValue!.value,
+      authHandler,
+    );
+
+    if (result != 0) {
+      _destroyAuthHandler(authHandler.value);
+    }
+
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return Result.error(
+          checkResult.asError!.error, checkResult.asError!.stackTrace);
+    }
+
+    return _createAuthHandler(authHandler.value);
+  }
+
   Future<Result<GdkAuthHandlerStatus>> getTransactions({
     required Pointer<GA_session> session,
     required GdkGetTransactionsDetails details,
   }) async {
-    logger.d(details.toJsonString());
+    logger.debug(details.toJsonString());
 
     final json = toJson(details.toJsonString());
     if (json.isError) {
@@ -883,7 +993,7 @@ class LibGdk {
         addressees: [GdkAddressee(address: address, satoshi: 1000)],
         subaccount: subaccount);
 
-    logger.d(addressee.toJsonString());
+    logger.debug(addressee.toJsonString());
 
     final json = toJson(addressee.toJsonString());
     if (json.isError) {
@@ -940,17 +1050,17 @@ class LibGdk {
     final jsonMap = jsonDecode(jsonStr.asValue!.value) as Map<String, dynamic>;
     // ignore: unnecessary_null_comparison
     if (jsonMap == null) {
-      logger.e("[ASSETS] gdk: Decoded JSON is not a valid map.");
+      logger.error("[ASSETS] gdk: Decoded JSON is not a valid map.");
       return Result.error("Decoded JSON is not a valid map.");
     }
     if (jsonMap.containsKey('error')) {
-      logger.w("[ASSETS] gdk: ${jsonMap['error']}");
+      logger.warning("[ASSETS] gdk: ${jsonMap['error']}");
       //_getThreadErrorDetails(); // this call is re-entrant is return never hits - not sure why - commenting for now - this the only place it's used
       return Result.error(jsonMap['error']);
     }
     if (jsonMap['assets'] is! Map<String, dynamic> ||
         jsonMap['icons'] is! Map<String, dynamic>) {
-      logger.e(
+      logger.error(
           "[ASSETS] gdk: Invalid assets or icons data structure in jsonMap.");
       return Result.error("Invalid assets or icons data structure in jsonMap.");
     }
@@ -1019,7 +1129,7 @@ class LibGdk {
       }).toList();
     });
 
-    logger.d('[GDK] create transaction: ${transaction.toJsonString()}');
+    logger.debug('[GDK] create transaction: ${transaction.toJsonString()}');
     final transactionPayload = transaction.copyWith(
         utxos: isRbfTx || rbfEnabled ? transactionUtxos : utxosWithSequence);
 

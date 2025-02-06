@@ -6,6 +6,8 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/provider_extensions.dart';
 
+final _logger = CustomLogger(FeatureFlag.fees);
+
 enum TransactionPriority {
   high('1'),
   medium('3'),
@@ -19,7 +21,7 @@ enum TransactionPriority {
 
 // fallback hardcoded rates in case blockstream call fails
 const liquidFallbackFeeRates = 0.1;
-const liquidLowballFeeRates = 0.01;
+const liquidFallbackFeeRatesLowball = 0.01;
 
 enum FeeEstimateService { mempool, blockstream }
 
@@ -33,8 +35,12 @@ class FeeEstimateClient {
   }
 
   /// Returns sats/vbyte
-  double getLiquidFeeRate({bool isLowball = true}) {
-    return isLowball ? liquidLowballFeeRates : liquidFallbackFeeRates;
+  double getLiquidFeeRate({bool isLowball = false}) {
+    if (ref.read(envProvider) == Env.testnet) {
+      return isLowball ? liquidFallbackFeeRatesLowball : liquidFallbackFeeRates;
+    }
+
+    return isLowball ? liquidFallbackFeeRatesLowball : liquidFallbackFeeRates;
   }
 
   Future<Map<TransactionPriority, double>> fetchMempoolFeeRates() async {
@@ -64,14 +70,14 @@ final onChainFeeProvider =
   try {
     // fetch from mempool
     final fees = await ref.read(feeEstimateProvider).fetchMempoolFeeRates();
-    logger.d("[Fees] fetched from mempool: $fees");
+    _logger.debug("fetched from mempool: $fees");
     return fees;
   } catch (e) {
     // if mempool fetch fails, fetch from blockstream
-    logger.e('[Fees] mempool request failed:', e);
+    _logger.error('mempool request failed:', e);
     final fees =
         await ref.read(electrsProvider).fetchFeeRates(NetworkType.bitcoin);
-    logger.d("[Fees] fetched from blockstream: $fees");
+    _logger.debug("fetched from blockstream: $fees");
     return fees;
   }
 });

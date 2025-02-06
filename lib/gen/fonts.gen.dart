@@ -13,6 +13,12 @@ class UiFontFamily {
   /// Font family: DMSans
   static const String dMSans = 'DMSans';
 
+  /// Font family: FiraMono
+  static const String firaMono = 'FiraMono';
+
   /// Font family: HelveticaNeue
   static const String helveticaNeue = 'HelveticaNeue';
+
+  /// Font family: Inter
+  static const String inter = 'Inter';
 }

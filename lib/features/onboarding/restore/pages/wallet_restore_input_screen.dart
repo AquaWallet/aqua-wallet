@@ -1,10 +1,10 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
+import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/recovery/providers/seed_qr_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
-import 'package:aqua/screens/qrscanner/qr_scanner_screen.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:aqua/config/config.dart';
 
 class WalletRestoreInputScreen extends HookConsumerWidget {
   static const routeName = '/walletRestoreInput';
@@ -16,16 +16,16 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
     final hasError = useState(false);
 
     final onScan = useCallback(() async {
-      final result = await Navigator.of(context).pushNamed(
+      final result = await context.push(
         QrScannerScreen.routeName,
-        arguments: QrScannerScreenArguments(
+        extra: QrScannerArguments(
           asset: null,
           parseAction: QrScannerParseAction.doNotParse,
           onSuccessAction: QrOnSuccessAction.pull,
         ),
       ) as String?;
 
-      logger.d("[Restore][Input] scanned input: $result");
+      logger.debug("[Restore][Input] scanned input: $result");
 
       ref.read(seedQrProvider.notifier).populateFromQrCode(result ?? '');
     });
@@ -43,7 +43,7 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
           ),
           error: (_, __) {
             hasError.value = true;
-            Navigator.of(context).popUntil((route) => route is! RawDialogRoute);
+            context.popUntilPath(routeName);
           },
           orElse: () {},
         );
@@ -54,14 +54,14 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: true,
-        iconBackgroundColor: Theme.of(context).colorScheme.background,
-        iconForegroundColor: Theme.of(context).colorScheme.onBackground,
+        iconBackgroundColor: Theme.of(context).colors.background,
+        iconForegroundColor: Theme.of(context).colors.onBackground,
         onBackPressed: () {
           ref.read(systemOverlayColorProvider(context)).aqua();
-          Navigator.of(context).pop();
+          context.pop();
         },
         actionButtonAsset: Svgs.qr,
-        actionButtonIconSize: 13.r,
+        actionButtonIconSize: 13.0,
         onActionButtonPressed: onScan,
       ),
       body: SafeArea(

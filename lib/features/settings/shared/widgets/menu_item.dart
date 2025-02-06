@@ -26,56 +26,45 @@ class MenuItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-        color: Theme.of(context).colorScheme.background,
-        borderRadius: BorderRadius.circular(12.r),
+        color: Theme.of(context).colors.background,
+        borderRadius: BorderRadius.circular(12.0),
         child: Opacity(
           opacity: isEnabled ? 1 : 0.5,
           child: InkWell(
             onTap: isEnabled ? onPressed : null,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12.0),
             child: Ink(
-              height: 68.h,
-              padding: EdgeInsets.only(left: 8.w, top: 4, bottom: 4),
+              height: 68.0,
+              padding: const EdgeInsets.only(left: 8.0, top: 4, bottom: 4),
               child: Row(
                 children: [
                   //ANCHOR - Icon
-                  Container(
-                    width: 50.r,
-                    height: 50.r,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colors.iconBackground,
-                      borderRadius: BorderRadius.circular(100.r),
-                    ),
-                    child: assetName.isNotEmpty
-                        ? Container(
-                            width: 36.r,
-                            height: 36.r,
-                            padding: iconPadding ?? EdgeInsets.all(8.r),
-                            child: assetName.contains('flags/') == true
-                                ? Center(
-                                    child: CountryFlag(
-                                      svgAsset: assetName,
-                                    ),
-                                  )
-                                : SvgPicture.asset(
-                                    assetName,
-                                    fit: BoxFit.scaleDown,
-                                    colorFilter: color != null
-                                        ? ColorFilter.mode(
-                                            Theme.of(context)
-                                                .colors
-                                                .iconForeground,
-                                            BlendMode.srcIn,
-                                          )
-                                        : null,
+                  assetName.isNotEmpty
+                      ? Container(
+                          width: 36.0,
+                          height: 36.0,
+                          padding: iconPadding ?? const EdgeInsets.all(8.0),
+                          child: assetName.contains('flags/') == true
+                              ? Center(
+                                  child: CountryFlag(
+                                    svgAsset: assetName,
                                   ),
-                          )
-                        : Container(),
-                  ),
+                                )
+                              : SvgPicture.asset(assetName,
+                                  fit: BoxFit.scaleDown,
+                                  colorFilter: color != null
+                                      ? ColorFilter.mode(
+                                          Theme.of(context).colors.settingsIcon,
+                                          BlendMode.srcIn,
+                                        )
+                                      : null),
+                        )
+                      : Container(),
                   //ANCHOR - Label
                   Expanded(
+                    flex: 4,
                     child: Padding(
-                      padding: EdgeInsets.only(left: 20.w),
+                      padding: const EdgeInsets.only(left: 20),
                       child: Text(
                         title,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -110,14 +99,15 @@ class MenuItemWidget extends StatelessWidget {
       title: title,
       color: color,
       iconPadding: iconPadding,
-      trailing: Padding(
-        padding: EdgeInsets.only(right: 9.w),
-        child: const _ArrowIcon(),
+      trailing: const Padding(
+        padding: EdgeInsets.only(right: 9.0),
+        child: _ArrowIcon(),
       ),
     );
   }
 
   factory MenuItemWidget.labeledArrow({
+    Key? key,
     required BuildContext context,
     String assetName = '',
     Color? color,
@@ -128,29 +118,42 @@ class MenuItemWidget extends StatelessWidget {
     bool isEnabled = true,
   }) {
     return MenuItemWidget(
+      key: key,
       isEnabled: isEnabled,
       onPressed: onPressed,
       assetName: assetName,
       title: title,
       color: color,
       iconPadding: iconPadding,
-      trailing: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 12.w, right: 9.w),
-            child: const _ArrowIcon(),
-          ),
-        ],
+      trailing: Expanded(
+        flex: 5,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text(
+                  label,
+                  textAlign: TextAlign.right,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 12.0, right: 9.0),
+              child: _ArrowIcon(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   factory MenuItemWidget.switchItem({
+    Key? key,
     required BuildContext context,
     String assetName = '',
     required String title,
@@ -161,12 +164,13 @@ class MenuItemWidget extends StatelessWidget {
     bool multicolor = false,
   }) {
     return MenuItemWidget(
+      key: key,
       isEnabled: enabled,
       onPressed: onPressed,
       assetName: assetName,
       title: title,
       iconPadding: iconPadding,
-      color: multicolor ? null : Theme.of(context).colorScheme.onBackground,
+      color: multicolor ? null : Theme.of(context).colors.onBackground,
       trailing: Transform.scale(
         scaleY: .7,
         scaleX: .7,
@@ -189,8 +193,8 @@ class _ArrowIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Icon(
       Icons.arrow_forward_ios_sharp,
-      size: 15.r,
-      color: Theme.of(context).colorScheme.onBackground,
+      size: 15.0,
+      color: Theme.of(context).colors.onBackground,
     );
   }
 }

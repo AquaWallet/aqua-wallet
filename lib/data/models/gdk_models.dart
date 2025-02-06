@@ -50,6 +50,7 @@ class GdkConnectionParams with _$GdkConnectionParams {
     @JsonKey(name: 'spv_enabled') bool? spvEnabled,
     @JsonKey(name: 'cert_expiry_threshold') int? certExpiryThreshold,
     @JsonKey(name: 'min_fee_rate') int? minFeeRate,
+    @JsonKey(name: 'discount_fees') bool? useDiscountedFees,
   }) = _GdkConnectionParams;
 
   factory GdkConnectionParams.fromJson(Map<String, dynamic> json) =>
@@ -62,7 +63,25 @@ class GdkConnectionParams with _$GdkConnectionParams {
 }
 
 @freezed
+class GdkReconnectParams with _$GdkReconnectParams {
+  const GdkReconnectParams._();
+  const factory GdkReconnectParams({
+    String? hint,
+    @JsonKey(name: 'tor_hint') String? torHint,
+  }) = _GdkReconnectParams;
+
+  factory GdkReconnectParams.fromJson(Map<String, dynamic> json) =>
+      _$GdkReconnectParamsFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
+}
+
+@freezed
 class GdkPinData with _$GdkPinData {
+  const GdkPinData._();
   const factory GdkPinData({
     @JsonKey(name: 'encrypted_data') String? encryptedData,
     @JsonKey(name: 'pin_identifier') String? pinIdentifier,
@@ -71,6 +90,47 @@ class GdkPinData with _$GdkPinData {
 
   factory GdkPinData.fromJson(Map<String, dynamic> json) =>
       _$GdkPinDataFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
+}
+
+@freezed
+class GdkEncryptWithPinParams with _$GdkEncryptWithPinParams {
+  const GdkEncryptWithPinParams._();
+  const factory GdkEncryptWithPinParams({
+    @JsonKey(name: 'pin') required String pin,
+    @JsonKey(name: 'plaintext') required Object plaintext,
+    String? salt,
+  }) = _GdkEncryptWithPinParams;
+
+  factory GdkEncryptWithPinParams.fromJson(Map<String, dynamic> json) =>
+      _$GdkEncryptWithPinParamsFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
+}
+
+@freezed
+class GdkDecryptWithPinParams with _$GdkDecryptWithPinParams {
+  const GdkDecryptWithPinParams._();
+  const factory GdkDecryptWithPinParams({
+    @JsonKey(name: 'pin') required String pin,
+    @JsonKey(name: 'pin_data') required GdkPinData pinData,
+    String? salt,
+  }) = _GdkDecryptWithPinParams;
+
+  factory GdkDecryptWithPinParams.fromJson(Map<String, dynamic> json) =>
+      _$GdkDecryptWithPinParamsFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
 }
 
 @freezed
@@ -151,7 +211,7 @@ enum GdkSubaccountTypeEnum {
 }
 
 extension GdkSubaccountTypeEnumExtension on GdkSubaccountTypeEnum {
-  String get displayName {
+  String get typeName {
     switch (this) {
       case GdkSubaccountTypeEnum.type_2of2:
         return '2-of-2 Multisig';
@@ -204,6 +264,25 @@ class GdkSubaccount with _$GdkSubaccount {
 
   factory GdkSubaccount.fromJson(Map<String, dynamic> json) =>
       _$GdkSubaccountFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
+}
+
+@freezed
+class GdkSubaccountUpdate with _$GdkSubaccountUpdate {
+  const GdkSubaccountUpdate._();
+
+  const factory GdkSubaccountUpdate({
+    required int subaccount,
+    String? name,
+    bool? hidden,
+  }) = _GdkSubaccountUpdate;
+
+  factory GdkSubaccountUpdate.fromJson(Map<String, dynamic> json) =>
+      _$GdkSubaccountUpdateFromJson(json);
 
   String toJsonString() {
     final json = toJson();
@@ -311,6 +390,8 @@ class GdkAuthHandlerStatusResult with _$GdkAuthHandlerStatusResult {
     @JsonKey(name: 'psbt_sign') GdkNewTransactionReply? signPsbt,
     @JsonKey(name: 'psbt_get_details') GdkNewTransactionReply? getDetailsPsbt,
     @JsonKey(name: 'unspent_outputs') GdkUnspentOutputsReply? unspentOutputs,
+    @JsonKey(name: 'encrypt_with_pin') GdkPinData? pinData,
+    @JsonKey(name: 'decrypt_with_pin') Object? decryptedData,
   }) = _GdkAuthHandlerStatusResult;
 
   factory GdkAuthHandlerStatusResult.fromJson(Map<String, dynamic> json) =>
@@ -402,6 +483,16 @@ class GdkAuthHandlerStatus with _$GdkAuthHandlerStatus {
             case 'get_unspent_outputs':
               json['result'] = <String, dynamic>{
                 'unspent_outputs': json['result']
+              };
+              break;
+            case 'encrypt_with_pin':
+              json['result'] = <String, dynamic>{
+                'encrypt_with_pin': json['result']
+              };
+              break;
+            case 'decrypt_with_pin':
+              json['result'] = <String, dynamic>{
+                'decrypt_with_pin': json['result']
               };
               break;
           }

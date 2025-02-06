@@ -1,6 +1,7 @@
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:aqua/config/config.dart';
 
 class AssetStatusIndicator extends ConsumerWidget {
   const AssetStatusIndicator({super.key});
@@ -22,8 +23,8 @@ class AssetStatusIndicator extends ConsumerWidget {
     if (statusIndicatorEnabled && hasConnectionIssue) {
       return Tooltip(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          borderRadius: BorderRadius.all(Radius.circular(4.r)),
+          color: Theme.of(context).colors.background,
+          borderRadius: const BorderRadius.all(Radius.circular(4.0)),
         ),
         richMessage: WidgetSpan(
           child: Row(
@@ -32,10 +33,10 @@ class AssetStatusIndicator extends ConsumerWidget {
             children: [
               Icon(
                 Icons.circle,
-                size: 8.r,
+                size: 8.0,
                 color: Theme.of(context).colorScheme.error,
               ),
-              SizedBox(width: 12.w),
+              const SizedBox(width: 12.0),
               if (hasConnectionIssue) ...{
                 Text(context.loc.connectionStatusOfflineMessage)
               } else if (status.lastBitcoinBlock != null) ...{
@@ -52,10 +53,10 @@ class AssetStatusIndicator extends ConsumerWidget {
         ),
         triggerMode: TooltipTriggerMode.tap,
         child: Container(
-          padding: EdgeInsets.all(4.r),
+          padding: const EdgeInsets.all(4.0),
           child: Icon(
             Icons.cloud_off_rounded,
-            size: 24.r,
+            size: 24.0,
             color: Theme.of(context).colorScheme.error,
           ),
         ),

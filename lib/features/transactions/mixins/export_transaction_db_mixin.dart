@@ -5,6 +5,8 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 
+final _logger = CustomLogger(FeatureFlag.export);
+
 mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
   void listenToExportTransactionHistoryEvents(
     BuildContext context,
@@ -17,7 +19,7 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
         data: (data) => data.whenOrNull(
           confirmationRequired: () => showGenericAlertSheet(
             context: context,
-            height: 440.h,
+            height: 440.0,
             isDismissible: false,
             svgPath: Svgs.backupWallet,
             title: context.loc.exportTxnHistorySheetTitle,
@@ -36,13 +38,12 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
           ),
           permissionRequired: () => showGenericAlertSheet(
             context: context,
-            height: 380.h,
+            height: 380.0,
             isDismissible: false,
             svgPath: Svgs.backupWallet,
             title: context.loc.exportTxnHistorySheetTitle,
             message: context.loc.exportPermissionRequired,
-            confirmButtonLabel:
-                context.loc.exportTxnHistoryPermissionDeniedSheetConfirmButton,
+            confirmButtonLabel: context.loc.requestPermission,
             cancelButtonLabel:
                 context.loc.exportTxnHistoryPermissionDeniedSheetCancelButton,
             onConfirm: ref
@@ -51,13 +52,12 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
           ),
           permissionNotGranted: () => showGenericAlertSheet(
             context: context,
-            height: 380.h,
+            height: 380.0,
             isDismissible: false,
             svgPath: Svgs.backupWallet,
-            title: context.loc.exportTxnHistoryPermissionDeniedSheetTitle,
+            title: context.loc.permissionDenied,
             message: context.loc.exportTxnHistoryPermissionDeniedSheetMessage,
-            confirmButtonLabel:
-                context.loc.exportTxnHistoryPermissionDeniedSheetConfirmButton,
+            confirmButtonLabel: context.loc.requestPermission,
             cancelButtonLabel:
                 context.loc.exportTxnHistoryPermissionDeniedSheetCancelButton,
             onConfirm: ref
@@ -66,14 +66,13 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
           ),
           exportSuccess: (path) => showGenericAlertSheet(
             context: context,
-            height: 320.h,
+            height: 320.0,
             isDismissible: false,
             showCancelButton: false,
             svgPath: Svgs.backupWallet,
             title: context.loc.exportTxnHistorySuccessSheetTitle,
             message: context.loc.exportTxnHistorySuccessSheetMessage,
-            confirmButtonLabel:
-                context.loc.exportTxnHistorySuccessSheetConfirmButton,
+            confirmButtonLabel: context.loc.continueLabel,
             onConfirm: () {
               if (removeWallet) {
                 ref
@@ -84,15 +83,15 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
           ),
         ),
         error: (error, stackTrace) {
-          logger.e('[Export] Error restoring txn backup', error, stackTrace);
+          _logger.error('Error restoring txn backup', error, stackTrace);
           showGenericAlertSheet(
             context: context,
-            height: 320.h,
+            height: 320.0,
             isDismissible: false,
             showCancelButton: false,
             svgPath: Svgs.failure,
             title: context.loc.exportTxnHistoryErrorSheetTitle,
-            message: error is ErrorLocalized
+            message: error is ExceptionLocalized
                 ? error.toLocalizedString(context)
                 : context.loc.exportTxnHistoryErrorSheetMessage,
             confirmButtonLabel: context.loc.okay,

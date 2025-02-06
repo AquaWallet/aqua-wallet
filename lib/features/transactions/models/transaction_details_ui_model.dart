@@ -66,6 +66,9 @@ class AssetTransactionDetailsUiModel with _$AssetTransactionDetailsUiModel {
 
 extension AssetTransactionDetailsUiModelX on AssetTransactionDetailsUiModel {
   String type(BuildContext context) {
+    if (dbTransaction?.isTopUp == true) {
+      return context.loc.topUp;
+    }
     if (dbTransaction?.isPegIn == true) {
       return context.loc.assetTransactionsTypePegIn;
     }
@@ -79,11 +82,35 @@ extension AssetTransactionDetailsUiModelX on AssetTransactionDetailsUiModel {
       return context.loc.assetTransactionsTypeBoltzReverseSwap;
     }
     return map(
-      swap: (_) => context.loc.assetTransactionsTypeSwap,
+      swap: (_) => context.loc.swap,
       redeposit: (_) => context.loc.assetTransactionsTypeRedeposit,
       send: (_) => context.loc.assetTransactionsTypeSent,
-      receive: (_) => context.loc.assetTransactionsTypeReceived,
+      receive: (_) => context.loc.received,
     );
+  }
+
+  String get formattedConfirmations {
+    final btcTicker = Asset.btc().ticker;
+    final isBitcoin = map(
+      swap: (swap) => swap.deliverAssetTicker == btcTicker,
+      redeposit: (redeposit) => redeposit.deliverAssetTicker == btcTicker,
+      send: (send) => send.deliverAssetTicker == btcTicker,
+      receive: (receive) => receive.receivedAssetTicker == btcTicker,
+    );
+
+    final maxConfirmations = isBitcoin ? 6 : 2;
+    final confirmations = map(
+      swap: (swap) => swap.confirmationCount,
+      redeposit: (redeposit) => redeposit.confirmationCount,
+      send: (send) => send.confirmationCount,
+      receive: (receive) => receive.confirmationCount,
+    );
+
+    if (confirmations > maxConfirmations) {
+      return '$maxConfirmations+';
+    } else {
+      return confirmations.toString();
+    }
   }
 
   bool get isDeliverLiquid {

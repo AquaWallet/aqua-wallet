@@ -51,62 +51,77 @@ class SettingsSelectionList extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = useTextEditingController();
     final query = useState('');
     final listItems = useMemoized(
       () => items
           .where((item) =>
-              item.name.toLowerCase().contains(query.value.toLowerCase()))
+              item.name.toLowerCase().startsWith(query.value.toLowerCase()))
           .toList(),
       [query.value, items],
     );
+    final clearSearchInput = useCallback(() {
+      controller.clear();
+      query.value = '';
+    });
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 28.w),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //ANCHOR - Label
           if (label != null) SettingsListSelectionHeader(title: label ?? ''),
-          SizedBox(height: 22.h),
+          const SizedBox(height: 22),
           //ANCHOR - Content
           BoxShadowContainer(
             padding: EdgeInsets.zero,
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12),
             child: Column(children: [
               //ANCHOR - Search bar
               if (showSearch) ...{
                 TextField(
+                  controller: controller,
                   onChanged: (value) => query.value = value,
                   decoration: InputDecoration(
                     hintText: context.loc.regionSettingsScreenSearchHint,
                     hintStyle: TextStyle(
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colors.onBackground,
                     ),
                     prefixIcon: Container(
-                      margin: EdgeInsets.only(left: 18.w, right: 12.w),
+                      margin: const EdgeInsets.only(left: 18, right: 12),
                       child: SvgPicture.asset(
                         Svgs.search,
-                        width: 16.r,
-                        height: 16.r,
+                        width: 16,
+                        height: 16,
                         colorFilter: ColorFilter.mode(
-                            Theme.of(context).colorScheme.onBackground,
+                            Theme.of(context).colors.onBackground,
                             BlendMode.srcIn),
                       ),
                     ),
+                    suffixIcon: Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 15, 20, 15),
+                        child: controller.text.isNotEmpty
+                            ? ClearInputButton(onTap: clearSearchInput)
+                            : null),
                     border: InputBorder.none,
                   ),
                 ),
               },
               //ANCHOR - List items
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: listItems.length,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) =>
-                    itemBuilder.call(context, listItems[index]),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    12), // Match container's border radius
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: listItems.length,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) =>
+                      itemBuilder.call(context, listItems[index]),
+                ),
               ),
             ]),
           ),
@@ -136,14 +151,14 @@ class SettingsListSelectionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = Radius.circular(12.r);
+    const radius = Radius.circular(12);
     final tapRadius = switch (position) {
       SettingsListItemPosition.top =>
-        BorderRadius.only(topLeft: radius, topRight: radius),
+        const BorderRadius.only(topLeft: radius, topRight: radius),
       SettingsListItemPosition.middle => BorderRadius.zero,
       SettingsListItemPosition.bottom =>
-        BorderRadius.only(bottomLeft: radius, bottomRight: radius),
-      _ => BorderRadius.circular(12.r),
+        const BorderRadius.only(bottomLeft: radius, bottomRight: radius),
+      _ => BorderRadius.circular(12),
     };
 
     return Material(
@@ -153,22 +168,22 @@ class SettingsListSelectionItem extends StatelessWidget {
         onTap: onPressed,
         borderRadius: tapRadius,
         child: Ink(
-          height: 52.h,
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: [
               if (icon != null) ...[
                 icon!,
-                SizedBox(width: 16.w),
+                const SizedBox(width: 16),
               ],
               Expanded(child: content),
               SizedBox.square(
-                dimension: 15.r,
+                dimension: 15,
                 child: Transform.rotate(
                   angle: !collapsed ? -90 * math.pi / 180 : 0,
                   child: Icon(
                     Icons.arrow_forward_ios_sharp,
-                    size: 15.r,
+                    size: 15,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -193,20 +208,20 @@ class SettingsListSelectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return BoxShadowCard(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        height: 52.h,
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           children: [
             Expanded(child: Text(title)),
             SizedBox.square(
-              dimension: 15.r,
+              dimension: 15,
               child: Transform.rotate(
                 angle: -90 * math.pi / 180,
                 child: Icon(
                   Icons.arrow_forward_ios_sharp,
-                  size: 15.r,
+                  size: 15,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),

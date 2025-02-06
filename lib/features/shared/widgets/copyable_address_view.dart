@@ -15,7 +15,7 @@ class CopyableAddressView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Material(
-      borderRadius: BorderRadius.all(Radius.circular(8.r)),
+      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
       color: Theme.of(context).colors.receiveAddressCopySurface,
       child: InkWell(
         onTap: () async {
@@ -23,18 +23,18 @@ class CopyableAddressView extends HookConsumerWidget {
           context.copyToClipboard(address);
         },
         splashColor: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.all(Radius.circular(8.r)),
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         child: Container(
           width: double.maxFinite,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(8.r)),
+            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
             border: Border.all(
               color: Theme.of(context).colors.receiveContentBoxBorder,
             ),
           ),
-          padding: EdgeInsets.symmetric(
-            horizontal: 23.w,
-            vertical: 12.h,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 23.0,
+            vertical: 12.0,
           ),
           child: Row(
             children: [
@@ -42,20 +42,19 @@ class CopyableAddressView extends HookConsumerWidget {
                 child: Text(
                   address,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colors.onBackground,
                         fontWeight: FontWeight.w400,
                         height: 1.38,
                       ),
                 ),
               ),
-              SizedBox(width: 24.w),
+              const SizedBox(width: 24.0),
               SvgPicture.asset(
                 Svgs.copy,
-                width: 12.r,
-                height: 12.r,
+                width: 12.0,
+                height: 12.0,
                 colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onBackground,
-                    BlendMode.srcIn),
+                    Theme.of(context).colors.onBackground, BlendMode.srcIn),
               ),
             ],
           ),

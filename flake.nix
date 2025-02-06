@@ -56,6 +56,8 @@
             qemu_kvm
             gradle
             jdk11
+
+            rustup
           ];
           # emulator related: vulkan-loader and libGL shared libs are necessary for hardware decoding
           LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [vulkan-loader libGL]}";

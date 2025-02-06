@@ -21,4 +21,8 @@ extension ReceiveBoltzStateExt on ReceiveBoltzState {
 
   bool get isLightningView =>
       this is _EnterAmountState || this is _GenInvoiceState;
+
+  String? get invoice => mapOrNull(
+        qrCode: (state) => state.swap?.invoice,
+      );
 }

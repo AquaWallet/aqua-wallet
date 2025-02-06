@@ -2,11 +2,11 @@ import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/internal_send/internal_send.dart';
-import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/foundation.dart';
@@ -15,15 +15,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class InternalSendAmountScreen extends HookConsumerWidget {
-  const InternalSendAmountScreen({super.key});
+  const InternalSendAmountScreen({super.key, required this.arguments});
+  final InternalSendAmountArguments arguments;
 
   static const routeName = '/internalSendAmountScreen';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final arguments = ModalRoute.of(context)?.settings.arguments
-        as InternalSendAmountArguments;
-
     final input = ref.watch(sideswapInputStateProvider);
     final swapAssets = ref.watch(swapAssetsProvider).assets;
     final isDarkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
@@ -32,6 +30,19 @@ class InternalSendAmountScreen extends HookConsumerWidget {
       ref.invalidate(sideswapInputStateProvider);
       context.showErrorSnackbar(message);
     });
+
+    final cryptoAmountInSats = useMemoized(() {
+      try {
+        return ref.read(formatterProvider).parseAssetAmountDirect(
+              amount: input.deliverAssetBalance,
+              precision: arguments.deliverAsset.precision,
+            );
+      } catch (_) {
+        return 0;
+      }
+    }, [input.deliverAssetBalance]);
+    final displayUnit = ref.watch(displayUnitsProvider
+        .select((p) => p.getForcedDisplayUnit(arguments.deliverAsset)));
 
     useEffect(() {
       Future.microtask(() {
@@ -68,9 +79,9 @@ class InternalSendAmountScreen extends HookConsumerWidget {
         (_, state) => state.maybeWhen(
           data: (data) => data.maybeWhen(
             pendingVerification: (data) {
-              Navigator.of(context).pushNamed(
+              context.push(
                 InternalSendReviewScreen.routeName,
-                arguments: InternalSendArguments.swapReview(
+                extra: InternalSendArguments.swapReview(
                   deliverAsset: arguments.deliverAsset,
                   receiveAsset: arguments.receiveAsset,
                   swap: data,
@@ -88,9 +99,9 @@ class InternalSendAmountScreen extends HookConsumerWidget {
         (_, state) => state.maybeWhen(
           data: (data) => data.maybeWhen(
             pendingVerification: (data) {
-              Navigator.of(context).pushNamed(
+              context.push(
                 InternalSendReviewScreen.routeName,
-                arguments: InternalSendArguments.pegReview(
+                extra: InternalSendArguments.pegReview(
                   deliverAsset: arguments.deliverAsset,
                   receiveAsset: arguments.receiveAsset,
                   peg: data,
@@ -105,12 +116,12 @@ class InternalSendAmountScreen extends HookConsumerWidget {
                 context.loc.pegErrorFeeExceedAmount,
               ),
             PegGdkInsufficientFeeBalanceException _ => resetFormWithError(
-                context.loc.pegInsufficientFeeBalanceError,
+                context.loc.insufficientBalanceToCoverFees,
               ),
             PegGdkTransactionException _ => resetFormWithError(
                 context.loc.pegErrorTransaction,
               ),
-            _ => logger.d('[PEG] Error: $error'),
+            _ => logger.debug('[PEG] Error: $error'),
           },
           orElse: () {},
         ),
@@ -118,7 +129,7 @@ class InternalSendAmountScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AquaAppBar(
-        title: context.loc.internalSendScreenTitle,
+        title: context.loc.internalSend,
         showActionButton: false,
         backgroundColor: context.colors.inverseSurfaceColor,
         iconBackgroundColor:
@@ -129,7 +140,7 @@ class InternalSendAmountScreen extends HookConsumerWidget {
       body: Skeletonizer(
         enabled: swapAssets.isEmpty,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 30.h),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 30.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -141,15 +152,15 @@ class InternalSendAmountScreen extends HookConsumerWidget {
                     asset: arguments.deliverAsset,
                     isLayerTwoIcon: arguments.receiveAsset.isBTC,
                   ),
-                  SizedBox(width: 10.w),
+                  const SizedBox(width: 10.0),
                   //ANCHOR - Arrow Icon
                   SizedBox.square(
-                    dimension: 24.r,
+                    dimension: 24.0,
                     child: SvgPicture.asset(isDarkMode
                         ? Svgs.internalSendArrowLight
                         : Svgs.internalSendArrow),
                   ),
-                  SizedBox(width: 10.w),
+                  const SizedBox(width: 10.0),
                   //ANCHOR - Receive Asset Logo
                   InternalSendAssetIcon(
                     asset: arguments.receiveAsset,
@@ -158,21 +169,24 @@ class InternalSendAmountScreen extends HookConsumerWidget {
                 ],
               ),
               const Row(),
-              SizedBox(height: 16.h),
+              const SizedBox(height: 16.0),
               //ANCHOR - Balance
-              Text(
-                '${input.deliverAssetBalance} ${input.deliverAsset?.ticker}',
+              AssetCryptoAmount(
+                forceVisible: true,
+                forceDisplayUnit: displayUnit,
+                asset: arguments.deliverAsset,
+                amount: cryptoAmountInSats.toString(),
                 style: context.textTheme.headlineLarge,
               ),
-              SizedBox(height: 20.h),
+              const SizedBox(height: 20.0),
               if (!arguments.deliverAsset.isUSDt) ...[
                 //ANCHOR - USD Balance
                 const _AssetUsdBalance(),
-                SizedBox(height: 40.h),
+                const SizedBox(height: 40.0),
               ],
               //ANCHOR - Amount Input
               const _AmountInput(),
-              SizedBox(height: 11.h),
+              const SizedBox(height: 11.0),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -185,7 +199,7 @@ class InternalSendAmountScreen extends HookConsumerWidget {
                   if (kDebugMode && input.isPeg) ...[
                     //ANCHOR - Send Minimum Possible Amount Button
                     const SwapSendMinButton(),
-                    SizedBox(width: 8.w),
+                    const SizedBox(width: 8.0),
                   ],
                   //ANCHOR - Send All Button
                   const SwapSendMaxButton(),
@@ -284,7 +298,7 @@ class _CreateSwapButton extends HookConsumerWidget {
         disabledBackgroundColor: context.colorScheme.onSurface.withOpacity(.3),
         disabledForegroundColor: context.colorScheme.onSurface,
       ),
-      child: Text(context.loc.internalSendScreenContinueButton),
+      child: Text(context.loc.continueLabel),
     );
   }
 }
@@ -295,26 +309,22 @@ class _AmountConversionValue extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final input = ref.watch(sideswapInputStateProvider);
-    final amountSatsToFiat = ref
-        .watch(satsToFiatDisplayWithSymbolProvider(input.deliverAmountSatoshi))
-        .asData
-        ?.value;
-    final amountFiatToSats = input.deliverAsset != null
-        ? ref.watch(conversionFiatProvider((
-            input.deliverAsset!,
-            ref.watch(parsedAssetAmountAsDecimalProvider(input.deliverAmount))
-          )))
-        : '';
 
     final convertedDeliverAmount = useMemoized(() {
-      final ticker = input.deliverAsset?.ticker ?? '';
-      final fiatToSats = amountFiatToSats ?? '';
-      final satsToFiat = amountSatsToFiat ?? '';
-      return input.isFiat ? '$ticker $fiatToSats' : satsToFiat;
-    }, [input.deliverAsset, amountFiatToSats, amountSatsToFiat]);
+      return input.isFiat
+          ? input.deliverAmount
+          : ref
+                  .read(satsToFiatDisplayWithSymbolProvider(
+                      input.deliverAmountSatoshi))
+                  .asData
+                  ?.value ??
+              '';
+    }, [input]);
 
-    return Text(
-      "≈ $convertedDeliverAmount",
+    return AssetCryptoAmount(
+      forceVisible: true,
+      amount: convertedDeliverAmount,
+      asset: input.isFiat ? input.deliverAsset : null,
       style: const TextStyle(
         fontWeight: FontWeight.bold,
       ),
@@ -338,14 +348,16 @@ class _AssetUsdBalance extends HookConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.colors.usdPillBackgroundColor,
-        borderRadius: BorderRadius.circular(30.r),
+        borderRadius: BorderRadius.circular(30.0),
       ),
-      padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 3.h, bottom: 2.h),
+      padding:
+          const EdgeInsets.only(left: 20.0, right: 20.0, top: 3.0, bottom: 2.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            balance,
+          AssetCryptoAmount(
+            forceVisible: true,
+            amount: balance,
             style: context.textTheme.titleMedium?.copyWith(
               color: context.colors.usdPillTextColor,
             ),

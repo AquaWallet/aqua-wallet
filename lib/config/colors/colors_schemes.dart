@@ -6,7 +6,15 @@ import 'package:flutter/material.dart';
 //ANCHOR - Theme Colors
 
 abstract class AppColors {
+  Color get background;
+
+  Color get onBackground;
+
   Color get divider;
+
+  Color get horizontalDivider;
+
+  Color get link;
 
   Color get walletHeaderDivider;
 
@@ -24,6 +32,8 @@ abstract class AppColors {
 
   Color get iconForeground;
 
+  Color get settingsIcon;
+
   Color get inputBackground;
 
   Color get addressHistoryItemBackground;
@@ -31,6 +41,8 @@ abstract class AppColors {
   Color get menuBackground;
 
   Color get menuSurface;
+
+  Color get dropdownMenuBackground;
 
   Color get receiveAddressCopySurface;
 
@@ -52,11 +64,15 @@ abstract class AppColors {
 
   Color get sendAssetPriorityUnselectedBorder;
 
+  Color get sendAssetPrioritySelectedBorder;
+
   Color get sendAssetPrioritySelectedText;
 
   Color get swapAssetPickerPopUpItemBackground;
 
   Color get roundedButtonOutlineColor;
+
+  Color get listItemBackground;
 
   Color get listItemRoundedIconBackground;
 
@@ -130,6 +146,8 @@ abstract class AppColors {
 
   Color get addressFieldContainerBackgroundColor;
 
+  Color get textFieldOutlineColor;
+
   Color get usdCenterPillBackgroundColor;
 
   Color get swapConversionRateViewTextColor;
@@ -158,6 +176,26 @@ abstract class AppColors {
 
   Color get swapButtonBackground;
 
+  Color get debitCardBackground;
+
+  Color get debitCardAvailableAmountLabelColor;
+
+  Color get debitCardUsedAmountLabelColor;
+
+  Color get debitCardTransactionTitleColor;
+
+  Color get debitCardTransactionSubtitleColor;
+
+  Color get walletAmountLabel;
+
+  Color get selectedFeeCard;
+
+  Color get unselectedFeeCard;
+
+  Color get debitCardAddBalanceMinMaxAmountLabelColor;
+
+  Color get topUpTransactionAmountSubtitleColor;
+
   ColorScheme get colorScheme;
 }
 
@@ -166,6 +204,12 @@ abstract class AppColors {
 class DarkThemeColors implements AppColors {
   @override
   Color get divider => AquaColors.charcoal;
+
+  @override
+  Color get horizontalDivider => Colors.white;
+
+  @override
+  Color get link => Colors.white;
 
   @override
   Color get walletHeaderDivider => Colors.black;
@@ -192,6 +236,9 @@ class DarkThemeColors implements AppColors {
   Color get iconForeground => Colors.white;
 
   @override
+  Color get settingsIcon => Colors.white;
+
+  @override
   Color get inputBackground => AquaColors.eerieBlack;
 
   @override
@@ -201,7 +248,10 @@ class DarkThemeColors implements AppColors {
   Color get menuBackground => AquaColors.blueGreen;
 
   @override
-  Color get menuSurface => AquaColors.eerieBlack;
+  Color get menuSurface => Colors.black;
+
+  @override
+  Color get dropdownMenuBackground => AquaColors.darkJungleGreen;
 
   @override
   Color get receiveAddressCopySurface => AquaColors.eerieBlack;
@@ -234,6 +284,9 @@ class DarkThemeColors implements AppColors {
   Color get sendAssetPriorityUnselectedBorder => AquaColors.charlestonGreen;
 
   @override
+  Color get sendAssetPrioritySelectedBorder => AquaColors.vividSkyBlue;
+
+  @override
   Color get sendAssetPrioritySelectedText => Colors.white;
 
   @override
@@ -244,6 +297,9 @@ class DarkThemeColors implements AppColors {
 
   @override
   Color get listItemRoundedIconBackground => AquaColors.eerieBlack;
+
+  @override
+  Color get listItemBackground => AquaColors.charcoal;
 
   @override
   Color get tabSelectedBackground => AquaColors.charcoal;
@@ -351,6 +407,9 @@ class DarkThemeColors implements AppColors {
   Color get addressFieldContainerBackgroundColor => AquaColors.charcoal;
 
   @override
+  Color get textFieldOutlineColor => Colors.white;
+
+  @override
   Color get usdCenterPillBackgroundColor => AquaColors.charcoal;
 
   @override
@@ -393,9 +452,45 @@ class DarkThemeColors implements AppColors {
   Color get swapButtonBackground => AquaColors.charcoal;
 
   @override
+  Color get background => Colors.black;
+
+  @override
+  Color get onBackground => Colors.white;
+
+  @override
+  Color get debitCardBackground => AquaColors.jet;
+
+  @override
+  Color get debitCardAvailableAmountLabelColor => AquaColors.dimMarble;
+
+  @override
+  Color get debitCardUsedAmountLabelColor => Colors.white;
+
+  @override
+  Color get debitCardTransactionTitleColor => Colors.white;
+
+  @override
+  Color get debitCardTransactionSubtitleColor => AquaColors.dimMarble;
+
+  @override
+  Color get walletAmountLabel => AquaColors.dimMarble;
+
+  @override
+  Color get selectedFeeCard => AquaColors.aquaLightBlue;
+
+  @override
+  Color get unselectedFeeCard => Colors.transparent;
+
+  @override
+  Color get debitCardAddBalanceMinMaxAmountLabelColor => AquaColors.dimMarble;
+
+  @override
+  Color get topUpTransactionAmountSubtitleColor => AquaColors.gray;
+
+  @override
   ColorScheme get colorScheme => ColorScheme(
         brightness: Brightness.dark,
-        primary: AquaColors.blueGreen,
+        primary: AquaColors.backgroundSkyBlue,
         onPrimary: Colors.white,
         onPrimaryContainer: Colors.white,
         secondary: AquaColors.robinEggBlue,
@@ -404,10 +499,9 @@ class DarkThemeColors implements AppColors {
         onSecondaryContainer: Colors.white,
         tertiary: Colors.indigo.shade200,
         onTertiary: AquaColors.eerieBlack,
-        surface: AquaColors.charlestonGreen,
+        surface: AquaColors.eerieBlack,
         onSurface: AquaColors.cadetGrey,
-        background: Colors.black,
-        onBackground: Colors.white,
+        onTertiaryContainer: Colors.white,
         error: AquaColors.portlandOrange,
         onError: Colors.white,
       );
@@ -418,6 +512,12 @@ class DarkThemeColors implements AppColors {
 class LightThemeColors implements AppColors {
   @override
   Color get divider => AquaColors.brightGray;
+
+  @override
+  Color get horizontalDivider => AquaColors.dustyGrey;
+
+  @override
+  Color get link => AquaColors.aquaBlue;
 
   @override
   Color get walletHeaderDivider => AquaColors.platinum;
@@ -444,6 +544,9 @@ class LightThemeColors implements AppColors {
   Color get iconForeground => Colors.white;
 
   @override
+  Color get settingsIcon => Colors.black;
+
+  @override
   Color get inputBackground => Colors.white;
 
   @override
@@ -454,6 +557,9 @@ class LightThemeColors implements AppColors {
 
   @override
   Color get menuSurface => AquaColors.antiFlashWhite;
+
+  @override
+  Color get dropdownMenuBackground => AquaColors.darkJungleGreen;
 
   @override
   Color get receiveAddressCopySurface => AquaColors.splashGrey;
@@ -486,7 +592,10 @@ class LightThemeColors implements AppColors {
   Color get sendAssetPriorityUnselectedBorder => AquaColors.brightGray;
 
   @override
-  Color get sendAssetPrioritySelectedText => Colors.white;
+  Color get sendAssetPrioritySelectedBorder => AquaColors.vividSkyBlue;
+
+  @override
+  Color get sendAssetPrioritySelectedText => Colors.black;
 
   @override
   Color get swapAssetPickerPopUpItemBackground => AquaColors.cultured;
@@ -496,6 +605,9 @@ class LightThemeColors implements AppColors {
 
   @override
   Color get listItemRoundedIconBackground => AquaColors.brightGray;
+
+  @override
+  Color get listItemBackground => Colors.white;
 
   @override
   Color get tabSelectedBackground => Colors.white;
@@ -603,6 +715,9 @@ class LightThemeColors implements AppColors {
   Color get addressFieldContainerBackgroundColor => Colors.white;
 
   @override
+  Color get textFieldOutlineColor => AquaColors.eerieBlack;
+
+  @override
   Color get usdCenterPillBackgroundColor => AquaColors.periglacialBlue;
 
   @override
@@ -645,9 +760,45 @@ class LightThemeColors implements AppColors {
   Color get swapButtonBackground => Colors.white;
 
   @override
+  Color get background => AquaColors.splashGrey;
+
+  @override
+  Color get onBackground => AquaColors.eerieBlack;
+
+  @override
+  Color get debitCardBackground => Colors.white;
+
+  @override
+  Color get debitCardAvailableAmountLabelColor => AquaColors.dimMarble;
+
+  @override
+  Color get debitCardUsedAmountLabelColor => AquaColors.darkGray;
+
+  @override
+  Color get debitCardTransactionTitleColor => Colors.white;
+
+  @override
+  Color get debitCardTransactionSubtitleColor => AquaColors.dimMarble;
+
+  @override
+  Color get walletAmountLabel => AquaColors.dimMarble;
+
+  @override
+  Color get selectedFeeCard => const Color(0xFFD4F6FE);
+
+  @override
+  Color get unselectedFeeCard => Colors.transparent;
+
+  @override
+  Color get debitCardAddBalanceMinMaxAmountLabelColor => AquaColors.dimMarble;
+
+  @override
+  Color get topUpTransactionAmountSubtitleColor => AquaColors.dimMarble;
+
+  @override
   ColorScheme get colorScheme => const ColorScheme(
         brightness: Brightness.light,
-        primary: AquaColors.blueGreen,
+        primary: AquaColors.backgroundSkyBlue,
         onPrimary: Colors.white,
         secondary: AquaColors.robinEggBlue,
         onSecondary: AquaColors.eerieBlack,
@@ -659,8 +810,7 @@ class LightThemeColors implements AppColors {
         onTertiary: AquaColors.eerieBlack,
         surface: Colors.white,
         onSurface: AquaColors.dimMarble,
-        background: AquaColors.splashGrey,
-        onBackground: AquaColors.eerieBlack,
+        onTertiaryContainer: AquaColors.charcoal,
         error: AquaColors.portlandOrange,
         onError: Colors.white,
       );
@@ -671,6 +821,9 @@ class LightThemeColors implements AppColors {
 class BotevThemeColors extends DarkThemeColors {
   @override
   Color get divider => AquaColors.fcBotevDivider;
+
+  @override
+  Color get horizontalDivider => Colors.black;
 
   @override
   Color get walletHeaderDivider => AquaColors.fcBotevDivider;
@@ -707,6 +860,15 @@ class BotevThemeColors extends DarkThemeColors {
 
   @override
   Color get swapConversionRateViewTextColor => Colors.black;
+
+  @override
+  Color get walletAmountLabel => Colors.black;
+
+  @override
+  Color get selectedFeeCard => AquaColors.aquaLightBlue;
+
+  @override
+  Color get unselectedFeeCard => Colors.transparent;
 
   @override
   ColorScheme get colorScheme => super.colorScheme.copyWith(

@@ -1,4 +1,4 @@
-import 'package:aqua/data/provider/secure_storage_provider.dart';
+import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 

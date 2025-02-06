@@ -31,7 +31,7 @@ class SystemOverlayColor {
 
     _change(
       brightness: Brightness.dark,
-      statusBarColor: theme.colorScheme.background,
+      statusBarColor: theme.colors.background,
     );
   }
 
@@ -40,7 +40,7 @@ class SystemOverlayColor {
 
     _change(
       brightness: Brightness.light,
-      statusBarColor: theme.colorScheme.background,
+      statusBarColor: theme.colors.background,
     );
   }
 
@@ -50,7 +50,7 @@ class SystemOverlayColor {
       statusBarColor: AquaColors.backgroundGradientStartColor.withOpacity(.2),
       navBarColor: aquaColorNav
           ? AquaColors.backgroundGradientEndColor
-          : ref.read(lightThemeProvider(context)).colorScheme.background,
+          : ref.read(lightThemeProvider(context)).colors.background,
     );
   }
 

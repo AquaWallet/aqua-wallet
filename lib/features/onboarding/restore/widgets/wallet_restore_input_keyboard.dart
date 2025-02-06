@@ -26,13 +26,13 @@ class WalletRestoreInputKeyboard extends HookConsumerWidget {
           _KeyboardRow(
             chars: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
                 .toMnemonicKeyboardKeys(capitalized: isCapsLock),
-            horizontalPadding: 12.w,
+            horizontalPadding: 12.0,
             onKeyPressed: onKeyPressed,
           ),
           _KeyboardRow(
             chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l']
                 .toMnemonicKeyboardKeys(capitalized: isCapsLock),
-            horizontalPadding: 32.w,
+            horizontalPadding: 32.0,
             onKeyPressed: onKeyPressed,
           ),
           _KeyboardRow(
@@ -40,7 +40,7 @@ class WalletRestoreInputKeyboard extends HookConsumerWidget {
               capitalized: isCapsLock,
               withSpecialKeys: true,
             ),
-            horizontalPadding: 12.w,
+            horizontalPadding: 12.0,
             onKeyPressed: onKeyPressed,
           ),
         ],
@@ -63,10 +63,12 @@ class _KeyboardRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60.h,
+      height: 60.0,
       alignment: Alignment.center,
       transformAlignment: Alignment.center,
-      margin: !chars.containsSpecialKeys ? EdgeInsets.only(bottom: 6.h) : null,
+      margin: !chars.containsSpecialKeys
+          ? const EdgeInsets.only(bottom: 6.0)
+          : null,
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: ListView.separated(
         shrinkWrap: true,
@@ -74,7 +76,7 @@ class _KeyboardRow extends StatelessWidget {
         itemCount: chars.length,
         scrollDirection: Axis.horizontal,
         physics: const NeverScrollableScrollPhysics(),
-        separatorBuilder: (context, index) => SizedBox(width: 6.w),
+        separatorBuilder: (context, index) => const SizedBox(width: 6.0),
         itemBuilder: (_, index) => _KeyboardKey(
           value: chars[index],
           onTap: onKeyPressed,
@@ -96,38 +98,38 @@ class _KeyboardKey extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: value.isSpecialKey ? 56.w : 35.w,
-      height: 59.h,
+      width: value.isSpecialKey ? 56.0 : 35.0,
+      height: 59.0,
       child: ElevatedButton(
         onPressed: () => onTap(value),
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          padding: EdgeInsets.all(2.r),
+          padding: const EdgeInsets.all(2.0),
           visualDensity: VisualDensity.compact,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colors.background,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6.r),
+            borderRadius: BorderRadius.circular(6.0),
           ),
         ),
         child: value.when(
           letter: (char) => Text(
             char,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize: 26.sp,
+                  fontSize: 26.0,
                 ),
           ),
           backspace: () => SvgPicture.asset(
             Svgs.backspace,
             colorFilter: ColorFilter.mode(
-              Theme.of(context).colorScheme.onBackground,
+              Theme.of(context).colors.onBackground,
               BlendMode.srcIn,
             ),
           ),
           capsLock: () => SvgPicture.asset(
             Svgs.capsLock,
             colorFilter: ColorFilter.mode(
-              Theme.of(context).colorScheme.onBackground,
+              Theme.of(context).colors.onBackground,
               BlendMode.srcIn,
             ),
           ),
