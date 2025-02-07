@@ -56,7 +56,6 @@ class SwapForm extends HookConsumerWidget {
     return Skeletonizer(
       enabled: isLoading,
       child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
         child: BoxShadowContainer(
           decoration: BoxDecoration(
             color: Theme.of(context).colors.inverseSurfaceColor,
@@ -159,10 +158,14 @@ class SwapForm extends HookConsumerWidget {
                   const SwapAssetBalance(isReceive: true),
                 ],
               ),
-              const SizedBox(height: 18.0),
+              SizedBox(
+                  height:
+                      context.adaptiveDouble(mobile: 18.0, smallMobile: 10.0)),
               //ANCHOR - Error Message
               CustomError(errorMessage: validationError?.message),
-              const SizedBox(height: 22.0),
+              SizedBox(
+                  height:
+                      context.adaptiveDouble(mobile: 22.0, smallMobile: 10.0)),
               //ANCHOR - Swap Button
               AquaElevatedButton(
                 onPressed: isContinueEnabled ? onContinueHandler : null,
