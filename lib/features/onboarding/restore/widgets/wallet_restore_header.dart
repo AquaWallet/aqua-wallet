@@ -12,7 +12,10 @@ class WalletRestoreHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 20.0),
+      margin: EdgeInsets.only(top: context.adaptiveDouble(
+              mobile: 20.0,
+              smallMobile: 10.0,
+            )),
       padding: const EdgeInsets.symmetric(horizontal: 28.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -25,7 +28,10 @@ class WalletRestoreHeader extends StatelessWidget {
                   letterSpacing: 1,
                 ),
           ),
-          const SizedBox(height: 16.0),
+          SizedBox(height: context.adaptiveDouble(
+              mobile: 16.0,
+              smallMobile: 8.0,
+            )),
           if (error) ...{
             Text(
               context.loc.restoreInputError,

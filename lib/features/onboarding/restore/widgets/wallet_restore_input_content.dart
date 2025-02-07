@@ -75,7 +75,10 @@ class WalletRestoreInputContent extends HookConsumerWidget {
             child: Text(context.loc.restoreInputButton),
           ),
         ),
-        const SizedBox(height: 24.0),
+        SizedBox(height: context.adaptiveDouble(
+              mobile: 24.0,
+              smallMobile: 12.0,
+            )),
         SizedBox(
           height: 254.0,
           child: Column(

@@ -42,8 +42,8 @@ class CheckoutRequest with _$CheckoutRequest {
     double? quoteCurrencyAmount,
     required String returnUrl,
     String? paymentMethod,
-    @Default(true) bool fixedAmount,
-    @Default(true) bool showWalletAddress,
+    @Default(false) bool fixedAmount,
+    @Default(false) bool showWalletAddress,
   }) = _CheckoutRequest;
 
   factory CheckoutRequest.fromJson(Map<String, dynamic> json) =>

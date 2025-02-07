@@ -1,6 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 class WalletRestoreInputKeyboard extends HookConsumerWidget {
@@ -63,7 +64,7 @@ class _KeyboardRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60.0,
+      height: 60,
       alignment: Alignment.center,
       transformAlignment: Alignment.center,
       margin: !chars.containsSpecialKeys
@@ -98,7 +99,15 @@ class _KeyboardKey extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: value.isSpecialKey ? 56.0 : 35.0,
+      width: value.isSpecialKey
+          ? context.adaptiveDouble(
+              mobile: 52,
+              smallMobile: 42,
+            )
+          : context.adaptiveDouble(
+              mobile: 34,
+              smallMobile: 27,
+            ),
       height: 59.0,
       child: ElevatedButton(
         onPressed: () => onTap(value),
@@ -116,7 +125,10 @@ class _KeyboardKey extends StatelessWidget {
           letter: (char) => Text(
             char,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize: 26.0,
+                  fontSize: context.adaptiveDouble(
+                    mobile: 26,
+                    smallMobile: 21,
+                  ),
                 ),
           ),
           backspace: () => SvgPicture.asset(

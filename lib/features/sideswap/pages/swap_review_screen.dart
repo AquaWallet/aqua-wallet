@@ -22,33 +22,36 @@ class SwapReviewScreen extends HookConsumerWidget {
       if (arg is SwapStartWebResponse &&
           (arg as SwapStartWebResponse).result != null) {
         // TODO: investigate why we need typecasting here, even after the if check
-        return Column(
-          children: [
-            SwapReviewInfoCard(
-              order: (arg as SwapStartWebResponse)
-                  .result!, // TODO: - investigate why we need typecasting here, even after the if check
-              input: input,
-            ),
-            const SizedBox(height: 12.0),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: const TransactionFeeBreakdownCard(
-                args: FeeStructureArguments.sideswap(),
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              SwapReviewInfoCard(
+                order: (arg as SwapStartWebResponse).result!,
+                input: input,
               ),
-            ),
-            const Spacer(),
-            SwapSlider(
-              onConfirm: () =>
-                  ref.read(swapProvider.notifier).executeTransaction(),
-            ),
-            const SizedBox(height: kBottomPadding),
-          ],
+              const SizedBox(height: 12.0),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: const TransactionFeeBreakdownCard(
+                  args: FeeStructureArguments.sideswap(),
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              SwapSlider(
+                onConfirm: () =>
+                    ref.read(swapProvider.notifier).executeTransaction(),
+              ),
+              const SizedBox(height: kBottomPadding),
+            ],
+          ),
         );
       } else if (arg is SwapPegReviewModel) {
-        return PegOrderDetails(
+        return SingleChildScrollView(
+          child: PegOrderDetails(
             data: arg as SwapPegReviewModel,
-            input:
-                input); // TODO: - investigate why we need typecasting here, even after the if check
+            input: input,
+          ),
+        );
       }
     }, [arg]);
 
