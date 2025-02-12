@@ -63,24 +63,29 @@ class Jan3AuthNotifier extends AutoDisposeAsyncNotifier<Jan3AuthState> {
         await _saveToken(tokenResponse.body!);
         // Auto-create a debit card if none exists
         final cards = await ref.read(moonCardsProvider.future);
-        if (cards.isEmpty) {
-          await ref.read(moonCardsProvider.notifier).createDebitCard();
-        }
-        final profile = await _getProfile();
-        return Jan3AuthState.authenticated(profile: profile);
+        final profile = await _getProfile(pendingCardCreation: cards.isEmpty);
+        return Jan3AuthState.authenticated(
+          profile: profile,
+          pendingCardCreation: cards.isEmpty,
+        );
       }
       throw ProfileAuthErrorException();
     });
   }
 
-  Future<ProfileResponse> _getProfile() async {
+  Future<ProfileResponse> _getProfile({
+    bool pendingCardCreation = false,
+  }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final api = await ref.read(jan3ApiServiceProvider.future);
       final profile = await api.getUser();
       if (profile.isSuccessful && profile.body != null) {
         _logger.debug('[Jan3Account] Successfully verified OTP');
-        return Jan3AuthState.authenticated(profile: profile.body!);
+        return Jan3AuthState.authenticated(
+          profile: profile.body!,
+          pendingCardCreation: pendingCardCreation,
+        );
       }
       throw ProfileAuthErrorException();
     });

@@ -22,15 +22,15 @@ get-gdk:
 	mv crypto/gdk-release_$(GDK_VERSION) crypto/gdk
 	cp -r gdk-includes/include crypto/gdk/
 
-patch-ios-sim: patch-ios-sim-gdk patch-ios-sim-boltz
+patch-ios-sim: patch-ios-sim-gdk
 
 
 patch-ios-sim-gdk:
 	# gdk-iphone-sim
-	curl --location $(GDK_RELEASE_URL)/gdk-iphone-sim.tar.gz --output /tmp/gdk-iphone-sim.tar.gz
-	echo "8b2e33f8fb117e6feb5d7b35b7b1708416d2a2a8f216e611da12e6044b8f59a1  /tmp/gdk-iphone-sim.tar.gz" | shasum -a 256 --check
+	curl --location $(GDK_RELEASE_URL)/gdk-iphone-sim-x86_64.tar.gz --output /tmp/gdk-iphone-sim.tar.gz
+	echo "5cf7aa2acf99a9c177f3a2cca16577963cd26ed7bed99ebebec99d02c2b8ddd9  /tmp/gdk-iphone-sim.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk-iphone-sim.tar.gz --directory crypto
-	cp crypto/gdk-iphonesim-arm64/lib/arm64-apple-ios13.00/libgreen_gdk_full.a crypto/gdk-iphone/lib/arm64-apple-ios13.00/
+	cp crypto/gdk-iphonesim-x86_64/lib/x86_64-apple-ios13.00/libgreen_gdk_full.a crypto/gdk-iphone/lib/arm64-apple-ios13.00/
 
 patch-ios-sim-boltz:
 	rm ios/libboltz_rust.a

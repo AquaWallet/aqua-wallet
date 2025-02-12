@@ -3,6 +3,7 @@ import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
+import 'dart:math';
 
 class WalletRestoreInputKeyboard extends HookConsumerWidget {
   const WalletRestoreInputKeyboard({
@@ -11,6 +12,7 @@ class WalletRestoreInputKeyboard extends HookConsumerWidget {
   });
 
   final Function(MnemonicKeyboardKey key) onKeyPressed;
+  static const int maxKeysPerRow = 10; // Maximum number of keys in a row
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -64,7 +66,7 @@ class _KeyboardRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
+      height: context.adaptiveDouble(smallMobile: 40, mobile: 60.0),
       alignment: Alignment.center,
       transformAlignment: Alignment.center,
       margin: !chars.containsSpecialKeys
@@ -95,20 +97,20 @@ class _KeyboardKey extends StatelessWidget {
 
   final MnemonicKeyboardKey value;
   final Function(MnemonicKeyboardKey key) onTap;
+  static const int maxKeysPerRow = 10; // Maximum number of keys in a row
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    const double longestRowPadding = 12.0;
+    const double keySeparatorWidth = 6.0;
+    final double availableWidth = screenWidth -
+        (2 * longestRowPadding) -
+        (maxKeysPerRow * keySeparatorWidth);
+    // Size keys dynamically given available screen width, but with a maximum value of 35px
+    final double keyWidth = min(availableWidth / maxKeysPerRow, 35);
     return SizedBox(
-      width: value.isSpecialKey
-          ? context.adaptiveDouble(
-              mobile: 52,
-              smallMobile: 42,
-            )
-          : context.adaptiveDouble(
-              mobile: 34,
-              smallMobile: 27,
-            ),
-      height: 59.0,
+      width: value.isSpecialKey ? keyWidth + 21 : keyWidth,
       child: ElevatedButton(
         onPressed: () => onTap(value),
         style: ElevatedButton.styleFrom(
@@ -125,10 +127,8 @@ class _KeyboardKey extends StatelessWidget {
           letter: (char) => Text(
             char,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize: context.adaptiveDouble(
-                    mobile: 26,
-                    smallMobile: 21,
-                  ),
+                  fontSize:
+                      context.adaptiveDouble(smallMobile: 18, mobile: 26.0),
                 ),
           ),
           backspace: () => SvgPicture.asset(

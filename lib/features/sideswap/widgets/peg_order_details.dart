@@ -25,7 +25,7 @@ class PegOrderDetails extends HookConsumerWidget {
         const TransactionFeeBreakdownCard(
           args: FeeStructureArguments.sideswap(),
         ),
-        const Spacer(),
+        const SizedBox(height: 20.0),
         SwapSlider(
           onConfirm: () => ref.read(pegProvider.notifier).executeTransaction(),
         ),

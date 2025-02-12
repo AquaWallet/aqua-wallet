@@ -1,25 +1,127 @@
 {
   "bg": [
-    "note"
+    "marketplaceScreenRemittanceButton",
+    "marketplaceScreenDolphinCardButton",
+    "marketplaceScreenDolphinCardButtonDescription",
+    "dolphinCard",
+    "supportedCountries",
+    "features",
+    "reloadable",
+    "noCostToLoad",
+    "fourThousandUsdMonthlySpendingLimit",
+    "onePercentFeeOnSpend",
+    "oneDollarMinSpend",
+    "youCanShopAtMillionsOfMerchantsInOver130Countries",
+    "close",
+    "dolphin",
+    "chooseYourStyle",
+    "next",
+    "reloadableCard",
+    "youMayNotUseTheCardWithMerchantsBillingFromOrLocatedIn"
   ],
 
   "ca": [
-    "note"
+    "marketplaceScreenRemittanceButton",
+    "marketplaceScreenDolphinCardButton",
+    "marketplaceScreenDolphinCardButtonDescription",
+    "dolphinCard",
+    "supportedCountries",
+    "features",
+    "reloadable",
+    "noCostToLoad",
+    "fourThousandUsdMonthlySpendingLimit",
+    "onePercentFeeOnSpend",
+    "oneDollarMinSpend",
+    "youCanShopAtMillionsOfMerchantsInOver130Countries",
+    "close",
+    "dolphin",
+    "chooseYourStyle",
+    "next",
+    "reloadableCard",
+    "youMayNotUseTheCardWithMerchantsBillingFromOrLocatedIn"
   ],
 
   "cs": [
-    "note"
+    "marketplaceScreenRemittanceButton",
+    "marketplaceScreenDolphinCardButton",
+    "marketplaceScreenDolphinCardButtonDescription",
+    "dolphinCard",
+    "supportedCountries",
+    "features",
+    "reloadable",
+    "noCostToLoad",
+    "fourThousandUsdMonthlySpendingLimit",
+    "onePercentFeeOnSpend",
+    "oneDollarMinSpend",
+    "youCanShopAtMillionsOfMerchantsInOver130Countries",
+    "close",
+    "dolphin",
+    "chooseYourStyle",
+    "next",
+    "reloadableCard",
+    "youMayNotUseTheCardWithMerchantsBillingFromOrLocatedIn"
   ],
 
   "es": [
-    "note"
+    "marketplaceScreenRemittanceButton",
+    "marketplaceScreenDolphinCardButton",
+    "marketplaceScreenDolphinCardButtonDescription",
+    "dolphinCard",
+    "supportedCountries",
+    "features",
+    "reloadable",
+    "noCostToLoad",
+    "fourThousandUsdMonthlySpendingLimit",
+    "onePercentFeeOnSpend",
+    "oneDollarMinSpend",
+    "youCanShopAtMillionsOfMerchantsInOver130Countries",
+    "close",
+    "dolphin",
+    "chooseYourStyle",
+    "next",
+    "reloadableCard",
+    "youMayNotUseTheCardWithMerchantsBillingFromOrLocatedIn"
   ],
 
   "nl": [
-    "note"
+    "marketplaceScreenRemittanceButton",
+    "marketplaceScreenDolphinCardButton",
+    "marketplaceScreenDolphinCardButtonDescription",
+    "dolphinCard",
+    "supportedCountries",
+    "features",
+    "reloadable",
+    "noCostToLoad",
+    "fourThousandUsdMonthlySpendingLimit",
+    "onePercentFeeOnSpend",
+    "oneDollarMinSpend",
+    "youCanShopAtMillionsOfMerchantsInOver130Countries",
+    "close",
+    "dolphin",
+    "chooseYourStyle",
+    "next",
+    "reloadableCard",
+    "youMayNotUseTheCardWithMerchantsBillingFromOrLocatedIn"
   ],
 
   "pt": [
-    "note"
+    "marketplaceScreenRemittanceButton",
+    "marketplaceScreenDolphinCardButton",
+    "marketplaceScreenDolphinCardButtonDescription",
+    "dolphinCard",
+    "supportedCountries",
+    "features",
+    "reloadable",
+    "noCostToLoad",
+    "fourThousandUsdMonthlySpendingLimit",
+    "onePercentFeeOnSpend",
+    "oneDollarMinSpend",
+    "youCanShopAtMillionsOfMerchantsInOver130Countries",
+    "close",
+    "dolphin",
+    "chooseYourStyle",
+    "next",
+    "reloadableCard",
+    "youMayNotUseTheCardWithMerchantsBillingFromOrLocatedIn"
   ]
 }

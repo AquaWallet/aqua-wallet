@@ -167,7 +167,7 @@ class _SuccessUi extends StatelessWidget {
                 ],
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: 18.0),
             //ANCHOR - Button
             SizedBox(
               width: double.maxFinite,

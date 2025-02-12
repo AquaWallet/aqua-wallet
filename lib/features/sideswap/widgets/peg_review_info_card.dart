@@ -38,7 +38,10 @@ class PegReviewInfoCard extends HookConsumerWidget {
       color: Theme.of(context).colors.altScreenSurface,
       borderRadius: BorderRadius.circular(12.0),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.adaptiveDouble(mobile: 20.0, smallMobile: 10.0),
+          vertical: context.adaptiveDouble(mobile: 20.0, smallMobile: 10.0),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +80,9 @@ class PegReviewInfoCard extends HookConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 36.0),
+            SizedBox(
+              height: context.adaptiveDouble(mobile: 36.0, smallMobile: 10.0),
+            ),
             //ANCHOR - Receive amount
             LabelCopyableTextView(
               label: context.loc.youWillReceive,
@@ -85,7 +90,7 @@ class PegReviewInfoCard extends HookConsumerWidget {
             ),
             //ANCHOR - Divider
             DashedDivider(
-              height: 32.0,
+              height: context.adaptiveDouble(mobile: 32.0, smallMobile: 10.0),
               thickness: 2.0,
               color: Theme.of(context).colors.divider,
             ),
@@ -94,7 +99,9 @@ class PegReviewInfoCard extends HookConsumerWidget {
               label: context.loc.orderId,
               value: data.order.orderId,
             ),
-            const SizedBox(height: 16.0),
+            SizedBox(
+              height: context.adaptiveDouble(mobile: 16.0, smallMobile: 10.0),
+            ),
           ],
         ),
       ),

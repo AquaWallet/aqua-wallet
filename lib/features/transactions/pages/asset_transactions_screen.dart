@@ -27,9 +27,9 @@ class AssetTransactionsScreen extends HookConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       bottomNavigationBar: SizedBox(
-        height: 115.0,
+        height: context.adaptiveDouble(mobile: 115.0, smallMobile: 85.0),
         child: BottomAppBar(
-          height: 115.0,
+          height: context.adaptiveDouble(mobile: 115.0, smallMobile: 85.0),
           elevation: 8.0,
           color: Theme.of(context).colors.colorScheme.surface,
           child: TransactionMenuBottomBar(asset: asset),
@@ -62,7 +62,9 @@ class AssetTransactionsScreen extends HookConsumerWidget {
         children: [
           //ANCHOR - List
           Container(
-            margin: const EdgeInsets.only(top: 290.0),
+            margin: EdgeInsets.only(
+              top: context.adaptiveDouble(mobile: 290.0, smallMobile: 190.0),
+            ),
             child: AssetTransactions(
               asset: asset,
             ),

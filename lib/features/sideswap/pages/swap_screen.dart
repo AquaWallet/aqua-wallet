@@ -65,8 +65,8 @@ class SwapForm extends HookConsumerWidget {
             ),
             boxShadow: [Theme.of(context).shadow],
           ),
-          padding: const EdgeInsets.only(
-            top: 114.0,
+          padding: EdgeInsets.only(
+            top: context.adaptiveDouble(mobile: 114.0, smallMobile: 94.0),
             bottom: 34.0,
             left: 28.0,
             right: 28.0,
@@ -121,7 +121,9 @@ class SwapForm extends HookConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 18.0),
+              SizedBox(
+                  height:
+                      context.adaptiveDouble(mobile: 18.0, smallMobile: 5.0)),
               const Row(
                 children: [
                   //ANCHOR - Rate
@@ -131,7 +133,9 @@ class SwapForm extends HookConsumerWidget {
                   SwapAssetsSwitchButton(),
                 ],
               ),
-              const SizedBox(height: 18.0),
+              SizedBox(
+                  height:
+                      context.adaptiveDouble(mobile: 18.0, smallMobile: 5.0)),
               //ANCHOR - Receive Asset
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,12 +164,12 @@ class SwapForm extends HookConsumerWidget {
               ),
               SizedBox(
                   height:
-                      context.adaptiveDouble(mobile: 18.0, smallMobile: 10.0)),
+                      context.adaptiveDouble(mobile: 18.0, smallMobile: 5.0)),
               //ANCHOR - Error Message
               CustomError(errorMessage: validationError?.message),
               SizedBox(
                   height:
-                      context.adaptiveDouble(mobile: 22.0, smallMobile: 10.0)),
+                      context.adaptiveDouble(mobile: 22.0, smallMobile: 5.0)),
               //ANCHOR - Swap Button
               AquaElevatedButton(
                 onPressed: isContinueEnabled ? onContinueHandler : null,
@@ -178,7 +182,9 @@ class SwapForm extends HookConsumerWidget {
                 ),
                 child: Text(context.loc.continueLabel),
               ),
-              const SizedBox(height: 30.0),
+              SizedBox(
+                  height:
+                      context.adaptiveDouble(mobile: 30.0, smallMobile: 10.0)),
               //ANCHOR - Peg Info Message
               const PegInfoMessageView(),
             ],

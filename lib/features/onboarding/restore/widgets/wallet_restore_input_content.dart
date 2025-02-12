@@ -72,15 +72,14 @@ class WalletRestoreInputContent extends HookConsumerWidget {
             onPressed: mnemonicComplete
                 ? () => ref.watch(walletRestoreProvider.notifier).restore()
                 : null,
+            height: context.adaptiveDouble(mobile: 52.0, smallMobile: 32.0),
             child: Text(context.loc.restoreInputButton),
           ),
         ),
-        SizedBox(height: context.adaptiveDouble(
-              mobile: 24.0,
-              smallMobile: 12.0,
-            )),
         SizedBox(
-          height: 254.0,
+            height: context.adaptiveDouble(mobile: 24.0, smallMobile: 5.0)),
+        SizedBox(
+          height: context.adaptiveDouble(mobile: 254.0, smallMobile: 204.0),
           child: Column(
             children: [
               //ANCHOR - Mnemonic Suggestions
@@ -127,7 +126,9 @@ class _MnemonicInputGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 28.0),
-      margin: const EdgeInsets.only(top: 42.0),
+      margin: EdgeInsets.only(
+        top: context.adaptiveDouble(mobile: 42.0, smallMobile: 12.0),
+      ),
       child: Form(
         key: formKey,
         child: FocusScope(

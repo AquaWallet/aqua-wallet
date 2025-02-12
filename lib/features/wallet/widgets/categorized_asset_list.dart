@@ -1,5 +1,6 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
+import 'package:aqua/utils/utils.dart';
 
 class CategorizedAssetList extends HookConsumerWidget {
   const CategorizedAssetList({super.key});
@@ -13,11 +14,14 @@ class CategorizedAssetList extends HookConsumerWidget {
 
     return ref.watch(assetsProvider).when(
           data: (assets) => Container(
-            margin: const EdgeInsets.only(top: 262.0),
+            margin: EdgeInsets.only(
+                top: context.adaptiveDouble(mobile: 262.0, smallMobile: 224.0)),
             child: AssetsList(assets: assets),
           ),
           loading: () => Container(
-              margin: const EdgeInsets.only(top: 262.0),
+              margin: EdgeInsets.only(
+                  top: context.adaptiveDouble(
+                      mobile: 262.0, smallMobile: 202.0)),
               child: const AssetListSkeleton()),
           error: (error, _) => const AssetListErrorView(),
         );

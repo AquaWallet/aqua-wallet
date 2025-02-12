@@ -9,6 +9,7 @@ import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/wallet/providers/unified_balance_provider.dart';
 import 'package:aqua/screens/common/webview_screen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -90,7 +91,7 @@ class MarketplaceView extends HookConsumerWidget {
         context.loc.marketplaceScreenExchangeButtonDescription,
         context.loc.marketplaceScreenBtcMapButtonDescription,
         context.loc.marketplaceScreenMyFirstBitcoinButton,
-        context.loc.marketplaceScreenBankingButton,
+        context.loc.marketplaceScreenDolphinCardButtonDescription,
       ];
     });
     final myFirstBitcoinEnabled =
@@ -111,26 +112,17 @@ class MarketplaceView extends HookConsumerWidget {
       }
     }
 
+    final unifiedBalance =
+        ref.watch(unifiedBalanceProvider)?.decimal.toDouble() ?? 0;
     final hasTransacted = ref.watch(hasTransactedProvider).asData?.value;
-    final disableExchanges =
-        Platform.isIOS && disableExchagesOnIOS && hasTransacted == false;
-
-    final onDebitCardPressed = useCallback(() {
-      //NOTE - Debit card flow is currently only available in dark mode, so we
-      // need to force dark mode on screen initialisation and then restore the
-      // previous theme state on screen exit.
-      final wasAppInDarkMode = ref.read(prefsProvider).isDarkMode;
-      ref.read(prefsProvider).setTheme(dark: true);
-      //NOTE - Delay the push to allow the theme to be set before the screen is
-      // displayed.
-      Future.delayed(const Duration(milliseconds: 250), () {
-        context.push(DebitCardOnboardingScreen.routeName).then((_) {
-          if (!wasAppInDarkMode) {
-            ref.read(prefsProvider).setTheme(dark: false);
-          }
-        });
-      });
-    }, []);
+    final disableExchanges = useMemoized(
+      () => Platform.isIOS && disableExchagesOnIOS && hasTransacted == false,
+      [disableSideswapOnIOS, unifiedBalance],
+    );
+    final disableSwap = useMemoized(
+      () => Platform.isIOS && disableSideswapOnIOS && unifiedBalance <= 0,
+      [disableSideswapOnIOS, unifiedBalance],
+    );
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -174,7 +166,7 @@ class MarketplaceView extends HookConsumerWidget {
                   title: context.loc.swaps,
                   subtitle: marketplaceCardsSubtitleText[1],
                   icon: Svgs.marketplaceExchange,
-                  onPressed: Platform.isIOS && disableSideswapOnIOS
+                  onPressed: disableSwap
                       ? null
                       : () {
                           context.push(SwapScreen.routeName);
@@ -216,10 +208,11 @@ class MarketplaceView extends HookConsumerWidget {
                 //ANCHOR - Debit Card
                 if (isPayWithMoonEnabled && isMoonAvailableInRegion) ...[
                   MarketplaceButton(
-                    title: context.loc.marketplaceScreenBankingButton,
+                    title: context.loc.marketplaceScreenDolphinCardButton,
                     subtitle: marketplaceCardsSubtitleText[4],
                     icon: Svgs.marketplaceBankings,
-                    onPressed: onDebitCardPressed,
+                    onPressed: () =>
+                        context.push(DebitCardOnboardingScreen.routeName),
                   ),
                 ]
               ],

@@ -5,6 +5,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SwapReviewScreen extends HookConsumerWidget {
@@ -22,35 +23,31 @@ class SwapReviewScreen extends HookConsumerWidget {
       if (arg is SwapStartWebResponse &&
           (arg as SwapStartWebResponse).result != null) {
         // TODO: investigate why we need typecasting here, even after the if check
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              SwapReviewInfoCard(
-                order: (arg as SwapStartWebResponse).result!,
-                input: input,
+        return Column(
+          children: [
+            SwapReviewInfoCard(
+              order: (arg as SwapStartWebResponse).result!,
+              input: input,
+            ),
+            const SizedBox(height: 12.0),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: const TransactionFeeBreakdownCard(
+                args: FeeStructureArguments.sideswap(),
               ),
-              const SizedBox(height: 12.0),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: const TransactionFeeBreakdownCard(
-                  args: FeeStructureArguments.sideswap(),
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              SwapSlider(
-                onConfirm: () =>
-                    ref.read(swapProvider.notifier).executeTransaction(),
-              ),
-              const SizedBox(height: kBottomPadding),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20.0),
+            SwapSlider(
+              onConfirm: () =>
+                  ref.read(swapProvider.notifier).executeTransaction(),
+            ),
+            const SizedBox(height: kBottomPadding),
+          ],
         );
       } else if (arg is SwapPegReviewModel) {
-        return SingleChildScrollView(
-          child: PegOrderDetails(
-            data: arg as SwapPegReviewModel,
-            input: input,
-          ),
+        return PegOrderDetails(
+          data: arg as SwapPegReviewModel,
+          input: input,
         );
       }
     }, [arg]);
@@ -128,8 +125,10 @@ class SwapReviewScreen extends HookConsumerWidget {
       ),
       backgroundColor: Theme.of(context).colors.swapReviewScreenBackgroundColor,
       body: Container(
-        padding: const EdgeInsets.only(top: 24.0),
-        child: content,
+        padding: EdgeInsets.only(
+          top: context.adaptiveDouble(mobile: 24.0, smallMobile: 10.0),
+        ),
+        child: SingleChildScrollView(child: content),
       ),
     );
   }

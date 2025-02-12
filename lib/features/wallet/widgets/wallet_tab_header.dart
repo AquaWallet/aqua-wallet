@@ -38,7 +38,7 @@ class WalletTabHeader extends HookConsumerWidget {
     }, [darkMode, botevMode]);
 
     return Container(
-      height: 262.0,
+      height: context.adaptiveDouble(mobile: 262.0, smallMobile: 224.0),
       decoration: BoxDecoration(
         color: context.colors.headerBackgroundColor,
         borderRadius: const BorderRadius.only(

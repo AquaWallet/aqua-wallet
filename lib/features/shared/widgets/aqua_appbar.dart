@@ -27,6 +27,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
     this.onBackPressed,
     this.onActionButtonPressed,
     this.onTitlePressed,
+    this.onTitleLongPressed,
     this.titleWidget,
   }) : assert(
           title == '' || titleWidget == null,
@@ -48,6 +49,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
   final VoidCallback? onBackPressed;
   final VoidCallback? onActionButtonPressed;
   final VoidCallback? onTitlePressed;
+  final VoidCallback? onTitleLongPressed;
   final Widget? titleWidget;
 
   @override
@@ -68,7 +70,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
       [darkMode],
     );
     final defaultIconBackgroundColor = useMemoized(
-      () => theme.colors.addressFieldContainerBackgroundColor,
+      () => theme.colors.appBarBackgroundColor,
       [darkMode],
     );
     final defaultIconOutlineColor = useMemoized(
@@ -87,6 +89,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
       ),
       title: GestureDetector(
         onTap: onTitlePressed,
+        onLongPress: onTitleLongPressed,
         child: Container(
           margin: const EdgeInsets.only(top: 6),
           child: titleWidget ?? Text(title),

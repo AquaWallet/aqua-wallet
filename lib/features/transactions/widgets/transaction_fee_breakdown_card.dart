@@ -29,7 +29,10 @@ class TransactionFeeBreakdownCard extends ConsumerWidget {
       borderColor: context.colors.cardOutlineColor,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.adaptiveDouble(mobile: 18, smallMobile: 14),
+          vertical: context.adaptiveDouble(mobile: 14, smallMobile: 10),
+        ),
         child: fees.maybeWhen(
           data: (data) => data.maybeMap(
             sideswapInstantSwap: (data) => _InstantSwapInfo(fees: data),
@@ -66,7 +69,6 @@ class _USDtSwapInfo extends ConsumerWidget {
     return Column(
       children: [
         const _Header(),
-        const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 16),
           decoration: BoxDecoration(
@@ -119,7 +121,6 @@ class _InstantSwapInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _Header(),
-        const SizedBox(height: 16.0),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 20.0),
           decoration: BoxDecoration(
@@ -169,7 +170,6 @@ class _PegInInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _Header(),
-        const SizedBox(height: 16.0),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 20.0),
           decoration: BoxDecoration(
@@ -228,7 +228,6 @@ class _PegOutInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _Header(),
-        const SizedBox(height: 16.0),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 20.0),
           decoration: BoxDecoration(
@@ -287,7 +286,6 @@ class _BitcoinSendInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _Header(),
-        const SizedBox(height: 16.0),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 20.0),
           decoration: BoxDecoration(
@@ -331,7 +329,6 @@ class _LiquidSendInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _Header(),
-        const SizedBox(height: 16.0),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 20.0),
           decoration: BoxDecoration(
@@ -375,7 +372,6 @@ class _BoltzSendInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _Header(),
-        const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
           decoration: BoxDecoration(
@@ -426,7 +422,6 @@ class _LiquidTaxiSendInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _Header(),
-        const SizedBox(height: 16.0),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 20.0),
           decoration: BoxDecoration(
@@ -627,9 +622,12 @@ class _Header extends StatelessWidget {
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: Theme.of(context).colors.onBackground,
                 fontWeight: FontWeight.bold,
-                fontSize: 18.0,
+                fontSize: 18,
                 // height: 1.5.0,
               ),
+        ),
+        SizedBox(
+          height: context.adaptiveDouble(mobile: 16.0, smallMobile: 10.0),
         ),
       ],
     );

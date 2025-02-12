@@ -22,7 +22,7 @@ class CustomBottomNavigationBar extends HookWidget {
         highlightColor: Colors.transparent,
       ),
       child: Container(
-        height: 115,
+        height: context.adaptiveDouble(mobile: 115.0, smallMobile: 85.0),
         decoration: BoxDecoration(
           color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           border: Border(
@@ -40,11 +40,11 @@ class CustomBottomNavigationBar extends HookWidget {
             ),
           ],
         ),
-        padding: const EdgeInsets.only(
+        padding: EdgeInsets.only(
           left: 53,
           right: 53,
-          bottom: 20,
-          top: 20,
+          bottom: context.adaptiveDouble(mobile: 20.0, smallMobile: 10.0),
+          top: context.adaptiveDouble(mobile: 20.0, smallMobile: 10.0),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

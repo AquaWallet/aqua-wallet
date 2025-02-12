@@ -7,6 +7,7 @@ part 'auth_state.freezed.dart';
 class Jan3AuthState with _$Jan3AuthState {
   const factory Jan3AuthState.authenticated({
     required ProfileResponse profile,
+    @Default(false) bool pendingCardCreation,
   }) = Jan3UserAuthenticated;
   const factory Jan3AuthState.pendingOtpVerification() =
       Jan3UserPendingOtpVerification;

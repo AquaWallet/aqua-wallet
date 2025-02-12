@@ -3,7 +3,7 @@ description: AQUA - Bitcoin & Layer 2 Wallet
 
 publish_to: "none"
 
-version: 0.2.8+165
+version: 0.2.9+168
 
 environment:
   sdk: "3.4.4"
@@ -124,6 +124,8 @@ flutter:
     - assets/icon/
     - assets/marketplace/
     - assets/flags/
+    - assets/raw/
+    - assets/images/
   fonts:
     - family: HelveticaNeue
       fonts:
