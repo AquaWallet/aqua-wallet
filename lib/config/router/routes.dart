@@ -309,10 +309,6 @@ final routes = [
     builder: (context, state) => const SubaccountsDebugScreen(),
   ),
   GoRoute(
-    path: DebitCardOnboardingScreen.routeName,
-    builder: (context, state) => DebitCardOnboardingScreen(),
-  ),
-  GoRoute(
     path: Jan3LoginScreen.routeName,
     builder: (context, state) => const Jan3LoginScreen(),
   ),
@@ -323,11 +319,23 @@ final routes = [
     ),
   ),
   GoRoute(
+    path: DebitCardOnboardingScreen.routeName,
+    // ignore: prefer_const_constructors
+    builder: (context, state) => DebitCardOnboardingScreen(),
+  ),
+  GoRoute(
     path: DebitCardMyCardScreen.routeName,
+    // ignore: prefer_const_constructors
     builder: (context, state) => DebitCardMyCardScreen(),
   ),
   GoRoute(
     path: DebitCardTopUpScreen.routeName,
-    builder: (context, state) => const DebitCardTopUpScreen(),
+    // ignore: prefer_const_constructors
+    builder: (context, state) => DebitCardTopUpScreen(),
+  ),
+  GoRoute(
+    path: DebitCardStyleSelectionScreen.routeName,
+    // ignore: prefer_const_constructors
+    builder: (context, state) => DebitCardStyleSelectionScreen(),
   ),
 ];

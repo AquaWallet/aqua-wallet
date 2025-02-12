@@ -196,6 +196,8 @@ abstract class AppColors {
 
   Color get topUpTransactionAmountSubtitleColor;
 
+  Color get jan3InputFieldBackgroundColor;
+
   ColorScheme get colorScheme;
 }
 
@@ -347,7 +349,7 @@ class DarkThemeColors implements AppColors {
   Color get appBarIconOutlineColorAlt => AquaColors.antiFlashWhite;
 
   @override
-  Color get appBarBackgroundColor => AquaColors.charcoal;
+  Color get appBarBackgroundColor => AquaColors.eerieBlack;
 
   @override
   Color get appBarIconBackgroundColor => AquaColors.robinEggBlue;
@@ -488,6 +490,9 @@ class DarkThemeColors implements AppColors {
   Color get topUpTransactionAmountSubtitleColor => AquaColors.gray;
 
   @override
+  Color get jan3InputFieldBackgroundColor => AquaColors.darkJungleGreen;
+
+  @override
   ColorScheme get colorScheme => ColorScheme(
         brightness: Brightness.dark,
         primary: AquaColors.backgroundSkyBlue,
@@ -559,7 +564,7 @@ class LightThemeColors implements AppColors {
   Color get menuSurface => AquaColors.antiFlashWhite;
 
   @override
-  Color get dropdownMenuBackground => AquaColors.darkJungleGreen;
+  Color get dropdownMenuBackground => AquaColors.lotion;
 
   @override
   Color get receiveAddressCopySurface => AquaColors.splashGrey;
@@ -775,7 +780,7 @@ class LightThemeColors implements AppColors {
   Color get debitCardUsedAmountLabelColor => AquaColors.darkGray;
 
   @override
-  Color get debitCardTransactionTitleColor => Colors.white;
+  Color get debitCardTransactionTitleColor => Colors.black;
 
   @override
   Color get debitCardTransactionSubtitleColor => AquaColors.dimMarble;
@@ -794,6 +799,9 @@ class LightThemeColors implements AppColors {
 
   @override
   Color get topUpTransactionAmountSubtitleColor => AquaColors.dimMarble;
+
+  @override
+  Color get jan3InputFieldBackgroundColor => Colors.white;
 
   @override
   ColorScheme get colorScheme => const ColorScheme(

@@ -1,4 +1,5 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class WalletMnemonicSuggestions extends HookConsumerWidget {
@@ -15,7 +16,7 @@ class WalletMnemonicSuggestions extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useScrollController();
     return Container(
-      height: 43.0,
+      height: context.adaptiveDouble(mobile: 43.0, smallMobile: 38.0),
       color: Theme.of(context).colorScheme.primary,
       child: suggestions.isEmpty
           ? const SizedBox.shrink()

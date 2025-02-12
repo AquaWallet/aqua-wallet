@@ -1,3 +1,4 @@
+import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'api_models.freezed.dart';
@@ -208,7 +209,9 @@ class CardResponse with _$CardResponse {
     required String supportToken,
     required bool frozen,
     String? name,
-    String? style,
+    @JsonKey(fromJson: cardStyleFromString)
+    @Default(CardStyle.style1)
+    CardStyle style,
     required String user,
     required Map<String, String?> giftCardInfo,
   }) = _CardResponse;

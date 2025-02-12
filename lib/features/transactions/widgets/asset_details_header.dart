@@ -3,6 +3,7 @@ import 'package:aqua/data/provider/conversion_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class AssetDetailsHeader extends HookConsumerWidget {
@@ -35,13 +36,16 @@ class AssetDetailsHeader extends HookConsumerWidget {
       color: Theme.of(context).colors.headerBackgroundColor,
       elevation: 6,
       child: Container(
-        padding: const EdgeInsets.only(top: kToolbarHeight + 45.0),
+        padding: EdgeInsets.only(
+          top: kToolbarHeight +
+              context.adaptiveDouble(mobile: 45.0, smallMobile: 15.0),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: double.maxFinite,
-              height: 24.0,
+              height: context.adaptiveDouble(mobile: 24.0, smallMobile: 14.0),
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: const AssetStatusIndicator(),
@@ -50,9 +54,11 @@ class AssetDetailsHeader extends HookConsumerWidget {
             AssetIcon(
               assetId: asset.isLBTC ? kLayer2BitcoinId : asset.id,
               assetLogoUrl: asset.logoUrl,
-              size: 60.0,
+              size: context.adaptiveDouble(mobile: 60.0, smallMobile: 40.0),
             ),
-            const SizedBox(height: 22.0),
+            SizedBox(
+              height: context.adaptiveDouble(mobile: 22.0, smallMobile: 12.0),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -71,10 +77,15 @@ class AssetDetailsHeader extends HookConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 14.0),
+            SizedBox(
+              height: context.adaptiveDouble(mobile: 14.0, smallMobile: 8.0),
+            ),
             //ANCHOR - USD Equivalent
             conversion == null
-                ? const SizedBox(height: 28.0)
+                ? SizedBox(
+                    height:
+                        context.adaptiveDouble(mobile: 28.0, smallMobile: 18.0),
+                  )
                 : Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colors.usdPillBackgroundColor,
@@ -97,7 +108,9 @@ class AssetDetailsHeader extends HookConsumerWidget {
                       ],
                     ),
                   ),
-            const SizedBox(height: 40.0),
+            SizedBox(
+              height: context.adaptiveDouble(mobile: 40.0, smallMobile: 20.0),
+            ),
           ],
         ),
       ),

@@ -112,6 +112,7 @@ abstract class Jan3ApiService extends ChopperService {
         DailyPriceResponse: DailyPriceResponse.fromJson,
         HealthResponse: HealthResponse.fromJson,
         AccessTokenResponse: AccessTokenResponse.fromJson,
+        CardCreationRequest: CardCreationRequest.fromJson,
       }),
     );
     return _$Jan3ApiService(client);

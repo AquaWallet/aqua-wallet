@@ -120,8 +120,8 @@ class TransactionsTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(
-        top: 25.0,
+      padding: EdgeInsets.only(
+        top: context.adaptiveDouble(mobile: 25.0, smallMobile: 15.0),
       ),
       decoration: BoxDecoration(
         gradient: Theme.of(context).getFadeGradient(
@@ -133,7 +133,10 @@ class TransactionsTitle extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 25.0), // Adds 25 space above the text
+          SizedBox(
+              height: context.adaptiveDouble(
+                  mobile: 25.0,
+                  smallMobile: 5.0)), // Adds 25 space above the text
           Text(
             context.loc.assetTransactionsListTitle,
             style: Theme.of(context).textTheme.titleMedium,

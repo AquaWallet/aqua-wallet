@@ -63,3 +63,7 @@ const btcDirectSandboxUrl = 'https://api-sandbox.btcdirect.eu';
 
 // Aqua Ankara API
 const aquaAnkaraApiUrl = 'https://test.aquabtc.com';
+
+// Moon
+const moonTermsOfServiceUrl =
+    'https://paywithmoon.com/legal/terms-and-conditions-en';

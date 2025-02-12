@@ -17,7 +17,7 @@ class PegInfoMessageView extends HookConsumerWidget {
     final input = ref.watch(sideswapInputStateProvider);
 
     if (!input.isPeg) {
-      return const SizedBox.shrink();
+      return const SizedBox(height: 110.0);
     }
 
     return PegInfoMessage(
@@ -44,9 +44,9 @@ class PegInfoMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: padding ??
-          const EdgeInsets.symmetric(
-            horizontal: 16.0,
-            vertical: 16.0,
+          EdgeInsets.symmetric(
+            horizontal: context.adaptiveDouble(mobile: 16.0, smallMobile: 10.0),
+            vertical: context.adaptiveDouble(mobile: 16.0, smallMobile: 10.0),
           ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.0),

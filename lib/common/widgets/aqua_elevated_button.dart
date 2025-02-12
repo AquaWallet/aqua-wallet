@@ -38,11 +38,12 @@ class AquaElevatedButton extends StatelessWidget {
             debounce && onPressed != null ? debouncedOnPressed : onPressed,
         style: style ??
             ElevatedButton.styleFrom(
-              textStyle: const TextStyle(
+              textStyle: TextStyle(
                 fontSize: 20,
-                color: Colors.white,
+                color: context.colorScheme.onPrimary,
                 fontFamily: UiFontFamily.inter,
                 fontWeight: FontWeight.w700,
+                height: 1.05,
               ),
             ),
         child: child,

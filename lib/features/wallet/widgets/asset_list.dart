@@ -67,7 +67,7 @@ class AssetsList extends HookConsumerWidget {
     // 1. Device is iOS AND the feature flag for disabling swaps is enabled
     // 2. The user has zero balance
     final isSwapEnabled = useMemoized(
-      () => !(Platform.isIOS && disableSideswapOnIOS) && unifiedBalance > 0,
+      () => !(!Platform.isIOS && disableSideswapOnIOS && unifiedBalance <= 0),
       [disableSideswapOnIOS, unifiedBalance],
     );
 

@@ -1,8 +1,11 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
+import 'package:aqua/common/common.dart';
 import 'package:aqua/config/colors/aqua_colors.dart';
 import 'package:aqua/features/account/account.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -20,6 +23,7 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
     final otpControllers =
         List.generate(otpDigitCount, (_) => useTextEditingController());
     final focusNodes = List.generate(otpDigitCount, (_) => useFocusNode());
+    final isDark = ref.watch(prefsProvider.select((p) => p.isDarkMode));
     final profileState = ref.watch(jan3AuthProvider);
 
     final onOtpChanged = useCallback((String value, int index) {
@@ -45,82 +49,75 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
     }, [otp.value]);
 
     return Scaffold(
-      backgroundColor: AquaColors.eerieBlack,
       appBar: AquaAppBar(
         backgroundColor: Colors.transparent,
-        titleWidget: UiAssets.svgs.dark.jan3Logo.svg(),
+        titleWidget: isDark
+            ? UiAssets.svgs.dark.jan3Logo.svg()
+            : UiAssets.svgs.light.jan3Logo.svg(),
         showActionButton: false,
-        iconBackgroundColor: AquaColors.eerieBlack,
-        iconForegroundColor: Colors.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 16),
+            //ANCHOR - Title
             Text(
               context.loc.otpScreenTitle,
               style: const TextStyle(
-                fontSize: 32,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fontFamily: UiFontFamily.inter,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+            //ANCHOR - Description
             RichText(
               text: TextSpan(
-                style:
-                    const TextStyle(fontSize: 16, color: AquaColors.dimMarble),
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.43,
+                  letterSpacing: 0.2,
+                  color: AquaColors.dimMarble,
+                  fontFamily: UiFontFamily.inter,
+                ),
                 children: [
                   TextSpan(
                     text: '${context.loc.otpScreenDescription} ',
                   ),
                   TextSpan(
                     text: email,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: context.colors.onBackground,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.4,
+                      // height: 1.43,
+                    ),
+                  ),
+                  const TextSpan(
+                    text: '.',
                   ),
                 ],
               ),
             ),
-            Row(
-              children: [
-                Text(
-                  context.loc.otpScreenNotYourEmail,
-                  style: const TextStyle(color: AquaColors.dimMarble),
-                ),
-                const SizedBox(width: 3),
-                TextButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  child: Text(
-                    context.loc.otpScreenChangeEmail,
-                    style: const TextStyle(
-                      color: AquaColors.aquaGreen,
-                      decoration: TextDecoration.underline,
-                      decorationColor: AquaColors.aquaGreen,
-                    ),
-                  ),
-                ),
-              ],
+            const SizedBox(height: 8),
+            //ANCHOR - Change email button
+            _TappableTextSpan(
+              description: context.loc.otpScreenNotYourEmail,
+              tappableText: context.loc.otpScreenChangeEmail,
+              onTap: () => context.pop(),
             ),
             const SizedBox(height: 16),
             // ANCHOR - OTP input fields
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(
                 otpDigitCount,
-                (index) => Container(
-                  width: 55,
-                  height: 55,
-                  decoration: BoxDecoration(
-                    color: AquaColors.charlestonGreen,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(
-                      color: AquaColors.dimMarble,
-                      width: 1.0,
-                    ),
-                  ),
+                (index) => SizedBox(
+                  width: 52,
+                  height: 56,
                   child: KeyboardListener(
                     focusNode: FocusNode(),
                     onKeyEvent: (event) => onKeyEvent(event, index),
@@ -129,14 +126,26 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
                       focusNode: focusNodes[index],
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        color: Colors.white,
                         fontSize: 18,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        fillColor: AquaColors.charlestonGreen,
-                        border: InputBorder.none,
+                        fillColor: context.colors.jan3InputFieldBackgroundColor,
                         counterText: '',
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            width: 1,
+                            color: AquaColors.dimMarble,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            width: 1,
+                            color: context.colorScheme.primary,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       keyboardType: TextInputType.number,
                       inputFormatters: [
@@ -152,7 +161,7 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
               ),
             ),
             // ANCHOR - OTP form errors
-            if (profileState.error != null)
+            if (!profileState.isLoading && profileState.error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Row(
@@ -176,62 +185,76 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
+            const SizedBox(height: 16),
             // ANCHOR - Resend OTP
-            Row(
-              children: [
-                Text(
-                  context.loc.otpScreenResendCode,
-                  style: const TextStyle(color: AquaColors.dimMarble),
-                ),
-                TextButton(
-                  onPressed: () {
-                    ref.read(jan3AuthProvider.notifier).sendOtp(email);
-                  },
-                  child: Text(
-                    context.loc.otpScreenResendButton,
-                    style: const TextStyle(
-                      color: AquaColors.aquaGreen,
-                      decoration: TextDecoration.underline,
-                      decorationColor: AquaColors.aquaGreen,
-                    ),
-                  ),
-                ),
-              ],
+            _TappableTextSpan(
+              description: context.loc.otpScreenResendCode,
+              tappableText: context.loc.otpScreenResendButton,
+              onTap: () => ref.read(jan3AuthProvider.notifier).sendOtp(email),
             ),
             const Spacer(),
             // ANCHOR - Verify OTP button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: (profileState.isLoading || !isOtpValid)
-                    ? null
-                    : () => ref.read(jan3AuthProvider.notifier).verifyOtp(
-                          email: email,
-                          otp: otp.value,
-                        ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: (profileState.isLoading || !isOtpValid)
-                      ? AquaColors.dimMarble
-                      : AquaColors.aquaGreen,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: profileState.isLoading
-                    ? const CircularProgressIndicator()
-                    : Text(
-                        context.loc.otpScreenVerifyButton,
-                        style: const TextStyle(
-                          color: AquaColors.eerieBlack,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+            AquaElevatedButton(
+              onPressed: (profileState.isLoading || !isOtpValid)
+                  ? null
+                  : () => ref.read(jan3AuthProvider.notifier).verifyOtp(
+                        email: email,
+                        otp: otp.value,
                       ),
-              ),
+              child: profileState.isLoading
+                  ? const CircularProgressIndicator()
+                  : Text(context.loc.otpScreenVerifyButton),
             ),
+            const SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TappableTextSpan extends StatelessWidget {
+  const _TappableTextSpan({
+    required this.description,
+    required this.tappableText,
+    required this.onTap,
+  });
+
+  final String description;
+  final String tappableText;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '$description ',
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.43,
+              letterSpacing: 0.1,
+              color: AquaColors.dimMarble,
+              fontWeight: FontWeight.w500,
+              fontFamily: UiFontFamily.inter,
+            ),
+          ),
+          TextSpan(
+            text: tappableText,
+            recognizer: TapGestureRecognizer()..onTap = onTap,
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.43,
+              letterSpacing: 0.1,
+              fontWeight: FontWeight.w500,
+              fontFamily: UiFontFamily.inter,
+              color: AquaColors.vividSkyBlue,
+              decorationColor: AquaColors.vividSkyBlue,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ],
       ),
     );
   }

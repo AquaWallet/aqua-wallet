@@ -1441,6 +1441,84 @@ class $AssetsIconGen {
   List<AssetGenImage> get values => [appIcon];
 }
 
+class $AssetsImagesGen {
+  const $AssetsImagesGen();
+
+  /// File path: assets/images/card_10_front.png
+  AssetGenImage get card10Front =>
+      const AssetGenImage('assets/images/card_10_front.png');
+
+  /// File path: assets/images/card_1_back.png
+  AssetGenImage get card1Back =>
+      const AssetGenImage('assets/images/card_1_back.png');
+
+  /// File path: assets/images/card_1_front.png
+  AssetGenImage get card1Front =>
+      const AssetGenImage('assets/images/card_1_front.png');
+
+  /// File path: assets/images/card_2_back.png
+  AssetGenImage get card2Back =>
+      const AssetGenImage('assets/images/card_2_back.png');
+
+  /// File path: assets/images/card_2_front.png
+  AssetGenImage get card2Front =>
+      const AssetGenImage('assets/images/card_2_front.png');
+
+  /// File path: assets/images/card_3_back.png
+  AssetGenImage get card3Back =>
+      const AssetGenImage('assets/images/card_3_back.png');
+
+  /// File path: assets/images/card_3_front.png
+  AssetGenImage get card3Front =>
+      const AssetGenImage('assets/images/card_3_front.png');
+
+  /// File path: assets/images/card_4_back.png
+  AssetGenImage get card4Back =>
+      const AssetGenImage('assets/images/card_4_back.png');
+
+  /// File path: assets/images/card_4_front.png
+  AssetGenImage get card4Front =>
+      const AssetGenImage('assets/images/card_4_front.png');
+
+  /// File path: assets/images/card_5_front.png
+  AssetGenImage get card5Front =>
+      const AssetGenImage('assets/images/card_5_front.png');
+
+  /// File path: assets/images/card_6_front.png
+  AssetGenImage get card6Front =>
+      const AssetGenImage('assets/images/card_6_front.png');
+
+  /// File path: assets/images/card_7_front.png
+  AssetGenImage get card7Front =>
+      const AssetGenImage('assets/images/card_7_front.png');
+
+  /// File path: assets/images/card_8_front.png
+  AssetGenImage get card8Front =>
+      const AssetGenImage('assets/images/card_8_front.png');
+
+  /// File path: assets/images/card_9_front.png
+  AssetGenImage get card9Front =>
+      const AssetGenImage('assets/images/card_9_front.png');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [
+        card10Front,
+        card1Back,
+        card1Front,
+        card2Back,
+        card2Front,
+        card3Back,
+        card3Front,
+        card4Back,
+        card4Front,
+        card5Front,
+        card6Front,
+        card7Front,
+        card8Front,
+        card9Front
+      ];
+}
+
 class $AssetsMarketplaceGen {
   const $AssetsMarketplaceGen();
 
@@ -1534,6 +1612,20 @@ class $AssetsMarketplaceGen {
         pocketWhite,
         remittance
       ];
+}
+
+class $AssetsRawGen {
+  const $AssetsRawGen();
+
+  /// File path: assets/raw/moon_unsupported_countries.txt
+  String get moonUnsupportedCountries =>
+      'assets/raw/moon_unsupported_countries.txt';
+
+  /// File path: assets/raw/test_txn_export.json
+  String get testTxnExport => 'assets/raw/test_txn_export.json';
+
+  /// List of all assets
+  List<String> get values => [moonUnsupportedCountries, testTxnExport];
 }
 
 class $AssetsSvgsGen {
@@ -1757,8 +1849,12 @@ class $AssetsSvgsLightGen {
   /// File path: assets/svgs/light/botev.svg
   SvgGenImage get botev => const SvgGenImage('assets/svgs/light/botev.svg');
 
+  /// File path: assets/svgs/light/jan3_logo.svg
+  SvgGenImage get jan3Logo =>
+      const SvgGenImage('assets/svgs/light/jan3_logo.svg');
+
   /// List of all assets
-  List<SvgGenImage> get values => [aquaLogo, botev];
+  List<SvgGenImage> get values => [aquaLogo, botev, jan3Logo];
 }
 
 class UiAssets {
@@ -1827,6 +1923,7 @@ class UiAssets {
   static const SvgGenImage history = SvgGenImage('assets/history.svg');
   static const SvgGenImage house = SvgGenImage('assets/house.svg');
   static const $AssetsIconGen icon = $AssetsIconGen();
+  static const $AssetsImagesGen images = $AssetsImagesGen();
   static const SvgGenImage incoming = SvgGenImage('assets/incoming.svg');
   static const SvgGenImage info = SvgGenImage('assets/info.svg');
   static const SvgGenImage instagram = SvgGenImage('assets/instagram.svg');
@@ -1871,6 +1968,7 @@ class UiAssets {
   static const SvgGenImage profileTerms =
       SvgGenImage('assets/profile_terms.svg');
   static const SvgGenImage qr = SvgGenImage('assets/qr.svg');
+  static const $AssetsRawGen raw = $AssetsRawGen();
   static const SvgGenImage recovery = SvgGenImage('assets/recovery.svg');
   static const SvgGenImage recoveryPhrase =
       SvgGenImage('assets/recovery_phrase.svg');
