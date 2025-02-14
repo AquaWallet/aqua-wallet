@@ -104,6 +104,27 @@
     "youMayNotUseTheCardWithMerchantsBillingFromOrLocatedIn"
   ],
 
+  "pl": [
+    "marketplaceScreenRemittanceButton",
+    "marketplaceScreenDolphinCardButton",
+    "marketplaceScreenDolphinCardButtonDescription",
+    "dolphinCard",
+    "supportedCountries",
+    "features",
+    "reloadable",
+    "noCostToLoad",
+    "fourThousandUsdMonthlySpendingLimit",
+    "onePercentFeeOnSpend",
+    "oneDollarMinSpend",
+    "youCanShopAtMillionsOfMerchantsInOver130Countries",
+    "close",
+    "dolphin",
+    "chooseYourStyle",
+    "next",
+    "reloadableCard",
+    "youMayNotUseTheCardWithMerchantsBillingFromOrLocatedIn"
+  ],
+
   "pt": [
     "marketplaceScreenRemittanceButton",
     "marketplaceScreenDolphinCardButton",
