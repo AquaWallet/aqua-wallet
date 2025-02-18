@@ -84,7 +84,7 @@ class ChangellyAssetIds {
   static const String btc = 'btc';
   static const String lbtc = 'lbtc';
   static const String usdt20 = 'usdt20';
-  static const String usdtrx = 'tusdtrx';
+  static const String usdtrx = 'usdtrx';
   static const String usdtbsc = 'usdtbsc';
   static const String usdtsol = 'usdtsol';
   static const String usdtpolygon = 'usdtpolygon';

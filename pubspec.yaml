@@ -3,7 +3,7 @@ description: AQUA - Bitcoin & Layer 2 Wallet
 
 publish_to: "none"
 
-version: 0.2.9+168
+version: 0.2.10+171
 
 environment:
   sdk: "3.4.4"

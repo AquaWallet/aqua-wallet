@@ -157,7 +157,8 @@ class _AssetTransactionListItem extends HookConsumerWidget {
     final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
 
     final cryptoAmountInSats = useMemoized(() {
-      final cryptoAmount = Decimal.tryParse(itemUiModel.cryptoAmount);
+      final cryptoAmount =
+          Decimal.tryParse(itemUiModel.cryptoAmount.replaceAll(',', ''));
       return itemUiModel.asset.isAnyUsdt
           ? ((cryptoAmount ?? Decimal.zero) *
                   Decimal.fromInt(pow(10, itemUiModel.asset.precision).toInt()))

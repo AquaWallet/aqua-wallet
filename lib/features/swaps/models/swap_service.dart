@@ -18,7 +18,10 @@ extension SwapServiceAssets on SwapServiceSource {
             Asset.usdtBep(),
             Asset.usdtSol(),
             Asset.usdtPol(),
-            Asset.usdtTon(),
+            //WARNING: Sideshift supports Ton, but we need to send a memo in transaction to sideshift
+            //because for TON swaps they go to all the same deposit address, so we need to send the shiftId
+            //in the memo of the tx
+            // Asset.usdtTon(),
           ],
         SwapServiceSource.changelly => [
             Asset.usdtEth(),

@@ -45,7 +45,7 @@
         devShell = with pkgs; mkShellNoCC rec {
           ANDROID_HOME = "${androidSdk}/libexec/android-sdk";
           ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
-          JAVA_HOME = jdk11.home;
+          JAVA_HOME = jdk17.home;
           GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/33.0.2/aapt2";
           buildInputs = [
             llvmPackages.libclang
@@ -55,7 +55,7 @@
             androidSdk
             qemu_kvm
             gradle
-            jdk11
+            jdk17
 
             rustup
           ];

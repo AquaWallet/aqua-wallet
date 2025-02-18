@@ -107,7 +107,7 @@ class OnRampIntegration with _$OnRampIntegration {
         deliveryOptions: [DeliveryOption.btc],
         regions: RegionsIntegrations.btcDirectRegions,
         allRegions: false,
-        openInBrowser: true,
+        openInBrowser: false,
         needsSetup: true,
         refLinkMainnet:
             null, // NOTE: This is dynamic from API. See BTCDirectApiService.createCheckoutUrl()

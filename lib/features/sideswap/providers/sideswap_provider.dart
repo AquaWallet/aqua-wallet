@@ -15,7 +15,7 @@ final swapLoadingIndicatorStateProvider =
 });
 
 final sideswapStatusStreamResultStateProvider =
-    StateProvider.autoDispose<ServerStatusResult?>((ref) => null);
+    StateProvider<ServerStatusResult?>((ref) => null);
 
 final sideswapPriceStreamResultStateProvider =
     StateProvider.autoDispose<PriceStreamResult?>((ref) => null);
