@@ -17,7 +17,8 @@ class InternalSendFeeBreakdownCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final input = ref.watch(sideswapInputStateProvider);
     final rate = ref.watch(sideswapConversionRateAmountProvider);
 

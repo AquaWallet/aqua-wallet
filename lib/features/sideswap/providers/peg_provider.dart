@@ -9,6 +9,8 @@ import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 
+final _logger = CustomLogger(FeatureFlag.peg);
+
 final pegProvider =
     AutoDisposeAsyncNotifierProvider<PegNotifier, PegState>(PegNotifier.new);
 
@@ -37,17 +39,17 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     );
 
     if (txn == null) {
-      logger.debug('[PEG] Transaction cannot be created');
+      _logger.debug('Transaction cannot be created');
       final error = PegGdkTransactionException();
       state = AsyncValue.error(error, StackTrace.current);
       throw error;
     }
 
-    final firstOnchainFee = txn.fee!;
+    final sendAssetNetworkFee = txn.fee!;
     final inputAmount = input.deliverAmountSatoshi;
-    final amountMinusOnchainFee = inputAmount - firstOnchainFee;
+    final amountMinusOnchainFee = inputAmount - sendAssetNetworkFee;
 
-    final feeEstimates = asset.isLBTC
+    final receiveAssetNetworkFeeRate = input.receiveAsset!.isLBTC
         ? ref.read(feeEstimateProvider).getLiquidFeeRate()
         : (await ref
             .read(feeEstimateProvider)
@@ -55,18 +57,21 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
 
     final amountMinusSideSwapFee =
         SideSwapFeeCalculator.subtractSideSwapFeeForPegDeliverAmount(
-            amountMinusOnchainFee, input.isPegIn, statusStream, feeEstimates);
+            amountMinusOnchainFee,
+            input.isPegIn,
+            statusStream,
+            receiveAssetNetworkFeeRate);
 
-    final secondOnchainFee = asset.isBTC
-        ? SideSwapFeeCalculator.estimatedPegInSecondFee(feeEstimates)
-        : SideSwapFeeCalculator.estimatedPegOutSecondFee(feeEstimates);
+    final receiveAssetNetworkFee = asset.isBTC
+        ? SideSwapFeeCalculator.estimatedPegInSecondFee()
+        : SideSwapFeeCalculator.estimatedPegOutSecondFee(
+            receiveAssetNetworkFeeRate);
 
     logger.debug(
-        "[Peg] Verifying Order - Input Amount: $inputAmount - First onchain Fee: $firstOnchainFee - Second onchain Fee: $secondOnchainFee - Amount (minus onchain fee): $amountMinusOnchainFee - Amount (minus sideswap fee): $amountMinusSideSwapFee");
+        "Verifying Order - Input Amount: $inputAmount - First onchain Fee: $sendAssetNetworkFee - Second onchain Fee: $receiveAssetNetworkFee - Amount (minus onchain fee): $amountMinusOnchainFee - Amount (minus sideswap fee): $amountMinusSideSwapFee");
 
-    if (firstOnchainFee > inputAmount) {
-      logger
-          .debug('[PEG] Fee ($firstOnchainFee) exceeds amount ($inputAmount)');
+    if (sendAssetNetworkFee > inputAmount) {
+      logger.debug('Fee ($sendAssetNetworkFee) exceeds amount ($inputAmount)');
       final error = PegGdkFeeExceedingAmountException();
       state = AsyncValue.error(error, StackTrace.current);
       throw error;
@@ -77,8 +82,8 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       order: order,
       transaction: txn,
       inputAmount: inputAmount,
-      firstOnchainFeeAmount: firstOnchainFee,
-      secondOnchainFeeAmount: secondOnchainFee,
+      firstOnchainFeeAmount: sendAssetNetworkFee,
+      secondOnchainFeeAmount: receiveAssetNetworkFee,
       sendTxAmount: amountMinusOnchainFee,
       receiveAmount: amountMinusSideSwapFee.toInt(),
       isSendAll: input.isSendAll,
@@ -101,7 +106,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       if (minBtcAmountSatoshi != null &&
           data.asset.isBTC &&
           amount < minBtcAmountSatoshi) {
-        logger.debug('[PEG] BTC amount too low (min: $minBtcAmountSatoshi))');
+        logger.debug('BTC amount too low (min: $minBtcAmountSatoshi))');
         final error = PegSideSwapMinBtcLimitException();
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
@@ -109,15 +114,14 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       if (minLbtcAmountSatoshi != null &&
           data.asset.isLBTC &&
           amount < minLbtcAmountSatoshi) {
-        logger
-            .debug('[PEG] L-BTC amount too low (min: $minLbtcAmountSatoshi))');
+        logger.debug('L-BTC amount too low (min: $minLbtcAmountSatoshi))');
         final error = PegSideSwapMinLBtcLimitException();
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
       }
 
       logger.debug(
-          "[Sideswap][Peg] created tx - asset: ${data.asset.ticker} - amount: $amount - isSendAll: ${data.isSendAll} - pegAddress: ${data.order.pegAddress} - reply: ${data.transaction}");
+          "[Sideswap]created tx - asset: ${data.asset.ticker} - amount: $amount - isSendAll: ${data.isSendAll} - pegAddress: ${data.order.pegAddress} - reply: ${data.transaction}");
 
       final transaction =
           await signPegGdkTransaction(data.transaction, data.asset);
@@ -134,6 +138,10 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
               type: ref.read(sideswapInputStateProvider).isPegIn
                   ? TransactionDbModelType.sideswapPegIn
                   : TransactionDbModelType.sideswapPegOut,
+              // second chain fee is estimated at the TX execution time
+              // because fee rates vary we must save the estimated one in TX DB
+              estimatedFee:
+                  data.firstOnchainFeeAmount + data.secondOnchainFeeAmount,
               serviceOrderId: data.order.orderId,
               serviceAddress: data.order.pegAddress,
             ));
@@ -169,7 +177,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
     );
     await ref.read(pegStorageProvider.notifier).save(pegOrder);
     logger.debug(
-        '[Sideswap][Peg] Cached initial peg order: ${pegOrder.orderId}, Amount: ${pegOrder.amount}, IsPegIn: ${pegOrder.isPegIn}');
+        '[Sideswap]Cached initial peg order: ${pegOrder.orderId}, Amount: ${pegOrder.amount}, IsPegIn: ${pegOrder.isPegIn}');
   }
 
   Future<void> _updateCachedPegOrder(
@@ -190,10 +198,10 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       final updatedOrder = existingOrder.copyWithStatus(updatedStatus);
       await ref.read(pegStorageProvider.notifier).save(updatedOrder);
       logger.debug(
-          '[Sideswap][Peg] Updated cached peg order: $orderId, TxHash: ${transaction.txhash}, Amount: ${transaction.satoshi?.values.first}');
+          '[Sideswap]Updated cached peg order: $orderId, TxHash: ${transaction.txhash}, Amount: ${transaction.satoshi?.values.first}');
     } else {
       logger.warning(
-          '[Sideswap][Peg] Attempted to update non-existent peg order: $orderId');
+          '[Sideswap]Attempted to update non-existent peg order: $orderId');
     }
   }
 
@@ -229,10 +237,10 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
 
       final txReply = await network.createTransaction(transaction: transaction);
       logger.debug(
-          "[Peg] Create Gdk Tx - deliverAmountSatoshi $deliverAmountSatoshi - fee ${txReply?.fee} - feeRatePerKb $feeEstimateKb - isSendAll: $isSendAll");
+          "Create Gdk Tx - deliverAmountSatoshi $deliverAmountSatoshi - fee ${txReply?.fee} - feeRatePerKb $feeEstimateKb - isSendAll: $isSendAll");
       return txReply;
     } on GdkNetworkInsufficientFunds {
-      logger.debug('[PEG] Insufficient funds');
+      logger.debug('Insufficient funds');
       if (relayErrors) {
         final error = PegGdkInsufficientFeeBalanceException();
         state = AsyncValue.error(error, StackTrace.current);
@@ -240,7 +248,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
       }
     } catch (e) {
       if (relayErrors) {
-        logger.error('[PEG] create gdk tx error: $e');
+        logger.error('create gdk tx error: $e');
         final error = PegGdkTransactionException();
         state = AsyncValue.error(error, StackTrace.current);
         throw error;
@@ -277,7 +285,7 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
 
       return signedReply;
     } catch (e) {
-      logger.error('[PEG] sign/send gdk tx error: $e');
+      logger.error('sign/send gdk tx error: $e');
       final error = PegGdkTransactionException();
       state = AsyncValue.error(error, StackTrace.current);
       throw error;

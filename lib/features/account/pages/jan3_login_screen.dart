@@ -20,8 +20,10 @@ class Jan3LoginScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final isDark =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final profileState = ref.watch(jan3AuthProvider);
+    final isPayWithMoonEnabled = ref.watch(isMoonEnabledProvider);
     final emailFormGroup = useMemoized(() => FormGroup({
           _emailFormControlName: FormControl<String>(
             validators: [
@@ -30,15 +32,17 @@ class Jan3LoginScreen extends HookConsumerWidget {
             ],
           ),
         }));
+    final termsAccepted = useState(false);
 
     ref.listen(jan3AuthProvider, (prev, next) {
       if (prev?.value == next.value) return;
       next.value?.maybeWhen(
-        authenticated: (_, pendingCardCreation) => context
-          ..popUntilPath(AuthWrapper.routeName)
-          ..push(pendingCardCreation
-              ? DebitCardStyleSelectionScreen.routeName
-              : DebitCardMyCardScreen.routeName),
+        authenticated: (_, pendingCardCreation) {
+          context.popUntilPath(AuthWrapper.routeName);
+          if (isPayWithMoonEnabled) {
+            context.push(DebitCardMyCardScreen.routeName);
+          }
+        },
         pendingOtpVerification: () => context.push(
           Jan3OtpVerificationScreen.routeName,
           extra: emailFormGroup.control(_emailFormControlName).value,
@@ -163,14 +167,23 @@ class Jan3LoginScreen extends HookConsumerWidget {
                   fontSize: 14,
                 ),
               ),
+              const SizedBox(height: 16),
+              // ANCHOR - Terms checkbox
+              Jan3TermsCheckbox(
+                onTermsAccepted: termsAccepted,
+              ),
               const Spacer(),
               // ANCHOR - Continue button
               ReactiveFormConsumer(
                 builder: (context, form, _) => AquaElevatedButton(
-                  onPressed: (profileState.isLoading || form.invalid)
+                  onPressed: (profileState.isLoading ||
+                          form.invalid ||
+                          !termsAccepted.value)
                       ? null
                       : () => ref.read(jan3AuthProvider.notifier).sendOtp(
                             form.control(_emailFormControlName).value,
+                            ref.read(languageProvider(context)
+                                .select((p) => p.currentLanguage)),
                           ),
                   child: profileState.isLoading
                       ? const CircularProgressIndicator()

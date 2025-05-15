@@ -10,6 +10,9 @@ final _logger = CustomLogger(FeatureFlag.sideswap);
 
 const kPegBoxName = 'peg';
 
+@Deprecated(
+    'TODO: Use SwapStorageProvider instead. Pegs should be under the main swap interface.')
+// This provider is deprecated. Pegs should be managed under the main swap interface,
 final pegStorageProvider =
     AsyncNotifierProvider<PegOrderStorageNotifier, List<PegOrderDbModel>>(
         PegOrderStorageNotifier.new);
@@ -24,9 +27,13 @@ abstract class PegOrderStorage {
   Future<void> clear();
   Future<List<PegOrderDbModel>> getPegInOrders();
   Future<List<PegOrderDbModel>> getPegOutOrders();
+  Future<List<PegOrderDbModel>> getAllPegOrders();
   Future<PegOrderDbModel?> getOrderById(String orderId);
 }
 
+@Deprecated(
+    'TODO:  Use SwapStorageProvider instead. Pegs should be under the main swap interface.')
+// This notifier is deprecated. Pegs should be managed under the main swap interface.
 class PegOrderStorageNotifier extends AsyncNotifier<List<PegOrderDbModel>>
     implements PegOrderStorage {
   @override
@@ -132,5 +139,36 @@ class PegOrderStorageNotifier extends AsyncNotifier<List<PegOrderDbModel>>
     _logger.debug(
         '[Isar] Retrieved peg order: $orderId (Found: ${order != null})');
     return order;
+  }
+
+  @override
+  Future<List<PegOrderDbModel>> getAllPegOrders() async {
+    try {
+      final storage = await ref.read(storageProvider.future);
+      final allOrders = await storage.pegOrderDbModels.where().findAll();
+      _logger.debug('[Isar] Retrieved all peg orders: ${allOrders.length}');
+      return allOrders;
+    } catch (e, st) {
+      _logger.error('[Isar] Error retrieving all peg orders', e, st);
+      rethrow;
+    }
+  }
+
+  Future<List<PegOrderDbModel>> getAllPendingSettlementPegOrders() async {
+    try {
+      final storage = await ref.read(storageProvider.future);
+      final allOrders = await storage.pegOrderDbModels.where().findAll();
+      final pendingOrders = allOrders.where((order) {
+        final consolidatedStatus = order.status.getConsolidatedStatus();
+        return PegStatusState(consolidatedStatus: consolidatedStatus)
+            .isPendingSettlement;
+      }).toList();
+      _logger.debug(
+          '[Peg Storage] Retrieved ${pendingOrders.length} pending peg orders');
+      return pendingOrders;
+    } catch (e, st) {
+      _logger.error('[Peg Storage] Error retrieving pending peg orders', e, st);
+      return [];
+    }
   }
 }

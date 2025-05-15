@@ -1,4 +1,5 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/account/providers/jan3_auth_provider.dart';
 import 'package:aqua/features/logger_table/logger_table.dart';
 import 'package:aqua/features/settings/debug/debug_database_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -36,6 +37,8 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         ref.watch(featureFlagsProvider.select((p) => p.statusIndicator));
     final isLnurlWithdrawEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.lnurlWithdrawEnabled));
+    final pokerChipSweepEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.pokerChipSweepEnabled));
     final isDatabaseExportEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.dbExportEnabled));
     final useChangellyForUSDtSwapsEnabled = ref.watch(
@@ -52,6 +55,11 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         .watch(featureFlagsProvider.select((p) => p.customElectrumUrlEnabled));
     final displayUnit =
         ref.watch(displayUnitsProvider.select((p) => p.currentDisplayUnit));
+    final isDebitCardStagingEnabled = ref.watch(
+      featureFlagsProvider.select((p) => p.debitCardStagingEnabled),
+    );
+    final isSamRockEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.samRockEnabled));
 
     final showAlertDialog = useCallback(({
       required String message,
@@ -146,6 +154,21 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                     ),
           ),
           const SizedBox(height: 16.0),
+
+          //ANCHOR: Poker Chip Sweep
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.pokerchipSweep,
+            assetName: Svgs.pokerchipFrameDark,
+            value: pokerChipSweepEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.pokerChipSweepEnabled,
+                      currentValue: pokerChipSweepEnabled,
+                    ),
+          ),
+          const SizedBox(height: 16.0),
+
           //ANCHOR: Seed QR
           MenuItemWidget.switchItem(
             context: context,
@@ -218,11 +241,15 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             title: context.loc.marketplaceScreenBankingButton,
             assetName: Svgs.marketplaceBankings,
             value: isPayWithMoonEnabled,
-            onPressed: () =>
-                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                      key: PrefKeys.payWithMoonEnabled,
-                      currentValue: isPayWithMoonEnabled,
-                    ),
+            onPressed: () {
+              if (isPayWithMoonEnabled) {
+                ref.read(jan3AuthProvider.notifier).signOut();
+              }
+              ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                    key: PrefKeys.payWithMoonEnabled,
+                    currentValue: isPayWithMoonEnabled,
+                  );
+            },
           ),
           const SizedBox(height: 16.0),
 
@@ -295,6 +322,22 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: Debit Card Staging Environment
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.expFeaturesScreenItemsDebitCardStaging,
+            assetName: Svgs.marketplaceBankings,
+            value: isDebitCardStagingEnabled,
+            onPressed: () {
+              ref.read(jan3AuthProvider.notifier).signOut();
+              ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                    key: PrefKeys.debitCardStagingEnabled,
+                    currentValue: isDebitCardStagingEnabled,
+                  );
+            },
           ),
           const SizedBox(height: 16.0),
 
@@ -375,6 +418,20 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                     currentValue: forceAquaNodeNotSyncedEnabled,
                   );
             },
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: SAM Rock Protocol
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.expFeaturesScreenItemsSamRock,
+            assetName: Svgs.qr,
+            value: isSamRockEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.samRockEnabled,
+                      currentValue: isSamRockEnabled,
+                    ),
           ),
           const SizedBox(height: 16.0),
 

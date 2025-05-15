@@ -1,4 +1,6 @@
+import 'package:aqua/data/models/network_amount.dart';
 import 'package:aqua/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
+import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -24,15 +26,43 @@ class SendAssetArguments with _$SendAssetArguments {
     required String network,
     SwapPair? swapPair,
     String? input,
+    String? externalPrivateKey,
     Decimal? userEnteredAmount,
+    NetworkAmount? networkAmount,
     LNURLParseResult? lnurlParseResult,
+    SendTransactionType? transactionType,
   }) = _SendAssetArguments;
+
+  factory SendAssetArguments({
+    required Asset asset,
+    required String network,
+    SwapPair? swapPair,
+    String? input,
+    String? externalPrivateKey,
+    Decimal? userEnteredAmount,
+    NetworkAmount? networkAmount,
+    LNURLParseResult? lnurlParseResult,
+    SendTransactionType? transactionType = SendTransactionType.send,
+  }) {
+    return SendAssetArguments._(
+      asset: asset,
+      network: network,
+      swapPair: swapPair,
+      input: input,
+      externalPrivateKey: externalPrivateKey,
+      userEnteredAmount: userEnteredAmount,
+      networkAmount: networkAmount ?? NetworkAmount.zero(asset),
+      lnurlParseResult: lnurlParseResult,
+      transactionType: transactionType,
+    );
+  }
 
   factory SendAssetArguments.btc(Asset asset) => SendAssetArguments._(
         asset: asset,
         network: 'Bitcoin',
         swapPair: null,
         input: null,
+        externalPrivateKey: null,
         userEnteredAmount: null,
         lnurlParseResult: null,
       );
@@ -42,6 +72,7 @@ class SendAssetArguments with _$SendAssetArguments {
         network: 'Liquid',
         swapPair: null,
         input: null,
+        externalPrivateKey: null,
         userEnteredAmount: null,
         lnurlParseResult: null,
       );
@@ -51,6 +82,7 @@ class SendAssetArguments with _$SendAssetArguments {
         network: 'Lightning',
         swapPair: null,
         input: null,
+        externalPrivateKey: null,
         userEnteredAmount: null,
         lnurlParseResult: null,
       );
@@ -60,6 +92,7 @@ class SendAssetArguments with _$SendAssetArguments {
         network: 'Liquid',
         swapPair: null,
         input: null,
+        externalPrivateKey: null,
         userEnteredAmount: null,
         lnurlParseResult: null,
       );
@@ -70,6 +103,7 @@ class SendAssetArguments with _$SendAssetArguments {
         swapPair:
             SwapPair(from: SwapAssetExt.usdtLiquid, to: SwapAssetExt.usdtEth),
         input: null,
+        externalPrivateKey: null,
         userEnteredAmount: null,
         lnurlParseResult: null,
       );
@@ -80,7 +114,7 @@ class SendAssetArguments with _$SendAssetArguments {
         swapPair:
             SwapPair(from: SwapAssetExt.usdtLiquid, to: SwapAssetExt.usdtTrx),
         input: null,
-        userEnteredAmount: null,
+        externalPrivateKey: null,
         lnurlParseResult: null,
       );
 
@@ -90,7 +124,7 @@ class SendAssetArguments with _$SendAssetArguments {
         swapPair:
             SwapPair(from: SwapAssetExt.usdtLiquid, to: SwapAssetExt.usdtBep),
         input: null,
-        userEnteredAmount: null,
+        externalPrivateKey: null,
         lnurlParseResult: null,
       );
 
@@ -100,7 +134,7 @@ class SendAssetArguments with _$SendAssetArguments {
         swapPair:
             SwapPair(from: SwapAssetExt.usdtLiquid, to: SwapAssetExt.usdtSol),
         input: null,
-        userEnteredAmount: null,
+        externalPrivateKey: null,
         lnurlParseResult: null,
       );
 
@@ -110,7 +144,7 @@ class SendAssetArguments with _$SendAssetArguments {
         swapPair:
             SwapPair(from: SwapAssetExt.usdtLiquid, to: SwapAssetExt.usdtPol),
         input: null,
-        userEnteredAmount: null,
+        externalPrivateKey: null,
         lnurlParseResult: null,
       );
 
@@ -120,7 +154,7 @@ class SendAssetArguments with _$SendAssetArguments {
         swapPair:
             SwapPair(from: SwapAssetExt.usdtLiquid, to: SwapAssetExt.usdtTon),
         input: null,
-        userEnteredAmount: null,
+        externalPrivateKey: null,
         lnurlParseResult: null,
       );
 

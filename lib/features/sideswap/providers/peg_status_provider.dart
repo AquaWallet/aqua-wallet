@@ -39,7 +39,7 @@ class _Notifier extends AutoDisposeNotifier<PegStatusState> {
 
     final cachedStatus = await _getCachedStatus(orderId);
     if (cachedStatus != null) {
-      final consolidatedCachedStatus = _getConsolidatedStatus(cachedStatus);
+      final consolidatedCachedStatus = cachedStatus.getConsolidatedStatus();
       if (consolidatedCachedStatus.state == PegTxState.done) {
         logger.debug('[Sideswap][PegStatus] Found done status in local cache');
         state = PegStatusState(
@@ -58,69 +58,13 @@ class _Notifier extends AutoDisposeNotifier<PegStatusState> {
   void processPegStatus(SwapPegStatusResponse response) async {
     logger.debug('[Sideswap][PegStatus] Status: ${response.result}');
     if (response.result != null) {
-      final consolidatedStatus = _getConsolidatedStatus(response.result!);
+      final consolidatedStatus = response.result!.getConsolidatedStatus();
       state = PegStatusState(
         fullStatus: response.result,
         consolidatedStatus: consolidatedStatus,
       );
       await _updateCachedStatus(response.result!);
     }
-  }
-
-  /// TODO: This is a temporary solution to provide a single overall state.
-  /// The long-term fix involves showing a list of all deposit
-  /// txs with their individual statuses.
-  /// Multiple txs would be an edge cases anyway. Aqua controlled pegs will ohly send one tx per order.
-  /// Multiple txs would only come from External Peg-in/out
-  ///
-  /// Priority order: Done > Processing > Detected > InsufficientAmount
-  ConsolidatedPegStatus _getConsolidatedStatus(SwapPegStatusResult status) {
-    if (status.transactions.isEmpty) {
-      logger.debug('[Sideswap][PegStatus] Transactions are empty');
-      return const ConsolidatedPegStatus(state: null);
-    }
-
-    logger.debug(
-        '[Sideswap][PegStatus] Number of transactions: ${status.transactions.length}');
-    final doneTxn = status.transactions
-        .firstWhereOrNull((tx) => tx.txState == PegTxState.done);
-    final processingTxn = status.transactions
-        .firstWhereOrNull((tx) => tx.txState == PegTxState.processing);
-    final detectedTxn = status.transactions
-        .firstWhereOrNull((tx) => tx.txState == PegTxState.detected);
-    final insufficientAmountTxn = status.transactions
-        .firstWhereOrNull((tx) => tx.txState == PegTxState.insufficientAmount);
-
-    if (doneTxn != null) {
-      logger.debug('[Sideswap][PegStatus] Found done transaction');
-      return ConsolidatedPegStatus(
-          state: PegTxState.done, transaction: doneTxn);
-    }
-    if (processingTxn != null) {
-      logger.debug(
-          '[Sideswap][PegStatus] Found processing transaction. Confs: ${processingTxn.detectedConfs}/${processingTxn.totalConfs}');
-      return ConsolidatedPegStatus(
-        state: PegTxState.processing,
-        transaction: processingTxn,
-        detectedConfs: processingTxn.detectedConfs,
-        totalConfs: processingTxn.totalConfs,
-      );
-    }
-    if (detectedTxn != null) {
-      logger.debug('[Sideswap][PegStatus] Found detected transaction');
-      return ConsolidatedPegStatus(
-          state: PegTxState.detected, transaction: detectedTxn);
-    }
-    if (insufficientAmountTxn != null) {
-      logger
-          .debug('[Sideswap][PegStatus] Found insufficient amount transaction');
-      return ConsolidatedPegStatus(
-          state: PegTxState.insufficientAmount,
-          transaction: insufficientAmountTxn);
-    }
-
-    logger.debug('[Sideswap][PegStatus] No relevant transaction found');
-    return const ConsolidatedPegStatus(state: null);
   }
 
   Future<SwapPegStatusResult?> _getCachedStatus(String orderId) async {
@@ -158,7 +102,7 @@ class _Notifier extends AutoDisposeNotifier<PegStatusState> {
   }
 
   String _getStatusString(SwapPegStatusResult result) {
-    final consolidatedStatus = _getConsolidatedStatus(result);
+    final consolidatedStatus = result.getConsolidatedStatus();
     return 'state: ${consolidatedStatus.state}, '
         'detectedConfs: ${consolidatedStatus.detectedConfs}, '
         'totalConfs: ${consolidatedStatus.totalConfs}';

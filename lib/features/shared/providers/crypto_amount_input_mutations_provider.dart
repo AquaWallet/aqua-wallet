@@ -43,12 +43,17 @@ class CryptoAmountInputMutationsNotifier {
       final fiat = Decimal.tryParse(text) ?? Decimal.zero;
       final sats = await _ref.read(fiatProvider).fiatToSatoshi(asset, fiat);
       return sats.toBigInt().toInt();
-    } else {
-      // Crypto to Sats
-      return _ref.read(formatterProvider).parseAssetAmountDirect(
-            amount: text,
-            precision: asset.precision,
-          );
     }
+
+    // Crypto to Sats
+    return _ref.read(formatterProvider).parseAssetAmountDirect(
+          amount: text.isNotEmpty
+              ? text
+              :
+              // text is empty string ("")
+              // interpret as 0 sats
+              "0",
+          precision: asset.precision,
+        );
   }
 }

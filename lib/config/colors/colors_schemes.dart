@@ -198,6 +198,16 @@ abstract class AppColors {
 
   Color get jan3InputFieldBackgroundColor;
 
+  Color get toggleBorder;
+
+  Color get scanBottom;
+
+  Color get activeButtonToggle;
+
+  Color get inactiveButtonToggle;
+
+  Color get redAmbiguousChars;
+
   ColorScheme get colorScheme;
 }
 
@@ -493,6 +503,12 @@ class DarkThemeColors implements AppColors {
   Color get jan3InputFieldBackgroundColor => AquaColors.darkJungleGreen;
 
   @override
+  Color get toggleBorder => AquaColors.platinum;
+
+  @override
+  Color get scanBottom => AquaColors.backgroundSkyBlue;
+
+  @override
   ColorScheme get colorScheme => ColorScheme(
         brightness: Brightness.dark,
         primary: AquaColors.backgroundSkyBlue,
@@ -510,11 +526,27 @@ class DarkThemeColors implements AppColors {
         error: AquaColors.portlandOrange,
         onError: Colors.white,
       );
+
+  @override
+  Color get activeButtonToggle => AquaColors.cultured;
+
+  @override
+  Color get inactiveButtonToggle => AquaColors.darkGrey;
+
+  @override
+  // TODO: implement redAmbiguousChars
+  Color get redAmbiguousChars => Colors.red;
 }
 
 //ANCHOR - Light Theme Colors
 
 class LightThemeColors implements AppColors {
+  @override
+  Color get toggleBorder => AquaColors.platinum;
+
+  @override
+  Color get scanBottom => AquaColors.backgroundSkyBlue;
+
   @override
   Color get divider => AquaColors.brightGray;
 
@@ -822,6 +854,15 @@ class LightThemeColors implements AppColors {
         error: AquaColors.portlandOrange,
         onError: Colors.white,
       );
+
+  @override
+  Color get activeButtonToggle => AquaColors.cultured;
+
+  @override
+  Color get inactiveButtonToggle => AquaColors.darkGrey;
+
+  @override
+  Color get redAmbiguousChars => Colors.red;
 }
 
 //ANCHOR - Botev Mode Theme Colors

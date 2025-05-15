@@ -24,7 +24,8 @@ class InternalSendAmountScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final input = ref.watch(sideswapInputStateProvider);
     final swapAssets = ref.watch(swapAssetsProvider).assets;
-    final isDarkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final isDarkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
 
     final resetFormWithError = useCallback((String message) {
       ref.invalidate(sideswapInputStateProvider);

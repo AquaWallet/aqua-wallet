@@ -22,15 +22,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
         return null;
       }
-      // If the user is navigating to my card screen but has no cards,
-      // then redirect to style selection screen for card creation
-      if (state.matchedLocation == DebitCardMyCardScreen.routeName) {
-        final cards = await ref.read(moonCardsProvider.future);
-        if (cards.isEmpty) {
-          return DebitCardStyleSelectionScreen.routeName;
-        }
-        return null;
-      }
       return null;
     },
     debugLogDiagnostics: kDebugMode,

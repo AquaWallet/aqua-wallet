@@ -134,29 +134,3 @@ final aquaServiceEnvConfigProvider = Provider<EnvConfig>((ref) {
       throw UnimplementedError('Unknown environment');
   }
 });
-
-// ANCHOR - BTCDirect
-final btcDirectEnvConfigProvider = Provider<EnvConfig>((ref) {
-  final env = ref.watch(envProvider);
-
-  switch (env) {
-    case Env.mainnet:
-      return EnvConfig(
-        apiUrl: btcDirectProdUrl,
-        apiKey: Secrets.kBtcDirectProdApiKey,
-        username: Secrets.kBtcDirectProdUsername,
-        password: Secrets.kBtcDirectProdPassword,
-        secret: Secrets.kBtcDirectProdSecret,
-      );
-    case Env.testnet || Env.regtest:
-      return EnvConfig(
-        apiUrl: btcDirectSandboxUrl,
-        apiKey: Secrets.kBtcDirectSandboxApiKey,
-        username: Secrets.kBtcDirectSandboxUsername,
-        password: Secrets.kBtcDirectSandboxPassword,
-        secret: Secrets.kBtcDirectSandboxSecret,
-      );
-    default:
-      throw UnimplementedError('Unknown environment');
-  }
-});

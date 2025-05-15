@@ -1,0 +1,7 @@
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: ui_localizations.dart
+untranslated-messages-file: untranslated-messages.json
+output-class: UiLocalizations
+output-dir: lib/gen
+synthetic-package: false

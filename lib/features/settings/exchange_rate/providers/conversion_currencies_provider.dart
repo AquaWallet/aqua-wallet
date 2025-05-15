@@ -1,10 +1,7 @@
 import 'dart:async';
-
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:dio/dio.dart';
 
 final fiatRatesProvider =
     AsyncNotifierProvider<FiatRatesNotifier, List<BitcoinFiatRatesResponse>>(
@@ -26,25 +23,6 @@ class FiatRatesNotifier extends AsyncNotifier<List<BitcoinFiatRatesResponse>> {
           json.map((map) => BitcoinFiatRatesResponse.fromJson(map));
       ref.refreshAfter(const Duration(seconds: 15));
       return feeRatesResponse.toList();
-    } on DioException catch (e) {
-      //NOTE - Temp solution for failing BTC Pay link
-      if (e.type == DioExceptionType.receiveTimeout) {
-        // Use Mempool Space as fallback
-        const endpoint = '$mempoolSpaceUrl/fees/recommended';
-        final response = await client.get(endpoint);
-        final json = response.data as Map<String, dynamic>;
-        return ['fastestFee', 'halfHourFee', 'hourFee', 'minimumFee']
-            .where((option) => json.containsKey(option))
-            .map((option) => BitcoinFiatRatesResponse(
-                  name: 'Bitcoin',
-                  cryptoCode: 'BTC',
-                  currencyPair: 'USD',
-                  code: 'USD',
-                  rate: json[option].toDouble(),
-                ))
-            .toList();
-      }
-      rethrow;
     } catch (e) {
       throw FiatRatesUnavailableError();
     }

@@ -27,8 +27,18 @@ class SendAssetScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final args = useState(arguments);
     final input = ref.watch(sendAssetInputStateProvider(args.value));
-    final currentStep =
-        useState(input.value?.initialStep ?? SendFlowStep.address);
+    final currentStep = useState<SendFlowStep?>(null);
+
+    // Set initial step only once when input first has a value
+    useEffect(() {
+      if (currentStep.value == null &&
+          input.hasValue &&
+          input.value?.initialStep != null) {
+        currentStep.value = input.value!.initialStep;
+      }
+      return null;
+    }, [input]);
+
     final stepPages = useMemoized(
       () => [
         SendAssetAddressPage(
@@ -74,7 +84,7 @@ class SendAssetScreen extends HookConsumerWidget {
       [args.value],
     );
     final controller = usePageController(
-      initialPage: currentStep.value.index,
+      initialPage: currentStep.value?.index ?? SendFlowStep.address.index,
       keepPage: true,
     );
     final onAppBarBackPressed = useCallback(() {
@@ -90,7 +100,7 @@ class SendAssetScreen extends HookConsumerWidget {
 
     currentStep.addListener(() {
       controller.animateToPage(
-        currentStep.value.index,
+        currentStep.value?.index ?? SendFlowStep.address.index,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
       );

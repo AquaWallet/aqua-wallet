@@ -17,6 +17,7 @@ class TransactionUiModel with _$TransactionUiModel {
     required Asset? otherAsset,
     required GdkTransaction transaction,
     TransactionDbModel? dbTransaction,
+    @Default(false) bool isRbfSuccess,
   }) = NormalTransactionUiModel;
 
   const factory TransactionUiModel.ghost({
@@ -48,8 +49,13 @@ extension TransactionUiModelX on TransactionUiModel {
           context.loc.assetTransactionsTypeBoltzReverseSwap,
         _ when (dbTransaction?.isAquaSend == true) =>
           context.loc.assetTransactionsTypeSent,
+        _ when (dbTransaction?.isUSDtSwap == true) => context.loc.usdtSwap,
         _ when (dbTransaction?.isTopUp == true) => context.loc
             .assetTransactionsTypeTopup(dbTransaction!.serviceAddress!),
+        _ when (dbTransaction?.isBoltzRefund == true) =>
+          context.loc.assetTransactionsTypeBoltzRefund,
+        _ when (dbTransaction?.isBoltzSendFailed == true) =>
+          context.loc.assetTransactionsTypeBoltzSendFailed,
         GdkTransactionTypeEnum.incoming => context.loc.received,
         GdkTransactionTypeEnum.outgoing =>
           context.loc.assetTransactionsTypeSent,
@@ -74,6 +80,10 @@ extension TransactionUiModelX on TransactionUiModel {
           context.loc.assetTransactionsTypeBoltzReverseSwap,
         _ when (dbTransaction?.isAquaSend == true) =>
           context.loc.assetTransactionsTypeSent,
+        _ when (dbTransaction?.isBoltzRefund == true) =>
+          context.loc.assetTransactionsTypeBoltzRefund,
+        _ when (dbTransaction?.isBoltzSendFailed == true) =>
+          context.loc.assetTransactionsTypeBoltzSendFailed,
         _ => '',
       },
     );

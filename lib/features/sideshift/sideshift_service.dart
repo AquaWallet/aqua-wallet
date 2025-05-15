@@ -90,7 +90,7 @@ class SideshiftService implements SwapService {
 
       final serviceFee = SwapFee(
         type: SwapFeeType.percentageFee,
-        value: DecimalExt.fromDouble(kSideshiftServiceFee),
+        value: DecimalExt.fromDouble(kSideshiftServiceFee, precision: 3),
         currency: SwapFeeCurrency.usd,
       );
 

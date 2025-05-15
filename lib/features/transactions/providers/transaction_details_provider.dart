@@ -29,14 +29,15 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
 
     final asset = arg.$2.asset;
     final transaction = arg.$2.transaction;
-    final allAssets = ref.read(availableAssetsProvider).asData?.value ?? [];
-    final allUserAssets = ref.read(assetsProvider).asData?.value ?? [];
+    final allAssets = await ref.read(availableAssetsProvider.future);
+    final allUserAssets = await ref.read(assetsProvider.future);
     final feeAsset =
         allUserAssets.firstWhere((a) => asset.isBTC ? a.isBTC : a.isLBTC);
     final network =
         asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
 
-    final transactions = await network.getTransactions() ?? [];
+    final transactions =
+        await network.getTransactions(requiresRefresh: true) ?? [];
     final updatedTransaction = transactions.firstWhereOrNull((txn) {
       return txn.txhash == transaction.txhash;
     });
@@ -187,8 +188,17 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
           precision: asset.precision,
         );
 
+    final networkFees = (arguments.dbTransaction?.type?.isPeg ?? false
+            // PEG: we do estimated seconds chain fees, so we save total fee in TX db
+            // if it was not saved, fallback to first TX fee
+            ? arguments.dbTransaction?.estimatedFee ?? transaction.fee
+            // other: take transaction fee
+            : transaction.fee) ??
+        // when fee not available fallback to 0
+        0;
+
     final feeAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: transaction.fee ?? 0,
+          amount: networkFees,
           precision: feeAsset.precision,
         );
 
@@ -243,7 +253,7 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
   Future<void> refresh() async {
     final asset = arg?.$2.asset;
     if (asset != null) {
-      ref.invalidate(rawTransactionsProvider(asset));
+      ref.invalidate(networkTransactionsProvider(asset));
     }
   }
 }

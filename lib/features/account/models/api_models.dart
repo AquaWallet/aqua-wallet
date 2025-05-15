@@ -18,11 +18,57 @@ enum Blockchain {
   liquid,
 }
 
+enum CardEventType {
+  @JsonValue('DECLINE')
+  decline,
+  @JsonValue('CARD_TRANSACTION')
+  cardTransaction,
+  @JsonValue('RELOAD')
+  reload,
+  @JsonValue('CARD_AUTHORIZATION_REFUND')
+  cardAuthorizationRefund,
+}
+
+enum FeeType {
+  @JsonValue('TRANSACTION_FEE')
+  transactionFee,
+}
+
+enum AnkaraLanguages {
+  @JsonValue('en')
+  english('en'),
+  @JsonValue('es')
+  spanish('es'),
+  @JsonValue('pt')
+  portuguese('pt'),
+  @JsonValue('bg')
+  bulgarian('bg'),
+  @JsonValue('nl')
+  dutch('nl');
+
+  final String code;
+  const AnkaraLanguages(this.code);
+}
+
+enum TransactionStatus {
+  @JsonValue('PENDING')
+  pending,
+  @JsonValue('CONFIRMED')
+  confirmed,
+  @JsonValue('SETTLED')
+  settled,
+  @JsonValue('INACTIVE')
+  inactive,
+  @JsonValue('STARTED')
+  started,
+}
+
 @freezed
 class LoginRequest with _$LoginRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory LoginRequest({
     required String email,
+    @JsonKey(includeIfNull: false) AnkaraLanguages? language,
   }) = _LoginRequest;
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) =>
@@ -197,17 +243,13 @@ class CardResponse with _$CardResponse {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory CardResponse({
     required String id,
-    @Default(0) double availableBalance,
-    @Default(0) double balance,
+    @Default("0") String availableBalance,
     required DateTime expiration,
     required String displayExpiration,
-    required bool terminated,
     required String cardProductId,
     required String pan,
-    //TODO - Temp nullable due to bug on moonpay backend
-    String? cvv,
+    required String cvv,
     required String supportToken,
-    required bool frozen,
     String? name,
     @JsonKey(fromJson: cardStyleFromString)
     @Default(CardStyle.style1)
@@ -244,8 +286,8 @@ class GenerateInvoiceResponse with _$GenerateInvoiceResponse {
   const factory GenerateInvoiceResponse({
     required String id,
     required String address,
-    required double usdAmountOwed,
-    required double cryptoAmountOwed,
+    required String usdAmountOwed,
+    required String cryptoAmountOwed,
     required int exchangeRateLockExpiration,
     required Blockchain blockchain,
     required Currency currency,
@@ -260,7 +302,7 @@ class PaginationInfoModel with _$PaginationInfoModel {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory PaginationInfoModel({
     @Default(0) int currentPage,
-    @Default(0) int fromField,
+    @Default(0) int from,
     @Default(0) int lastPage,
     @Default(0) int perPage,
     @Default(0) int total,
@@ -268,4 +310,100 @@ class PaginationInfoModel with _$PaginationInfoModel {
 
   factory PaginationInfoModel.fromJson(Map<String, dynamic> json) =>
       _$PaginationInfoModelFromJson(json);
+}
+
+@freezed
+class CardEventsResponse with _$CardEventsResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory CardEventsResponse({
+    required List<Map<String, dynamic>> events,
+    PaginationInfoModel? pagination,
+  }) = _CardEventsResponse;
+
+  factory CardEventsResponse.fromJson(Map<String, dynamic> json) =>
+      _$CardEventsResponseFromJson(json);
+}
+
+@freezed
+class CardInfo with _$CardInfo {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory CardInfo({
+    required String publicId,
+    required String name,
+    required String type,
+  }) = _CardInfo;
+
+  factory CardInfo.fromJson(Map<String, dynamic> json) =>
+      _$CardInfoFromJson(json);
+}
+
+@freezed
+class CardEventResponse with _$CardEventResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  @Assert('type == CardEventType.decline', 'type must be CardEventType.decline')
+  const factory CardEventResponse.decline({
+    required CardEventType type,
+    required String id,
+    required DateTime datetime,
+    required String merchant,
+    required String amount,
+    required String customerFriendlyDescription,
+    required String cardPublicId,
+    required String cardId,
+    required CardInfo card,
+  }) = _DeclineEventData;
+
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  @Assert('type == CardEventType.cardTransaction',
+      'type must be CardEventType.cardTransaction')
+  const factory CardEventResponse.cardTransaction({
+    required CardEventType type,
+    required String id,
+    required CardInfo card,
+    required String transactionId,
+    required TransactionStatus transactionStatus,
+    required DateTime datetime,
+    required String merchant,
+    required String amount,
+    required String ledgerCurrency,
+    required String amountFeesInLedgerCurrency,
+    required String amountInTransactionCurrency,
+    required String transactionCurrency,
+    required String amountFeesInTransactionCurrency,
+  }) = _CardTransactionEventData;
+
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  @Assert('type == CardEventType.cardAuthorizationRefund',
+      'type must be CardEventType.cardAuthorizationRefund')
+  const factory CardEventResponse.cardAuthorizationRefund({
+    required CardEventType type,
+    required String id,
+    required CardInfo card,
+    required String transactionId,
+    required TransactionStatus transactionStatus,
+    required DateTime datetime,
+    required String merchant,
+    required double amount,
+    required String ledgerCurrency,
+    required double amountFeesInLedgerCurrency,
+    required double amountInTransactionCurrency,
+    required String transactionCurrency,
+    required double amountFeesInTransactionCurrency,
+  }) = _CardAuthorizationRefundEventData;
+
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  @Assert('type == CardEventType.reload', 'type must be CardEventType.reload')
+  const factory CardEventResponse.reload({
+    required CardEventType type,
+    required int id,
+    required String card,
+    required DateTime datetime,
+    required DateTime expiration,
+    required String invoiceId,
+    required String amount,
+    required TransactionStatus status,
+  }) = _ReloadEventData;
+
+  factory CardEventResponse.fromJson(Map<String, dynamic> json) =>
+      _$CardEventResponseFromJson(json);
 }

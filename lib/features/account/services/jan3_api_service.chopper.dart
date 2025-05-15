@@ -179,6 +179,17 @@ final class _$Jan3ApiService extends Jan3ApiService {
   }
 
   @override
+  Future<Response<CardEventsResponse>> getCardEvents(String cardId) {
+    final Uri $url = Uri.parse('/api/v1/moon/card/${cardId}/events');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<CardEventsResponse, CardEventsResponse>($request);
+  }
+
+  @override
   Future<Response<GenerateInvoiceResponse>> generateInvoice(
       InvoiceRequest request) {
     final Uri $url = Uri.parse('/api/v1/moon/onchain/invoice');

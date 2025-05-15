@@ -108,7 +108,7 @@ class GhostTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
   Future<void> refresh() async {
     final asset = arg?.$2.asset;
     if (asset != null) {
-      ref.invalidate(rawTransactionsProvider(asset));
+      ref.invalidate(networkTransactionsProvider(asset));
     }
   }
 }

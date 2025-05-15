@@ -41,6 +41,7 @@ class OnRampIntegration with _$OnRampIntegration {
     String? priceApi,
     String? priceSymbol,
     String? priceCurrencyCode,
+    @Default(false) bool showIncludesFeesTag,
   }) = _OnRampIntegration;
 
   factory OnRampIntegration.fromJson(Map<String, dynamic> json) =>
@@ -118,6 +119,7 @@ class OnRampIntegration with _$OnRampIntegration {
             null, // NOTE: Use BTCDirectApiService.getBTCPrice() as we need to be authed
         priceSymbol: FiatCurrency.eur.symbol,
         priceCurrencyCode: FiatCurrency.eur.value,
+        showIncludesFeesTag: true,
       );
 
   //NOTE: There are extensive Meld testing docs here: https://docs.meld.io/docs/crypto-testing-guide

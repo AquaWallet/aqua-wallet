@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aqua/constants.dart';
+import 'package:aqua/features/auth/auth.dart';
 import 'package:aqua/features/internal_send/internal_send.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
@@ -50,7 +51,7 @@ class InternalSendReviewScreen extends HookConsumerWidget {
             ref.handleSwapError(
               error,
               stackTrace,
-              destination: InternalSendAmountScreen.routeName,
+              destination: AuthWrapper.routeName,
             );
           },
           loading: () => isProcessing.value = true,
@@ -70,7 +71,7 @@ class InternalSendReviewScreen extends HookConsumerWidget {
             ref.handleSwapError(
               error,
               stackTrace,
-              destination: InternalSendAmountScreen.routeName,
+              destination: AuthWrapper.routeName,
             );
           },
           loading: () => isProcessing.value = true,

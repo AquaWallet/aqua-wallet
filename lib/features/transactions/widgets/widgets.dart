@@ -8,3 +8,4 @@ export 'transaction_details_notes_item.dart';
 export 'transaction_details_status_chip.dart';
 export 'transaction_fee_breakdown_card.dart';
 export 'transaction_menu_bottom_bar.dart';
+export 'usdt_swap_details_card.dart';

@@ -16,6 +16,7 @@ class SendAssetInputState with _$SendAssetInputState {
     String? addressFieldText,
     String? clipboardAddress,
     String? scannedQrCode,
+    String? scannedText,
     String? amountFieldText,
     @Default(0) int amount,
     String? amountConversionDisplay,
@@ -31,7 +32,9 @@ class SendAssetInputState with _$SendAssetInputState {
     @Default(FeeAsset.lbtc) FeeAsset feeAsset,
     SendAssetFeeOptionModel? fee,
     @Default(SendTransactionType.send) SendTransactionType transactionType,
+    String? externalSweepPrivKey,
     String? note,
+    String? serviceOrderId,
   }) = _SendAssetInputState;
 }
 
@@ -72,6 +75,11 @@ extension SendAssetInputStateX on SendAssetInputState {
   bool get isUsdtFeeAsset => feeAsset == FeeAsset.tetherUsdt;
 
   SendFlowStep get initialStep {
+    // externalSweepPrivKey
+    if (externalSweepPrivKey != null) {
+      return SendFlowStep.review;
+    }
+
     if (isAddressFieldEmpty && amount == 0) {
       return SendFlowStep.address;
     } else if (amount == 0) {

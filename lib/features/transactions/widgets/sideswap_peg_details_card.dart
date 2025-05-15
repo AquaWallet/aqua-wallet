@@ -57,17 +57,19 @@ class SideswapPegDetailsCard extends HookConsumerWidget {
                   ),
             ),
             const SizedBox(height: 24.0),
-            //ANCHOR - Transaction Id
+            //ANCHOR - Service Order Id
             LabelCopyableTextView(
               label: context.loc.orderId,
               value: dbTransaction.serviceOrderId ?? '-',
             ),
             const SizedBox(height: 18.0),
             //ANCHOR - Deposit Address
-            LabelCopyableTextView(
-              label: context.loc.depositAddress,
-              value: dbTransaction.serviceAddress ?? '-',
-            ),
+            if (dbTransaction.serviceAddress != null &&
+                dbTransaction.serviceAddress!.isNotEmpty)
+              LabelCopyableTextView(
+                label: context.loc.depositAddress,
+                value: dbTransaction.serviceAddress!,
+              ),
             const SizedBox(height: 18.0),
             //ANCHOR - Status
             TransactionDetailsStatusChip(

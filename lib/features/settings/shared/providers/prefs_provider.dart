@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,6 +22,13 @@ class UserPreferencesNotifier extends ChangeNotifier {
   bool get hasTransacted => _prefs.getBool(PrefKeys.hasTransacted) ?? false;
   Future<void> setTransacted({required bool hasTransacted}) async {
     _prefs.setBool(PrefKeys.hasTransacted, hasTransacted);
+    notifyListeners();
+  }
+
+  bool get isJan3CardExpanded =>
+      _prefs.getBool(PrefKeys.jan3CardExpanded) ?? true;
+  Future<void> setJan3CardExpanded({required bool isExpanded}) async {
+    _prefs.setBool(PrefKeys.jan3CardExpanded, isExpanded);
     notifyListeners();
   }
 
@@ -44,31 +52,60 @@ class UserPreferencesNotifier extends ChangeNotifier {
   }
   // --------------------------------------------------------------------------------------
 
-  //ANCHOR - Dark Mode
+  //ANCHOR - Theme
 
-  bool get isDarkMode => _prefs.getBool(PrefKeys.darkMode) ?? false;
+  String get theme {
+    final savedTheme = _prefs.getString(PrefKeys.theme);
+    if (savedTheme != null) {
+      return savedTheme;
+    }
 
-  Future<void> switchDarkMode() async {
-    _prefs.setBool(PrefKeys.darkMode, !isDarkMode);
+    // -------------------------------------------------------------------
+    // Migration from the old system so user doesn't lose its saved theme
+    // TODO: remove after some time
+    // -------------------------------------------------------------------
+    if (_prefs.getBool(PrefKeys.darkMode) == true) {
+      _prefs.remove(PrefKeys.darkMode);
+      _prefs.setString(PrefKeys.theme, AppTheme.dark.name);
+      return AppTheme.dark.name;
+    }
+
+    if (_prefs.getBool(PrefKeys.botevMode) == true) {
+      _prefs.remove(PrefKeys.botevMode);
+      _prefs.setString(PrefKeys.theme, AppTheme.botev.name);
+      return AppTheme.botev.name;
+    }
+    // -------------------------------------------------------------------
+
+    return AppTheme.system.name;
+  }
+
+  Future<void> setTheme(AppTheme theme) async {
+    await _prefs.setString(PrefKeys.theme, theme.name);
     notifyListeners();
   }
 
-  Future<void> setTheme({required bool dark}) async {
-    _prefs.setBool(PrefKeys.darkMode, dark);
-    notifyListeners();
+  //ANCHOR - Dark Mode
+
+  bool isDarkMode(BuildContext context) {
+    if (AppTheme.light.name == theme) {
+      return false;
+    }
+
+    if ([AppTheme.dark.name, AppTheme.botev.name].contains(theme)) {
+      return true;
+    }
+
+    // Access the brightness of the system theme
+    final Brightness systemBrightness =
+        MediaQuery.of(context).platformBrightness;
+
+    return systemBrightness == Brightness.dark;
   }
 
   //ANCHOR - Botev Mode
 
-  bool get isBotevMode => _prefs.getBool(PrefKeys.botevMode) ?? false;
-
-  Future<void> switchBotevMode() async {
-    _prefs.setBool(PrefKeys.botevMode, !isBotevMode);
-    if (isBotevMode) {
-      setTheme(dark: true);
-    }
-    notifyListeners();
-  }
+  bool get isBotevMode => theme == AppTheme.botev.name;
 
   //ANCHOR - Balances Hidden
 

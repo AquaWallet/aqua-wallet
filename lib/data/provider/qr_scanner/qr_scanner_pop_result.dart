@@ -21,6 +21,11 @@ class QrScannerPopResult with _$QrScannerPopResult {
     required int recvAmount,
     required String uploadUrl,
   }) = QrScannerPopSwapResult;
+  const factory QrScannerPopResult.samRock({
+    required List<String> setupChains,
+    required String otp,
+    required String uploadUrl,
+  }) = QrScannerPopSamRockResult;
   const factory QrScannerPopResult.requiresRestart() =
       QrScannerPopRequiresRestartResult;
   const factory QrScannerPopResult.empty() = QrScannerPopEmptyResult;

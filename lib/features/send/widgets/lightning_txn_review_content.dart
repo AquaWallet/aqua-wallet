@@ -158,7 +158,8 @@ class _OrderIdCard extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     return BoxShadowCard(
       color: context.colors.altScreenSurface,
       bordered: !darkMode,

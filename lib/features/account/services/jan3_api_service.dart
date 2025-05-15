@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/account/account.dart';
+import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:chopper/chopper.dart';
 
@@ -14,7 +15,9 @@ final jan3ApiServiceProvider =
   final (token, _) =
       await ref.read(secureStorageProvider).get(Jan3AuthNotifier.tokenKey);
   final onUnauthorized = ref.read(jan3AuthProvider.notifier).onUnauthorized;
-  return Jan3ApiService.create(token, onUnauthorized);
+  final debitCardStagingEnabled =
+      ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
+  return Jan3ApiService.create(token, onUnauthorized, debitCardStagingEnabled);
 });
 
 @ChopperApi(baseUrl: '/api/v1/')
@@ -78,6 +81,11 @@ abstract class Jan3ApiService extends ChopperService {
     @Body() AmountRequest request,
   );
 
+  @Get(path: 'moon/card/{card_id}/events')
+  Future<Response<CardEventsResponse>> getCardEvents(
+    @Path('card_id') String cardId,
+  );
+
   // Moon On-chain Operations
   @Post(path: 'moon/onchain/invoice')
   Future<Response<GenerateInvoiceResponse>> generateInvoice(
@@ -88,11 +96,15 @@ abstract class Jan3ApiService extends ChopperService {
   @Get(path: 'public/')
   Future<Response<MessageResponse>> getPublicMessage();
 
-  static Jan3ApiService create(String? token, VoidCallback onUnauthorized) {
+  static Jan3ApiService create(
+    String? token,
+    VoidCallback onUnauthorized,
+    bool debitCardStagingEnabled,
+  ) {
     final client = ChopperClient(
-      //TODO: Read base URL from env
-      //(PR: https://github.com/jan3dev/aqua-dev/pull/1554)
-      baseUrl: Uri.parse(aquaAnkaraApiUrl),
+      baseUrl: Uri.parse(debitCardStagingEnabled
+          ? aquaAnkaraStagingApiUrl
+          : aquaAnkaraProdApiUrl),
       services: [_$Jan3ApiService()],
       interceptors: [
         HttpLoggingInterceptor(),
@@ -112,6 +124,7 @@ abstract class Jan3ApiService extends ChopperService {
         DailyPriceResponse: DailyPriceResponse.fromJson,
         HealthResponse: HealthResponse.fromJson,
         AccessTokenResponse: AccessTokenResponse.fromJson,
+        CardEventsResponse: CardEventsResponse.fromJson,
         CardCreationRequest: CardCreationRequest.fromJson,
       }),
     );

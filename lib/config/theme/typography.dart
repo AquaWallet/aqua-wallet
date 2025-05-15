@@ -5,6 +5,7 @@ import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
 
+// TEXT
 class AppTypography {
   AppTypography._(
     this.context, {

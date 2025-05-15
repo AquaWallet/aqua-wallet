@@ -6,8 +6,8 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:pinput/pinput.dart';
 
 class Jan3OtpVerificationScreen extends HookConsumerWidget {
   const Jan3OtpVerificationScreen({super.key, required this.email});
@@ -20,33 +20,45 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final otp = useState('');
-    final otpControllers =
-        List.generate(otpDigitCount, (_) => useTextEditingController());
-    final focusNodes = List.generate(otpDigitCount, (_) => useFocusNode());
-    final isDark = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final pinController = useTextEditingController();
+    final pinFocusNode = useFocusNode();
+    final isDark =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final profileState = ref.watch(jan3AuthProvider);
-
-    final onOtpChanged = useCallback((String value, int index) {
-      if (value.length == 1 && index < otpDigitCount - 1) {
-        focusNodes[index + 1].requestFocus();
-      }
-      otp.value = otpControllers.map((c) => c.text).join();
-    }, [focusNodes, otpDigitCount]);
-
-    // Handle backspace
-    final onKeyEvent = useCallback((KeyEvent event, int index) {
-      if (event is KeyDownEvent) {
-        if (event.logicalKey == LogicalKeyboardKey.backspace &&
-            otpControllers[index].text.isEmpty &&
-            index > 0) {
-          focusNodes[index - 1].requestFocus();
-        }
-      }
-    }, [focusNodes, otpControllers]);
 
     final isOtpValid = useMemoized(() {
       return otp.value.length == otpDigitCount;
     }, [otp.value]);
+
+    final defaultPinTheme = useMemoized(
+        () => PinTheme(
+              width: 52,
+              height: 56,
+              textStyle: const TextStyle(
+                fontSize: 18,
+                fontFamily: UiFontFamily.inter,
+              ),
+              decoration: BoxDecoration(
+                color: context.colors.jan3InputFieldBackgroundColor,
+                border: Border.all(
+                  color: AquaColors.dimMarble,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+        [context.colors.jan3InputFieldBackgroundColor]);
+
+    final focusedPinTheme = useMemoized(
+        () => defaultPinTheme.copyWith(
+              decoration: defaultPinTheme.decoration!.copyWith(
+                border: Border.all(
+                  color: context.colorScheme.primary,
+                  width: 1,
+                ),
+              ),
+            ),
+        [defaultPinTheme, context.colorScheme.primary]);
 
     return Scaffold(
       appBar: AquaAppBar(
@@ -93,7 +105,6 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
                       color: context.colors.onBackground,
                       fontWeight: FontWeight.w500,
                       letterSpacing: 0.4,
-                      // height: 1.43,
                     ),
                   ),
                   const TextSpan(
@@ -107,58 +118,36 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
             _TappableTextSpan(
               description: context.loc.otpScreenNotYourEmail,
               tappableText: context.loc.otpScreenChangeEmail,
-              onTap: () => context.pop(),
+              onTap: () {
+                ref.invalidate(jan3AuthProvider);
+                context.pop();
+              },
             ),
             const SizedBox(height: 16),
-            // ANCHOR - OTP input fields
-            Row(
+            // ANCHOR - Pinput OTP input
+            Pinput(
+              length: otpDigitCount,
+              controller: pinController,
+              focusNode: pinFocusNode,
+              defaultPinTheme: defaultPinTheme,
+              focusedPinTheme: focusedPinTheme,
+              keyboardType: TextInputType.number,
+              isCursorAnimationEnabled: false,
+              pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+              onChanged: (value) {
+                otp.value = value;
+              },
+              onCompleted: (value) {
+                if (profileState.isLoading) {
+                  return;
+                }
+                ref.read(jan3AuthProvider.notifier).verifyOtp(
+                      email: email,
+                      otp: otp.value,
+                    );
+              },
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(
-                otpDigitCount,
-                (index) => SizedBox(
-                  width: 52,
-                  height: 56,
-                  child: KeyboardListener(
-                    focusNode: FocusNode(),
-                    onKeyEvent: (event) => onKeyEvent(event, index),
-                    child: TextField(
-                      controller: otpControllers[index],
-                      focusNode: focusNodes[index],
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: context.colors.jan3InputFieldBackgroundColor,
-                        counterText: '',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            width: 1,
-                            color: AquaColors.dimMarble,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            width: 1,
-                            color: context.colorScheme.primary,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      maxLength: 1,
-                      onChanged: (value) {
-                        onOtpChanged(value, index);
-                      },
-                    ),
-                  ),
-                ),
-              ),
             ),
             // ANCHOR - OTP form errors
             if (!profileState.isLoading && profileState.error != null)
@@ -190,7 +179,11 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
             _TappableTextSpan(
               description: context.loc.otpScreenResendCode,
               tappableText: context.loc.otpScreenResendButton,
-              onTap: () => ref.read(jan3AuthProvider.notifier).sendOtp(email),
+              onTap: () => ref.read(jan3AuthProvider.notifier).sendOtp(
+                    email,
+                    ref.read(languageProvider(context)
+                        .select((p) => p.currentLanguage)),
+                  ),
             ),
             const Spacer(),
             // ANCHOR - Verify OTP button

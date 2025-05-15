@@ -92,6 +92,9 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
                             _SendTransactionAmountDetails(args: args),
                           SendTransactionType.topUp =>
                             _TopUpTransactionAmountDetails(args: args),
+                          SendTransactionType.privateKeySweep =>
+                            _PrivateKeySweepTransactionAmountDetails(
+                                args: args),
                         },
                         const SizedBox(height: 28),
                         if (asset.isLightning) ...{
@@ -228,6 +231,77 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
         //ANCHOR - Amount Title
         Text(
           context.loc.yourTopUpWasSuccessful,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            fontFamily: UiFontFamily.helveticaNeue,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 6),
+        //ANCHOR - USD Amount
+        Text(
+          args.asset.isAnyUsdt
+              ? '\$${amount.toStringAsFixed(2)}'
+              : '\$${fiatAmount.data ?? '0'}',
+          style: const TextStyle(
+            fontSize: 32,
+            fontFamily: UiFontFamily.helveticaNeue,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        if (!args.asset.isAnyUsdt) ...{
+          //ANCHOR - Crypto Amount
+          AssetCryptoAmount(
+            forceVisible: true,
+            forceDisplayUnit: displayUnit,
+            amount: args.amountSats.toString(),
+            asset: args.asset,
+            style: TextStyle(
+              color: context.colors.topUpTransactionAmountSubtitleColor,
+              fontSize: 14,
+              fontFamily: UiFontFamily.helveticaNeue,
+              fontWeight: FontWeight.w500,
+            ),
+            unitStyle: TextStyle(
+              color: context.colors.topUpTransactionAmountSubtitleColor,
+              fontSize: 14,
+              fontFamily: UiFontFamily.helveticaNeue,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        },
+      ],
+    );
+  }
+}
+
+class _PrivateKeySweepTransactionAmountDetails extends HookConsumerWidget {
+  const _PrivateKeySweepTransactionAmountDetails({
+    required this.args,
+  });
+
+  final SendAssetCompletionArguments args;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final displayUnit = ref.watch(
+      displayUnitsProvider.select((p) => p.getForcedDisplayUnit(args.asset)),
+    );
+    final amount = (Decimal.fromInt(args.amountSats ?? 0) /
+            DecimalExt.fromAssetPrecision(args.asset.precision))
+        .toDouble();
+    final fiatAmount = useFuture(ref.read(fiatProvider).getSatsToFiatDisplay(
+          args.amountSats ?? 0,
+          false,
+        ));
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        //ANCHOR - Amount Title
+        Text(
+          context.loc.pokerChipSweepSuccessful,
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,

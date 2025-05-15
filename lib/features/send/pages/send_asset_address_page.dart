@@ -1,6 +1,8 @@
 import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/qr_scan/qr_scan.dart';
+import 'package:aqua/features/text_scan/text_scan.dart';
+import 'package:aqua/features/scan/scan.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -21,25 +23,56 @@ class SendAssetAddressPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = useMemoized(() => sendAssetInputStateProvider(arguments));
-    final input = ref.watch(provider).value!;
+    final inputState = ref.watch(provider).valueOrNull;
+    final isLoading = ref.watch(provider).isLoading;
     final error = ref.watch(provider).error as ExceptionLocalized?;
+
+    if (inputState == null) {
+      if (error != null) {
+        return Text(
+          error.toLocalizedString(context),
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: context.colorScheme.error,
+          ),
+        );
+      }
+
+      return const LoadingIndicator();
+    }
+
     final isContinueButtonEnabled = useMemoized(
-      () => error == null && !input.isAddressFieldEmpty,
-      [error, input],
+      () => !isLoading && error == null && !inputState.isAddressFieldEmpty,
+      [isLoading, inputState, error],
     );
-    final controller = useTextEditingController(text: input.addressFieldText);
+    final controller =
+        useTextEditingController(text: inputState.addressFieldText);
 
-    final onScan = useCallback(() async {
-      final result = await context.push(
-        QrScannerScreen.routeName,
-        extra: QrScannerArguments(
-          asset: input.asset,
-          parseAction: QrScannerParseAction.doNotParse,
-          onSuccessAction: QrOnSuccessAction.pull,
+    final onScanPressed = useCallback(() async {
+      final result = await context.push<dynamic>(
+        ScanScreen.routeName,
+        extra: ScanArguments(
+          qrArguments: QrScannerArguments(
+            asset: inputState.asset,
+            parseAction: QrScannerParseAction.attemptToParse,
+            onSuccessAction: QrOnSuccessNavAction.popBack,
+          ),
+          textArguments: TextScannerArguments(
+            asset: arguments.asset,
+            parseAction: TextScannerParseAction.returnRawValue,
+            onSuccessAction: TextOnSuccessNavAction.popBack,
+          ),
+          initialType: ScannerType.qr,
         ),
-      ) as SendAssetArguments;
+      );
 
-      ref.read(provider.notifier).pasteScannedQrCode(result.input);
+      // Text Scan
+      if (result is String) {
+        ref.read(provider.notifier).pasteScannedText(result);
+      }
+      // QR Scan
+      else if (result is SendAssetArguments) {
+        ref.read(provider.notifier).pasteScannedQrCode(result.input);
+      }
     });
 
     ref.listen(provider, (_, next) {
@@ -51,7 +84,7 @@ class SendAssetAddressPage extends HookConsumerWidget {
       children: [
         const SizedBox(height: 18.0),
         //ANCHOR - Asset Info Header
-        _AssetInfoHeader(asset: input.asset),
+        _AssetInfoHeader(asset: inputState.asset),
         const SizedBox(height: 32.0),
         //ANCHOR - Main Content
         Expanded(
@@ -72,7 +105,7 @@ class SendAssetAddressPage extends HookConsumerWidget {
                 AddressInputView(
                   hintText: context.loc.sendAssetScreenAddressInputHint,
                   controller: controller,
-                  onScanPressed: onScan,
+                  onScanPressed: onScanPressed,
                   onChanged: ref.read(provider.notifier).updateAddressFieldText,
                 ),
                 //ANCHOR - Error
@@ -89,17 +122,17 @@ class SendAssetAddressPage extends HookConsumerWidget {
                 },
                 const SizedBox(height: 20.0),
                 //ANCHOR - Paste from Clipboard
-                if (!input.isClipboardEmpty) ...[
+                if (!inputState.isClipboardEmpty) ...[
                   PasteFromClipboardView(
-                    text: input.clipboardAddress!,
+                    text: inputState.clipboardAddress!,
                     onPressed:
                         ref.read(provider.notifier).pasteClipboardContent,
                   ),
                 ],
                 const Spacer(),
                 //ANCHOR - Internal Send Menu
-                if (input.asset.isInternal) ...[
-                  InternalSendMenu(asset: input.asset),
+                if (inputState.asset.isInternal) ...[
+                  InternalSendMenu(asset: inputState.asset),
                   const SizedBox(height: 50.0),
                 ],
                 //ANCHOR - Continue Button
@@ -107,9 +140,9 @@ class SendAssetAddressPage extends HookConsumerWidget {
                   height: 52.0,
                   onPressed: isContinueButtonEnabled
                       ? () => onContinuePressed(
-                            SendAssetArguments.fromAsset(input.asset),
-                            input.addressFieldText ?? '',
-                            input.amountFieldText ?? '',
+                            SendAssetArguments.fromAsset(inputState.asset),
+                            inputState.addressFieldText ?? '',
+                            inputState.amountFieldText ?? '',
                           )
                       : null,
                   child: Text(context.loc.continueLabel),

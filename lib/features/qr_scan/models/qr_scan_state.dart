@@ -1,3 +1,4 @@
+import 'package:aqua/data/provider/app_links/app_link.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -12,6 +13,7 @@ class QrScanState with _$QrScanState {
       _PullSendAsset;
   const factory QrScanState.pushSendAsset(SendAssetArguments args) =
       _PushSendAsset;
+  const factory QrScanState.samRock(SamRockAppLink result) = _SamRock;
   const factory QrScanState.lnurlWithdraw(
       LNURLWithdrawParams? withdrawalParams) = _LnurlWithdraw;
 }

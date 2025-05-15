@@ -1672,8 +1672,20 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/eye_hidden.svg
   SvgGenImage get eyeHidden => const SvgGenImage('assets/svgs/eye_hidden.svg');
 
+  /// File path: assets/svgs/faq.svg
+  SvgGenImage get faq => const SvgGenImage('assets/svgs/faq.svg');
+
   /// Directory path: assets/svgs/light
   $AssetsSvgsLightGen get light => const $AssetsSvgsLightGen();
+
+  /// File path: assets/svgs/profile.svg
+  SvgGenImage get profile => const SvgGenImage('assets/svgs/profile.svg');
+
+  /// File path: assets/svgs/refund.svg
+  SvgGenImage get refund => const SvgGenImage('assets/svgs/refund.svg');
+
+  /// File path: assets/svgs/sun.svg
+  SvgGenImage get sun => const SvgGenImage('assets/svgs/sun.svg');
 
   /// File path: assets/svgs/visa.svg
   SvgGenImage get visa => const SvgGenImage('assets/svgs/visa.svg');
@@ -1719,6 +1731,10 @@ class $AssetsSvgsGen {
         debitCardCharacteristicsCheck,
         eye,
         eyeHidden,
+        faq,
+        profile,
+        refund,
+        sun,
         visa,
         walletFooterMarketplace,
         walletFooterSettings,
@@ -1831,12 +1847,20 @@ class $AssetsSvgsDarkGen {
   SvgGenImage get botevDark =>
       const SvgGenImage('assets/svgs/dark/botev_dark.svg');
 
+  /// File path: assets/svgs/dark/decline.svg
+  SvgGenImage get decline => const SvgGenImage('assets/svgs/dark/decline.svg');
+
   /// File path: assets/svgs/dark/jan3_logo.svg
   SvgGenImage get jan3Logo =>
       const SvgGenImage('assets/svgs/dark/jan3_logo.svg');
 
+  /// File path: assets/svgs/dark/jan3_mini_logo.svg
+  SvgGenImage get jan3MiniLogo =>
+      const SvgGenImage('assets/svgs/dark/jan3_mini_logo.svg');
+
   /// List of all assets
-  List<SvgGenImage> get values => [aquaLogo, botevDark, jan3Logo];
+  List<SvgGenImage> get values =>
+      [aquaLogo, botevDark, decline, jan3Logo, jan3MiniLogo];
 }
 
 class $AssetsSvgsLightGen {
@@ -1849,12 +1873,20 @@ class $AssetsSvgsLightGen {
   /// File path: assets/svgs/light/botev.svg
   SvgGenImage get botev => const SvgGenImage('assets/svgs/light/botev.svg');
 
+  /// File path: assets/svgs/light/decline.svg
+  SvgGenImage get decline => const SvgGenImage('assets/svgs/light/decline.svg');
+
   /// File path: assets/svgs/light/jan3_logo.svg
   SvgGenImage get jan3Logo =>
       const SvgGenImage('assets/svgs/light/jan3_logo.svg');
 
+  /// File path: assets/svgs/light/jan3_mini_logo.svg
+  SvgGenImage get jan3MiniLogo =>
+      const SvgGenImage('assets/svgs/light/jan3_mini_logo.svg');
+
   /// List of all assets
-  List<SvgGenImage> get values => [aquaLogo, botev, jan3Logo];
+  List<SvgGenImage> get values =>
+      [aquaLogo, botev, decline, jan3Logo, jan3MiniLogo];
 }
 
 class UiAssets {

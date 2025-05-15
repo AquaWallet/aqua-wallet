@@ -9,7 +9,6 @@ import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/features/wallet/providers/unified_balance_provider.dart';
 import 'package:aqua/screens/common/webview_screen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -85,6 +84,9 @@ class MarketplaceView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final assets = ref.watch(assetsProvider);
+    final anyNonZeroBalance =
+        assets.asData?.value.any((asset) => asset.amount > 0) ?? false;
     final marketplaceCardsSubtitleText = useMemoized(() {
       return [
         context.loc.marketplaceScreenBuyButtonDescription,
@@ -96,32 +98,26 @@ class MarketplaceView extends HookConsumerWidget {
     });
     final myFirstBitcoinEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.myFirstBitcoinEnabled));
-    final isPayWithMoonEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.payWithMoonEnabled));
 
-    // Hide debit card from US customers for now. To be made available in the future when non-reloadable cards are available
-    final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
-    final isMoonAvailableInRegion = region?.iso != 'US';
+    final isPayWithMoonEnabled = ref.watch(isMoonEnabledProvider);
 
     // Set the number of marketplace buttons here.  We need this so the card display library can correctly set the flex properties
     var numberOfButtons = 5;
-    final conditions = [!isMoonAvailableInRegion, !myFirstBitcoinEnabled];
+    final conditions = [!isPayWithMoonEnabled, !myFirstBitcoinEnabled];
     for (var condition in conditions) {
       if (condition) {
         numberOfButtons--;
       }
     }
 
-    final unifiedBalance =
-        ref.watch(unifiedBalanceProvider)?.decimal.toDouble() ?? 0;
     final hasTransacted = ref.watch(hasTransactedProvider).asData?.value;
     final disableExchanges = useMemoized(
       () => Platform.isIOS && disableExchagesOnIOS && hasTransacted == false,
-      [disableSideswapOnIOS, unifiedBalance],
+      [disableSideswapOnIOS, hasTransacted],
     );
     final disableSwap = useMemoized(
-      () => Platform.isIOS && disableSideswapOnIOS && unifiedBalance <= 0,
-      [disableSideswapOnIOS, unifiedBalance],
+      () => Platform.isIOS && disableSideswapOnIOS && !anyNonZeroBalance,
+      [disableSideswapOnIOS, anyNonZeroBalance],
     );
 
     return SingleChildScrollView(
@@ -206,7 +202,7 @@ class MarketplaceView extends HookConsumerWidget {
                 ],
 
                 //ANCHOR - Debit Card
-                if (isPayWithMoonEnabled && isMoonAvailableInRegion) ...[
+                if (isPayWithMoonEnabled) ...[
                   MarketplaceButton(
                     title: context.loc.marketplaceScreenDolphinCardButton,
                     subtitle: marketplaceCardsSubtitleText[4],

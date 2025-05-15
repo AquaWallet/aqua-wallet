@@ -16,7 +16,7 @@ const kFakeEthereumAddress = 'fake-ethereum-address';
 const kFakeLiquidAddress = 'fake-liquid-address';
 const kFakeLiquidUsdtAddress = 'fake-liquid-usdt-address';
 const kFakeLanguageCode = 'en_US';
-
+const kFakeLightningInvoice = 'fake-lightning-invoice';
 const kPointOneBtc = 0.1;
 const kPointOneBtcInSats = 10000000;
 const kOneBtc = 1;
@@ -490,6 +490,43 @@ void main() {
       expect(state.addressFieldText, kFakeBitcoinAddress);
       expect(state.isAddressFieldEmpty, false);
       expect(state.isAmountEditable, isFalse);
+    });
+    test(
+        'dont switch from liquid when scanned address is lightning from Aqua wallet',
+        () async {
+      final asset = Asset.lbtc();
+      final args = SendAssetArguments.fromAsset(asset);
+      final otherAsset = Asset.lbtc();
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockManageAssetsProvider.mockIsNonLbtcLiquidToLbtcCall(value: false);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: otherAsset,
+          address: kFakeLiquidAddress,
+          lightningInvoice: kFakeLightningInvoice,
+        ),
+      );
+
+      final provider = sendAssetInputStateProvider(args);
+      final initialState = await container.read(provider.future);
+
+      await container
+          .read(provider.notifier)
+          .updateAddressFieldText(kFakeContent);
+
+      final state = await container.read(provider.future);
+      expect(initialState.asset.id, asset.id);
+      expect(initialState.isScannedQrCodeEmpty, true);
+      expect(initialState.isAddressFieldEmpty, true);
+      expect(state.asset.id, otherAsset.id);
+      expect(state.clipboardAddress, isNull);
+      expect(state.isScannedQrCodeEmpty, true);
+      expect(state.addressFieldText, kFakeLiquidAddress);
+      expect(state.isAddressFieldEmpty, false);
+      expect(state.isAmountEditable, isTrue);
     });
   });
 

@@ -42,4 +42,8 @@ class QrScanNotifier extends AutoDisposeStreamNotifier<String?> {
   void toggleFlash() {
     controller.toggleTorch();
   }
+
+  void clearPreviousScan() {
+    controller.barcodes.listen((_) {}).cancel();
+  }
 }

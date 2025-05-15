@@ -26,13 +26,27 @@ class HelpSupportScreen extends ConsumerWidget {
             const SizedBox(height: 28.0),
             Padding(
                 padding: const EdgeInsets.only(left: 30.0),
-                child: Text(context.loc.contactUsHelpSupportScreenHeaderText,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 26.0,
-                          fontWeight: FontWeight.w500,
-                          height: 1.25,
-                        ))),
-            const SizedBox(height: 57.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.loc.contactUsHelpSupportScreenHeaderText,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 28.0,
+                              fontWeight: FontWeight.w800,
+                              height: 1.25,
+                            )),
+                    const SizedBox(height: 16.0),
+                    Text(
+                        context
+                            .loc.contactUsHelpSupportScreenHeaderSubtitleText,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.w500,
+                              height: 1.25,
+                            )),
+                  ],
+                )),
+            const SizedBox(height: 32.0),
             //ANCHOR - Buttons
             GridView.count(
               crossAxisCount: 2,
@@ -45,16 +59,21 @@ class HelpSupportScreen extends ConsumerWidget {
               children: [
                 HelpSupportWidgetButton(
                   svgPicture: Svgs.zendeskLogo,
-                  buttonSubText: context.loc.zendeskTitle,
+                  buttonSubText: context.loc.zendeskSubtitle,
+                  buttonText: context.loc.zendeskTitle,
                   onPressed: () {
                     ref.read(urlLauncherProvider).open(urls.aquaZendeskUrl);
                   },
                 ),
                 HelpSupportWidgetButton(
-                  enabled: false,
-                  svgPicture: Svgs.whatsappLogo,
-                  buttonSubText: context.loc.whatsappTitle,
-                ),
+                    svgPicture: UiAssets.svgs.faq.path,
+                    buttonSubText: context.loc.faqSubtitle,
+                    buttonText: context.loc.faqTitle,
+                    onPressed: () {
+                      ref
+                          .read(urlLauncherProvider)
+                          .open(urls.aquaZendeskFaqUrl);
+                    }),
               ],
             ),
           ],
@@ -68,12 +87,14 @@ class HelpSupportWidgetButton extends StatelessWidget {
   const HelpSupportWidgetButton({
     super.key,
     required this.svgPicture,
+    required this.buttonText,
     required this.buttonSubText,
     this.onPressed,
     this.enabled = true,
   });
 
   final String svgPicture;
+  final String buttonText;
   final String buttonSubText;
   final VoidCallback? onPressed;
   final bool enabled;
@@ -93,30 +114,54 @@ class HelpSupportWidgetButton extends StatelessWidget {
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //ANCHOR - Logo
-              SvgPicture.asset(
-                svgPicture,
-                height: 65.0,
-                fit: BoxFit.scaleDown,
-                colorFilter: ColorFilter.mode(
-                  enabled
-                      ? Theme.of(context).colors.helpScreenLogoColor
-                      : Theme.of(context).colorScheme.onInverseSurface,
-                  enabled ? BlendMode.srcIn : BlendMode.saturation,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                    child: SizedBox(
+                      height: 22.0,
+                      child: AspectRatio(
+                        aspectRatio: 1.0,
+                        child: SvgPicture.asset(
+                          svgPicture,
+                          fit: BoxFit.contain,
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.surface,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              //ANCHOR - Title
-              Text(
-                buttonSubText,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontSize: 20.0),
-              ),
-              //ANCHOR - Subtitle
-              Text(
-                !enabled ? context.loc.comingSoon : '',
+              const SizedBox(height: 12.0),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //ANCHOR - Title
+                  Text(
+                    buttonText,
+                    textAlign: TextAlign.left,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontSize: 20.0),
+                  ),
+                  const SizedBox(height: 8.0),
+                  //ANCHOR - Subtitle
+                  Text(
+                    buttonSubText,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
               ),
             ],
           ),

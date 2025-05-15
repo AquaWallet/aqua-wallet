@@ -1,1 +1,1 @@
-const double kSideshiftServiceFee = 0.005; // 0.5%
+const double kSideshiftServiceFee = 0.009; // 0.9%

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aqua/data/models/database/swap_order_model.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:decimal/decimal.dart';
@@ -125,4 +126,36 @@ SwapOrderCreationState createMockSwapOrderCreationState({
       max: Decimal.parse('1000'),
     ),
   );
+}
+
+class MockSwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
+    with Mock
+    implements SwapOrderStorageNotifier {
+  @override
+  FutureOr<List<SwapOrderDbModel>> build() async => [];
+}
+
+// Helper to create a mock SwapOrderDbModel
+SwapOrderDbModel createMockSwapOrderDbModel({
+  String orderId = 'mock_order_id',
+  SwapOrderStatus status = SwapOrderStatus.waiting,
+  SwapServiceSource serviceType = SwapServiceSource.sideshift,
+  String fromAsset = 'BTC',
+  String toAsset = 'L-BTC',
+}) {
+  return SwapOrderDbModel(
+      orderId: orderId,
+      createdAt: DateTime.now(),
+      status: status,
+      serviceType: serviceType,
+      fromAsset: fromAsset,
+      toAsset: toAsset,
+      depositAmount: '1.0',
+      settleAmount: '0.99',
+      depositAddress: 'mock_deposit_address',
+      settleAddress: 'mock_settle_address',
+      serviceFeeType: SwapFeeType.percentageFee,
+      serviceFeeValue: '0.1',
+      serviceFeeCurrency: SwapFeeCurrency.usd,
+      type: SwapOrderType.fixed);
 }

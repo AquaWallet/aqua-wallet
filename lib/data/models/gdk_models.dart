@@ -19,6 +19,13 @@ enum GdkConfigLogLevelEnum {
   none,
 }
 
+enum GdkReconnectHint {
+  @JsonValue('connect')
+  connect,
+  @JsonValue('disconnect')
+  disconnect,
+}
+
 @freezed
 class GdkConfig with _$GdkConfig {
   const GdkConfig._();
@@ -66,8 +73,8 @@ class GdkConnectionParams with _$GdkConnectionParams {
 class GdkReconnectParams with _$GdkReconnectParams {
   const GdkReconnectParams._();
   const factory GdkReconnectParams({
-    String? hint,
-    @JsonKey(name: 'tor_hint') String? torHint,
+    GdkReconnectHint? hint,
+    @JsonKey(name: 'tor_hint') GdkReconnectHint? torHint,
   }) = _GdkReconnectParams;
 
   factory GdkReconnectParams.fromJson(Map<String, dynamic> json) =>
@@ -483,6 +490,11 @@ class GdkAuthHandlerStatus with _$GdkAuthHandlerStatus {
             case 'get_unspent_outputs':
               json['result'] = <String, dynamic>{
                 'unspent_outputs': json['result']
+              };
+              break;
+            case 'get_unspent_outputs_for_private_key':
+              json['result'] = <String, dynamic>{
+                'unspent_outputs_for_private_key': json['result']
               };
               break;
             case 'encrypt_with_pin':
@@ -1272,4 +1284,23 @@ class GdkCurrencyData with _$GdkCurrencyData {
 
   factory GdkCurrencyData.fromJson(Map<String, dynamic> json) =>
       _$GdkCurrencyDataFromJson(json);
+}
+
+@freezed
+class GdkUnspentOutputsPrivateKeyRequest
+    with _$GdkUnspentOutputsPrivateKeyRequest {
+  const GdkUnspentOutputsPrivateKeyRequest._();
+  const factory GdkUnspentOutputsPrivateKeyRequest({
+    @JsonKey(name: 'private_key') required String privateKey,
+    String? password,
+  }) = _GdkUnspentOutputsPrivateKeyRequest;
+
+  factory GdkUnspentOutputsPrivateKeyRequest.fromJson(
+          Map<String, dynamic> json) =>
+      _$GdkUnspentOutputsPrivateKeyRequestFromJson(json);
+
+  String toJsonString() {
+    final json = toJson();
+    return jsonEncode(json);
+  }
 }

@@ -2,6 +2,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/marketplace/models/on_ramp_price.dart';
 import 'package:aqua/features/marketplace/providers/providers.dart';
+import 'package:aqua/features/marketplace/widgets/includes_fees_tag.dart';
 import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -83,7 +84,8 @@ class OnRampOptionCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
 
     final integrationPrice =
         ref.watch(onRampPriceProvider(integration)).valueOrNull;
@@ -191,6 +193,10 @@ class OnRampOptionCard extends HookConsumerWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
+                          if (integration.showIncludesFeesTag) ...[
+                            const SizedBox(width: 6.0),
+                            const IncludesFeesTag(),
+                          ],
                         ],
                       ),
                       //ANCHOR - BTC Price

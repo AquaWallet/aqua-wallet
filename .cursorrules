@@ -1,0 +1,96 @@
+You are an expert in Flutter, Dart, Riverpod, Freezed, Flutter Hooks, and Isar.
+
+Key Principles
+
+- Write concise, technical Dart code with accurate examples.
+- Use functional and declarative programming patterns where appropriate.
+- Prefer composition over inheritance.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported widget, subwidgets, helpers, static content, types.
+- Do not pass Ref to service classes - inject concrete dependencies instead.
+
+Dart/Flutter
+
+- Use const constructors for immutable widgets.
+- Leverage Freezed for immutable state classes and unions.
+- Use arrow syntax for simple functions and methods.
+- Prefer expression bodies for one-line getters and setters.
+- Use trailing commas for better formatting and diffs.
+
+Error Handling and Validation
+
+- Handle empty states within the displaying screen.
+- Use AsyncValue for proper error handling and loading states.
+
+Riverpod-Specific Guidelines
+
+- Do not use Riverpod code generation.
+- Prefer using ChangeNotifier, StateNotifier and AsyncNotifier.
+- Avoid using StateProvider, FutureProvider, and StreamProvider.
+- Always use Freezed sealed unions for state unless the state type is primitive.
+- Use ref.invalidate() for manually triggering provider updates.
+- Implement proper cancellation of asynchronous operations when widgets are disposed.
+- Avoid exposing methods that return values in Riverpod notifiers. Keep the notifier's state as private as possible.
+
+Service Class Guidelines
+
+- Do not pass Ref to service classes - inject concrete dependencies instead.
+- Services should be independent of state management implementation.
+- Use dependency injection through constructors.
+- Keep services focused on a single responsibility.
+- Handle cleanup in the provider, not the service.
+
+Performance Optimization
+
+- Use const widgets where possible to optimize rebuilds.
+- Implement list view optimizations (e.g., ListView.builder) using value keys and pagination.
+- Use AssetImage for static images and cached_network_image for remote images.
+- Implement proper error handling for Supabase operations, including network errors.
+
+Key Conventions
+
+1. Use GoRouter for navigation and deep linking.
+2. Optimize for Flutter performance metrics (first meaningful paint, time to interactive).
+3. Prefer stateless widgets:
+   - Use ConsumerWidget with Riverpod for state-dependent widgets.
+   - Use HookConsumerWidget when combining Riverpod and Flutter Hooks.
+
+UI and Styling
+
+- Use Flutter's built-in widgets and create custom widgets.
+- Implement responsive design using LayoutBuilder or MediaQuery.
+- Use themes for consistent styling across the app.
+- Use Theme.of(context).textTheme.titleLarge instead of headline6, and headlineSmall instead of headline5 etc.
+
+Model and Database Conventions
+
+- Use Isar for local database.
+- Include createdAt, updatedAt, and isDeleted fields in database tables.
+- Use @JsonSerializable(fieldRename: FieldRename.snake) for models.
+- Implement @JsonKey(includeFromJson: true, includeToJson: false) for read-only fields.
+
+Widgets and UI Components
+
+- Create small, private widget classes instead of methods like Widget \_build....
+- Implement RefreshIndicator for pull-to-refresh functionality.
+- In TextFields, set appropriate textCapitalization, keyboardType, and textInputAction.
+- Always include an errorBuilder when using Image.network.
+- Use private StatelessWidget or ConsumerWidget classes instead of widget-building functions to leverage Flutter's caching capabilities.
+
+Miscellaneous
+
+- Use log instead of print for debugging.
+- Use Flutter Hooks / Riverpod Hooks where appropriate.
+- Use @JsonValue(int) for enums that go to the database.
+
+Tests
+
+- Use Mocktail for mocking dependencies.
+- Use the existing mocks in test/mocks, and if needed, create new mocks in the test/mocks directory for reuse.
+
+Documentation
+
+- Document complex logic and non-obvious code decisions.
+- Follow official Flutter, Riverpod, and Supabase documentation for best practices.
+
+Refer to Flutter, Riverpod, and Isar documentation for Widgets, State Management, and Local Database best practices.

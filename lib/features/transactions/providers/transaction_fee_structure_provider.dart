@@ -6,6 +6,7 @@ import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/models/sideshift_fees.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -66,29 +67,29 @@ class TransactionFeeStructureNotifier extends AutoDisposeFamilyAsyncNotifier<
               await ref.read(feeEstimateProvider).fetchBitcoinFeeRates();
           final btcFeeRate = btcRates[TransactionPriority.high]!.toInt();
           final pegState = await ref.watch(pegProvider.future);
-          final estimatedBtcFee = pegState.maybeMap(
+          final sendAssetNetworkFee = pegState.maybeMap(
             pendingVerification: (s) => s.data.firstOnchainFeeAmount,
             orElse: () => 0,
           );
-          final estimatedLbtcFee = pegState.maybeMap(
+          final receiveAssetNetworkFee = pegState.maybeMap(
             pendingVerification: (s) => s.data.secondOnchainFeeAmount,
             orElse: () => 0,
           );
           if (input.isPegIn) {
             return FeeStructure.sideswapPegIn(
               btcFeeRate: btcFeeRate,
-              estimatedBtcFee: estimatedBtcFee,
+              estimatedBtcFee: sendAssetNetworkFee,
               lbtcFeeRate: liquidFeeRate,
-              estimatedLbtcFee: estimatedLbtcFee,
+              estimatedLbtcFee: receiveAssetNetworkFee,
               swapFeePercentage: sideswap?.serverFeePercentPegIn ??
                   kDefaultSideswapPegFeePercent,
             );
           } else {
             return FeeStructure.sideswapPegOut(
               lbtcFeeRate: liquidFeeRate,
-              estimatedLbtcFee: estimatedLbtcFee,
+              estimatedLbtcFee: sendAssetNetworkFee,
               btcFeeRate: btcFeeRate,
-              estimatedBtcFee: estimatedBtcFee,
+              estimatedBtcFee: receiveAssetNetworkFee,
               swapFeePercentage: sideswap?.serverFeePercentPegOut ??
                   kDefaultSideswapPegFeePercent,
             );
@@ -130,14 +131,15 @@ class TransactionFeeStructureNotifier extends AutoDisposeFamilyAsyncNotifier<
 
         switch (swapServiceSource) {
           case SwapServiceSource.sideshift:
-            // Sideshift: Fixed 1% service fee, network fee is the remainder
-            final serviceFee = depositAmount * DecimalExt.fromDouble(0.01);
+            // Sideshift: Fixed 0.9% service fee, network fee is the remainder
+            final serviceFee = depositAmount *
+                DecimalExt.fromDouble(kSideshiftServiceFee, precision: 3);
             final totalFees = depositAmount - settleAmount;
             final networkFees = totalFees - serviceFee;
 
             return FeeStructure.usdtSwap(
               serviceFee: serviceFee.truncate(scale: 2).toDouble(),
-              serviceFeePercentage: 1.0,
+              serviceFeePercentage: kSideshiftServiceFee * 100,
               networkFee: networkFees.truncate(scale: 2).toDouble(),
               totalFees: totalFees.truncate(scale: 2).toDouble(),
             );

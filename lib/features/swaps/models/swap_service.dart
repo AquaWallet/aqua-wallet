@@ -28,7 +28,8 @@ extension SwapServiceAssets on SwapServiceSource {
             Asset.usdtTrx(),
             Asset.usdtBep(),
             Asset.usdtSol(),
-            Asset.usdtTon(),
+            //WARNING: Changelly supports Ton, but we same as Sideshift we need a memo when receiving, so disabling for now
+            // Asset.usdtTon(),
           ],
       };
 }

@@ -1,4 +1,7 @@
+import 'package:aqua/data/models/database/peg_order_model.dart';
+import 'package:aqua/data/models/database/swap_order_model.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
+import 'package:aqua/features/swaps/swaps.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
@@ -17,12 +20,17 @@ enum TransactionDbModelType {
   boltzSwap,
   @JsonValue('boltzReverseSwap')
   boltzReverseSwap,
+  //TODO: This covers all usdtSwaps and should be migrated to 'usdtSwap' at some point. Legacy from when we only had sideshift
   @JsonValue('sideshiftSwap')
   sideshiftSwap,
   @JsonValue('moonTopUp')
   moonTopUp,
   @JsonValue('aquaSend')
-  aquaSend;
+  aquaSend,
+  @JsonValue('boltzRefund')
+  boltzRefund,
+  @JsonValue('boltzSendFailed')
+  boltzSendFailed;
 }
 
 extension TransactionDbModelTypeExtension on TransactionDbModelType {
@@ -33,6 +41,19 @@ extension TransactionDbModelTypeExtension on TransactionDbModelType {
   bool get isPeg =>
       this == TransactionDbModelType.sideswapPegIn ||
       this == TransactionDbModelType.sideswapPegOut;
+
+  bool get isUSDtSwap => this == TransactionDbModelType.sideshiftSwap;
+
+  // Determine the TransactionDbModelType from the SwapServiceSource
+  static TransactionDbModelType fromServiceSource(SwapServiceSource source) {
+    switch (source) {
+      case SwapServiceSource.sideshift:
+      case SwapServiceSource.changelly:
+        return TransactionDbModelType.sideshiftSwap;
+      default:
+        throw ArgumentError('Unknown SwapServiceSource: $source');
+    }
+  }
 }
 
 @freezed
@@ -49,6 +70,7 @@ class TransactionDbModel with _$TransactionDbModel {
     @Enumerated(EnumType.name) TransactionDbModelType? type,
     String? serviceOrderId,
     String? serviceAddress,
+    int? estimatedFee,
     @Default(false) bool isGhost,
     DateTime? ghostTxnCreatedAt,
     int? ghostTxnAmount,
@@ -94,10 +116,51 @@ class TransactionDbModel with _$TransactionDbModel {
           isLiquidDeposit ? order.depositAddress : order.settleAddress,
     );
   }
+
+  factory TransactionDbModel.fromSwapOrderDbModel(SwapOrderDbModel swapOrder,
+      {bool isGhost = false}) {
+    return TransactionDbModel(
+      txhash: swapOrder.orderId,
+      receiveAddress: swapOrder.settleAddress,
+      assetId: swapOrder.toAsset,
+      type: TransactionDbModelTypeExtension.fromServiceSource(
+          swapOrder.serviceType),
+      serviceOrderId: swapOrder.orderId,
+      serviceAddress: swapOrder.settleAddress,
+      isGhost: isGhost,
+      ghostTxnCreatedAt: swapOrder.createdAt,
+      ghostTxnAmount: int.tryParse(swapOrder.settleAmount ?? '0'),
+      ghostTxnFee: int.tryParse(swapOrder.serviceFeeValue),
+      note: 'Pending swap transaction',
+    );
+  }
+
+  @Deprecated(
+      'TODO: Replace PegOrderDbModel  with SwapOrderDbModel when SideswapPegs are migrated to the new swap interface.')
+  factory TransactionDbModel.fromPegOrderDbModel(PegOrderDbModel pegOrder,
+      {bool isGhost = false}) {
+    return TransactionDbModel(
+      txhash: pegOrder.orderId,
+      receiveAddress: null,
+      assetId: null,
+      type: pegOrder.isPegIn
+          ? TransactionDbModelType.sideswapPegIn
+          : TransactionDbModelType.sideswapPegOut,
+      serviceOrderId: pegOrder.orderId,
+      serviceAddress:
+          null, //null because addresses weren't stored in PegOrderDbModel. Switching to SwapOrderDbModel will fix.
+      isGhost: isGhost,
+      ghostTxnCreatedAt: pegOrder.createdAt,
+      ghostTxnAmount: pegOrder.amount,
+      ghostTxnFee: null,
+    );
+  }
 }
 
 extension TransactionDbModelX on TransactionDbModel {
   bool get isAquaSend => type == TransactionDbModelType.aquaSend;
+  bool get isBoltzRefund => type == TransactionDbModelType.boltzRefund;
+  bool get isBoltzSendFailed => type == TransactionDbModelType.boltzSendFailed;
   bool get isSwap => type == TransactionDbModelType.sideswapSwap;
   bool get isPeg =>
       type == TransactionDbModelType.sideswapPegIn ||
@@ -108,6 +171,7 @@ extension TransactionDbModelX on TransactionDbModel {
   bool get isBoltzReverseSwap =>
       type == TransactionDbModelType.boltzReverseSwap;
   bool get isTopUp => type == TransactionDbModelType.moonTopUp;
+  bool get isUSDtSwap => type == TransactionDbModelType.sideshiftSwap;
 }
 
 extension IsarCollectionX<T> on IsarCollection<T> {

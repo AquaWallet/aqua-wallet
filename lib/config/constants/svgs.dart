@@ -37,6 +37,7 @@ class Svgs {
   static const welcomeWallet = 'assets/welcome_wallet.svg';
   static const close = 'assets/cross.svg';
   static const qr = 'assets/qr.svg';
+  // static const scan_text = 'assets/scan_text.svg'; add new icon for scanning address as text (not qr)
   static const recoveryPhrase = 'assets/recovery_phrase.svg';
   static const aquaLogo = 'assets/aqua_logo_white.svg';
   static const chevronRight = 'assets/chevron_right.svg';
@@ -100,6 +101,7 @@ class Svgs {
   static const backspace = 'assets/backspace.svg';
   static const noHistoryIconAddressHistory =
       'assets/address_history_screen_no_history_logo.svg';
+  static const sun = 'assets/svgs/sun.svg';
   static const botev = 'assets/svgs/light/botev.svg';
   static const botevDark = 'assets/svgs/dark/botev_dark.svg';
   static const capsLock = 'assets/caps_lock.svg';

@@ -34,7 +34,6 @@ class QrScannerProvider {
 
   late final Stream<AsyncValue<void>> _initializationStream = Stream.value(null)
       .switchMap((value) => Stream.value(null)
-          .delay(const Duration(milliseconds: 2000))
           .map((_) => AsyncValue.data(_))
           .startWith(const AsyncValue.loading()))
       .shareReplay(maxSize: 1);
@@ -66,7 +65,6 @@ class QrScannerProvider {
       if (parsedInput == null) {
         throw QrScannerInvalidQrParametersException();
       }
-
       final result = QrScannerPopResult.send(parsedAddress: parsedInput);
       _logger.debug('scanner result: $result');
       return result;
@@ -88,9 +86,17 @@ class QrScannerProvider {
             uploadUrl: appLink.uploadUrl,
           );
         }
+        if (appLink is SamRockAppLink) {
+          return QrScannerPopSamRockResult(
+            setupChains: appLink.setupChains,
+            otp: appLink.otp,
+            uploadUrl: appLink.uploadUrl,
+          );
+        }
       } catch (_) {}
 
       // all other assets
+      // address
       final parsedInput = await ref
           .read(addressParserProvider)
           .parseInput(input: uri.toString());

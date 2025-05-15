@@ -4,7 +4,6 @@ import 'package:aqua/constants.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 

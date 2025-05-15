@@ -54,7 +54,8 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final darkTheme = useMemoized(() => ref.read(darkThemeProvider(context)));
     final lightTheme = useMemoized(() => ref.read(lightThemeProvider(context)));
     final theme = useMemoized(

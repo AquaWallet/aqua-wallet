@@ -18,7 +18,38 @@ final aquaConnectionProvider =
 
 class AquaConnectionNotifier extends AsyncNotifier<void> {
   @override
-  FutureOr<void> build() => null;
+  FutureOr<void> build() {
+    // Listen to connectivity changes
+    ref.listen(connectivityStatusProvider, (_, data) {
+      if (data.valueOrNull == true) {
+        // Connected to network
+        ref.read(bitcoinProvider).reconnectHint(hint: GdkReconnectHint.connect);
+        ref.read(liquidProvider).reconnectHint(hint: GdkReconnectHint.connect);
+
+        // Refresh price and rate providers using the helper method
+        _refreshRateProviders();
+      } else {
+        // Disconnected from network
+        ref
+            .read(bitcoinProvider)
+            .reconnectHint(hint: GdkReconnectHint.disconnect);
+        ref
+            .read(liquidProvider)
+            .reconnectHint(hint: GdkReconnectHint.disconnect);
+      }
+    });
+
+    return null;
+  }
+
+  // Helper method to invalidate rate/price providers
+  void _refreshRateProviders() {
+    logger.debug('[AquaConnectionNotifier] Refreshing rate/price providers...');
+    ref.invalidate(btcPriceProvider);
+    ref.invalidate(gdkCurrenciesProvider);
+    ref.invalidate(exchangeRatesProvider);
+    ref.invalidate(fiatRatesProvider);
+  }
 
   Future<void> connect() async {
     state = const AsyncValue.loading();
@@ -53,7 +84,8 @@ class AquaConnectionNotifier extends AsyncNotifier<void> {
       }
 
       logger.debug('[AquaConnectionProvider] Connected');
-
+      // Refresh price and rate providers using the helper method
+      _refreshRateProviders();
       state = const AsyncValue.data(null);
     } catch (error) {
       logger.debug('[AquaConnectionProvider] Failed to connect');
@@ -142,7 +174,8 @@ class AquaProvider {
           ? ref.read(bitcoinProvider).blockHeightEventSubject
           : ref.read(liquidProvider).blockHeightEventSubject;
     }).map((currentBlockHeight) {
-      return (transactionBlockHeight == 0)
+      return (transactionBlockHeight == 0 ||
+              currentBlockHeight < transactionBlockHeight)
           ? 0
           : currentBlockHeight - transactionBlockHeight + 1;
     });

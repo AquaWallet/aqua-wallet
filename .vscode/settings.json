@@ -1,0 +1,15 @@
+{
+  "dart.flutterSdkPath": "./flutter/bin",
+  "search.exclude": {
+    "flutter": true,
+  },
+  "files.watcherExclude": {
+    "flutter": true
+  },
+  "files.exclude": {
+    "**/*.freezed.dart": true,
+    "**/*.g.dart": true,
+    "flutter": true
+  },
+  "editor.formatOnSave": true
+}

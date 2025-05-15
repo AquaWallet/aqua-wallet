@@ -16,7 +16,8 @@ class InitAppProvider extends AsyncNotifier<void> {
   Future<void> build() async {
     state = const AsyncValue.loading();
     _logger.debug('state: loading');
-    const int splashScreenMinDurationInMs = 2100; // 2.1 seconds
+    const int splashScreenMinDurationInMs =
+        1000; // 1 second artificial delay to make sure splash screen is show with logo is shown
     final startTime = DateTime.now();
     try {
       final dir = await getApplicationSupportDirectory();
@@ -30,6 +31,12 @@ class InitAppProvider extends AsyncNotifier<void> {
 
       await ref.read(bitcoinProvider).init();
 
+      /**
+      * App is initialized.
+      * Connect to remote network services.
+      */
+      ref.read(aquaConnectionProvider.notifier).connect();
+
       _logger.debug('Initialized bitcoin and liquid backend');
 
       // Splash Screen Delay
@@ -40,12 +47,6 @@ class InitAppProvider extends AsyncNotifier<void> {
         await Future.delayed(
             Duration(milliseconds: splashScreenRemainingDurationInMs));
       }
-
-      /**
-      * App is initialized.
-      * Connect to remote network services.
-      */
-      ref.read(aquaConnectionProvider.notifier).connect();
 
       state = const AsyncValue.data(null);
     } catch (error) {

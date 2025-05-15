@@ -11,10 +11,7 @@ import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 //TODO - Ad-hoc solution, should revisit once more services are added
-enum SendTransactionType {
-  send,
-  topUp,
-}
+enum SendTransactionType { send, topUp, privateKeySweep }
 
 class SendAssetReviewPage extends HookConsumerWidget
     with GenericErrorPromptMixin {
@@ -22,31 +19,33 @@ class SendAssetReviewPage extends HookConsumerWidget
     super.key,
     required this.onConfirmed,
     required this.arguments,
-    this.transactionType = SendTransactionType.send,
   });
 
   final VoidCallback onConfirmed;
   final SendAssetArguments arguments;
-  final SendTransactionType transactionType;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    useAutomaticKeepAlive();
-
-    final txnInitialized =
-        ref.watch(sendAssetTransactionSetupProvider(arguments)).valueOrNull ??
-            false;
+    final setupInitialized =
+        ref.watch(sendAssetSetupProvider(arguments)).valueOrNull ?? false;
 
     final createInitialTransaction = useCallback(() => ref
         .read(sendAssetTxnProvider(arguments).notifier)
         .createFeeEstimateTransaction());
 
+    final transactionType = ref.watch(
+      sendAssetInputStateProvider(arguments).select(
+        (state) =>
+            state.valueOrNull?.transactionType ?? SendTransactionType.send,
+      ),
+    );
+
     useEffect(() {
-      if (txnInitialized) {
+      if (setupInitialized) {
         createInitialTransaction();
       }
       return null;
-    }, [txnInitialized]);
+    }, [setupInitialized]);
 
     ref.listen(sendAssetInputStateProvider(arguments), (prev, curr) {
       if (curr.valueOrNull?.feeAsset != prev?.valueOrNull?.feeAsset) {
@@ -54,7 +53,7 @@ class SendAssetReviewPage extends HookConsumerWidget
       }
     });
 
-    ref.listen(sendAssetTransactionSetupProvider(arguments), (_, value) {
+    ref.listen(sendAssetSetupProvider(arguments), (_, value) {
       showGenericErrorPromptOnAsyncError(context, value);
     });
 
@@ -98,7 +97,6 @@ class _TransactionReviewContent extends StatelessWidget {
             _ when (args.asset.isBTC || args.asset.isLiquid) =>
               _AquaTxnReviewContent(
                 args: args,
-                transactionType: transactionType,
               ),
             _ when (args.asset.isLightning) => LightningTxnReviewContent(args),
             _ when (args.asset.isAltUsdt) => _UsdSwapTxnReviewContent(
@@ -136,18 +134,20 @@ class _TransactionReviewContent extends StatelessWidget {
 class _AquaTxnReviewContent extends ConsumerWidget {
   const _AquaTxnReviewContent({
     required this.args,
-    required this.transactionType,
   });
 
   final SendAssetArguments args;
-  final SendTransactionType transactionType;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final transaction = ref.watch(sendAssetTxnProvider(args)).value;
-    final input = ref.watch(sendAssetInputStateProvider(args)).value!;
+    final input = ref.watch(sendAssetInputStateProvider(args)).valueOrNull;
     final isNotesEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
+
+    if (input == null) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       children: [
@@ -158,7 +158,7 @@ class _AquaTxnReviewContent extends ConsumerWidget {
           address: input.addressFieldText ?? '-',
           amount: input.amount.toString(),
           isSendAll: input.isSendAllFunds,
-          transactionType: transactionType,
+          transactionType: input.transactionType,
         ),
         //ANCHOR - Fee Selection Card
         if (transaction != null && args.asset.isUsdtLiquid) ...{
@@ -178,7 +178,7 @@ class _AquaTxnReviewContent extends ConsumerWidget {
         },
         const SizedBox(height: 22),
         //ANCHOR - Spending Total
-        if (transactionType == SendTransactionType.topUp) ...{
+        if (input.transactionType == SendTransactionType.topUp) ...{
           _SpendingTotalCard(args: args),
           const SizedBox(height: 22),
         },
@@ -254,7 +254,8 @@ class _SpendingTotalCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final topUpInput = ref.watch(topUpInputStateProvider).value!;
     final sendInput = ref.watch(sendAssetInputStateProvider(args)).value!;
     final feeUsd = useMemoized(() {

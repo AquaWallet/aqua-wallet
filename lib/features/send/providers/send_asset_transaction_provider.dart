@@ -125,6 +125,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
               amountFiat: input.amountConversionDisplay,
               feeSats: transaction.txReply?.fee,
               feeAsset: input.feeAsset,
+              serviceOrderId: input.serviceOrderId,
             ),
           ),
         );
@@ -142,16 +143,8 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       // Save transaction to db until it is detected by GDK
       await _saveTransactionData(input, txId, createdAt, transaction);
 
-      // If boltz, mark as broadcasted
-      if (input.asset.isLightning) {
-        final swap = ref.watch(boltzSubmarineSwapProvider);
-        if (swap != null) {
-          await ref
-              .read(boltzStorageProvider.notifier)
-              .updateSubmarineOnBroadcast(boltzId: swap.id, txId: txId);
-          _logger.debug("Success - cache tx hash for boltz: $txId");
-        }
-      }
+      // Mark any external metadata necessary
+      await _markExternalMetadata(input, txId);
 
       // NOTE: This should be fixed with DiscountCT, but leaving UTXO caching in for a bit longer won't hurt
       // Cache used utxos for lowball double-spend issue
@@ -173,7 +166,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
           feeAsset: input.feeAsset,
           serviceOrderId: arg.asset.isLightning
               ? ref.read(boltzSubmarineSwapProvider)?.id
-              : null,
+              : input.serviceOrderId,
         ),
       ));
     } on MempoolConflictTxBroadcastException {
@@ -206,6 +199,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       ghostTxnCreatedAt: createdAt,
       ghostTxnAmount: input.amount,
       ghostTxnFee: transaction.txReply?.fee,
+      serviceOrderId: input.serviceOrderId,
     );
 
     if (input.isTopUp) {
@@ -313,5 +307,19 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
 
     if (usedUtxos == null) return;
     ref.read(recentlySpentUtxosProvider.notifier).addUtxos(usedUtxos);
+  }
+
+  Future<void> _markExternalMetadata(
+      SendAssetInputState input, String txId) async {
+    if (input.asset.isLightning) {
+      final swap = ref.watch(boltzSubmarineSwapProvider);
+      if (swap != null) {
+        await ref
+            .read(boltzStorageProvider.notifier)
+            .updateSubmarineOnBroadcast(boltzId: swap.id, txId: txId);
+        _logger.debug("Success - cache tx hash for boltz: $txId");
+      }
+      return;
+    }
   }
 }

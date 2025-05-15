@@ -1,5 +1,6 @@
 import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
 import 'package:aqua/common/widgets/custom_bottom_navigation_bar.dart';
+
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/home/home.dart';
@@ -60,12 +61,6 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
           ref.invalidate(boltzSwapSettlementServiceProvider);
         });
       }
-    });
-
-    ref.listen(connectivityStatusProvider, (_, data) {
-      ref.invalidate(btcPriceProvider);
-      ref.invalidate(exchangeRatesProvider);
-      ref.invalidate(fiatRatesProvider);
     });
 
     useEffect(() {

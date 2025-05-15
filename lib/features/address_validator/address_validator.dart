@@ -11,6 +11,7 @@ import 'package:aqua/logger.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
 import 'package:decimal/decimal.dart';
 import 'package:aqua/features/boltz/providers/boltz_to_boltz_provider.dart';
+import 'package:aqua/features/wallet/utils/mini_private_key_service.dart';
 
 import 'models/address_validator_models.dart';
 
@@ -42,9 +43,22 @@ final altUsdtValidatorMap = {
   Asset.usdtPol().id: r'^0x[a-fA-F0-9]{40}$',
 
   /// Basic TON validation.
-  /// - Checks for EQ prefix
-  /// - Checks for 48 base64 characters after prefix
-  Asset.usdtTon().id: r'^EQ[A-Za-z0-9+/]{48}$',
+  /// - User-friendly format: EQ/UQ prefix followed by 46 base64/base64url chars
+  ///   Base64 allows A-Z, a-z, 0-9, + and /
+  ///   Base64url allows A-Z, a-z, 0-9, - and _
+  ///
+  /// Bounceable vs Non-bounceable:
+  /// - EQ prefix (bounceable): Used for smart contracts. If the transaction fails,
+  ///   funds are automatically returned to the sender minus network fees.
+  /// - UQ prefix (non-bounceable): Used for simple wallets. If the transaction fails,
+  ///   funds are NOT returned to protect against replay attacks.
+  ///
+  /// - Raw format: workchain_id (0 or -1) followed by : and 64 hex chars
+  ///   where 0 is basechain and -1 is masterchain
+  ///
+  /// See TON docs: https://docs.ton.org/v3/documentation/smart-contracts/addresses
+  Asset.usdtTon().id:
+      r'^(?:(?:EQ|UQ)[A-Za-z0-9+/_-]{46}|(?:0|-1):[0-9a-fA-F]{64})$',
 };
 
 final addressParserProvider = Provider.autoDispose<AddressParser>((ref) {
@@ -60,6 +74,8 @@ class AddressParser {
   ///
   /// - [accountForCompatibleAssets] will return true if this address is valid for a compatible asset,
   ///  for example, if the address is a lightning invoice, but the asset is LBTC, this will return true
+  ///
+  ///  checks if address is valid for specific asset
   Future<bool> isValidAddressForAsset(
       {required Asset asset,
       required String address,
@@ -151,7 +167,19 @@ class AddressParser {
     }
 
     try {
-      // unified bip21 (lightning first)
+      // Compressed private key
+      final miniPrivateKeyService = MiniPrivateKeyService();
+      if (miniPrivateKeyService.isValidMiniPrivateKey(input)) {
+        final wifPrivateKey = miniPrivateKeyService.miniKeyToWIF(input);
+        logger.debug('Valid wif private key: $wifPrivateKey');
+        return ParsedAddress(
+            address: '',
+            extPrivateKey: wifPrivateKey,
+            asset:
+                asset); // leave send address empty for now, will be set in send flow
+      }
+
+      // Unified bip21 (lightning first)
       final parsedBip21 =
           await parseBIP21(input, asset, accountForCompatibleAssets);
       if (parsedBip21 != null) {

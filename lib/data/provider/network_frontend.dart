@@ -84,16 +84,17 @@ abstract class NetworkFrontend {
   bool get isLogged => walletHashId.isNotEmpty;
 
   Future<void> _onGdkEvent(dynamic value) async {
-    switch (value.runtimeType.toString()) {
+    final valueType = value.runtimeType.toString();
+    switch (valueType) {
       case '_\$_GdkNetworkEvent':
+      case '_\$GdkNetworkEventImpl':
         final result = value as GdkNetworkEvent;
-        if (result.currentState == GdkNetworkEventStateEnum.connected &&
-            !isLogged) {
-          if (internalMnemonic.isNotEmpty) {
-            logger.debug('[$runtimeType] Relogin to $networkName');
-            await loginUser(
-                credentials: GdkLoginCredentials(mnemonic: internalMnemonic));
-          }
+        if (result.nextState == GdkNetworkEventStateEnum.connected &&
+            !isLogged &&
+            internalMnemonic.isNotEmpty) {
+          logger.debug('[$runtimeType] Relogin to $networkName');
+          await loginUser(
+              credentials: GdkLoginCredentials(mnemonic: internalMnemonic));
         }
 
         if (isLogged &&
@@ -111,6 +112,7 @@ abstract class NetworkFrontend {
         // do nothing for now
         break;
       case '_\$_GdkTransactionEvent':
+      case '_\$GdkTransactionEventImpl':
         // refresh balances & transactions
         await getBalance(requiresRefresh: true);
         await getTransactions(requiresRefresh: true);
@@ -213,6 +215,8 @@ abstract class NetworkFrontend {
               throw GdkNetworkInsufficientFunds(error);
             case 'Insufficient funds for fees':
               throw GdkNetworkInsufficientFundsForFee(error);
+            case 'Fee change below the dust threshold':
+              throw GdkNetworkChangeBelowDustThreshold(error);
             case 'invalid subaccount 1' || 'Unknown subaccount':
               return true;
             default:
@@ -242,11 +246,10 @@ abstract class NetworkFrontend {
     return result;
   }
 
-  Future<bool> reconnectHint({required GdkReconnectParams params}) async {
-    logger.debug('[$runtimeType] Reconnecting to $networkName');
-    final result = await session.reconnectHint(reconnectParams: params);
-
-    return result;
+  Future<bool> reconnectHint({required GdkReconnectHint hint}) async {
+    logger.debug('[$runtimeType] $networkName is being ${hint.name}ed');
+    return await session.reconnectHint(
+        reconnectParams: GdkReconnectParams(hint: hint));
   }
 
   Future<bool> disconnect() async {
@@ -319,6 +322,30 @@ abstract class NetworkFrontend {
     logger.debug(
         '[GDK] getUnspentOutputs: Returning filtered UTXOs - original: ${utxos.unsentOutputs!.length} - filtered: ${filteredUtxos.length}');
     return GdkUnspentOutputsReply(unsentOutputs: filteredUtxos);
+  }
+
+  Future<GdkUnspentOutputsReply?> getUnspentOutputsForPrivateKey(
+      String privateKey,
+      {String? outputType}) async {
+    logger.debug('[GDK] Fetching unspent outputs for private key');
+    final result = await session.getUnspentOutputsForPrivateKey(privateKey,
+        outputType: outputType);
+
+    if (_isErrorResult(result)) {
+      logger.error('[GDK] Error fetching unspent outputs for private key');
+      return null;
+    }
+
+    final GdkUnspentOutputsReply? utxos =
+        result.asValue?.value.result?.unspentOutputs;
+
+    if (utxos == null || utxos.unsentOutputs == null) {
+      logger.warning('[GDK] getUnspentOutputsForPrivateKey: No UTXOs found');
+      return null;
+    }
+
+    logger.debug('[GDK] getUnspentOutputsForPrivateKey: Returning UTXOs');
+    return utxos;
   }
 
   Future<List<GdkTransaction>?> getTransactions(
@@ -954,6 +981,15 @@ class GdkNetworkInsufficientFundsForFee extends GdkNetworkException {
   @override
   String toLocalizedString(BuildContext context) {
     return context.loc.gdkNetworkInsufficientFundsForFee;
+  }
+}
+
+class GdkNetworkChangeBelowDustThreshold extends GdkNetworkException {
+  GdkNetworkChangeBelowDustThreshold(super.error);
+
+  @override
+  String toLocalizedString(BuildContext context) {
+    return context.loc.gdkNetworkChangeBelowDustThreshold;
   }
 }
 

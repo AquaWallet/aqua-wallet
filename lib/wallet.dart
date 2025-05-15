@@ -221,6 +221,37 @@ abstract class WalletService {
     return _resolveAuthHandlerStatus(status.asValue!.value);
   }
 
+  Future<Result<GdkAuthHandlerStatus>> getUnspentOutputsForPrivateKey(
+      String privateKey,
+      {String? outputType}) async {
+    logger.debug('[GDK] Fetching unspent outputs for private key');
+
+    // GDK Docs: https://gdk.readthedocs.io/en/release_0.74.2/gdk-json.html#unspent-outputs-private-request
+    // Mandatory. The private key in WIF or BIP 38 format. If you want to sweep “p2wpkh”/”p2sh-p2wpkh” outputs, prefix the WIF key with "p2wpkh:"/"p2wpkh-p2sh:".
+    String formattedKey = privateKey;
+    if (outputType != null) {
+      if (outputType == 'p2wpkh') {
+        formattedKey = 'p2wpkh:$privateKey';
+      } else if (outputType == 'p2sh-p2wpkh') {
+        formattedKey = 'p2wpkh-p2sh:$privateKey';
+      }
+      logger.debug('[GDK] Using prefixed private key format for $outputType');
+    }
+
+    final details =
+        GdkUnspentOutputsPrivateKeyRequest(privateKey: formattedKey);
+    final status = await libGdk.getUnspentOutputsForPrivateKey(
+      session: session!,
+      details: details,
+    );
+
+    if (isErrorResult(status)) {
+      return status;
+    }
+
+    return _resolveAuthHandlerStatus(status.asValue!.value);
+  }
+
   Future<Result<Map<String, GdkAssetInformation>?>> getAssets({
     GdkGetAssetsParameters params = const GdkGetAssetsParameters(),
   }) async {

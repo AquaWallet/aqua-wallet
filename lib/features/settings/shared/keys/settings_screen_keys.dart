@@ -11,8 +11,7 @@ class SettingsScreenKeys {
   static const settingsDisplayUnitButton = Key("display-unit-button");
   static const settingsBiometricAuthenticationButton =
       Key("biometric-authentication-button");
-  static const settingsDarkModeButton = Key("dark-mode-button");
-  static const settingsBotevModeButton = Key("botev-mode-button");
+  static const settingsThemesButton = Key("themes-button");
   static const settingsBlockExplorerButton = Key("block-explorer-button");
   static const settingsElectrumServerButton = Key("electrum-server-button");
 

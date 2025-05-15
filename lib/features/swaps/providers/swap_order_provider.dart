@@ -1,6 +1,7 @@
 import 'package:aqua/features/changelly/changelly_service.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/logger.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,6 +9,7 @@ class SwapOrderNotifier
     extends AutoDisposeFamilyAsyncNotifier<SwapOrderCreationState, SwapArgs> {
   late final SwapService _service;
   late final SwapPair _pair;
+  late final Throttler _rateThrottler;
 
   final _logger = CustomLogger(FeatureFlag.swap);
 
@@ -15,6 +17,12 @@ class SwapOrderNotifier
   Future<SwapOrderCreationState> build(SwapArgs arg) async {
     try {
       _pair = arg.pair;
+      _rateThrottler = Throttler(milliseconds: 1000);
+
+      // Register the throttler disposal when the provider is disposed
+      ref.onDispose(() {
+        _rateThrottler.dispose();
+      });
 
       // if serviceProvider wasn't passed, then resolve automatically
       final serviceProvider = arg.serviceProvider ??
@@ -47,21 +55,26 @@ class SwapOrderNotifier
     SwapOrderType type = SwapOrderType.variable,
   }) async {
     _logger
-        .debug('Getting rate for pair: $_pair, amount: $amount, type: $type');
-    try {
-      final rate = await _service.getRate(_pair, amount: amount, type: type);
-      state = AsyncValue.data(state.value!.copyWith(
-        selectedPair: _pair,
-        amount: amount,
-        type: type,
-        rate: rate,
-      ));
-      _logger.debug('Rate retrieved successfully: $rate');
-    } catch (e, stackTrace) {
-      _logger.debug('Error getting rate: $e');
-      state = AsyncValue.error(e, stackTrace);
-      rethrow;
-    }
+        .debug('Rate requested for pair: $_pair, amount: $amount, type: $type');
+
+    // reduce API calls to avoid status 429
+    _rateThrottler.run(() async {
+      _logger.debug('Executing throttled rate call for pair: $_pair');
+      try {
+        final rate = await _service.getRate(_pair, amount: amount, type: type);
+        state = AsyncValue.data(state.value!.copyWith(
+          selectedPair: _pair,
+          amount: amount,
+          type: type,
+          rate: rate,
+        ));
+        _logger.debug('Rate retrieved successfully: $rate');
+      } catch (e, stackTrace) {
+        _logger.debug('Error getting rate: $e');
+        state = AsyncValue.error(e, stackTrace);
+        rethrow;
+      }
+    });
   }
 
   Future<void> getQuote(SwapPair pair,

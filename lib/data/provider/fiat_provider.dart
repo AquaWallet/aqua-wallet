@@ -86,11 +86,13 @@ class FiatProvider {
   //ANCHOR: - Fiat to Satoshi
   Future<Decimal> fiatToSatoshi(Asset asset, Decimal amount) async {
     final rate = await rateStream.first;
-
-    final precisionRate = Decimal.parse(
-        pow(10, asset.precision).toStringAsFixed(asset.precision));
+    final assetPrecision =
+        asset.isLightning ? Asset.btc().precision : asset.precision;
+    final precisionRate =
+        Decimal.parse(pow(10, assetPrecision).toStringAsFixed(assetPrecision));
     final divided = amount / rate.$1;
-    return divided.toDecimal(scaleOnInfinitePrecision: asset.precision) *
+
+    return divided.toDecimal(scaleOnInfinitePrecision: assetPrecision) *
         precisionRate;
   }
 

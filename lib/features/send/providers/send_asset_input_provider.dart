@@ -13,6 +13,7 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/logger.dart';
+import 'package:decimal/decimal.dart';
 
 final sendAssetInputStateProvider = AutoDisposeAsyncNotifierProviderFamily<
     SendAssetInputStateNotifier,
@@ -26,16 +27,31 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final clipboardContent = await ref.watch(clipboardContentProvider.future);
     final asset = arg.asset;
     final addressInput = arg.input;
-    final amountFieldText = arg.userEnteredAmount?.toString();
-    final amountInSats = amountFieldText != null
-        ? ref.read(formatterProvider).parseAssetAmountDirect(
-              amount: amountFieldText,
-              precision: asset.precision,
-            )
-        : 0;
+    String? amountFieldText = arg.userEnteredAmount?.toString();
+
+    // if: networkAmount is provided, use it
+    // else: try parse the amount entered as text
+    final networkAmount = arg.networkAmount != null
+        ? arg.networkAmount!.amount.toBigInt().toInt()
+        : (amountFieldText != null
+            ? ref.read(formatterProvider).parseAssetAmountDirect(
+                  amount: amountFieldText,
+                  precision: asset.precision,
+                )
+            : 0);
+
+    // now if amountFieldText is null, we need to convert the networkAmount to displayAmount
+    // but only if networkAmount is not 0 (default)
+    if (amountFieldText == null && networkAmount != 0) {
+      amountFieldText = ref.read(formatterProvider).formatAssetAmountDirect(
+            amount: networkAmount,
+            precision: asset.precision,
+          );
+    }
+
     final convertedAmount =
         await ref.read(amountInputMutationsProvider).getConvertedAmount(
-              amountSats: amountInSats,
+              amountSats: networkAmount,
               asset: asset,
               isFiatAmountInput: false,
             );
@@ -47,6 +63,8 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final balanceFiatDisplay = await ref
         .read(satsToFiatDisplayWithSymbolProvider(balanceInSats).future);
     final lnurlData = arg.lnurlParseResult;
+    final externalPrivateKey = arg.externalPrivateKey;
+    final transactionType = determineTransactionType(arg);
 
     final isValidAddressInClipboard =
         await _validateAddress(asset, clipboardContent);
@@ -55,7 +73,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       return SendAssetInputState(
         asset: asset,
         addressFieldText: addressInput,
-        amount: amountInSats,
+        amount: networkAmount,
         amountFieldText: amountFieldText,
         balanceInSats: balanceInSats,
         balanceDisplay: balanceDisplay,
@@ -63,6 +81,8 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         amountConversionDisplay: convertedAmount,
         feeAsset: asset.defaultFeeAsset,
         lnurlData: lnurlData,
+        externalSweepPrivKey: externalPrivateKey,
+        transactionType: transactionType,
       );
     }
 
@@ -71,7 +91,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       swapPair: _getSwapPair(asset),
       clipboardAddress: clipboardContent,
       addressFieldText: addressInput,
-      amount: amountInSats,
+      amount: networkAmount,
       amountFieldText: amountFieldText,
       balanceInSats: balanceInSats,
       balanceDisplay: balanceDisplay,
@@ -79,6 +99,8 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       amountConversionDisplay: convertedAmount,
       feeAsset: asset.defaultFeeAsset,
       lnurlData: lnurlData,
+      externalSweepPrivKey: externalPrivateKey,
+      transactionType: transactionType,
     );
   }
 
@@ -98,10 +120,13 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
   // content is already validated.
   Future<void> pasteClipboardContent() async {
     final clipboardAddress = state.value!.clipboardAddress;
+
+    // First update the address field text
     state = AsyncValue.data(state.value!.copyWith(
       addressFieldText: clipboardAddress,
     ));
 
+    // Then process the address
     await _processAddress(clipboardAddress!);
   }
 
@@ -111,14 +136,12 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
   Future<void> pasteScannedQrCode(String? qrCode) async {
     logger.debug("[Send][Input] Scanned QR code: $qrCode");
 
+    // First update the scanned QR code
     state = AsyncValue.data(state.value!.copyWith(
       scannedQrCode: qrCode,
     ));
 
     if (qrCode == null) {
-      // NOTE: This was being thrown in the screen with no error handling,
-      // temporarily moved here but I guess the error is redundant in the
-      // presence of `AddressParsingExceptionType.emptyAddress`
       state = AsyncValue.error(
         QrScannerInvalidQrParametersException(),
         StackTrace.current,
@@ -134,14 +157,34 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       return;
     }
 
+    // Then process the address
     await _processAddress(qrCode);
   }
 
+  Future<void> pasteScannedText(String? text) async {
+    logger.debug("[Send][Input] Scanned Text: $text");
+
+    if (text == null || text.isEmpty) {
+      state = AsyncValue.error(
+        AddressParsingException(AddressParsingExceptionType.emptyAddress),
+        StackTrace.current,
+      );
+      return;
+    }
+    state = AsyncValue.data(state.value!.copyWith(
+      scannedText: text,
+    ));
+
+    await _processAddress(text);
+  }
+
   Future<void> updateAddressFieldText(String text) async {
+    // First update the address field text
     state = AsyncValue.data(state.value!.copyWith(
       addressFieldText: text,
     ));
 
+    // Then process the address
     await _processAddress(text);
   }
 
@@ -186,15 +229,9 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
   }
 
   Future<void> updateAmountFieldText(String text) async {
-    // Send all flag is removed when amount is updated
-    if (state.value!.isSendAllFunds) {
-      await setSendMaxAmount(false);
-    }
-
-    // Use the currently selected amount input type to determine the type of
-    // conversion to apply
     final asset = state.value!.asset;
     final isFiatInput = state.value!.isFiatAmountInput;
+
     final amountSats =
         await ref.read(amountInputMutationsProvider).getConvertedAmountSats(
               text: text,
@@ -202,7 +239,6 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
               isFiatInput: isFiatInput,
             );
 
-    // Update converted amount with each amount update
     final convertedAmount =
         await ref.read(amountInputMutationsProvider).getConvertedAmount(
               amountSats: amountSats,
@@ -214,6 +250,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       amount: amountSats,
       amountFieldText: text,
       amountConversionDisplay: convertedAmount,
+      isSendAllFunds: false,
     ));
   }
 
@@ -278,16 +315,11 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       final parsedAddress = parsedInput?.address;
       final parsedAsset = parsedInput?.asset;
       final parsedAmount = parsedInput?.amount;
-      final parsedAmountInSats = parsedAmount != null
-          ? (parsedAsset?.isLightning ?? false)
-              ? parsedAmount.toInt()
-              : ref.read(formatterProvider).parseAssetAmountDirect(
-                    amount: parsedAmount.toString(),
-                    //NOTE - Actual fix is to give precision of 8 to Lightning asset
-                    // but this is a quick fix to avoid breaking changes
-                    precision: parsedAsset?.precision ?? 0,
-                  )
-          : 0;
+      final parsedAmountInSats = _calculateParsedAmount(
+        parsedAmount: parsedAmount,
+        parsedAsset: parsedAsset,
+        currentAmount: state.valueOrNull?.amount,
+      );
 
       if (isLnurl) {
         state = AsyncValue.data(state.valueOrNull!.copyWith(
@@ -297,7 +329,6 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
           amount: parsedLnurlParams.isFixedAmount
               ? parsedLnurlParams.minSendableSats
               : parsedAmountInSats,
-          // lnurl needs amount entry unless it's a fixed amount, then we just use that amount
           isAmountEditable: !parsedLnurlParams.isFixedAmount,
         ));
         return;
@@ -318,6 +349,8 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       }
 
       final isDiffAsset = _isDifferentAsset(asset, parsedAsset);
+      final isAquaToAqua = parsedInput?.lightningInvoice != null &&
+          parsedAsset?.isLightning != true;
 
       final newAsset = _switchAsset(
         asset: asset,
@@ -337,7 +370,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         amount: parsedAmountInSats,
         amountFieldText: parsedAmount?.toString(),
         amountConversionDisplay: convertedAmount,
-        addressFieldText: isDiffAsset ? parsedAddress : content,
+        addressFieldText: isDiffAsset || isAquaToAqua ? parsedAddress : content,
         isAmountEditable: !newAsset.isLightning,
       ));
     } catch (e) {
@@ -358,4 +391,42 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       transactionType: type,
     ));
   }
+
+  void setServiceOrderId(String serviceOrderId) {
+    state = AsyncValue.data(state.valueOrNull!.copyWith(
+      serviceOrderId: serviceOrderId,
+    ));
+  }
+
+  //ANCHOR: Private helper methods
+  int _calculateParsedAmount({
+    Decimal? parsedAmount,
+    Asset? parsedAsset,
+    int? currentAmount,
+  }) {
+    if (parsedAmount == null) {
+      return currentAmount ?? 0;
+    }
+
+    if (parsedAsset?.isLightning ?? false) {
+      return parsedAmount.toInt();
+    }
+
+    return ref.read(formatterProvider).parseAssetAmountDirect(
+          amount: parsedAmount.toString(),
+          precision: parsedAsset?.precision ?? 0,
+        );
+  }
+}
+
+SendTransactionType determineTransactionType(SendAssetArguments args) {
+  if (args.transactionType != null) {
+    return args.transactionType!;
+  }
+
+  if (args.externalPrivateKey != null) {
+    return SendTransactionType.privateKeySweep;
+  }
+
+  return SendTransactionType.send;
 }

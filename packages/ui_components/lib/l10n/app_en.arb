@@ -1,0 +1,50 @@
+{
+  "@@locale": "en",
+  "sent": "Sent",
+  "@sent": {
+    "description": "Text shown for sent transactions"
+  },
+  "received": "Received",
+  "@received": {
+    "description": "Text shown for received transactions"
+  },
+  "swapped": "Swapped",
+  "@swapped": {
+    "description": "Text shown for swap transactions"
+  },
+  "sending": "Sending",
+  "receiving": "Receiving",
+  "swapping": "Swapping",
+  "failed": "Failed",
+  "refund": "Refund",
+  "insufficientFunds": "Insufficient funds",
+  "addFunds": "Add funds",
+  "onChain": "On-chain",
+  "lBtc": "L-BTC",
+  "lUsdt": "L-USDt",
+  "swappedFromLUsdt": "Swapped from L-USDt",
+  "swappedToLBtc": "Swapped to L-BTC",
+  "tapForOptions": "Tap for options",
+  "swappedFromLBtc": "Swapped from L-BTC",
+  "swappedToLUsdt": "Swapped to L-USDt",
+  "balanceValue": "Balance: {balance}",
+  "@balanceValue": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "reloadable": "Reloadable",
+  "expiryDate": "Expiry Date",
+  "cvv": "CVV",
+  "nonReloadable": "Non-reloadable",
+  "bitcoinPrice": "Bitcoin Price",
+  "totalBalance": "Total Balance",
+  "receive": "Receive",
+  "send": "Send",
+  "scan": "Scan",
+  "from": "From",
+  "to": "To",
+  "copiedToClipboard": "Copied to clipboard"
+}

@@ -4,12 +4,15 @@ import 'dart:math';
 import 'package:app_settings/app_settings.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/constants.dart' as constants;
+import 'package:aqua/features/bip329/bip329_settings_screen.dart';
 import 'package:aqua/features/pin/pin_provider.dart';
 import 'package:aqua/features/pin/pin_screen.dart';
 import 'package:aqua/features/pin/pin_warning_screen.dart';
+import 'package:aqua/features/pokerchip/pokerchip.dart';
 import 'package:aqua/features/recovery/pages/warning_phrase_screen.dart';
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
 import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
 import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -21,6 +24,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:aqua/features/account/account.dart';
 
 Future<void> downloadFile(String logs) async {
   final dir = await getTemporaryDirectory();
@@ -43,8 +47,8 @@ class SettingsTab extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pinEnabled =
         ref.watch(pinAuthProvider).asData?.value != PinAuthState.disabled;
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
-    final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final biometricAuth = ref.watch(biometricAuthProvider).asData?.value;
     final env = ref.watch(envProvider);
     final version = ref.watch(versionProvider).asData?.value ?? '';
@@ -63,12 +67,21 @@ class SettingsTab extends HookConsumerWidget {
         ref.watch(featureFlagsProvider.select((p) => p.seedQrEnabled));
     final isCustomElectrumUrlEnabled = ref
         .watch(featureFlagsProvider.select((p) => p.customElectrumUrlEnabled));
+    final isJan3CardVisible =
+        ref.watch(prefsProvider.select((p) => p.isJan3CardExpanded));
+
+    final isNotesEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
 
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: false,
         title: context.loc.settings,
-        showActionButton: false,
+        showActionButton: !isJan3CardVisible,
+        actionButtonAsset: UiAssets.svgs.profile.path,
+        onActionButtonPressed: () => ref
+            .read(prefsProvider.notifier)
+            .setJan3CardExpanded(isExpanded: true),
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
         onTitlePressed: () =>
             ref.read(featureUnlockTapCountProvider.notifier).increment(),
@@ -81,6 +94,15 @@ class SettingsTab extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Jan3 Account Card
+            Jan3AccountCard(
+              isExpanded: isJan3CardVisible,
+              onClose: () => ref
+                  .read(prefsProvider.notifier)
+                  .setJan3CardExpanded(isExpanded: false),
+            ),
+            const SizedBox(height: 36.0),
+
             //ANCHOR - General Settings
             _SectionTitle(
               context.loc.settingsScreenSectionGeneral,
@@ -120,27 +142,14 @@ class SettingsTab extends HookConsumerWidget {
             ),
             const SizedBox(height: 4.0),
 
-            //ANCHOR - Dark Mode
-            MenuItemWidget.switchItem(
-              key: SettingsScreenKeys.settingsDarkModeButton,
+            //ANCHOR - Themes
+            MenuItemWidget.arrow(
+              key: SettingsScreenKeys.settingsThemesButton,
               context: context,
-              value: darkMode,
-              enabled: !botevMode,
               assetName: Svgs.darkMode,
-              title: context.loc.settingsScreenItemDarkMode,
-              onPressed: () => ref.read(prefsProvider).switchDarkMode(),
-            ),
-            const SizedBox(height: 4.0),
-            //ANCHOR - Botev Mode
-            MenuItemWidget.switchItem(
-              key: SettingsScreenKeys.settingsBotevModeButton,
-              context: context,
-              value: botevMode,
-              assetName: darkMode ? Svgs.botevDark : Svgs.botev,
-              multicolor: true,
-              iconPadding: const EdgeInsets.all(8.0),
-              title: context.loc.settingsScreenItemBotevMode,
-              onPressed: () => ref.read(prefsProvider).switchBotevMode(),
+              color: context.colors.onBackground,
+              title: 'Themes',
+              onPressed: () => context.push(ThemesSettingsScreen.routeName),
             ),
             const SizedBox(height: 4.0),
             //ANCHOR - Block Explorer
@@ -294,6 +303,17 @@ class SettingsTab extends HookConsumerWidget {
               title: context.loc.bitcoinChip,
               onPressed: () => context.push(PokerchipScreen.routeName),
             ),
+            //ANCHOR - Notes
+            if (isNotesEnabled) ...[
+              const SizedBox(height: 4.0),
+              MenuItemWidget.arrow(
+                context: context,
+                assetName: Svgs.addNote,
+                color: context.colors.onBackground,
+                title: context.loc.notesSettingsScreenTitle,
+                onPressed: () => context.push(NotesSettingsScreen.routeName),
+              ),
+            ],
             const SizedBox(height: 4.0),
             //ANCHOR - Share logs
             MenuItemWidget.arrow(

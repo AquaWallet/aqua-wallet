@@ -1,0 +1,4 @@
+enum AquaAssetInputType {
+  crypto,
+  fiat,
+}

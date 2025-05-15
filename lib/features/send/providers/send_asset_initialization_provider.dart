@@ -5,6 +5,7 @@ import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
+import 'package:aqua/features/receive/providers/providers.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -13,9 +14,8 @@ import 'package:aqua/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.send);
 
-final sendAssetTransactionSetupProvider =
-    AutoDisposeAsyncNotifierProviderFamily<SendAssetTransactionSetupNotifier,
-        bool, SendAssetArguments>(
+final sendAssetSetupProvider = AutoDisposeAsyncNotifierProviderFamily<
+    SendAssetTransactionSetupNotifier, bool, SendAssetArguments>(
   SendAssetTransactionSetupNotifier.new,
 );
 
@@ -23,7 +23,10 @@ class SendAssetTransactionSetupNotifier
     extends AutoDisposeFamilyAsyncNotifier<bool, SendAssetArguments> {
   @override
   FutureOr<bool> build(SendAssetArguments arg) async {
-    final input = ref.read(sendAssetInputStateProvider(arg)).value!;
+    final input = ref.read(sendAssetInputStateProvider(arg)).valueOrNull;
+    if (input == null) {
+      return false;
+    }
 
     ref.listen(sendAssetInputStateProvider(arg), (prev, next) async {
       final isPrevAltUsd = prev!.value!.asset.isAltUsdt;
@@ -38,6 +41,10 @@ class SendAssetTransactionSetupNotifier
         await _initUSDtSwap(input);
       }
     });
+
+    if (input.externalSweepPrivKey != null) {
+      return _initPrivateKeySweep(input, arg);
+    }
 
     if (input.isLightning) {
       return _initLightning(input);
@@ -109,6 +116,16 @@ class SendAssetTransactionSetupNotifier
         .read(swapOrderProvider(SwapArgs(pair: swapPair)).notifier)
         .createSendOrder(swapOrderRequest);
 
+    // set service order id on input state
+    final swapOrder =
+        ref.read(swapOrderProvider(SwapArgs(pair: swapPair))).valueOrNull;
+    if (swapOrder == null || swapOrder.order == null) {
+      throw Exception('Swap order is null');
+    }
+    ref
+        .read(sendAssetInputStateProvider(arg).notifier)
+        .setServiceOrderId(swapOrder.order!.id);
+
     return true;
   }
 
@@ -116,5 +133,25 @@ class SendAssetTransactionSetupNotifier
     final feeRates = await ref.read(onChainFeeProvider.future);
     _logger.debug('[Send][Bitcoin] Fee Rates: $feeRates');
     return true;
+  }
+
+  Future<bool> _initPrivateKeySweep(
+      SendAssetInputState input, SendAssetArguments args) async {
+    try {
+      final address = await ref
+          .read(receiveAssetAddressProvider((input.asset, null)).future);
+
+      if (address.isEmpty) {
+        throw Exception('Address is null');
+      }
+
+      await ref
+          .read(sendAssetInputStateProvider(args).notifier)
+          .updateAddressFieldText(address);
+
+      return true;
+    } catch (error) {
+      throw Exception('Failed to retrieve address: $error');
+    }
   }
 }

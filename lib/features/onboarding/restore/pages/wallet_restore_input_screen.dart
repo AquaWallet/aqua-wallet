@@ -20,8 +20,8 @@ class WalletRestoreInputScreen extends HookConsumerWidget {
         QrScannerScreen.routeName,
         extra: QrScannerArguments(
           asset: null,
-          parseAction: QrScannerParseAction.doNotParse,
-          onSuccessAction: QrOnSuccessAction.pull,
+          parseAction: QrScannerParseAction.returnRawValue,
+          onSuccessAction: QrOnSuccessNavAction.popBack,
         ),
       ) as String?;
 

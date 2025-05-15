@@ -129,7 +129,7 @@ void main() {
                   .having((s) => s.feeSats, 'sats', kLbtcFeeSats)
                   .having((s) => s.feeFiat, 'fiat', kLbtcFeeFiat)
                   .having((s) => s.fiatCurrency, 'currency', kLbtcFiatCurrency)
-                  .having((s) => s.fiatFeeDisplay, 'fiatFeeDisplay', 'USD 0.00')
+                  .having((s) => s.fiatFeeDisplay, 'fiatFeeDisp', '≈ USD 0.00')
                   .having((s) => s.satsPerByte, 'satsPerByte', kLbtcFeeRate)
                   .having((s) => s.feeAsset, 'feeAsset', FeeAsset.lbtc),
             )),

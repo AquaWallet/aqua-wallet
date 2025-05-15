@@ -36,7 +36,10 @@ class SendAssetAmountValidationNotifier
       throw AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
     }
 
-    if (amount < kGdkMinSendAmountSats) {
+    if (asset.isLBTC && amount < kGdkMinSendAmountLbtcSats) {
+      throw AmountParsingException(AmountParsingExceptionType.belowLbtcMin);
+    }
+    if (!asset.isLBTC && amount < kGdkMinSendAmountSats) {
       throw AmountParsingException(AmountParsingExceptionType.belowMin);
     }
 

@@ -19,6 +19,8 @@ boltz-rust.tar.gz
 .vs
 migrate_working_dir/
 ._crypto
+lib/ffi/generated_bindings.dart
+lib/gen/
 
 # IntelliJ related
 *.iml
@@ -63,3 +65,10 @@ linux/
 
 # FVM Version Cache
 .fvm/
+.fvmrc
+
+# Test Coverage Report
+coverage/lcov.info
+
+# Environment files
+*.env

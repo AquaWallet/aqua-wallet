@@ -44,9 +44,8 @@ class TransactionIdCard extends HookConsumerWidget {
           //ANCHOR - Shift ID
           if (asset.isAltUsdt || asset.isLightning) ...{
             _CopyableTransactionId(
-              label:
-                  asset.isAltUsdt ? context.loc.shiftID : context.loc.boltzId,
-              transactionId: arguments.txId,
+              label: asset.isAltUsdt ? context.loc.swapId : context.loc.boltzId,
+              transactionId: arguments.serviceOrderId ?? '-',
             ),
             const SizedBox(height: 18),
           },

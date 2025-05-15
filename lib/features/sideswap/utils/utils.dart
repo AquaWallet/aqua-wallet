@@ -23,6 +23,9 @@ extension SwapContextExt on WidgetRef {
       errorMessage = error.message!;
     } else if (error is TimeoutException) {
       errorMessage = context.loc.internalSendTimeoutError;
+    } else if (error is PegSideSwapMinBtcLimitException ||
+        error is PegSideSwapMinLBtcLimitException) {
+      errorMessage = context.loc.genericSwapMinAmountError;
     }
 
     if (errorMessage.isNotEmpty) {

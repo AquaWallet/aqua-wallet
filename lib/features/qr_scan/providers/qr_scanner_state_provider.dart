@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aqua/data/data.dart';
+import 'package:aqua/data/provider/app_links/app_link.dart';
 import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -22,19 +23,18 @@ class QrScannerNotifier
   }
 
   Future<void> processBarcode(String? input) async {
-    logger.debug('[QR][Process] '
-        '- address: $input '
-        '- parseAddress: ${arg.parseAction} '
-        '- onSuccessAction: ${arg.onSuccessAction}');
-
-    if (arg.parseAction == QrScannerParseAction.doNotParse) {
+    if (arg.parseAction == QrScannerParseAction.returnRawValue) {
       if (input == null) {
         throw QrScannerInvalidQrParametersException();
       }
 
       if (arg.asset == null) {
-        if (arg.onSuccessAction == QrOnSuccessAction.pull) {
+        if (arg.onSuccessAction == QrOnSuccessNavAction.popBack) {
           state = AsyncValue.data(QrScanState.unknownQrCode(input));
+          logger.debug('[QR][Process] '
+              '- address: $input '
+              '- parseAddress: ${arg.parseAction} '
+              '- onSuccessAction: ${arg.onSuccessAction}');
         } else {
           throw QrScannerInvalidQrParametersException();
         }
@@ -42,10 +42,14 @@ class QrScannerNotifier
 
       final sendArgs =
           SendAssetArguments.fromAsset(arg.asset!).copyWith(input: input);
-      state = arg.onSuccessAction == QrOnSuccessAction.pull
+      state = arg.onSuccessAction == QrOnSuccessNavAction.popBack
           ? AsyncValue.data(QrScanState.pullSendAsset(sendArgs))
           : AsyncValue.data(QrScanState.pushSendAsset(sendArgs));
     } else {
+      logger.debug('[QR][Process] attemp'
+          '- address: $input '
+          '- parseAddress: ${arg.parseAction} '
+          '- onSuccessAction: ${arg.onSuccessAction}');
       state = await AsyncValue.guard(() async {
         final result = await ref
             .read(qrScannerProvider(arg))
@@ -55,11 +59,12 @@ class QrScannerNotifier
           throw QrScannerInvalidQrParametersException();
         }
 
+        //TODO: Need to throw error if user is on privkey scan and they scan a pubkey
         return result.maybeWhen(
           lnurlWithdraw: (lnurlParseResult) {
             return QrScanState.lnurlWithdraw(lnurlParseResult.withdrawalParams);
           },
-          send: (parsedAddress) {
+          send: (parsedAddress) async {
             if (arg.asset != null &&
                 parsedAddress.asset != null &&
                 arg.asset!.isCompatibleWith(parsedAddress.asset!) == false) {
@@ -71,11 +76,23 @@ class QrScannerNotifier
               input: parsedAddress.address,
               userEnteredAmount: parsedAddress.amount,
               lnurlParseResult: parsedAddress.lnurlParseResult,
+              externalPrivateKey: parsedAddress.extPrivateKey,
             );
 
-            return arg.onSuccessAction == QrOnSuccessAction.pull
+            // ⚠️ if amount is invalid will show exception dialog with "Try again" button
+            await ref.read(sendAssetAmountValidationProvider(sendArgs).future);
+
+            // ✅ all good, return result
+            return arg.onSuccessAction == QrOnSuccessNavAction.popBack
                 ? QrScanState.pullSendAsset(sendArgs)
                 : QrScanState.pushSendAsset(sendArgs);
+          },
+          samRock: (setupChains, otp, uploadUrl) {
+            return QrScanState.samRock(SamRockAppLink(
+              setupChains: setupChains,
+              otp: otp,
+              uploadUrl: uploadUrl,
+            ));
           },
           orElse: () {
             throw QrScannerInvalidQrParametersException();

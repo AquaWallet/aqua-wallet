@@ -16,5 +16,6 @@ class ParsedAddress with _$ParsedAddress {
     String? label,
     String? lightningInvoice,
     LNURLParseResult? lnurlParseResult,
+    String? extPrivateKey,
   }) = _ParsedAddress;
 }

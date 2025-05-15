@@ -1,5 +1,4 @@
 import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
 
@@ -20,14 +19,11 @@ class SendAssetInputStateAdapterNotifier {
     required GenerateInvoiceResponse invoice,
     required String address,
   }) async {
-    final topUpInput = await ref.read(topUpInputStateProvider.future);
-    final amount = topUpInput.isFiatAmountInput
-        ? invoice.usdAmountOwed
-        : invoice.cryptoAmountOwed;
+    final amount = invoice.cryptoAmountOwed;
     final sendInputNotifier = sendAssetInputStateProvider(arguments).notifier;
     ref.read(sendInputNotifier).setTransactionType(SendTransactionType.topUp);
     await ref.read(sendInputNotifier).updateAddressFieldText(address);
-    ref.read(sendInputNotifier).setInputType(topUpInput.amountInputType);
+    ref.read(sendInputNotifier).setInputType(CryptoAmountInputType.crypto);
     await ref.read(sendInputNotifier).updateAmountFieldText(amount.toString());
   }
 }

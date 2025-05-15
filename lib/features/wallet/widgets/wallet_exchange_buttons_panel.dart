@@ -4,6 +4,10 @@ import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/features/wallet/keys/wallet_keys.dart';
 import 'package:aqua/utils/utils.dart';
 
+import '../../scan/scan.dart';
+import '../../text_scan/text_scan.dart';
+
+///
 class WalletExchangeButtonsPanel extends ConsumerWidget {
   const WalletExchangeButtonsPanel({super.key});
 
@@ -72,9 +76,16 @@ class WalletExchangeButtonsPanel extends ConsumerWidget {
               radius:
                   const BorderRadius.only(bottomRight: Radius.circular(9.0)),
               onPressed: () => context.push(
-                QrScannerScreen.routeName,
-                extra:
-                    QrScannerArguments(parseAction: QrScannerParseAction.parse),
+                ScanScreen.routeName,
+                extra: ScanArguments(
+                  qrArguments: QrScannerArguments(
+                    parseAction: QrScannerParseAction.attemptToParse,
+                  ),
+                  textArguments: TextScannerArguments(
+                    parseAction: TextScannerParseAction.attemptToParse,
+                  ),
+                  initialType: ScannerType.qr,
+                ),
               ),
             ),
           ),

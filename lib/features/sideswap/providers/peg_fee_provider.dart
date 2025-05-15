@@ -5,6 +5,8 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/logger.dart';
 
+final _logger = CustomLogger(FeatureFlag.peg);
+
 const kPegInFixedMinFee = 252;
 
 // Note: This only accounts for the first tx fee.
@@ -24,22 +26,19 @@ final amountMinusFirstOnchainFeeEstProvider =
   }
 
   if (input.deliverAsset == null) {
-    logger.error('[PEG] ERROR: No deliver asset found');
+    _logger.error('ERROR: No deliver asset found');
     throw Exception('No deliverasset asset found');
   }
 
   final pegState = ref.read(pegProvider).valueOrNull;
-  String? address;
-
-  // if there's an order, use that pegAddress
-  // if not, use a hardcoded sideswap multisig address for the estimate so fees match
-  if (pegState is PegStateVerify) {
-    address = pegState.data.order.pegAddress;
-  } else {
-    address = input.deliverAsset!.isLBTC
-        ? "VJLELdbiVkhDvxHNnnJmdFzgipz66YtuGMphDR5FEuipCoDuoEArXDwHR8k2mgfHdaf7xcVLB2p3uuVU"
-        : "bc1qq3s96g0x4pemmfgjy8k345wk4zazf57yk8kgjtp9uwerjgxz5n3sndxg2e";
-  }
+  final String address =
+      // if there's an order, use that pegAddress
+      pegState is PegStateVerify
+          ? pegState.data.order.pegAddress
+          // if not, use a hardcoded sideswap multisig address for the estimate so fees match
+          : input.deliverAsset!.isLBTC
+              ? "VJLELdbiVkhDvxHNnnJmdFzgipz66YtuGMphDR5FEuipCoDuoEArXDwHR8k2mgfHdaf7xcVLB2p3uuVU"
+              : "bc1qq3s96g0x4pemmfgjy8k345wk4zazf57yk8kgjtp9uwerjgxz5n3sndxg2e";
 
   final fee = await ref.watch(sideSwapFeeCalculatorProvider).pegFeeEstimate(
         amount,
@@ -51,18 +50,18 @@ final amountMinusFirstOnchainFeeEstProvider =
   final amountMinusFee = amount - fee;
 
   if (balance != null && fee > balance) {
-    logger.debug('[PEG] Fee ($fee) exceeds balance ($balance)');
+    _logger.debug('Fee ($fee) exceeds balance ($balance)');
     throw PegGdkInsufficientFeeBalanceException();
   }
 
   // this prevents showing a negative receive asset amount
   if (fee > amount) {
-    logger.debug('[PEG] Fee ($fee) exceeds amount ($amount)');
+    _logger.debug('Fee ($fee) exceeds amount ($amount)');
     throw PegGdkFeeExceedingAmountException();
   }
 
-  logger.debug(
-      '[PEG] Input Amount: $amount - Fee: $fee =  Net Amount (sideswap fee not included): $amountMinusFee');
+  _logger.debug(
+      'Input Amount: $amount - Fee: $fee =  Net Amount (sideswap fee not included): $amountMinusFee');
   return amountMinusFee;
 });
 
@@ -94,7 +93,7 @@ class SideSwapFeeCalculator {
       throw PegGdkTransactionException;
     }
 
-    logger.debug("[Peg] Tx Fee Estimate: ${txn.fee}");
+    _logger.debug("Tx Fee Estimate: ${txn.fee}");
     return txn.fee!;
   }
 
@@ -112,12 +111,12 @@ class SideSwapFeeCalculator {
         : statusStream?.serverFeePercentPegOut ?? 0.1;
     final feeMultiplier = 1 - (serviceFee / 100);
     final secondFee = isPegIn
-        ? estimatedPegInSecondFee(feeRateVByte)
+        ? estimatedPegInSecondFee()
         : estimatedPegOutSecondFee(feeRateVByte);
     final amountAfterSideSwapFeeDedcution =
         (amount * feeMultiplier) - secondFee;
-    logger.debug(
-        '[Peg] Amount (minus onchain fee): ($amount * $feeMultiplier) - (second chain fee) $secondFee = Amount (minus sideswap fee): $amountAfterSideSwapFeeDedcution');
+    _logger.debug(
+        'Amount (minus onchain fee): ($amount * $feeMultiplier) - (second chain fee) $secondFee = Amount (minus sideswap fee): $amountAfterSideSwapFeeDedcution');
     return amountAfterSideSwapFeeDedcution.toInt();
   }
 
@@ -125,7 +124,7 @@ class SideSwapFeeCalculator {
     return (kPegOutFixedTxSize * btcFeeRate).ceil();
   }
 
-  static int estimatedPegInSecondFee(double lbtcFeeRate) {
+  static int estimatedPegInSecondFee() {
     // Per Sidewap: "For very small peg-in amounts additional fixed fee is applied"
     // Below is a fee for 0.1 sats/vbyte tx with 1 input, 2 ct outputs (one change), 1 explicit fee output
     return kPegInFixedMinFee;

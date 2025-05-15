@@ -13,5 +13,10 @@ class AppLink with _$AppLink {
     required int recvAmount,
     required String uploadUrl,
   }) = SwapAppLink;
-  // + Might be different types of app links listed here
+
+  const factory AppLink.samRock({
+    required List<String> setupChains,
+    required String otp,
+    required String uploadUrl,
+  }) = SamRockAppLink;
 }

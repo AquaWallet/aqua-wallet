@@ -1,0 +1,51 @@
+name: ui_components_playground
+description: "Playground for ui_components package"
+
+publish_to: "none"
+
+version: 0.0.1+1
+
+environment:
+  sdk: ">=3.3.4 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  device_preview: ^1.1.0
+  flutter_hooks: ^0.20.5
+  flutter_riverpod: ^2.4.0
+  hooks_riverpod: ^2.3.6
+  riverpod_annotation: ^2.1.1
+  shared_preferences: ^2.2.0
+  ui_components:
+    path: ../
+  flutter_svg: ^2.0.14
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.6
+  riverpod_generator: ^2.3.3
+  riverpod_lint: ^2.1.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/svgs/
+
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: ../assets/fonts/roboto_mono/RobotoMono-Regular.ttf
+          weight: 400
+        - asset: ../assets/fonts/roboto_mono/RobotoMono-Medium.ttf
+          weight: 500
+        - asset: ../assets/fonts/roboto_mono/RobotoMono-SemiBold.ttf
+          weight: 600
+    - family: FiraMono
+      fonts:
+        - asset: ../assets/fonts/fira_mono/FiraMono-Medium.ttf
+          weight: 500

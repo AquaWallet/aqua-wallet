@@ -4,3 +4,4 @@ export 'transaction_details_provider.dart';
 export 'transaction_fee_structure_provider.dart';
 export 'transactions_provider.dart';
 export 'transactions_storage_provider.dart';
+export 'network_transactions_provider.dart';

@@ -14,7 +14,8 @@ class AssetListSkeleton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     return Skeletonizer(
       effect: darkMode
           ? ShimmerEffect(
@@ -92,7 +93,8 @@ class SkeletonAssetListItem extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final subtitleTextStyle = useMemoized(
       () => TextStyle(
         height: 1,

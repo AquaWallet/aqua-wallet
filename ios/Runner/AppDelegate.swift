@@ -35,6 +35,7 @@ public func dummyMethodToEnforceBundling() {
     GA_get_subaccounts(nil, nil, nil)
     GA_get_transactions(nil, nil, nil)
     GA_get_unspent_outputs(nil, nil, nil)
+    GA_get_unspent_outputs_for_private_key(nil, nil, nil)
     GA_init(nil)
     GA_login_user(nil, nil, nil, nil)
     GA_refresh_assets(nil, nil)

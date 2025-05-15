@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
+import 'package:boltz_dart/boltz_dart.dart';
 import 'package:isar/isar.dart';
 
 final _logger = CustomLogger(FeatureFlag.transactionStorage);
@@ -48,6 +49,10 @@ abstract class TransactionStorage {
   });
   Future<void> markBoltzGhostTxn(String serviceOrderId,
       {int? amount, int? fee});
+  Future<void> saveBoltzRefundTxn({
+    required LbtcLnSwap boltzSwap,
+    required String txId,
+  });
   Future<void> updateReverseSwapClaim({
     required String boltzId,
     required String claimTxId,
@@ -183,6 +188,38 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
             ghostTxnFee: fee,
           ));
     }
+  }
+
+  @override
+  Future<void> saveBoltzRefundTxn({
+    required LbtcLnSwap boltzSwap,
+    required String txId,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+    final transaction = await storage.transactionDbModels
+        .filter()
+        .serviceOrderIdEqualTo(boltzSwap.id)
+        .findFirst();
+    _logger.debug('Marking Boltz transaction as failed: $transaction');
+    if (transaction != null) {
+      await ref
+          .read(transactionStorageProvider.notifier)
+          .save(transaction.copyWith(
+            type: TransactionDbModelType.boltzSendFailed,
+          ));
+    }
+    TransactionDbModel refundTransactionDbModel = TransactionDbModel(
+      txhash: txId,
+      assetId: boltzSwap.network.name,
+      type: TransactionDbModelType.boltzRefund,
+      isGhost: true,
+      ghostTxnCreatedAt: DateTime.now(),
+      ghostTxnAmount: boltzSwap.outAmount,
+      serviceOrderId: boltzSwap.id,
+    );
+    await ref
+        .read(transactionStorageProvider.notifier)
+        .save(refundTransactionDbModel);
   }
 
   @override

@@ -33,4 +33,22 @@ extension SubaccountExtension on Subaccount {
         return '${descriptors[0]}\n${descriptors[1]}';
     }
   }
+
+  String get blindingKey {
+    final descriptors = subaccount.coreDescriptors;
+    if (descriptors == null || descriptors.length < 2) return '';
+    // Combine both receive and change descriptors
+    final regex = RegExp(r'slip77\((.*?)\)');
+    final match = regex.firstMatch(descriptors[0]);
+    return match?.group(1) ?? '';
+  }
+
+  String get xpub {
+    final descriptors = subaccount.coreDescriptors;
+    if (descriptors == null || descriptors.length < 2) return '';
+    // Combine both receive and change descriptors
+    final RegExp pubKeyRegex = RegExp(r'[xyz]pub[^/]+');
+    final match = pubKeyRegex.firstMatch(descriptors[0]);
+    return match?.group(0) ?? '';
+  }
 }

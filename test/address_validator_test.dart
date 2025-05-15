@@ -223,6 +223,81 @@ void main() {
           true);
     }, skip: true);
 
+    test('TON address validation', () async {
+      // Valid TON addresses
+      // User-friendly format - bounceable (EQ prefix)
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address: 'EQAWzEKcdnykvXfUNouqdS62tvrp32bCxuKS6eQrS6ISgcLo',
+              asset: Asset.usdtTon()),
+          true);
+
+      // User-friendly format - non-bounceable (UQ prefix) with base64url chars
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address: 'UQAEudOOdVjVHXobQErrO-DO6ubuyB4mUsv-NjVC0hl0qDmx',
+              asset: Asset.usdtTon()),
+          true);
+
+      // User-friendly format - non-bounceable with base64 chars (+ and /)
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address: 'UQAWzEKcdnykvXfUNouqdS62tvrp32bCxuKS6eQrS6ISgZ/+',
+              asset: Asset.usdtTon()),
+          true);
+
+      // Raw format - masterchain (-1)
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address:
+                  '-1:fcb91a3a3816d0f7b8c2c76108b8a9bc5a6b7a55bd79f8ab101c52db29232260',
+              asset: Asset.usdtTon()),
+          true);
+
+      // Raw format - basechain (0)
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address:
+                  '0:16cc429c767ca4bd77d4368baa752eb6b6fae9df66c2c6e292e9e42b4ba21281',
+              asset: Asset.usdtTon()),
+          true);
+
+      // Invalid TON addresses
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address:
+                  'kQAWzEKcdnykvXfUNouqdS62tvrp32bCxuKS6eQrS6ISgcLo', // Invalid prefix (not EQ/UQ)
+              asset: Asset.usdtTon()),
+          false);
+
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address: 'EQAWzEKcdnykvXfUNouqdS62tv', // Too short
+              asset: Asset.usdtTon()),
+          false);
+
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address:
+                  '1:16cc429c767ca4bd77d4368baa752eb6b6fae9df66c2c6e292e9e42b4ba21281', // Invalid workchain (not 0 or -1)
+              asset: Asset.usdtTon()),
+          false);
+
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address:
+                  '0:16cc429c767ca4bd77d4368baa752eb6b6fae9df66c2c6e292e9e42b4ba2128', // Invalid hex length (63 chars)
+              asset: Asset.usdtTon()),
+          false);
+
+      expect(
+          await container.read(addressParserProvider).isValidAddressForAsset(
+              address:
+                  'EQAWzEKcdnykvXfUNouqdS62tvrp32bCxuKS6eQrS6ISgcLo==', // Invalid base64 padding
+              asset: Asset.usdtTon()),
+          false);
+    });
+
     test('check for all supported assets', () async {
       expect(
         await container.read(addressParserProvider).parseAsset(

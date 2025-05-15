@@ -23,9 +23,9 @@ class BoltzFeeWidget extends ConsumerWidget {
     final fiatCurrency = ref.watch(amountCurrencyProvider);
     final fiatRates = ref.watch(fiatRatesProvider).asData?.value;
     final rate = fiatRates
-        ?.firstWhere(
+        ?.firstWhereOrNull(
             (element) => element.code == (fiatCurrency ?? referenceCurrency))
-        .rate;
+        ?.rate;
     final isFiatToggled = ref.watch(amountCurrencyProvider) != null;
 
     // fee in sats

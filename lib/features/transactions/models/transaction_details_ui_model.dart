@@ -81,6 +81,12 @@ extension AssetTransactionDetailsUiModelX on AssetTransactionDetailsUiModel {
     if (dbTransaction?.isBoltzReverseSwap == true) {
       return context.loc.assetTransactionsTypeBoltzReverseSwap;
     }
+    if (dbTransaction?.isBoltzRefund == true) {
+      return context.loc.assetTransactionsTypeBoltzRefund;
+    }
+    if (dbTransaction?.isBoltzSendFailed == true) {
+      return context.loc.assetTransactionsTypeBoltzSendFailed;
+    }
     return map(
       swap: (_) => context.loc.swap,
       redeposit: (_) => context.loc.assetTransactionsTypeRedeposit,

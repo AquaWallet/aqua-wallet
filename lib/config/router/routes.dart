@@ -1,9 +1,11 @@
 import 'package:aqua/data/models/database/swap_order_model.dart';
+import 'package:aqua/data/provider/app_links/app_link.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/address_list/address_list_args.dart';
 import 'package:aqua/features/address_list/address_list_screen.dart';
 import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/features/backup/backup.dart';
+import 'package:aqua/features/bip329/bip329_settings_screen.dart';
 import 'package:aqua/features/boltz/models/db_models.dart';
 import 'package:aqua/features/boltz/screens/boltz_swap_detail_screen.dart';
 import 'package:aqua/features/boltz/screens/boltz_swaps_screen.dart';
@@ -18,13 +20,19 @@ import 'package:aqua/features/onboarding/welcome/widgets/welcome_disclaimer_scre
 import 'package:aqua/features/pin/pin_screen.dart';
 import 'package:aqua/features/pin/pin_success_screen.dart';
 import 'package:aqua/features/pin/pin_warning_screen.dart';
+import 'package:aqua/features/pokerchip/pokerchip.dart';
 import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/recovery/pages/warning_phrase_screen.dart';
 import 'package:aqua/features/recovery/recovery.dart';
+import 'package:aqua/features/sam_rock/pages/sam_rock_screen.dart';
+import 'package:aqua/features/scan/scan.dart';
+import 'package:aqua/features/send/pages/address_selection_screen.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/text_scan/text_scan.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
 import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/pages/swap_order_detail_screen.dart';
@@ -141,6 +149,26 @@ final routes = [
         QrScannerScreen(arguments: state.extra as QrScannerArguments),
   ),
   GoRoute(
+    path: TextScannerScreen.routeName,
+    builder: (context, state) => TextScannerScreen(
+      arguments: state.extra as TextScannerArguments,
+    ),
+  ),
+  GoRoute(
+    path: ScanScreen.routeName,
+    builder: (context, state) {
+      final args = state.extra as ScanArguments;
+      return ScanScreen(arguments: args);
+    },
+  ),
+  GoRoute(
+    path: AddressSelectionScreen.routeName,
+    builder: (context, state) {
+      final addresses = state.extra as List<String>;
+      return AddressSelectionScreen(addresses: addresses);
+    },
+  ),
+  GoRoute(
     path: AddNoteScreen.routeName,
     builder: (context, state) => const AddNoteScreen(),
   ),
@@ -153,12 +181,20 @@ final routes = [
     builder: (context, state) => const RegionSettingsScreen(),
   ),
   GoRoute(
+    path: NotesSettingsScreen.routeName,
+    builder: (context, state) => const NotesSettingsScreen(),
+  ),
+  GoRoute(
     path: ExchangeRateSettingsScreen.routeName,
     builder: (context, state) => const ExchangeRateSettingsScreen(),
   ),
   GoRoute(
     path: ConversionCurrenciesSettingsScreen.routeName,
     builder: (context, state) => const ConversionCurrenciesSettingsScreen(),
+  ),
+  GoRoute(
+    path: ThemesSettingsScreen.routeName,
+    builder: (context, state) => const ThemesSettingsScreen(),
   ),
   GoRoute(
     path: BlockExplorerSettingsScreen.routeName,
@@ -268,7 +304,7 @@ final routes = [
   GoRoute(
     path: InternalSendCompleteScreen.routeName,
     builder: (context, state) => InternalSendCompleteScreen(
-        arguments: state.extra as InternalSendAmountArguments),
+        arguments: state.extra as InternalSendArguments),
   ),
   GoRoute(
     path: DirectPegInScreen.routeName,
@@ -337,5 +373,11 @@ final routes = [
     path: DebitCardStyleSelectionScreen.routeName,
     // ignore: prefer_const_constructors
     builder: (context, state) => DebitCardStyleSelectionScreen(),
+  ),
+  GoRoute(
+    path: SamRockScreen.routeName,
+    builder: (context, state) => SamRockScreen(
+      samRockAppLink: state.extra as SamRockAppLink,
+    ),
   ),
 ];

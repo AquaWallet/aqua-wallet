@@ -1,9 +1,11 @@
+import 'package:aqua/common/widgets/colored_text.dart';
 import 'package:aqua/common/widgets/middle_ellipsis_text.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CopyAddressButton extends HookConsumerWidget {
   const CopyAddressButton({
@@ -38,14 +40,17 @@ class CopyAddressButton extends HookConsumerWidget {
               Expanded(
                 child: MiddleEllipsisText(
                   text: address,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colors.onBackground,
-                        fontWeight: FontWeight.bold,
-                        height: 1.38,
-                      ),
+                  style: GoogleFonts.ibmPlexMono(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colors.onBackground,
+                    height: 1.38,
+                    letterSpacing: -0.5,
+                  ),
                   startLength: 40,
                   endLength: 40,
                   ellipsisLength: 3,
+                  colorType: ColoredTextEnum.coloredIntegers,
                 ),
               ),
               const SizedBox(width: 24.0),

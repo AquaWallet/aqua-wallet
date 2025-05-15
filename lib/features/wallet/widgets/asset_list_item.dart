@@ -17,7 +17,8 @@ class AssetListItem extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final fiatAmount = ref.watch(conversionProvider((asset, asset.amount)));
     final subtitleTextStyle = useMemoized(
       () => TextStyle(

@@ -1,7 +1,7 @@
 import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -17,7 +17,8 @@ class LiquidFeeSelector extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final isExpanded = useState<bool>(false);
 
     final feeOptionsProvider = useMemoized(
@@ -82,6 +83,17 @@ class LiquidFeeSelector extends HookConsumerWidget {
       return null;
     }, [feeOptions]);
 
+    // Upon screen enter, refresh the fiat rates if the fee options are empty
+    //due to an error
+    useEffect(() {
+      if (!feeOptionsAsync.isLoading &&
+          feeOptionsAsync.hasError &&
+          feeOptions.isEmpty) {
+        ref.invalidate(fiatRatesProvider);
+      }
+      return null;
+    });
+
     return BoxShadowCard(
       color: context.colors.altScreenSurface,
       borderRadius: BorderRadius.circular(12.0),
@@ -92,7 +104,7 @@ class LiquidFeeSelector extends HookConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (!isFeeOptionsLoading && !canPayLbtcFee && !canPayUsdtFee) ...[
-            //ANCHOR: Not enough funds error
+            //ANCHOR: Not enough funds / No fee options error
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 20.0,
@@ -106,7 +118,9 @@ class LiquidFeeSelector extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    context.loc.insufficientBalanceToCoverFees,
+                    feeOptions.isEmpty
+                        ? context.loc.failedToFetchFeeOptions
+                        : context.loc.insufficientBalanceToCoverFees,
                     style: context.textTheme.titleMedium?.copyWith(
                       fontSize: 16.0,
                       fontWeight: FontWeight.w400,
@@ -225,7 +239,8 @@ class _SelectionItem extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDarkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final isDarkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
 
     final textColor = useMemoized(
       () {
@@ -293,7 +308,7 @@ class _SelectionItem extends HookConsumerWidget {
               ),
               if (!hideFiatConversion && feeInFiat != null) ...[
                 Text(
-                  '≈ ${feeInFiat!}',
+                  feeInFiat!,
                   style: context.textTheme.titleMedium?.copyWith(
                     fontSize: 10.0,
                     fontWeight: FontWeight.bold,

@@ -19,8 +19,7 @@ class AssetsList extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unifiedBalance =
-        ref.watch(unifiedBalanceProvider)?.decimal.toDouble() ?? 0;
+    final anyNonZeroBalance = assets.any((asset) => asset.amount > 0);
     final savingAssetList = assets.where((asset) => asset.isBTC).toList();
     final spendingAssetList = assets.where((asset) => !asset.isBTC).toList();
     final refresherKey = useMemoized(UniqueKey.new);
@@ -67,8 +66,8 @@ class AssetsList extends HookConsumerWidget {
     // 1. Device is iOS AND the feature flag for disabling swaps is enabled
     // 2. The user has zero balance
     final isSwapEnabled = useMemoized(
-      () => !(Platform.isIOS && disableSideswapOnIOS && unifiedBalance <= 0),
-      [disableSideswapOnIOS, unifiedBalance],
+      () => !(Platform.isIOS && disableSideswapOnIOS && !anyNonZeroBalance),
+      [disableSideswapOnIOS, anyNonZeroBalance],
     );
 
     return SmartRefresher(

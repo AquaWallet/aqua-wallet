@@ -275,6 +275,10 @@ class BoltzSwapSettlementService {
           .read(boltzStorageProvider.notifier)
           .updateRefundTxId(boltzId: swap.id, txId: broadcastResponse);
 
+      await _ref
+          .read(transactionStorageProvider.notifier)
+          .saveBoltzRefundTxn(boltzSwap: swap, txId: broadcastResponse);
+
       _logger.debug('Boltz Swap Refund response: $broadcastResponse');
       return broadcastResponse;
     } catch (e) {
@@ -328,11 +332,11 @@ class BoltzSwapSettlementService {
       // if coop/keypath claim fails, try the scriptpath (will only happen if boltz is down or uncooperative)
       if (tryCoop) {
         _logger.error(
-            '[Boltz] Error claiming coop ${swap.id} - trying non-coop', e);
+            '[Boltz] Error claiming coop ${swap.id} - trying non-coop ${e.toString()}');
         return await claim(swap, tryCoop: false);
       }
 
-      _logger.error('Error claiming Boltz Swap: ${swap.id}', e);
+      _logger.error('Error claiming Boltz Swap: ${swap.id} - ${e.toString()}');
       rethrow;
     }
   }

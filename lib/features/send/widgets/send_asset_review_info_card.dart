@@ -28,7 +28,8 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
 
     return BoxShadowCard(
       color: Theme.of(context).colors.altScreenSurface,
@@ -58,6 +59,11 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
                       isSendAll: isSendAll,
                     ),
                   SendTransactionType.topUp => _TopUpTransactionAmountDetails(
+                      amount: amount,
+                      asset: asset,
+                    ),
+                  SendTransactionType.privateKeySweep =>
+                    _ExternalPrivateKeySweepTransactionAmountDetails(
                       amount: amount,
                       asset: asset,
                     ),
@@ -224,6 +230,61 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
             ),
           ),
         },
+      ],
+    );
+  }
+}
+
+//TODO: Mostly copied from _TopUpTransactionAmountDetails. Change per Design
+class _ExternalPrivateKeySweepTransactionAmountDetails
+    extends HookConsumerWidget {
+  const _ExternalPrivateKeySweepTransactionAmountDetails({
+    required this.amount,
+    required this.asset,
+  });
+
+  final String amount;
+  final Asset asset;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final displayUnit = ref.watch(
+        displayUnitsProvider.select((p) => p.getForcedDisplayUnit(asset)));
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 2.0),
+        //ANCHOR - Amount Title
+        Text(
+          context.loc.sendReviewExtPrivKeyHeader,
+          style: const TextStyle(
+            fontSize: 14,
+            fontFamily: UiFontFamily.helveticaNeue,
+            fontWeight: FontWeight.w500,
+            height: 1.2,
+          ),
+        ),
+        //ANCHOR - Amount & Symbol
+        AssetCryptoAmount(
+          forceVisible: true,
+          forceDisplayUnit: displayUnit,
+          amount: amount,
+          asset: asset,
+          style: const TextStyle(
+            fontSize: 22,
+            fontFamily: UiFontFamily.helveticaNeue,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+          unitStyle: const TextStyle(
+            fontSize: 22,
+            fontFamily: UiFontFamily.helveticaNeue,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+        ),
       ],
     );
   }

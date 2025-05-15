@@ -7,6 +7,10 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../scan/scan.dart';
+import '../../text_scan/text_scan.dart';
+
+///
 class TransactionMenuBottomBar extends HookConsumerWidget {
   const TransactionMenuBottomBar({
     super.key,
@@ -61,15 +65,19 @@ class TransactionMenuBottomBar extends HookConsumerWidget {
                 label: context.loc.scan,
                 radius:
                     const BorderRadius.only(bottomRight: Radius.circular(20.0)),
-                onPressed: () => {
-                  context.push(
-                    QrScannerScreen.routeName,
-                    extra: QrScannerArguments(
-                      asset: asset,
-                      parseAction: QrScannerParseAction.parse,
-                    ),
-                  )
-                  // }
+                onPressed: () async {
+                  await context.push(ScanScreen.routeName,
+                      extra: ScanArguments(
+                        qrArguments: QrScannerArguments(
+                          asset: asset,
+                          parseAction: QrScannerParseAction.attemptToParse,
+                        ),
+                        textArguments: TextScannerArguments(
+                          asset: asset,
+                          parseAction: TextScannerParseAction.attemptToParse,
+                        ),
+                        initialType: ScannerType.qr,
+                      ));
                 },
               ),
             ),

@@ -22,6 +22,9 @@ class FeatureFlagsNotifier extends ChangeNotifier {
   bool get lnurlWithdrawEnabled =>
       _prefs.getBool(PrefKeys.lnurlWithdrawEnabled) ?? false;
 
+  bool get pokerChipSweepEnabled =>
+      _prefs.getBool(PrefKeys.pokerChipSweepEnabled) ?? false;
+
   bool get forceBoltzFailedNormalSwapEnabled =>
       _prefs.getBool(PrefKeys.forceBoltzFailedNormalSwapEnabled) ?? false;
 
@@ -55,6 +58,10 @@ class FeatureFlagsNotifier extends ChangeNotifier {
 
   bool get customElectrumUrlEnabled =>
       _prefs.getBool(PrefKeys.customElectrumUrlEnabled) ?? false;
+
+  bool get debitCardStagingEnabled =>
+      _prefs.getBool(PrefKeys.debitCardStagingEnabled) ?? false;
+  bool get samRockEnabled => _prefs.getBool(PrefKeys.samRockEnabled) ?? false;
 
   void toggleFeatureFlag({
     required String key,

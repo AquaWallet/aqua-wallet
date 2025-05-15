@@ -1,10 +1,10 @@
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/feature_flags/providers/feature_switches_provider.dart';
 import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
 import '../../../mocks/mocks.dart';
 
 //TODO - Move all test constants in one place
@@ -21,6 +21,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final mockManageAssetsProvider = MockManageAssetsProvider();
+  final mockAnkaraSwitchesProvider = MockAnkaraSwitchesNotifier();
   final mockBitcoinProvider = MockBitcoinProvider();
   final mockBalanceProvider = MockBalanceProvider();
   final btcAsset = Asset.btc(amount: kOneHundredUsdInBtcSats);
@@ -30,8 +31,9 @@ void main() {
     manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
     bitcoinProvider.overrideWith((_) => mockBitcoinProvider),
     balanceProvider.overrideWith((_) => mockBalanceProvider),
+    ankaraSwitchesProvider.overrideWith(() => mockAnkaraSwitchesProvider),
   ]);
-
+  container.read(ankaraSwitchesProvider);
   setUpAll(() {
     registerFallbackValue(btcAsset);
   });
@@ -71,6 +73,7 @@ void main() {
   group('BTC Amount', () {
     final asset = Asset.btc(amount: kOneHundredUsdInBtcSats);
     final mockAssetsProvider = MockAssetsNotifier(assets: [asset]);
+    final mockAnkaraSwitchesProvider = MockAnkaraSwitchesNotifier();
     final mockPrefsProvider = MockPrefsProvider();
     final container = ProviderContainer(overrides: [
       assetsProvider.overrideWith(() => mockAssetsProvider),
@@ -78,8 +81,10 @@ void main() {
       bitcoinProvider.overrideWith((_) => mockBitcoinProvider),
       balanceProvider.overrideWith((_) => mockBalanceProvider),
       prefsProvider.overrideWith((_) => mockPrefsProvider),
+      ankaraSwitchesProvider.overrideWith(() => mockAnkaraSwitchesProvider),
     ]);
     mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+    container.read(ankaraSwitchesProvider);
 
     test(
       'When crypto amount is entered, underlying amount should be correct',
@@ -187,12 +192,16 @@ void main() {
     final usdtAsset = Asset.usdtLiquid(amount: kOneHundredUsdInBtcSats);
     final mockAssetsProvider =
         MockAssetsNotifier(assets: [usdtAsset, btcAsset]);
+    final mockAnkaraSwitchesProvider = MockAnkaraSwitchesNotifier();
     final container = ProviderContainer(overrides: [
       assetsProvider.overrideWith(() => mockAssetsProvider),
       manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
       bitcoinProvider.overrideWith((_) => mockBitcoinProvider),
       balanceProvider.overrideWith((_) => mockBalanceProvider),
+      ankaraSwitchesProvider.overrideWith(() => mockAnkaraSwitchesProvider),
     ]);
+    container.read(ankaraSwitchesProvider);
+
     test(
       'When amount is entered, underlying amount should be correct',
       () async {

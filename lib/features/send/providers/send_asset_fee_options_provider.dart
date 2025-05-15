@@ -7,6 +7,9 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/logger.dart';
+
+final _logger = CustomLogger(FeatureFlag.send);
 
 final sendAssetFeeOptionsProvider = AutoDisposeAsyncNotifierProviderFamily<
     SendAssetFeeOptionsNotifier,
@@ -71,7 +74,10 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
     }
 
     final refCurrency = ref.read(prefsProvider).referenceCurrency;
-    final rates = await ref.read(fiatRatesProvider.future);
+    final rates = await ref.read(fiatRatesProvider.future).onError((e, st) {
+      _logger.error('Error fetching fiat rates', e, st);
+      return [];
+    });
     final fiatRate =
         rates.firstWhereOrNull((e) => e.code == refCurrency)?.rate ?? 0;
     final feeRatesByPriority = await ref.read(onChainFeeProvider.future);
@@ -136,7 +142,10 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
     }
 
     final feeRatePerVb = await ref.read(liquidFeeRateProvider.future);
-    final fiatRates = await ref.read(fiatRatesProvider.future);
+    final fiatRates = await ref.read(fiatRatesProvider.future).onError((e, st) {
+      _logger.error('Error fetching fiat rates', e, st);
+      return [];
+    });
     final refCurrency = ref.read(prefsProvider).referenceCurrency;
     final rate = fiatRates.firstWhereOrNull((e) => e.code == refCurrency)?.rate;
     final feeFiatAmount = isFeeAvailable
@@ -147,7 +156,7 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
     final balance = await ref.read(balanceProvider).getBalance(arg.asset);
     final canPayLbtcFee = isFeeAvailable ? balance >= transactionFee : false;
     final lbtcFiatFeeDisplay = feeFiatAmount >= 0
-        ? '$refCurrency ${feeFiatAmount.toStringAsFixed(2)}'
+        ? '≈ $refCurrency ${feeFiatAmount.toStringAsFixed(2)}'
         : '';
 
     return LiquidFeeModel.lbtc(

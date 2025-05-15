@@ -97,7 +97,7 @@ void main() {
           .read(inputProvider.notifier)
           .updateAmountFieldText('$initialAmount');
 
-      await container.read(sendAssetTransactionSetupProvider(sendArgs).future);
+      await container.read(sendAssetSetupProvider(sendArgs).future);
       final inputState = await container.read(inputProvider.future);
       final orderProvider =
           swapOrderProvider(SwapArgs(pair: inputState.swapPair!));

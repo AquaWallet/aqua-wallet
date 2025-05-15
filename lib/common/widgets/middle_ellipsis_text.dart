@@ -1,3 +1,4 @@
+import 'package:aqua/common/widgets/colored_text.dart';
 import 'package:aqua/features/shared/shared.dart';
 
 class MiddleEllipsisText extends StatelessWidget {
@@ -6,6 +7,7 @@ class MiddleEllipsisText extends StatelessWidget {
   final int startLength;
   final int endLength;
   final int ellipsisLength;
+  final ColoredTextEnum colorType;
 
   const MiddleEllipsisText({
     super.key,
@@ -14,6 +16,7 @@ class MiddleEllipsisText extends StatelessWidget {
     this.startLength = 10,
     this.endLength = 10,
     this.ellipsisLength = 3,
+    this.colorType = ColoredTextEnum.defaultColor,
   });
 
   @override
@@ -21,13 +24,18 @@ class MiddleEllipsisText extends StatelessWidget {
     final ellipsis = '.' * ellipsisLength;
 
     if (text.length <= startLength + endLength) {
-      return Text(text, style: style);
+      return ColoredText(
+        text: text,
+        style: style,
+        colorType: colorType,
+      );
     } else {
       final start = text.substring(0, startLength);
       final end = text.substring(text.length - endLength);
-      return Text(
-        '$start$ellipsis$end',
+      return ColoredText(
+        text: '$start$ellipsis$end',
         style: style,
+        colorType: colorType,
       );
     }
   }

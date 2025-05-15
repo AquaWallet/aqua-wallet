@@ -2,6 +2,7 @@ import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/provider/qr_scanner/qr_scanner_provider.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/qr_scan/qr_scan.dart';
+import 'package:aqua/features/sam_rock/pages/sam_rock_screen.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
@@ -65,6 +66,8 @@ class QrScannerScreen extends HookConsumerWidget {
       }
     });
 
+    //TODO: Big issue here. Scanner screen does the pushing.
+    // 1. We need to move the logic of pushing to the caller.
     ref.listen(qrCodeStateProvider(arguments), (prev, next) {
       if (prev is AsyncData && next is AsyncData && prev?.value == next.value) {
         return;
@@ -80,6 +83,10 @@ class QrScannerScreen extends HookConsumerWidget {
           },
           lnurlWithdraw: (args) => context.push(
             LnurlWithdrawScreen.routeName,
+            extra: args,
+          ),
+          samRock: (args) => context.push(
+            SamRockScreen.routeName,
             extra: args,
           ),
           orElse: () => null,
@@ -134,10 +141,6 @@ class QrScannerScreen extends HookConsumerWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AquaAppBar(
-        title: context.loc.scanQrCodeTitle,
-        showActionButton: false,
-      ),
       body: SafeArea(
         top: false,
         bottom: false,

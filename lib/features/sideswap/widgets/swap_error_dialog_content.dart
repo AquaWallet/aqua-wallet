@@ -35,7 +35,7 @@ class SwapErrorDialogContent extends HookConsumerWidget {
           ),
           Text(
             message,
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           Padding(
             padding: const EdgeInsets.only(top: 24.0),

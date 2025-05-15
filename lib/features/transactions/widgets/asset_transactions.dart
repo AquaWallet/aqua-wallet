@@ -57,7 +57,7 @@ class AssetTransactions extends HookConsumerWidget {
                 // fake delay to give impression of loading
                 await Future.delayed(const Duration(seconds: 1));
 
-                ref.invalidate(rawTransactionsProvider(asset));
+                ref.invalidate(networkTransactionsProvider(asset));
                 ref.invalidate(transactionsProvider(asset));
 
                 // hide loading animation
@@ -154,7 +154,8 @@ class _AssetTransactionListItem extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
 
     final cryptoAmountInSats = useMemoized(() {
       final cryptoAmount =

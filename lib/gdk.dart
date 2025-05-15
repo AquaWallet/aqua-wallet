@@ -1370,4 +1370,33 @@ class LibGdk {
     return Result.value(
         jsonDecode(jsonStr.asValue!.value) as Map<String, dynamic>);
   }
+
+  Future<Result<GdkAuthHandlerStatus>> getUnspentOutputsForPrivateKey({
+    required Pointer<GA_session> session,
+    required GdkUnspentOutputsPrivateKeyRequest details,
+  }) async {
+    final json = toJson(details.toJsonString());
+    if (json.isError) {
+      return Result.error(json.asError!.error, json.asError!.stackTrace);
+    }
+
+    final authHandler = arena<Pointer<GA_auth_handler>>();
+    final result = bindings.lib.GA_get_unspent_outputs_for_private_key(
+      session,
+      json.asValue!.value,
+      authHandler,
+    );
+
+    if (result != 0) {
+      _destroyAuthHandler(authHandler.value);
+    }
+
+    final checkResult = _checkResult(result: result);
+    if (checkResult.isError) {
+      return Result.error(
+          checkResult.asError!.error, checkResult.asError!.stackTrace);
+    }
+
+    return _createAuthHandler(authHandler.value);
+  }
 }

@@ -2613,10 +2613,10 @@ class NativeLibrary {
   late final _reallocf = _reallocfPtr.asFunction<DartReallocf>();
 
   ffi.Pointer<ffi.Void> valloc(
-    int arg0,
+    int __size,
   ) {
     return _valloc(
-      arg0,
+      __size,
     );
   }
 
@@ -2682,6 +2682,18 @@ class NativeLibrary {
 
   late final _atexitPtr = _lookup<ffi.NativeFunction<NativeAtexit>>('atexit');
   late final _atexit = _atexitPtr.asFunction<DartAtexit>();
+
+  int at_quick_exit(
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0,
+  ) {
+    return _at_quick_exit(
+      arg0,
+    );
+  }
+
+  late final _at_quick_exitPtr =
+      _lookup<ffi.NativeFunction<NativeAt_quick_exit>>('at_quick_exit');
+  late final _at_quick_exit = _at_quick_exitPtr.asFunction<DartAt_quick_exit>();
 
   double atof(
     ffi.Pointer<ffi.Char> arg0,
@@ -2896,6 +2908,18 @@ class NativeLibrary {
 
   late final _qsortPtr = _lookup<ffi.NativeFunction<NativeQsort>>('qsort');
   late final _qsort = _qsortPtr.asFunction<DartQsort>();
+
+  void quick_exit(
+    int arg0,
+  ) {
+    return _quick_exit(
+      arg0,
+    );
+  }
+
+  late final _quick_exitPtr =
+      _lookup<ffi.NativeFunction<NativeQuick_exit>>('quick_exit');
+  late final _quick_exit = _quick_exitPtr.asFunction<DartQuick_exit>();
 
   int rand() {
     return _rand();
@@ -4284,24 +4308,6 @@ final class _opaque_pthread_t extends ffi.Struct {
   external ffi.Array<ffi.Char> __opaque;
 }
 
-@ffi.Packed(1)
-final class _OSUnalignedU16 extends ffi.Struct {
-  @ffi.Uint16()
-  external int __val;
-}
-
-@ffi.Packed(1)
-final class _OSUnalignedU32 extends ffi.Struct {
-  @ffi.Uint32()
-  external int __val;
-}
-
-@ffi.Packed(1)
-final class _OSUnalignedU64 extends ffi.Struct {
-  @ffi.Uint64()
-  external int __val;
-}
-
 final class fd_set extends ffi.Struct {
   @ffi.Array.multi([32])
   external ffi.Array<__int32_t> fds_bits;
@@ -4913,6 +4919,14 @@ final class __darwin_arm_exception_state64 extends ffi.Struct {
 
 typedef __uint64_t = ffi.UnsignedLongLong;
 typedef Dart__uint64_t = int;
+
+final class __darwin_arm_exception_state64_v2 extends ffi.Struct {
+  @__uint64_t()
+  external int __far;
+
+  @__uint64_t()
+  external int __esr;
+}
 
 final class __darwin_arm_thread_state extends ffi.Struct {
   @ffi.Array.multi([13])
@@ -5805,7 +5819,16 @@ final class rusage_info_v6 extends ffi.Struct {
   @ffi.Uint64()
   external int ri_secure_ptime_in_system;
 
-  @ffi.Array.multi([12])
+  @ffi.Uint64()
+  external int ri_neural_footprint;
+
+  @ffi.Uint64()
+  external int ri_lifetime_max_neural_footprint;
+
+  @ffi.Uint64()
+  external int ri_interval_max_neural_footprint;
+
+  @ffi.Array.multi([9])
   external ffi.Array<ffi.Uint64> ri_reserved;
 }
 
@@ -5990,8 +6013,8 @@ typedef NativeReallocf = ffi.Pointer<ffi.Void> Function(
     ffi.Pointer<ffi.Void> __ptr, ffi.Size __size);
 typedef DartReallocf = ffi.Pointer<ffi.Void> Function(
     ffi.Pointer<ffi.Void> __ptr, int __size);
-typedef NativeValloc = ffi.Pointer<ffi.Void> Function(ffi.Size arg0);
-typedef DartValloc = ffi.Pointer<ffi.Void> Function(int arg0);
+typedef NativeValloc = ffi.Pointer<ffi.Void> Function(ffi.Size __size);
+typedef DartValloc = ffi.Pointer<ffi.Void> Function(int __size);
 typedef NativeAligned_alloc = ffi.Pointer<ffi.Void> Function(
     ffi.Size __alignment, ffi.Size __size);
 typedef DartAligned_alloc = ffi.Pointer<ffi.Void> Function(
@@ -6009,6 +6032,10 @@ typedef DartAbs = int Function(int arg0);
 typedef NativeAtexit = ffi.Int Function(
     ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
 typedef DartAtexit = int Function(
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
+typedef NativeAt_quick_exit = ffi.Int Function(
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
+typedef DartAt_quick_exit = int Function(
     ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
 typedef NativeAtof = ffi.Double Function(ffi.Pointer<ffi.Char> arg0);
 typedef DartAtof = double Function(ffi.Pointer<ffi.Char> arg0);
@@ -6077,6 +6104,8 @@ typedef DartQsort = void Function(
             ffi.NativeFunction<
                 ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
         __compar);
+typedef NativeQuick_exit = ffi.Void Function(ffi.Int arg0);
+typedef DartQuick_exit = void Function(int arg0);
 typedef NativeRand = ffi.Int Function();
 typedef DartRand = int Function();
 typedef NativeSrand = ffi.Void Function(ffi.UnsignedInt arg0);
@@ -6744,13 +6773,13 @@ const int __DARWIN_BIG_ENDIAN = 4321;
 
 const int __DARWIN_PDP_ENDIAN = 3412;
 
-const int __DARWIN_BYTE_ORDER = 1234;
-
 const int LITTLE_ENDIAN = 1234;
 
 const int BIG_ENDIAN = 4321;
 
 const int PDP_ENDIAN = 3412;
+
+const int __DARWIN_BYTE_ORDER = 1234;
 
 const int BYTE_ORDER = 1234;
 
@@ -6891,6 +6920,12 @@ const int __MAC_14_3 = 140300;
 const int __MAC_14_4 = 140400;
 
 const int __MAC_14_5 = 140500;
+
+const int __MAC_15_0 = 150000;
+
+const int __MAC_15_1 = 150100;
+
+const int __MAC_15_2 = 150200;
 
 const int __IPHONE_2_0 = 20000;
 
@@ -7050,6 +7085,12 @@ const int __IPHONE_17_4 = 170400;
 
 const int __IPHONE_17_5 = 170500;
 
+const int __IPHONE_18_0 = 180000;
+
+const int __IPHONE_18_1 = 180100;
+
+const int __IPHONE_18_2 = 180200;
+
 const int __WATCHOS_1_0 = 10000;
 
 const int __WATCHOS_2_0 = 20000;
@@ -7143,6 +7184,12 @@ const int __WATCHOS_10_3 = 100300;
 const int __WATCHOS_10_4 = 100400;
 
 const int __WATCHOS_10_5 = 100500;
+
+const int __WATCHOS_11_0 = 110000;
+
+const int __WATCHOS_11_1 = 110100;
+
+const int __WATCHOS_11_2 = 110200;
 
 const int __TVOS_9_0 = 90000;
 
@@ -7240,6 +7287,12 @@ const int __TVOS_17_4 = 170400;
 
 const int __TVOS_17_5 = 170500;
 
+const int __TVOS_18_0 = 180000;
+
+const int __TVOS_18_1 = 180100;
+
+const int __TVOS_18_2 = 180200;
+
 const int __BRIDGEOS_2_0 = 20000;
 
 const int __BRIDGEOS_3_0 = 30000;
@@ -7292,6 +7345,12 @@ const int __BRIDGEOS_8_4 = 80400;
 
 const int __BRIDGEOS_8_5 = 80500;
 
+const int __BRIDGEOS_9_0 = 90000;
+
+const int __BRIDGEOS_9_1 = 90100;
+
+const int __BRIDGEOS_9_2 = 90200;
+
 const int __DRIVERKIT_19_0 = 190000;
 
 const int __DRIVERKIT_20_0 = 200000;
@@ -7318,11 +7377,23 @@ const int __DRIVERKIT_23_4 = 230400;
 
 const int __DRIVERKIT_23_5 = 230500;
 
+const int __DRIVERKIT_24_0 = 240000;
+
+const int __DRIVERKIT_24_1 = 240100;
+
+const int __DRIVERKIT_24_2 = 240200;
+
 const int __VISIONOS_1_0 = 10000;
 
 const int __VISIONOS_1_1 = 10100;
 
 const int __VISIONOS_1_2 = 10200;
+
+const int __VISIONOS_2_0 = 20000;
+
+const int __VISIONOS_2_1 = 20100;
+
+const int __VISIONOS_2_2 = 20200;
 
 const int MAC_OS_X_VERSION_10_0 = 1000;
 
@@ -7446,9 +7517,15 @@ const int MAC_OS_VERSION_14_4 = 140400;
 
 const int MAC_OS_VERSION_14_5 = 140500;
 
+const int MAC_OS_VERSION_15_0 = 150000;
+
+const int MAC_OS_VERSION_15_1 = 150100;
+
+const int MAC_OS_VERSION_15_2 = 150200;
+
 const int __MAC_OS_X_VERSION_MIN_REQUIRED = 140000;
 
-const int __MAC_OS_X_VERSION_MAX_ALLOWED = 140500;
+const int __MAC_OS_X_VERSION_MAX_ALLOWED = 150200;
 
 const int __ENABLE_LEGACY_MAC_AVAILABILITY = 1;
 
@@ -7485,8 +7562,6 @@ const int GA_DEBUG = 2;
 const int GA_TRUE = 1;
 
 const int GA_FALSE = 0;
-
-const int __GNUC_VA_LIST = 1;
 
 const int __bool_true_false_are_defined = 1;
 

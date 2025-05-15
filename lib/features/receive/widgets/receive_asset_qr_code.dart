@@ -1,8 +1,10 @@
-import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 const kPlaceholderQrUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+const kAssetIconSize =
+    50.0; // Reduced icon size for less interference with QR code
 
 class ReceiveAssetQrCode extends StatelessWidget {
   const ReceiveAssetQrCode({
@@ -36,9 +38,11 @@ class ReceiveAssetQrCode extends StatelessWidget {
                 key: ReceiveAssetKeys.receiveAssetQrCode,
                 data: isPlaceholder ? kPlaceholderQrUrl : assetAddress,
                 version: QrVersions.auto,
+                errorCorrectionLevel: QrErrorCorrectLevel
+                    .M, // Medium error correction for better scanning
                 embeddedImage: null,
                 embeddedImageStyle: const QrEmbeddedImageStyle(
-                  size: Size(45.0, 45.0),
+                  size: Size.square(kAssetIconSize),
                 ),
               ),
             ),
@@ -48,7 +52,7 @@ class ReceiveAssetQrCode extends StatelessWidget {
               QrAssetIcon(
                 assetId: assetId,
                 assetLogoUrl: assetIconUrl,
-                size: 60.0,
+                size: kAssetIconSize,
               ),
             },
           ],

@@ -175,6 +175,22 @@ extension SwapOrderStatusExtension on SwapOrderStatus {
         return context.loc.expired;
     }
   }
+
+  bool get isPending {
+    return this == SwapOrderStatus.unknown ||
+        this == SwapOrderStatus.waiting ||
+        this == SwapOrderStatus.processing ||
+        this == SwapOrderStatus.exchanging ||
+        this == SwapOrderStatus.sending;
+  }
+
+  /// A pending settlement is a swap that is in the processing, exchanging, or sending state,
+  /// ie. the user has PAID and the swap is waiting to be completed.
+  bool get isPendingSettlement {
+    return this == SwapOrderStatus.processing ||
+        this == SwapOrderStatus.exchanging ||
+        this == SwapOrderStatus.sending;
+  }
 }
 
 //ANCHOR: SwapServiceType

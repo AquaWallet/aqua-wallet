@@ -17,6 +17,8 @@ class AmountParsingException implements ExceptionLocalized {
         return context.loc.sendAssetAmountScreenEmptyAmountError;
       case AmountParsingExceptionType.belowMin:
         return context.loc.amountBelowMin(kGdkMinSendAmountSats.toString());
+      case AmountParsingExceptionType.belowLbtcMin:
+        return context.loc.amountBelowMin(kGdkMinSendAmountLbtcSats.toString());
       case AmountParsingExceptionType.notEnoughFunds:
         return context.loc.sendAssetAmountScreenNotEnoughFundsError;
       case AmountParsingExceptionType.notEnoughFundsForFee:
@@ -36,6 +38,7 @@ class AmountParsingException implements ExceptionLocalized {
 enum AmountParsingExceptionType {
   emptyAmount,
   belowMin,
+  belowLbtcMin,
   notEnoughFunds,
   notEnoughFundsForFee,
   belowSendMin,

@@ -14,7 +14,9 @@ class SystemOverlayColor {
   final BuildContext context;
 
   void themeBased() {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
+
     final theme = darkMode
         ? ref.read(darkThemeProvider(context))
         : ref.read(lightThemeProvider(context));

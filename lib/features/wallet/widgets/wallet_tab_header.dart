@@ -17,7 +17,8 @@ class WalletTabHeader extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode = ref.watch(prefsProvider.select((p) => p.isDarkMode));
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
     final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
     final aquaLogoSize = useMemoized(() {
       return context.adaptiveDouble(
@@ -36,6 +37,11 @@ class WalletTabHeader extends HookConsumerWidget {
           ? UiAssets.svgs.dark.aquaLogo
           : UiAssets.svgs.light.aquaLogo;
     }, [darkMode, botevMode]);
+
+    final displayMode = ref.watch(walletHeaderDisplayProvider);
+    final unifiedBalance = ref.watch(unifiedBalanceProvider);
+    final currentRate =
+        ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
 
     return Container(
       height: context.adaptiveDouble(mobile: 262.0, smallMobile: 224.0),
@@ -94,8 +100,17 @@ class WalletTabHeader extends HookConsumerWidget {
                         ],
                       ),
                       //ANCHOR - Total Balance / BTC Price
-                      const Expanded(
-                        child: _BalancePriceContent(),
+                      Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          alignment: Alignment.bottomLeft,
+                          child: displayMode == WalletHeaderDisplay.price
+                              ? const WalletHeaderBtcPrice()
+                              : _TotalBalance(
+                                  balance: unifiedBalance,
+                                  currency: currentRate.currency.symbol,
+                                ),
+                        ),
                       ),
                     ],
                   ),
@@ -111,36 +126,14 @@ class WalletTabHeader extends HookConsumerWidget {
   }
 }
 
-class _BalancePriceContent extends HookConsumerWidget {
-  const _BalancePriceContent();
+class _TotalBalance extends StatelessWidget {
+  final UnifiedBalanceResult? balance;
+  final String currency;
+
+  const _TotalBalance({this.balance, this.currency = ""});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final displayMode = ref.watch(walletHeaderDisplayProvider);
-
-    return Container(
-      width: double.infinity,
-      alignment: Alignment.bottomLeft,
-      child: switch (displayMode) {
-        AsyncData(:final value) => switch (value) {
-            WalletHeaderDisplay.btcPrice => const WalletHeaderBtcPrice(),
-            _ => const _TotalBalance(),
-          },
-        _ => const _TotalBalance(),
-      },
-    );
-  }
-}
-
-class _TotalBalance extends HookConsumerWidget {
-  const _TotalBalance();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final unifiedBalance = ref.watch(unifiedBalanceProvider);
-    final currentRate =
-        ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
-
+  Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -169,10 +162,9 @@ class _TotalBalance extends HookConsumerWidget {
         const SizedBox(height: 4),
         //ANCHOR - Total balance
         Skeletonizer(
-          enabled: unifiedBalance == null,
+          enabled: balance == null,
           child: HeaderAmount(
-            amount:
-                "${currentRate.currency.symbol}${unifiedBalance?.formatted}",
+            amount: "$currency${balance?.formatted}",
           ),
         ),
       ],

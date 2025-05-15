@@ -32,8 +32,7 @@ class SendConfirmationSlider extends HookConsumerWidget {
     final sliderState = useState(SliderState.initial);
 
     // Txn Errors
-    final txnInitError =
-        ref.watch(sendAssetTransactionSetupProvider(args)).error;
+    final txnInitError = ref.watch(sendAssetSetupProvider(args)).error;
     final txnError = ref.watch(sendAssetTxnProvider(args)).error;
     // Fee Errors
     final feeOptionsError = ref.watch(sendAssetFeeOptionsProvider(args)).error;

@@ -6,9 +6,12 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/features/transactions/widgets/transaction_note_editor.dart';
+import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+
+final _logger = CustomLogger(FeatureFlag.tx);
 
 class AssetTransactionDetailsScreen extends StatelessWidget {
   static const routeName = '/assetTransactionDetailsScreen';
@@ -91,9 +94,8 @@ class _NormalTransactionDetails extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactionProvider = useMemoized(
-      () => assetTransactionDetailsProvider((context, txnUiModel)),
-    );
+    final transactionProvider =
+        assetTransactionDetailsProvider((context, txnUiModel));
 
     final transactionFromStorage = ref
         .watch(transactionStorageProvider)
@@ -102,21 +104,6 @@ class _NormalTransactionDetails extends HookConsumerWidget {
         .firstWhereOrNull((tx) => tx.txhash == txnUiModel.transaction.txhash);
 
     final transaction = ref.watch(transactionProvider);
-
-    final showRbfSuccessSheet = useCallback(() {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Theme.of(context).colors.background,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30.0),
-            topRight: Radius.circular(30.0),
-          ),
-        ),
-        builder: (_) => const RbfSuccessSheet(),
-      );
-    }, []);
 
     final showInsufficientFundsSheet = useCallback(() {
       showModalBottomSheet(
@@ -151,16 +138,47 @@ class _NormalTransactionDetails extends HookConsumerWidget {
       return subscription.cancel;
     }, []);
 
+    useEffect(() {
+      if (txnUiModel.isRbfSuccess) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            isDismissible: false,
+            backgroundColor: Theme.of(context).colors.background,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30.0),
+                topRight: Radius.circular(30.0),
+              ),
+            ),
+            builder: (_) => const RbfSuccessSheet(),
+          );
+        });
+      }
+      return null;
+    }, []);
+
     ref.listen(transactionsProvider(txnUiModel.asset), (previous, next) {
       ref.invalidate(transactionProvider);
     });
 
-    ref.listen(bitcoinRbfProvider(txnUiModel.transaction), (previous, next) {
-      if (next.error is GdkNetworkInsufficientFunds) {
+    ref.listen(bitcoinRbfProvider(txnUiModel.transaction), (prev, next) {
+      if (next.error is GdkNetworkInsufficientFunds ||
+          next.error is GdkNetworkInsufficientFundsForFee) {
         showInsufficientFundsSheet();
+        return;
       }
-      if (previous?.valueOrNull != next.valueOrNull) {
-        showRbfSuccessSheet();
+      final txnHash = next.valueOrNull;
+      if (txnHash != null && txnHash != prev?.valueOrNull) {
+        _logger.debug('[RBF] Replacing transaction with hash: $txnHash');
+        context.pushReplacement(
+          AssetTransactionDetailsScreen.routeName,
+          extra: txnUiModel.copyWith(
+            isRbfSuccess: true,
+            transaction: txnUiModel.transaction.copyWith(txhash: txnHash),
+          ),
+        );
       }
     });
 
@@ -187,7 +205,7 @@ class _NormalTransactionDetails extends HookConsumerWidget {
       );
     }, []);
 
-    return transaction.when(
+    return transaction.maybeWhen(
       data: (detailsUiModel) => _TransactionDetailsContent(
         txnUiModel: txnUiModel.copyWith(dbTransaction: transactionFromStorage),
         detailsUiModel:
@@ -195,21 +213,22 @@ class _NormalTransactionDetails extends HookConsumerWidget {
         onRbfButtonPress: showCustomFeeInputSheet,
         onRefresh: ref.read(transactionProvider.notifier).refresh,
       ),
-      loading: () => Center(
+      //TODO: Fix transaction details momentarily crashes due to RBF txn delay
+      orElse: () => Center(
         child: CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation(
             Theme.of(context).colorScheme.secondaryContainer,
           ),
         ),
       ),
-      error: (_, __) => Center(
-        child: GenericErrorWidget(
-          buttonTitle: context.loc.assetTransactionDetailsErrorButton,
-          buttonAction: () {
-            context.pop();
-          },
-        ),
-      ),
+      // error: (e, __) => Center(
+      //   child: GenericErrorWidget(
+      //     buttonTitle: context.loc.assetTransactionDetailsErrorButton,
+      //     buttonAction: () {
+      //       context.pop();
+      //     },
+      //   ),
+      // ),
     );
   }
 }
@@ -265,6 +284,15 @@ class _TransactionDetailsContent extends HookConsumerWidget {
       );
     }, [detailsUiModel]);
 
+    final isNonSwapTransaction = useMemoized(
+      () => (TransactionDbModelType? type) {
+        return !(type?.isBoltzSwap ?? false) &&
+            !(type?.isPeg ?? false) &&
+            !(type?.isUSDtSwap ?? false);
+      },
+      [],
+    );
+
     return SmartRefresher(
       enablePullDown: true,
       key: refresherKey,
@@ -316,6 +344,15 @@ class _TransactionDetailsContent extends HookConsumerWidget {
             //ANCHOR - Peg Transaction Details
             if ((detailsUiModel.dbTransaction?.type?.isPeg ?? false)) ...[
               SideswapPegDetailsCard(
+                uiModel: detailsUiModel,
+                arguments: txnUiModel,
+              ),
+              const SizedBox(height: 20.0),
+            ],
+
+            //ANCHOR - USDt Swap Transaction Details
+            if ((detailsUiModel.dbTransaction?.isUSDtSwap ?? false)) ...[
+              USDtSwapDetailsCard(
                 uiModel: detailsUiModel,
                 arguments: txnUiModel,
               ),
@@ -475,11 +512,9 @@ class _TransactionDetailsContent extends HookConsumerWidget {
                       orElse: () => [],
                     ),
                     const SizedBox(height: 18.0),
-                    // don't show the network tx status if boltz or peg, as the swap order status is shown instead
-                    if (!(detailsUiModel.dbTransaction?.type?.isBoltzSwap ??
-                            false) &&
-                        !(detailsUiModel.dbTransaction?.type?.isPeg ??
-                            false)) ...[
+                    // don't show the network tx status if swap, as the swap order status is shown instead
+                    if (isNonSwapTransaction(
+                        detailsUiModel.dbTransaction?.type)) ...[
                       Center(
                         child: TransactionDetailsStatusChip(
                           color: detailsUiModel.isPending

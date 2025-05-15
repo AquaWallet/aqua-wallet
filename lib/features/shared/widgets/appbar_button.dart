@@ -35,7 +35,7 @@ class AppbarButton extends HookWidget {
           BlendMode.srcIn,
         ),
       );
-    }, [svgAssetName]);
+    }, [svgAssetName, foreground]);
 
     return SizedBox.square(
       dimension: buttonSize,

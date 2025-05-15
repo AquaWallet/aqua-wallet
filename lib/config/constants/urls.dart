@@ -14,11 +14,17 @@ const testNetAssetsUrl = '$aquaApiBaseUrl/testnet/assets';
 const aquaEsploraBaseUrl = 'https://mempool.aquawallet.io';
 
 // AQUA WEBSITE
-const aquaSupportLink = "https://jan3.zendesk.com/hc/en-us";
 const aquaWebsiteUrl = 'https://aqua.net';
+const aquaSupportEmail = 'support@aqua.net';
 const aquaTermsOfServiceUrl = 'https://aqua.net/terms';
 const aquaPrivacyUrl = 'https://aqua.net/privacy';
-const aquaZendeskUrl = "https://jan3.zendesk.com/hc/en-us";
+const aquaDownloadUrl = 'https://aqua.net/download';
+const aquaZendeskUrl = "https://jan3.zendesk.com/hc/en-us/requests/new";
+const aquaZendeskFaqUrl =
+    "https://jan3.zendesk.com/hc/en-us/sections/16926860538011-Frequently-Asked-Questions-Known-Issues-Limitations";
+
+String getAquaMoonZendeskUrl(String cardId) =>
+    "$aquaZendeskUrl?tf_subject=Moon%20Card&tf_description=My%20Card%20ID%20is%20$cardId,%20and%20I%20am%20experiencing%20the%20following%20issue:";
 
 // BLOCKSTREAM.INFO
 const blockstreamInfoBaseUrl = 'https://blockstream.info';
@@ -28,18 +34,10 @@ const meldProdUrl = 'https://meldcrypto.com/';
 const meldSandboxUrl = 'https://sb.meldcrypto.com/';
 
 // BOLTZ
-// AQUA Boltz web app instance
-const boltzWebAppUrl = 'https://submarine.aquawallet.io/';
 const boltzSupportEmail = 'hi@bol.tz';
-
-// if you run web app instance locally, check port
-//const boltzWebAppUrl = '10.0.2.2:3000';
-
 const boltzV2MainnetUrl = 'https://api.boltz.exchange/v2';
 const boltzV2TestnetUrl = 'https://api.testnet.boltz.exchange/v2';
 const boltzMainnetRefundUrl = 'https://boltz.exchange/refund';
-const boltzMainnetUrl = 'https://api.boltz.exchange';
-const boltzTestnetUrl = 'https://api.testnet.boltz.exchange';
 
 // SIDESWAP
 const sideswapMainnetUrl = "https://api.sideswap.io/";
@@ -51,19 +49,16 @@ const sideshiftUrl = 'https://sideshift.ai/api/v2/';
 //CHANGELLY
 const changellyUrl = 'https://mempool.aquawallet.io/api/changelly';
 
-// Mail
-const aquaSupportEmail = 'support@aquawallet.io';
-
 //MEMPOOL.SPACE
 const mempoolSpaceUrl = 'https://mempool.space/api/v1';
 
-// BTCDirect URLs
-const btcDirectProdUrl = 'https://api.btcdirect.eu';
-const btcDirectSandboxUrl = 'https://api-sandbox.btcdirect.eu';
-
 // Aqua Ankara API
-const aquaAnkaraApiUrl = 'https://test.aquabtc.com';
+const aquaAnkaraStagingApiUrl = 'https://test.aquabtc.com';
+const aquaAnkaraProdApiUrl = 'https://ankara.aquabtc.com/';
 
 // Moon
-const moonTermsOfServiceUrl =
-    'https://paywithmoon.com/legal/terms-and-conditions-en';
+const moonTermsOfServiceUrl = 'https://aqua.net/dolphin-card-terms-of-use/';
+const moonCardAgreementUrl = 'https://aqua.net/dolphin-card-holder-agreement/';
+
+// Jan3
+const jan3TermsOfServiceUrl = 'https://aqua.net/terms/';
