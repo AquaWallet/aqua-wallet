@@ -567,43 +567,45 @@ class _TransactionDetailsContent extends HookConsumerWidget {
                       orElse: () => [],
                     ),
                     const SizedBox(height: 18.0),
-                    Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //ANCHOR - View transaction on explorer button
-                          ButtonLink(
-                              onPress: txnUiModel.mapOrNull(
-                                normal: (model) => () {
-                                  final url = model.asset.isBTC
-                                      ? explorer.btcUrl
-                                      : explorer.liquidUrl;
-                                  final link =
-                                      '$url${model.transaction.txhash}';
-                                  ref.read(urlLauncherProvider).open(link);
-                                },
-                              ),
-                              text: txnUiModel.asset.isLiquid
-                                  ? context.loc
-                                      .assetTransactionDetailsLiquidExplorerButton
-                                  : context.loc
-                                      .assetTransactionDetailsExplorerButton),
-                          //ANCHOR - View unblinded transaction on explorer button
-                          if (txnUiModel.asset.isLiquid) ...[
+                    if (!txnUiModel.isGhost) ...[
+                      Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            //ANCHOR - View transaction on explorer button
                             ButtonLink(
                                 onPress: txnUiModel.mapOrNull(
                                   normal: (model) => () {
+                                    final url = model.asset.isBTC
+                                        ? explorer.btcUrl
+                                        : explorer.liquidUrl;
                                     final link =
-                                        '${explorer.liquidUrl}${model.blindingUrl}';
+                                        '$url${model.transaction.txhash}';
                                     ref.read(urlLauncherProvider).open(link);
                                   },
                                 ),
-                                text: context.loc
-                                    .assetTransactionDetailsLiquidUnblindedExplorerButton),
+                                text: txnUiModel.asset.isLiquid
+                                    ? context.loc
+                                        .assetTransactionDetailsLiquidExplorerButton
+                                    : context.loc
+                                        .assetTransactionDetailsExplorerButton),
+                            //ANCHOR - View unblinded transaction on explorer button
+                            if (txnUiModel.asset.isLiquid) ...[
+                              ButtonLink(
+                                  onPress: txnUiModel.mapOrNull(
+                                    normal: (model) => () {
+                                      final link =
+                                          '${explorer.liquidUrl}${model.blindingUrl}';
+                                      ref.read(urlLauncherProvider).open(link);
+                                    },
+                                  ),
+                                  text: context.loc
+                                      .assetTransactionDetailsLiquidUnblindedExplorerButton),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

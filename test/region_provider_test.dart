@@ -84,7 +84,7 @@ void main() {
           Region(name: 'Afghanistan', iso: 'AF'));
       expect(container.read(availableRegionsProvider).value?.last,
           Region(name: 'Zimbabwe', iso: 'ZW'));
-      expect(container.read(availableRegionsProvider).value?.length, 225);
+      expect(container.read(availableRegionsProvider).value?.length, 226);
 
       // Verify the GET request was made to the correct URL.
       verify(

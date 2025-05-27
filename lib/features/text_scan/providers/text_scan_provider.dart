@@ -19,7 +19,6 @@ class TextScanNotifier extends StateNotifier<AsyncValue<List<String>>> {
   TextScanNotifier(this.ref) : super(const AsyncValue.data([]));
 
   final Ref ref;
-
   CameraController? _cameraController;
   late TextRecognizer _textRecognizer;
 
@@ -39,7 +38,6 @@ class TextScanNotifier extends StateNotifier<AsyncValue<List<String>>> {
     }
 
     _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-
     _cameraController = CameraController(
       cameras.first,
       ResolutionPreset.max,
@@ -84,16 +82,11 @@ class TextScanNotifier extends StateNotifier<AsyncValue<List<String>>> {
       final fullText = recognizedText.text;
 
       final lines = fullText.split('\n');
-      // DEBUG
-      for (final line in lines) {
-        _logger.debug('recognized text: $line');
-      }
-
       final addresses = <String>{};
-
       for (String line in lines) {
         addresses.addAll(processAddress(line));
       }
+
       _logger.debug('Found ${addresses.length} addresses: $addresses');
       _scanAttempted = true;
       state = AsyncValue.data(addresses.toList());
@@ -106,27 +99,51 @@ class TextScanNotifier extends StateNotifier<AsyncValue<List<String>>> {
   List<String> processAddress(String address) {
     final addressWithoutSpace = address.replaceAll(' ', '');
     if (addressWithoutSpace.startsWith('bc')) {
-      //bc1gfhdk
       final result = '${address.substring(0, 2)}1${address.substring(3)}';
       _logger.debug('processAddress. [BC] address: $result');
       return bech32Possibilities(result);
-    } else if (addressWithoutSpace.startsWith('l') ||
+    }
+
+    if (addressWithoutSpace.startsWith('l') ||
         addressWithoutSpace.startsWith('i') ||
         addressWithoutSpace.startsWith('1')) {
       final result = '1${addressWithoutSpace.substring(1)}';
       _logger.debug('processAddress. [1] address: $result');
       return p2pkhAndP2shPossibilities(result);
-    } else if (addressWithoutSpace.startsWith('3')) {
+    }
+
+    if (addressWithoutSpace.startsWith('3')) {
       _logger.debug('processAddress. [3] address: $addressWithoutSpace');
       return p2pkhAndP2shPossibilities(addressWithoutSpace);
-    } else {
-      _logger.error('invalid address: $addressWithoutSpace');
-      return [];
     }
+
+    if (addressWithoutSpace.startsWith('VJL')) {
+      _logger.debug('processAddress. [V] address: $addressWithoutSpace');
+      return liquidAddressPossibilities(addressWithoutSpace);
+    }
+
+    _logger.error('invalid address: $addressWithoutSpace');
+    return [];
+  }
+
+  List<String> liquidAddressPossibilities(String input) {
+    const ambiguousMap = {
+      'X': ['X', 'x'],
+      'K': ['K', 'k'],
+      'Z': ['Z', 'z'],
+      'o': ['0'],
+      'e': ['e', '0'],
+      'i': ['l', '1'],
+      'l': ['l', '1'],
+      'b': ['b', '6']
+    };
+
+    return generateOcrPossibilities(
+        input, ambiguousMap, payToPublicKeyOrScriptHashValidChars);
   }
 
   List<String> bech32Possibilities(String input) {
-    final ambiguousMap = {
+    const ambiguousMap = {
       'o': ['0'],
       'e': ['e', '0'],
       'i': ['l', '1'],
@@ -138,12 +155,10 @@ class TextScanNotifier extends StateNotifier<AsyncValue<List<String>>> {
   }
 
   List<String> p2pkhAndP2shPossibilities(String raw) {
-    final ambiguousMap = {
-      //(P2PKH) 1... //! NO: 0 (digit), O (letter), I (letter), l (letter) // ! IS USED: 123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz
+    const ambiguousMap = {
       'e': ['e', 'o'],
       'l': ['i', '1'],
       'V': ['V', 'v'],
-      // 2 ^ 29 options -> :((
       'X': ['X', 'x'],
       'K': ['K', 'k'],
       // 'C': ['C', 'c'],
@@ -152,7 +167,7 @@ class TextScanNotifier extends StateNotifier<AsyncValue<List<String>>> {
       // 'W': ['W', 'w'],
       'Z': ['Z', 'z'],
     };
-    // expirement 1: 2^4 options = 16 options
+
     return generateOcrPossibilities(
         raw, ambiguousMap, payToPublicKeyOrScriptHashValidChars);
   }
@@ -173,7 +188,7 @@ class TextScanNotifier extends StateNotifier<AsyncValue<List<String>>> {
       return [input];
     }
 
-    final Set<String> results = {};
+    final Set<String> results = {input};
 
     void generateVariant(int index, List<String> current) {
       if (index == ambiguousPositions.length) {
@@ -193,7 +208,6 @@ class TextScanNotifier extends StateNotifier<AsyncValue<List<String>>> {
     }
 
     generateVariant(0, List.of(chars));
-
     return results.toList();
   }
 

@@ -172,6 +172,7 @@ class Jan3LoginScreen extends HookConsumerWidget {
               Jan3TermsCheckbox(
                 onTermsAccepted: termsAccepted,
               ),
+              const SizedBox(height: 10),
               const Spacer(),
               // ANCHOR - Continue button
               ReactiveFormConsumer(

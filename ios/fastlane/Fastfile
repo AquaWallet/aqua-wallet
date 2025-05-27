@@ -1,0 +1,48 @@
+default_platform(:ios)
+
+platform :ios do
+  before_all do
+    ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
+  end
+
+
+  app_store_connect_api_key(
+      key_id: ENV["APPLE_KEY_ID"],
+      issuer_id: ENV["APPLE_ISSUER_ID"],
+      key_content: ENV["APPLE_KEY_CONTENT"],
+      is_key_content_base64: true,           
+      duration: 1200,            
+      in_house: false # Upload to TestFlight
+  )
+  
+  desc "Combined lane for CI to build and deploy to TestFlight"
+  lane :deploy_testflight do
+
+    setup_ci
+
+    match(
+      type: "appstore",
+      force_for_new_devices: true,
+      app_identifier: "io.aquawallet.ios",
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION_TOKEN"]),
+      readonly: true
+    )
+    # Install pods
+    cocoapods(
+      clean_install: true,
+      podfile: "./Podfile"
+    )
+    # Build the Flutter app and create the IPA
+    build_ios_app(
+      export_method: "app-store",
+      configuration: "Release",
+
+    )
+
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+    )
+  end
+end 

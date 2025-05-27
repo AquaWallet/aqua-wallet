@@ -1,10 +1,12 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/app_links/app_link.dart';
 import 'package:aqua/features/auth/auth_wrapper.dart';
+import 'package:aqua/features/sam_rock/models/sam_rock_exception.dart';
 import 'package:aqua/features/sam_rock/providers/sam_rock_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/providers/subaccounts_provider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:aqua/utils/utils.dart';
 
 class SamRockScreen extends HookConsumerWidget {
   const SamRockScreen({
@@ -25,29 +27,42 @@ class SamRockScreen extends HookConsumerWidget {
     }, []);
     final subaccountsState = ref.watch(subaccountsProvider);
 
+    final handleConfirm = useCallback(() {
+      final currentSubaccounts = subaccountsState.valueOrNull;
+      if (currentSubaccounts != null) {
+        ref.read(samRockStateProvider.notifier).startSetup(
+              samRockAppLink,
+              currentSubaccounts,
+            );
+      }
+    }, [ref, samRockAppLink, subaccountsState]);
+
     return Scaffold(
-      appBar: const AquaAppBar(
+      appBar: AquaAppBar(
         showBackButton: true,
-        title: 'SamRock Setup',
+        showActionButton: false,
+        title: context.loc.samRockScreenAppBarTitle,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: state.when(
+        child: state.maybeWhen(
+          requiresNewWalletConfirmation: (_) => _ConfirmationView(
+            isLoading: subaccountsState.isLoading,
+            uploadUrl: samRockAppLink.uploadUrl,
+            onConfirm: handleConfirm,
+          ),
           initial: () => _ConfirmationView(
             isLoading: subaccountsState.isLoading,
             uploadUrl: samRockAppLink.uploadUrl,
-            onConfirm: () {
-              ref
-                  .read(samRockStateProvider.notifier)
-                  .startSetup(samRockAppLink, subaccountsState.valueOrNull!);
-            },
+            onConfirm: handleConfirm,
           ),
           loading: () => const _LoadingView(),
-          error: (error) => _ErrorView(error: error),
+          error: (error) => _ErrorView(exception: error),
           success: () => _SuccessView(
             setupChains: samRockAppLink.setupChains,
             otp: samRockAppLink.otp,
           ),
+          orElse: () => const Center(child: CircularProgressIndicator()),
         ),
       ),
     );
@@ -73,12 +88,12 @@ class _ConfirmationView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Confirm Host',
+            context.loc.samRockScreenConfirmHostTitle,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Are you sure you want to send your XPUBS to:',
+          Text(
+            context.loc.samRockScreenConfirmHostSubtitle,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -95,14 +110,14 @@ class _ConfirmationView extends StatelessWidget {
             children: [
               OutlinedButton(
                 onPressed: () => context.pop(),
-                child: const Text('Cancel'),
+                child: Text(context.loc.cancel),
               ),
               const SizedBox(width: 16),
               ElevatedButton(
                 onPressed: isLoading ? null : onConfirm,
                 child: isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Confirm'),
+                    : Text(context.loc.confirm),
               ),
             ],
           ),
@@ -124,9 +139,9 @@ class _LoadingView extends StatelessWidget {
 }
 
 class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.error});
+  const _ErrorView({required this.exception});
 
-  final String error;
+  final SamRockException exception;
 
   @override
   Widget build(BuildContext context) {
@@ -135,15 +150,15 @@ class _ErrorView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Error',
+            context.loc.error,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
-          Text(error),
+          Text(exception.toLocalizedString(context)),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => context.popUntilPath(AuthWrapper.routeName),
-            child: const Text('Go Back'),
+            child: Text(context.loc.goBack),
           ),
         ],
       ),
@@ -166,7 +181,7 @@ class _SuccessView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Completed Setup of Chains',
+          context.loc.samRockScreenSuccessTitle,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 8),
@@ -186,7 +201,7 @@ class _SuccessView extends StatelessWidget {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () => context.popUntilPath(AuthWrapper.routeName),
-            child: const Text('Complete Setup'),
+            child: Text(context.loc.samRockScreenCompleteSetupButton),
           ),
         ),
       ],

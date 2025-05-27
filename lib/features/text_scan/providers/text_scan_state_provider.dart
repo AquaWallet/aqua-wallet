@@ -30,7 +30,6 @@ class TextScannerNotifier extends AutoDisposeFamilyAsyncNotifier<TextScanState,
           if (!isAfterScan) {
             return const TextScanState.idle();
           }
-
           return const TextScanState.unknownText('Error scanning the text');
         }
 
@@ -40,12 +39,12 @@ class TextScannerNotifier extends AutoDisposeFamilyAsyncNotifier<TextScanState,
         if (validList.isEmpty) {
           return const TextScanState.unknownText('Error scanning the text');
         }
-        // returnRawValue
+
         if (arg.parseAction == TextScannerParseAction.returnRawValue) {
           _logger.debug('return raw value: $validList');
           return TextScanState.multipleRawValue(validList);
         }
-        // attemp to parse
+
         _logger.debug('attempt to parse: $validList');
         return TextScanState.addressSelection(validList);
       },
@@ -61,9 +60,7 @@ class TextScannerNotifier extends AutoDisposeFamilyAsyncNotifier<TextScanState,
   Future<void> processSingleAddress(
       String singleAddress, TextScannerArguments arg) async {
     state = const AsyncValue.loading();
-
     final newState = await _parseAddress(singleAddress, arg);
-
     state = AsyncValue.data(newState);
   }
 
@@ -80,10 +77,7 @@ class TextScannerNotifier extends AutoDisposeFamilyAsyncNotifier<TextScanState,
         return const TextScanState.error("Invalid address");
       }
 
-      return await _mapQrPopResultToTextScanState(
-        popResult,
-        arg,
-      );
+      return await _mapQrPopResultToTextScanState(popResult, arg);
     } catch (e) {
       _logger.error('Text parse error: $e');
       return const TextScanState.unknownText("Error during parse");
@@ -112,25 +106,17 @@ class TextScannerNotifier extends AutoDisposeFamilyAsyncNotifier<TextScanState,
             ? TextScanState.pullSendAsset(sendArgs)
             : TextScanState.pushSendAsset(sendArgs);
       },
-      lnurlWithdraw: (lnurlResult) {
-        return TextScanState.lnurlWithdraw(
-          lnurlResult.withdrawalParams,
-        );
-      },
-      swap: (orderId, sendAsset, sendAmount, recvAsset, recvAmount, uploadUrl) {
-        return const TextScanState.unknownText(
-            'Swap logic is not implemented yet');
-      },
-      samRock: (setupChains, otp, uploadUrl) {
-        return const TextScanState.unknownText(
-            'SamRock logic is not implemented yet');
-      },
-      requiresRestart: () {
-        return const TextScanState.unknownText('Requires restart');
-      },
-      empty: () {
-        return const TextScanState.unknownText('Empty result');
-      },
+      lnurlWithdraw: (lnurlResult) => TextScanState.lnurlWithdraw(
+        lnurlResult.withdrawalParams,
+      ),
+      swap: (orderId, sendAsset, sendAmount, recvAsset, recvAmount,
+              uploadUrl) =>
+          const TextScanState.unknownText('Swap logic is not implemented yet'),
+      samRock: (setupChains, otp, uploadUrl) => const TextScanState.unknownText(
+          'SamRock logic is not implemented yet'),
+      requiresRestart: () =>
+          const TextScanState.unknownText('Requires restart'),
+      empty: () => const TextScanState.unknownText('Empty result'),
     );
   }
 
@@ -144,28 +130,28 @@ class TextScannerNotifier extends AutoDisposeFamilyAsyncNotifier<TextScanState,
     _logger.debug(
       '_filterValidAddresses - addresses: $addresses, asset: $asset, userAssets: $assets',
     );
+
     final validAddresses = <String>[];
 
     for (final addr in addresses) {
       try {
         final parsed = await parser.parseInput(asset: asset, input: addr);
-        if (parsed == null) {
-          continue;
-        }
+        if (parsed == null) continue;
 
         final addressAsset = parsed.asset;
         _logger.debug('addressAsset: $addressAsset');
+
         if (addressAsset != null) {
           final foundInUserAssets = assets.any((a) => a.id == addressAsset.id);
-          if (!foundInUserAssets) {
-            continue;
-          }
+          if (!foundInUserAssets) continue;
         }
+
         validAddresses.add(addr);
       } catch (e) {
         _logger.error('Error parsing address: $addr, error: $e');
       }
     }
+
     return validAddresses;
   }
 }

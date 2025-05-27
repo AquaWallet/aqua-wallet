@@ -138,20 +138,19 @@ class TransactionsNotifier
       final dbTransaction =
           localDbTxns.firstWhereOrNull((dbTxn) => dbTxn.txhash == txn.txhash);
 
-      _logger.debug("[Transactions] Resulting DB Transaction: $dbTransaction");
+      final confirmationCount = await ref
+          .watch(aquaProvider)
+          .getConfirmationCount(
+              asset: asset, transactionBlockHeight: txn.blockHeight ?? 0)
+          .first;
 
-      final currentBlockHeight =
-          ref.watch(_currentBlockHeightProvider(asset)).asData?.value ?? 0;
-      final transactionBlockHeight = txn.blockHeight ?? 0;
-      final confirmationCount = transactionBlockHeight == 0 ||
-              currentBlockHeight < transactionBlockHeight
-          ? 0
-          : currentBlockHeight - transactionBlockHeight + 1;
-      final pending = asset.isBTC
-          ? confirmationCount < onchainConfirmationBlockCount
-          : confirmationCount < liquidConfirmationBlockCount;
+      final isPending = confirmationCount <
+          (asset.isBTC
+              ? onchainConfirmationBlockCount
+              : liquidConfirmationBlockCount);
+
       final assetIcon = switch (txn.type) {
-        _ when (pending) => Svgs.pending,
+        _ when (isPending) => Svgs.pending,
         _ when (dbTransaction?.isTopUp == true) => Svgs.creditCard,
         _ when (dbTransaction?.isAquaSend == true) => Svgs.outgoing,
         _ when (dbTransaction?.isBoltzSwap == true) => Svgs.outgoing,
@@ -262,13 +261,6 @@ class TransactionsNotifier
 // -----------------------------------------------------------------------------------
 final _rateStreamProvider = StreamProvider.autoDispose((ref) async* {
   yield* ref.read(fiatProvider).rateStream.distinctUnique();
-});
-
-final _currentBlockHeightProvider =
-    StreamProvider.family<int, Asset>((ref, asset) {
-  return asset.isBTC
-      ? ref.read(bitcoinProvider).blockHeightEventSubject
-      : ref.read(liquidProvider).blockHeightEventSubject;
 });
 
 final fiatAmountProvider = FutureProvider.autoDispose

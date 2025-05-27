@@ -23,7 +23,10 @@ class TextScannerScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
-      return () => ref.read(textScanProvider.notifier).resetCamera();
+      return () {
+        ref.read(textScanProvider.notifier).resetCamera();
+        ref.invalidate(textScanStateProvider(arguments));
+      };
     }, []);
 
     final initFuture = useMemoized(() async {
@@ -60,9 +63,7 @@ class TextScannerScreen extends HookConsumerWidget {
       (previous, next) {
         next.when(
           data: (data) => data.maybeWhen(
-            unknownText: (raw) => {
-              showExceptionDialog(raw),
-            },
+            unknownText: (raw) => showExceptionDialog(raw),
             rawValue: (raw) => Navigator.of(context).pop(raw),
             pullSendAsset: (args) => Navigator.of(context).pop(args),
             pushSendAsset: (args) async {
@@ -98,80 +99,89 @@ class TextScannerScreen extends HookConsumerWidget {
             },
             orElse: () {},
           ),
-          error: (error, stack) {
-            showExceptionDialog(error.toString());
-          },
+          error: (error, stack) => showExceptionDialog(error.toString()),
           loading: () {},
         );
       },
     );
 
-    return Scaffold(
-      body: FutureBuilder<void>(
-        future: initFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting ||
-              state is AsyncLoading ||
-              (state.value ?? []).isNotEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          ref.read(textScanProvider.notifier).resetCamera();
+          ref.invalidate(textScanStateProvider(arguments));
+        }
+      },
+      child: Scaffold(
+        body: FutureBuilder<void>(
+          future: initFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state.hasError) {
-            return Center(
-              child: Text(
-                state.error.toString(),
-                style: TextStyle(color: context.colorScheme.error),
-              ),
-            );
-          }
+            if (state is AsyncLoading && state.value == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final controller =
-              ref.read(textScanProvider.notifier).cameraController;
-          if (controller == null || !controller.value.isInitialized) {
-            return Center(child: Text(context.loc.cameraIsNotAvailable));
-          }
-
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 28),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(30),
-                    ),
-                    child: CameraPreview(controller),
-                  ),
+            if (state.hasError) {
+              return Center(
+                child: Text(
+                  state.error.toString(),
+                  style: TextStyle(color: context.colorScheme.error),
                 ),
-              ),
-              Positioned(
-                bottom: 40,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: SizedBox(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        ref
-                            .read(textScanProvider.notifier)
-                            .takeSnapshotAndRecognize();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.colors.scanBottom,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        minimumSize: const Size(116, 40),
+              );
+            }
+
+            final controller =
+                ref.read(textScanProvider.notifier).cameraController;
+            if (controller == null || !controller.value.isInitialized) {
+              return Center(child: Text(context.loc.cameraIsNotAvailable));
+            }
+
+            return Stack(
+              children: [
+                Positioned.fill(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 28),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(30),
                       ),
-                      child: Text(context.loc.buttonScanText),
+                      child: CameraPreview(controller),
                     ),
                   ),
                 ),
-              )
-            ],
-          );
-        },
+                Positioned(
+                  bottom: 40,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: SizedBox(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ref
+                              .read(textScanProvider.notifier)
+                              .takeSnapshotAndRecognize();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: context.colors.scanBottom,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          minimumSize: const Size(116, 40),
+                        ),
+                        child: Text(context.loc.buttonScanText),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            );
+          },
+        ),
       ),
     );
   }

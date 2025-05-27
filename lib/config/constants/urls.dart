@@ -20,8 +20,7 @@ const aquaTermsOfServiceUrl = 'https://aqua.net/terms';
 const aquaPrivacyUrl = 'https://aqua.net/privacy';
 const aquaDownloadUrl = 'https://aqua.net/download';
 const aquaZendeskUrl = "https://jan3.zendesk.com/hc/en-us/requests/new";
-const aquaZendeskFaqUrl =
-    "https://jan3.zendesk.com/hc/en-us/sections/16926860538011-Frequently-Asked-Questions-Known-Issues-Limitations";
+const aquaZendeskFaqUrl = "http://jan3.zendesk.com/";
 
 String getAquaMoonZendeskUrl(String cardId) =>
     "$aquaZendeskUrl?tf_subject=Moon%20Card&tf_description=My%20Card%20ID%20is%20$cardId,%20and%20I%20am%20experiencing%20the%20following%20issue:";
@@ -47,7 +46,7 @@ const sideswapTestnetUrl = "https://api-testnet.sideswap.io/";
 const sideshiftUrl = 'https://sideshift.ai/api/v2/';
 
 //CHANGELLY
-const changellyUrl = 'https://mempool.aquawallet.io/api/changelly';
+const changellyUrl = 'https://ankara.aquabtc.com/api/v1/changelly';
 
 //MEMPOOL.SPACE
 const mempoolSpaceUrl = 'https://mempool.space/api/v1';
@@ -61,4 +60,4 @@ const moonTermsOfServiceUrl = 'https://aqua.net/dolphin-card-terms-of-use/';
 const moonCardAgreementUrl = 'https://aqua.net/dolphin-card-holder-agreement/';
 
 // Jan3
-const jan3TermsOfServiceUrl = 'https://aqua.net/terms/';
+const jan3TermsOfServiceUrl = 'https://jan3.com/terms-of-use-agreement/';

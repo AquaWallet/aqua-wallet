@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aqua/data/provider/register_wallet/register_wallet_provider.dart';
+import 'package:aqua/data/provider/provider.dart';
 import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';

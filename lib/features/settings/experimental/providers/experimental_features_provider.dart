@@ -61,7 +61,6 @@ class FeatureFlagsNotifier extends ChangeNotifier {
 
   bool get debitCardStagingEnabled =>
       _prefs.getBool(PrefKeys.debitCardStagingEnabled) ?? false;
-  bool get samRockEnabled => _prefs.getBool(PrefKeys.samRockEnabled) ?? false;
 
   void toggleFeatureFlag({
     required String key,

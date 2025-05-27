@@ -16,7 +16,6 @@ import 'package:aqua/features/logger_table/logger_table.dart';
 import 'package:aqua/features/marketplace/pages/on_ramp_screen.dart';
 import 'package:aqua/features/note/note.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/onboarding/welcome/widgets/welcome_disclaimer_screen.dart';
 import 'package:aqua/features/pin/pin_screen.dart';
 import 'package:aqua/features/pin/pin_success_screen.dart';
 import 'package:aqua/features/pin/pin_warning_screen.dart';
@@ -75,10 +74,6 @@ final routes = [
   GoRoute(
     path: WelcomeScreen.routeName,
     builder: (context, state) => const WelcomeScreen(),
-  ),
-  GoRoute(
-    path: WelcomeDisclaimerScreen.routeName,
-    builder: (context, state) => const WelcomeDisclaimerScreen(),
   ),
   GoRoute(
     path: WalletBackupScreen.routeName,
@@ -338,8 +333,6 @@ final routes = [
     builder: (context, state) =>
         SendAssetScreen(arguments: state.extra as SendAssetArguments),
   ),
-
-  // DEBUG
   GoRoute(
     path: SubaccountsDebugScreen.routeName,
     builder: (context, state) => const SubaccountsDebugScreen(),
@@ -356,23 +349,19 @@ final routes = [
   ),
   GoRoute(
     path: DebitCardOnboardingScreen.routeName,
-    // ignore: prefer_const_constructors
-    builder: (context, state) => DebitCardOnboardingScreen(),
+    builder: (context, state) => const DebitCardOnboardingScreen(),
   ),
   GoRoute(
     path: DebitCardMyCardScreen.routeName,
-    // ignore: prefer_const_constructors
-    builder: (context, state) => DebitCardMyCardScreen(),
+    builder: (context, state) => const DebitCardMyCardScreen(),
   ),
   GoRoute(
     path: DebitCardTopUpScreen.routeName,
-    // ignore: prefer_const_constructors
-    builder: (context, state) => DebitCardTopUpScreen(),
+    builder: (context, state) => const DebitCardTopUpScreen(),
   ),
   GoRoute(
     path: DebitCardStyleSelectionScreen.routeName,
-    // ignore: prefer_const_constructors
-    builder: (context, state) => DebitCardStyleSelectionScreen(),
+    builder: (context, state) => const DebitCardStyleSelectionScreen(),
   ),
   GoRoute(
     path: SamRockScreen.routeName,

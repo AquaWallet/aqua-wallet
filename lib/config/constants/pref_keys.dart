@@ -39,8 +39,7 @@ class PrefKeys {
   static const balanceHidden = "balance_hidden";
   static const displayUnits = 'display_units';
   static const payWithMoonEnabled = 'payWithMoonEnabled';
-  static const customElectrumUrlEnabled = 'custom_electrum_url_enabled';
-  static const debitCardStagingEnabled = 'debit_card_staging_enabled';
+  static const customElectrumUrlEnabled = 'customElectrumUrlEnabled';
+  static const debitCardStagingEnabled = 'debitCardStagingEnabled';
   static const jan3CardExpanded = 'jan3_card_expanded';
-  static const samRockEnabled = 'samRockEnabled';
 }

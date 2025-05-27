@@ -42,7 +42,7 @@ class PokerchipBalanceCard extends HookConsumerWidget {
           //ANCHOR - Address
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: CopyableAddressView(address: data.address),
+            child: CopyableAddressView(address: data.address.toLowerCase()),
           ),
           const SizedBox(height: 21.0),
         ],

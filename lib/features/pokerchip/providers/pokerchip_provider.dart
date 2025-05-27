@@ -12,7 +12,6 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:decimal/decimal.dart';
 
-const _blockStreamApiBaseUrl = 'https://blockstream.info';
 const _bitcoinPrefix = 'BITCOIN:';
 const _liquidPrefix = 'LIQUID:';
 
@@ -43,15 +42,15 @@ class PokerchipBalanceNotifier
     }
 
     final explorerLink = isBtc
-        ? '$_blockStreamApiBaseUrl/address/$scanInput'
-        : '$_blockStreamApiBaseUrl/liquid/address/$scanInput';
+        ? '$blockstreamInfoBaseUrl/address/$scanInput'
+        : '$blockstreamInfoBaseUrl/liquid/address/$scanInput';
     final apiLink = isBtc
-        ? '$_blockStreamApiBaseUrl/api/address/$scanInput/utxo'
-        : '$_blockStreamApiBaseUrl/liquid/api/address/$scanInput/utxo';
+        ? '$blockstreamInfoBaseUrl/api/address/$scanInput/utxo'
+        : '$blockstreamInfoBaseUrl/liquid/api/address/$scanInput/utxo';
 
     final apiResponse = await ref.read(dioProvider).get(apiLink);
 
-    debugPrint('[Pokerchip] Type: ${apiResponse.data.runtimeType}');
+    _logger.debug('Type: ${apiResponse.data.runtimeType}');
     if (apiResponse.data == null || apiResponse.data is! List) {
       return Future.error(PokerChipAssetError());
     }

@@ -66,11 +66,11 @@ class LiquidFeeSelector extends HookConsumerWidget {
     // Automatically enable an available fee option
     useEffect(() {
       if (input.fee != null) return null;
-      //NOTE: Last because we want to prioritize USDt over L-BTC for USDt send
+      //NOTE: First because we want to prioritize L-BTC over USDt for L-BTC send fees
       final availableFeeOption = feeOptions
           .whereType<LiquidSendAssetFeeOptionModel>()
           .where((e) => e.fee.isEnabled)
-          .lastWhereOrNull((e) => e.fee.availableForFeePayment);
+          .firstWhereOrNull((e) => e.fee.availableForFeePayment);
 
       if (availableFeeOption != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

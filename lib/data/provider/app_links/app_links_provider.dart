@@ -1,11 +1,8 @@
 import 'package:aqua/data/provider/app_links/app_link.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final appLinkProvider = Provider<AppLinkProvider>((ref) {
-  final isSamRockEnabled =
-      ref.watch(featureFlagsProvider.select((p) => p.samRockEnabled));
-  return AppLinkProvider(isSamRockEnabled: isSamRockEnabled);
+  return AppLinkProvider();
 });
 
 class AppLinkProvider {
@@ -19,19 +16,15 @@ class AppLinkProvider {
   static const _linkParameterRecvAmount = 'recv_amount';
   static const _linkParameterUploadUrl = 'upload_url';
 
-  static const _samRockPath = '/aqua/samrockprotocol';
+  static const _samRockPath = '/samrock';
   static const _samRockSetupParam = 'setup';
   static const _samRockOtpParam = 'otp';
 
-  final bool isSamRockEnabled;
-
-  AppLinkProvider({
-    this.isSamRockEnabled = false,
-  });
+  AppLinkProvider();
 
   AppLink parseAppLinkUri(Uri uri) {
     try {
-      if (isSamRockEnabled && uri.path.contains(_samRockPath)) {
+      if (uri.path.contains(_samRockPath)) {
         return _parseSamRockLink(uri);
       }
 

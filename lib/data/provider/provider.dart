@@ -12,5 +12,4 @@ export 'localization_provider.dart';
 export 'network_frontend.dart';
 export 'qr_scanner/qr_scanner_provider.dart';
 export 'secure_storage/secure_storage_provider.dart';
-export 'send_review/send_review.dart';
 export 'theme_provider.dart';

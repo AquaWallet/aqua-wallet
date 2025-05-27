@@ -300,7 +300,7 @@
   "lnurlwWithdrawPrompt": "Withdraw {maxWithdrawableSats} satoshis",
   "loginScreenAuthError": "Failed to authenticate. Please try again.",
   "loginScreenContinue": "Continue",
-  "loginScreenDescription": "Create a Jan3 account which will be bound with external integrations which makes it easier for you to access those services and more.",
+  "loginScreenDescription": "Create a JAN3 account which will be bound with external integrations which makes it easier for you to access those services and more.",
   "loginScreenEmailHint": "satoshi@jan3.com",
   "loginScreenEmailPrompt": "Please enter your email",
   "loginScreenFieldRequired": "This field is required",
@@ -564,7 +564,7 @@
   "sideswapOrderID": "SideSwap Order ID",
   "sideswapPegInDescription": "Peg-In Powered By Sideswap.io",
   "sideswapPegOutDescription": "Peg-Out Powered By Sideswap.io",
-  "signUp": "Sign up",
+  "signUp": "Sign Up",
   "slideToSend": "Slide to send",
   "solana": "Solana",
   "somethingWentWrong": "Something went wrong",
@@ -696,9 +696,9 @@
   "features": "Features",
   "reloadable": "Reloadable",
   "noCostToLoad": "No cost to load",
-  "fourThousandUsdMonthlySpendingLimit": "4,000 USD Monthly Spending Limit",
+  "fourThousandUsdMonthlySpendingLimit": "4,000 USD monthly spending Limit",
   "onePercentFeeOnSpend": "1% fee on spend",
-  "oneDollarMinSpend": "$1.00 min. spend",
+  "oneDollarMinFee": "$1.00 min. fee",
   "close": "Close",
   "dolphin": "Dolphin",
   "chooseYourStyle": "Choose your style",
@@ -709,7 +709,7 @@
   "debitCardWaitlistTitle": "You've been added to the waitlist!",
   "debitCardWaitlistMessage": "You will receive an email when it's available.",
   "debitCardWaitlistButton": "Got it!",
-  "jan3AccountTitle": "Your Jan3 Account",
+  "jan3AccountTitle": "Your JAN3 Account",
   "jan3InviteFriends": "Invite Friends",
   "jan3LogOut": "Log Out",
   "jan3Login": "Log In",
@@ -717,5 +717,83 @@
   "jan3InviteMessage": "Download the Bitcoin Superapp for Financial Freedom {downloadUrl}",
   "jan3TermsCheckboxAgree": "Yes, I agree to all the ",
   "jan3TermsCheckboxTerms": "Terms of Service",
-  "inclFees": "Incl. Fees"
+  "storedWalletsTitle": "Your Wallets",
+  "storedWalletsDoneButton": "Done",
+  "storedWalletsEmpty": "No Wallets Found",
+  "storedWalletsEmptySubtitle": "Create or restore a wallet to get started",
+  "storedWalletsCreatedAt": "Created: {date}",
+  "storedWalletsDefaultWalletName": "Main Wallet",
+  "@storedWalletsCreatedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "storedWalletsDeleteTitle": "Delete Wallet",
+  "storedWalletsDeleteConfirmation": "Are you sure you want to delete {name}? This action cannot be undone.",
+  "@storedWalletsDeleteConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "storedWalletsActivated": "{name} is now active",
+  "@storedWalletsActivated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeStoredWallets": "Current Wallets",
+  "logoutWallet": "Logout Wallet",
+  "logoutWalletTitle": "Logout from Wallet",
+  "logoutWalletMessage": "Are you sure you want to logout from this wallet? You can access it again from the stored wallets screen.",
+  "logout": "Logout",
+  "walletRestoreError": "Failed to restore wallet",
+  "storedWalletsNameHint": "Enter wallet name",
+  "storedWalletsNameYourWallet": "Name Your Wallet",
+  "storedWalletsRestoredWalletName": "Restored Wallet",
+  "storedWalletsEditNameTitle": "Edit Wallet Name",
+  "storedWalletsNameUpdated": "Wallet name updated",
+  "storedWalletsNameUpdateError": "Failed to update wallet name",
+  "storedWalletsNameValidationEmpty": "Wallet name cannot be empty",
+  "storedWalletsNameValidationTooShort": "Wallet name must be at least 3 characters",
+  "storedWalletsNameValidationTooLong": "Wallet name must be less than 30 characters",
+  "storedWalletsNameValidationInvalidChars": "Wallet name contains invalid characters",
+  "storedWalletsAuthRequired": "Authentication required to access this wallet",
+  "storedWalletsAuthFailed": "Authentication failed. Please try again.",
+  "storedWalletsActivationError": "Error activating wallet. Please try again.",
+  "samrock_not_enough_subaccounts_exception": "Not enough subaccounts available for setup.",
+  "samrock_connection_failed_exception": "Failed to connect to the SamRock server.",
+  "samrock_missing_wallet_data_exception": "Could not retrieve current wallet data.",
+  "samrock_generic_exception": "An unexpected error occurred during SamRock setup.",
+  "inclFees": "Incl. Fees",
+  "walletName": "Wallet Name",
+  "max23Characters": "Max 23 characters",
+  "areYouSure": "Are you sure?",
+  "deleteWalletWarning": "Before removing this wallet, double-check that you've saved your seed phrase. Without it, you won't be able to restore your wallet or access your assets.",
+  "thisActionIsPermanent": "This action is permanent.",
+  "deleteWallet": "Delete Wallet",
+  "authenticateToSwitchWallet": "Authenticate to switch wallet",
+  "authenticateToLockWallet": "Authenticate to lock wallet",
+  "authenticateToDeleteWallet": "Authenticate to delete wallet",
+  "authenticateToRenameWallet": "Authenticate to rename wallet",
+  "authenticationRequired": "Authentication required",
+  "enterYourPasscode": "Enter Your Passcode",
+  "forgotYourPasscode": "Forgot Your Passcode?",
+  "selectWallet": "Select Wallet",
+  "goBack": "Go Back",
+  "samRockScreenAppBarTitle": "SamRock Setup",
+  "samRockScreenConfirmHostTitle": "Confirm Host",
+  "samRockScreenConfirmHostSubtitle": "I want to send my onchain & liquid xpubs and liquid blinding key to:",
+  "samRockScreenSuccessTitle": "Completed Setup of Chains",
+  "samRockScreenCompleteSetupButton": "Complete Setup",
+  "samRockScreenCreateWalletTitle": "Create Dedicated Wallet?",
+  "samRockScreenCreateWalletMessage": "SamRock setup works best with a fresh wallet. Create a new \"SamRock Wallet\" now?",
+  "samRockEditWalletScreenHostLabel": "SamRock Host:",
+  "samRockFailedToGetNewWalletStateException": "Failed to retrieve new wallet details after creation.",
+  "samRockScreenUseExistingWalletButton": "Use Existing Wallet"
 }

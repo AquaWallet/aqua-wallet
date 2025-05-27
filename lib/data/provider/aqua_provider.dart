@@ -170,11 +170,11 @@ class AquaProvider {
   Stream<int> getConfirmationCount(
       {required Asset asset, required int transactionBlockHeight}) {
     return Stream.value(asset).switchMap((asset) {
-      return asset.isBTC
-          ? ref.read(bitcoinProvider).blockHeightEventSubject
-          : ref.read(liquidProvider).blockHeightEventSubject;
+      return ref
+          .read(asset.isBTC ? bitcoinProvider : liquidProvider)
+          .blockHeightEventSubject;
     }).map((currentBlockHeight) {
-      return (transactionBlockHeight == 0 ||
+      return ([currentBlockHeight, transactionBlockHeight].contains(0) ||
               currentBlockHeight < transactionBlockHeight)
           ? 0
           : currentBlockHeight - transactionBlockHeight + 1;

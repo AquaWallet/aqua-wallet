@@ -58,8 +58,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
     final isDebitCardStagingEnabled = ref.watch(
       featureFlagsProvider.select((p) => p.debitCardStagingEnabled),
     );
-    final isSamRockEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.samRockEnabled));
 
     final showAlertDialog = useCallback(({
       required String message,
@@ -418,20 +416,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                     currentValue: forceAquaNodeNotSyncedEnabled,
                   );
             },
-          ),
-          const SizedBox(height: 16.0),
-
-          //ANCHOR: SAM Rock Protocol
-          MenuItemWidget.switchItem(
-            context: context,
-            title: context.loc.expFeaturesScreenItemsSamRock,
-            assetName: Svgs.qr,
-            value: isSamRockEnabled,
-            onPressed: () =>
-                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                      key: PrefKeys.samRockEnabled,
-                      currentValue: isSamRockEnabled,
-                    ),
           ),
           const SizedBox(height: 16.0),
 

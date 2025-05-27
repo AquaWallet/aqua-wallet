@@ -1,0 +1,17 @@
+default_platform(:android)
+
+platform :android do
+  desc "Upload AAB to Play Store internal track"
+  lane :internal do
+    # Upload to Play Store internal track
+    upload_to_play_store(
+      package_name: "io.aquawallet.android",
+      track: 'internal',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      json_key: 'service-account.json'
+    )
+  end
+end 

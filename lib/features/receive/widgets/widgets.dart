@@ -1,4 +1,3 @@
-export 'address_type_tab_bar.dart';
 export 'receive_lightning_card.dart';
 export 'boltz_fee_widget.dart';
 export 'layer_two_toggle_button.dart';
