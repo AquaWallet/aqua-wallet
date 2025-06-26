@@ -17,5 +17,6 @@ class ParsedAddress with _$ParsedAddress {
     String? lightningInvoice,
     LNURLParseResult? lnurlParseResult,
     String? extPrivateKey,
+    @Default(false) bool isBoltzToBoltzSwap,
   }) = _ParsedAddress;
 }

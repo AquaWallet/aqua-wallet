@@ -145,7 +145,9 @@ class SendAssetAddressPage extends HookConsumerWidget {
                             inputState.amountFieldText ?? '',
                           )
                       : null,
-                  child: Text(context.loc.continueLabel),
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : Text(context.loc.continueLabel),
                 ),
                 const SizedBox(height: 62.0),
               ],

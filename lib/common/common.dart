@@ -6,5 +6,6 @@ export 'exceptions/exception_localized.dart';
 export 'input_formatters/comma_text_input_formatter.dart';
 export 'input_formatters/decimal_text_input_formatter.dart';
 export 'price/btc_price.dart';
+export 'providers/providers.dart';
 export 'utils/utils.dart';
 export 'widgets/widgets.dart';

@@ -15,14 +15,21 @@ final featureFlagsServiceProvider =
   return FeatureFlagsService.create(token, onUnauthorized);
 });
 
-@ChopperApi(baseUrl: '/api/v1/config/')
+@ChopperApi(baseUrl: '/api/v1/')
 abstract class FeatureFlagsService extends ChopperService {
+  // tiles
+  @Get(path: 'marketplace/tiles')
+  Future<Response<List<ServiceTilesResponse>>> getMarketPlaceTiles({
+    @Query('build') String? buildNumber,
+    @Query('region') String? region,
+  });
+
   // Feature Flags
-  @Get(path: 'flags/')
+  @Get(path: 'config/flags/')
   Future<Response<List<FeatureFlag>>> getFlags();
 
   // Switches
-  @Get(path: 'switches/')
+  @Get(path: 'config/switches/')
   Future<Response<List<SwitchType>>> getSwitches();
 
   static FeatureFlagsService create(
@@ -38,6 +45,7 @@ abstract class FeatureFlagsService extends ChopperService {
       converter: const JsonToTypeConverter({
         FeatureFlag: FeatureFlag.fromJson,
         SwitchType: SwitchType.fromJson,
+        ServiceTilesResponse: ServiceTilesResponse.fromJson
       }),
     );
     return _$FeatureFlagsService(client);

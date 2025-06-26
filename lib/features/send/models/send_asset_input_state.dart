@@ -35,6 +35,7 @@ class SendAssetInputState with _$SendAssetInputState {
     String? externalSweepPrivKey,
     String? note,
     String? serviceOrderId,
+    @Default(false) bool isBoltzToBoltzSwap,
   }) = _SendAssetInputState;
 }
 

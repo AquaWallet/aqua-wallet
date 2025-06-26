@@ -48,7 +48,8 @@ class SendAssetReviewPage extends HookConsumerWidget
     }, [setupInitialized]);
 
     ref.listen(sendAssetInputStateProvider(arguments), (prev, curr) {
-      if (curr.valueOrNull?.feeAsset != prev?.valueOrNull?.feeAsset) {
+      if (curr.valueOrNull?.feeAsset != prev?.valueOrNull?.feeAsset &&
+          !curr.isLoading) {
         createInitialTransaction();
       }
     });

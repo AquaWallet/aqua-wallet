@@ -23,8 +23,9 @@ class SendAssetTransactionSetupNotifier
     extends AutoDisposeFamilyAsyncNotifier<bool, SendAssetArguments> {
   @override
   FutureOr<bool> build(SendAssetArguments arg) async {
-    final input = ref.read(sendAssetInputStateProvider(arg)).valueOrNull;
-    if (input == null) {
+    final input = ref.read(sendAssetInputStateProvider(arg));
+    final inputValue = input.valueOrNull;
+    if (inputValue == null || input.isLoading) {
       return false;
     }
 
@@ -42,20 +43,20 @@ class SendAssetTransactionSetupNotifier
       }
     });
 
-    if (input.externalSweepPrivKey != null) {
-      return _initPrivateKeySweep(input, arg);
+    if (inputValue.externalSweepPrivKey != null) {
+      return _initPrivateKeySweep(inputValue, arg);
     }
 
-    if (input.isLightning) {
-      return _initLightning(input);
+    if (inputValue.isLightning) {
+      return _initLightning(inputValue);
     }
 
-    if (input.asset.isAltUsdt) {
-      return _initUSDtSwap(input);
+    if (inputValue.asset.isAltUsdt) {
+      return _initUSDtSwap(inputValue);
     }
 
-    if (input.asset.isBTC) {
-      return _initBitcoin(input);
+    if (inputValue.asset.isBTC) {
+      return _initBitcoin(inputValue);
     }
 
     return true;
@@ -79,10 +80,16 @@ class SendAssetTransactionSetupNotifier
     }
 
     //NOTE - Need re-read input because the addressFieldText could update
-    final updatedInput = ref.read(sendAssetInputStateProvider(arg)).value!;
-    return ref
-        .read(boltzSubmarineSwapProvider.notifier)
-        .prepareSubmarineSwap(address: updatedInput.addressFieldText);
+    final updatedInput = ref.watch(sendAssetInputStateProvider(arg));
+    final updatedInputValue = updatedInput.valueOrNull;
+    if (!updatedInput.isLoading &&
+        updatedInputValue != null &&
+        !updatedInputValue.isBoltzToBoltzSwap) {
+      return ref
+          .read(boltzSubmarineSwapProvider.notifier)
+          .prepareSubmarineSwap(address: updatedInputValue.addressFieldText);
+    }
+    return false;
   }
 
   Future<bool> _initUSDtSwap(SendAssetInputState input) async {

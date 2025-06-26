@@ -32,7 +32,6 @@ class Jan3LoginScreen extends HookConsumerWidget {
             ],
           ),
         }));
-    final termsAccepted = useState(false);
 
     ref.listen(jan3AuthProvider, (prev, next) {
       if (prev?.value == next.value) return;
@@ -168,18 +167,11 @@ class Jan3LoginScreen extends HookConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // ANCHOR - Terms checkbox
-              Jan3TermsCheckbox(
-                onTermsAccepted: termsAccepted,
-              ),
-              const SizedBox(height: 10),
               const Spacer(),
               // ANCHOR - Continue button
               ReactiveFormConsumer(
                 builder: (context, form, _) => AquaElevatedButton(
-                  onPressed: (profileState.isLoading ||
-                          form.invalid ||
-                          !termsAccepted.value)
+                  onPressed: (profileState.isLoading || form.invalid)
                       ? null
                       : () => ref.read(jan3AuthProvider.notifier).sendOtp(
                             form.control(_emailFormControlName).value,
@@ -191,7 +183,10 @@ class Jan3LoginScreen extends HookConsumerWidget {
                       : Text(context.loc.loginScreenContinue),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 10),
+              // ANCHOR - Terms checkbox
+              const Jan3Terms(),
+              const SizedBox(height: 10),
             ],
           ),
         ),

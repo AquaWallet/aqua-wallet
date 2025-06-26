@@ -43,7 +43,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       // declaration like the sendTransactionExecutorProvider since it is now part
       // of the new send flow, therefore it should not have its own state.
       final input = ref.read(sendAssetInputStateProvider(arg)).value!;
-      final txn = arg.asset.isLightning
+      final txn = input.asset.isLightning
           ? await ref
               .read(boltzSubmarineSwapProvider.notifier)
               .createTxnForSubmarineSwap(
@@ -64,7 +64,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
   Future<void> executeGdkSendTransaction() async {
     try {
       final input = ref.read(sendAssetInputStateProvider(arg)).value!;
-      if (arg.asset.isLightning) {
+      if (input.asset.isLightning) {
         final txn = await ref
             .read(boltzSubmarineSwapProvider.notifier)
             .createTxnForSubmarineSwap(arguments: arg);

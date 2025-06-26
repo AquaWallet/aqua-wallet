@@ -31,8 +31,7 @@ const kUsdCurrency = 'USD';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // TODO: Replace with other asset once `send_asset_address_provider` is deleted
-  final asset = Asset.unknown();
+  final asset = Asset.btc();
   final args = SendAssetArguments.fromAsset(asset);
   final mockAddressParser = MockAddressParserProvider();
   final mockManageAssetsProvider = MockManageAssetsProvider();
@@ -125,11 +124,18 @@ void main() {
 
       expect(state.isSendAllFunds, false);
     });
-    test('Initial state fee asset is lbtc', () async {
+    test('Initial state fee asset is lbtc by default', () async {
+      final args = SendAssetArguments.fromAsset(Asset.unknown());
       final state =
           await container.read(sendAssetInputStateProvider(args).future);
 
       expect(state.feeAsset, FeeAsset.lbtc);
+    });
+    test('Initial state fee asset is btc', () async {
+      final state =
+          await container.read(sendAssetInputStateProvider(args).future);
+
+      expect(state.feeAsset, FeeAsset.btc);
     });
   });
 
@@ -208,6 +214,12 @@ void main() {
     test('content is NOT empty when valid address is entered', () async {
       final provider = sendAssetInputStateProvider(args);
       mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: asset,
+          address: kFakeBitcoinAddress,
+        ),
+      );
       final initialState = await container.read(provider.future);
 
       container
@@ -507,6 +519,7 @@ void main() {
           asset: otherAsset,
           address: kFakeLiquidAddress,
           lightningInvoice: kFakeLightningInvoice,
+          isBoltzToBoltzSwap: true,
         ),
       );
 
@@ -720,21 +733,20 @@ void main() {
 
       final initialState = await container.read(provider.future);
       expect(initialState.clipboardAddress, isNull);
-      expect(initialState.isClipboardEmpty, true);
-      expect(initialState.addressFieldText, isNull);
-      expect(initialState.isAddressFieldEmpty, true);
-      expect(initialState.scannedQrCode, isNull);
-      expect(initialState.isScannedQrCodeEmpty, true);
-
-      container.read(provider.notifier).pasteScannedQrCode(kFakeContent);
-
-      final finalState = await container.read(provider.future);
-      expect(finalState.clipboardAddress, isNull);
-      expect(finalState.isClipboardEmpty, true);
-      expect(finalState.addressFieldText, isNull);
-      expect(finalState.isAddressFieldEmpty, true);
-      expect(finalState.scannedQrCode, isNotNull);
-      expect(finalState.isScannedQrCodeEmpty, false);
+      mockAddressParser.mockThrowParseInputCall(message: 'invalid address');
+      await container.read(provider.notifier).pasteScannedQrCode(kFakeContent);
+      await expectLater(
+        container.read(provider.notifier).state,
+        isA<AsyncError<SendAssetInputState>>().having(
+          (e) => e.error,
+          'error',
+          isA<AddressParsingException>().having(
+            (e) => e.type,
+            'type',
+            AddressParsingExceptionType.invalidAddress,
+          ),
+        ),
+      );
     });
     test('amount is NOT empty when an address with amount is found', () async {
       final asset = Asset.btc();

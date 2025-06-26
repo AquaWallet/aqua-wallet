@@ -490,7 +490,7 @@ class AddressParser {
         logger.debug(
             "[Boltz] routing hint - invoice amount: ${bolt11.amount} - bip21 amount: ${parseBip21.amount}");
 
-        return parseBip21;
+        return parseBip21.copyWith(isBoltzToBoltzSwap: true);
       }
       return null;
     } on AddressParsingException catch (e) {

@@ -295,6 +295,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       parsedAsset != null && parsedAsset.id != asset.id;
 
   Future<void> _processAddress(String content) async {
+    state = const AsyncValue.loading();
     try {
       final isValid = await _validateAddress(state.value!.asset, content);
 
@@ -320,6 +321,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         parsedAsset: parsedAsset,
         currentAmount: state.valueOrNull?.amount,
       );
+      final isBoltzToBoltzSwap = parsedInput?.isBoltzToBoltzSwap ?? false;
 
       if (isLnurl) {
         state = AsyncValue.data(state.valueOrNull!.copyWith(
@@ -330,6 +332,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
               ? parsedLnurlParams.minSendableSats
               : parsedAmountInSats,
           isAmountEditable: !parsedLnurlParams.isFixedAmount,
+          isBoltzToBoltzSwap: isBoltzToBoltzSwap,
         ));
         return;
       }
@@ -349,8 +352,6 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       }
 
       final isDiffAsset = _isDifferentAsset(asset, parsedAsset);
-      final isAquaToAqua = parsedInput?.lightningInvoice != null &&
-          parsedAsset?.isLightning != true;
 
       final newAsset = _switchAsset(
         asset: asset,
@@ -370,8 +371,10 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         amount: parsedAmountInSats,
         amountFieldText: parsedAmount?.toString(),
         amountConversionDisplay: convertedAmount,
-        addressFieldText: isDiffAsset || isAquaToAqua ? parsedAddress : content,
+        addressFieldText:
+            isDiffAsset || isBoltzToBoltzSwap ? parsedAddress : content,
         isAmountEditable: !newAsset.isLightning,
+        isBoltzToBoltzSwap: isBoltzToBoltzSwap,
       ));
     } catch (e) {
       logger.error('Process Address Error', e, StackTrace.current);

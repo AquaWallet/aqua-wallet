@@ -61,3 +61,7 @@ const moonCardAgreementUrl = 'https://aqua.net/dolphin-card-holder-agreement/';
 
 // Jan3
 const jan3TermsOfServiceUrl = 'https://jan3.com/terms-of-use-agreement/';
+
+// Marketplace Services
+const btcMapUrl = 'https://btcmap.org/map';
+const swapsService = 'https://myfirstbitcoin.io/bd-2024/';
