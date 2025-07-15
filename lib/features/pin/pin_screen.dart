@@ -21,121 +21,131 @@ class PinScreenWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pinAuthState = ref.read(pinAuthProvider).asData?.value;
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 50),
-              //ANCHOR - Aqua Logo
-              UiAssets.svgs.dark.aquaLogo.svg(
-                width: 321.0,
-              ),
-              const SizedBox(height: 90),
-              if (pinAuthState != PinAuthState.locked) ...[
-                Text(
-                  textAlign: TextAlign.center,
-                  description,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-              ],
-              const SizedBox(height: 15),
-              if (pinAuthState == PinAuthState.locked) ...[
-                Text(
-                  textAlign: TextAlign.center,
-                  context.loc.pinScreenLockedMessage,
-                  style: const TextStyle(
-                    color: AquaColors.warningOrange,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: AppStyle.backgroundGradient,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 50),
+                //ANCHOR - Aqua Logo
+                UiAssets.svgs.dark.aquaLogo.svg(
+                  width: 321.0,
                 ),
-              ] else ...[
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    6,
-                    (index) => Container(
-                      width: 16.5,
-                      height: 16.5,
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: index < pinState.pin.length
-                            ? Colors.white
-                            : AquaColors.aquaBlue,
-                      ),
-                    ),
-                  ),
-                ),
-                if (pinState.isError) ...[
-                  const SizedBox(height: 50),
+                const SizedBox(height: 90),
+                if (pinAuthState != PinAuthState.locked) ...[
                   Text(
-                    pinState.errorMessage ??
-                        context.loc.pinScreenInvalidPinMessage,
+                    textAlign: TextAlign.center,
+                    description,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                ],
+                const SizedBox(height: 15),
+                if (pinAuthState == PinAuthState.locked) ...[
+                  Text(
+                    textAlign: TextAlign.center,
+                    context.loc.pinScreenLockedMessage,
                     style: const TextStyle(
                       color: AquaColors.warningOrange,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-                const Spacer(),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
+                ] else ...[
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      6,
+                      (index) => Container(
+                        width: 16.5,
+                        height: 16.5,
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: index < pinState.pin.length
+                              ? Colors.white
+                              : AquaColors.aquaBlue,
+                        ),
+                      ),
+                    ),
                   ),
-                  itemCount: 12,
-                  itemBuilder: (context, index) {
-                    if (index == 9) {
-                      return GestureDetector(
-                          onTap: () => context.pop(),
-                          child: Center(
-                              child: Text(
-                            context.loc.cancel,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          )));
-                    }
-                    if (index == 10) {
+                  if (pinState.isError) ...[
+                    const SizedBox(height: 50),
+                    Text(
+                      pinState.errorMessage ??
+                          context.loc.pinScreenInvalidPinMessage,
+                      style: const TextStyle(
+                        color: AquaColors.warningOrange,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      childAspectRatio: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: 12,
+                    itemBuilder: (context, index) {
+                      if (index == 9) {
+                        if (canCancel == false) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return GestureDetector(
+                            onTap: () => context.pop(),
+                            child: Center(
+                                child: Text(
+                              context.loc.cancel,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            )));
+                      }
+                      if (index == 10) {
+                        return NumberButton(
+                          label: '0',
+                          onTap: () =>
+                              ref.read(pinProvider.notifier).addDigit('0'),
+                        );
+                      }
+                      if (index == 11) {
+                        return IconButton(
+                          color: Colors.white,
+                          onPressed: () =>
+                              ref.read(pinProvider.notifier).removeDigit(),
+                          icon: const Icon(Icons.backspace_outlined),
+                        );
+                      }
                       return NumberButton(
-                        label: '0',
-                        onTap: () =>
-                            ref.read(pinProvider.notifier).addDigit('0'),
+                        label: '${index + 1}',
+                        onTap: () => ref
+                            .read(pinProvider.notifier)
+                            .addDigit('${index + 1}'),
                       );
-                    }
-                    if (index == 11) {
-                      return IconButton(
-                        color: Colors.white,
-                        onPressed: () =>
-                            ref.read(pinProvider.notifier).removeDigit(),
-                        icon: const Icon(Icons.backspace_outlined),
-                      );
-                    }
-                    return NumberButton(
-                      label: '${index + 1}',
-                      onTap: () => ref
-                          .read(pinProvider.notifier)
-                          .addDigit('${index + 1}'),
-                    );
-                  },
-                )
+                    },
+                  )
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

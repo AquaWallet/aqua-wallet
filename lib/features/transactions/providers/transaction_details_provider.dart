@@ -102,16 +102,16 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
     final deliveredAsset = satoshiAssets!
         .firstWhere((asset) => asset.id == transaction.swapOutgoingAssetId);
     final deliveredAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: (transaction.swapOutgoingSatoshi as int).abs(),
-          precision: deliveredAsset.precision,
-        );
+        amount: (transaction.swapOutgoingSatoshi as int).abs(),
+        precision: deliveredAsset.precision,
+        removeTrailingZeros: deliveredAsset.isNonSatsAsset);
 
     final receivedAsset = satoshiAssets
         .firstWhere((asset) => asset.id == transaction.swapIncomingAssetId);
     final receivedAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: transaction.swapIncomingSatoshi as int,
-          precision: receivedAsset.precision,
-        );
+        amount: transaction.swapIncomingSatoshi as int,
+        precision: receivedAsset.precision,
+        removeTrailingZeros: deliveredAsset.isNonSatsAsset);
 
     return AssetTransactionDetailsUiModel.swap(
       transactionId: transaction.txhash ?? '',
@@ -142,18 +142,18 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
 
     final deliveredAmount = !isConfidential
         ? ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: transaction.outputs?.first.satoshi as int,
-              precision: asset.precision,
-            )
+            amount: transaction.outputs?.first.satoshi as int,
+            precision: asset.precision,
+            removeTrailingZeros: asset.isNonSatsAsset)
         : null;
     final deliveredAssetTicker = !isConfidential
         ? arguments.satoshiAssets?.firstOrNull?.ticker ?? ''
         : null;
 
     final feeAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: transaction.fee as int,
-          precision: asset.precision,
-        );
+        amount: transaction.fee as int,
+        precision: asset.precision,
+        removeTrailingZeros: asset.isNonSatsAsset);
     final feeAssetTicker = asset.ticker;
 
     return AssetTransactionDetailsUiModel.redeposit(
@@ -176,17 +176,19 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
     BuildContext context,
     TransactionDataArgument arguments,
   ) {
-    final asset = arguments.transactionAsset;
-    final transaction = arguments.transaction;
-    final feeAsset = arguments.feeAsset;
+    final TransactionDataArgument(
+      :transactionAsset,
+      :transaction,
+      :feeAsset,
+      :confirmationCount
+    ) = arguments;
 
     final date = formattedDate(context, transaction.createdAtTs);
-    final confirmationCount = arguments.confirmationCount;
 
     final deliveredAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: -(transaction.satoshi?[asset.id] as int),
-          precision: asset.precision,
-        );
+        amount: -(transaction.satoshi?[transactionAsset.id] as int),
+        precision: transactionAsset.precision,
+        removeTrailingZeros: transactionAsset.isNonSatsAsset);
 
     final networkFees = (arguments.dbTransaction?.type?.isPeg ?? false
             // PEG: we do estimated seconds chain fees, so we save total fee in TX db
@@ -198,9 +200,9 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
         0;
 
     final feeAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: networkFees,
-          precision: feeAsset.precision,
-        );
+        amount: networkFees,
+        precision: feeAsset.precision,
+        removeTrailingZeros: transactionAsset.isNonSatsAsset);
 
     return AssetTransactionDetailsUiModel.send(
       transactionId: transaction.txhash ?? '',
@@ -209,7 +211,7 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
       requiredConfirmationCount: arguments.requiredConfirmationCount,
       isPending: arguments.isPending,
       deliverAmount: deliveredAmount,
-      deliverAssetTicker: asset.ticker,
+      deliverAssetTicker: transactionAsset.ticker,
       feeAmount: feeAmount,
       feeAssetTicker: feeAsset.ticker,
       notes: arguments.memo,
@@ -225,9 +227,9 @@ class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
     final transaction = arguments.transaction;
 
     final receivedAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: transaction.satoshi?[asset.id] as int,
-          precision: asset.precision,
-        );
+        amount: transaction.satoshi?[asset.id] as int,
+        precision: asset.precision,
+        removeTrailingZeros: asset.isNonSatsAsset);
 
     return AssetTransactionDetailsUiModel.receive(
       transactionId: transaction.txhash ?? '',

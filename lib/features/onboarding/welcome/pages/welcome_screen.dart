@@ -119,9 +119,7 @@ class WelcomeScreen extends HookConsumerWidget {
           SnackBar(
             key: const Key('welcome-unaccepted-condition'),
             content: Text(
-              !tosAccepted.value
-                  ? context.loc.welcomeScreenUnacceptedToSError
-                  : context.loc.welcomeScreenUnacceptedDisclaimerError,
+              context.loc.welcomeScreenUnacceptedToSError,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w400,
                     color: colorScheme.onError,

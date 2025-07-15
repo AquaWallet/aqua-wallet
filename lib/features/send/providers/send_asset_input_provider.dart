@@ -375,6 +375,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
             isDiffAsset || isBoltzToBoltzSwap ? parsedAddress : content,
         isAmountEditable: !newAsset.isLightning,
         isBoltzToBoltzSwap: isBoltzToBoltzSwap,
+        lnurlData: null, // reset lnurl data since isLnurl is false
       ));
     } catch (e) {
       logger.error('Process Address Error', e, StackTrace.current);

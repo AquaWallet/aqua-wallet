@@ -54,12 +54,12 @@ class SendAssetAddressPage extends HookConsumerWidget {
           qrArguments: QrScannerArguments(
             asset: inputState.asset,
             parseAction: QrScannerParseAction.attemptToParse,
-            onSuccessAction: QrOnSuccessNavAction.popBack,
+            onSuccessAction: QrOnSuccessNavAction.push,
           ),
           textArguments: TextScannerArguments(
             asset: arguments.asset,
             parseAction: TextScannerParseAction.returnRawValue,
-            onSuccessAction: TextOnSuccessNavAction.popBack,
+            onSuccessAction: TextOnSuccessNavAction.push,
           ),
           initialType: ScannerType.qr,
         ),

@@ -56,11 +56,12 @@ const aquaAnkaraStagingApiUrl = 'https://test.aquabtc.com';
 const aquaAnkaraProdApiUrl = 'https://ankara.aquabtc.com/';
 
 // Moon
-const moonTermsOfServiceUrl = 'https://aqua.net/dolphin-card-terms-of-use/';
-const moonCardAgreementUrl = 'https://aqua.net/dolphin-card-holder-agreement/';
+const moonTermsOfServiceUrl =
+    'https://aqua.net/dolphin-card-terms-and-conditions/';
+const moonCardAgreementUrl = 'https://aqua.net/dolphin-cardholder-agreement/';
 
 // Jan3
-const jan3TermsOfServiceUrl = 'https://jan3.com/terms-of-use-agreement/';
+const jan3TermsOfServiceUrl = 'https://jan3.com/terms-of-service/';
 
 // Marketplace Services
 const btcMapUrl = 'https://btcmap.org/map';

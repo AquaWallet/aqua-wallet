@@ -2297,10 +2297,10 @@ class NativeLibrary {
   late final _wait4 = _wait4Ptr.asFunction<DartWait4>();
 
   ffi.Pointer<ffi.Void> alloca(
-    int arg0,
+    int __size,
   ) {
     return _alloca(
-      arg0,
+      __size,
     );
   }
 
@@ -2861,12 +2861,12 @@ class NativeLibrary {
   int mbstowcs(
     ffi.Pointer<ffi.WChar> arg0,
     ffi.Pointer<ffi.Char> arg1,
-    int arg2,
+    int __n,
   ) {
     return _mbstowcs(
       arg0,
       arg1,
-      arg2,
+      __n,
     );
   }
 
@@ -2877,12 +2877,12 @@ class NativeLibrary {
   int mbtowc(
     ffi.Pointer<ffi.WChar> arg0,
     ffi.Pointer<ffi.Char> arg1,
-    int arg2,
+    int __n,
   ) {
     return _mbtowc(
       arg0,
       arg1,
-      arg2,
+      __n,
     );
   }
 
@@ -3042,12 +3042,12 @@ class NativeLibrary {
   int wcstombs(
     ffi.Pointer<ffi.Char> arg0,
     ffi.Pointer<ffi.WChar> arg1,
-    int arg2,
+    int __n,
   ) {
     return _wcstombs(
       arg0,
       arg1,
-      arg2,
+      __n,
     );
   }
 
@@ -3190,12 +3190,12 @@ class NativeLibrary {
   ffi.Pointer<ffi.Char> initstate(
     int arg0,
     ffi.Pointer<ffi.Char> arg1,
-    int arg2,
+    int __size,
   ) {
     return _initstate(
       arg0,
       arg1,
-      arg2,
+      __size,
     );
   }
 
@@ -3479,11 +3479,11 @@ class NativeLibrary {
 
   void arc4random_addrandom(
     ffi.Pointer<ffi.UnsignedChar> arg0,
-    int arg1,
+    int __datlen,
   ) {
     return _arc4random_addrandom(
       arg0,
-      arg1,
+      __datlen,
     );
   }
 
@@ -3734,11 +3734,11 @@ class NativeLibrary {
 
   int getloadavg(
     ffi.Pointer<ffi.Double> arg0,
-    int arg1,
+    int __nelem,
   ) {
     return _getloadavg(
       arg0,
-      arg1,
+      __nelem,
     );
   }
 
@@ -3996,98 +3996,6 @@ class NativeLibrary {
 
   set suboptarg(ffi.Pointer<ffi.Char> value) => _suboptarg.value = value;
 
-  int validate_submarine(
-    ffi.Pointer<ffi.Char> preimage_hash,
-    ffi.Pointer<ffi.Char> claim_public_key,
-    ffi.Pointer<ffi.Char> refund_public_key,
-    int timeout_block_height,
-    ffi.Pointer<ffi.Char> lockup_address,
-    ffi.Pointer<ffi.Char> redeem_script,
-    ffi.Pointer<ffi.Char> blinding_key,
-  ) {
-    return _validate_submarine(
-      preimage_hash,
-      claim_public_key,
-      refund_public_key,
-      timeout_block_height,
-      lockup_address,
-      redeem_script,
-      blinding_key,
-    );
-  }
-
-  late final _validate_submarinePtr =
-      _lookup<ffi.NativeFunction<NativeValidate_submarine>>(
-          'validate_submarine');
-  late final _validate_submarine =
-      _validate_submarinePtr.asFunction<DartValidate_submarine>();
-
-  ffi.Pointer<ffi.Char> extract_claim_public_key(
-    ffi.Pointer<ffi.Char> comparison_script,
-  ) {
-    return _extract_claim_public_key(
-      comparison_script,
-    );
-  }
-
-  late final _extract_claim_public_keyPtr =
-      _lookup<ffi.NativeFunction<NativeExtract_claim_public_key>>(
-          'extract_claim_public_key');
-  late final _extract_claim_public_key =
-      _extract_claim_public_keyPtr.asFunction<DartExtract_claim_public_key>();
-
-  ffi.Pointer<ffi.Char> create_and_sign_claim_transaction(
-    ffi.Pointer<ffi.Char> redeem_script,
-    ffi.Pointer<ffi.Char> blinding_key,
-    ffi.Pointer<ffi.Char> onchain_address,
-    ffi.Pointer<ffi.Char> private_key,
-    ffi.Pointer<ffi.Char> preimage,
-    ffi.Pointer<ffi.Char> tx,
-    int fees,
-  ) {
-    return _create_and_sign_claim_transaction(
-      redeem_script,
-      blinding_key,
-      onchain_address,
-      private_key,
-      preimage,
-      tx,
-      fees,
-    );
-  }
-
-  late final _create_and_sign_claim_transactionPtr =
-      _lookup<ffi.NativeFunction<NativeCreate_and_sign_claim_transaction>>(
-          'create_and_sign_claim_transaction');
-  late final _create_and_sign_claim_transaction =
-      _create_and_sign_claim_transactionPtr
-          .asFunction<DartCreate_and_sign_claim_transaction>();
-
-  ffi.Pointer<ffi.Char> create_and_sign_refund_transaction(
-    ffi.Pointer<ffi.Char> redeem_script,
-    ffi.Pointer<ffi.Char> blinding_key,
-    ffi.Pointer<ffi.Char> onchain_address,
-    ffi.Pointer<ffi.Char> private_key,
-    ffi.Pointer<ffi.Char> tx,
-    int fees,
-  ) {
-    return _create_and_sign_refund_transaction(
-      redeem_script,
-      blinding_key,
-      onchain_address,
-      private_key,
-      tx,
-      fees,
-    );
-  }
-
-  late final _create_and_sign_refund_transactionPtr =
-      _lookup<ffi.NativeFunction<NativeCreate_and_sign_refund_transaction>>(
-          'create_and_sign_refund_transaction');
-  late final _create_and_sign_refund_transaction =
-      _create_and_sign_refund_transactionPtr
-          .asFunction<DartCreate_and_sign_refund_transaction>();
-
   ffi.Pointer<ffi.Char> get_key_pair() {
     return _get_key_pair();
   }
@@ -4129,6 +4037,37 @@ class NativeLibrary {
           'verify_signature_schnorr');
   late final _verify_signature_schnorr =
       _verify_signature_schnorrPtr.asFunction<DartVerify_signature_schnorr>();
+
+  TxResult create_liquid_tx_with_op_return(
+    int send_amount,
+    ffi.Pointer<ffi.Char> send_address,
+    ffi.Pointer<ffi.Char> change_address,
+    ffi.Pointer<UtxoFFI> utxos,
+    int utxos_len,
+    bool subtract_fee_from_amount,
+    bool is_lowball,
+    bool is_testnet,
+    ffi.Pointer<ffi.Char> op_return_data,
+  ) {
+    return _create_liquid_tx_with_op_return(
+      send_amount,
+      send_address,
+      change_address,
+      utxos,
+      utxos_len,
+      subtract_fee_from_amount,
+      is_lowball,
+      is_testnet,
+      op_return_data,
+    );
+  }
+
+  late final _create_liquid_tx_with_op_returnPtr =
+      _lookup<ffi.NativeFunction<NativeCreate_liquid_tx_with_op_return>>(
+          'create_liquid_tx_with_op_return');
+  late final _create_liquid_tx_with_op_return =
+      _create_liquid_tx_with_op_returnPtr
+          .asFunction<DartCreate_liquid_tx_with_op_return>();
 
   TxResult create_taxi_transaction(
     int send_amount,
@@ -4983,6 +4922,40 @@ final class __darwin_arm_neon_state extends ffi.Opaque {}
 final class __arm_pagein_state extends ffi.Struct {
   @ffi.Int()
   external int __pagein_error;
+}
+
+final class __darwin_arm_sme_state extends ffi.Struct {
+  @__uint64_t()
+  external int __svcr;
+
+  @__uint64_t()
+  external int __tpidr2_el0;
+
+  @__uint16_t()
+  external int __svl_b;
+}
+
+typedef __uint16_t = ffi.UnsignedShort;
+typedef Dart__uint16_t = int;
+
+final class __darwin_arm_sve_z_state extends ffi.Struct {
+  @ffi.Array.multi([16, 256])
+  external ffi.Array<ffi.Array<ffi.Char>> __z;
+}
+
+final class __darwin_arm_sve_p_state extends ffi.Struct {
+  @ffi.Array.multi([16, 32])
+  external ffi.Array<ffi.Array<ffi.Char>> __p;
+}
+
+final class __darwin_arm_sme_za_state extends ffi.Struct {
+  @ffi.Array.multi([4096])
+  external ffi.Array<ffi.Char> __za;
+}
+
+final class __darwin_arm_sme2_state extends ffi.Struct {
+  @ffi.Array.multi([64])
+  external ffi.Array<ffi.Char> __zt0;
 }
 
 final class __arm_legacy_debug_state extends ffi.Struct {
@@ -5893,8 +5866,8 @@ typedef NativeWait4 = pid_t Function(pid_t arg0, ffi.Pointer<ffi.Int> arg1,
     ffi.Int arg2, ffi.Pointer<rusage> arg3);
 typedef DartWait4 = int Function(
     int arg0, ffi.Pointer<ffi.Int> arg1, int arg2, ffi.Pointer<rusage> arg3);
-typedef NativeAlloca = ffi.Pointer<ffi.Void> Function(ffi.Size arg0);
-typedef DartAlloca = ffi.Pointer<ffi.Void> Function(int arg0);
+typedef NativeAlloca = ffi.Pointer<ffi.Void> Function(ffi.Size __size);
+typedef DartAlloca = ffi.Pointer<ffi.Void> Function(int __size);
 
 final class div_t extends ffi.Struct {
   @ffi.Int()
@@ -6081,13 +6054,13 @@ typedef DartLldiv = lldiv_t Function(int arg0, int arg1);
 typedef NativeMblen = ffi.Int Function(ffi.Pointer<ffi.Char> __s, ffi.Size __n);
 typedef DartMblen = int Function(ffi.Pointer<ffi.Char> __s, int __n);
 typedef NativeMbstowcs = ffi.Size Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __n);
 typedef DartMbstowcs = int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int __n);
 typedef NativeMbtowc = ffi.Int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __n);
 typedef DartMbtowc = int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int __n);
 typedef NativeQsort = ffi.Void Function(
     ffi.Pointer<ffi.Void> __base,
     ffi.Size __nel,
@@ -6139,9 +6112,9 @@ typedef DartStrtoull = int Function(ffi.Pointer<ffi.Char> __str,
 typedef NativeSystem = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
 typedef DartSystem = int Function(ffi.Pointer<ffi.Char> arg0);
 typedef NativeWcstombs = ffi.Size Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, ffi.Size arg2);
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, ffi.Size __n);
 typedef DartWcstombs = int Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, int arg2);
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, int __n);
 typedef NativeWctomb = ffi.Int Function(
     ffi.Pointer<ffi.Char> arg0, ffi.WChar arg1);
 typedef DartWctomb = int Function(ffi.Pointer<ffi.Char> arg0, int arg1);
@@ -6177,9 +6150,9 @@ typedef DartGetsubopt = int Function(
 typedef NativeGrantpt = ffi.Int Function(ffi.Int arg0);
 typedef DartGrantpt = int Function(int arg0);
 typedef NativeInitstate = ffi.Pointer<ffi.Char> Function(
-    ffi.UnsignedInt arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
+    ffi.UnsignedInt arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __size);
 typedef DartInitstate = ffi.Pointer<ffi.Char> Function(
-    int arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
+    int arg0, ffi.Pointer<ffi.Char> arg1, int __size);
 typedef NativeJrand48 = ffi.Long Function(ffi.Pointer<ffi.UnsignedShort> arg0);
 typedef DartJrand48 = int Function(ffi.Pointer<ffi.UnsignedShort> arg0);
 typedef NativeL64a = ffi.Pointer<ffi.Char> Function(ffi.Long arg0);
@@ -6240,9 +6213,9 @@ typedef DartUnsetenv = int Function(ffi.Pointer<ffi.Char> arg0);
 typedef NativeArc4random = ffi.Uint32 Function();
 typedef DartArc4random = int Function();
 typedef NativeArc4random_addrandom = ffi.Void Function(
-    ffi.Pointer<ffi.UnsignedChar> arg0, ffi.Int arg1);
+    ffi.Pointer<ffi.UnsignedChar> arg0, ffi.Int __datlen);
 typedef DartArc4random_addrandom = void Function(
-    ffi.Pointer<ffi.UnsignedChar> arg0, int arg1);
+    ffi.Pointer<ffi.UnsignedChar> arg0, int __datlen);
 typedef NativeArc4random_buf = ffi.Void Function(
     ffi.Pointer<ffi.Void> __buf, ffi.Size __nbytes);
 typedef DartArc4random_buf = void Function(
@@ -6298,8 +6271,6 @@ typedef dev_t = __darwin_dev_t;
 typedef __darwin_dev_t = __int32_t;
 typedef mode_t = __darwin_mode_t;
 typedef __darwin_mode_t = __uint16_t;
-typedef __uint16_t = ffi.UnsignedShort;
-typedef Dart__uint16_t = int;
 typedef NativeDevname = ffi.Pointer<ffi.Char> Function(dev_t arg0, mode_t arg1);
 typedef DartDevname = ffi.Pointer<ffi.Char> Function(int arg0, int arg1);
 typedef NativeDevname_r = ffi.Pointer<ffi.Char> Function(
@@ -6311,8 +6282,9 @@ typedef NativeGetbsize = ffi.Pointer<ffi.Char> Function(
 typedef DartGetbsize = ffi.Pointer<ffi.Char> Function(
     ffi.Pointer<ffi.Int> arg0, ffi.Pointer<ffi.Long> arg1);
 typedef NativeGetloadavg = ffi.Int Function(
-    ffi.Pointer<ffi.Double> arg0, ffi.Int arg1);
-typedef DartGetloadavg = int Function(ffi.Pointer<ffi.Double> arg0, int arg1);
+    ffi.Pointer<ffi.Double> arg0, ffi.Int __nelem);
+typedef DartGetloadavg = int Function(
+    ffi.Pointer<ffi.Double> arg0, int __nelem);
 typedef NativeGetprogname = ffi.Pointer<ffi.Char> Function();
 typedef DartGetprogname = ffi.Pointer<ffi.Char> Function();
 typedef NativeSetprogname = ffi.Void Function(ffi.Pointer<ffi.Char> arg0);
@@ -6449,10 +6421,6 @@ typedef NativeStrtouq = ffi.UnsignedLongLong Function(
 typedef DartStrtouq = int Function(ffi.Pointer<ffi.Char> __str,
     ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
 
-final class Option______c_char extends ffi.Opaque {}
-
-final class TransactionType extends ffi.Opaque {}
-
 final class TxResult extends ffi.Struct {
   external ffi.Pointer<ffi.Char> tx_ptr;
 
@@ -6481,58 +6449,6 @@ final class UtxoFFI extends ffi.Struct {
   external ffi.Pointer<ffi.Char> value_commitment;
 }
 
-typedef NativeValidate_submarine = ffi.Int32 Function(
-    ffi.Pointer<ffi.Char> preimage_hash,
-    ffi.Pointer<ffi.Char> claim_public_key,
-    ffi.Pointer<ffi.Char> refund_public_key,
-    ffi.Uint32 timeout_block_height,
-    ffi.Pointer<ffi.Char> lockup_address,
-    ffi.Pointer<ffi.Char> redeem_script,
-    ffi.Pointer<ffi.Char> blinding_key);
-typedef DartValidate_submarine = int Function(
-    ffi.Pointer<ffi.Char> preimage_hash,
-    ffi.Pointer<ffi.Char> claim_public_key,
-    ffi.Pointer<ffi.Char> refund_public_key,
-    int timeout_block_height,
-    ffi.Pointer<ffi.Char> lockup_address,
-    ffi.Pointer<ffi.Char> redeem_script,
-    ffi.Pointer<ffi.Char> blinding_key);
-typedef NativeExtract_claim_public_key = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> comparison_script);
-typedef DartExtract_claim_public_key = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> comparison_script);
-typedef NativeCreate_and_sign_claim_transaction
-    = ffi.Pointer<ffi.Char> Function(
-        ffi.Pointer<ffi.Char> redeem_script,
-        ffi.Pointer<ffi.Char> blinding_key,
-        ffi.Pointer<ffi.Char> onchain_address,
-        ffi.Pointer<ffi.Char> private_key,
-        ffi.Pointer<ffi.Char> preimage,
-        ffi.Pointer<ffi.Char> tx,
-        ffi.Uint64 fees);
-typedef DartCreate_and_sign_claim_transaction = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> redeem_script,
-    ffi.Pointer<ffi.Char> blinding_key,
-    ffi.Pointer<ffi.Char> onchain_address,
-    ffi.Pointer<ffi.Char> private_key,
-    ffi.Pointer<ffi.Char> preimage,
-    ffi.Pointer<ffi.Char> tx,
-    int fees);
-typedef NativeCreate_and_sign_refund_transaction
-    = ffi.Pointer<ffi.Char> Function(
-        ffi.Pointer<ffi.Char> redeem_script,
-        ffi.Pointer<ffi.Char> blinding_key,
-        ffi.Pointer<ffi.Char> onchain_address,
-        ffi.Pointer<ffi.Char> private_key,
-        ffi.Pointer<ffi.Char> tx,
-        ffi.Uint64 fees);
-typedef DartCreate_and_sign_refund_transaction = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> redeem_script,
-    ffi.Pointer<ffi.Char> blinding_key,
-    ffi.Pointer<ffi.Char> onchain_address,
-    ffi.Pointer<ffi.Char> private_key,
-    ffi.Pointer<ffi.Char> tx,
-    int fees);
 typedef NativeGet_key_pair = ffi.Pointer<ffi.Char> Function();
 typedef DartGet_key_pair = ffi.Pointer<ffi.Char> Function();
 typedef NativeSign_message_schnorr = ffi.Pointer<ffi.Char> Function(
@@ -6547,6 +6463,26 @@ typedef DartVerify_signature_schnorr = int Function(
     ffi.Pointer<ffi.Char> signature,
     ffi.Pointer<ffi.Char> message,
     ffi.Pointer<ffi.Char> public_key);
+typedef NativeCreate_liquid_tx_with_op_return = TxResult Function(
+    ffi.Uint64 send_amount,
+    ffi.Pointer<ffi.Char> send_address,
+    ffi.Pointer<ffi.Char> change_address,
+    ffi.Pointer<UtxoFFI> utxos,
+    ffi.UintPtr utxos_len,
+    ffi.Bool subtract_fee_from_amount,
+    ffi.Bool is_lowball,
+    ffi.Bool is_testnet,
+    ffi.Pointer<ffi.Char> op_return_data);
+typedef DartCreate_liquid_tx_with_op_return = TxResult Function(
+    int send_amount,
+    ffi.Pointer<ffi.Char> send_address,
+    ffi.Pointer<ffi.Char> change_address,
+    ffi.Pointer<UtxoFFI> utxos,
+    int utxos_len,
+    bool subtract_fee_from_amount,
+    bool is_lowball,
+    bool is_testnet,
+    ffi.Pointer<ffi.Char> op_return_data);
 typedef NativeCreate_taxi_transaction = TxResult Function(
     ffi.Uint64 send_amount,
     ffi.Pointer<ffi.Char> send_address,
@@ -6624,6 +6560,8 @@ const int _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE = 1;
 const int _DARWIN_FEATURE_UNIX_CONFORMANCE = 3;
 
 const int __has_ptrcheck = 0;
+
+const int __has_bounds_safety_attributes = 0;
 
 const int __DARWIN_NULL = 0;
 
@@ -6787,17 +6725,31 @@ const int __API_TO_BE_DEPRECATED = 100000;
 
 const int __API_TO_BE_DEPRECATED_MACOS = 100000;
 
+const int __API_TO_BE_DEPRECATED_MACOSAPPLICATIONEXTENSION = 100000;
+
 const int __API_TO_BE_DEPRECATED_IOS = 100000;
+
+const int __API_TO_BE_DEPRECATED_IOSAPPLICATIONEXTENSION = 100000;
 
 const int __API_TO_BE_DEPRECATED_MACCATALYST = 100000;
 
+const int __API_TO_BE_DEPRECATED_MACCATALYSTAPPLICATIONEXTENSION = 100000;
+
 const int __API_TO_BE_DEPRECATED_WATCHOS = 100000;
 
+const int __API_TO_BE_DEPRECATED_WATCHOSAPPLICATIONEXTENSION = 100000;
+
 const int __API_TO_BE_DEPRECATED_TVOS = 100000;
+
+const int __API_TO_BE_DEPRECATED_TVOSAPPLICATIONEXTENSION = 100000;
 
 const int __API_TO_BE_DEPRECATED_DRIVERKIT = 100000;
 
 const int __API_TO_BE_DEPRECATED_VISIONOS = 100000;
+
+const int __API_TO_BE_DEPRECATED_VISIONOSAPPLICATIONEXTENSION = 100000;
+
+const int __API_TO_BE_DEPRECATED_KERNELKIT = 100000;
 
 const int __MAC_10_0 = 1000;
 
@@ -6909,6 +6861,8 @@ const int __MAC_13_5 = 130500;
 
 const int __MAC_13_6 = 130600;
 
+const int __MAC_13_7 = 130700;
+
 const int __MAC_14_0 = 140000;
 
 const int __MAC_14_1 = 140100;
@@ -6921,11 +6875,21 @@ const int __MAC_14_4 = 140400;
 
 const int __MAC_14_5 = 140500;
 
+const int __MAC_14_6 = 140600;
+
+const int __MAC_14_7 = 140700;
+
 const int __MAC_15_0 = 150000;
 
 const int __MAC_15_1 = 150100;
 
 const int __MAC_15_2 = 150200;
+
+const int __MAC_15_3 = 150300;
+
+const int __MAC_15_4 = 150400;
+
+const int __MAC_15_5 = 150500;
 
 const int __IPHONE_2_0 = 20000;
 
@@ -7085,11 +7049,21 @@ const int __IPHONE_17_4 = 170400;
 
 const int __IPHONE_17_5 = 170500;
 
+const int __IPHONE_17_6 = 170600;
+
+const int __IPHONE_17_7 = 170700;
+
 const int __IPHONE_18_0 = 180000;
 
 const int __IPHONE_18_1 = 180100;
 
 const int __IPHONE_18_2 = 180200;
+
+const int __IPHONE_18_3 = 180300;
+
+const int __IPHONE_18_4 = 180400;
+
+const int __IPHONE_18_5 = 180500;
 
 const int __WATCHOS_1_0 = 10000;
 
@@ -7185,11 +7159,21 @@ const int __WATCHOS_10_4 = 100400;
 
 const int __WATCHOS_10_5 = 100500;
 
+const int __WATCHOS_10_6 = 100600;
+
+const int __WATCHOS_10_7 = 100700;
+
 const int __WATCHOS_11_0 = 110000;
 
 const int __WATCHOS_11_1 = 110100;
 
 const int __WATCHOS_11_2 = 110200;
+
+const int __WATCHOS_11_3 = 110300;
+
+const int __WATCHOS_11_4 = 110400;
+
+const int __WATCHOS_11_5 = 110500;
 
 const int __TVOS_9_0 = 90000;
 
@@ -7287,11 +7271,19 @@ const int __TVOS_17_4 = 170400;
 
 const int __TVOS_17_5 = 170500;
 
+const int __TVOS_17_6 = 170600;
+
 const int __TVOS_18_0 = 180000;
 
 const int __TVOS_18_1 = 180100;
 
 const int __TVOS_18_2 = 180200;
+
+const int __TVOS_18_3 = 180300;
+
+const int __TVOS_18_4 = 180400;
+
+const int __TVOS_18_5 = 180500;
 
 const int __BRIDGEOS_2_0 = 20000;
 
@@ -7345,11 +7337,19 @@ const int __BRIDGEOS_8_4 = 80400;
 
 const int __BRIDGEOS_8_5 = 80500;
 
+const int __BRIDGEOS_8_6 = 80600;
+
 const int __BRIDGEOS_9_0 = 90000;
 
 const int __BRIDGEOS_9_1 = 90100;
 
 const int __BRIDGEOS_9_2 = 90200;
+
+const int __BRIDGEOS_9_3 = 90300;
+
+const int __BRIDGEOS_9_4 = 90400;
+
+const int __BRIDGEOS_9_5 = 90500;
 
 const int __DRIVERKIT_19_0 = 190000;
 
@@ -7377,11 +7377,19 @@ const int __DRIVERKIT_23_4 = 230400;
 
 const int __DRIVERKIT_23_5 = 230500;
 
+const int __DRIVERKIT_23_6 = 230600;
+
 const int __DRIVERKIT_24_0 = 240000;
 
 const int __DRIVERKIT_24_1 = 240100;
 
 const int __DRIVERKIT_24_2 = 240200;
+
+const int __DRIVERKIT_24_3 = 240300;
+
+const int __DRIVERKIT_24_4 = 240400;
+
+const int __DRIVERKIT_24_5 = 240500;
 
 const int __VISIONOS_1_0 = 10000;
 
@@ -7389,11 +7397,19 @@ const int __VISIONOS_1_1 = 10100;
 
 const int __VISIONOS_1_2 = 10200;
 
+const int __VISIONOS_1_3 = 10300;
+
 const int __VISIONOS_2_0 = 20000;
 
 const int __VISIONOS_2_1 = 20100;
 
 const int __VISIONOS_2_2 = 20200;
+
+const int __VISIONOS_2_3 = 20300;
+
+const int __VISIONOS_2_4 = 20400;
+
+const int __VISIONOS_2_5 = 20500;
 
 const int MAC_OS_X_VERSION_10_0 = 1000;
 
@@ -7505,6 +7521,8 @@ const int MAC_OS_VERSION_13_5 = 130500;
 
 const int MAC_OS_VERSION_13_6 = 130600;
 
+const int MAC_OS_VERSION_13_7 = 130700;
+
 const int MAC_OS_VERSION_14_0 = 140000;
 
 const int MAC_OS_VERSION_14_1 = 140100;
@@ -7517,15 +7535,31 @@ const int MAC_OS_VERSION_14_4 = 140400;
 
 const int MAC_OS_VERSION_14_5 = 140500;
 
+const int MAC_OS_VERSION_14_6 = 140600;
+
+const int MAC_OS_VERSION_14_7 = 140700;
+
 const int MAC_OS_VERSION_15_0 = 150000;
 
 const int MAC_OS_VERSION_15_1 = 150100;
 
 const int MAC_OS_VERSION_15_2 = 150200;
 
-const int __MAC_OS_X_VERSION_MIN_REQUIRED = 140000;
+const int MAC_OS_VERSION_15_3 = 150300;
 
-const int __MAC_OS_X_VERSION_MAX_ALLOWED = 150200;
+const int MAC_OS_VERSION_15_4 = 150400;
+
+const int MAC_OS_VERSION_15_5 = 150500;
+
+const int __AVAILABILITY_VERSIONS_VERSION_HASH = 93585900;
+
+const String __AVAILABILITY_VERSIONS_VERSION_STRING = 'Local';
+
+const String __AVAILABILITY_FILE = 'AvailabilityVersions.h';
+
+const int __MAC_OS_X_VERSION_MIN_REQUIRED = 150000;
+
+const int __MAC_OS_X_VERSION_MAX_ALLOWED = 150500;
 
 const int __ENABLE_LEGACY_MAC_AVAILABILITY = 1;
 
@@ -7946,6 +7980,8 @@ const int IOPOL_VFS_IGNORE_PERMISSIONS_ON = 1;
 const int IOPOL_VFS_SKIP_MTIME_UPDATE_OFF = 0;
 
 const int IOPOL_VFS_SKIP_MTIME_UPDATE_ON = 1;
+
+const int IOPOL_VFS_SKIP_MTIME_UPDATE_IGNORE = 2;
 
 const int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_OFF = 0;
 

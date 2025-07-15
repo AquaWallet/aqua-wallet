@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aqua/common/data_conversion/bip21_encoder.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/boltz/boltz.dart';
@@ -223,9 +224,15 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       state = const AsyncLoading();
 
       final input = ref.read(sendAssetInputStateProvider(arg)).value!;
-      final String? address;
+      String? address;
       if (!input.asset.isAltUsdt) {
-        address = input.addressFieldText;
+        try {
+          final decoder = Bip21Decoder(input.addressFieldText ?? '');
+          address = decoder.address;
+        } catch (e) {
+          logger.error("[Taxi] Not a valid BIP21 address: $e");
+          address = input.addressFieldText;
+        }
       } else {
         final swapPair = SwapPair(
           from: SwapAssetExt.usdtLiquid,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
@@ -7,6 +8,7 @@ import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:chopper/chopper.dart';
+import 'package:http/io_client.dart' as http;
 
 part 'jan3_api_service.chopper.dart';
 
@@ -102,6 +104,9 @@ abstract class Jan3ApiService extends ChopperService {
     bool debitCardStagingEnabled,
   ) {
     final client = ChopperClient(
+      client: http.IOClient(
+        HttpClient()..connectionTimeout = const Duration(seconds: 10),
+      ),
       baseUrl: Uri.parse(debitCardStagingEnabled
           ? aquaAnkaraStagingApiUrl
           : aquaAnkaraProdApiUrl),
