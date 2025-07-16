@@ -18,6 +18,8 @@ class AssetIds {
     '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
     '144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49',
   ];
+  static const vrl =
+    '45982d908ea4d804ceccfaebac204bae0b27f36b230ade918fa230eba4e28c0d';
   static const mexas = [
     '26ac924263ba547b706251635550a8649545ee5c074fe5db8d7140557baaf32e',
     '485ff8a902ad063bd8886ef8cfc0d22a068d14dcbe6ae06cf3f904dc581fbd2b',
