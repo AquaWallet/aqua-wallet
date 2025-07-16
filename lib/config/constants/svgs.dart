@@ -21,6 +21,7 @@ class Svgs {
   static const usdtAssetDisabled = 'assets/asset_icons/usdt_disabled.svg';
   static const mexasAsset = 'assets/asset_icons/MEX.svg';
   static const depixAsset = 'assets/asset_icons/DePix.svg';
+  static const vrlAsset = 'assets/asset_icons/VRL.svg';
   static const lightningAsset = 'assets/asset_icons/l2.svg';
   static const l2Asset = 'assets/asset_icons/l2.svg';
   static const l2AssetDisabled = 'assets/asset_icons/l2_disabled.svg';

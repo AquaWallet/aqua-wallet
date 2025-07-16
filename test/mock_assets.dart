@@ -63,6 +63,16 @@ final depixAsset = Asset(
   isLiquid: true,
 );
 
+final vrlAsset = Asset(
+  id: '45982d908ea4d804ceccfaebac204bae0b27f36b230ade918fa230eba4e28c0d',
+  name: 'Virtual',
+  ticker: 'VRL',
+  logoUrl: 'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/VRL.svg',
+  isDefaultAsset: false,
+  isRemovable: true,
+  isLiquid: true,
+);
+
 final btcAsset = Asset(
   id: 'btc',
   name: 'Bitcoin',
