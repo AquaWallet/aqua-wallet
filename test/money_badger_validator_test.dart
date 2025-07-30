@@ -45,6 +45,16 @@ void main() {
       expect(lightningAddress, contains('za.co.electrum.picknpay'));
     });
 
+    test('converts Bootlegger QR to Lightning address on testnet', () {
+      const qrData ='https://za.wigroup.co/bill/415267598';
+
+      final lightningAddress = MoneyBadgerValidator.convertToLightningAddress(
+          qrData,
+          isTestnet: true);
+      expect(lightningAddress, contains('@staging.cryptoqr.net'));
+      expect(lightningAddress, contains('https%3A%2F%2Fza.wigroup.co%2Fbill%2F415267598'));
+    });
+
     test('properly encodes special characters', () {
       const qrData =
           '00020129530023za.co.electrum.picknpay0122TZHN7RSZPFAR3K/confirm+520458125303710540115802ZA5916cryptoqrtestscan6002CT63049FB8';

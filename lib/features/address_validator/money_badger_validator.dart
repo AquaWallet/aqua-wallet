@@ -31,6 +31,7 @@ class MoneyBadgerValidator {
   static final _retailerRegexes = {
     'PnP': RegExp(r'(.*)(za\.co\.electrum\.picknpay)(.*)'),
     'Ecentric': RegExp(r'(.*)(za\.co\.ecentric)(.*)'),
+    'Bootleggers': RegExp(r'((.*)(wigroup\.co|yoyogroup\.co)(.*))'),
   };
 
   /// Validates if a QR code is from a supported MoneyBadger retailer
