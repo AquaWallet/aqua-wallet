@@ -48,6 +48,14 @@
         "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/DePix.svg",
         "Default": false,
         "IsRemovable": true
+      },
+      {
+        "Name": "Virtual",
+        "Id": "45982d908ea4d804ceccfaebac204bae0b27f36b230ade918fa230eba4e28c0d",
+        "Ticker": "VRL",
+        "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/VRL.svg",
+        "Default": false,
+        "IsRemovable": true
       }
     ]
   }
