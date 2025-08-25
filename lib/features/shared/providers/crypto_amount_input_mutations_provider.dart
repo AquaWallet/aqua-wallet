@@ -6,10 +6,19 @@ import 'package:decimal/decimal.dart';
 final amountInputMutationsProvider =
     Provider.autoDispose(CryptoAmountInputMutationsNotifier.new);
 
+final topUpAmountInputMutationsProvider = Provider.autoDispose((ref) =>
+    CryptoAmountInputMutationsNotifier(ref,
+        fiatProviderOverride: ref.read(usdFiatProvider)));
+
 class CryptoAmountInputMutationsNotifier {
-  const CryptoAmountInputMutationsNotifier(this._ref);
+  const CryptoAmountInputMutationsNotifier(this._ref,
+      {this.fiatProviderOverride});
 
   final Ref _ref;
+  final FiatProvider? fiatProviderOverride;
+
+  FiatProvider get _fiatProvider =>
+      fiatProviderOverride ?? _ref.read(fiatProvider);
 
   Future<String?> getConvertedAmount({
     required int amountSats,
@@ -30,7 +39,7 @@ class CryptoAmountInputMutationsNotifier {
           );
     }
 
-    return _ref.read(fiatProvider).getSatsToFiatDisplay(amountSats, withSymbol);
+    return _fiatProvider.getSatsToFiatDisplay(amountSats, withSymbol);
   }
 
   Future<int> getConvertedAmountSats({
@@ -41,7 +50,7 @@ class CryptoAmountInputMutationsNotifier {
     if (isFiatInput) {
       // Fiat to Sats
       final fiat = Decimal.tryParse(text) ?? Decimal.zero;
-      final sats = await _ref.read(fiatProvider).fiatToSatoshi(asset, fiat);
+      final sats = await _fiatProvider.fiatToSatoshi(asset, fiat);
       return sats.toBigInt().toInt();
     }
 

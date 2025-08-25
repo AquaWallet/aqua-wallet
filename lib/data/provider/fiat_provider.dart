@@ -23,13 +23,20 @@ class SatoshiToFiatConversionModel {
   });
 }
 
+// Used for top ups. Forces USD.
+final usdFiatProvider = Provider.autoDispose<FiatProvider>(
+    (ref) => FiatProvider(ref, forcedCurrency: 'USD'));
+
+// Respects user settings (user session default currency default)
 final fiatProvider =
     Provider.autoDispose<FiatProvider>((ref) => FiatProvider(ref));
 
 class FiatProvider {
   final AutoDisposeProviderRef ref;
+  final String? _forcedCurrency;
 
-  FiatProvider(this.ref);
+  FiatProvider(this.ref, {String? forcedCurrency})
+      : _forcedCurrency = forcedCurrency;
 
   final _formatter = NumberFormat.currency(
     locale: Platform.localeName,
@@ -40,7 +47,8 @@ class FiatProvider {
           const Duration(milliseconds: 5000))
       .startWith(null)
       .switchMap((_) => Stream.value(_)
-              .map((_) => const GdkConvertData(satoshi: 1))
+              .map((_) =>
+                  GdkConvertData(satoshi: 1, fiatCurrency: _forcedCurrency))
               .asyncMap((data) => ref.read(bitcoinProvider).convertAmount(data))
               .asyncMap((data) {
             final rate = data?.fiatRate;

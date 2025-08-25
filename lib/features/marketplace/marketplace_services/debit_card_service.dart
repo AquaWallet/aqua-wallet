@@ -12,7 +12,7 @@ MarketplaceService buildDebitCardService({
     subtitle: context.loc.marketplaceScreenDolphinCardButtonDescription,
     icon: Svgs.marketplaceBankings,
     onPressed: () => context.push(
-      DebitCardOnboardingScreen.routeName,
+      DebitCardMyCardScreen.routeName,
     ),
   );
 }

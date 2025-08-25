@@ -5,11 +5,14 @@ import 'package:aqua/utils/utils.dart';
 class AddressParsingException implements ExceptionLocalized {
   final AddressParsingExceptionType type;
   final String? customMessage;
+  final String? amountInSats;
 
-  AddressParsingException(this.type, {this.customMessage});
+  AddressParsingException(this.type, {this.customMessage, this.amountInSats});
 
   @override
-  String toLocalizedString(BuildContext context) {
+  String toLocalizedString(
+    BuildContext context,
+  ) {
     switch (type) {
       case AddressParsingExceptionType.emptyAddress:
         return context.loc.sendAssetAmountScreenEmptyAddressError;
@@ -22,7 +25,8 @@ class AddressParsingException implements ExceptionLocalized {
       case AddressParsingExceptionType.noAmountInInvoice:
         return context.loc.invoicesWithoutAmountNotSupported;
       case AddressParsingExceptionType.lessThanMinAmountInInvoice:
-        return context.loc.sendAssetAmountScreenLessThanMinAmountError;
+        return context.loc
+            .sendAssetAmountScreenLessThanMinAmountError(amountInSats ?? '0');
       case AddressParsingExceptionType.greaterThanMaxAmountInInvoice:
         return context.loc.sendAssetAmountScreenGreaterThanMaxAmountError;
       case AddressParsingExceptionType.invalidLightningAddress:

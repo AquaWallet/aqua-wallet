@@ -29,13 +29,13 @@ import 'package:aqua/features/sam_rock/pages/sam_rock_screen.dart';
 import 'package:aqua/features/scan/scan.dart';
 import 'package:aqua/features/send/pages/address_selection_screen.dart';
 import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/text_scan/text_scan.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
 import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/pages/swap_order_detail_screen.dart';
 import 'package:aqua/features/swaps/pages/swap_orders_screen.dart';
+import 'package:aqua/features/text_scan/text_scan.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/screens/common/webview_screen.dart';
@@ -339,6 +339,8 @@ final routes = [
   ),
   GoRoute(
     path: Jan3LoginScreen.routeName,
+    // NOTE: name is required for the redirect logic to work.
+    name: Jan3LoginScreen.routeName,
     builder: (context, state) => const Jan3LoginScreen(),
   ),
   GoRoute(

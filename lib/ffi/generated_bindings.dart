@@ -3996,6 +3996,98 @@ class NativeLibrary {
 
   set suboptarg(ffi.Pointer<ffi.Char> value) => _suboptarg.value = value;
 
+  int validate_submarine(
+    ffi.Pointer<ffi.Char> preimage_hash,
+    ffi.Pointer<ffi.Char> claim_public_key,
+    ffi.Pointer<ffi.Char> refund_public_key,
+    int timeout_block_height,
+    ffi.Pointer<ffi.Char> lockup_address,
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+  ) {
+    return _validate_submarine(
+      preimage_hash,
+      claim_public_key,
+      refund_public_key,
+      timeout_block_height,
+      lockup_address,
+      redeem_script,
+      blinding_key,
+    );
+  }
+
+  late final _validate_submarinePtr =
+      _lookup<ffi.NativeFunction<NativeValidate_submarine>>(
+          'validate_submarine');
+  late final _validate_submarine =
+      _validate_submarinePtr.asFunction<DartValidate_submarine>();
+
+  ffi.Pointer<ffi.Char> extract_claim_public_key(
+    ffi.Pointer<ffi.Char> comparison_script,
+  ) {
+    return _extract_claim_public_key(
+      comparison_script,
+    );
+  }
+
+  late final _extract_claim_public_keyPtr =
+      _lookup<ffi.NativeFunction<NativeExtract_claim_public_key>>(
+          'extract_claim_public_key');
+  late final _extract_claim_public_key =
+      _extract_claim_public_keyPtr.asFunction<DartExtract_claim_public_key>();
+
+  ffi.Pointer<ffi.Char> create_and_sign_claim_transaction(
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+    ffi.Pointer<ffi.Char> onchain_address,
+    ffi.Pointer<ffi.Char> private_key,
+    ffi.Pointer<ffi.Char> preimage,
+    ffi.Pointer<ffi.Char> tx,
+    int fees,
+  ) {
+    return _create_and_sign_claim_transaction(
+      redeem_script,
+      blinding_key,
+      onchain_address,
+      private_key,
+      preimage,
+      tx,
+      fees,
+    );
+  }
+
+  late final _create_and_sign_claim_transactionPtr =
+      _lookup<ffi.NativeFunction<NativeCreate_and_sign_claim_transaction>>(
+          'create_and_sign_claim_transaction');
+  late final _create_and_sign_claim_transaction =
+      _create_and_sign_claim_transactionPtr
+          .asFunction<DartCreate_and_sign_claim_transaction>();
+
+  ffi.Pointer<ffi.Char> create_and_sign_refund_transaction(
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+    ffi.Pointer<ffi.Char> onchain_address,
+    ffi.Pointer<ffi.Char> private_key,
+    ffi.Pointer<ffi.Char> tx,
+    int fees,
+  ) {
+    return _create_and_sign_refund_transaction(
+      redeem_script,
+      blinding_key,
+      onchain_address,
+      private_key,
+      tx,
+      fees,
+    );
+  }
+
+  late final _create_and_sign_refund_transactionPtr =
+      _lookup<ffi.NativeFunction<NativeCreate_and_sign_refund_transaction>>(
+          'create_and_sign_refund_transaction');
+  late final _create_and_sign_refund_transaction =
+      _create_and_sign_refund_transactionPtr
+          .asFunction<DartCreate_and_sign_refund_transaction>();
+
   ffi.Pointer<ffi.Char> get_key_pair() {
     return _get_key_pair();
   }
@@ -4037,37 +4129,6 @@ class NativeLibrary {
           'verify_signature_schnorr');
   late final _verify_signature_schnorr =
       _verify_signature_schnorrPtr.asFunction<DartVerify_signature_schnorr>();
-
-  TxResult create_liquid_tx_with_op_return(
-    int send_amount,
-    ffi.Pointer<ffi.Char> send_address,
-    ffi.Pointer<ffi.Char> change_address,
-    ffi.Pointer<UtxoFFI> utxos,
-    int utxos_len,
-    bool subtract_fee_from_amount,
-    bool is_lowball,
-    bool is_testnet,
-    ffi.Pointer<ffi.Char> op_return_data,
-  ) {
-    return _create_liquid_tx_with_op_return(
-      send_amount,
-      send_address,
-      change_address,
-      utxos,
-      utxos_len,
-      subtract_fee_from_amount,
-      is_lowball,
-      is_testnet,
-      op_return_data,
-    );
-  }
-
-  late final _create_liquid_tx_with_op_returnPtr =
-      _lookup<ffi.NativeFunction<NativeCreate_liquid_tx_with_op_return>>(
-          'create_liquid_tx_with_op_return');
-  late final _create_liquid_tx_with_op_return =
-      _create_liquid_tx_with_op_returnPtr
-          .asFunction<DartCreate_liquid_tx_with_op_return>();
 
   TxResult create_taxi_transaction(
     int send_amount,
@@ -6421,6 +6482,10 @@ typedef NativeStrtouq = ffi.UnsignedLongLong Function(
 typedef DartStrtouq = int Function(ffi.Pointer<ffi.Char> __str,
     ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
 
+final class Option______c_char extends ffi.Opaque {}
+
+final class TransactionType extends ffi.Opaque {}
+
 final class TxResult extends ffi.Struct {
   external ffi.Pointer<ffi.Char> tx_ptr;
 
@@ -6449,6 +6514,58 @@ final class UtxoFFI extends ffi.Struct {
   external ffi.Pointer<ffi.Char> value_commitment;
 }
 
+typedef NativeValidate_submarine = ffi.Int32 Function(
+    ffi.Pointer<ffi.Char> preimage_hash,
+    ffi.Pointer<ffi.Char> claim_public_key,
+    ffi.Pointer<ffi.Char> refund_public_key,
+    ffi.Uint32 timeout_block_height,
+    ffi.Pointer<ffi.Char> lockup_address,
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key);
+typedef DartValidate_submarine = int Function(
+    ffi.Pointer<ffi.Char> preimage_hash,
+    ffi.Pointer<ffi.Char> claim_public_key,
+    ffi.Pointer<ffi.Char> refund_public_key,
+    int timeout_block_height,
+    ffi.Pointer<ffi.Char> lockup_address,
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key);
+typedef NativeExtract_claim_public_key = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> comparison_script);
+typedef DartExtract_claim_public_key = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> comparison_script);
+typedef NativeCreate_and_sign_claim_transaction
+    = ffi.Pointer<ffi.Char> Function(
+        ffi.Pointer<ffi.Char> redeem_script,
+        ffi.Pointer<ffi.Char> blinding_key,
+        ffi.Pointer<ffi.Char> onchain_address,
+        ffi.Pointer<ffi.Char> private_key,
+        ffi.Pointer<ffi.Char> preimage,
+        ffi.Pointer<ffi.Char> tx,
+        ffi.Uint64 fees);
+typedef DartCreate_and_sign_claim_transaction = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+    ffi.Pointer<ffi.Char> onchain_address,
+    ffi.Pointer<ffi.Char> private_key,
+    ffi.Pointer<ffi.Char> preimage,
+    ffi.Pointer<ffi.Char> tx,
+    int fees);
+typedef NativeCreate_and_sign_refund_transaction
+    = ffi.Pointer<ffi.Char> Function(
+        ffi.Pointer<ffi.Char> redeem_script,
+        ffi.Pointer<ffi.Char> blinding_key,
+        ffi.Pointer<ffi.Char> onchain_address,
+        ffi.Pointer<ffi.Char> private_key,
+        ffi.Pointer<ffi.Char> tx,
+        ffi.Uint64 fees);
+typedef DartCreate_and_sign_refund_transaction = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> redeem_script,
+    ffi.Pointer<ffi.Char> blinding_key,
+    ffi.Pointer<ffi.Char> onchain_address,
+    ffi.Pointer<ffi.Char> private_key,
+    ffi.Pointer<ffi.Char> tx,
+    int fees);
 typedef NativeGet_key_pair = ffi.Pointer<ffi.Char> Function();
 typedef DartGet_key_pair = ffi.Pointer<ffi.Char> Function();
 typedef NativeSign_message_schnorr = ffi.Pointer<ffi.Char> Function(
@@ -6463,26 +6580,6 @@ typedef DartVerify_signature_schnorr = int Function(
     ffi.Pointer<ffi.Char> signature,
     ffi.Pointer<ffi.Char> message,
     ffi.Pointer<ffi.Char> public_key);
-typedef NativeCreate_liquid_tx_with_op_return = TxResult Function(
-    ffi.Uint64 send_amount,
-    ffi.Pointer<ffi.Char> send_address,
-    ffi.Pointer<ffi.Char> change_address,
-    ffi.Pointer<UtxoFFI> utxos,
-    ffi.UintPtr utxos_len,
-    ffi.Bool subtract_fee_from_amount,
-    ffi.Bool is_lowball,
-    ffi.Bool is_testnet,
-    ffi.Pointer<ffi.Char> op_return_data);
-typedef DartCreate_liquid_tx_with_op_return = TxResult Function(
-    int send_amount,
-    ffi.Pointer<ffi.Char> send_address,
-    ffi.Pointer<ffi.Char> change_address,
-    ffi.Pointer<UtxoFFI> utxos,
-    int utxos_len,
-    bool subtract_fee_from_amount,
-    bool is_lowball,
-    bool is_testnet,
-    ffi.Pointer<ffi.Char> op_return_data);
 typedef NativeCreate_taxi_transaction = TxResult Function(
     ffi.Uint64 send_amount,
     ffi.Pointer<ffi.Char> send_address,

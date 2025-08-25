@@ -220,7 +220,7 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
     final amount = (Decimal.fromInt(args.amountSats ?? 0) /
             DecimalExt.fromAssetPrecision(args.asset.precision))
         .toDouble();
-    final fiatAmount = useFuture(ref.read(fiatProvider).getSatsToFiatDisplay(
+    final fiatAmount = useFuture(ref.read(usdFiatProvider).getSatsToFiatDisplay(
           args.amountSats ?? 0,
           false,
         ));

@@ -72,6 +72,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     if (!isValidAddressInClipboard) {
       return SendAssetInputState(
         asset: asset,
+        swapPair: _getSwapPair(asset),
         addressFieldText: addressInput,
         amount: networkAmount,
         amountFieldText: amountFieldText,

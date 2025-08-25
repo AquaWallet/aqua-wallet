@@ -142,6 +142,13 @@ class ReferenceExchangeRateProvider extends ChangeNotifier {
     );
   }
 
+  ExchangeRate get usdCurrency {
+    return availableCurrencies.firstWhere(
+      (e) => e.currency == FiatCurrency.usd,
+      orElse: () => currencyModelLookup[FiatCurrency.usd]!,
+    );
+  }
+
   List<ExchangeRateSource> get sourcesForCurrentCurrency {
     return [
       ExchangeRateSource.bitfinex,

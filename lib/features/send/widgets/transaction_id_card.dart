@@ -18,7 +18,7 @@ class TransactionIdCard extends HookConsumerWidget {
     final asset = useMemoized(() => arguments.asset, [arguments]);
     final timestamp = useMemoized(() => arguments.createdAt, [arguments]);
     final formattedTime = useMemoized(
-      () => DateTime.fromMicrosecondsSinceEpoch(timestamp).HHmmaUTC(),
+      () => DateTime.fromMicrosecondsSinceEpoch(timestamp).HHmma(),
       [timestamp],
     );
     final formattedDate = useMemoized(

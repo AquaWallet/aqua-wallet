@@ -57,7 +57,7 @@ class SwapDetailsNotifier
         ? DateTime.fromMicrosecondsSinceEpoch(timestamp).ddMMMMyyyy()
         : '-';
     final formattedTime = timestamp != null
-        ? DateTime.fromMicrosecondsSinceEpoch(timestamp).HHmmaUTC()
+        ? DateTime.fromMicrosecondsSinceEpoch(timestamp).HHmma()
         : '-';
 
     return SwapSuccessModel(

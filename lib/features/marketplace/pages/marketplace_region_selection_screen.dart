@@ -1,3 +1,4 @@
+import 'package:aqua/features/home/providers/home_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
@@ -21,9 +22,10 @@ class MarketplaceRegionSelection extends HookConsumerWidget {
     return availableRegions.when(
       data: (items) => Scaffold(
         appBar: AquaAppBar(
-          showBackButton: false,
           showActionButton: false,
+          showBackButton: true,
           title: context.loc.marketplaceTitle,
+          onBackPressed: () => ref.read(homeProvider).selectTab(0),
         ),
         body: SafeArea(
           child: Column(

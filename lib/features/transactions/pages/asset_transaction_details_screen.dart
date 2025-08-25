@@ -428,7 +428,7 @@ class _TransactionDetailsContent extends HookConsumerWidget {
                     ),
                     const SizedBox(height: 18.0),
                     TransactionDetailsDataItem(
-                      title: context.loc.confimations,
+                      title: context.loc.confirmations,
                       value: detailsUiModel.formattedConfirmations,
                     ),
                     const SizedBox(height: 18.0),

@@ -1,7 +1,5 @@
-import 'dart:convert';
-
-import 'package:aqua/data/data.dart';
 import 'package:aqua/features/account/account.dart';
+import 'package:aqua/features/account/providers/jan3_auth_token_provider.dart';
 import 'package:aqua/features/feature_flags/services/feature_flags_service.dart';
 import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/settings/language/models/language.dart';
@@ -15,19 +13,11 @@ final jan3AuthProvider = AsyncNotifierProvider<Jan3AuthNotifier, Jan3AuthState>(
     Jan3AuthNotifier.new);
 
 class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
-  static const tokenKey = 'jan3_auth_token';
-
-  Future<AuthTokenResponse?> _getTokenResponse() async {
-    return ref.read(secureStorageProvider).get(tokenKey).then((value) =>
-        value.$2 == null
-            ? AuthTokenResponse.fromJson(jsonDecode(value.$1!))
-            : null);
-  }
-
   @override
   Future<Jan3AuthState> build() async {
-    final tokenResponse = await _getTokenResponse();
-    if (tokenResponse != null) {
+    final tokenManager = ref.watch(jan3AuthTokenManagerProvider);
+    final token = await tokenManager.getAccessToken();
+    if (token != null) {
       final api = await ref.read(jan3ApiServiceProvider.future);
       final response = await api.getUser();
       return Jan3AuthState.authenticated(profile: response.body!);
@@ -64,7 +54,7 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
       otpCode: otp,
     ));
     if (tokenResponse.isSuccessful && tokenResponse.body != null) {
-      await _saveToken(tokenResponse.body!);
+      await ref.read(jan3AuthTokenManagerProvider).saveToken(tokenResponse);
       final cards = await ref.read(moonCardsProvider.future);
       await _refreshProfileData(pendingCardCreation: cards.isEmpty);
       await _refreshFeatureFlags();
@@ -99,71 +89,51 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
 
   Future<void> signOut() async {
     state = const AsyncValue.loading();
-    await ref.read(secureStorageProvider).delete(tokenKey);
+    await ref.read(jan3AuthTokenManagerProvider).deleteToken();
     state = const AsyncValue.data(Jan3AuthState.unauthenticated());
   }
 
   //NOTE - ONLY FOR DEV USAGE
   Future<void> resetAccount() async {
+    final tokenManager = ref.read(jan3AuthTokenManagerProvider);
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final tokenResponse = await _getTokenResponse();
-      if (tokenResponse == null) {
+      final token = await tokenManager.getAccessToken();
+
+      if (token == null) {
         return const Jan3AuthState.unauthenticated();
       }
       final api = await ref.read(jan3ApiServiceProvider.future);
       final accessTokenResponse = await api.resetAccount();
       if (accessTokenResponse.isSuccessful &&
           accessTokenResponse.body != null) {
-        await _saveToken(AuthTokenResponse(
-          access: accessTokenResponse.body!.access,
-          refresh: accessTokenResponse.body!.refresh,
-        ));
+        await tokenManager.saveToken(accessTokenResponse);
         await _refreshProfileData();
       }
       throw ProfileAuthErrorException();
     });
   }
 
-  Future<void> _saveToken(AuthTokenResponse tokenResponse) async {
-    await ref.read(secureStorageProvider).delete(tokenKey);
-    await ref.read(secureStorageProvider).save(
-          key: tokenKey,
-          value: jsonEncode(tokenResponse.toJson()),
-        );
-  }
-
-  Future<void> _refreshToken() async {
-    state = const AsyncValue.loading();
-
-    final tokenResponse = await _getTokenResponse();
-    if (tokenResponse == null) {
-      state = const AsyncValue.data(Jan3AuthState.unauthenticated());
-      return;
-    }
-    final api = await ref.read(jan3ApiServiceProvider.future);
-    final accessTokenResponse = await api.refresh(RefreshTokenRequest(
-      refresh: tokenResponse.refresh,
-    ));
-    if (accessTokenResponse.isSuccessful &&
-        accessTokenResponse.body != null &&
-        accessTokenResponse.body!.access.isNotEmpty) {
-      await _saveToken(AuthTokenResponse(
-        access: accessTokenResponse.body!.access,
-        refresh: tokenResponse.refresh,
-      ));
-      await _refreshProfileData();
-    } else {
-      signOut();
-    }
-  }
-
   Future<void> onUnauthorized() async {
-    final tokenResponse = await _getTokenResponse();
-    if (tokenResponse != null) {
-      await _refreshToken();
-    } else if (state.valueOrNull !=
-        const Jan3AuthState.pendingOtpVerification()) {
+    final tokenProvider = ref.read(jan3AuthTokenManagerProvider);
+    try {
+      final token = await tokenProvider.getAccessToken();
+
+      if (token != null) {
+        _logger.warning(
+            '[Jan3Account] Recieved unauthorized with valid token, forcing sign out');
+        await tokenProvider.deleteToken();
+        signOut();
+        return;
+      }
+
+      if (state.valueOrNull is! Jan3UserPendingOtpVerification) {
+        _logger.debug('[Jan3Account] Token is null, signing out');
+        _logger.debug('[Jan3Account] State: ${state.valueOrNull}');
+        signOut();
+      }
+    } catch (e) {
+      _logger.error('[Jan3Account] Error during unauthorized: $e');
       signOut();
     }
   }

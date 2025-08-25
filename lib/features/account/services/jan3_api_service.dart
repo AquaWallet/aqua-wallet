@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:aqua/config/config.dart';
-import 'package:aqua/data/data.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -14,12 +12,12 @@ part 'jan3_api_service.chopper.dart';
 
 final jan3ApiServiceProvider =
     FutureProvider.autoDispose<Jan3ApiService>((ref) async {
-  final (token, _) =
-      await ref.read(secureStorageProvider).get(Jan3AuthNotifier.tokenKey);
   final onUnauthorized = ref.read(jan3AuthProvider.notifier).onUnauthorized;
+  final tokenManager = ref.watch(jan3AuthTokenManagerProvider);
   final debitCardStagingEnabled =
       ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
-  return Jan3ApiService.create(token, onUnauthorized, debitCardStagingEnabled);
+  return Jan3ApiService.create(
+      tokenManager, onUnauthorized, debitCardStagingEnabled);
 });
 
 @ChopperApi(baseUrl: '/api/v1/')
@@ -33,11 +31,6 @@ abstract class Jan3ApiService extends ChopperService {
   @Post(path: 'auth/verify/')
   Future<Response<AuthTokenResponse>> verify(
     @Body() VerifyRequest request,
-  );
-
-  @Post(path: 'auth/refresh/')
-  Future<Response<AccessTokenResponse>> refresh(
-    @Body() RefreshTokenRequest request,
   );
 
   @Post(path: 'auth/user/email-reset/')
@@ -88,6 +81,11 @@ abstract class Jan3ApiService extends ChopperService {
     @Path('card_id') String cardId,
   );
 
+  @Get(path: 'moon/card/{card_id}/velocity')
+  Future<Response<CardVelocityResponse>> getCardVelocity(
+    @Path('card_id') String cardId,
+  );
+
   // Moon On-chain Operations
   @Post(path: 'moon/onchain/invoice')
   Future<Response<GenerateInvoiceResponse>> generateInvoice(
@@ -99,7 +97,7 @@ abstract class Jan3ApiService extends ChopperService {
   Future<Response<MessageResponse>> getPublicMessage();
 
   static Jan3ApiService create(
-    String? token,
+    Jan3AuthTokenManager tokenManager,
     VoidCallback onUnauthorized,
     bool debitCardStagingEnabled,
   ) {
@@ -113,7 +111,7 @@ abstract class Jan3ApiService extends ChopperService {
       services: [_$Jan3ApiService()],
       interceptors: [
         HttpLoggingInterceptor(),
-        Jan3ApiAuthInterceptor(token),
+        Jan3ApiAuthInterceptor(tokenManager),
         Jan3ApiResponseInterceptor(onUnauthorized),
       ],
       errorConverter: const JsonConverter(),
@@ -130,6 +128,7 @@ abstract class Jan3ApiService extends ChopperService {
         HealthResponse: HealthResponse.fromJson,
         AccessTokenResponse: AccessTokenResponse.fromJson,
         CardEventsResponse: CardEventsResponse.fromJson,
+        CardVelocityResponse: CardVelocityResponse.fromJson,
         CardCreationRequest: CardCreationRequest.fromJson,
       }),
     );
@@ -138,15 +137,17 @@ abstract class Jan3ApiService extends ChopperService {
 }
 
 class Jan3ApiAuthInterceptor implements RequestInterceptor {
-  Jan3ApiAuthInterceptor(this.tokenJson);
+  Jan3ApiAuthInterceptor(
+    this.tokenManager,
+  );
 
-  final String? tokenJson;
+  final Jan3AuthTokenManager tokenManager;
 
   @override
-  FutureOr<Request> onRequest(Request request) {
-    if (tokenJson != null) {
-      final response = AuthTokenResponse.fromJson(jsonDecode(tokenJson!));
-      request.headers['Authorization'] = 'Bearer ${response.access}';
+  FutureOr<Request> onRequest(Request request) async {
+    final token = await tokenManager.getAccessToken();
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
     }
     return request;
   }

@@ -5,10 +5,7 @@ import 'package:aqua/data/provider/app_links/app_link.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/sam_rock/models/sam_rock_exception.dart';
 import 'package:aqua/features/shared/providers/dio_provider.dart';
-import 'package:aqua/features/wallet/models/subaccount.dart';
 import 'package:aqua/features/wallet/models/subaccounts.dart';
-import 'package:aqua/features/wallet/utils/derivation_path_utils.dart';
-import 'package:aqua/features/wallet/utils/bip32_utils.dart';
 import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -100,8 +97,6 @@ class SamRockStateNotifier extends StateNotifier<SamRockState> {
             customMessage: 'Failed to retrieve mnemonic: $err');
       }
 
-      final walletFingerprint = generateBip32Fingerprint(mnemonic);
-
       if (subaccounts.subaccounts.length < 3) {
         throw SamRockException(SamRockExceptionType.notEnoughSubaccounts);
       }
@@ -109,9 +104,6 @@ class SamRockStateNotifier extends StateNotifier<SamRockState> {
       state = const SamRockState.loading();
       final bitcoinSubaccount = subaccounts.subaccounts[1];
       final liquidSubaccount = subaccounts.subaccounts[2];
-
-      // Get 5 Liquid addresses
-      final liquidAddresses = await _fetchUniqueLiquidAddresses(ref, 5);
 
       // Get the core descriptors for the Liquid subaccount
       final liquidCoreDescriptors = liquidSubaccount.subaccount.coreDescriptors;
@@ -122,28 +114,24 @@ class SamRockStateNotifier extends StateNotifier<SamRockState> {
       // assuming the first descriptor is the CtDescriptor
       final ctDescriptor = liquidCoreDescriptors[0];
 
+      // Get the core descriptors for the Bitcoin subaccount
+      final bitcoinCoreDescriptors =
+          bitcoinSubaccount.subaccount.coreDescriptors;
+      if (bitcoinCoreDescriptors == null || bitcoinCoreDescriptors.isEmpty) {
+        throw SamRockException(SamRockExceptionType.missingWalletData,
+            customMessage: 'Bitcoin subaccount core descriptors are missing.');
+      }
+      // assuming the first descriptor is the Descriptor
+      final btcDescriptor = bitcoinCoreDescriptors[0];
+
       final testBody = FormData.fromMap({
         'json': jsonEncode({
           "version": _payloadVersion,
-          "BtcChain": {
-            "Xpub": bitcoinSubaccount.exportData,
-            "DerivationPath": DerivationPathUtils.formatDerivationPath(
-                bitcoinSubaccount.subaccount.userPath),
-            "Type": "P2WPKH", // TODO: Get it dynamically
-            "Fingerprint": walletFingerprint,
-          },
-          "LiquidChain": {
-            "Xpub": liquidSubaccount.xpub,
-            "BlindingKey": liquidSubaccount.blindingKey,
-            "DerivationPath": DerivationPathUtils.formatDerivationPath(
-                liquidSubaccount.subaccount.userPath),
-            "Type": "P2SH_P2WPKH", // TODO: Get it dynamically
-            "Fingerprint": walletFingerprint,
-          },
-          "BtcLn": {
-            "UseLiquidBoltz": "true",
-            "LiquidAddresses": liquidAddresses,
-            "CtDescriptor": ctDescriptor,
+          "BTC": {"Descriptor": btcDescriptor},
+          "LBTC": {"Descriptor": ctDescriptor},
+          "BTC-LN": {
+            "Type": "boltz",
+            "LBTC": {"Descriptor": ctDescriptor}
           }
         })
       });

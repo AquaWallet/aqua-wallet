@@ -35,6 +35,19 @@ class Region with _$Region {
 
 extension RegionExt on Region {
   String get flagSvg {
+    // Map ISO codes to flag filenames where they differ from the standard pattern
+    const isoToFlag = {
+      'KR': 'republic-of-korea.svg',
+      'MD': 'republic-of-moldova.svg',
+      'SH': 'saint-helena.svg',
+      'TZ': 'tanzania.svg',
+      'GB': 'united-kingdom.svg'
+    };
+
+    if (isoToFlag.containsKey(iso)) {
+      return 'assets/flags/${isoToFlag[iso]}';
+    }
+
     const ext = '.svg';
     final filename = name
         // Remove text in parentheses AND any commas, periods, or apostrophes

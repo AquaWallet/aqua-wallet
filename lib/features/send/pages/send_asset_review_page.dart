@@ -1,12 +1,9 @@
-import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
-import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -178,11 +175,6 @@ class _AquaTxnReviewContent extends ConsumerWidget {
           ),
         },
         const SizedBox(height: 22),
-        //ANCHOR - Spending Total
-        if (input.transactionType == SendTransactionType.topUp) ...{
-          _SpendingTotalCard(args: args),
-          const SizedBox(height: 22),
-        },
         //ANCHOR - Add Note
         if (isNotesEnabled) ...{
           const AddNoteButton(),
@@ -242,69 +234,6 @@ class _UsdSwapTxnReviewContent extends ConsumerWidget {
           const AddNoteButton(),
         },
       ],
-    );
-  }
-}
-
-class _SpendingTotalCard extends HookConsumerWidget {
-  const _SpendingTotalCard({
-    required this.args,
-  });
-
-  final SendAssetArguments args;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode =
-        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
-    final topUpInput = ref.watch(topUpInputStateProvider).value!;
-    final sendInput = ref.watch(sendAssetInputStateProvider(args)).value!;
-    final feeUsd = useMemoized(() {
-      final fee = sendInput.fee?.map(
-            bitcoin: (e) => e.fee.feeFiat,
-            liquid: (e) => e.fee.map(
-              lbtc: (e) => e.feeFiat,
-              usdt: (e) => DecimalExt.satsToDecimal(
-                e.feeAmount,
-                args.asset.precision,
-              ).toDouble(),
-            ),
-          ) ??
-          0;
-      return double.parse(topUpInput.amountInUsd ?? '0') + fee;
-    }, [args, topUpInput, sendInput]);
-
-    return BoxShadowCard(
-      color: context.colors.altScreenSurface,
-      borderRadius: BorderRadius.circular(12.0),
-      bordered: !darkMode,
-      borderColor: context.colors.cardOutlineColor,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              context.loc.totalToSpend,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                fontFamily: UiFontFamily.helveticaNeue,
-              ),
-            ),
-            Text(
-              '\$${feeUsd.toStringAsFixed(2)}',
-              textAlign: TextAlign.right,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                fontFamily: UiFontFamily.helveticaNeue,
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 }

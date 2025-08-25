@@ -407,3 +407,16 @@ class CardEventResponse with _$CardEventResponse {
   factory CardEventResponse.fromJson(Map<String, dynamic> json) =>
       _$CardEventResponseFromJson(json);
 }
+
+@freezed
+class CardVelocityResponse with _$CardVelocityResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory CardVelocityResponse({
+    required double used,
+    required double limit,
+    required String velocityControlId,
+  }) = _CardVelocityResponse;
+
+  factory CardVelocityResponse.fromJson(Map<String, dynamic> json) =>
+      _$CardVelocityResponseFromJson(json);
+}
