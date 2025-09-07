@@ -22,8 +22,11 @@ const aquaDownloadUrl = 'https://aqua.net/download';
 const aquaZendeskUrl = "https://jan3.zendesk.com/hc/en-us/requests/new";
 const aquaZendeskFaqUrl = "http://jan3.zendesk.com/";
 
-String getAquaMoonZendeskUrl(String cardId) =>
-    "$aquaZendeskUrl?tf_subject=Moon%20Card&tf_description=My%20Card%20ID%20is%20$cardId,%20and%20I%20am%20experiencing%20the%20following%20issue:";
+String getAquaMoonZendeskUrl(String subject, String description) {
+  final encodedSubject = Uri.encodeComponent(subject);
+  final encodedDescription = Uri.encodeComponent(description);
+  return "$aquaZendeskUrl?tf_subject=$encodedSubject&tf_description=$encodedDescription";
+}
 
 // BLOCKSTREAM.INFO
 const blockstreamInfoBaseUrl = 'https://blockstream.info';
@@ -53,7 +56,7 @@ const mempoolSpaceUrl = 'https://mempool.space/api/v1';
 
 // Aqua Ankara API
 const aquaAnkaraStagingApiUrl = 'https://test.aquabtc.com';
-const aquaAnkaraProdApiUrl = 'https://ankara.aquabtc.com/';
+const aquaAnkaraProdApiUrl = 'https://ankara.aquabtc.com';
 
 // Moon
 const moonTermsOfServiceUrl =

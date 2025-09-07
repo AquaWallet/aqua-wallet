@@ -44,19 +44,6 @@ final class _$Jan3ApiService extends Jan3ApiService {
   }
 
   @override
-  Future<Response<AccessTokenResponse>> refresh(RefreshTokenRequest request) {
-    final Uri $url = Uri.parse('/api/v1/auth/refresh/');
-    final $body = request;
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-      body: $body,
-    );
-    return client.send<AccessTokenResponse, AccessTokenResponse>($request);
-  }
-
-  @override
   Future<Response<AuthTokenResponse>> resetAccount() {
     final Uri $url = Uri.parse('/api/v1/auth/user/email-reset/');
     final Request $request = Request(
@@ -187,6 +174,17 @@ final class _$Jan3ApiService extends Jan3ApiService {
       client.baseUrl,
     );
     return client.send<CardEventsResponse, CardEventsResponse>($request);
+  }
+
+  @override
+  Future<Response<CardVelocityResponse>> getCardVelocity(String cardId) {
+    final Uri $url = Uri.parse('/api/v1/moon/card/${cardId}/velocity');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<CardVelocityResponse, CardVelocityResponse>($request);
   }
 
   @override

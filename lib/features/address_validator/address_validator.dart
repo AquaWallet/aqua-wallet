@@ -350,10 +350,11 @@ class AddressParser {
       }
 
       // validate minimum and maximum amounts
-      if (amount <
-          Decimal.fromInt(SendAssetAmountConstraints.lightning(null).minSats)) {
+      final minSats = SendAssetAmountConstraints.lightning(null).minSats;
+      if (amount < Decimal.fromInt(minSats)) {
         throw AddressParsingException(
-            AddressParsingExceptionType.lessThanMinAmountInInvoice);
+            AddressParsingExceptionType.lessThanMinAmountInInvoice,
+            amountInSats: minSats.toString());
       }
 
       if (amount >

@@ -1,5 +1,6 @@
 import 'package:aqua/common/common.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/exchange_rate/providers/providers.dart';
 import 'package:aqua/features/settings/shared/providers/providers.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
@@ -134,7 +135,7 @@ class BitcoinFeeSelector extends HookConsumerWidget {
   }
 }
 
-class _SelectionItem extends StatelessWidget {
+class _SelectionItem extends ConsumerWidget {
   const _SelectionItem(
       {required this.item, required this.isSelected, required this.onPressed});
 
@@ -143,7 +144,11 @@ class _SelectionItem extends StatelessWidget {
   final void Function(BitcoinFeeModel fee) onPressed;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final exchangeRate =
+        ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
+
+    final symbol = exchangeRate.currency.symbol;
     return Material(
       color: isSelected
           ? context.colors.selectedFeeCard
@@ -191,7 +196,7 @@ class _SelectionItem extends StatelessWidget {
               const Spacer(),
               //ANCHOR - Fiat Fee
               Text(
-                '\$ ${item.feeFiat.toStringAsFixed(2)}',
+                '$symbol ${item.feeFiat.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

@@ -29,7 +29,7 @@ class SendAssetAmountConstraintsNotifier extends AutoDisposeFamilyAsyncNotifier<
     if (asset.isAltUsdt) {
       final swapPair = input.swapPair;
       if (swapPair == null) {
-        throw Exception('Swap pair is null');
+        throw SwapPairIsNullError();
       }
       final swapCreationNotifier =
           ref.read(swapOrderProvider(SwapArgs(pair: swapPair)).notifier);

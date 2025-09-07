@@ -37,3 +37,9 @@ class TransactionSizeNotFoundError extends ExceptionLocalized {
   String toLocalizedString(BuildContext context) =>
       context.loc.transactionSizeNotFoundError;
 }
+
+class SwapPairIsNullError extends ExceptionLocalized {
+  @override
+  String toLocalizedString(BuildContext context) =>
+      context.loc.swapPairIsNullError;
+}

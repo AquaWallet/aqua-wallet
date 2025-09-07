@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -36,8 +34,6 @@ class MarketplaceContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
-
     return LayoutBuilder(builder: (context, constraints) {
       double screenWidth = constraints.maxWidth;
       double screenHeight = constraints.maxHeight;
@@ -49,10 +45,8 @@ class MarketplaceContent extends ConsumerWidget {
       return Scaffold(
         appBar: AquaAppBar(
           showBackButton: false,
-          actionButtonAsset: region?.flagSvg,
+          showActionButton: false,
           title: context.loc.marketplaceTitle,
-          onActionButtonPressed: () =>
-              unawaited(ref.read(regionsProvider).setRegionRequired()),
         ),
         body: SafeArea(
           child: SizedBox(

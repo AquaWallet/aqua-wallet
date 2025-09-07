@@ -37,6 +37,7 @@ enum FeatureFlag {
   user('User'),
   unifiedBalance('UnifiedBalance'),
   jan3Account('Jan3Account'),
+  jan3AuthToken('Jan3AuthToken'),
   debitCard('DebitCard');
 
   const FeatureFlag(this.value);

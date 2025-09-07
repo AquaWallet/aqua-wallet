@@ -71,7 +71,7 @@ extension DateTimeEx on DateTime {
 
   String yMMMdHm() => DateFormat('yMMMd HH:mm').format(localDate);
 
-  String HHmmaUTC() => DateFormat('HH:mm a \'UTC\'').format(localDate);
+  String HHmma() => DateFormat('HH:mm a').format(localDate);
 
   String formatDay() => DateFormat('d').format(localDate);
 

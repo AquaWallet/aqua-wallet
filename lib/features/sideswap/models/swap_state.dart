@@ -57,6 +57,7 @@ class SwapState with _$SwapState {
       swapOutgoingAssetId: response.params?.sendAsset,
       swapIncomingSatoshi: response.params?.recvAmount,
       swapIncomingAssetId: response.params?.recvAsset,
+      createdAtTs: DateTime.now().microsecondsSinceEpoch,
     );
   }
 }
