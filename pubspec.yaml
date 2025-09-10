@@ -15,6 +15,8 @@ dependencies:
   google_mlkit_text_recognition: ^0.6.0
 
   # ---- Core & Other Packages ----
+  ui_components:
+    path: packages/ui_components
   app_settings: ^5.1.1
   async: ^2.11.0
   bech32: ^0.2.2
@@ -39,6 +41,7 @@ dependencies:
   envied: ^1.0.0
   ffi: ^2.0.2
   file_picker: ^8.0.0+1
+  flare_flutter: ^3.0.2
   flutter:
     sdk: flutter
   flutter_client_sse: ^2.0.0
@@ -230,33 +233,3 @@ flutter_gen:
     outputs:
       class_name: UiFontFamily
 
-ffigen:
-  output: "lib/ffi/generated_bindings.dart"
-  headers:
-    entry-points:
-      - "crypto/gdk/include/gdk/gdk.h"
-      - "boltz-rust/bindings.h"
-  include-directories:
-    - "/usr/include"
-    - "/usr/local/include"
-  typedefs:
-    include:
-      - ".*"
-  functions:
-    expose-typedefs:
-      include:
-        - ".*"
-  symbol-address:
-    include:
-      - ".*"
-  structs:
-    exclude:
-      - "(.*)sigaction(.*)"
-  unions:
-    exclude:
-      - "(.*)sigaction(.*)"
-  llvm-path:
-    - "/nix/store/wxxgsgjxbnkkyczgf8lkbfrsqiywm8bi-clang-17.0.6-lib"
-    - "/opt/local/libexec/llvm-10"
-    - "/Library/Developer/CommandLineTools/usr"
-    - "\\opt\\llvm"
