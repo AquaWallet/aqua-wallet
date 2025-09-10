@@ -50,7 +50,7 @@ get-boltz-rust:
 	cp boltz-rust/ios/libboltz_rust.a ios
 
 generate-bindings:
-	dart run ffigen --ignore-source-errors
+	dart run ffigen --config ffigen.yaml
 
 freeze:
 	dart run build_runner build --delete-conflicting-outputs
