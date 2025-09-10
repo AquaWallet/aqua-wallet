@@ -14,6 +14,7 @@
           config.allowUnfree = true;
           android_sdk.accept_license = true;
         };
+        lib = pkgs.lib;
         androidEnv = pkgs.androidenv.override { licenseAccepted = true; };
         androidComposition = androidEnv.composeAndroidPackages {
           cmdLineToolsVersion = "8.0"; # emulator related: newer versions are not only compatible with avdmanager
@@ -51,6 +52,7 @@
             llvmPackages.libclang
             llvmPackages.libcxxClang
             clang
+            glibc.dev
 
             androidSdk
             qemu_kvm
@@ -63,7 +65,8 @@
           LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [vulkan-loader libGL]}";
 
           LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
-
+          CLANG_INCLUDE = "${llvmPackages.libclang.lib}/lib/clang/${lib.versions.major llvmPackages.clang.version}/include";
+          GLIBC_INCLUDE = "${pkgs.glibc.dev}/include";
 
           # Globally installed packages, which are installed through `dart pub global activate package_name`,
           # are located in the `$PUB_CACHE/bin` directory.
@@ -75,7 +78,58 @@
             fi
 
             export PATH="$(git rev-parse --show-toplevel)/flutter/bin:$PATH"
+
             git submodule update --init
+
+            if [ ! -f "$LIBCLANG_PATH/libclang.so" ]; then
+              echo "ERROR: libclang.so not found in $LIBCLANG_PATH"
+              exit 1
+            fi
+
+            if [ ! -f "$CLANG_INCLUDE/stddef.h" ]; then
+              echo "ERROR: stddef.h not found in $CLANG_INCLUDE"
+              exit 1
+            fi
+
+            rm -f ffigen.yaml
+
+            cat > ffigen.yaml <<EOF
+name: "GeneratedBindings"
+description: "Bindings created by ffigen"
+output: "lib/ffi/generated_bindings.dart"
+headers:
+  entry-points:
+    - "crypto/gdk/include/gdk/gdk.h"
+    - "boltz-rust/bindings.h"
+  include-directives:
+    - "**/*.h"
+typedefs:
+  include:
+    - ".*"
+functions:
+  expose-typedefs:
+    include:
+      - ".*"
+structs:
+  exclude:
+    - "(.*)sigaction(.*)"
+unions:
+  exclude:
+    - "(.*)sigaction(.*)"
+
+llvm-path:
+  - "${llvmPackages.libclang.lib}"
+
+compiler-opts:
+  - "-I$CLANG_INCLUDE"
+  - "-I$GLIBC_INCLUDE"
+  - "-I/usr/include"
+  - "-I/usr/local/include"
+  - "-Icrypto/gdk/include"
+  - "-Iboltz-rust"
+EOF
+
+echo "ffigen.yaml created ok"
           '';
         };
       }
