@@ -63,6 +63,29 @@ enum TransactionStatus {
   started,
 }
 
+enum CardStyle {
+  @JsonValue('style1')
+  style1,
+  @JsonValue('style2')
+  style2,
+  @JsonValue('style3')
+  style3,
+  @JsonValue('style4')
+  style4,
+  @JsonValue('style5')
+  style5,
+  @JsonValue('style6')
+  style6,
+  @JsonValue('style7')
+  style7,
+  @JsonValue('style8')
+  style8,
+  @JsonValue('style9')
+  style9,
+  @JsonValue('style10')
+  style10,
+}
+
 @freezed
 class LoginRequest with _$LoginRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
