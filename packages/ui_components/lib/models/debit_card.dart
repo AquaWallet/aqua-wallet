@@ -1,6 +1,5 @@
 import 'package:ui_components/gen/assets.gen.dart';
 
-@JsonEnum()
 enum CardStyle {
   style1,
   style2,
