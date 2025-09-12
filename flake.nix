@@ -94,7 +94,7 @@
             rm -f ffigen.yaml
 
             cat > ffigen.yaml <<EOF
-name: "GeneratedBindings"
+name: "NativeLibrary"
 description: "Bindings created by ffigen"
 output: "lib/ffi/generated_bindings.dart"
 headers:

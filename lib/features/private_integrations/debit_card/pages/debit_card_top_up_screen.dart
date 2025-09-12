@@ -54,7 +54,6 @@ class DebitCardTopUpScreen extends HookConsumerWidget {
         SendAssetReviewPage(
           arguments: topUpState.arguments,
           onConfirmed: onExecuteInvoiceTransaction,
-          transactionType: SendTransactionType.topUp,
         ),
       ],
       [topUpState.arguments],

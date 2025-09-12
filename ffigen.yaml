@@ -1,0 +1,33 @@
+name: "NativeLibrary"
+description: "Bindings created by ffigen"
+output: "lib/ffi/generated_bindings.dart"
+headers:
+  entry-points:
+    - "crypto/gdk/include/gdk/gdk.h"
+    - "boltz-rust/bindings.h"
+  include-directives:
+    - "**/*.h"
+typedefs:
+  include:
+    - ".*"
+functions:
+  expose-typedefs:
+    include:
+      - ".*"
+structs:
+  exclude:
+    - "(.*)sigaction(.*)"
+unions:
+  exclude:
+    - "(.*)sigaction(.*)"
+
+llvm-path:
+  - "/nix/store/i91a9lv2mp91h93plr8n34xdkr16xi49-clang-17.0.6-lib"
+
+compiler-opts:
+  - "-I/nix/store/i91a9lv2mp91h93plr8n34xdkr16xi49-clang-17.0.6-lib/lib/clang/17/include"
+  - "-I/nix/store/4vgk1rlzdqjnpjicb5qcxjcd4spi7wyw-glibc-2.39-52-dev/include"
+  - "-I/usr/include"
+  - "-I/usr/local/include"
+  - "-Icrypto/gdk/include"
+  - "-Iboltz-rust"

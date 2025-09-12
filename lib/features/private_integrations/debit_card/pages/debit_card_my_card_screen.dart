@@ -25,7 +25,7 @@ class DebitCardMyCardScreen extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(prefsProvider.notifier).setTheme(dark: true);
+        ref.read(prefsProvider.notifier).setTheme(true);
       });
       return null;
     }, []);
@@ -73,7 +73,7 @@ class DebitCardMyCardScreen extends HookConsumerWidget {
               const SizedBox(height: 30),
               //ANCHOR - Balance
               MoonCardBalance(
-                balance: cards.firstOrNull?.availableBalance ?? 0,
+                balance: cards.firstOrNull?.availableBalance?.toDouble() ?? 0.0,
               ),
               const SizedBox(height: 23),
               //ANCHOR - Debit Card / Placeholder

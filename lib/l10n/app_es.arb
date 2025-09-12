@@ -1011,5 +1011,13 @@
   "nativeBuyPaymentCardPayment": "Pago con tarjeta",
   "autoLockSettingsScreenTitle": "Requerir PIN después de",
   "scanBitcoinChip": "Escanear ficha de Bitcoin",
-  "swapPairIsNullError": "El par de intercambio es nulo"
+  "swapPairIsNullError": "El par de intercambio es nulo",
+  "hideDetails": "Ocultar detalles",
+  "showDetails": "Mostrar detalles",
+  "visaRechargeable": "Visa Recargable",
+  "visaReloadable": "Visa Recargable",
+  "characteristics": "Características",
+  "noPersonalDataRequired": "No se requieren datos personales",
+  "feePayments1": "1% de comisión en pagos",
+  "limit4000UsdPerMonth": "Límite: 4000 USD por mes"
 }

@@ -83,7 +83,7 @@ class TopUpInvoiceProvider extends AutoDisposeAsyncNotifier<TopUpInvoiceState> {
       throw Exception('Invoice ID is null');
     }
     final (token, _) =
-        await ref.read(secureStorageProvider).get(Jan3AuthNotifier.tokenKey);
+        await ref.read(secureStorageProvider).get(Jan3AuthNotifier.token);
     if (token == null) {
       throw Exception('Token is null');
     }

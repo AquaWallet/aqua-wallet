@@ -1011,5 +1011,13 @@
   "nativeBuyPaymentCardPayment": "Card Payment",
   "autoLockSettingsScreenTitle": "Require PIN After",
   "scanBitcoinChip": "Scan Bitcoin Chip",
-  "swapPairIsNullError": "Swap pair is null"
+  "swapPairIsNullError": "Swap pair is null",
+  "hideDetails": "Hide details",
+  "showDetails": "Show details",
+  "visaRechargeable": "Visa Rechargeable",
+  "visaReloadable": "Visa Reloadable",
+  "characteristics": "Characteristics",
+  "noPersonalDataRequired": "No personal data required",
+  "feePayments1": "1% fee on payments",
+  "limit4000UsdPerMonth": "Limit: $4000 USD per month"
 }

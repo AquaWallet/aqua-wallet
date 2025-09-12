@@ -4,6 +4,7 @@
 // ignore_for_file: type=lint
 import 'dart:ffi' as ffi;
 
+/// Bindings created by ffigen
 class NativeLibrary {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
@@ -19,24 +20,46 @@ class NativeLibrary {
           lookup)
       : _lookup = lookup;
 
-  int __darwin_check_fd_set_overflow(
-    int arg0,
-    ffi.Pointer<ffi.Void> arg1,
-    int arg2,
+  int select(
+    int __nfds,
+    ffi.Pointer<fd_set> __readfds,
+    ffi.Pointer<fd_set> __writefds,
+    ffi.Pointer<fd_set> __exceptfds,
+    ffi.Pointer<timeval> __timeout,
   ) {
-    return ___darwin_check_fd_set_overflow(
-      arg0,
-      arg1,
-      arg2,
+    return _select(
+      __nfds,
+      __readfds,
+      __writefds,
+      __exceptfds,
+      __timeout,
     );
   }
 
-  late final ___darwin_check_fd_set_overflowPtr =
-      _lookup<ffi.NativeFunction<Native__darwin_check_fd_set_overflow>>(
-          '__darwin_check_fd_set_overflow');
-  late final ___darwin_check_fd_set_overflow =
-      ___darwin_check_fd_set_overflowPtr
-          .asFunction<Dart__darwin_check_fd_set_overflow>();
+  late final _selectPtr = _lookup<ffi.NativeFunction<NativeSelect>>('select');
+  late final _select = _selectPtr.asFunction<DartSelect>();
+
+  int pselect(
+    int __nfds,
+    ffi.Pointer<fd_set> __readfds,
+    ffi.Pointer<fd_set> __writefds,
+    ffi.Pointer<fd_set> __exceptfds,
+    ffi.Pointer<timespec> __timeout,
+    ffi.Pointer<__sigset_t> __sigmask,
+  ) {
+    return _pselect(
+      __nfds,
+      __readfds,
+      __writefds,
+      __exceptfds,
+      __timeout,
+      __sigmask,
+    );
+  }
+
+  late final _pselectPtr =
+      _lookup<ffi.NativeFunction<NativePselect>>('pselect');
+  late final _pselect = _pselectPtr.asFunction<DartPselect>();
 
   /// Perform one-time initialization of the library. This call must be made once
   /// only before calling any other GDK functions, including any functions called
@@ -2103,451 +2126,601 @@ class NativeLibrary {
   late final _GA_get_uniform_uint32_t =
       _GA_get_uniform_uint32_tPtr.asFunction<DartGA_get_uniform_uint32_t>();
 
-  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> signal(
-    int arg0,
-    ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> arg1,
+  int __ctype_get_mb_cur_max() {
+    return ___ctype_get_mb_cur_max();
+  }
+
+  late final ___ctype_get_mb_cur_maxPtr =
+      _lookup<ffi.NativeFunction<Native__ctype_get_mb_cur_max>>(
+          '__ctype_get_mb_cur_max');
+  late final ___ctype_get_mb_cur_max =
+      ___ctype_get_mb_cur_maxPtr.asFunction<Dart__ctype_get_mb_cur_max>();
+
+  double atof(
+    ffi.Pointer<ffi.Char> __nptr,
   ) {
-    return _signal(
-      arg0,
-      arg1,
+    return _atof(
+      __nptr,
     );
   }
 
-  late final _signalPtr = _lookup<ffi.NativeFunction<NativeSignal>>('signal');
-  late final _signal = _signalPtr.asFunction<DartSignal>();
+  late final _atofPtr = _lookup<ffi.NativeFunction<NativeAtof>>('atof');
+  late final _atof = _atofPtr.asFunction<DartAtof>();
 
-  int getpriority(
-    int arg0,
-    int arg1,
+  int atoi(
+    ffi.Pointer<ffi.Char> __nptr,
   ) {
-    return _getpriority(
-      arg0,
-      arg1,
+    return _atoi(
+      __nptr,
     );
   }
 
-  late final _getpriorityPtr =
-      _lookup<ffi.NativeFunction<NativeGetpriority>>('getpriority');
-  late final _getpriority = _getpriorityPtr.asFunction<DartGetpriority>();
+  late final _atoiPtr = _lookup<ffi.NativeFunction<NativeAtoi>>('atoi');
+  late final _atoi = _atoiPtr.asFunction<DartAtoi>();
 
-  int getiopolicy_np(
-    int arg0,
-    int arg1,
+  int atol(
+    ffi.Pointer<ffi.Char> __nptr,
   ) {
-    return _getiopolicy_np(
-      arg0,
-      arg1,
+    return _atol(
+      __nptr,
     );
   }
 
-  late final _getiopolicy_npPtr =
-      _lookup<ffi.NativeFunction<NativeGetiopolicy_np>>('getiopolicy_np');
-  late final _getiopolicy_np =
-      _getiopolicy_npPtr.asFunction<DartGetiopolicy_np>();
+  late final _atolPtr = _lookup<ffi.NativeFunction<NativeAtol>>('atol');
+  late final _atol = _atolPtr.asFunction<DartAtol>();
 
-  int getrlimit(
-    int arg0,
-    ffi.Pointer<rlimit> arg1,
+  int atoll(
+    ffi.Pointer<ffi.Char> __nptr,
   ) {
-    return _getrlimit(
-      arg0,
-      arg1,
+    return _atoll(
+      __nptr,
     );
   }
 
-  late final _getrlimitPtr =
-      _lookup<ffi.NativeFunction<NativeGetrlimit>>('getrlimit');
-  late final _getrlimit = _getrlimitPtr.asFunction<DartGetrlimit>();
+  late final _atollPtr = _lookup<ffi.NativeFunction<NativeAtoll>>('atoll');
+  late final _atoll = _atollPtr.asFunction<DartAtoll>();
 
-  int getrusage(
-    int arg0,
-    ffi.Pointer<rusage> arg1,
+  double strtod(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
   ) {
-    return _getrusage(
-      arg0,
-      arg1,
+    return _strtod(
+      __nptr,
+      __endptr,
     );
   }
 
-  late final _getrusagePtr =
-      _lookup<ffi.NativeFunction<NativeGetrusage>>('getrusage');
-  late final _getrusage = _getrusagePtr.asFunction<DartGetrusage>();
+  late final _strtodPtr = _lookup<ffi.NativeFunction<NativeStrtod>>('strtod');
+  late final _strtod = _strtodPtr.asFunction<DartStrtod>();
 
-  int setpriority(
-    int arg0,
-    int arg1,
-    int arg2,
+  double strtof(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
   ) {
-    return _setpriority(
-      arg0,
-      arg1,
-      arg2,
+    return _strtof(
+      __nptr,
+      __endptr,
     );
   }
 
-  late final _setpriorityPtr =
-      _lookup<ffi.NativeFunction<NativeSetpriority>>('setpriority');
-  late final _setpriority = _setpriorityPtr.asFunction<DartSetpriority>();
+  late final _strtofPtr = _lookup<ffi.NativeFunction<NativeStrtof>>('strtof');
+  late final _strtof = _strtofPtr.asFunction<DartStrtof>();
 
-  int setiopolicy_np(
-    int arg0,
-    int arg1,
-    int arg2,
+  int strtol(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
   ) {
-    return _setiopolicy_np(
-      arg0,
-      arg1,
-      arg2,
+    return _strtol(
+      __nptr,
+      __endptr,
+      __base,
     );
   }
 
-  late final _setiopolicy_npPtr =
-      _lookup<ffi.NativeFunction<NativeSetiopolicy_np>>('setiopolicy_np');
-  late final _setiopolicy_np =
-      _setiopolicy_npPtr.asFunction<DartSetiopolicy_np>();
+  late final _strtolPtr = _lookup<ffi.NativeFunction<NativeStrtol>>('strtol');
+  late final _strtol = _strtolPtr.asFunction<DartStrtol>();
 
-  int setrlimit(
-    int arg0,
-    ffi.Pointer<rlimit> arg1,
+  int strtoul(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
   ) {
-    return _setrlimit(
-      arg0,
-      arg1,
+    return _strtoul(
+      __nptr,
+      __endptr,
+      __base,
     );
   }
 
-  late final _setrlimitPtr =
-      _lookup<ffi.NativeFunction<NativeSetrlimit>>('setrlimit');
-  late final _setrlimit = _setrlimitPtr.asFunction<DartSetrlimit>();
+  late final _strtoulPtr =
+      _lookup<ffi.NativeFunction<NativeStrtoul>>('strtoul');
+  late final _strtoul = _strtoulPtr.asFunction<DartStrtoul>();
 
-  int wait1(
-    ffi.Pointer<ffi.Int> arg0,
+  int strtoq(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
   ) {
-    return _wait1(
-      arg0,
+    return _strtoq(
+      __nptr,
+      __endptr,
+      __base,
     );
   }
 
-  late final _wait1Ptr = _lookup<ffi.NativeFunction<NativeWait>>('wait');
-  late final _wait1 = _wait1Ptr.asFunction<DartWait>();
+  late final _strtoqPtr = _lookup<ffi.NativeFunction<NativeStrtoq>>('strtoq');
+  late final _strtoq = _strtoqPtr.asFunction<DartStrtoq>();
 
-  int waitpid(
-    int arg0,
-    ffi.Pointer<ffi.Int> arg1,
-    int arg2,
+  int strtouq(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
   ) {
-    return _waitpid(
-      arg0,
-      arg1,
-      arg2,
+    return _strtouq(
+      __nptr,
+      __endptr,
+      __base,
     );
   }
 
-  late final _waitpidPtr =
-      _lookup<ffi.NativeFunction<NativeWaitpid>>('waitpid');
-  late final _waitpid = _waitpidPtr.asFunction<DartWaitpid>();
+  late final _strtouqPtr =
+      _lookup<ffi.NativeFunction<NativeStrtouq>>('strtouq');
+  late final _strtouq = _strtouqPtr.asFunction<DartStrtouq>();
 
-  int waitid(
-    int arg0,
-    int arg1,
-    ffi.Pointer<siginfo_t> arg2,
-    int arg3,
+  int strtoll(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
   ) {
-    return _waitid(
-      arg0,
-      arg1,
-      arg2,
-      arg3,
+    return _strtoll(
+      __nptr,
+      __endptr,
+      __base,
     );
   }
 
-  late final _waitidPtr = _lookup<ffi.NativeFunction<NativeWaitid>>('waitid');
-  late final _waitid = _waitidPtr.asFunction<DartWaitid>();
+  late final _strtollPtr =
+      _lookup<ffi.NativeFunction<NativeStrtoll>>('strtoll');
+  late final _strtoll = _strtollPtr.asFunction<DartStrtoll>();
 
-  int wait3(
-    ffi.Pointer<ffi.Int> arg0,
-    int arg1,
-    ffi.Pointer<rusage> arg2,
+  int strtoull(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    int __base,
   ) {
-    return _wait3(
-      arg0,
-      arg1,
-      arg2,
+    return _strtoull(
+      __nptr,
+      __endptr,
+      __base,
     );
   }
 
-  late final _wait3Ptr = _lookup<ffi.NativeFunction<NativeWait3>>('wait3');
-  late final _wait3 = _wait3Ptr.asFunction<DartWait3>();
+  late final _strtoullPtr =
+      _lookup<ffi.NativeFunction<NativeStrtoull>>('strtoull');
+  late final _strtoull = _strtoullPtr.asFunction<DartStrtoull>();
 
-  int wait4(
-    int arg0,
-    ffi.Pointer<ffi.Int> arg1,
-    int arg2,
-    ffi.Pointer<rusage> arg3,
+  ffi.Pointer<ffi.Char> l64a(
+    int __n,
   ) {
-    return _wait4(
-      arg0,
-      arg1,
-      arg2,
-      arg3,
+    return _l64a(
+      __n,
     );
   }
 
-  late final _wait4Ptr = _lookup<ffi.NativeFunction<NativeWait4>>('wait4');
-  late final _wait4 = _wait4Ptr.asFunction<DartWait4>();
+  late final _l64aPtr = _lookup<ffi.NativeFunction<NativeL64a>>('l64a');
+  late final _l64a = _l64aPtr.asFunction<DartL64a>();
 
-  ffi.Pointer<ffi.Void> alloca(
+  int a64l(
+    ffi.Pointer<ffi.Char> __s,
+  ) {
+    return _a64l(
+      __s,
+    );
+  }
+
+  late final _a64lPtr = _lookup<ffi.NativeFunction<NativeA64l>>('a64l');
+  late final _a64l = _a64lPtr.asFunction<DartA64l>();
+
+  int random() {
+    return _random();
+  }
+
+  late final _randomPtr = _lookup<ffi.NativeFunction<NativeRandom>>('random');
+  late final _random = _randomPtr.asFunction<DartRandom>();
+
+  void srandom(
+    int __seed,
+  ) {
+    return _srandom(
+      __seed,
+    );
+  }
+
+  late final _srandomPtr =
+      _lookup<ffi.NativeFunction<NativeSrandom>>('srandom');
+  late final _srandom = _srandomPtr.asFunction<DartSrandom>();
+
+  ffi.Pointer<ffi.Char> initstate(
+    int __seed,
+    ffi.Pointer<ffi.Char> __statebuf,
+    int __statelen,
+  ) {
+    return _initstate(
+      __seed,
+      __statebuf,
+      __statelen,
+    );
+  }
+
+  late final _initstatePtr =
+      _lookup<ffi.NativeFunction<NativeInitstate>>('initstate');
+  late final _initstate = _initstatePtr.asFunction<DartInitstate>();
+
+  ffi.Pointer<ffi.Char> setstate(
+    ffi.Pointer<ffi.Char> __statebuf,
+  ) {
+    return _setstate(
+      __statebuf,
+    );
+  }
+
+  late final _setstatePtr =
+      _lookup<ffi.NativeFunction<NativeSetstate>>('setstate');
+  late final _setstate = _setstatePtr.asFunction<DartSetstate>();
+
+  int random_r(
+    ffi.Pointer<random_data> __buf,
+    ffi.Pointer<ffi.Int32> __result,
+  ) {
+    return _random_r(
+      __buf,
+      __result,
+    );
+  }
+
+  late final _random_rPtr =
+      _lookup<ffi.NativeFunction<NativeRandom_r>>('random_r');
+  late final _random_r = _random_rPtr.asFunction<DartRandom_r>();
+
+  int srandom_r(
+    int __seed,
+    ffi.Pointer<random_data> __buf,
+  ) {
+    return _srandom_r(
+      __seed,
+      __buf,
+    );
+  }
+
+  late final _srandom_rPtr =
+      _lookup<ffi.NativeFunction<NativeSrandom_r>>('srandom_r');
+  late final _srandom_r = _srandom_rPtr.asFunction<DartSrandom_r>();
+
+  int initstate_r(
+    int __seed,
+    ffi.Pointer<ffi.Char> __statebuf,
+    int __statelen,
+    ffi.Pointer<random_data> __buf,
+  ) {
+    return _initstate_r(
+      __seed,
+      __statebuf,
+      __statelen,
+      __buf,
+    );
+  }
+
+  late final _initstate_rPtr =
+      _lookup<ffi.NativeFunction<NativeInitstate_r>>('initstate_r');
+  late final _initstate_r = _initstate_rPtr.asFunction<DartInitstate_r>();
+
+  int setstate_r(
+    ffi.Pointer<ffi.Char> __statebuf,
+    ffi.Pointer<random_data> __buf,
+  ) {
+    return _setstate_r(
+      __statebuf,
+      __buf,
+    );
+  }
+
+  late final _setstate_rPtr =
+      _lookup<ffi.NativeFunction<NativeSetstate_r>>('setstate_r');
+  late final _setstate_r = _setstate_rPtr.asFunction<DartSetstate_r>();
+
+  int rand() {
+    return _rand();
+  }
+
+  late final _randPtr = _lookup<ffi.NativeFunction<NativeRand>>('rand');
+  late final _rand = _randPtr.asFunction<DartRand>();
+
+  void srand(
+    int __seed,
+  ) {
+    return _srand(
+      __seed,
+    );
+  }
+
+  late final _srandPtr = _lookup<ffi.NativeFunction<NativeSrand>>('srand');
+  late final _srand = _srandPtr.asFunction<DartSrand>();
+
+  int rand_r(
+    ffi.Pointer<ffi.UnsignedInt> __seed,
+  ) {
+    return _rand_r(
+      __seed,
+    );
+  }
+
+  late final _rand_rPtr = _lookup<ffi.NativeFunction<NativeRand_r>>('rand_r');
+  late final _rand_r = _rand_rPtr.asFunction<DartRand_r>();
+
+  double drand48() {
+    return _drand48();
+  }
+
+  late final _drand48Ptr =
+      _lookup<ffi.NativeFunction<NativeDrand48>>('drand48');
+  late final _drand48 = _drand48Ptr.asFunction<DartDrand48>();
+
+  double erand48(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+  ) {
+    return _erand48(
+      __xsubi,
+    );
+  }
+
+  late final _erand48Ptr =
+      _lookup<ffi.NativeFunction<NativeErand48>>('erand48');
+  late final _erand48 = _erand48Ptr.asFunction<DartErand48>();
+
+  int lrand48() {
+    return _lrand48();
+  }
+
+  late final _lrand48Ptr =
+      _lookup<ffi.NativeFunction<NativeLrand48>>('lrand48');
+  late final _lrand48 = _lrand48Ptr.asFunction<DartLrand48>();
+
+  int nrand48(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+  ) {
+    return _nrand48(
+      __xsubi,
+    );
+  }
+
+  late final _nrand48Ptr =
+      _lookup<ffi.NativeFunction<NativeNrand48>>('nrand48');
+  late final _nrand48 = _nrand48Ptr.asFunction<DartNrand48>();
+
+  int mrand48() {
+    return _mrand48();
+  }
+
+  late final _mrand48Ptr =
+      _lookup<ffi.NativeFunction<NativeMrand48>>('mrand48');
+  late final _mrand48 = _mrand48Ptr.asFunction<DartMrand48>();
+
+  int jrand48(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+  ) {
+    return _jrand48(
+      __xsubi,
+    );
+  }
+
+  late final _jrand48Ptr =
+      _lookup<ffi.NativeFunction<NativeJrand48>>('jrand48');
+  late final _jrand48 = _jrand48Ptr.asFunction<DartJrand48>();
+
+  void srand48(
+    int __seedval,
+  ) {
+    return _srand48(
+      __seedval,
+    );
+  }
+
+  late final _srand48Ptr =
+      _lookup<ffi.NativeFunction<NativeSrand48>>('srand48');
+  late final _srand48 = _srand48Ptr.asFunction<DartSrand48>();
+
+  ffi.Pointer<ffi.UnsignedShort> seed48(
+    ffi.Pointer<ffi.UnsignedShort> __seed16v,
+  ) {
+    return _seed48(
+      __seed16v,
+    );
+  }
+
+  late final _seed48Ptr = _lookup<ffi.NativeFunction<NativeSeed48>>('seed48');
+  late final _seed48 = _seed48Ptr.asFunction<DartSeed48>();
+
+  void lcong48(
+    ffi.Pointer<ffi.UnsignedShort> __param,
+  ) {
+    return _lcong48(
+      __param,
+    );
+  }
+
+  late final _lcong48Ptr =
+      _lookup<ffi.NativeFunction<NativeLcong48>>('lcong48');
+  late final _lcong48 = _lcong48Ptr.asFunction<DartLcong48>();
+
+  int drand48_r(
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Double> __result,
+  ) {
+    return _drand48_r(
+      __buffer,
+      __result,
+    );
+  }
+
+  late final _drand48_rPtr =
+      _lookup<ffi.NativeFunction<NativeDrand48_r>>('drand48_r');
+  late final _drand48_r = _drand48_rPtr.asFunction<DartDrand48_r>();
+
+  int erand48_r(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Double> __result,
+  ) {
+    return _erand48_r(
+      __xsubi,
+      __buffer,
+      __result,
+    );
+  }
+
+  late final _erand48_rPtr =
+      _lookup<ffi.NativeFunction<NativeErand48_r>>('erand48_r');
+  late final _erand48_r = _erand48_rPtr.asFunction<DartErand48_r>();
+
+  int lrand48_r(
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Long> __result,
+  ) {
+    return _lrand48_r(
+      __buffer,
+      __result,
+    );
+  }
+
+  late final _lrand48_rPtr =
+      _lookup<ffi.NativeFunction<NativeLrand48_r>>('lrand48_r');
+  late final _lrand48_r = _lrand48_rPtr.asFunction<DartLrand48_r>();
+
+  int nrand48_r(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Long> __result,
+  ) {
+    return _nrand48_r(
+      __xsubi,
+      __buffer,
+      __result,
+    );
+  }
+
+  late final _nrand48_rPtr =
+      _lookup<ffi.NativeFunction<NativeNrand48_r>>('nrand48_r');
+  late final _nrand48_r = _nrand48_rPtr.asFunction<DartNrand48_r>();
+
+  int mrand48_r(
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Long> __result,
+  ) {
+    return _mrand48_r(
+      __buffer,
+      __result,
+    );
+  }
+
+  late final _mrand48_rPtr =
+      _lookup<ffi.NativeFunction<NativeMrand48_r>>('mrand48_r');
+  late final _mrand48_r = _mrand48_rPtr.asFunction<DartMrand48_r>();
+
+  int jrand48_r(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Long> __result,
+  ) {
+    return _jrand48_r(
+      __xsubi,
+      __buffer,
+      __result,
+    );
+  }
+
+  late final _jrand48_rPtr =
+      _lookup<ffi.NativeFunction<NativeJrand48_r>>('jrand48_r');
+  late final _jrand48_r = _jrand48_rPtr.asFunction<DartJrand48_r>();
+
+  int srand48_r(
+    int __seedval,
+    ffi.Pointer<drand48_data> __buffer,
+  ) {
+    return _srand48_r(
+      __seedval,
+      __buffer,
+    );
+  }
+
+  late final _srand48_rPtr =
+      _lookup<ffi.NativeFunction<NativeSrand48_r>>('srand48_r');
+  late final _srand48_r = _srand48_rPtr.asFunction<DartSrand48_r>();
+
+  int seed48_r(
+    ffi.Pointer<ffi.UnsignedShort> __seed16v,
+    ffi.Pointer<drand48_data> __buffer,
+  ) {
+    return _seed48_r(
+      __seed16v,
+      __buffer,
+    );
+  }
+
+  late final _seed48_rPtr =
+      _lookup<ffi.NativeFunction<NativeSeed48_r>>('seed48_r');
+  late final _seed48_r = _seed48_rPtr.asFunction<DartSeed48_r>();
+
+  int lcong48_r(
+    ffi.Pointer<ffi.UnsignedShort> __param,
+    ffi.Pointer<drand48_data> __buffer,
+  ) {
+    return _lcong48_r(
+      __param,
+      __buffer,
+    );
+  }
+
+  late final _lcong48_rPtr =
+      _lookup<ffi.NativeFunction<NativeLcong48_r>>('lcong48_r');
+  late final _lcong48_r = _lcong48_rPtr.asFunction<DartLcong48_r>();
+
+  int arc4random() {
+    return _arc4random();
+  }
+
+  late final _arc4randomPtr =
+      _lookup<ffi.NativeFunction<NativeArc4random>>('arc4random');
+  late final _arc4random = _arc4randomPtr.asFunction<DartArc4random>();
+
+  void arc4random_buf(
+    ffi.Pointer<ffi.Void> __buf,
     int __size,
   ) {
-    return _alloca(
+    return _arc4random_buf(
+      __buf,
       __size,
     );
   }
 
-  late final _allocaPtr = _lookup<ffi.NativeFunction<NativeAlloca>>('alloca');
-  late final _alloca = _allocaPtr.asFunction<DartAlloca>();
+  late final _arc4random_bufPtr =
+      _lookup<ffi.NativeFunction<NativeArc4random_buf>>('arc4random_buf');
+  late final _arc4random_buf =
+      _arc4random_bufPtr.asFunction<DartArc4random_buf>();
 
-  late final ffi.Pointer<ffi.Int> ___mb_cur_max =
-      _lookup<ffi.Int>('__mb_cur_max');
-
-  int get __mb_cur_max => ___mb_cur_max.value;
-
-  set __mb_cur_max(int value) => ___mb_cur_max.value = value;
-
-  ffi.Pointer<ffi.Void> malloc_type_malloc(
-    int size,
-    int type_id,
+  int arc4random_uniform(
+    int __upper_bound,
   ) {
-    return _malloc_type_malloc(
-      size,
-      type_id,
+    return _arc4random_uniform(
+      __upper_bound,
     );
   }
 
-  late final _malloc_type_mallocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_malloc>>(
-          'malloc_type_malloc');
-  late final _malloc_type_malloc =
-      _malloc_type_mallocPtr.asFunction<DartMalloc_type_malloc>();
-
-  ffi.Pointer<ffi.Void> malloc_type_calloc(
-    int count,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_calloc(
-      count,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_callocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_calloc>>(
-          'malloc_type_calloc');
-  late final _malloc_type_calloc =
-      _malloc_type_callocPtr.asFunction<DartMalloc_type_calloc>();
-
-  void malloc_type_free(
-    ffi.Pointer<ffi.Void> ptr,
-    int type_id,
-  ) {
-    return _malloc_type_free(
-      ptr,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_freePtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_free>>('malloc_type_free');
-  late final _malloc_type_free =
-      _malloc_type_freePtr.asFunction<DartMalloc_type_free>();
-
-  ffi.Pointer<ffi.Void> malloc_type_realloc(
-    ffi.Pointer<ffi.Void> ptr,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_realloc(
-      ptr,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_reallocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_realloc>>(
-          'malloc_type_realloc');
-  late final _malloc_type_realloc =
-      _malloc_type_reallocPtr.asFunction<DartMalloc_type_realloc>();
-
-  ffi.Pointer<ffi.Void> malloc_type_valloc(
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_valloc(
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_vallocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_valloc>>(
-          'malloc_type_valloc');
-  late final _malloc_type_valloc =
-      _malloc_type_vallocPtr.asFunction<DartMalloc_type_valloc>();
-
-  ffi.Pointer<ffi.Void> malloc_type_aligned_alloc(
-    int alignment,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_aligned_alloc(
-      alignment,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_aligned_allocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_aligned_alloc>>(
-          'malloc_type_aligned_alloc');
-  late final _malloc_type_aligned_alloc =
-      _malloc_type_aligned_allocPtr.asFunction<DartMalloc_type_aligned_alloc>();
-
-  int malloc_type_posix_memalign(
-    ffi.Pointer<ffi.Pointer<ffi.Void>> memptr,
-    int alignment,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_posix_memalign(
-      memptr,
-      alignment,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_posix_memalignPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_posix_memalign>>(
-          'malloc_type_posix_memalign');
-  late final _malloc_type_posix_memalign = _malloc_type_posix_memalignPtr
-      .asFunction<DartMalloc_type_posix_memalign>();
-
-  ffi.Pointer<ffi.Void> malloc_type_zone_malloc(
-    ffi.Pointer<malloc_zone_t> zone,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_zone_malloc(
-      zone,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_zone_mallocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_malloc>>(
-          'malloc_type_zone_malloc');
-  late final _malloc_type_zone_malloc =
-      _malloc_type_zone_mallocPtr.asFunction<DartMalloc_type_zone_malloc>();
-
-  ffi.Pointer<ffi.Void> malloc_type_zone_calloc(
-    ffi.Pointer<malloc_zone_t> zone,
-    int count,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_zone_calloc(
-      zone,
-      count,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_zone_callocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_calloc>>(
-          'malloc_type_zone_calloc');
-  late final _malloc_type_zone_calloc =
-      _malloc_type_zone_callocPtr.asFunction<DartMalloc_type_zone_calloc>();
-
-  void malloc_type_zone_free(
-    ffi.Pointer<malloc_zone_t> zone,
-    ffi.Pointer<ffi.Void> ptr,
-    int type_id,
-  ) {
-    return _malloc_type_zone_free(
-      zone,
-      ptr,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_zone_freePtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_free>>(
-          'malloc_type_zone_free');
-  late final _malloc_type_zone_free =
-      _malloc_type_zone_freePtr.asFunction<DartMalloc_type_zone_free>();
-
-  ffi.Pointer<ffi.Void> malloc_type_zone_realloc(
-    ffi.Pointer<malloc_zone_t> zone,
-    ffi.Pointer<ffi.Void> ptr,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_zone_realloc(
-      zone,
-      ptr,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_zone_reallocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_realloc>>(
-          'malloc_type_zone_realloc');
-  late final _malloc_type_zone_realloc =
-      _malloc_type_zone_reallocPtr.asFunction<DartMalloc_type_zone_realloc>();
-
-  ffi.Pointer<ffi.Void> malloc_type_zone_valloc(
-    ffi.Pointer<malloc_zone_t> zone,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_zone_valloc(
-      zone,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_zone_vallocPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_valloc>>(
-          'malloc_type_zone_valloc');
-  late final _malloc_type_zone_valloc =
-      _malloc_type_zone_vallocPtr.asFunction<DartMalloc_type_zone_valloc>();
-
-  ffi.Pointer<ffi.Void> malloc_type_zone_memalign(
-    ffi.Pointer<malloc_zone_t> zone,
-    int alignment,
-    int size,
-    int type_id,
-  ) {
-    return _malloc_type_zone_memalign(
-      zone,
-      alignment,
-      size,
-      type_id,
-    );
-  }
-
-  late final _malloc_type_zone_memalignPtr =
-      _lookup<ffi.NativeFunction<NativeMalloc_type_zone_memalign>>(
-          'malloc_type_zone_memalign');
-  late final _malloc_type_zone_memalign =
-      _malloc_type_zone_memalignPtr.asFunction<DartMalloc_type_zone_memalign>();
+  late final _arc4random_uniformPtr =
+      _lookup<ffi.NativeFunction<NativeArc4random_uniform>>(
+          'arc4random_uniform');
+  late final _arc4random_uniform =
+      _arc4random_uniformPtr.asFunction<DartArc4random_uniform>();
 
   ffi.Pointer<ffi.Void> malloc(
     int __size,
@@ -2561,28 +2734,17 @@ class NativeLibrary {
   late final _malloc = _mallocPtr.asFunction<DartMalloc>();
 
   ffi.Pointer<ffi.Void> calloc(
-    int __count,
+    int __nmemb,
     int __size,
   ) {
     return _calloc(
-      __count,
+      __nmemb,
       __size,
     );
   }
 
   late final _callocPtr = _lookup<ffi.NativeFunction<NativeCalloc>>('calloc');
   late final _calloc = _callocPtr.asFunction<DartCalloc>();
-
-  void free(
-    ffi.Pointer<ffi.Void> arg0,
-  ) {
-    return _free(
-      arg0,
-    );
-  }
-
-  late final _freePtr = _lookup<ffi.NativeFunction<NativeFree>>('free');
-  late final _free = _freePtr.asFunction<DartFree>();
 
   ffi.Pointer<ffi.Void> realloc(
     ffi.Pointer<ffi.Void> __ptr,
@@ -2598,19 +2760,43 @@ class NativeLibrary {
       _lookup<ffi.NativeFunction<NativeRealloc>>('realloc');
   late final _realloc = _reallocPtr.asFunction<DartRealloc>();
 
-  ffi.Pointer<ffi.Void> reallocf(
+  void free(
     ffi.Pointer<ffi.Void> __ptr,
+  ) {
+    return _free(
+      __ptr,
+    );
+  }
+
+  late final _freePtr = _lookup<ffi.NativeFunction<NativeFree>>('free');
+  late final _free = _freePtr.asFunction<DartFree>();
+
+  ffi.Pointer<ffi.Void> reallocarray(
+    ffi.Pointer<ffi.Void> __ptr,
+    int __nmemb,
     int __size,
   ) {
-    return _reallocf(
+    return _reallocarray(
       __ptr,
+      __nmemb,
       __size,
     );
   }
 
-  late final _reallocfPtr =
-      _lookup<ffi.NativeFunction<NativeReallocf>>('reallocf');
-  late final _reallocf = _reallocfPtr.asFunction<DartReallocf>();
+  late final _reallocarrayPtr =
+      _lookup<ffi.NativeFunction<NativeReallocarray>>('reallocarray');
+  late final _reallocarray = _reallocarrayPtr.asFunction<DartReallocarray>();
+
+  ffi.Pointer<ffi.Void> alloca(
+    int __size,
+  ) {
+    return _alloca(
+      __size,
+    );
+  }
+
+  late final _allocaPtr = _lookup<ffi.NativeFunction<NativeAlloca>>('alloca');
+  late final _alloca = _allocaPtr.asFunction<DartAlloca>();
 
   ffi.Pointer<ffi.Void> valloc(
     int __size,
@@ -2622,20 +2808,6 @@ class NativeLibrary {
 
   late final _vallocPtr = _lookup<ffi.NativeFunction<NativeValloc>>('valloc');
   late final _valloc = _vallocPtr.asFunction<DartValloc>();
-
-  ffi.Pointer<ffi.Void> aligned_alloc(
-    int __alignment,
-    int __size,
-  ) {
-    return _aligned_alloc(
-      __alignment,
-      __size,
-    );
-  }
-
-  late final _aligned_allocPtr =
-      _lookup<ffi.NativeFunction<NativeAligned_alloc>>('aligned_alloc');
-  late final _aligned_alloc = _aligned_allocPtr.asFunction<DartAligned_alloc>();
 
   int posix_memalign(
     ffi.Pointer<ffi.Pointer<ffi.Void>> __memptr,
@@ -2654,6 +2826,20 @@ class NativeLibrary {
   late final _posix_memalign =
       _posix_memalignPtr.asFunction<DartPosix_memalign>();
 
+  ffi.Pointer<ffi.Void> aligned_alloc(
+    int __alignment,
+    int __size,
+  ) {
+    return _aligned_alloc(
+      __alignment,
+      __size,
+    );
+  }
+
+  late final _aligned_allocPtr =
+      _lookup<ffi.NativeFunction<NativeAligned_alloc>>('aligned_alloc');
+  late final _aligned_alloc = _aligned_allocPtr.asFunction<DartAligned_alloc>();
+
   void abort() {
     return _abort();
   }
@@ -2661,22 +2847,11 @@ class NativeLibrary {
   late final _abortPtr = _lookup<ffi.NativeFunction<NativeAbort>>('abort');
   late final _abort = _abortPtr.asFunction<DartAbort>();
 
-  int abs(
-    int arg0,
-  ) {
-    return _abs(
-      arg0,
-    );
-  }
-
-  late final _absPtr = _lookup<ffi.NativeFunction<NativeAbs>>('abs');
-  late final _abs = _absPtr.asFunction<DartAbs>();
-
   int atexit(
-    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0,
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> __func,
   ) {
     return _atexit(
-      arg0,
+      __func,
     );
   }
 
@@ -2684,10 +2859,10 @@ class NativeLibrary {
   late final _atexit = _atexitPtr.asFunction<DartAtexit>();
 
   int at_quick_exit(
-    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0,
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> __func,
   ) {
     return _at_quick_exit(
-      arg0,
+      __func,
     );
   }
 
@@ -2695,65 +2870,201 @@ class NativeLibrary {
       _lookup<ffi.NativeFunction<NativeAt_quick_exit>>('at_quick_exit');
   late final _at_quick_exit = _at_quick_exitPtr.asFunction<DartAt_quick_exit>();
 
-  double atof(
-    ffi.Pointer<ffi.Char> arg0,
+  int on_exit(
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Void Function(
+                    ffi.Int __status, ffi.Pointer<ffi.Void> __arg)>>
+        __func,
+    ffi.Pointer<ffi.Void> __arg,
   ) {
-    return _atof(
-      arg0,
+    return _on_exit(
+      __func,
+      __arg,
     );
   }
 
-  late final _atofPtr = _lookup<ffi.NativeFunction<NativeAtof>>('atof');
-  late final _atof = _atofPtr.asFunction<DartAtof>();
+  late final _on_exitPtr =
+      _lookup<ffi.NativeFunction<NativeOn_exit>>('on_exit');
+  late final _on_exit = _on_exitPtr.asFunction<DartOn_exit>();
 
-  int atoi(
-    ffi.Pointer<ffi.Char> arg0,
+  void exit(
+    int __status,
   ) {
-    return _atoi(
-      arg0,
+    return _exit(
+      __status,
     );
   }
 
-  late final _atoiPtr = _lookup<ffi.NativeFunction<NativeAtoi>>('atoi');
-  late final _atoi = _atoiPtr.asFunction<DartAtoi>();
+  late final _exitPtr = _lookup<ffi.NativeFunction<NativeExit>>('exit');
+  late final _exit = _exitPtr.asFunction<DartExit>();
 
-  int atol(
-    ffi.Pointer<ffi.Char> arg0,
+  void quick_exit(
+    int __status,
   ) {
-    return _atol(
-      arg0,
+    return _quick_exit(
+      __status,
     );
   }
 
-  late final _atolPtr = _lookup<ffi.NativeFunction<NativeAtol>>('atol');
-  late final _atol = _atolPtr.asFunction<DartAtol>();
+  late final _quick_exitPtr =
+      _lookup<ffi.NativeFunction<NativeQuick_exit>>('quick_exit');
+  late final _quick_exit = _quick_exitPtr.asFunction<DartQuick_exit>();
 
-  int atoll(
-    ffi.Pointer<ffi.Char> arg0,
+  void _Exit(
+    int __status,
   ) {
-    return _atoll(
-      arg0,
+    return __Exit(
+      __status,
     );
   }
 
-  late final _atollPtr = _lookup<ffi.NativeFunction<NativeAtoll>>('atoll');
-  late final _atoll = _atollPtr.asFunction<DartAtoll>();
+  late final __ExitPtr = _lookup<ffi.NativeFunction<Native_Exit>>('_Exit');
+  late final __Exit = __ExitPtr.asFunction<Dart_Exit>();
+
+  ffi.Pointer<ffi.Char> getenv(
+    ffi.Pointer<ffi.Char> __name,
+  ) {
+    return _getenv(
+      __name,
+    );
+  }
+
+  late final _getenvPtr = _lookup<ffi.NativeFunction<NativeGetenv>>('getenv');
+  late final _getenv = _getenvPtr.asFunction<DartGetenv>();
+
+  int putenv(
+    ffi.Pointer<ffi.Char> __string,
+  ) {
+    return _putenv(
+      __string,
+    );
+  }
+
+  late final _putenvPtr = _lookup<ffi.NativeFunction<NativePutenv>>('putenv');
+  late final _putenv = _putenvPtr.asFunction<DartPutenv>();
+
+  int setenv(
+    ffi.Pointer<ffi.Char> __name,
+    ffi.Pointer<ffi.Char> __value,
+    int __replace,
+  ) {
+    return _setenv(
+      __name,
+      __value,
+      __replace,
+    );
+  }
+
+  late final _setenvPtr = _lookup<ffi.NativeFunction<NativeSetenv>>('setenv');
+  late final _setenv = _setenvPtr.asFunction<DartSetenv>();
+
+  int unsetenv(
+    ffi.Pointer<ffi.Char> __name,
+  ) {
+    return _unsetenv(
+      __name,
+    );
+  }
+
+  late final _unsetenvPtr =
+      _lookup<ffi.NativeFunction<NativeUnsetenv>>('unsetenv');
+  late final _unsetenv = _unsetenvPtr.asFunction<DartUnsetenv>();
+
+  int clearenv() {
+    return _clearenv();
+  }
+
+  late final _clearenvPtr =
+      _lookup<ffi.NativeFunction<NativeClearenv>>('clearenv');
+  late final _clearenv = _clearenvPtr.asFunction<DartClearenv>();
+
+  ffi.Pointer<ffi.Char> mktemp(
+    ffi.Pointer<ffi.Char> __template,
+  ) {
+    return _mktemp(
+      __template,
+    );
+  }
+
+  late final _mktempPtr = _lookup<ffi.NativeFunction<NativeMktemp>>('mktemp');
+  late final _mktemp = _mktempPtr.asFunction<DartMktemp>();
+
+  int mkstemp(
+    ffi.Pointer<ffi.Char> __template,
+  ) {
+    return _mkstemp(
+      __template,
+    );
+  }
+
+  late final _mkstempPtr =
+      _lookup<ffi.NativeFunction<NativeMkstemp>>('mkstemp');
+  late final _mkstemp = _mkstempPtr.asFunction<DartMkstemp>();
+
+  int mkstemps(
+    ffi.Pointer<ffi.Char> __template,
+    int __suffixlen,
+  ) {
+    return _mkstemps(
+      __template,
+      __suffixlen,
+    );
+  }
+
+  late final _mkstempsPtr =
+      _lookup<ffi.NativeFunction<NativeMkstemps>>('mkstemps');
+  late final _mkstemps = _mkstempsPtr.asFunction<DartMkstemps>();
+
+  ffi.Pointer<ffi.Char> mkdtemp(
+    ffi.Pointer<ffi.Char> __template,
+  ) {
+    return _mkdtemp(
+      __template,
+    );
+  }
+
+  late final _mkdtempPtr =
+      _lookup<ffi.NativeFunction<NativeMkdtemp>>('mkdtemp');
+  late final _mkdtemp = _mkdtempPtr.asFunction<DartMkdtemp>();
+
+  int system(
+    ffi.Pointer<ffi.Char> __command,
+  ) {
+    return _system(
+      __command,
+    );
+  }
+
+  late final _systemPtr = _lookup<ffi.NativeFunction<NativeSystem>>('system');
+  late final _system = _systemPtr.asFunction<DartSystem>();
+
+  ffi.Pointer<ffi.Char> realpath(
+    ffi.Pointer<ffi.Char> __name,
+    ffi.Pointer<ffi.Char> __resolved,
+  ) {
+    return _realpath(
+      __name,
+      __resolved,
+    );
+  }
+
+  late final _realpathPtr =
+      _lookup<ffi.NativeFunction<NativeRealpath>>('realpath');
+  late final _realpath = _realpathPtr.asFunction<DartRealpath>();
 
   ffi.Pointer<ffi.Void> bsearch(
     ffi.Pointer<ffi.Void> __key,
     ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar,
+    int __nmemb,
+    int __size,
+    __compar_fn_t __compar,
   ) {
     return _bsearch(
       __key,
       __base,
-      __nel,
-      __width,
+      __nmemb,
+      __size,
       __compar,
     );
   }
@@ -2762,88 +3073,185 @@ class NativeLibrary {
       _lookup<ffi.NativeFunction<NativeBsearch>>('bsearch');
   late final _bsearch = _bsearchPtr.asFunction<DartBsearch>();
 
-  div_t div(
-    int arg0,
-    int arg1,
+  void qsort(
+    ffi.Pointer<ffi.Void> __base,
+    int __nmemb,
+    int __size,
+    __compar_fn_t __compar,
   ) {
-    return _div(
-      arg0,
-      arg1,
+    return _qsort(
+      __base,
+      __nmemb,
+      __size,
+      __compar,
     );
   }
 
-  late final _divPtr = _lookup<ffi.NativeFunction<NativeDiv>>('div');
-  late final _div = _divPtr.asFunction<DartDiv>();
+  late final _qsortPtr = _lookup<ffi.NativeFunction<NativeQsort>>('qsort');
+  late final _qsort = _qsortPtr.asFunction<DartQsort>();
 
-  void exit(
-    int arg0,
+  int abs(
+    int __x,
   ) {
-    return _exit(
-      arg0,
+    return _abs(
+      __x,
     );
   }
 
-  late final _exitPtr = _lookup<ffi.NativeFunction<NativeExit>>('exit');
-  late final _exit = _exitPtr.asFunction<DartExit>();
-
-  ffi.Pointer<ffi.Char> getenv(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _getenv(
-      arg0,
-    );
-  }
-
-  late final _getenvPtr = _lookup<ffi.NativeFunction<NativeGetenv>>('getenv');
-  late final _getenv = _getenvPtr.asFunction<DartGetenv>();
+  late final _absPtr = _lookup<ffi.NativeFunction<NativeAbs>>('abs');
+  late final _abs = _absPtr.asFunction<DartAbs>();
 
   int labs(
-    int arg0,
+    int __x,
   ) {
     return _labs(
-      arg0,
+      __x,
     );
   }
 
   late final _labsPtr = _lookup<ffi.NativeFunction<NativeLabs>>('labs');
   late final _labs = _labsPtr.asFunction<DartLabs>();
 
-  ldiv_t ldiv(
-    int arg0,
-    int arg1,
-  ) {
-    return _ldiv(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _ldivPtr = _lookup<ffi.NativeFunction<NativeLdiv>>('ldiv');
-  late final _ldiv = _ldivPtr.asFunction<DartLdiv>();
-
   int llabs(
-    int arg0,
+    int __x,
   ) {
     return _llabs(
-      arg0,
+      __x,
     );
   }
 
   late final _llabsPtr = _lookup<ffi.NativeFunction<NativeLlabs>>('llabs');
   late final _llabs = _llabsPtr.asFunction<DartLlabs>();
 
+  div_t div(
+    int __numer,
+    int __denom,
+  ) {
+    return _div(
+      __numer,
+      __denom,
+    );
+  }
+
+  late final _divPtr = _lookup<ffi.NativeFunction<NativeDiv>>('div');
+  late final _div = _divPtr.asFunction<DartDiv>();
+
+  ldiv_t ldiv(
+    int __numer,
+    int __denom,
+  ) {
+    return _ldiv(
+      __numer,
+      __denom,
+    );
+  }
+
+  late final _ldivPtr = _lookup<ffi.NativeFunction<NativeLdiv>>('ldiv');
+  late final _ldiv = _ldivPtr.asFunction<DartLdiv>();
+
   lldiv_t lldiv(
-    int arg0,
-    int arg1,
+    int __numer,
+    int __denom,
   ) {
     return _lldiv(
-      arg0,
-      arg1,
+      __numer,
+      __denom,
     );
   }
 
   late final _lldivPtr = _lookup<ffi.NativeFunction<NativeLldiv>>('lldiv');
   late final _lldiv = _lldivPtr.asFunction<DartLldiv>();
+
+  ffi.Pointer<ffi.Char> ecvt(
+    double __value,
+    int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign,
+  ) {
+    return _ecvt(
+      __value,
+      __ndigit,
+      __decpt,
+      __sign,
+    );
+  }
+
+  late final _ecvtPtr = _lookup<ffi.NativeFunction<NativeEcvt>>('ecvt');
+  late final _ecvt = _ecvtPtr.asFunction<DartEcvt>();
+
+  ffi.Pointer<ffi.Char> fcvt(
+    double __value,
+    int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign,
+  ) {
+    return _fcvt(
+      __value,
+      __ndigit,
+      __decpt,
+      __sign,
+    );
+  }
+
+  late final _fcvtPtr = _lookup<ffi.NativeFunction<NativeFcvt>>('fcvt');
+  late final _fcvt = _fcvtPtr.asFunction<DartFcvt>();
+
+  ffi.Pointer<ffi.Char> gcvt(
+    double __value,
+    int __ndigit,
+    ffi.Pointer<ffi.Char> __buf,
+  ) {
+    return _gcvt(
+      __value,
+      __ndigit,
+      __buf,
+    );
+  }
+
+  late final _gcvtPtr = _lookup<ffi.NativeFunction<NativeGcvt>>('gcvt');
+  late final _gcvt = _gcvtPtr.asFunction<DartGcvt>();
+
+  int ecvt_r(
+    double __value,
+    int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign,
+    ffi.Pointer<ffi.Char> __buf,
+    int __len,
+  ) {
+    return _ecvt_r(
+      __value,
+      __ndigit,
+      __decpt,
+      __sign,
+      __buf,
+      __len,
+    );
+  }
+
+  late final _ecvt_rPtr = _lookup<ffi.NativeFunction<NativeEcvt_r>>('ecvt_r');
+  late final _ecvt_r = _ecvt_rPtr.asFunction<DartEcvt_r>();
+
+  int fcvt_r(
+    double __value,
+    int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign,
+    ffi.Pointer<ffi.Char> __buf,
+    int __len,
+  ) {
+    return _fcvt_r(
+      __value,
+      __ndigit,
+      __decpt,
+      __sign,
+      __buf,
+      __len,
+    );
+  }
+
+  late final _fcvt_rPtr = _lookup<ffi.NativeFunction<NativeFcvt_r>>('fcvt_r');
+  late final _fcvt_r = _fcvt_rPtr.asFunction<DartFcvt_r>();
 
   int mblen(
     ffi.Pointer<ffi.Char> __s,
@@ -2858,14 +3266,42 @@ class NativeLibrary {
   late final _mblenPtr = _lookup<ffi.NativeFunction<NativeMblen>>('mblen');
   late final _mblen = _mblenPtr.asFunction<DartMblen>();
 
+  int mbtowc(
+    ffi.Pointer<ffi.WChar> __pwc,
+    ffi.Pointer<ffi.Char> __s,
+    int __n,
+  ) {
+    return _mbtowc(
+      __pwc,
+      __s,
+      __n,
+    );
+  }
+
+  late final _mbtowcPtr = _lookup<ffi.NativeFunction<NativeMbtowc>>('mbtowc');
+  late final _mbtowc = _mbtowcPtr.asFunction<DartMbtowc>();
+
+  int wctomb(
+    ffi.Pointer<ffi.Char> __s,
+    int __wchar,
+  ) {
+    return _wctomb(
+      __s,
+      __wchar,
+    );
+  }
+
+  late final _wctombPtr = _lookup<ffi.NativeFunction<NativeWctomb>>('wctomb');
+  late final _wctomb = _wctombPtr.asFunction<DartWctomb>();
+
   int mbstowcs(
-    ffi.Pointer<ffi.WChar> arg0,
-    ffi.Pointer<ffi.Char> arg1,
+    ffi.Pointer<ffi.WChar> __pwcs,
+    ffi.Pointer<ffi.Char> __s,
     int __n,
   ) {
     return _mbstowcs(
-      arg0,
-      arg1,
+      __pwcs,
+      __s,
       __n,
     );
   }
@@ -2874,179 +3310,14 @@ class NativeLibrary {
       _lookup<ffi.NativeFunction<NativeMbstowcs>>('mbstowcs');
   late final _mbstowcs = _mbstowcsPtr.asFunction<DartMbstowcs>();
 
-  int mbtowc(
-    ffi.Pointer<ffi.WChar> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-    int __n,
-  ) {
-    return _mbtowc(
-      arg0,
-      arg1,
-      __n,
-    );
-  }
-
-  late final _mbtowcPtr = _lookup<ffi.NativeFunction<NativeMbtowc>>('mbtowc');
-  late final _mbtowc = _mbtowcPtr.asFunction<DartMbtowc>();
-
-  void qsort(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar,
-  ) {
-    return _qsort(
-      __base,
-      __nel,
-      __width,
-      __compar,
-    );
-  }
-
-  late final _qsortPtr = _lookup<ffi.NativeFunction<NativeQsort>>('qsort');
-  late final _qsort = _qsortPtr.asFunction<DartQsort>();
-
-  void quick_exit(
-    int arg0,
-  ) {
-    return _quick_exit(
-      arg0,
-    );
-  }
-
-  late final _quick_exitPtr =
-      _lookup<ffi.NativeFunction<NativeQuick_exit>>('quick_exit');
-  late final _quick_exit = _quick_exitPtr.asFunction<DartQuick_exit>();
-
-  int rand() {
-    return _rand();
-  }
-
-  late final _randPtr = _lookup<ffi.NativeFunction<NativeRand>>('rand');
-  late final _rand = _randPtr.asFunction<DartRand>();
-
-  void srand(
-    int arg0,
-  ) {
-    return _srand(
-      arg0,
-    );
-  }
-
-  late final _srandPtr = _lookup<ffi.NativeFunction<NativeSrand>>('srand');
-  late final _srand = _srandPtr.asFunction<DartSrand>();
-
-  double strtod(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-  ) {
-    return _strtod(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _strtodPtr = _lookup<ffi.NativeFunction<NativeStrtod>>('strtod');
-  late final _strtod = _strtodPtr.asFunction<DartStrtod>();
-
-  double strtof(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-  ) {
-    return _strtof(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _strtofPtr = _lookup<ffi.NativeFunction<NativeStrtof>>('strtof');
-  late final _strtof = _strtofPtr.asFunction<DartStrtof>();
-
-  int strtol(
-    ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
-    int __base,
-  ) {
-    return _strtol(
-      __str,
-      __endptr,
-      __base,
-    );
-  }
-
-  late final _strtolPtr = _lookup<ffi.NativeFunction<NativeStrtol>>('strtol');
-  late final _strtol = _strtolPtr.asFunction<DartStrtol>();
-
-  int strtoll(
-    ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
-    int __base,
-  ) {
-    return _strtoll(
-      __str,
-      __endptr,
-      __base,
-    );
-  }
-
-  late final _strtollPtr =
-      _lookup<ffi.NativeFunction<NativeStrtoll>>('strtoll');
-  late final _strtoll = _strtollPtr.asFunction<DartStrtoll>();
-
-  int strtoul(
-    ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
-    int __base,
-  ) {
-    return _strtoul(
-      __str,
-      __endptr,
-      __base,
-    );
-  }
-
-  late final _strtoulPtr =
-      _lookup<ffi.NativeFunction<NativeStrtoul>>('strtoul');
-  late final _strtoul = _strtoulPtr.asFunction<DartStrtoul>();
-
-  int strtoull(
-    ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
-    int __base,
-  ) {
-    return _strtoull(
-      __str,
-      __endptr,
-      __base,
-    );
-  }
-
-  late final _strtoullPtr =
-      _lookup<ffi.NativeFunction<NativeStrtoull>>('strtoull');
-  late final _strtoull = _strtoullPtr.asFunction<DartStrtoull>();
-
-  int system(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _system(
-      arg0,
-    );
-  }
-
-  late final _systemPtr = _lookup<ffi.NativeFunction<NativeSystem>>('system');
-  late final _system = _systemPtr.asFunction<DartSystem>();
-
   int wcstombs(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.WChar> arg1,
+    ffi.Pointer<ffi.Char> __s,
+    ffi.Pointer<ffi.WChar> __pwcs,
     int __n,
   ) {
     return _wcstombs(
-      arg0,
-      arg1,
+      __s,
+      __pwcs,
       __n,
     );
   }
@@ -3055,850 +3326,11 @@ class NativeLibrary {
       _lookup<ffi.NativeFunction<NativeWcstombs>>('wcstombs');
   late final _wcstombs = _wcstombsPtr.asFunction<DartWcstombs>();
 
-  int wctomb(
-    ffi.Pointer<ffi.Char> arg0,
-    int arg1,
-  ) {
-    return _wctomb(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _wctombPtr = _lookup<ffi.NativeFunction<NativeWctomb>>('wctomb');
-  late final _wctomb = _wctombPtr.asFunction<DartWctomb>();
-
-  void _Exit(
-    int arg0,
-  ) {
-    return __Exit(
-      arg0,
-    );
-  }
-
-  late final __ExitPtr = _lookup<ffi.NativeFunction<Native_Exit>>('_Exit');
-  late final __Exit = __ExitPtr.asFunction<Dart_Exit>();
-
-  int a64l(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _a64l(
-      arg0,
-    );
-  }
-
-  late final _a64lPtr = _lookup<ffi.NativeFunction<NativeA64l>>('a64l');
-  late final _a64l = _a64lPtr.asFunction<DartA64l>();
-
-  double drand48() {
-    return _drand48();
-  }
-
-  late final _drand48Ptr =
-      _lookup<ffi.NativeFunction<NativeDrand48>>('drand48');
-  late final _drand48 = _drand48Ptr.asFunction<DartDrand48>();
-
-  ffi.Pointer<ffi.Char> ecvt(
-    double arg0,
-    int arg1,
-    ffi.Pointer<ffi.Int> arg2,
-    ffi.Pointer<ffi.Int> arg3,
-  ) {
-    return _ecvt(
-      arg0,
-      arg1,
-      arg2,
-      arg3,
-    );
-  }
-
-  late final _ecvtPtr = _lookup<ffi.NativeFunction<NativeEcvt>>('ecvt');
-  late final _ecvt = _ecvtPtr.asFunction<DartEcvt>();
-
-  double erand48(
-    ffi.Pointer<ffi.UnsignedShort> arg0,
-  ) {
-    return _erand48(
-      arg0,
-    );
-  }
-
-  late final _erand48Ptr =
-      _lookup<ffi.NativeFunction<NativeErand48>>('erand48');
-  late final _erand48 = _erand48Ptr.asFunction<DartErand48>();
-
-  ffi.Pointer<ffi.Char> fcvt(
-    double arg0,
-    int arg1,
-    ffi.Pointer<ffi.Int> arg2,
-    ffi.Pointer<ffi.Int> arg3,
-  ) {
-    return _fcvt(
-      arg0,
-      arg1,
-      arg2,
-      arg3,
-    );
-  }
-
-  late final _fcvtPtr = _lookup<ffi.NativeFunction<NativeFcvt>>('fcvt');
-  late final _fcvt = _fcvtPtr.asFunction<DartFcvt>();
-
-  ffi.Pointer<ffi.Char> gcvt(
-    double arg0,
-    int arg1,
-    ffi.Pointer<ffi.Char> arg2,
-  ) {
-    return _gcvt(
-      arg0,
-      arg1,
-      arg2,
-    );
-  }
-
-  late final _gcvtPtr = _lookup<ffi.NativeFunction<NativeGcvt>>('gcvt');
-  late final _gcvt = _gcvtPtr.asFunction<DartGcvt>();
-
-  int getsubopt(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2,
-  ) {
-    return _getsubopt(
-      arg0,
-      arg1,
-      arg2,
-    );
-  }
-
-  late final _getsuboptPtr =
-      _lookup<ffi.NativeFunction<NativeGetsubopt>>('getsubopt');
-  late final _getsubopt = _getsuboptPtr.asFunction<DartGetsubopt>();
-
-  int grantpt(
-    int arg0,
-  ) {
-    return _grantpt(
-      arg0,
-    );
-  }
-
-  late final _grantptPtr =
-      _lookup<ffi.NativeFunction<NativeGrantpt>>('grantpt');
-  late final _grantpt = _grantptPtr.asFunction<DartGrantpt>();
-
-  ffi.Pointer<ffi.Char> initstate(
-    int arg0,
-    ffi.Pointer<ffi.Char> arg1,
-    int __size,
-  ) {
-    return _initstate(
-      arg0,
-      arg1,
-      __size,
-    );
-  }
-
-  late final _initstatePtr =
-      _lookup<ffi.NativeFunction<NativeInitstate>>('initstate');
-  late final _initstate = _initstatePtr.asFunction<DartInitstate>();
-
-  int jrand48(
-    ffi.Pointer<ffi.UnsignedShort> arg0,
-  ) {
-    return _jrand48(
-      arg0,
-    );
-  }
-
-  late final _jrand48Ptr =
-      _lookup<ffi.NativeFunction<NativeJrand48>>('jrand48');
-  late final _jrand48 = _jrand48Ptr.asFunction<DartJrand48>();
-
-  ffi.Pointer<ffi.Char> l64a(
-    int arg0,
-  ) {
-    return _l64a(
-      arg0,
-    );
-  }
-
-  late final _l64aPtr = _lookup<ffi.NativeFunction<NativeL64a>>('l64a');
-  late final _l64a = _l64aPtr.asFunction<DartL64a>();
-
-  void lcong48(
-    ffi.Pointer<ffi.UnsignedShort> arg0,
-  ) {
-    return _lcong48(
-      arg0,
-    );
-  }
-
-  late final _lcong48Ptr =
-      _lookup<ffi.NativeFunction<NativeLcong48>>('lcong48');
-  late final _lcong48 = _lcong48Ptr.asFunction<DartLcong48>();
-
-  int lrand48() {
-    return _lrand48();
-  }
-
-  late final _lrand48Ptr =
-      _lookup<ffi.NativeFunction<NativeLrand48>>('lrand48');
-  late final _lrand48 = _lrand48Ptr.asFunction<DartLrand48>();
-
-  ffi.Pointer<ffi.Char> mktemp(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _mktemp(
-      arg0,
-    );
-  }
-
-  late final _mktempPtr = _lookup<ffi.NativeFunction<NativeMktemp>>('mktemp');
-  late final _mktemp = _mktempPtr.asFunction<DartMktemp>();
-
-  int mkstemp(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _mkstemp(
-      arg0,
-    );
-  }
-
-  late final _mkstempPtr =
-      _lookup<ffi.NativeFunction<NativeMkstemp>>('mkstemp');
-  late final _mkstemp = _mkstempPtr.asFunction<DartMkstemp>();
-
-  int mrand48() {
-    return _mrand48();
-  }
-
-  late final _mrand48Ptr =
-      _lookup<ffi.NativeFunction<NativeMrand48>>('mrand48');
-  late final _mrand48 = _mrand48Ptr.asFunction<DartMrand48>();
-
-  int nrand48(
-    ffi.Pointer<ffi.UnsignedShort> arg0,
-  ) {
-    return _nrand48(
-      arg0,
-    );
-  }
-
-  late final _nrand48Ptr =
-      _lookup<ffi.NativeFunction<NativeNrand48>>('nrand48');
-  late final _nrand48 = _nrand48Ptr.asFunction<DartNrand48>();
-
-  int posix_openpt(
-    int arg0,
-  ) {
-    return _posix_openpt(
-      arg0,
-    );
-  }
-
-  late final _posix_openptPtr =
-      _lookup<ffi.NativeFunction<NativePosix_openpt>>('posix_openpt');
-  late final _posix_openpt = _posix_openptPtr.asFunction<DartPosix_openpt>();
-
-  ffi.Pointer<ffi.Char> ptsname(
-    int arg0,
-  ) {
-    return _ptsname(
-      arg0,
-    );
-  }
-
-  late final _ptsnamePtr =
-      _lookup<ffi.NativeFunction<NativePtsname>>('ptsname');
-  late final _ptsname = _ptsnamePtr.asFunction<DartPtsname>();
-
-  int ptsname_r(
-    int fildes,
-    ffi.Pointer<ffi.Char> buffer,
-    int buflen,
-  ) {
-    return _ptsname_r(
-      fildes,
-      buffer,
-      buflen,
-    );
-  }
-
-  late final _ptsname_rPtr =
-      _lookup<ffi.NativeFunction<NativePtsname_r>>('ptsname_r');
-  late final _ptsname_r = _ptsname_rPtr.asFunction<DartPtsname_r>();
-
-  int putenv(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _putenv(
-      arg0,
-    );
-  }
-
-  late final _putenvPtr = _lookup<ffi.NativeFunction<NativePutenv>>('putenv');
-  late final _putenv = _putenvPtr.asFunction<DartPutenv>();
-
-  int random() {
-    return _random();
-  }
-
-  late final _randomPtr = _lookup<ffi.NativeFunction<NativeRandom>>('random');
-  late final _random = _randomPtr.asFunction<DartRandom>();
-
-  int rand_r(
-    ffi.Pointer<ffi.UnsignedInt> arg0,
-  ) {
-    return _rand_r(
-      arg0,
-    );
-  }
-
-  late final _rand_rPtr = _lookup<ffi.NativeFunction<NativeRand_r>>('rand_r');
-  late final _rand_r = _rand_rPtr.asFunction<DartRand_r>();
-
-  ffi.Pointer<ffi.Char> realpath(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-  ) {
-    return _realpath(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realpathPtr =
-      _lookup<ffi.NativeFunction<NativeRealpath>>('realpath');
-  late final _realpath = _realpathPtr.asFunction<DartRealpath>();
-
-  ffi.Pointer<ffi.UnsignedShort> seed48(
-    ffi.Pointer<ffi.UnsignedShort> arg0,
-  ) {
-    return _seed48(
-      arg0,
-    );
-  }
-
-  late final _seed48Ptr = _lookup<ffi.NativeFunction<NativeSeed48>>('seed48');
-  late final _seed48 = _seed48Ptr.asFunction<DartSeed48>();
-
-  int setenv(
-    ffi.Pointer<ffi.Char> __name,
-    ffi.Pointer<ffi.Char> __value,
-    int __overwrite,
-  ) {
-    return _setenv(
-      __name,
-      __value,
-      __overwrite,
-    );
-  }
-
-  late final _setenvPtr = _lookup<ffi.NativeFunction<NativeSetenv>>('setenv');
-  late final _setenv = _setenvPtr.asFunction<DartSetenv>();
-
-  void setkey(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _setkey(
-      arg0,
-    );
-  }
-
-  late final _setkeyPtr = _lookup<ffi.NativeFunction<NativeSetkey>>('setkey');
-  late final _setkey = _setkeyPtr.asFunction<DartSetkey>();
-
-  ffi.Pointer<ffi.Char> setstate(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _setstate(
-      arg0,
-    );
-  }
-
-  late final _setstatePtr =
-      _lookup<ffi.NativeFunction<NativeSetstate>>('setstate');
-  late final _setstate = _setstatePtr.asFunction<DartSetstate>();
-
-  void srand48(
-    int arg0,
-  ) {
-    return _srand48(
-      arg0,
-    );
-  }
-
-  late final _srand48Ptr =
-      _lookup<ffi.NativeFunction<NativeSrand48>>('srand48');
-  late final _srand48 = _srand48Ptr.asFunction<DartSrand48>();
-
-  void srandom(
-    int arg0,
-  ) {
-    return _srandom(
-      arg0,
-    );
-  }
-
-  late final _srandomPtr =
-      _lookup<ffi.NativeFunction<NativeSrandom>>('srandom');
-  late final _srandom = _srandomPtr.asFunction<DartSrandom>();
-
-  int unlockpt(
-    int arg0,
-  ) {
-    return _unlockpt(
-      arg0,
-    );
-  }
-
-  late final _unlockptPtr =
-      _lookup<ffi.NativeFunction<NativeUnlockpt>>('unlockpt');
-  late final _unlockpt = _unlockptPtr.asFunction<DartUnlockpt>();
-
-  int unsetenv(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _unsetenv(
-      arg0,
-    );
-  }
-
-  late final _unsetenvPtr =
-      _lookup<ffi.NativeFunction<NativeUnsetenv>>('unsetenv');
-  late final _unsetenv = _unsetenvPtr.asFunction<DartUnsetenv>();
-
-  int arc4random() {
-    return _arc4random();
-  }
-
-  late final _arc4randomPtr =
-      _lookup<ffi.NativeFunction<NativeArc4random>>('arc4random');
-  late final _arc4random = _arc4randomPtr.asFunction<DartArc4random>();
-
-  void arc4random_addrandom(
-    ffi.Pointer<ffi.UnsignedChar> arg0,
-    int __datlen,
-  ) {
-    return _arc4random_addrandom(
-      arg0,
-      __datlen,
-    );
-  }
-
-  late final _arc4random_addrandomPtr =
-      _lookup<ffi.NativeFunction<NativeArc4random_addrandom>>(
-          'arc4random_addrandom');
-  late final _arc4random_addrandom =
-      _arc4random_addrandomPtr.asFunction<DartArc4random_addrandom>();
-
-  void arc4random_buf(
-    ffi.Pointer<ffi.Void> __buf,
-    int __nbytes,
-  ) {
-    return _arc4random_buf(
-      __buf,
-      __nbytes,
-    );
-  }
-
-  late final _arc4random_bufPtr =
-      _lookup<ffi.NativeFunction<NativeArc4random_buf>>('arc4random_buf');
-  late final _arc4random_buf =
-      _arc4random_bufPtr.asFunction<DartArc4random_buf>();
-
-  void arc4random_stir() {
-    return _arc4random_stir();
-  }
-
-  late final _arc4random_stirPtr =
-      _lookup<ffi.NativeFunction<NativeArc4random_stir>>('arc4random_stir');
-  late final _arc4random_stir =
-      _arc4random_stirPtr.asFunction<DartArc4random_stir>();
-
-  int arc4random_uniform(
-    int __upper_bound,
-  ) {
-    return _arc4random_uniform(
-      __upper_bound,
-    );
-  }
-
-  late final _arc4random_uniformPtr =
-      _lookup<ffi.NativeFunction<NativeArc4random_uniform>>(
-          'arc4random_uniform');
-  late final _arc4random_uniform =
-      _arc4random_uniformPtr.asFunction<DartArc4random_uniform>();
-
-  ffi.Pointer<ffi.Char> cgetcap(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-    int arg2,
-  ) {
-    return _cgetcap(
-      arg0,
-      arg1,
-      arg2,
-    );
-  }
-
-  late final _cgetcapPtr =
-      _lookup<ffi.NativeFunction<NativeCgetcap>>('cgetcap');
-  late final _cgetcap = _cgetcapPtr.asFunction<DartCgetcap>();
-
-  int cgetclose() {
-    return _cgetclose();
-  }
-
-  late final _cgetclosePtr =
-      _lookup<ffi.NativeFunction<NativeCgetclose>>('cgetclose');
-  late final _cgetclose = _cgetclosePtr.asFunction<DartCgetclose>();
-
-  int cgetent(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-    ffi.Pointer<ffi.Char> arg2,
-  ) {
-    return _cgetent(
-      arg0,
-      arg1,
-      arg2,
-    );
-  }
-
-  late final _cgetentPtr =
-      _lookup<ffi.NativeFunction<NativeCgetent>>('cgetent');
-  late final _cgetent = _cgetentPtr.asFunction<DartCgetent>();
-
-  int cgetfirst(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-  ) {
-    return _cgetfirst(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _cgetfirstPtr =
-      _lookup<ffi.NativeFunction<NativeCgetfirst>>('cgetfirst');
-  late final _cgetfirst = _cgetfirstPtr.asFunction<DartCgetfirst>();
-
-  int cgetmatch(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-  ) {
-    return _cgetmatch(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _cgetmatchPtr =
-      _lookup<ffi.NativeFunction<NativeCgetmatch>>('cgetmatch');
-  late final _cgetmatch = _cgetmatchPtr.asFunction<DartCgetmatch>();
-
-  int cgetnext(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-  ) {
-    return _cgetnext(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _cgetnextPtr =
-      _lookup<ffi.NativeFunction<NativeCgetnext>>('cgetnext');
-  late final _cgetnext = _cgetnextPtr.asFunction<DartCgetnext>();
-
-  int cgetnum(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-    ffi.Pointer<ffi.Long> arg2,
-  ) {
-    return _cgetnum(
-      arg0,
-      arg1,
-      arg2,
-    );
-  }
-
-  late final _cgetnumPtr =
-      _lookup<ffi.NativeFunction<NativeCgetnum>>('cgetnum');
-  late final _cgetnum = _cgetnumPtr.asFunction<DartCgetnum>();
-
-  int cgetset(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _cgetset(
-      arg0,
-    );
-  }
-
-  late final _cgetsetPtr =
-      _lookup<ffi.NativeFunction<NativeCgetset>>('cgetset');
-  late final _cgetset = _cgetsetPtr.asFunction<DartCgetset>();
-
-  int cgetstr(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2,
-  ) {
-    return _cgetstr(
-      arg0,
-      arg1,
-      arg2,
-    );
-  }
-
-  late final _cgetstrPtr =
-      _lookup<ffi.NativeFunction<NativeCgetstr>>('cgetstr');
-  late final _cgetstr = _cgetstrPtr.asFunction<DartCgetstr>();
-
-  int cgetustr(
-    ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2,
-  ) {
-    return _cgetustr(
-      arg0,
-      arg1,
-      arg2,
-    );
-  }
-
-  late final _cgetustrPtr =
-      _lookup<ffi.NativeFunction<NativeCgetustr>>('cgetustr');
-  late final _cgetustr = _cgetustrPtr.asFunction<DartCgetustr>();
-
-  int daemon(
-    int arg0,
-    int arg1,
-  ) {
-    return _daemon(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _daemonPtr = _lookup<ffi.NativeFunction<NativeDaemon>>('daemon');
-  late final _daemon = _daemonPtr.asFunction<DartDaemon>();
-
-  ffi.Pointer<ffi.Char> devname(
-    int arg0,
-    int arg1,
-  ) {
-    return _devname(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _devnamePtr =
-      _lookup<ffi.NativeFunction<NativeDevname>>('devname');
-  late final _devname = _devnamePtr.asFunction<DartDevname>();
-
-  ffi.Pointer<ffi.Char> devname_r(
-    int arg0,
-    int arg1,
-    ffi.Pointer<ffi.Char> buf,
-    int len,
-  ) {
-    return _devname_r(
-      arg0,
-      arg1,
-      buf,
-      len,
-    );
-  }
-
-  late final _devname_rPtr =
-      _lookup<ffi.NativeFunction<NativeDevname_r>>('devname_r');
-  late final _devname_r = _devname_rPtr.asFunction<DartDevname_r>();
-
-  ffi.Pointer<ffi.Char> getbsize(
-    ffi.Pointer<ffi.Int> arg0,
-    ffi.Pointer<ffi.Long> arg1,
-  ) {
-    return _getbsize(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _getbsizePtr =
-      _lookup<ffi.NativeFunction<NativeGetbsize>>('getbsize');
-  late final _getbsize = _getbsizePtr.asFunction<DartGetbsize>();
-
-  int getloadavg(
-    ffi.Pointer<ffi.Double> arg0,
-    int __nelem,
-  ) {
-    return _getloadavg(
-      arg0,
-      __nelem,
-    );
-  }
-
-  late final _getloadavgPtr =
-      _lookup<ffi.NativeFunction<NativeGetloadavg>>('getloadavg');
-  late final _getloadavg = _getloadavgPtr.asFunction<DartGetloadavg>();
-
-  ffi.Pointer<ffi.Char> getprogname() {
-    return _getprogname();
-  }
-
-  late final _getprognamePtr =
-      _lookup<ffi.NativeFunction<NativeGetprogname>>('getprogname');
-  late final _getprogname = _getprognamePtr.asFunction<DartGetprogname>();
-
-  void setprogname(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return _setprogname(
-      arg0,
-    );
-  }
-
-  late final _setprognamePtr =
-      _lookup<ffi.NativeFunction<NativeSetprogname>>('setprogname');
-  late final _setprogname = _setprognamePtr.asFunction<DartSetprogname>();
-
-  int heapsort(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar,
-  ) {
-    return _heapsort(
-      __base,
-      __nel,
-      __width,
-      __compar,
-    );
-  }
-
-  late final _heapsortPtr =
-      _lookup<ffi.NativeFunction<NativeHeapsort>>('heapsort');
-  late final _heapsort = _heapsortPtr.asFunction<DartHeapsort>();
-
-  int mergesort(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar,
-  ) {
-    return _mergesort(
-      __base,
-      __nel,
-      __width,
-      __compar,
-    );
-  }
-
-  late final _mergesortPtr =
-      _lookup<ffi.NativeFunction<NativeMergesort>>('mergesort');
-  late final _mergesort = _mergesortPtr.asFunction<DartMergesort>();
-
-  void psort(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar,
-  ) {
-    return _psort(
-      __base,
-      __nel,
-      __width,
-      __compar,
-    );
-  }
-
-  late final _psortPtr = _lookup<ffi.NativeFunction<NativePsort>>('psort');
-  late final _psort = _psortPtr.asFunction<DartPsort>();
-
-  void psort_r(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<ffi.Void> arg3,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<ffi.Void>)>>
-        __compar,
-  ) {
-    return _psort_r(
-      __base,
-      __nel,
-      __width,
-      arg3,
-      __compar,
-    );
-  }
-
-  late final _psort_rPtr =
-      _lookup<ffi.NativeFunction<NativePsort_r>>('psort_r');
-  late final _psort_r = _psort_rPtr.asFunction<DartPsort_r>();
-
-  void qsort_r(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<ffi.Void> arg3,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<ffi.Void>)>>
-        __compar,
-  ) {
-    return _qsort_r(
-      __base,
-      __nel,
-      __width,
-      arg3,
-      __compar,
-    );
-  }
-
-  late final _qsort_rPtr =
-      _lookup<ffi.NativeFunction<NativeQsort_r>>('qsort_r');
-  late final _qsort_r = _qsort_rPtr.asFunction<DartQsort_r>();
-
-  int radixsort(
-    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
-    int __nel,
-    ffi.Pointer<ffi.UnsignedChar> __table,
-    int __endbyte,
-  ) {
-    return _radixsort(
-      __base,
-      __nel,
-      __table,
-      __endbyte,
-    );
-  }
-
-  late final _radixsortPtr =
-      _lookup<ffi.NativeFunction<NativeRadixsort>>('radixsort');
-  late final _radixsort = _radixsortPtr.asFunction<DartRadixsort>();
-
   int rpmatch(
-    ffi.Pointer<ffi.Char> arg0,
+    ffi.Pointer<ffi.Char> __response,
   ) {
     return _rpmatch(
-      arg0,
+      __response,
     );
   }
 
@@ -3906,95 +3338,35 @@ class NativeLibrary {
       _lookup<ffi.NativeFunction<NativeRpmatch>>('rpmatch');
   late final _rpmatch = _rpmatchPtr.asFunction<DartRpmatch>();
 
-  int sradixsort(
-    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
-    int __nel,
-    ffi.Pointer<ffi.UnsignedChar> __table,
-    int __endbyte,
+  int getsubopt(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __optionp,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __tokens,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __valuep,
   ) {
-    return _sradixsort(
-      __base,
-      __nel,
-      __table,
-      __endbyte,
+    return _getsubopt(
+      __optionp,
+      __tokens,
+      __valuep,
     );
   }
 
-  late final _sradixsortPtr =
-      _lookup<ffi.NativeFunction<NativeSradixsort>>('sradixsort');
-  late final _sradixsort = _sradixsortPtr.asFunction<DartSradixsort>();
+  late final _getsuboptPtr =
+      _lookup<ffi.NativeFunction<NativeGetsubopt>>('getsubopt');
+  late final _getsubopt = _getsuboptPtr.asFunction<DartGetsubopt>();
 
-  void sranddev() {
-    return _sranddev();
-  }
-
-  late final _sranddevPtr =
-      _lookup<ffi.NativeFunction<NativeSranddev>>('sranddev');
-  late final _sranddev = _sranddevPtr.asFunction<DartSranddev>();
-
-  void srandomdev() {
-    return _srandomdev();
-  }
-
-  late final _srandomdevPtr =
-      _lookup<ffi.NativeFunction<NativeSrandomdev>>('srandomdev');
-  late final _srandomdev = _srandomdevPtr.asFunction<DartSrandomdev>();
-
-  int strtonum(
-    ffi.Pointer<ffi.Char> __numstr,
-    int __minval,
-    int __maxval,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __errstrp,
+  int getloadavg(
+    ffi.Pointer<ffi.Double> __loadavg,
+    int __nelem,
   ) {
-    return _strtonum(
-      __numstr,
-      __minval,
-      __maxval,
-      __errstrp,
+    return _getloadavg(
+      __loadavg,
+      __nelem,
     );
   }
 
-  late final _strtonumPtr =
-      _lookup<ffi.NativeFunction<NativeStrtonum>>('strtonum');
-  late final _strtonum = _strtonumPtr.asFunction<DartStrtonum>();
-
-  int strtoq(
-    ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
-    int __base,
-  ) {
-    return _strtoq(
-      __str,
-      __endptr,
-      __base,
-    );
-  }
-
-  late final _strtoqPtr = _lookup<ffi.NativeFunction<NativeStrtoq>>('strtoq');
-  late final _strtoq = _strtoqPtr.asFunction<DartStrtoq>();
-
-  int strtouq(
-    ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
-    int __base,
-  ) {
-    return _strtouq(
-      __str,
-      __endptr,
-      __base,
-    );
-  }
-
-  late final _strtouqPtr =
-      _lookup<ffi.NativeFunction<NativeStrtouq>>('strtouq');
-  late final _strtouq = _strtouqPtr.asFunction<DartStrtouq>();
-
-  late final ffi.Pointer<ffi.Pointer<ffi.Char>> _suboptarg =
-      _lookup<ffi.Pointer<ffi.Char>>('suboptarg');
-
-  ffi.Pointer<ffi.Char> get suboptarg => _suboptarg.value;
-
-  set suboptarg(ffi.Pointer<ffi.Char> value) => _suboptarg.value = value;
+  late final _getloadavgPtr =
+      _lookup<ffi.NativeFunction<NativeGetloadavg>>('getloadavg');
+  late final _getloadavg = _getloadavgPtr.asFunction<DartGetloadavg>();
 
   int validate_submarine(
     ffi.Pointer<ffi.Char> preimage_hash,
@@ -4216,109 +3588,269 @@ class NativeLibrary {
       _get_last_errorPtr.asFunction<DartGet_last_error>();
 }
 
-final class __mbstate_t extends ffi.Union {
-  @ffi.Array.multi([128])
-  external ffi.Array<ffi.Char> __mbstate8;
+final class max_align_t extends ffi.Opaque {}
 
-  @ffi.LongLong()
-  external int _mbstateL;
+final class __fsid_t extends ffi.Struct {
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.Int> __val;
 }
 
-final class __darwin_pthread_handler_rec extends ffi.Struct {
-  external ffi
-      .Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
-      __routine;
-
-  external ffi.Pointer<ffi.Void> __arg;
-
-  external ffi.Pointer<__darwin_pthread_handler_rec> __next;
-}
-
-final class _opaque_pthread_attr_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
-
-  @ffi.Array.multi([56])
-  external ffi.Array<ffi.Char> __opaque;
-}
-
-final class _opaque_pthread_cond_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
-
-  @ffi.Array.multi([40])
-  external ffi.Array<ffi.Char> __opaque;
-}
-
-final class _opaque_pthread_condattr_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
-
-  @ffi.Array.multi([8])
-  external ffi.Array<ffi.Char> __opaque;
-}
-
-final class _opaque_pthread_mutex_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
-
-  @ffi.Array.multi([56])
-  external ffi.Array<ffi.Char> __opaque;
-}
-
-final class _opaque_pthread_mutexattr_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
-
-  @ffi.Array.multi([8])
-  external ffi.Array<ffi.Char> __opaque;
-}
-
-final class _opaque_pthread_once_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
-
-  @ffi.Array.multi([8])
-  external ffi.Array<ffi.Char> __opaque;
-}
-
-final class _opaque_pthread_rwlock_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
-
-  @ffi.Array.multi([192])
-  external ffi.Array<ffi.Char> __opaque;
-}
-
-final class _opaque_pthread_rwlockattr_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
-
+final class __sigset_t extends ffi.Struct {
   @ffi.Array.multi([16])
-  external ffi.Array<ffi.Char> __opaque;
+  external ffi.Array<ffi.UnsignedLong> __val;
 }
 
-final class _opaque_pthread_t extends ffi.Struct {
-  @ffi.Long()
-  external int __sig;
+final class timeval extends ffi.Struct {
+  @__time_t()
+  external int tv_sec;
 
-  external ffi.Pointer<__darwin_pthread_handler_rec> __cleanup_stack;
-
-  @ffi.Array.multi([8176])
-  external ffi.Array<ffi.Char> __opaque;
+  @__suseconds_t()
+  external int tv_usec;
 }
+
+typedef __time_t = ffi.Long;
+typedef Dart__time_t = int;
+typedef __suseconds_t = ffi.Long;
+typedef Dart__suseconds_t = int;
+
+final class timespec extends ffi.Struct {
+  @__time_t()
+  external int tv_sec;
+
+  @__syscall_slong_t()
+  external int tv_nsec;
+}
+
+typedef __syscall_slong_t = ffi.Long;
+typedef Dart__syscall_slong_t = int;
 
 final class fd_set extends ffi.Struct {
-  @ffi.Array.multi([32])
-  external ffi.Array<__int32_t> fds_bits;
+  @ffi.Array.multi([16])
+  external ffi.Array<__fd_mask> __fds_bits;
 }
 
-typedef __int32_t = ffi.Int;
-typedef Dart__int32_t = int;
-typedef Native__darwin_check_fd_set_overflow = ffi.Int Function(
-    ffi.Int arg0, ffi.Pointer<ffi.Void> arg1, ffi.Int arg2);
-typedef Dart__darwin_check_fd_set_overflow = int Function(
-    int arg0, ffi.Pointer<ffi.Void> arg1, int arg2);
+typedef __fd_mask = ffi.Long;
+typedef Dart__fd_mask = int;
+typedef NativeSelect = ffi.Int Function(
+    ffi.Int __nfds,
+    ffi.Pointer<fd_set> __readfds,
+    ffi.Pointer<fd_set> __writefds,
+    ffi.Pointer<fd_set> __exceptfds,
+    ffi.Pointer<timeval> __timeout);
+typedef DartSelect = int Function(
+    int __nfds,
+    ffi.Pointer<fd_set> __readfds,
+    ffi.Pointer<fd_set> __writefds,
+    ffi.Pointer<fd_set> __exceptfds,
+    ffi.Pointer<timeval> __timeout);
+typedef NativePselect = ffi.Int Function(
+    ffi.Int __nfds,
+    ffi.Pointer<fd_set> __readfds,
+    ffi.Pointer<fd_set> __writefds,
+    ffi.Pointer<fd_set> __exceptfds,
+    ffi.Pointer<timespec> __timeout,
+    ffi.Pointer<__sigset_t> __sigmask);
+typedef DartPselect = int Function(
+    int __nfds,
+    ffi.Pointer<fd_set> __readfds,
+    ffi.Pointer<fd_set> __writefds,
+    ffi.Pointer<fd_set> __exceptfds,
+    ffi.Pointer<timespec> __timeout,
+    ffi.Pointer<__sigset_t> __sigmask);
+
+final class __atomic_wide_counter extends ffi.Union {
+  @ffi.UnsignedLongLong()
+  external int __value64;
+
+  external UnnamedStruct1 __value32;
+}
+
+final class UnnamedStruct1 extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int __low;
+
+  @ffi.UnsignedInt()
+  external int __high;
+}
+
+final class __pthread_internal_list extends ffi.Struct {
+  external ffi.Pointer<__pthread_internal_list> __prev;
+
+  external ffi.Pointer<__pthread_internal_list> __next;
+}
+
+final class __pthread_internal_slist extends ffi.Struct {
+  external ffi.Pointer<__pthread_internal_slist> __next;
+}
+
+final class __pthread_mutex_s extends ffi.Struct {
+  @ffi.Int()
+  external int __lock;
+
+  @ffi.UnsignedInt()
+  external int __count;
+
+  @ffi.Int()
+  external int __owner;
+
+  @ffi.UnsignedInt()
+  external int __nusers;
+
+  @ffi.Int()
+  external int __kind;
+
+  @ffi.Short()
+  external int __spins;
+
+  @ffi.Short()
+  external int __elision;
+
+  external __pthread_list_t __list;
+}
+
+typedef __pthread_list_t = __pthread_internal_list;
+
+final class __pthread_rwlock_arch_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int __readers;
+
+  @ffi.UnsignedInt()
+  external int __writers;
+
+  @ffi.UnsignedInt()
+  external int __wrphase_futex;
+
+  @ffi.UnsignedInt()
+  external int __writers_futex;
+
+  @ffi.UnsignedInt()
+  external int __pad3;
+
+  @ffi.UnsignedInt()
+  external int __pad4;
+
+  @ffi.Int()
+  external int __cur_writer;
+
+  @ffi.Int()
+  external int __shared;
+
+  @ffi.SignedChar()
+  external int __rwelision;
+
+  @ffi.Array.multi([7])
+  external ffi.Array<ffi.UnsignedChar> __pad1;
+
+  @ffi.UnsignedLong()
+  external int __pad2;
+
+  @ffi.UnsignedInt()
+  external int __flags;
+}
+
+final class __pthread_cond_s extends ffi.Struct {
+  external __atomic_wide_counter __wseq;
+
+  external __atomic_wide_counter __g1_start;
+
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.UnsignedInt> __g_refs;
+
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.UnsignedInt> __g_size;
+
+  @ffi.UnsignedInt()
+  external int __g1_orig_size;
+
+  @ffi.UnsignedInt()
+  external int __wrefs;
+
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.UnsignedInt> __g_signals;
+}
+
+final class __once_flag extends ffi.Struct {
+  @ffi.Int()
+  external int __data;
+}
+
+final class pthread_mutexattr_t extends ffi.Union {
+  @ffi.Array.multi([4])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.Int()
+  external int __align;
+}
+
+final class pthread_condattr_t extends ffi.Union {
+  @ffi.Array.multi([4])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.Int()
+  external int __align;
+}
+
+final class pthread_attr_t extends ffi.Union {
+  @ffi.Array.multi([56])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.Long()
+  external int __align;
+}
+
+final class pthread_mutex_t extends ffi.Union {
+  external __pthread_mutex_s __data;
+
+  @ffi.Array.multi([40])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.Long()
+  external int __align;
+}
+
+final class pthread_cond_t extends ffi.Union {
+  external __pthread_cond_s __data;
+
+  @ffi.Array.multi([48])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.LongLong()
+  external int __align;
+}
+
+final class pthread_rwlock_t extends ffi.Union {
+  external __pthread_rwlock_arch_t __data;
+
+  @ffi.Array.multi([56])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.Long()
+  external int __align;
+}
+
+final class pthread_rwlockattr_t extends ffi.Union {
+  @ffi.Array.multi([8])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.Long()
+  external int __align;
+}
+
+final class pthread_barrier_t extends ffi.Union {
+  @ffi.Array.multi([32])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.Long()
+  external int __align;
+}
+
+final class pthread_barrierattr_t extends ffi.Union {
+  @ffi.Array.multi([4])
+  external ffi.Array<ffi.Char> __size;
+
+  @ffi.Int()
+  external int __align;
+}
 
 /// A server session
 final class GA_session extends ffi.Opaque {}
@@ -4886,1050 +4418,6 @@ typedef NativeGA_get_uniform_uint32_t = ffi.Int Function(
 typedef DartGA_get_uniform_uint32_t = int Function(
     int upper_bound, ffi.Pointer<ffi.Uint32> output);
 
-abstract class idtype_t {
-  static const int P_ALL = 0;
-  static const int P_PID = 1;
-  static const int P_PGID = 2;
-}
-
-final class __darwin_arm_exception_state extends ffi.Struct {
-  @__uint32_t()
-  external int __exception;
-
-  @__uint32_t()
-  external int __fsr;
-
-  @__uint32_t()
-  external int __far;
-}
-
-typedef __uint32_t = ffi.UnsignedInt;
-typedef Dart__uint32_t = int;
-
-final class __darwin_arm_exception_state64 extends ffi.Struct {
-  @__uint64_t()
-  external int __far;
-
-  @__uint32_t()
-  external int __esr;
-
-  @__uint32_t()
-  external int __exception;
-}
-
-typedef __uint64_t = ffi.UnsignedLongLong;
-typedef Dart__uint64_t = int;
-
-final class __darwin_arm_exception_state64_v2 extends ffi.Struct {
-  @__uint64_t()
-  external int __far;
-
-  @__uint64_t()
-  external int __esr;
-}
-
-final class __darwin_arm_thread_state extends ffi.Struct {
-  @ffi.Array.multi([13])
-  external ffi.Array<__uint32_t> __r;
-
-  @__uint32_t()
-  external int __sp;
-
-  @__uint32_t()
-  external int __lr;
-
-  @__uint32_t()
-  external int __pc;
-
-  @__uint32_t()
-  external int __cpsr;
-}
-
-final class __darwin_arm_thread_state64 extends ffi.Struct {
-  @ffi.Array.multi([29])
-  external ffi.Array<__uint64_t> __x;
-
-  @__uint64_t()
-  external int __fp;
-
-  @__uint64_t()
-  external int __lr;
-
-  @__uint64_t()
-  external int __sp;
-
-  @__uint64_t()
-  external int __pc;
-
-  @__uint32_t()
-  external int __cpsr;
-
-  @__uint32_t()
-  external int __pad;
-}
-
-final class __darwin_arm_vfp_state extends ffi.Struct {
-  @ffi.Array.multi([64])
-  external ffi.Array<__uint32_t> __r;
-
-  @__uint32_t()
-  external int __fpscr;
-}
-
-final class __darwin_arm_neon_state64 extends ffi.Opaque {}
-
-final class __darwin_arm_neon_state extends ffi.Opaque {}
-
-final class __arm_pagein_state extends ffi.Struct {
-  @ffi.Int()
-  external int __pagein_error;
-}
-
-final class __darwin_arm_sme_state extends ffi.Struct {
-  @__uint64_t()
-  external int __svcr;
-
-  @__uint64_t()
-  external int __tpidr2_el0;
-
-  @__uint16_t()
-  external int __svl_b;
-}
-
-typedef __uint16_t = ffi.UnsignedShort;
-typedef Dart__uint16_t = int;
-
-final class __darwin_arm_sve_z_state extends ffi.Struct {
-  @ffi.Array.multi([16, 256])
-  external ffi.Array<ffi.Array<ffi.Char>> __z;
-}
-
-final class __darwin_arm_sve_p_state extends ffi.Struct {
-  @ffi.Array.multi([16, 32])
-  external ffi.Array<ffi.Array<ffi.Char>> __p;
-}
-
-final class __darwin_arm_sme_za_state extends ffi.Struct {
-  @ffi.Array.multi([4096])
-  external ffi.Array<ffi.Char> __za;
-}
-
-final class __darwin_arm_sme2_state extends ffi.Struct {
-  @ffi.Array.multi([64])
-  external ffi.Array<ffi.Char> __zt0;
-}
-
-final class __arm_legacy_debug_state extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __bvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __bcr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __wvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __wcr;
-}
-
-final class __darwin_arm_debug_state32 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __bvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __bcr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __wvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __wcr;
-
-  @__uint64_t()
-  external int __mdscr_el1;
-}
-
-final class __darwin_arm_debug_state64 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __bvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __bcr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __wvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __wcr;
-
-  @__uint64_t()
-  external int __mdscr_el1;
-}
-
-final class __darwin_arm_cpmu_state64 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __ctrs;
-}
-
-final class __darwin_mcontext32 extends ffi.Struct {
-  external __darwin_arm_exception_state __es;
-
-  external __darwin_arm_thread_state __ss;
-
-  external __darwin_arm_vfp_state __fs;
-}
-
-final class __darwin_mcontext64 extends ffi.Opaque {}
-
-final class __darwin_sigaltstack extends ffi.Struct {
-  external ffi.Pointer<ffi.Void> ss_sp;
-
-  @__darwin_size_t()
-  external int ss_size;
-
-  @ffi.Int()
-  external int ss_flags;
-}
-
-typedef __darwin_size_t = ffi.UnsignedLong;
-typedef Dart__darwin_size_t = int;
-
-final class __darwin_ucontext extends ffi.Struct {
-  @ffi.Int()
-  external int uc_onstack;
-
-  @__darwin_sigset_t()
-  external int uc_sigmask;
-
-  external __darwin_sigaltstack uc_stack;
-
-  external ffi.Pointer<__darwin_ucontext> uc_link;
-
-  @__darwin_size_t()
-  external int uc_mcsize;
-
-  external ffi.Pointer<__darwin_mcontext64> uc_mcontext;
-}
-
-typedef __darwin_sigset_t = __uint32_t;
-
-final class sigval extends ffi.Union {
-  @ffi.Int()
-  external int sival_int;
-
-  external ffi.Pointer<ffi.Void> sival_ptr;
-}
-
-final class sigevent extends ffi.Struct {
-  @ffi.Int()
-  external int sigev_notify;
-
-  @ffi.Int()
-  external int sigev_signo;
-
-  external sigval sigev_value;
-
-  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function(sigval)>>
-      sigev_notify_function;
-
-  external ffi.Pointer<pthread_attr_t> sigev_notify_attributes;
-}
-
-typedef pthread_attr_t = __darwin_pthread_attr_t;
-typedef __darwin_pthread_attr_t = _opaque_pthread_attr_t;
-
-final class __siginfo extends ffi.Struct {
-  @ffi.Int()
-  external int si_signo;
-
-  @ffi.Int()
-  external int si_errno;
-
-  @ffi.Int()
-  external int si_code;
-
-  @pid_t()
-  external int si_pid;
-
-  @uid_t()
-  external int si_uid;
-
-  @ffi.Int()
-  external int si_status;
-
-  external ffi.Pointer<ffi.Void> si_addr;
-
-  external sigval si_value;
-
-  @ffi.Long()
-  external int si_band;
-
-  @ffi.Array.multi([7])
-  external ffi.Array<ffi.UnsignedLong> __pad;
-}
-
-typedef pid_t = __darwin_pid_t;
-typedef __darwin_pid_t = __int32_t;
-typedef uid_t = __darwin_uid_t;
-typedef __darwin_uid_t = __uint32_t;
-
-final class sigvec extends ffi.Struct {
-  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>>
-      sv_handler;
-
-  @ffi.Int()
-  external int sv_mask;
-
-  @ffi.Int()
-  external int sv_flags;
-}
-
-final class sigstack extends ffi.Struct {
-  external ffi.Pointer<ffi.Char> ss_sp;
-
-  @ffi.Int()
-  external int ss_onstack;
-}
-
-typedef NativeSignal
-    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> Function(
-        ffi.Int arg0,
-        ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> arg1);
-typedef DartSignal
-    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> Function(
-        int arg0,
-        ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int)>> arg1);
-
-final class timeval extends ffi.Struct {
-  @__darwin_time_t()
-  external int tv_sec;
-
-  @__darwin_suseconds_t()
-  external int tv_usec;
-}
-
-typedef __darwin_time_t = ffi.Long;
-typedef Dart__darwin_time_t = int;
-typedef __darwin_suseconds_t = __int32_t;
-
-final class rusage extends ffi.Struct {
-  external timeval ru_utime;
-
-  external timeval ru_stime;
-
-  @ffi.Long()
-  external int ru_maxrss;
-
-  @ffi.Long()
-  external int ru_ixrss;
-
-  @ffi.Long()
-  external int ru_idrss;
-
-  @ffi.Long()
-  external int ru_isrss;
-
-  @ffi.Long()
-  external int ru_minflt;
-
-  @ffi.Long()
-  external int ru_majflt;
-
-  @ffi.Long()
-  external int ru_nswap;
-
-  @ffi.Long()
-  external int ru_inblock;
-
-  @ffi.Long()
-  external int ru_oublock;
-
-  @ffi.Long()
-  external int ru_msgsnd;
-
-  @ffi.Long()
-  external int ru_msgrcv;
-
-  @ffi.Long()
-  external int ru_nsignals;
-
-  @ffi.Long()
-  external int ru_nvcsw;
-
-  @ffi.Long()
-  external int ru_nivcsw;
-}
-
-final class rusage_info_v0 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Uint8> ri_uuid;
-
-  @ffi.Uint64()
-  external int ri_user_time;
-
-  @ffi.Uint64()
-  external int ri_system_time;
-
-  @ffi.Uint64()
-  external int ri_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_pageins;
-
-  @ffi.Uint64()
-  external int ri_wired_size;
-
-  @ffi.Uint64()
-  external int ri_resident_size;
-
-  @ffi.Uint64()
-  external int ri_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_proc_start_abstime;
-
-  @ffi.Uint64()
-  external int ri_proc_exit_abstime;
-}
-
-final class rusage_info_v1 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Uint8> ri_uuid;
-
-  @ffi.Uint64()
-  external int ri_user_time;
-
-  @ffi.Uint64()
-  external int ri_system_time;
-
-  @ffi.Uint64()
-  external int ri_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_pageins;
-
-  @ffi.Uint64()
-  external int ri_wired_size;
-
-  @ffi.Uint64()
-  external int ri_resident_size;
-
-  @ffi.Uint64()
-  external int ri_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_proc_start_abstime;
-
-  @ffi.Uint64()
-  external int ri_proc_exit_abstime;
-
-  @ffi.Uint64()
-  external int ri_child_user_time;
-
-  @ffi.Uint64()
-  external int ri_child_system_time;
-
-  @ffi.Uint64()
-  external int ri_child_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_pageins;
-
-  @ffi.Uint64()
-  external int ri_child_elapsed_abstime;
-}
-
-final class rusage_info_v2 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Uint8> ri_uuid;
-
-  @ffi.Uint64()
-  external int ri_user_time;
-
-  @ffi.Uint64()
-  external int ri_system_time;
-
-  @ffi.Uint64()
-  external int ri_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_pageins;
-
-  @ffi.Uint64()
-  external int ri_wired_size;
-
-  @ffi.Uint64()
-  external int ri_resident_size;
-
-  @ffi.Uint64()
-  external int ri_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_proc_start_abstime;
-
-  @ffi.Uint64()
-  external int ri_proc_exit_abstime;
-
-  @ffi.Uint64()
-  external int ri_child_user_time;
-
-  @ffi.Uint64()
-  external int ri_child_system_time;
-
-  @ffi.Uint64()
-  external int ri_child_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_pageins;
-
-  @ffi.Uint64()
-  external int ri_child_elapsed_abstime;
-
-  @ffi.Uint64()
-  external int ri_diskio_bytesread;
-
-  @ffi.Uint64()
-  external int ri_diskio_byteswritten;
-}
-
-final class rusage_info_v3 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Uint8> ri_uuid;
-
-  @ffi.Uint64()
-  external int ri_user_time;
-
-  @ffi.Uint64()
-  external int ri_system_time;
-
-  @ffi.Uint64()
-  external int ri_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_pageins;
-
-  @ffi.Uint64()
-  external int ri_wired_size;
-
-  @ffi.Uint64()
-  external int ri_resident_size;
-
-  @ffi.Uint64()
-  external int ri_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_proc_start_abstime;
-
-  @ffi.Uint64()
-  external int ri_proc_exit_abstime;
-
-  @ffi.Uint64()
-  external int ri_child_user_time;
-
-  @ffi.Uint64()
-  external int ri_child_system_time;
-
-  @ffi.Uint64()
-  external int ri_child_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_pageins;
-
-  @ffi.Uint64()
-  external int ri_child_elapsed_abstime;
-
-  @ffi.Uint64()
-  external int ri_diskio_bytesread;
-
-  @ffi.Uint64()
-  external int ri_diskio_byteswritten;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_default;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_maintenance;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_background;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_utility;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_legacy;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_user_initiated;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_user_interactive;
-
-  @ffi.Uint64()
-  external int ri_billed_system_time;
-
-  @ffi.Uint64()
-  external int ri_serviced_system_time;
-}
-
-final class rusage_info_v4 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Uint8> ri_uuid;
-
-  @ffi.Uint64()
-  external int ri_user_time;
-
-  @ffi.Uint64()
-  external int ri_system_time;
-
-  @ffi.Uint64()
-  external int ri_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_pageins;
-
-  @ffi.Uint64()
-  external int ri_wired_size;
-
-  @ffi.Uint64()
-  external int ri_resident_size;
-
-  @ffi.Uint64()
-  external int ri_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_proc_start_abstime;
-
-  @ffi.Uint64()
-  external int ri_proc_exit_abstime;
-
-  @ffi.Uint64()
-  external int ri_child_user_time;
-
-  @ffi.Uint64()
-  external int ri_child_system_time;
-
-  @ffi.Uint64()
-  external int ri_child_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_pageins;
-
-  @ffi.Uint64()
-  external int ri_child_elapsed_abstime;
-
-  @ffi.Uint64()
-  external int ri_diskio_bytesread;
-
-  @ffi.Uint64()
-  external int ri_diskio_byteswritten;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_default;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_maintenance;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_background;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_utility;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_legacy;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_user_initiated;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_user_interactive;
-
-  @ffi.Uint64()
-  external int ri_billed_system_time;
-
-  @ffi.Uint64()
-  external int ri_serviced_system_time;
-
-  @ffi.Uint64()
-  external int ri_logical_writes;
-
-  @ffi.Uint64()
-  external int ri_lifetime_max_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_instructions;
-
-  @ffi.Uint64()
-  external int ri_cycles;
-
-  @ffi.Uint64()
-  external int ri_billed_energy;
-
-  @ffi.Uint64()
-  external int ri_serviced_energy;
-
-  @ffi.Uint64()
-  external int ri_interval_max_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_runnable_time;
-}
-
-final class rusage_info_v5 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Uint8> ri_uuid;
-
-  @ffi.Uint64()
-  external int ri_user_time;
-
-  @ffi.Uint64()
-  external int ri_system_time;
-
-  @ffi.Uint64()
-  external int ri_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_pageins;
-
-  @ffi.Uint64()
-  external int ri_wired_size;
-
-  @ffi.Uint64()
-  external int ri_resident_size;
-
-  @ffi.Uint64()
-  external int ri_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_proc_start_abstime;
-
-  @ffi.Uint64()
-  external int ri_proc_exit_abstime;
-
-  @ffi.Uint64()
-  external int ri_child_user_time;
-
-  @ffi.Uint64()
-  external int ri_child_system_time;
-
-  @ffi.Uint64()
-  external int ri_child_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_pageins;
-
-  @ffi.Uint64()
-  external int ri_child_elapsed_abstime;
-
-  @ffi.Uint64()
-  external int ri_diskio_bytesread;
-
-  @ffi.Uint64()
-  external int ri_diskio_byteswritten;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_default;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_maintenance;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_background;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_utility;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_legacy;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_user_initiated;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_user_interactive;
-
-  @ffi.Uint64()
-  external int ri_billed_system_time;
-
-  @ffi.Uint64()
-  external int ri_serviced_system_time;
-
-  @ffi.Uint64()
-  external int ri_logical_writes;
-
-  @ffi.Uint64()
-  external int ri_lifetime_max_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_instructions;
-
-  @ffi.Uint64()
-  external int ri_cycles;
-
-  @ffi.Uint64()
-  external int ri_billed_energy;
-
-  @ffi.Uint64()
-  external int ri_serviced_energy;
-
-  @ffi.Uint64()
-  external int ri_interval_max_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_runnable_time;
-
-  @ffi.Uint64()
-  external int ri_flags;
-}
-
-final class rusage_info_v6 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Uint8> ri_uuid;
-
-  @ffi.Uint64()
-  external int ri_user_time;
-
-  @ffi.Uint64()
-  external int ri_system_time;
-
-  @ffi.Uint64()
-  external int ri_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_pageins;
-
-  @ffi.Uint64()
-  external int ri_wired_size;
-
-  @ffi.Uint64()
-  external int ri_resident_size;
-
-  @ffi.Uint64()
-  external int ri_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_proc_start_abstime;
-
-  @ffi.Uint64()
-  external int ri_proc_exit_abstime;
-
-  @ffi.Uint64()
-  external int ri_child_user_time;
-
-  @ffi.Uint64()
-  external int ri_child_system_time;
-
-  @ffi.Uint64()
-  external int ri_child_pkg_idle_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_interrupt_wkups;
-
-  @ffi.Uint64()
-  external int ri_child_pageins;
-
-  @ffi.Uint64()
-  external int ri_child_elapsed_abstime;
-
-  @ffi.Uint64()
-  external int ri_diskio_bytesread;
-
-  @ffi.Uint64()
-  external int ri_diskio_byteswritten;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_default;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_maintenance;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_background;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_utility;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_legacy;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_user_initiated;
-
-  @ffi.Uint64()
-  external int ri_cpu_time_qos_user_interactive;
-
-  @ffi.Uint64()
-  external int ri_billed_system_time;
-
-  @ffi.Uint64()
-  external int ri_serviced_system_time;
-
-  @ffi.Uint64()
-  external int ri_logical_writes;
-
-  @ffi.Uint64()
-  external int ri_lifetime_max_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_instructions;
-
-  @ffi.Uint64()
-  external int ri_cycles;
-
-  @ffi.Uint64()
-  external int ri_billed_energy;
-
-  @ffi.Uint64()
-  external int ri_serviced_energy;
-
-  @ffi.Uint64()
-  external int ri_interval_max_phys_footprint;
-
-  @ffi.Uint64()
-  external int ri_runnable_time;
-
-  @ffi.Uint64()
-  external int ri_flags;
-
-  @ffi.Uint64()
-  external int ri_user_ptime;
-
-  @ffi.Uint64()
-  external int ri_system_ptime;
-
-  @ffi.Uint64()
-  external int ri_pinstructions;
-
-  @ffi.Uint64()
-  external int ri_pcycles;
-
-  @ffi.Uint64()
-  external int ri_energy_nj;
-
-  @ffi.Uint64()
-  external int ri_penergy_nj;
-
-  @ffi.Uint64()
-  external int ri_secure_time_in_system;
-
-  @ffi.Uint64()
-  external int ri_secure_ptime_in_system;
-
-  @ffi.Uint64()
-  external int ri_neural_footprint;
-
-  @ffi.Uint64()
-  external int ri_lifetime_max_neural_footprint;
-
-  @ffi.Uint64()
-  external int ri_interval_max_neural_footprint;
-
-  @ffi.Array.multi([9])
-  external ffi.Array<ffi.Uint64> ri_reserved;
-}
-
-final class rlimit extends ffi.Struct {
-  @rlim_t()
-  external int rlim_cur;
-
-  @rlim_t()
-  external int rlim_max;
-}
-
-typedef rlim_t = __uint64_t;
-
-final class proc_rlimit_control_wakeupmon extends ffi.Struct {
-  @ffi.Uint32()
-  external int wm_flags;
-
-  @ffi.Int32()
-  external int wm_rate;
-}
-
-typedef id_t = __darwin_id_t;
-typedef __darwin_id_t = __uint32_t;
-typedef NativeGetpriority = ffi.Int Function(ffi.Int arg0, id_t arg1);
-typedef DartGetpriority = int Function(int arg0, int arg1);
-typedef NativeGetiopolicy_np = ffi.Int Function(ffi.Int arg0, ffi.Int arg1);
-typedef DartGetiopolicy_np = int Function(int arg0, int arg1);
-typedef NativeGetrlimit = ffi.Int Function(
-    ffi.Int arg0, ffi.Pointer<rlimit> arg1);
-typedef DartGetrlimit = int Function(int arg0, ffi.Pointer<rlimit> arg1);
-typedef NativeGetrusage = ffi.Int Function(
-    ffi.Int arg0, ffi.Pointer<rusage> arg1);
-typedef DartGetrusage = int Function(int arg0, ffi.Pointer<rusage> arg1);
-typedef NativeSetpriority = ffi.Int Function(
-    ffi.Int arg0, id_t arg1, ffi.Int arg2);
-typedef DartSetpriority = int Function(int arg0, int arg1, int arg2);
-typedef NativeSetiopolicy_np = ffi.Int Function(
-    ffi.Int arg0, ffi.Int arg1, ffi.Int arg2);
-typedef DartSetiopolicy_np = int Function(int arg0, int arg1, int arg2);
-typedef NativeSetrlimit = ffi.Int Function(
-    ffi.Int arg0, ffi.Pointer<rlimit> arg1);
-typedef DartSetrlimit = int Function(int arg0, ffi.Pointer<rlimit> arg1);
-
-final class wait extends ffi.Opaque {}
-
-typedef NativeWait = pid_t Function(ffi.Pointer<ffi.Int> arg0);
-typedef DartWait = int Function(ffi.Pointer<ffi.Int> arg0);
-typedef NativeWaitpid = pid_t Function(
-    pid_t arg0, ffi.Pointer<ffi.Int> arg1, ffi.Int arg2);
-typedef DartWaitpid = int Function(
-    int arg0, ffi.Pointer<ffi.Int> arg1, int arg2);
-typedef siginfo_t = __siginfo;
-typedef NativeWaitid = ffi.Int Function(
-    ffi.Int32 arg0, id_t arg1, ffi.Pointer<siginfo_t> arg2, ffi.Int arg3);
-typedef DartWaitid = int Function(
-    int arg0, int arg1, ffi.Pointer<siginfo_t> arg2, int arg3);
-typedef NativeWait3 = pid_t Function(
-    ffi.Pointer<ffi.Int> arg0, ffi.Int arg1, ffi.Pointer<rusage> arg2);
-typedef DartWait3 = int Function(
-    ffi.Pointer<ffi.Int> arg0, int arg1, ffi.Pointer<rusage> arg2);
-typedef NativeWait4 = pid_t Function(pid_t arg0, ffi.Pointer<ffi.Int> arg1,
-    ffi.Int arg2, ffi.Pointer<rusage> arg3);
-typedef DartWait4 = int Function(
-    int arg0, ffi.Pointer<ffi.Int> arg1, int arg2, ffi.Pointer<rusage> arg3);
-typedef NativeAlloca = ffi.Pointer<ffi.Void> Function(ffi.Size __size);
-typedef DartAlloca = ffi.Pointer<ffi.Void> Function(int __size);
-
 final class div_t extends ffi.Struct {
   @ffi.Int()
   external int quot;
@@ -5954,533 +4442,416 @@ final class lldiv_t extends ffi.Struct {
   external int rem;
 }
 
-typedef malloc_type_id_t = ffi.UnsignedLongLong;
-typedef Dartmalloc_type_id_t = int;
-typedef NativeMalloc_type_malloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Size size, malloc_type_id_t type_id);
-typedef DartMalloc_type_malloc = ffi.Pointer<ffi.Void> Function(
-    int size, int type_id);
-typedef NativeMalloc_type_calloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Size count, ffi.Size size, malloc_type_id_t type_id);
-typedef DartMalloc_type_calloc = ffi.Pointer<ffi.Void> Function(
-    int count, int size, int type_id);
-typedef NativeMalloc_type_free = ffi.Void Function(
-    ffi.Pointer<ffi.Void> ptr, malloc_type_id_t type_id);
-typedef DartMalloc_type_free = void Function(
-    ffi.Pointer<ffi.Void> ptr, int type_id);
-typedef NativeMalloc_type_realloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<ffi.Void> ptr, ffi.Size size, malloc_type_id_t type_id);
-typedef DartMalloc_type_realloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<ffi.Void> ptr, int size, int type_id);
-typedef NativeMalloc_type_valloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Size size, malloc_type_id_t type_id);
-typedef DartMalloc_type_valloc = ffi.Pointer<ffi.Void> Function(
-    int size, int type_id);
-typedef NativeMalloc_type_aligned_alloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Size alignment, ffi.Size size, malloc_type_id_t type_id);
-typedef DartMalloc_type_aligned_alloc = ffi.Pointer<ffi.Void> Function(
-    int alignment, int size, int type_id);
-typedef NativeMalloc_type_posix_memalign = ffi.Int Function(
-    ffi.Pointer<ffi.Pointer<ffi.Void>> memptr,
-    ffi.Size alignment,
-    ffi.Size size,
-    malloc_type_id_t type_id);
-typedef DartMalloc_type_posix_memalign = int Function(
-    ffi.Pointer<ffi.Pointer<ffi.Void>> memptr,
-    int alignment,
-    int size,
-    int type_id);
+typedef Native__ctype_get_mb_cur_max = ffi.Size Function();
+typedef Dart__ctype_get_mb_cur_max = int Function();
+typedef NativeAtof = ffi.Double Function(ffi.Pointer<ffi.Char> __nptr);
+typedef DartAtof = double Function(ffi.Pointer<ffi.Char> __nptr);
+typedef NativeAtoi = ffi.Int Function(ffi.Pointer<ffi.Char> __nptr);
+typedef DartAtoi = int Function(ffi.Pointer<ffi.Char> __nptr);
+typedef NativeAtol = ffi.Long Function(ffi.Pointer<ffi.Char> __nptr);
+typedef DartAtol = int Function(ffi.Pointer<ffi.Char> __nptr);
+typedef NativeAtoll = ffi.LongLong Function(ffi.Pointer<ffi.Char> __nptr);
+typedef DartAtoll = int Function(ffi.Pointer<ffi.Char> __nptr);
+typedef NativeStrtod = ffi.Double Function(
+    ffi.Pointer<ffi.Char> __nptr, ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr);
+typedef DartStrtod = double Function(
+    ffi.Pointer<ffi.Char> __nptr, ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr);
+typedef NativeStrtof = ffi.Float Function(
+    ffi.Pointer<ffi.Char> __nptr, ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr);
+typedef DartStrtof = double Function(
+    ffi.Pointer<ffi.Char> __nptr, ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr);
+typedef NativeStrtol = ffi.Long Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
+typedef DartStrtol = int Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtoul = ffi.UnsignedLong Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
+typedef DartStrtoul = int Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtoq = ffi.LongLong Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
+typedef DartStrtoq = int Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtouq = ffi.UnsignedLongLong Function(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    ffi.Int __base);
+typedef DartStrtouq = int Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtoll = ffi.LongLong Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
+typedef DartStrtoll = int Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeStrtoull = ffi.UnsignedLongLong Function(
+    ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
+    ffi.Int __base);
+typedef DartStrtoull = int Function(ffi.Pointer<ffi.Char> __nptr,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+typedef NativeL64a = ffi.Pointer<ffi.Char> Function(ffi.Long __n);
+typedef DartL64a = ffi.Pointer<ffi.Char> Function(int __n);
+typedef NativeA64l = ffi.Long Function(ffi.Pointer<ffi.Char> __s);
+typedef DartA64l = int Function(ffi.Pointer<ffi.Char> __s);
+typedef NativeRandom = ffi.Long Function();
+typedef DartRandom = int Function();
+typedef NativeSrandom = ffi.Void Function(ffi.UnsignedInt __seed);
+typedef DartSrandom = void Function(int __seed);
+typedef NativeInitstate = ffi.Pointer<ffi.Char> Function(ffi.UnsignedInt __seed,
+    ffi.Pointer<ffi.Char> __statebuf, ffi.Size __statelen);
+typedef DartInitstate = ffi.Pointer<ffi.Char> Function(
+    int __seed, ffi.Pointer<ffi.Char> __statebuf, int __statelen);
+typedef NativeSetstate = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __statebuf);
+typedef DartSetstate = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __statebuf);
 
-final class _malloc_zone_t extends ffi.Opaque {}
+final class random_data extends ffi.Struct {
+  external ffi.Pointer<ffi.Int32> fptr;
 
-typedef malloc_zone_t = _malloc_zone_t;
-typedef NativeMalloc_type_zone_malloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone, ffi.Size size, malloc_type_id_t type_id);
-typedef DartMalloc_type_zone_malloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone, int size, int type_id);
-typedef NativeMalloc_type_zone_calloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone,
-    ffi.Size count,
-    ffi.Size size,
-    malloc_type_id_t type_id);
-typedef DartMalloc_type_zone_calloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone, int count, int size, int type_id);
-typedef NativeMalloc_type_zone_free = ffi.Void Function(
-    ffi.Pointer<malloc_zone_t> zone,
-    ffi.Pointer<ffi.Void> ptr,
-    malloc_type_id_t type_id);
-typedef DartMalloc_type_zone_free = void Function(
-    ffi.Pointer<malloc_zone_t> zone, ffi.Pointer<ffi.Void> ptr, int type_id);
-typedef NativeMalloc_type_zone_realloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone,
-    ffi.Pointer<ffi.Void> ptr,
-    ffi.Size size,
-    malloc_type_id_t type_id);
-typedef DartMalloc_type_zone_realloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone,
-    ffi.Pointer<ffi.Void> ptr,
-    int size,
-    int type_id);
-typedef NativeMalloc_type_zone_valloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone, ffi.Size size, malloc_type_id_t type_id);
-typedef DartMalloc_type_zone_valloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone, int size, int type_id);
-typedef NativeMalloc_type_zone_memalign = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone,
-    ffi.Size alignment,
-    ffi.Size size,
-    malloc_type_id_t type_id);
-typedef DartMalloc_type_zone_memalign = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<malloc_zone_t> zone, int alignment, int size, int type_id);
+  external ffi.Pointer<ffi.Int32> rptr;
+
+  external ffi.Pointer<ffi.Int32> state;
+
+  @ffi.Int()
+  external int rand_type;
+
+  @ffi.Int()
+  external int rand_deg;
+
+  @ffi.Int()
+  external int rand_sep;
+
+  external ffi.Pointer<ffi.Int32> end_ptr;
+}
+
+typedef NativeRandom_r = ffi.Int Function(
+    ffi.Pointer<random_data> __buf, ffi.Pointer<ffi.Int32> __result);
+typedef DartRandom_r = int Function(
+    ffi.Pointer<random_data> __buf, ffi.Pointer<ffi.Int32> __result);
+typedef NativeSrandom_r = ffi.Int Function(
+    ffi.UnsignedInt __seed, ffi.Pointer<random_data> __buf);
+typedef DartSrandom_r = int Function(
+    int __seed, ffi.Pointer<random_data> __buf);
+typedef NativeInitstate_r = ffi.Int Function(
+    ffi.UnsignedInt __seed,
+    ffi.Pointer<ffi.Char> __statebuf,
+    ffi.Size __statelen,
+    ffi.Pointer<random_data> __buf);
+typedef DartInitstate_r = int Function(
+    int __seed,
+    ffi.Pointer<ffi.Char> __statebuf,
+    int __statelen,
+    ffi.Pointer<random_data> __buf);
+typedef NativeSetstate_r = ffi.Int Function(
+    ffi.Pointer<ffi.Char> __statebuf, ffi.Pointer<random_data> __buf);
+typedef DartSetstate_r = int Function(
+    ffi.Pointer<ffi.Char> __statebuf, ffi.Pointer<random_data> __buf);
+typedef NativeRand = ffi.Int Function();
+typedef DartRand = int Function();
+typedef NativeSrand = ffi.Void Function(ffi.UnsignedInt __seed);
+typedef DartSrand = void Function(int __seed);
+typedef NativeRand_r = ffi.Int Function(ffi.Pointer<ffi.UnsignedInt> __seed);
+typedef DartRand_r = int Function(ffi.Pointer<ffi.UnsignedInt> __seed);
+typedef NativeDrand48 = ffi.Double Function();
+typedef DartDrand48 = double Function();
+typedef NativeErand48 = ffi.Double Function(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi);
+typedef DartErand48 = double Function(ffi.Pointer<ffi.UnsignedShort> __xsubi);
+typedef NativeLrand48 = ffi.Long Function();
+typedef DartLrand48 = int Function();
+typedef NativeNrand48 = ffi.Long Function(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi);
+typedef DartNrand48 = int Function(ffi.Pointer<ffi.UnsignedShort> __xsubi);
+typedef NativeMrand48 = ffi.Long Function();
+typedef DartMrand48 = int Function();
+typedef NativeJrand48 = ffi.Long Function(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi);
+typedef DartJrand48 = int Function(ffi.Pointer<ffi.UnsignedShort> __xsubi);
+typedef NativeSrand48 = ffi.Void Function(ffi.Long __seedval);
+typedef DartSrand48 = void Function(int __seedval);
+typedef NativeSeed48 = ffi.Pointer<ffi.UnsignedShort> Function(
+    ffi.Pointer<ffi.UnsignedShort> __seed16v);
+typedef DartSeed48 = ffi.Pointer<ffi.UnsignedShort> Function(
+    ffi.Pointer<ffi.UnsignedShort> __seed16v);
+typedef NativeLcong48 = ffi.Void Function(
+    ffi.Pointer<ffi.UnsignedShort> __param);
+typedef DartLcong48 = void Function(ffi.Pointer<ffi.UnsignedShort> __param);
+
+final class drand48_data extends ffi.Struct {
+  @ffi.Array.multi([3])
+  external ffi.Array<ffi.UnsignedShort> __x;
+
+  @ffi.Array.multi([3])
+  external ffi.Array<ffi.UnsignedShort> __old_x;
+
+  @ffi.UnsignedShort()
+  external int __c;
+
+  @ffi.UnsignedShort()
+  external int __init;
+
+  @ffi.UnsignedLongLong()
+  external int __a;
+}
+
+typedef NativeDrand48_r = ffi.Int Function(
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Double> __result);
+typedef DartDrand48_r = int Function(
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Double> __result);
+typedef NativeErand48_r = ffi.Int Function(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Double> __result);
+typedef DartErand48_r = int Function(ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Double> __result);
+typedef NativeLrand48_r = ffi.Int Function(
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Long> __result);
+typedef DartLrand48_r = int Function(
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Long> __result);
+typedef NativeNrand48_r = ffi.Int Function(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Long> __result);
+typedef DartNrand48_r = int Function(ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Long> __result);
+typedef NativeMrand48_r = ffi.Int Function(
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Long> __result);
+typedef DartMrand48_r = int Function(
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Long> __result);
+typedef NativeJrand48_r = ffi.Int Function(
+    ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer,
+    ffi.Pointer<ffi.Long> __result);
+typedef DartJrand48_r = int Function(ffi.Pointer<ffi.UnsignedShort> __xsubi,
+    ffi.Pointer<drand48_data> __buffer, ffi.Pointer<ffi.Long> __result);
+typedef NativeSrand48_r = ffi.Int Function(
+    ffi.Long __seedval, ffi.Pointer<drand48_data> __buffer);
+typedef DartSrand48_r = int Function(
+    int __seedval, ffi.Pointer<drand48_data> __buffer);
+typedef NativeSeed48_r = ffi.Int Function(
+    ffi.Pointer<ffi.UnsignedShort> __seed16v,
+    ffi.Pointer<drand48_data> __buffer);
+typedef DartSeed48_r = int Function(ffi.Pointer<ffi.UnsignedShort> __seed16v,
+    ffi.Pointer<drand48_data> __buffer);
+typedef NativeLcong48_r = ffi.Int Function(
+    ffi.Pointer<ffi.UnsignedShort> __param, ffi.Pointer<drand48_data> __buffer);
+typedef DartLcong48_r = int Function(
+    ffi.Pointer<ffi.UnsignedShort> __param, ffi.Pointer<drand48_data> __buffer);
+typedef __uint32_t = ffi.UnsignedInt;
+typedef Dart__uint32_t = int;
+typedef NativeArc4random = __uint32_t Function();
+typedef DartArc4random = int Function();
+typedef NativeArc4random_buf = ffi.Void Function(
+    ffi.Pointer<ffi.Void> __buf, ffi.Size __size);
+typedef DartArc4random_buf = void Function(
+    ffi.Pointer<ffi.Void> __buf, int __size);
+typedef NativeArc4random_uniform = __uint32_t Function(
+    __uint32_t __upper_bound);
+typedef DartArc4random_uniform = int Function(int __upper_bound);
 typedef NativeMalloc = ffi.Pointer<ffi.Void> Function(ffi.Size __size);
 typedef DartMalloc = ffi.Pointer<ffi.Void> Function(int __size);
 typedef NativeCalloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Size __count, ffi.Size __size);
-typedef DartCalloc = ffi.Pointer<ffi.Void> Function(int __count, int __size);
-typedef NativeFree = ffi.Void Function(ffi.Pointer<ffi.Void> arg0);
-typedef DartFree = void Function(ffi.Pointer<ffi.Void> arg0);
+    ffi.Size __nmemb, ffi.Size __size);
+typedef DartCalloc = ffi.Pointer<ffi.Void> Function(int __nmemb, int __size);
 typedef NativeRealloc = ffi.Pointer<ffi.Void> Function(
     ffi.Pointer<ffi.Void> __ptr, ffi.Size __size);
 typedef DartRealloc = ffi.Pointer<ffi.Void> Function(
     ffi.Pointer<ffi.Void> __ptr, int __size);
-typedef NativeReallocf = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<ffi.Void> __ptr, ffi.Size __size);
-typedef DartReallocf = ffi.Pointer<ffi.Void> Function(
-    ffi.Pointer<ffi.Void> __ptr, int __size);
+typedef NativeFree = ffi.Void Function(ffi.Pointer<ffi.Void> __ptr);
+typedef DartFree = void Function(ffi.Pointer<ffi.Void> __ptr);
+typedef NativeReallocarray = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> __ptr, ffi.Size __nmemb, ffi.Size __size);
+typedef DartReallocarray = ffi.Pointer<ffi.Void> Function(
+    ffi.Pointer<ffi.Void> __ptr, int __nmemb, int __size);
+typedef NativeAlloca = ffi.Pointer<ffi.Void> Function(ffi.Size __size);
+typedef DartAlloca = ffi.Pointer<ffi.Void> Function(int __size);
 typedef NativeValloc = ffi.Pointer<ffi.Void> Function(ffi.Size __size);
 typedef DartValloc = ffi.Pointer<ffi.Void> Function(int __size);
-typedef NativeAligned_alloc = ffi.Pointer<ffi.Void> Function(
-    ffi.Size __alignment, ffi.Size __size);
-typedef DartAligned_alloc = ffi.Pointer<ffi.Void> Function(
-    int __alignment, int __size);
 typedef NativePosix_memalign = ffi.Int Function(
     ffi.Pointer<ffi.Pointer<ffi.Void>> __memptr,
     ffi.Size __alignment,
     ffi.Size __size);
 typedef DartPosix_memalign = int Function(
     ffi.Pointer<ffi.Pointer<ffi.Void>> __memptr, int __alignment, int __size);
+typedef NativeAligned_alloc = ffi.Pointer<ffi.Void> Function(
+    ffi.Size __alignment, ffi.Size __size);
+typedef DartAligned_alloc = ffi.Pointer<ffi.Void> Function(
+    int __alignment, int __size);
 typedef NativeAbort = ffi.Void Function();
 typedef DartAbort = void Function();
-typedef NativeAbs = ffi.Int Function(ffi.Int arg0);
-typedef DartAbs = int Function(int arg0);
 typedef NativeAtexit = ffi.Int Function(
-    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> __func);
 typedef DartAtexit = int Function(
-    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> __func);
 typedef NativeAt_quick_exit = ffi.Int Function(
-    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> __func);
 typedef DartAt_quick_exit = int Function(
-    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> arg0);
-typedef NativeAtof = ffi.Double Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartAtof = double Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeAtoi = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartAtoi = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeAtol = ffi.Long Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartAtol = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeAtoll = ffi.LongLong Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartAtoll = int Function(ffi.Pointer<ffi.Char> arg0);
+    ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>> __func);
+typedef NativeOn_exit = ffi.Int Function(
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Void Function(
+                    ffi.Int __status, ffi.Pointer<ffi.Void> __arg)>>
+        __func,
+    ffi.Pointer<ffi.Void> __arg);
+typedef DartOn_exit = int Function(
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Void Function(
+                    ffi.Int __status, ffi.Pointer<ffi.Void> __arg)>>
+        __func,
+    ffi.Pointer<ffi.Void> __arg);
+typedef NativeExit = ffi.Void Function(ffi.Int __status);
+typedef DartExit = void Function(int __status);
+typedef NativeQuick_exit = ffi.Void Function(ffi.Int __status);
+typedef DartQuick_exit = void Function(int __status);
+typedef Native_Exit = ffi.Void Function(ffi.Int __status);
+typedef Dart_Exit = void Function(int __status);
+typedef NativeGetenv = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __name);
+typedef DartGetenv = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __name);
+typedef NativePutenv = ffi.Int Function(ffi.Pointer<ffi.Char> __string);
+typedef DartPutenv = int Function(ffi.Pointer<ffi.Char> __string);
+typedef NativeSetenv = ffi.Int Function(ffi.Pointer<ffi.Char> __name,
+    ffi.Pointer<ffi.Char> __value, ffi.Int __replace);
+typedef DartSetenv = int Function(
+    ffi.Pointer<ffi.Char> __name, ffi.Pointer<ffi.Char> __value, int __replace);
+typedef NativeUnsetenv = ffi.Int Function(ffi.Pointer<ffi.Char> __name);
+typedef DartUnsetenv = int Function(ffi.Pointer<ffi.Char> __name);
+typedef NativeClearenv = ffi.Int Function();
+typedef DartClearenv = int Function();
+typedef NativeMktemp = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __template);
+typedef DartMktemp = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __template);
+typedef NativeMkstemp = ffi.Int Function(ffi.Pointer<ffi.Char> __template);
+typedef DartMkstemp = int Function(ffi.Pointer<ffi.Char> __template);
+typedef NativeMkstemps = ffi.Int Function(
+    ffi.Pointer<ffi.Char> __template, ffi.Int __suffixlen);
+typedef DartMkstemps = int Function(
+    ffi.Pointer<ffi.Char> __template, int __suffixlen);
+typedef NativeMkdtemp = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __template);
+typedef DartMkdtemp = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __template);
+typedef NativeSystem = ffi.Int Function(ffi.Pointer<ffi.Char> __command);
+typedef DartSystem = int Function(ffi.Pointer<ffi.Char> __command);
+typedef NativeRealpath = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __name, ffi.Pointer<ffi.Char> __resolved);
+typedef DartRealpath = ffi.Pointer<ffi.Char> Function(
+    ffi.Pointer<ffi.Char> __name, ffi.Pointer<ffi.Char> __resolved);
+typedef __compar_fn_t = ffi.Pointer<ffi.NativeFunction<__compar_fn_tFunction>>;
+typedef __compar_fn_tFunction = ffi.Int Function(
+    ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>);
+typedef Dart__compar_fn_tFunction = int Function(
+    ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>);
 typedef NativeBsearch = ffi.Pointer<ffi.Void> Function(
     ffi.Pointer<ffi.Void> __key,
     ffi.Pointer<ffi.Void> __base,
-    ffi.Size __nel,
-    ffi.Size __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
+    ffi.Size __nmemb,
+    ffi.Size __size,
+    __compar_fn_t __compar);
 typedef DartBsearch = ffi.Pointer<ffi.Void> Function(
     ffi.Pointer<ffi.Void> __key,
     ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef NativeDiv = div_t Function(ffi.Int arg0, ffi.Int arg1);
-typedef DartDiv = div_t Function(int arg0, int arg1);
-typedef NativeExit = ffi.Void Function(ffi.Int arg0);
-typedef DartExit = void Function(int arg0);
-typedef NativeGetenv = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> arg0);
-typedef DartGetenv = ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeLabs = ffi.Long Function(ffi.Long arg0);
-typedef DartLabs = int Function(int arg0);
-typedef NativeLdiv = ldiv_t Function(ffi.Long arg0, ffi.Long arg1);
-typedef DartLdiv = ldiv_t Function(int arg0, int arg1);
-typedef NativeLlabs = ffi.LongLong Function(ffi.LongLong arg0);
-typedef DartLlabs = int Function(int arg0);
-typedef NativeLldiv = lldiv_t Function(ffi.LongLong arg0, ffi.LongLong arg1);
-typedef DartLldiv = lldiv_t Function(int arg0, int arg1);
+    int __nmemb,
+    int __size,
+    __compar_fn_t __compar);
+typedef NativeQsort = ffi.Void Function(ffi.Pointer<ffi.Void> __base,
+    ffi.Size __nmemb, ffi.Size __size, __compar_fn_t __compar);
+typedef DartQsort = void Function(ffi.Pointer<ffi.Void> __base, int __nmemb,
+    int __size, __compar_fn_t __compar);
+typedef NativeAbs = ffi.Int Function(ffi.Int __x);
+typedef DartAbs = int Function(int __x);
+typedef NativeLabs = ffi.Long Function(ffi.Long __x);
+typedef DartLabs = int Function(int __x);
+typedef NativeLlabs = ffi.LongLong Function(ffi.LongLong __x);
+typedef DartLlabs = int Function(int __x);
+typedef NativeDiv = div_t Function(ffi.Int __numer, ffi.Int __denom);
+typedef DartDiv = div_t Function(int __numer, int __denom);
+typedef NativeLdiv = ldiv_t Function(ffi.Long __numer, ffi.Long __denom);
+typedef DartLdiv = ldiv_t Function(int __numer, int __denom);
+typedef NativeLldiv = lldiv_t Function(
+    ffi.LongLong __numer, ffi.LongLong __denom);
+typedef DartLldiv = lldiv_t Function(int __numer, int __denom);
+typedef NativeEcvt = ffi.Pointer<ffi.Char> Function(
+    ffi.Double __value,
+    ffi.Int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign);
+typedef DartEcvt = ffi.Pointer<ffi.Char> Function(double __value, int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt, ffi.Pointer<ffi.Int> __sign);
+typedef NativeFcvt = ffi.Pointer<ffi.Char> Function(
+    ffi.Double __value,
+    ffi.Int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign);
+typedef DartFcvt = ffi.Pointer<ffi.Char> Function(double __value, int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt, ffi.Pointer<ffi.Int> __sign);
+typedef NativeGcvt = ffi.Pointer<ffi.Char> Function(
+    ffi.Double __value, ffi.Int __ndigit, ffi.Pointer<ffi.Char> __buf);
+typedef DartGcvt = ffi.Pointer<ffi.Char> Function(
+    double __value, int __ndigit, ffi.Pointer<ffi.Char> __buf);
+typedef NativeEcvt_r = ffi.Int Function(
+    ffi.Double __value,
+    ffi.Int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign,
+    ffi.Pointer<ffi.Char> __buf,
+    ffi.Size __len);
+typedef DartEcvt_r = int Function(
+    double __value,
+    int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign,
+    ffi.Pointer<ffi.Char> __buf,
+    int __len);
+typedef NativeFcvt_r = ffi.Int Function(
+    ffi.Double __value,
+    ffi.Int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign,
+    ffi.Pointer<ffi.Char> __buf,
+    ffi.Size __len);
+typedef DartFcvt_r = int Function(
+    double __value,
+    int __ndigit,
+    ffi.Pointer<ffi.Int> __decpt,
+    ffi.Pointer<ffi.Int> __sign,
+    ffi.Pointer<ffi.Char> __buf,
+    int __len);
 typedef NativeMblen = ffi.Int Function(ffi.Pointer<ffi.Char> __s, ffi.Size __n);
 typedef DartMblen = int Function(ffi.Pointer<ffi.Char> __s, int __n);
-typedef NativeMbstowcs = ffi.Size Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __n);
-typedef DartMbstowcs = int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int __n);
 typedef NativeMbtowc = ffi.Int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __n);
+    ffi.Pointer<ffi.WChar> __pwc, ffi.Pointer<ffi.Char> __s, ffi.Size __n);
 typedef DartMbtowc = int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int __n);
-typedef NativeQsort = ffi.Void Function(
-    ffi.Pointer<ffi.Void> __base,
-    ffi.Size __nel,
-    ffi.Size __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef DartQsort = void Function(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef NativeQuick_exit = ffi.Void Function(ffi.Int arg0);
-typedef DartQuick_exit = void Function(int arg0);
-typedef NativeRand = ffi.Int Function();
-typedef DartRand = int Function();
-typedef NativeSrand = ffi.Void Function(ffi.UnsignedInt arg0);
-typedef DartSrand = void Function(int arg0);
-typedef NativeStrtod = ffi.Double Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
-typedef DartStrtod = double Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
-typedef NativeStrtof = ffi.Float Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
-typedef DartStrtof = double Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
-typedef NativeStrtol = ffi.Long Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
-typedef DartStrtol = int Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
-typedef NativeStrtoll = ffi.LongLong Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
-typedef DartStrtoll = int Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
-typedef NativeStrtoul = ffi.UnsignedLong Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
-typedef DartStrtoul = int Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
-typedef NativeStrtoull = ffi.UnsignedLongLong Function(
-    ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
-    ffi.Int __base);
-typedef DartStrtoull = int Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
-typedef NativeSystem = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartSystem = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeWcstombs = ffi.Size Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, ffi.Size __n);
-typedef DartWcstombs = int Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, int __n);
+    ffi.Pointer<ffi.WChar> __pwc, ffi.Pointer<ffi.Char> __s, int __n);
 typedef NativeWctomb = ffi.Int Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.WChar arg1);
-typedef DartWctomb = int Function(ffi.Pointer<ffi.Char> arg0, int arg1);
-typedef Native_Exit = ffi.Void Function(ffi.Int arg0);
-typedef Dart_Exit = void Function(int arg0);
-typedef NativeA64l = ffi.Long Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartA64l = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeDrand48 = ffi.Double Function();
-typedef DartDrand48 = double Function();
-typedef NativeEcvt = ffi.Pointer<ffi.Char> Function(ffi.Double arg0,
-    ffi.Int arg1, ffi.Pointer<ffi.Int> arg2, ffi.Pointer<ffi.Int> arg3);
-typedef DartEcvt = ffi.Pointer<ffi.Char> Function(double arg0, int arg1,
-    ffi.Pointer<ffi.Int> arg2, ffi.Pointer<ffi.Int> arg3);
-typedef NativeErand48 = ffi.Double Function(
-    ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef DartErand48 = double Function(ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef NativeFcvt = ffi.Pointer<ffi.Char> Function(ffi.Double arg0,
-    ffi.Int arg1, ffi.Pointer<ffi.Int> arg2, ffi.Pointer<ffi.Int> arg3);
-typedef DartFcvt = ffi.Pointer<ffi.Char> Function(double arg0, int arg1,
-    ffi.Pointer<ffi.Int> arg2, ffi.Pointer<ffi.Int> arg3);
-typedef NativeGcvt = ffi.Pointer<ffi.Char> Function(
-    ffi.Double arg0, ffi.Int arg1, ffi.Pointer<ffi.Char> arg2);
-typedef DartGcvt = ffi.Pointer<ffi.Char> Function(
-    double arg0, int arg1, ffi.Pointer<ffi.Char> arg2);
+    ffi.Pointer<ffi.Char> __s, ffi.WChar __wchar);
+typedef DartWctomb = int Function(ffi.Pointer<ffi.Char> __s, int __wchar);
+typedef NativeMbstowcs = ffi.Size Function(
+    ffi.Pointer<ffi.WChar> __pwcs, ffi.Pointer<ffi.Char> __s, ffi.Size __n);
+typedef DartMbstowcs = int Function(
+    ffi.Pointer<ffi.WChar> __pwcs, ffi.Pointer<ffi.Char> __s, int __n);
+typedef NativeWcstombs = ffi.Size Function(
+    ffi.Pointer<ffi.Char> __s, ffi.Pointer<ffi.WChar> __pwcs, ffi.Size __n);
+typedef DartWcstombs = int Function(
+    ffi.Pointer<ffi.Char> __s, ffi.Pointer<ffi.WChar> __pwcs, int __n);
+typedef NativeRpmatch = ffi.Int Function(ffi.Pointer<ffi.Char> __response);
+typedef DartRpmatch = int Function(ffi.Pointer<ffi.Char> __response);
 typedef NativeGetsubopt = ffi.Int Function(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __optionp,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __tokens,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __valuep);
 typedef DartGetsubopt = int Function(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
-typedef NativeGrantpt = ffi.Int Function(ffi.Int arg0);
-typedef DartGrantpt = int Function(int arg0);
-typedef NativeInitstate = ffi.Pointer<ffi.Char> Function(
-    ffi.UnsignedInt arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __size);
-typedef DartInitstate = ffi.Pointer<ffi.Char> Function(
-    int arg0, ffi.Pointer<ffi.Char> arg1, int __size);
-typedef NativeJrand48 = ffi.Long Function(ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef DartJrand48 = int Function(ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef NativeL64a = ffi.Pointer<ffi.Char> Function(ffi.Long arg0);
-typedef DartL64a = ffi.Pointer<ffi.Char> Function(int arg0);
-typedef NativeLcong48 = ffi.Void Function(ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef DartLcong48 = void Function(ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef NativeLrand48 = ffi.Long Function();
-typedef DartLrand48 = int Function();
-typedef NativeMktemp = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> arg0);
-typedef DartMktemp = ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeMkstemp = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartMkstemp = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeMrand48 = ffi.Long Function();
-typedef DartMrand48 = int Function();
-typedef NativeNrand48 = ffi.Long Function(ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef DartNrand48 = int Function(ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef NativePosix_openpt = ffi.Int Function(ffi.Int arg0);
-typedef DartPosix_openpt = int Function(int arg0);
-typedef NativePtsname = ffi.Pointer<ffi.Char> Function(ffi.Int arg0);
-typedef DartPtsname = ffi.Pointer<ffi.Char> Function(int arg0);
-typedef NativePtsname_r = ffi.Int Function(
-    ffi.Int fildes, ffi.Pointer<ffi.Char> buffer, ffi.Size buflen);
-typedef DartPtsname_r = int Function(
-    int fildes, ffi.Pointer<ffi.Char> buffer, int buflen);
-typedef NativePutenv = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartPutenv = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeRandom = ffi.Long Function();
-typedef DartRandom = int Function();
-typedef NativeRand_r = ffi.Int Function(ffi.Pointer<ffi.UnsignedInt> arg0);
-typedef DartRand_r = int Function(ffi.Pointer<ffi.UnsignedInt> arg0);
-typedef NativeRealpath = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1);
-typedef DartRealpath = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1);
-typedef NativeSeed48 = ffi.Pointer<ffi.UnsignedShort> Function(
-    ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef DartSeed48 = ffi.Pointer<ffi.UnsignedShort> Function(
-    ffi.Pointer<ffi.UnsignedShort> arg0);
-typedef NativeSetenv = ffi.Int Function(ffi.Pointer<ffi.Char> __name,
-    ffi.Pointer<ffi.Char> __value, ffi.Int __overwrite);
-typedef DartSetenv = int Function(ffi.Pointer<ffi.Char> __name,
-    ffi.Pointer<ffi.Char> __value, int __overwrite);
-typedef NativeSetkey = ffi.Void Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartSetkey = void Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeSetstate = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> arg0);
-typedef DartSetstate = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> arg0);
-typedef NativeSrand48 = ffi.Void Function(ffi.Long arg0);
-typedef DartSrand48 = void Function(int arg0);
-typedef NativeSrandom = ffi.Void Function(ffi.UnsignedInt arg0);
-typedef DartSrandom = void Function(int arg0);
-typedef NativeUnlockpt = ffi.Int Function(ffi.Int arg0);
-typedef DartUnlockpt = int Function(int arg0);
-typedef NativeUnsetenv = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartUnsetenv = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeArc4random = ffi.Uint32 Function();
-typedef DartArc4random = int Function();
-typedef NativeArc4random_addrandom = ffi.Void Function(
-    ffi.Pointer<ffi.UnsignedChar> arg0, ffi.Int __datlen);
-typedef DartArc4random_addrandom = void Function(
-    ffi.Pointer<ffi.UnsignedChar> arg0, int __datlen);
-typedef NativeArc4random_buf = ffi.Void Function(
-    ffi.Pointer<ffi.Void> __buf, ffi.Size __nbytes);
-typedef DartArc4random_buf = void Function(
-    ffi.Pointer<ffi.Void> __buf, int __nbytes);
-typedef NativeArc4random_stir = ffi.Void Function();
-typedef DartArc4random_stir = void Function();
-typedef NativeArc4random_uniform = ffi.Uint32 Function(
-    ffi.Uint32 __upper_bound);
-typedef DartArc4random_uniform = int Function(int __upper_bound);
-typedef NativeCgetcap = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Int arg2);
-typedef DartCgetcap = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
-typedef NativeCgetclose = ffi.Int Function();
-typedef DartCgetclose = int Function();
-typedef NativeCgetent = ffi.Int Function(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1,
-    ffi.Pointer<ffi.Char> arg2);
-typedef DartCgetent = int Function(ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1, ffi.Pointer<ffi.Char> arg2);
-typedef NativeCgetfirst = ffi.Int Function(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
-typedef DartCgetfirst = int Function(ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
-typedef NativeCgetmatch = ffi.Int Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1);
-typedef DartCgetmatch = int Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.Char> arg1);
-typedef NativeCgetnext = ffi.Int Function(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
-typedef DartCgetnext = int Function(ffi.Pointer<ffi.Pointer<ffi.Char>> arg0,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arg1);
-typedef NativeCgetnum = ffi.Int Function(ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Long> arg2);
-typedef DartCgetnum = int Function(ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Long> arg2);
-typedef NativeCgetset = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartCgetset = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeCgetstr = ffi.Int Function(ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
-typedef DartCgetstr = int Function(ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
-typedef NativeCgetustr = ffi.Int Function(ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
-typedef DartCgetustr = int Function(ffi.Pointer<ffi.Char> arg0,
-    ffi.Pointer<ffi.Char> arg1, ffi.Pointer<ffi.Pointer<ffi.Char>> arg2);
-typedef NativeDaemon = ffi.Int Function(ffi.Int arg0, ffi.Int arg1);
-typedef DartDaemon = int Function(int arg0, int arg1);
-typedef dev_t = __darwin_dev_t;
-typedef __darwin_dev_t = __int32_t;
-typedef mode_t = __darwin_mode_t;
-typedef __darwin_mode_t = __uint16_t;
-typedef NativeDevname = ffi.Pointer<ffi.Char> Function(dev_t arg0, mode_t arg1);
-typedef DartDevname = ffi.Pointer<ffi.Char> Function(int arg0, int arg1);
-typedef NativeDevname_r = ffi.Pointer<ffi.Char> Function(
-    dev_t arg0, mode_t arg1, ffi.Pointer<ffi.Char> buf, ffi.Int len);
-typedef DartDevname_r = ffi.Pointer<ffi.Char> Function(
-    int arg0, int arg1, ffi.Pointer<ffi.Char> buf, int len);
-typedef NativeGetbsize = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Int> arg0, ffi.Pointer<ffi.Long> arg1);
-typedef DartGetbsize = ffi.Pointer<ffi.Char> Function(
-    ffi.Pointer<ffi.Int> arg0, ffi.Pointer<ffi.Long> arg1);
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __optionp,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __tokens,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> __valuep);
 typedef NativeGetloadavg = ffi.Int Function(
-    ffi.Pointer<ffi.Double> arg0, ffi.Int __nelem);
+    ffi.Pointer<ffi.Double> __loadavg, ffi.Int __nelem);
 typedef DartGetloadavg = int Function(
-    ffi.Pointer<ffi.Double> arg0, int __nelem);
-typedef NativeGetprogname = ffi.Pointer<ffi.Char> Function();
-typedef DartGetprogname = ffi.Pointer<ffi.Char> Function();
-typedef NativeSetprogname = ffi.Void Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartSetprogname = void Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeHeapsort = ffi.Int Function(
-    ffi.Pointer<ffi.Void> __base,
-    ffi.Size __nel,
-    ffi.Size __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef DartHeapsort = int Function(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef NativeMergesort = ffi.Int Function(
-    ffi.Pointer<ffi.Void> __base,
-    ffi.Size __nel,
-    ffi.Size __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef DartMergesort = int Function(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef NativePsort = ffi.Void Function(
-    ffi.Pointer<ffi.Void> __base,
-    ffi.Size __nel,
-    ffi.Size __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef DartPsort = void Function(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef NativePsort_r = ffi.Void Function(
-    ffi.Pointer<ffi.Void> __base,
-    ffi.Size __nel,
-    ffi.Size __width,
-    ffi.Pointer<ffi.Void> arg3,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef DartPsort_r = void Function(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<ffi.Void> arg3,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef NativeQsort_r = ffi.Void Function(
-    ffi.Pointer<ffi.Void> __base,
-    ffi.Size __nel,
-    ffi.Size __width,
-    ffi.Pointer<ffi.Void> arg3,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef DartQsort_r = void Function(
-    ffi.Pointer<ffi.Void> __base,
-    int __nel,
-    int __width,
-    ffi.Pointer<ffi.Void> arg3,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<ffi.Void>)>>
-        __compar);
-typedef NativeRadixsort = ffi.Int Function(
-    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
-    ffi.Int __nel,
-    ffi.Pointer<ffi.UnsignedChar> __table,
-    ffi.UnsignedInt __endbyte);
-typedef DartRadixsort = int Function(
-    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
-    int __nel,
-    ffi.Pointer<ffi.UnsignedChar> __table,
-    int __endbyte);
-typedef NativeRpmatch = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
-typedef DartRpmatch = int Function(ffi.Pointer<ffi.Char> arg0);
-typedef NativeSradixsort = ffi.Int Function(
-    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
-    ffi.Int __nel,
-    ffi.Pointer<ffi.UnsignedChar> __table,
-    ffi.UnsignedInt __endbyte);
-typedef DartSradixsort = int Function(
-    ffi.Pointer<ffi.Pointer<ffi.UnsignedChar>> __base,
-    int __nel,
-    ffi.Pointer<ffi.UnsignedChar> __table,
-    int __endbyte);
-typedef NativeSranddev = ffi.Void Function();
-typedef DartSranddev = void Function();
-typedef NativeSrandomdev = ffi.Void Function();
-typedef DartSrandomdev = void Function();
-typedef NativeStrtonum = ffi.LongLong Function(
-    ffi.Pointer<ffi.Char> __numstr,
-    ffi.LongLong __minval,
-    ffi.LongLong __maxval,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __errstrp);
-typedef DartStrtonum = int Function(ffi.Pointer<ffi.Char> __numstr,
-    int __minval, int __maxval, ffi.Pointer<ffi.Pointer<ffi.Char>> __errstrp);
-typedef NativeStrtoq = ffi.LongLong Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, ffi.Int __base);
-typedef DartStrtoq = int Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
-typedef NativeStrtouq = ffi.UnsignedLongLong Function(
-    ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr,
-    ffi.Int __base);
-typedef DartStrtouq = int Function(ffi.Pointer<ffi.Char> __str,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> __endptr, int __base);
+    ffi.Pointer<ffi.Double> __loadavg, int __nelem);
 
 final class Option______c_char extends ffi.Opaque {}
 
@@ -6618,89 +4989,133 @@ typedef DartRegister_log_callback = void Function(LogCallback callback);
 typedef NativeGet_last_error = ffi.Pointer<ffi.Char> Function();
 typedef DartGet_last_error = ffi.Pointer<ffi.Char> Function();
 
-const int __has_safe_buffers = 1;
-
-const int __DARWIN_ONLY_64_BIT_INO_T = 1;
-
-const int __DARWIN_ONLY_UNIX_CONFORMANCE = 1;
-
-const int __DARWIN_ONLY_VERS_1050 = 1;
-
-const int __DARWIN_UNIX03 = 1;
-
-const int __DARWIN_64_BIT_INO_T = 1;
-
-const int __DARWIN_VERS_1050 = 1;
-
-const int __DARWIN_NON_CANCELABLE = 0;
-
-const String __DARWIN_SUF_EXTSN = '\$DARWIN_EXTSN';
-
-const int __DARWIN_C_ANSI = 4096;
-
-const int __DARWIN_C_FULL = 900000;
-
-const int __DARWIN_C_LEVEL = 900000;
-
-const int __STDC_WANT_LIB_EXT1__ = 1;
-
-const int __DARWIN_NO_LONG_LONG = 0;
-
-const int _DARWIN_FEATURE_64_BIT_INODE = 1;
-
-const int _DARWIN_FEATURE_ONLY_64_BIT_INODE = 1;
-
-const int _DARWIN_FEATURE_ONLY_VERS_1050 = 1;
-
-const int _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE = 1;
-
-const int _DARWIN_FEATURE_UNIX_CONFORMANCE = 3;
-
-const int __has_ptrcheck = 0;
-
-const int __has_bounds_safety_attributes = 0;
-
-const int __DARWIN_NULL = 0;
-
-const int __PTHREAD_SIZE__ = 8176;
-
-const int __PTHREAD_ATTR_SIZE__ = 56;
-
-const int __PTHREAD_MUTEXATTR_SIZE__ = 8;
-
-const int __PTHREAD_MUTEX_SIZE__ = 56;
-
-const int __PTHREAD_CONDATTR_SIZE__ = 8;
-
-const int __PTHREAD_COND_SIZE__ = 40;
-
-const int __PTHREAD_ONCE_SIZE__ = 8;
-
-const int __PTHREAD_RWLOCK_SIZE__ = 192;
-
-const int __PTHREAD_RWLOCKATTR_SIZE__ = 16;
-
-const int __DARWIN_WCHAR_MAX = 2147483647;
-
-const int __DARWIN_WCHAR_MIN = -2147483648;
-
-const int __DARWIN_WEOF = -1;
-
-const int _FORTIFY_SOURCE = 2;
-
 const int NULL = 0;
 
-const int USER_ADDR_NULL = 0;
+const int _STDINT_H = 1;
+
+const int _FEATURES_H = 1;
+
+const int _DEFAULT_SOURCE = 1;
+
+const int __GLIBC_USE_ISOC2X = 1;
+
+const int __USE_ISOC11 = 1;
+
+const int __USE_ISOC99 = 1;
+
+const int __USE_ISOC95 = 1;
+
+const int _POSIX_SOURCE = 1;
+
+const int _POSIX_C_SOURCE = 200809;
+
+const int __USE_POSIX = 1;
+
+const int __USE_POSIX2 = 1;
+
+const int __USE_POSIX199309 = 1;
+
+const int __USE_POSIX199506 = 1;
+
+const int __USE_XOPEN2K = 1;
+
+const int __USE_XOPEN2K8 = 1;
+
+const int _ATFILE_SOURCE = 1;
 
 const int __WORDSIZE = 64;
 
-const int INT8_MAX = 127;
+const int __WORDSIZE_TIME64_COMPAT32 = 1;
 
-const int INT16_MAX = 32767;
+const int __SYSCALL_WORDSIZE = 64;
 
-const int INT32_MAX = 2147483647;
+const int __TIMESIZE = 64;
 
-const int INT64_MAX = 9223372036854775807;
+const int __USE_MISC = 1;
+
+const int __USE_ATFILE = 1;
+
+const int __USE_FORTIFY_LEVEL = 0;
+
+const int __GLIBC_USE_DEPRECATED_GETS = 0;
+
+const int __GLIBC_USE_DEPRECATED_SCANF = 0;
+
+const int __GLIBC_USE_C2X_STRTOL = 1;
+
+const int _STDC_PREDEF_H = 1;
+
+const int __STDC_IEC_559__ = 1;
+
+const int __STDC_IEC_60559_BFP__ = 201404;
+
+const int __STDC_IEC_559_COMPLEX__ = 1;
+
+const int __STDC_IEC_60559_COMPLEX__ = 201404;
+
+const int __STDC_ISO_10646__ = 201706;
+
+const int __GNU_LIBRARY__ = 6;
+
+const int __GLIBC__ = 2;
+
+const int __GLIBC_MINOR__ = 39;
+
+const int _SYS_CDEFS_H = 1;
+
+const int __THROW = 1;
+
+const int __THROWNL = 1;
+
+const int __glibc_c99_flexarr_available = 1;
+
+const int __LDOUBLE_REDIRECTS_TO_FLOAT128_ABI = 0;
+
+const int __HAVE_GENERIC_SELECTION = 0;
+
+const int __GLIBC_USE_LIB_EXT2 = 1;
+
+const int __GLIBC_USE_IEC_60559_BFP_EXT = 1;
+
+const int __GLIBC_USE_IEC_60559_BFP_EXT_C2X = 1;
+
+const int __GLIBC_USE_IEC_60559_EXT = 1;
+
+const int __GLIBC_USE_IEC_60559_FUNCS_EXT = 1;
+
+const int __GLIBC_USE_IEC_60559_FUNCS_EXT_C2X = 1;
+
+const int __GLIBC_USE_IEC_60559_TYPES_EXT = 1;
+
+const int _BITS_TYPES_H = 1;
+
+const int _BITS_TYPESIZES_H = 1;
+
+const int __OFF_T_MATCHES_OFF64_T = 1;
+
+const int __INO_T_MATCHES_INO64_T = 1;
+
+const int __RLIM_T_MATCHES_RLIM64_T = 1;
+
+const int __STATFS_MATCHES_STATFS64 = 1;
+
+const int __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 = 1;
+
+const int __FD_SETSIZE = 1024;
+
+const int _BITS_TIME64_H = 1;
+
+const int _BITS_WCHAR_H = 1;
+
+const int __WCHAR_MAX = 2147483647;
+
+const int __WCHAR_MIN = -2147483648;
+
+const int _BITS_STDINT_INTN_H = 1;
+
+const int _BITS_STDINT_UINTN_H = 1;
+
+const int _BITS_STDINT_LEAST_H = 1;
 
 const int INT8_MIN = -128;
 
@@ -6709,6 +5124,14 @@ const int INT16_MIN = -32768;
 const int INT32_MIN = -2147483648;
 
 const int INT64_MIN = -9223372036854775808;
+
+const int INT8_MAX = 127;
+
+const int INT16_MAX = 32767;
+
+const int INT32_MAX = 2147483647;
+
+const int INT64_MAX = 9223372036854775807;
 
 const int UINT8_MAX = 255;
 
@@ -6744,69 +5167,85 @@ const int UINT_LEAST64_MAX = -1;
 
 const int INT_FAST8_MIN = -128;
 
-const int INT_FAST16_MIN = -32768;
+const int INT_FAST16_MIN = -9223372036854775808;
 
-const int INT_FAST32_MIN = -2147483648;
+const int INT_FAST32_MIN = -9223372036854775808;
 
 const int INT_FAST64_MIN = -9223372036854775808;
 
 const int INT_FAST8_MAX = 127;
 
-const int INT_FAST16_MAX = 32767;
+const int INT_FAST16_MAX = 9223372036854775807;
 
-const int INT_FAST32_MAX = 2147483647;
+const int INT_FAST32_MAX = 9223372036854775807;
 
 const int INT_FAST64_MAX = 9223372036854775807;
 
 const int UINT_FAST8_MAX = 255;
 
-const int UINT_FAST16_MAX = 65535;
+const int UINT_FAST16_MAX = -1;
 
-const int UINT_FAST32_MAX = 4294967295;
+const int UINT_FAST32_MAX = -1;
 
 const int UINT_FAST64_MAX = -1;
 
-const int INTPTR_MAX = 9223372036854775807;
-
 const int INTPTR_MIN = -9223372036854775808;
 
+const int INTPTR_MAX = 9223372036854775807;
+
 const int UINTPTR_MAX = -1;
+
+const int INTMAX_MIN = -9223372036854775808;
 
 const int INTMAX_MAX = 9223372036854775807;
 
 const int UINTMAX_MAX = -1;
 
-const int INTMAX_MIN = -9223372036854775808;
-
 const int PTRDIFF_MIN = -9223372036854775808;
 
 const int PTRDIFF_MAX = 9223372036854775807;
-
-const int SIZE_MAX = -1;
-
-const int RSIZE_MAX = 9223372036854775807;
-
-const int WCHAR_MAX = 2147483647;
-
-const int WCHAR_MIN = -2147483648;
-
-const int WINT_MIN = -2147483648;
-
-const int WINT_MAX = 2147483647;
 
 const int SIG_ATOMIC_MIN = -2147483648;
 
 const int SIG_ATOMIC_MAX = 2147483647;
 
-const int _QUAD_HIGHWORD = 1;
+const int SIZE_MAX = -1;
 
-const int _QUAD_LOWWORD = 0;
+const int WCHAR_MIN = -2147483648;
 
-const int __DARWIN_LITTLE_ENDIAN = 1234;
+const int WCHAR_MAX = 2147483647;
 
-const int __DARWIN_BIG_ENDIAN = 4321;
+const int WINT_MIN = 0;
 
-const int __DARWIN_PDP_ENDIAN = 3412;
+const int WINT_MAX = 4294967295;
+
+const int _SYS_TYPES_H = 1;
+
+const int __clock_t_defined = 1;
+
+const int __clockid_t_defined = 1;
+
+const int __time_t_defined = 1;
+
+const int __timer_t_defined = 1;
+
+const int __BIT_TYPES_DEFINED__ = 1;
+
+const int _ENDIAN_H = 1;
+
+const int _BITS_ENDIAN_H = 1;
+
+const int __LITTLE_ENDIAN = 1234;
+
+const int __BIG_ENDIAN = 4321;
+
+const int __PDP_ENDIAN = 3412;
+
+const int _BITS_ENDIANNESS_H = 1;
+
+const int __BYTE_ORDER = 1234;
+
+const int __FLOAT_WORD_ORDER = 1234;
 
 const int LITTLE_ENDIAN = 1234;
 
@@ -6814,863 +5253,59 @@ const int BIG_ENDIAN = 4321;
 
 const int PDP_ENDIAN = 3412;
 
-const int __DARWIN_BYTE_ORDER = 1234;
-
 const int BYTE_ORDER = 1234;
 
-const int __API_TO_BE_DEPRECATED = 100000;
+const int _BITS_BYTESWAP_H = 1;
 
-const int __API_TO_BE_DEPRECATED_MACOS = 100000;
+const int _BITS_UINTN_IDENTITY_H = 1;
 
-const int __API_TO_BE_DEPRECATED_MACOSAPPLICATIONEXTENSION = 100000;
+const int _SYS_SELECT_H = 1;
 
-const int __API_TO_BE_DEPRECATED_IOS = 100000;
+const int __sigset_t_defined = 1;
 
-const int __API_TO_BE_DEPRECATED_IOSAPPLICATIONEXTENSION = 100000;
+const int _SIGSET_NWORDS = 16;
 
-const int __API_TO_BE_DEPRECATED_MACCATALYST = 100000;
+const int __timeval_defined = 1;
 
-const int __API_TO_BE_DEPRECATED_MACCATALYSTAPPLICATIONEXTENSION = 100000;
+const int _STRUCT_TIMESPEC = 1;
 
-const int __API_TO_BE_DEPRECATED_WATCHOS = 100000;
-
-const int __API_TO_BE_DEPRECATED_WATCHOSAPPLICATIONEXTENSION = 100000;
-
-const int __API_TO_BE_DEPRECATED_TVOS = 100000;
-
-const int __API_TO_BE_DEPRECATED_TVOSAPPLICATIONEXTENSION = 100000;
-
-const int __API_TO_BE_DEPRECATED_DRIVERKIT = 100000;
-
-const int __API_TO_BE_DEPRECATED_VISIONOS = 100000;
-
-const int __API_TO_BE_DEPRECATED_VISIONOSAPPLICATIONEXTENSION = 100000;
-
-const int __API_TO_BE_DEPRECATED_KERNELKIT = 100000;
-
-const int __MAC_10_0 = 1000;
-
-const int __MAC_10_1 = 1010;
-
-const int __MAC_10_2 = 1020;
-
-const int __MAC_10_3 = 1030;
-
-const int __MAC_10_4 = 1040;
-
-const int __MAC_10_5 = 1050;
-
-const int __MAC_10_6 = 1060;
-
-const int __MAC_10_7 = 1070;
-
-const int __MAC_10_8 = 1080;
-
-const int __MAC_10_9 = 1090;
-
-const int __MAC_10_10 = 101000;
-
-const int __MAC_10_10_2 = 101002;
-
-const int __MAC_10_10_3 = 101003;
-
-const int __MAC_10_11 = 101100;
-
-const int __MAC_10_11_2 = 101102;
-
-const int __MAC_10_11_3 = 101103;
-
-const int __MAC_10_11_4 = 101104;
-
-const int __MAC_10_12 = 101200;
-
-const int __MAC_10_12_1 = 101201;
-
-const int __MAC_10_12_2 = 101202;
-
-const int __MAC_10_12_4 = 101204;
-
-const int __MAC_10_13 = 101300;
-
-const int __MAC_10_13_1 = 101301;
-
-const int __MAC_10_13_2 = 101302;
-
-const int __MAC_10_13_4 = 101304;
-
-const int __MAC_10_14 = 101400;
-
-const int __MAC_10_14_1 = 101401;
-
-const int __MAC_10_14_4 = 101404;
-
-const int __MAC_10_14_5 = 101405;
-
-const int __MAC_10_14_6 = 101406;
-
-const int __MAC_10_15 = 101500;
-
-const int __MAC_10_15_1 = 101501;
-
-const int __MAC_10_15_4 = 101504;
-
-const int __MAC_10_16 = 101600;
-
-const int __MAC_11_0 = 110000;
-
-const int __MAC_11_1 = 110100;
-
-const int __MAC_11_3 = 110300;
-
-const int __MAC_11_4 = 110400;
-
-const int __MAC_11_5 = 110500;
-
-const int __MAC_11_6 = 110600;
-
-const int __MAC_12_0 = 120000;
-
-const int __MAC_12_1 = 120100;
-
-const int __MAC_12_2 = 120200;
-
-const int __MAC_12_3 = 120300;
-
-const int __MAC_12_4 = 120400;
-
-const int __MAC_12_5 = 120500;
-
-const int __MAC_12_6 = 120600;
-
-const int __MAC_12_7 = 120700;
-
-const int __MAC_13_0 = 130000;
-
-const int __MAC_13_1 = 130100;
-
-const int __MAC_13_2 = 130200;
-
-const int __MAC_13_3 = 130300;
-
-const int __MAC_13_4 = 130400;
-
-const int __MAC_13_5 = 130500;
-
-const int __MAC_13_6 = 130600;
-
-const int __MAC_13_7 = 130700;
-
-const int __MAC_14_0 = 140000;
-
-const int __MAC_14_1 = 140100;
-
-const int __MAC_14_2 = 140200;
-
-const int __MAC_14_3 = 140300;
-
-const int __MAC_14_4 = 140400;
-
-const int __MAC_14_5 = 140500;
-
-const int __MAC_14_6 = 140600;
-
-const int __MAC_14_7 = 140700;
-
-const int __MAC_15_0 = 150000;
-
-const int __MAC_15_1 = 150100;
-
-const int __MAC_15_2 = 150200;
-
-const int __MAC_15_3 = 150300;
-
-const int __MAC_15_4 = 150400;
-
-const int __MAC_15_5 = 150500;
-
-const int __IPHONE_2_0 = 20000;
-
-const int __IPHONE_2_1 = 20100;
-
-const int __IPHONE_2_2 = 20200;
-
-const int __IPHONE_3_0 = 30000;
-
-const int __IPHONE_3_1 = 30100;
-
-const int __IPHONE_3_2 = 30200;
-
-const int __IPHONE_4_0 = 40000;
-
-const int __IPHONE_4_1 = 40100;
-
-const int __IPHONE_4_2 = 40200;
-
-const int __IPHONE_4_3 = 40300;
-
-const int __IPHONE_5_0 = 50000;
-
-const int __IPHONE_5_1 = 50100;
-
-const int __IPHONE_6_0 = 60000;
-
-const int __IPHONE_6_1 = 60100;
-
-const int __IPHONE_7_0 = 70000;
-
-const int __IPHONE_7_1 = 70100;
-
-const int __IPHONE_8_0 = 80000;
-
-const int __IPHONE_8_1 = 80100;
-
-const int __IPHONE_8_2 = 80200;
-
-const int __IPHONE_8_3 = 80300;
-
-const int __IPHONE_8_4 = 80400;
-
-const int __IPHONE_9_0 = 90000;
-
-const int __IPHONE_9_1 = 90100;
-
-const int __IPHONE_9_2 = 90200;
-
-const int __IPHONE_9_3 = 90300;
-
-const int __IPHONE_10_0 = 100000;
-
-const int __IPHONE_10_1 = 100100;
-
-const int __IPHONE_10_2 = 100200;
-
-const int __IPHONE_10_3 = 100300;
-
-const int __IPHONE_11_0 = 110000;
-
-const int __IPHONE_11_1 = 110100;
-
-const int __IPHONE_11_2 = 110200;
-
-const int __IPHONE_11_3 = 110300;
-
-const int __IPHONE_11_4 = 110400;
-
-const int __IPHONE_12_0 = 120000;
-
-const int __IPHONE_12_1 = 120100;
-
-const int __IPHONE_12_2 = 120200;
-
-const int __IPHONE_12_3 = 120300;
-
-const int __IPHONE_12_4 = 120400;
-
-const int __IPHONE_13_0 = 130000;
-
-const int __IPHONE_13_1 = 130100;
-
-const int __IPHONE_13_2 = 130200;
-
-const int __IPHONE_13_3 = 130300;
-
-const int __IPHONE_13_4 = 130400;
-
-const int __IPHONE_13_5 = 130500;
-
-const int __IPHONE_13_6 = 130600;
-
-const int __IPHONE_13_7 = 130700;
-
-const int __IPHONE_14_0 = 140000;
-
-const int __IPHONE_14_1 = 140100;
-
-const int __IPHONE_14_2 = 140200;
-
-const int __IPHONE_14_3 = 140300;
-
-const int __IPHONE_14_5 = 140500;
-
-const int __IPHONE_14_4 = 140400;
-
-const int __IPHONE_14_6 = 140600;
-
-const int __IPHONE_14_7 = 140700;
-
-const int __IPHONE_14_8 = 140800;
-
-const int __IPHONE_15_0 = 150000;
-
-const int __IPHONE_15_1 = 150100;
-
-const int __IPHONE_15_2 = 150200;
-
-const int __IPHONE_15_3 = 150300;
-
-const int __IPHONE_15_4 = 150400;
-
-const int __IPHONE_15_5 = 150500;
-
-const int __IPHONE_15_6 = 150600;
-
-const int __IPHONE_15_7 = 150700;
-
-const int __IPHONE_15_8 = 150800;
-
-const int __IPHONE_16_0 = 160000;
-
-const int __IPHONE_16_1 = 160100;
-
-const int __IPHONE_16_2 = 160200;
-
-const int __IPHONE_16_3 = 160300;
-
-const int __IPHONE_16_4 = 160400;
-
-const int __IPHONE_16_5 = 160500;
-
-const int __IPHONE_16_6 = 160600;
-
-const int __IPHONE_16_7 = 160700;
-
-const int __IPHONE_17_0 = 170000;
-
-const int __IPHONE_17_1 = 170100;
-
-const int __IPHONE_17_2 = 170200;
-
-const int __IPHONE_17_3 = 170300;
-
-const int __IPHONE_17_4 = 170400;
-
-const int __IPHONE_17_5 = 170500;
-
-const int __IPHONE_17_6 = 170600;
-
-const int __IPHONE_17_7 = 170700;
-
-const int __IPHONE_18_0 = 180000;
-
-const int __IPHONE_18_1 = 180100;
-
-const int __IPHONE_18_2 = 180200;
-
-const int __IPHONE_18_3 = 180300;
-
-const int __IPHONE_18_4 = 180400;
-
-const int __IPHONE_18_5 = 180500;
-
-const int __WATCHOS_1_0 = 10000;
-
-const int __WATCHOS_2_0 = 20000;
-
-const int __WATCHOS_2_1 = 20100;
-
-const int __WATCHOS_2_2 = 20200;
-
-const int __WATCHOS_3_0 = 30000;
-
-const int __WATCHOS_3_1 = 30100;
-
-const int __WATCHOS_3_1_1 = 30101;
-
-const int __WATCHOS_3_2 = 30200;
-
-const int __WATCHOS_4_0 = 40000;
-
-const int __WATCHOS_4_1 = 40100;
-
-const int __WATCHOS_4_2 = 40200;
-
-const int __WATCHOS_4_3 = 40300;
-
-const int __WATCHOS_5_0 = 50000;
-
-const int __WATCHOS_5_1 = 50100;
-
-const int __WATCHOS_5_2 = 50200;
-
-const int __WATCHOS_5_3 = 50300;
-
-const int __WATCHOS_6_0 = 60000;
-
-const int __WATCHOS_6_1 = 60100;
-
-const int __WATCHOS_6_2 = 60200;
-
-const int __WATCHOS_7_0 = 70000;
-
-const int __WATCHOS_7_1 = 70100;
-
-const int __WATCHOS_7_2 = 70200;
-
-const int __WATCHOS_7_3 = 70300;
-
-const int __WATCHOS_7_4 = 70400;
-
-const int __WATCHOS_7_5 = 70500;
-
-const int __WATCHOS_7_6 = 70600;
-
-const int __WATCHOS_8_0 = 80000;
-
-const int __WATCHOS_8_1 = 80100;
-
-const int __WATCHOS_8_3 = 80300;
-
-const int __WATCHOS_8_4 = 80400;
-
-const int __WATCHOS_8_5 = 80500;
-
-const int __WATCHOS_8_6 = 80600;
-
-const int __WATCHOS_8_7 = 80700;
-
-const int __WATCHOS_8_8 = 80800;
-
-const int __WATCHOS_9_0 = 90000;
-
-const int __WATCHOS_9_1 = 90100;
-
-const int __WATCHOS_9_2 = 90200;
-
-const int __WATCHOS_9_3 = 90300;
-
-const int __WATCHOS_9_4 = 90400;
-
-const int __WATCHOS_9_5 = 90500;
-
-const int __WATCHOS_9_6 = 90600;
-
-const int __WATCHOS_10_0 = 100000;
-
-const int __WATCHOS_10_1 = 100100;
-
-const int __WATCHOS_10_2 = 100200;
-
-const int __WATCHOS_10_3 = 100300;
-
-const int __WATCHOS_10_4 = 100400;
-
-const int __WATCHOS_10_5 = 100500;
-
-const int __WATCHOS_10_6 = 100600;
-
-const int __WATCHOS_10_7 = 100700;
-
-const int __WATCHOS_11_0 = 110000;
-
-const int __WATCHOS_11_1 = 110100;
-
-const int __WATCHOS_11_2 = 110200;
-
-const int __WATCHOS_11_3 = 110300;
-
-const int __WATCHOS_11_4 = 110400;
-
-const int __WATCHOS_11_5 = 110500;
-
-const int __TVOS_9_0 = 90000;
-
-const int __TVOS_9_1 = 90100;
-
-const int __TVOS_9_2 = 90200;
-
-const int __TVOS_10_0 = 100000;
-
-const int __TVOS_10_0_1 = 100001;
-
-const int __TVOS_10_1 = 100100;
-
-const int __TVOS_10_2 = 100200;
-
-const int __TVOS_11_0 = 110000;
-
-const int __TVOS_11_1 = 110100;
-
-const int __TVOS_11_2 = 110200;
-
-const int __TVOS_11_3 = 110300;
-
-const int __TVOS_11_4 = 110400;
-
-const int __TVOS_12_0 = 120000;
-
-const int __TVOS_12_1 = 120100;
-
-const int __TVOS_12_2 = 120200;
-
-const int __TVOS_12_3 = 120300;
-
-const int __TVOS_12_4 = 120400;
-
-const int __TVOS_13_0 = 130000;
-
-const int __TVOS_13_2 = 130200;
-
-const int __TVOS_13_3 = 130300;
-
-const int __TVOS_13_4 = 130400;
-
-const int __TVOS_14_0 = 140000;
-
-const int __TVOS_14_1 = 140100;
-
-const int __TVOS_14_2 = 140200;
-
-const int __TVOS_14_3 = 140300;
-
-const int __TVOS_14_5 = 140500;
-
-const int __TVOS_14_6 = 140600;
-
-const int __TVOS_14_7 = 140700;
-
-const int __TVOS_15_0 = 150000;
-
-const int __TVOS_15_1 = 150100;
-
-const int __TVOS_15_2 = 150200;
-
-const int __TVOS_15_3 = 150300;
-
-const int __TVOS_15_4 = 150400;
-
-const int __TVOS_15_5 = 150500;
-
-const int __TVOS_15_6 = 150600;
-
-const int __TVOS_16_0 = 160000;
-
-const int __TVOS_16_1 = 160100;
-
-const int __TVOS_16_2 = 160200;
-
-const int __TVOS_16_3 = 160300;
-
-const int __TVOS_16_4 = 160400;
-
-const int __TVOS_16_5 = 160500;
-
-const int __TVOS_16_6 = 160600;
-
-const int __TVOS_17_0 = 170000;
-
-const int __TVOS_17_1 = 170100;
-
-const int __TVOS_17_2 = 170200;
-
-const int __TVOS_17_3 = 170300;
-
-const int __TVOS_17_4 = 170400;
-
-const int __TVOS_17_5 = 170500;
-
-const int __TVOS_17_6 = 170600;
-
-const int __TVOS_18_0 = 180000;
-
-const int __TVOS_18_1 = 180100;
-
-const int __TVOS_18_2 = 180200;
-
-const int __TVOS_18_3 = 180300;
-
-const int __TVOS_18_4 = 180400;
-
-const int __TVOS_18_5 = 180500;
-
-const int __BRIDGEOS_2_0 = 20000;
-
-const int __BRIDGEOS_3_0 = 30000;
-
-const int __BRIDGEOS_3_1 = 30100;
-
-const int __BRIDGEOS_3_4 = 30400;
-
-const int __BRIDGEOS_4_0 = 40000;
-
-const int __BRIDGEOS_4_1 = 40100;
-
-const int __BRIDGEOS_5_0 = 50000;
-
-const int __BRIDGEOS_5_1 = 50100;
-
-const int __BRIDGEOS_5_3 = 50300;
-
-const int __BRIDGEOS_6_0 = 60000;
-
-const int __BRIDGEOS_6_2 = 60200;
-
-const int __BRIDGEOS_6_4 = 60400;
-
-const int __BRIDGEOS_6_5 = 60500;
-
-const int __BRIDGEOS_6_6 = 60600;
-
-const int __BRIDGEOS_7_0 = 70000;
-
-const int __BRIDGEOS_7_1 = 70100;
-
-const int __BRIDGEOS_7_2 = 70200;
-
-const int __BRIDGEOS_7_3 = 70300;
-
-const int __BRIDGEOS_7_4 = 70400;
-
-const int __BRIDGEOS_7_6 = 70600;
-
-const int __BRIDGEOS_8_0 = 80000;
-
-const int __BRIDGEOS_8_1 = 80100;
-
-const int __BRIDGEOS_8_2 = 80200;
-
-const int __BRIDGEOS_8_3 = 80300;
-
-const int __BRIDGEOS_8_4 = 80400;
-
-const int __BRIDGEOS_8_5 = 80500;
-
-const int __BRIDGEOS_8_6 = 80600;
-
-const int __BRIDGEOS_9_0 = 90000;
-
-const int __BRIDGEOS_9_1 = 90100;
-
-const int __BRIDGEOS_9_2 = 90200;
-
-const int __BRIDGEOS_9_3 = 90300;
-
-const int __BRIDGEOS_9_4 = 90400;
-
-const int __BRIDGEOS_9_5 = 90500;
-
-const int __DRIVERKIT_19_0 = 190000;
-
-const int __DRIVERKIT_20_0 = 200000;
-
-const int __DRIVERKIT_21_0 = 210000;
-
-const int __DRIVERKIT_22_0 = 220000;
-
-const int __DRIVERKIT_22_4 = 220400;
-
-const int __DRIVERKIT_22_5 = 220500;
-
-const int __DRIVERKIT_22_6 = 220600;
-
-const int __DRIVERKIT_23_0 = 230000;
-
-const int __DRIVERKIT_23_1 = 230100;
-
-const int __DRIVERKIT_23_2 = 230200;
-
-const int __DRIVERKIT_23_3 = 230300;
-
-const int __DRIVERKIT_23_4 = 230400;
-
-const int __DRIVERKIT_23_5 = 230500;
-
-const int __DRIVERKIT_23_6 = 230600;
-
-const int __DRIVERKIT_24_0 = 240000;
-
-const int __DRIVERKIT_24_1 = 240100;
-
-const int __DRIVERKIT_24_2 = 240200;
-
-const int __DRIVERKIT_24_3 = 240300;
-
-const int __DRIVERKIT_24_4 = 240400;
-
-const int __DRIVERKIT_24_5 = 240500;
-
-const int __VISIONOS_1_0 = 10000;
-
-const int __VISIONOS_1_1 = 10100;
-
-const int __VISIONOS_1_2 = 10200;
-
-const int __VISIONOS_1_3 = 10300;
-
-const int __VISIONOS_2_0 = 20000;
-
-const int __VISIONOS_2_1 = 20100;
-
-const int __VISIONOS_2_2 = 20200;
-
-const int __VISIONOS_2_3 = 20300;
-
-const int __VISIONOS_2_4 = 20400;
-
-const int __VISIONOS_2_5 = 20500;
-
-const int MAC_OS_X_VERSION_10_0 = 1000;
-
-const int MAC_OS_X_VERSION_10_1 = 1010;
-
-const int MAC_OS_X_VERSION_10_2 = 1020;
-
-const int MAC_OS_X_VERSION_10_3 = 1030;
-
-const int MAC_OS_X_VERSION_10_4 = 1040;
-
-const int MAC_OS_X_VERSION_10_5 = 1050;
-
-const int MAC_OS_X_VERSION_10_6 = 1060;
-
-const int MAC_OS_X_VERSION_10_7 = 1070;
-
-const int MAC_OS_X_VERSION_10_8 = 1080;
-
-const int MAC_OS_X_VERSION_10_9 = 1090;
-
-const int MAC_OS_X_VERSION_10_10 = 101000;
-
-const int MAC_OS_X_VERSION_10_10_2 = 101002;
-
-const int MAC_OS_X_VERSION_10_10_3 = 101003;
-
-const int MAC_OS_X_VERSION_10_11 = 101100;
-
-const int MAC_OS_X_VERSION_10_11_2 = 101102;
-
-const int MAC_OS_X_VERSION_10_11_3 = 101103;
-
-const int MAC_OS_X_VERSION_10_11_4 = 101104;
-
-const int MAC_OS_X_VERSION_10_12 = 101200;
-
-const int MAC_OS_X_VERSION_10_12_1 = 101201;
-
-const int MAC_OS_X_VERSION_10_12_2 = 101202;
-
-const int MAC_OS_X_VERSION_10_12_4 = 101204;
-
-const int MAC_OS_X_VERSION_10_13 = 101300;
-
-const int MAC_OS_X_VERSION_10_13_1 = 101301;
-
-const int MAC_OS_X_VERSION_10_13_2 = 101302;
-
-const int MAC_OS_X_VERSION_10_13_4 = 101304;
-
-const int MAC_OS_X_VERSION_10_14 = 101400;
-
-const int MAC_OS_X_VERSION_10_14_1 = 101401;
-
-const int MAC_OS_X_VERSION_10_14_4 = 101404;
-
-const int MAC_OS_X_VERSION_10_14_5 = 101405;
-
-const int MAC_OS_X_VERSION_10_14_6 = 101406;
-
-const int MAC_OS_X_VERSION_10_15 = 101500;
-
-const int MAC_OS_X_VERSION_10_15_1 = 101501;
-
-const int MAC_OS_X_VERSION_10_15_4 = 101504;
-
-const int MAC_OS_X_VERSION_10_16 = 101600;
-
-const int MAC_OS_VERSION_11_0 = 110000;
-
-const int MAC_OS_VERSION_11_1 = 110100;
-
-const int MAC_OS_VERSION_11_3 = 110300;
-
-const int MAC_OS_VERSION_11_4 = 110400;
-
-const int MAC_OS_VERSION_11_5 = 110500;
-
-const int MAC_OS_VERSION_11_6 = 110600;
-
-const int MAC_OS_VERSION_12_0 = 120000;
-
-const int MAC_OS_VERSION_12_1 = 120100;
-
-const int MAC_OS_VERSION_12_2 = 120200;
-
-const int MAC_OS_VERSION_12_3 = 120300;
-
-const int MAC_OS_VERSION_12_4 = 120400;
-
-const int MAC_OS_VERSION_12_5 = 120500;
-
-const int MAC_OS_VERSION_12_6 = 120600;
-
-const int MAC_OS_VERSION_12_7 = 120700;
-
-const int MAC_OS_VERSION_13_0 = 130000;
-
-const int MAC_OS_VERSION_13_1 = 130100;
-
-const int MAC_OS_VERSION_13_2 = 130200;
-
-const int MAC_OS_VERSION_13_3 = 130300;
-
-const int MAC_OS_VERSION_13_4 = 130400;
-
-const int MAC_OS_VERSION_13_5 = 130500;
-
-const int MAC_OS_VERSION_13_6 = 130600;
-
-const int MAC_OS_VERSION_13_7 = 130700;
-
-const int MAC_OS_VERSION_14_0 = 140000;
-
-const int MAC_OS_VERSION_14_1 = 140100;
-
-const int MAC_OS_VERSION_14_2 = 140200;
-
-const int MAC_OS_VERSION_14_3 = 140300;
-
-const int MAC_OS_VERSION_14_4 = 140400;
-
-const int MAC_OS_VERSION_14_5 = 140500;
-
-const int MAC_OS_VERSION_14_6 = 140600;
-
-const int MAC_OS_VERSION_14_7 = 140700;
-
-const int MAC_OS_VERSION_15_0 = 150000;
-
-const int MAC_OS_VERSION_15_1 = 150100;
-
-const int MAC_OS_VERSION_15_2 = 150200;
-
-const int MAC_OS_VERSION_15_3 = 150300;
-
-const int MAC_OS_VERSION_15_4 = 150400;
-
-const int MAC_OS_VERSION_15_5 = 150500;
-
-const int __AVAILABILITY_VERSIONS_VERSION_HASH = 93585900;
-
-const String __AVAILABILITY_VERSIONS_VERSION_STRING = 'Local';
-
-const String __AVAILABILITY_FILE = 'AvailabilityVersions.h';
-
-const int __MAC_OS_X_VERSION_MIN_REQUIRED = 150000;
-
-const int __MAC_OS_X_VERSION_MAX_ALLOWED = 150500;
-
-const int __ENABLE_LEGACY_MAC_AVAILABILITY = 1;
-
-const int __DARWIN_FD_SETSIZE = 1024;
-
-const int __DARWIN_NBBY = 8;
-
-const int __DARWIN_NFDBITS = 32;
-
-const int NBBY = 8;
-
-const int NFDBITS = 32;
+const int __NFDBITS = 64;
 
 const int FD_SETSIZE = 1024;
+
+const int NFDBITS = 64;
+
+const int _BITS_PTHREADTYPES_COMMON_H = 1;
+
+const int _THREAD_SHARED_TYPES_H = 1;
+
+const int _BITS_PTHREADTYPES_ARCH_H = 1;
+
+const int __SIZEOF_PTHREAD_MUTEX_T = 40;
+
+const int __SIZEOF_PTHREAD_ATTR_T = 56;
+
+const int __SIZEOF_PTHREAD_RWLOCK_T = 56;
+
+const int __SIZEOF_PTHREAD_BARRIER_T = 32;
+
+const int __SIZEOF_PTHREAD_MUTEXATTR_T = 4;
+
+const int __SIZEOF_PTHREAD_COND_T = 48;
+
+const int __SIZEOF_PTHREAD_CONDATTR_T = 4;
+
+const int __SIZEOF_PTHREAD_RWLOCKATTR_T = 8;
+
+const int __SIZEOF_PTHREAD_BARRIERATTR_T = 4;
+
+const int _THREAD_MUTEX_INTERNAL_H = 1;
+
+const int __PTHREAD_MUTEX_HAVE_PREV = 1;
+
+const int __PTHREAD_RWLOCK_ELISION_EXTRA = 0;
+
+const int __have_pthread_attr_t = 1;
 
 const int GA_OK = 0;
 
@@ -7700,422 +5335,74 @@ const int true1 = 1;
 
 const int false1 = 0;
 
-const int __DARWIN_NSIG = 32;
-
-const int NSIG = 32;
-
-const int _ARM_SIGNAL_ = 1;
-
-const int SIGHUP = 1;
-
-const int SIGINT = 2;
-
-const int SIGQUIT = 3;
-
-const int SIGILL = 4;
-
-const int SIGTRAP = 5;
-
-const int SIGABRT = 6;
-
-const int SIGIOT = 6;
-
-const int SIGEMT = 7;
-
-const int SIGFPE = 8;
-
-const int SIGKILL = 9;
-
-const int SIGBUS = 10;
-
-const int SIGSEGV = 11;
-
-const int SIGSYS = 12;
-
-const int SIGPIPE = 13;
-
-const int SIGALRM = 14;
-
-const int SIGTERM = 15;
-
-const int SIGURG = 16;
-
-const int SIGSTOP = 17;
-
-const int SIGTSTP = 18;
-
-const int SIGCONT = 19;
-
-const int SIGCHLD = 20;
-
-const int SIGTTIN = 21;
-
-const int SIGTTOU = 22;
-
-const int SIGIO = 23;
-
-const int SIGXCPU = 24;
-
-const int SIGXFSZ = 25;
-
-const int SIGVTALRM = 26;
-
-const int SIGPROF = 27;
-
-const int SIGWINCH = 28;
-
-const int SIGINFO = 29;
-
-const int SIGUSR1 = 30;
-
-const int SIGUSR2 = 31;
-
-const int __DARWIN_OPAQUE_ARM_THREAD_STATE64 = 0;
-
-const int SIGEV_NONE = 0;
-
-const int SIGEV_SIGNAL = 1;
-
-const int SIGEV_THREAD = 3;
-
-const int ILL_NOOP = 0;
-
-const int ILL_ILLOPC = 1;
-
-const int ILL_ILLTRP = 2;
-
-const int ILL_PRVOPC = 3;
-
-const int ILL_ILLOPN = 4;
-
-const int ILL_ILLADR = 5;
-
-const int ILL_PRVREG = 6;
-
-const int ILL_COPROC = 7;
-
-const int ILL_BADSTK = 8;
-
-const int FPE_NOOP = 0;
-
-const int FPE_FLTDIV = 1;
-
-const int FPE_FLTOVF = 2;
-
-const int FPE_FLTUND = 3;
-
-const int FPE_FLTRES = 4;
-
-const int FPE_FLTINV = 5;
-
-const int FPE_FLTSUB = 6;
-
-const int FPE_INTDIV = 7;
-
-const int FPE_INTOVF = 8;
-
-const int SEGV_NOOP = 0;
-
-const int SEGV_MAPERR = 1;
-
-const int SEGV_ACCERR = 2;
-
-const int BUS_NOOP = 0;
-
-const int BUS_ADRALN = 1;
-
-const int BUS_ADRERR = 2;
-
-const int BUS_OBJERR = 3;
-
-const int TRAP_BRKPT = 1;
-
-const int TRAP_TRACE = 2;
-
-const int CLD_NOOP = 0;
-
-const int CLD_EXITED = 1;
-
-const int CLD_KILLED = 2;
-
-const int CLD_DUMPED = 3;
-
-const int CLD_TRAPPED = 4;
-
-const int CLD_STOPPED = 5;
-
-const int CLD_CONTINUED = 6;
-
-const int POLL_IN = 1;
-
-const int POLL_OUT = 2;
-
-const int POLL_MSG = 3;
-
-const int POLL_ERR = 4;
-
-const int POLL_PRI = 5;
-
-const int POLL_HUP = 6;
-
-const int SA_ONSTACK = 1;
-
-const int SA_RESTART = 2;
-
-const int SA_RESETHAND = 4;
-
-const int SA_NOCLDSTOP = 8;
-
-const int SA_NODEFER = 16;
-
-const int SA_NOCLDWAIT = 32;
-
-const int SA_SIGINFO = 64;
-
-const int SA_USERTRAMP = 256;
-
-const int SA_64REGSET = 512;
-
-const int SA_USERSPACE_MASK = 127;
-
-const int SIG_BLOCK = 1;
-
-const int SIG_UNBLOCK = 2;
-
-const int SIG_SETMASK = 3;
-
-const int SI_USER = 65537;
-
-const int SI_QUEUE = 65538;
-
-const int SI_TIMER = 65539;
-
-const int SI_ASYNCIO = 65540;
-
-const int SI_MESGQ = 65541;
-
-const int SS_ONSTACK = 1;
-
-const int SS_DISABLE = 4;
-
-const int MINSIGSTKSZ = 32768;
-
-const int SIGSTKSZ = 131072;
-
-const int SV_ONSTACK = 1;
-
-const int SV_INTERRUPT = 2;
-
-const int SV_RESETHAND = 4;
-
-const int SV_NODEFER = 16;
-
-const int SV_NOCLDSTOP = 8;
-
-const int SV_SIGINFO = 64;
-
-const int PRIO_PROCESS = 0;
-
-const int PRIO_PGRP = 1;
-
-const int PRIO_USER = 2;
-
-const int PRIO_DARWIN_THREAD = 3;
-
-const int PRIO_DARWIN_PROCESS = 4;
-
-const int PRIO_MIN = -20;
-
-const int PRIO_MAX = 20;
-
-const int PRIO_DARWIN_BG = 4096;
-
-const int PRIO_DARWIN_NONUI = 4097;
-
-const int RUSAGE_SELF = 0;
-
-const int RUSAGE_CHILDREN = -1;
-
-const int RUSAGE_INFO_V0 = 0;
-
-const int RUSAGE_INFO_V1 = 1;
-
-const int RUSAGE_INFO_V2 = 2;
-
-const int RUSAGE_INFO_V3 = 3;
-
-const int RUSAGE_INFO_V4 = 4;
-
-const int RUSAGE_INFO_V5 = 5;
-
-const int RUSAGE_INFO_V6 = 6;
-
-const int RUSAGE_INFO_CURRENT = 6;
-
-const int RU_PROC_RUNS_RESLIDE = 1;
-
-const int RLIM_INFINITY = 9223372036854775807;
-
-const int RLIM_SAVED_MAX = 9223372036854775807;
-
-const int RLIM_SAVED_CUR = 9223372036854775807;
-
-const int RLIMIT_CPU = 0;
-
-const int RLIMIT_FSIZE = 1;
-
-const int RLIMIT_DATA = 2;
-
-const int RLIMIT_STACK = 3;
-
-const int RLIMIT_CORE = 4;
-
-const int RLIMIT_AS = 5;
-
-const int RLIMIT_RSS = 5;
-
-const int RLIMIT_MEMLOCK = 6;
-
-const int RLIMIT_NPROC = 7;
-
-const int RLIMIT_NOFILE = 8;
-
-const int RLIM_NLIMITS = 9;
-
-const int _RLIMIT_POSIX_FLAG = 4096;
-
-const int RLIMIT_WAKEUPS_MONITOR = 1;
-
-const int RLIMIT_CPU_USAGE_MONITOR = 2;
-
-const int RLIMIT_THREAD_CPULIMITS = 3;
-
-const int RLIMIT_FOOTPRINT_INTERVAL = 4;
-
-const int WAKEMON_ENABLE = 1;
-
-const int WAKEMON_DISABLE = 2;
-
-const int WAKEMON_GET_PARAMS = 4;
-
-const int WAKEMON_SET_DEFAULTS = 8;
-
-const int WAKEMON_MAKE_FATAL = 16;
-
-const int CPUMON_MAKE_FATAL = 4096;
-
-const int FOOTPRINT_INTERVAL_RESET = 1;
-
-const int IOPOL_TYPE_DISK = 0;
-
-const int IOPOL_TYPE_VFS_ATIME_UPDATES = 2;
-
-const int IOPOL_TYPE_VFS_MATERIALIZE_DATALESS_FILES = 3;
-
-const int IOPOL_TYPE_VFS_STATFS_NO_DATA_VOLUME = 4;
-
-const int IOPOL_TYPE_VFS_TRIGGER_RESOLVE = 5;
-
-const int IOPOL_TYPE_VFS_IGNORE_CONTENT_PROTECTION = 6;
-
-const int IOPOL_TYPE_VFS_IGNORE_PERMISSIONS = 7;
-
-const int IOPOL_TYPE_VFS_SKIP_MTIME_UPDATE = 8;
-
-const int IOPOL_TYPE_VFS_ALLOW_LOW_SPACE_WRITES = 9;
-
-const int IOPOL_TYPE_VFS_DISALLOW_RW_FOR_O_EVTONLY = 10;
-
-const int IOPOL_SCOPE_PROCESS = 0;
-
-const int IOPOL_SCOPE_THREAD = 1;
-
-const int IOPOL_SCOPE_DARWIN_BG = 2;
-
-const int IOPOL_DEFAULT = 0;
-
-const int IOPOL_IMPORTANT = 1;
-
-const int IOPOL_PASSIVE = 2;
-
-const int IOPOL_THROTTLE = 3;
-
-const int IOPOL_UTILITY = 4;
-
-const int IOPOL_STANDARD = 5;
-
-const int IOPOL_APPLICATION = 5;
-
-const int IOPOL_NORMAL = 1;
-
-const int IOPOL_ATIME_UPDATES_DEFAULT = 0;
-
-const int IOPOL_ATIME_UPDATES_OFF = 1;
-
-const int IOPOL_MATERIALIZE_DATALESS_FILES_DEFAULT = 0;
-
-const int IOPOL_MATERIALIZE_DATALESS_FILES_OFF = 1;
-
-const int IOPOL_MATERIALIZE_DATALESS_FILES_ON = 2;
-
-const int IOPOL_VFS_STATFS_NO_DATA_VOLUME_DEFAULT = 0;
-
-const int IOPOL_VFS_STATFS_FORCE_NO_DATA_VOLUME = 1;
-
-const int IOPOL_VFS_TRIGGER_RESOLVE_DEFAULT = 0;
-
-const int IOPOL_VFS_TRIGGER_RESOLVE_OFF = 1;
-
-const int IOPOL_VFS_CONTENT_PROTECTION_DEFAULT = 0;
-
-const int IOPOL_VFS_CONTENT_PROTECTION_IGNORE = 1;
-
-const int IOPOL_VFS_IGNORE_PERMISSIONS_OFF = 0;
-
-const int IOPOL_VFS_IGNORE_PERMISSIONS_ON = 1;
-
-const int IOPOL_VFS_SKIP_MTIME_UPDATE_OFF = 0;
-
-const int IOPOL_VFS_SKIP_MTIME_UPDATE_ON = 1;
-
-const int IOPOL_VFS_SKIP_MTIME_UPDATE_IGNORE = 2;
-
-const int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_OFF = 0;
-
-const int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_ON = 1;
-
-const int IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_DEFAULT = 0;
-
-const int IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_ON = 1;
-
-const int IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_DEFAULT = 0;
-
-const int IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_ON = 1;
+const int _STDLIB_H = 1;
 
 const int WNOHANG = 1;
 
 const int WUNTRACED = 2;
 
-const int WCOREFLAG = 128;
-
-const int _WSTOPPED = 127;
+const int WSTOPPED = 2;
 
 const int WEXITED = 4;
 
-const int WSTOPPED = 8;
+const int WCONTINUED = 8;
 
-const int WCONTINUED = 16;
+const int WNOWAIT = 16777216;
 
-const int WNOWAIT = 32;
+const int __WNOTHREAD = 536870912;
 
-const int WAIT_ANY = -1;
+const int __WALL = 1073741824;
 
-const int WAIT_MYPGRP = 0;
+const int __WCLONE = 2147483648;
+
+const int __W_CONTINUED = 65535;
+
+const int __WCOREFLAG = 128;
+
+const int __HAVE_FLOAT128 = 0;
+
+const int __HAVE_DISTINCT_FLOAT128 = 0;
+
+const int __HAVE_FLOAT64X = 1;
+
+const int __HAVE_FLOAT64X_LONG_DOUBLE = 1;
+
+const int __HAVE_FLOAT16 = 0;
+
+const int __HAVE_FLOAT32 = 1;
+
+const int __HAVE_FLOAT64 = 1;
+
+const int __HAVE_FLOAT32X = 1;
+
+const int __HAVE_FLOAT128X = 0;
+
+const int __HAVE_DISTINCT_FLOAT16 = 0;
+
+const int __HAVE_DISTINCT_FLOAT32 = 0;
+
+const int __HAVE_DISTINCT_FLOAT64 = 0;
+
+const int __HAVE_DISTINCT_FLOAT32X = 0;
+
+const int __HAVE_DISTINCT_FLOAT64X = 0;
+
+const int __HAVE_DISTINCT_FLOAT128X = 0;
+
+const int __HAVE_FLOAT128_UNLIKE_LDBL = 0;
+
+const int __HAVE_FLOATN_NOT_TYPEDEF = 0;
+
+const int __ldiv_t_defined = 1;
+
+const int __lldiv_t_defined = 1;
+
+const int RAND_MAX = 2147483647;
 
 const int EXIT_FAILURE = 1;
 
 const int EXIT_SUCCESS = 0;
 
-const int RAND_MAX = 2147483647;
+const int _ALLOCA_H = 1;
 
 const int DEFAULT_ELECTRUM_TIMEOUT = 10;

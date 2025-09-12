@@ -82,7 +82,7 @@ class DebitCard extends HookWidget {
           : _CardFront(
               key: const ValueKey('front'),
               partialCardNumber: partialCardNumber,
-              cardStyle: card?.style,
+              cardStyle: card?.style?.toString()
             ),
     );
   }
