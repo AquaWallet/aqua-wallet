@@ -2,6 +2,7 @@ import 'package:aqua/config/router/extensions.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/auth/auth.dart';
 import 'package:aqua/features/private_integrations/debit_card/debit_card.dart';
+import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
@@ -25,7 +26,7 @@ class DebitCardMyCardScreen extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(prefsProvider.notifier).setTheme(true);
+        ref.read(prefsProvider.notifier).setTheme(AppTheme.dark);
       });
       return null;
     }, []);
@@ -73,7 +74,7 @@ class DebitCardMyCardScreen extends HookConsumerWidget {
               const SizedBox(height: 30),
               //ANCHOR - Balance
               MoonCardBalance(
-                balance: cards.firstOrNull?.availableBalance?.toDouble() ?? 0.0,
+                balance:  double.tryParse(cards.firstOrNull?.availableBalance ?? '0') ?? 0.0,
               ),
               const SizedBox(height: 23),
               //ANCHOR - Debit Card / Placeholder

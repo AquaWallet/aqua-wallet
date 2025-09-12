@@ -1,6 +1,7 @@
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/marketplace/providers/on_ramp_setup_provider.dart';
+import 'package:aqua/features/private_integrations/btc_direct/btc_direct_providers.dart';
 import 'package:aqua/features/shared/providers/dio_interceptor.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
