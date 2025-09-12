@@ -5,12 +5,15 @@ intl.py
 android/app/src/main/jniLibs/
 ios/libboltz_rust.a
 boltz-rust.tar.gz
+key.properties
+keystore.jks
 
 # Miscellaneous
 *.class
 *.log
 *.pyc
 *.swp
+*.jks
 .DS_Store
 .atom/
 .buildlog/
