@@ -776,7 +776,7 @@
   "addresses": "Címek",
   "dateTime": "Dátum és idő",
   "viewInExplorer": "Megtekintés böngészőben",
-  "nConfirmation": "{count, plural, one {}=0{Nincs megerősítés} =1{1 megerősítés} other{{count} megerősítés}}",
+  "nConfirmation": "{count, plural, =0{Nincs megerősítés} =1{1 megerősítés} other{{count} megerősítés}}",
   "pending": "Függőben",
   "viewConfidentialTxInExplorer": "Bizalmas tranzakció megtekintése böngészőben",
   "viewUnblindedTxInExplorer": "Teljes tranzakciós adatok megtekintése böngészőben",
@@ -1011,5 +1011,13 @@
   "nativeBuyPaymentCardPayment": "Card Payment",
   "autoLockSettingsScreenTitle": "Require PIN After",
   "scanBitcoinChip": "Scan Bitcoin Chip",
-  "swapPairIsNullError": "Swap pair is null"
+  "swapPairIsNullError": "Swap pair is null",
+    "hideDetails": "Hide details",
+  "showDetails": "Show details",
+  "visaRechargeable": "Visa Rechargeable",
+  "visaReloadable": "Visa Reloadable",
+  "characteristics": "Characteristics",
+  "noPersonalDataRequired": "No personal data required",
+  "feePayments1": "1% fee on payments",
+  "limit4000UsdPerMonth": "Limit: $4000 USD per month"
 }

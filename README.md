@@ -1,15 +1,72 @@
-# AQUA Wallet
+# Aqua Wallet First-Time Setup Guide
 
-AQUA is a free, open-source wallet for iOS and Android.
+This guide provides the minimal necessary steps to compile and run the **Aqua Wallet** application on Android.
 
-## Resources
+---
 
-- Web: [aqua.net](https://aqua.net)
-- Docs (en): [jan3.zendesk.com](https://jan3.zendesk.com/hc/en-us)
-- Docs (es): [jan3.zendesk.com](https://jan3.zendesk.com/hc/es-us)
-- Contact: [support@aqua.net](mailto:support@aqua.net)
+## Prerequisites
 
-## Development
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed
+- [Dart](https://dart.dev/get-dart) available in your PATH
+- Android SDK & emulator or a physical device connected
+- `make` installed (for running dependency commands)
 
-1. Clone this repo (`git clone https://github.com/AquaWallet/aqua-wallet`)
-2. Follow instructions in [DEVELOPMENT.md](https://github.com/AquaWallet/aqua-wallet/blob/main/DEVELOPMENT.md)
+---
+
+## 1. Set Up Environment Variables
+
+First, create a `.env` file to store the necessary environment variables.  
+You can do this by copying the example file:
+
+```bash
+cp .env.example .env
+```
+
+---
+
+## 2. Fetch Native Dependencies
+
+The project relies on native libraries that are not included in the repository.  
+Fetch them by running the following commands from the project root:
+
+```bash
+make get-gdk && make get-boltz-rust && generate-bindings
+```
+
+---
+
+## 3. Generate Code with Build Runner
+
+The project uses code generation to create necessary files.  
+Run the following command to generate them:
+
+```bash
+/path/to/your/flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+> 💡 Replace `/path/to/your/flutter` with the path to your Flutter binary if not already in your PATH.
+
+---
+
+## 4. Run the Application
+
+After completing the above steps, you can run the application on Android:
+
+```bash
+flutter run
+```
+
+---
+
+## Notes
+
+- Make sure your emulator or physical device is running before executing `flutter run`.
+- If you run into build issues, try cleaning the project:
+
+```bash
+flutter clean
+```
+
+---
+
+✨ You’re now ready to use **Aqua Wallet** on Android!

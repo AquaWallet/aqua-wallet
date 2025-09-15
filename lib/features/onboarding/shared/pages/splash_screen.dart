@@ -38,7 +38,7 @@ class SplashScreen extends HookConsumerWidget {
 
     if (botevMode) {
       return LayoutBuilder(
-        builder: (_, constraints) => UiAssets.botevSplashScreen.image(
+        builder: (_, constraints) => UiAssets.botevSplashScreenWebp.image(
           fit: BoxFit.cover,
           alignment: Alignment.bottomCenter,
           width: constraints.maxWidth,

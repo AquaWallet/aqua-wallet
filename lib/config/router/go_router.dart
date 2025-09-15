@@ -9,8 +9,8 @@ import 'package:flutter/foundation.dart';
 // Will redirect to login screen if not logged in.
 const requiredLoginRoutes = [
   DebitCardMyCardScreen.routeName,
-  DebitCardOnboardingScreen.routeName,
-  DebitCardStyleSelectionScreen.routeName,
+  DebitCardOnboardingScreen.routeName
+  //DebitCardStyleSelectionScreen.routeName,
 ];
 
 final routerProvider = Provider<GoRouter>((ref) {
