@@ -258,7 +258,7 @@ abstract class NetworkFrontend {
     }
 
     logger.debug('[$runtimeType] Disconnecting $networkName');
-    final result = await session.disconnect();
+    final result = await tsession.disconnect();
 
     if (result) {
       isConnected = false;

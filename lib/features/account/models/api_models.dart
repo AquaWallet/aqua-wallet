@@ -63,6 +63,29 @@ enum TransactionStatus {
   started,
 }
 
+enum CardStyle {
+  @JsonValue('style1')
+  style1,
+  @JsonValue('style2')
+  style2,
+  @JsonValue('style3')
+  style3,
+  @JsonValue('style4')
+  style4,
+  @JsonValue('style5')
+  style5,
+  @JsonValue('style6')
+  style6,
+  @JsonValue('style7')
+  style7,
+  @JsonValue('style8')
+  style8,
+  @JsonValue('style9')
+  style9,
+  @JsonValue('style10')
+  style10,
+}
+
 @freezed
 class LoginRequest with _$LoginRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
@@ -90,9 +113,7 @@ class VerifyRequest with _$VerifyRequest {
 @freezed
 class MessageResponse with _$MessageResponse {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory MessageResponse({
-    required String message,
-  }) = _MessageResponse;
+  const factory MessageResponse({required String message}) = _MessageResponse;
 
   factory MessageResponse.fromJson(Map<String, dynamic> json) =>
       _$MessageResponseFromJson(json);
@@ -147,9 +168,8 @@ class ExchangeRateResponse with _$ExchangeRateResponse {
 @freezed
 class RefreshTokenRequest with _$RefreshTokenRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory RefreshTokenRequest({
-    required String refresh,
-  }) = _RefreshTokenRequest;
+  const factory RefreshTokenRequest({required String refresh}) =
+      _RefreshTokenRequest;
 
   factory RefreshTokenRequest.fromJson(Map<String, dynamic> json) =>
       _$RefreshTokenRequestFromJson(json);
@@ -158,10 +178,8 @@ class RefreshTokenRequest with _$RefreshTokenRequest {
 @freezed
 class CardCreationRequest with _$CardCreationRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory CardCreationRequest({
-    String? name,
-    String? style,
-  }) = _CardCreationRequest;
+  const factory CardCreationRequest({String? name, String? style}) =
+      _CardCreationRequest;
 
   factory CardCreationRequest.fromJson(Map<String, dynamic> json) =>
       _$CardCreationRequestFromJson(json);
@@ -170,9 +188,7 @@ class CardCreationRequest with _$CardCreationRequest {
 @freezed
 class AmountRequest with _$AmountRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory AmountRequest({
-    required String usdAmount,
-  }) = _AmountRequest;
+  const factory AmountRequest({required String usdAmount}) = _AmountRequest;
 
   factory AmountRequest.fromJson(Map<String, dynamic> json) =>
       _$AmountRequestFromJson(json);
@@ -195,9 +211,8 @@ class InvoiceRequest with _$InvoiceRequest {
 @freezed
 class AccessTokenResponse with _$AccessTokenResponse {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory AccessTokenResponse({
-    required String access,
-  }) = _AccessTokenResponse;
+  const factory AccessTokenResponse({required String access}) =
+      _AccessTokenResponse;
 
   factory AccessTokenResponse.fromJson(Map<String, dynamic> json) =>
       _$AccessTokenResponseFromJson(json);
@@ -218,9 +233,8 @@ class DailyPriceResponse with _$DailyPriceResponse {
 @freezed
 class HealthResponse with _$HealthResponse {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory HealthResponse({
-    required String databaseStatus,
-  }) = _HealthResponse;
+  const factory HealthResponse({required String databaseStatus}) =
+      _HealthResponse;
 
   factory HealthResponse.fromJson(Map<String, dynamic> json) =>
       _$HealthResponseFromJson(json);
@@ -251,9 +265,7 @@ class CardResponse with _$CardResponse {
     required String cvv,
     required String supportToken,
     String? name,
-    @JsonKey(fromJson: cardStyleFromString)
-    @Default(CardStyle.style1)
-    CardStyle style,
+    @Default(CardStyle.style1) CardStyle style,
     required String user,
     required Map<String, String?> giftCardInfo,
   }) = _CardResponse;
@@ -354,8 +366,10 @@ class CardEventResponse with _$CardEventResponse {
   }) = _DeclineEventData;
 
   @JsonSerializable(fieldRename: FieldRename.snake)
-  @Assert('type == CardEventType.cardTransaction',
-      'type must be CardEventType.cardTransaction')
+  @Assert(
+    'type == CardEventType.cardTransaction',
+    'type must be CardEventType.cardTransaction',
+  )
   const factory CardEventResponse.cardTransaction({
     required CardEventType type,
     required String id,
@@ -373,8 +387,10 @@ class CardEventResponse with _$CardEventResponse {
   }) = _CardTransactionEventData;
 
   @JsonSerializable(fieldRename: FieldRename.snake)
-  @Assert('type == CardEventType.cardAuthorizationRefund',
-      'type must be CardEventType.cardAuthorizationRefund')
+  @Assert(
+    'type == CardEventType.cardAuthorizationRefund',
+    'type must be CardEventType.cardAuthorizationRefund',
+  )
   const factory CardEventResponse.cardAuthorizationRefund({
     required CardEventType type,
     required String id,

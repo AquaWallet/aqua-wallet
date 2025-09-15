@@ -361,10 +361,10 @@ final routes = [
     path: DebitCardTopUpScreen.routeName,
     builder: (context, state) => const DebitCardTopUpScreen(),
   ),
-  GoRoute(
+  /*GoRoute(
     path: DebitCardStyleSelectionScreen.routeName,
     builder: (context, state) => const DebitCardStyleSelectionScreen(),
-  ),
+  ),*/
   GoRoute(
     path: SamRockScreen.routeName,
     builder: (context, state) => SamRockScreen(

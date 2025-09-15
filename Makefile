@@ -4,7 +4,7 @@ BOLTZ_RUST_VERSION := 0.1.7
 GDK_RELEASE_URL := https://github.com/Blockstream/gdk/releases/download/release_$(GDK_VERSION)
 
 install:
-	flutter pub get
+	/Users/mac/Downloads/flutter/bin/flutter pub get
 
 shell:
 	nix develop --experimental-features 'nix-command flakes'
@@ -50,7 +50,7 @@ get-boltz-rust:
 	cp boltz-rust/ios/libboltz_rust.a ios
 
 generate-bindings:
-	dart run ffigen --ignore-source-errors
+	/Users/mac/Downloads/flutter/bin/flutter pub run ffigen --config ffigen.yaml
 
 freeze:
 	dart run build_runner build --delete-conflicting-outputs
@@ -62,10 +62,10 @@ run-ios-emulator-mac:
 	open -a Simulator
 
 run-unit-tests:
-	flutter test
+	/Users/mac/Downloads/flutter/bin/flutter test
 
 run-integration-tests:
-	flutter test integration_test
+	/Users/mac/Downloads/flutter/bin/flutter test integration_test
 
 test-all: run-unit-tests run-integration-tests
 
