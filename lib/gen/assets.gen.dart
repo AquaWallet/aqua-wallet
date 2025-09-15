@@ -70,6 +70,9 @@ class $AssetsAssetIconsGen {
   SvgGenImage get ethusdt =>
       const SvgGenImage('assets/asset_icons/ETHUSDT.svg');
 
+  /// File path: assets/asset_icons/L2.svg
+  SvgGenImage get l2 => const SvgGenImage('assets/asset_icons/L2.svg');
+
   /// File path: assets/asset_icons/Lightning.svg
   SvgGenImage get lightning =>
       const SvgGenImage('assets/asset_icons/Lightning.svg');
@@ -96,12 +99,12 @@ class $AssetsAssetIconsGen {
   SvgGenImage get tronusdt =>
       const SvgGenImage('assets/asset_icons/TRONUSDT.svg');
 
+  /// File path: assets/asset_icons/USDt.svg
+  SvgGenImage get uSDt => const SvgGenImage('assets/asset_icons/USDt.svg');
+
   /// File path: assets/asset_icons/asset_unknown.svg
   SvgGenImage get assetUnknown =>
       const SvgGenImage('assets/asset_icons/asset_unknown.svg');
-
-  /// File path: assets/asset_icons/l2.svg
-  SvgGenImage get l2 => const SvgGenImage('assets/asset_icons/l2.svg');
 
   /// File path: assets/asset_icons/l2_disabled.svg
   SvgGenImage get l2Disabled =>
@@ -155,9 +158,6 @@ class $AssetsAssetIconsGen {
   SvgGenImage get qrIconTronUsdt =>
       const SvgGenImage('assets/asset_icons/qr_icon_tron_usdt.svg');
 
-  /// File path: assets/asset_icons/usdt.svg
-  SvgGenImage get usdt => const SvgGenImage('assets/asset_icons/usdt.svg');
-
   /// File path: assets/asset_icons/usdt_disabled.svg
   SvgGenImage get usdtDisabled =>
       const SvgGenImage('assets/asset_icons/usdt_disabled.svg');
@@ -176,6 +176,7 @@ class $AssetsAssetIconsGen {
         btc,
         dePix,
         ethusdt,
+        l2,
         lightning,
         liquid,
         mex,
@@ -183,8 +184,8 @@ class $AssetsAssetIconsGen {
         solusdt,
         tonusdt,
         tronusdt,
+        uSDt,
         assetUnknown,
-        l2,
         l2Disabled,
         layerTwoDual,
         layerTwoSingle,
@@ -198,7 +199,6 @@ class $AssetsAssetIconsGen {
         qrIconSolanaUsdt,
         qrIconTonUsdt,
         qrIconTronUsdt,
-        usdt,
         usdtDisabled,
         whatsappLogo,
         zendeskLogo
