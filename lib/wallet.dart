@@ -129,6 +129,7 @@ abstract class WalletService {
   Future<bool> reconnectHint({
     required GdkReconnectParams reconnectParams,
   }) async {
+    if(session == null) return false;
     final result = await libGdk.reconnectHint(
       session: session!,
       reconnectParams: reconnectParams,
