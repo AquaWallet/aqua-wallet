@@ -2298,10 +2298,10 @@ class NativeLibrary {
   late final _wait4 = _wait4Ptr.asFunction<DartWait4>();
 
   ffi.Pointer<ffi.Void> alloca(
-    int __size,
+    int arg0,
   ) {
     return _alloca(
-      __size,
+      arg0,
     );
   }
 
@@ -2862,12 +2862,12 @@ class NativeLibrary {
   int mbstowcs(
     ffi.Pointer<ffi.WChar> arg0,
     ffi.Pointer<ffi.Char> arg1,
-    int __n,
+    int arg2,
   ) {
     return _mbstowcs(
       arg0,
       arg1,
-      __n,
+      arg2,
     );
   }
 
@@ -2878,12 +2878,12 @@ class NativeLibrary {
   int mbtowc(
     ffi.Pointer<ffi.WChar> arg0,
     ffi.Pointer<ffi.Char> arg1,
-    int __n,
+    int arg2,
   ) {
     return _mbtowc(
       arg0,
       arg1,
-      __n,
+      arg2,
     );
   }
 
@@ -3043,12 +3043,12 @@ class NativeLibrary {
   int wcstombs(
     ffi.Pointer<ffi.Char> arg0,
     ffi.Pointer<ffi.WChar> arg1,
-    int __n,
+    int arg2,
   ) {
     return _wcstombs(
       arg0,
       arg1,
-      __n,
+      arg2,
     );
   }
 
@@ -3191,12 +3191,12 @@ class NativeLibrary {
   ffi.Pointer<ffi.Char> initstate(
     int arg0,
     ffi.Pointer<ffi.Char> arg1,
-    int __size,
+    int arg2,
   ) {
     return _initstate(
       arg0,
       arg1,
-      __size,
+      arg2,
     );
   }
 
@@ -3480,11 +3480,11 @@ class NativeLibrary {
 
   void arc4random_addrandom(
     ffi.Pointer<ffi.UnsignedChar> arg0,
-    int __datlen,
+    int arg1,
   ) {
     return _arc4random_addrandom(
       arg0,
-      __datlen,
+      arg1,
     );
   }
 
@@ -3735,11 +3735,11 @@ class NativeLibrary {
 
   int getloadavg(
     ffi.Pointer<ffi.Double> arg0,
-    int __nelem,
+    int arg1,
   ) {
     return _getloadavg(
       arg0,
-      __nelem,
+      arg1,
     );
   }
 
@@ -4893,195 +4893,320 @@ abstract class idtype_t {
   static const int P_PGID = 2;
 }
 
-final class __darwin_arm_exception_state extends ffi.Struct {
-  @__uint32_t()
-  external int __exception;
+final class __darwin_i386_thread_state extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int __eax;
 
-  @__uint32_t()
-  external int __fsr;
+  @ffi.UnsignedInt()
+  external int __ebx;
 
-  @__uint32_t()
-  external int __far;
+  @ffi.UnsignedInt()
+  external int __ecx;
+
+  @ffi.UnsignedInt()
+  external int __edx;
+
+  @ffi.UnsignedInt()
+  external int __edi;
+
+  @ffi.UnsignedInt()
+  external int __esi;
+
+  @ffi.UnsignedInt()
+  external int __ebp;
+
+  @ffi.UnsignedInt()
+  external int __esp;
+
+  @ffi.UnsignedInt()
+  external int __ss;
+
+  @ffi.UnsignedInt()
+  external int __eflags;
+
+  @ffi.UnsignedInt()
+  external int __eip;
+
+  @ffi.UnsignedInt()
+  external int __cs;
+
+  @ffi.UnsignedInt()
+  external int __ds;
+
+  @ffi.UnsignedInt()
+  external int __es;
+
+  @ffi.UnsignedInt()
+  external int __fs;
+
+  @ffi.UnsignedInt()
+  external int __gs;
 }
 
+final class __darwin_fp_control extends ffi.Opaque {}
+
+final class __darwin_fp_status extends ffi.Opaque {}
+
+final class __darwin_mmst_reg extends ffi.Struct {
+  @ffi.Array.multi([10])
+  external ffi.Array<ffi.Char> __mmst_reg;
+
+  @ffi.Array.multi([6])
+  external ffi.Array<ffi.Char> __mmst_rsrv;
+}
+
+final class __darwin_xmm_reg extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Char> __xmm_reg;
+}
+
+final class __darwin_ymm_reg extends ffi.Struct {
+  @ffi.Array.multi([32])
+  external ffi.Array<ffi.Char> __ymm_reg;
+}
+
+final class __darwin_zmm_reg extends ffi.Struct {
+  @ffi.Array.multi([64])
+  external ffi.Array<ffi.Char> __zmm_reg;
+}
+
+final class __darwin_opmask_reg extends ffi.Struct {
+  @ffi.Array.multi([8])
+  external ffi.Array<ffi.Char> __opmask_reg;
+}
+
+final class __darwin_i386_float_state extends ffi.Opaque {}
+
+final class __darwin_i386_avx_state extends ffi.Opaque {}
+
+final class __darwin_i386_avx512_state extends ffi.Opaque {}
+
+final class __darwin_i386_exception_state extends ffi.Struct {
+  @__uint16_t()
+  external int __trapno;
+
+  @__uint16_t()
+  external int __cpu;
+
+  @__uint32_t()
+  external int __err;
+
+  @__uint32_t()
+  external int __faultvaddr;
+}
+
+typedef __uint16_t = ffi.UnsignedShort;
+typedef Dart__uint16_t = int;
 typedef __uint32_t = ffi.UnsignedInt;
 typedef Dart__uint32_t = int;
 
-final class __darwin_arm_exception_state64 extends ffi.Struct {
+final class __darwin_x86_debug_state32 extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int __dr0;
+
+  @ffi.UnsignedInt()
+  external int __dr1;
+
+  @ffi.UnsignedInt()
+  external int __dr2;
+
+  @ffi.UnsignedInt()
+  external int __dr3;
+
+  @ffi.UnsignedInt()
+  external int __dr4;
+
+  @ffi.UnsignedInt()
+  external int __dr5;
+
+  @ffi.UnsignedInt()
+  external int __dr6;
+
+  @ffi.UnsignedInt()
+  external int __dr7;
+}
+
+final class __x86_instruction_state extends ffi.Struct {
+  @ffi.Int()
+  external int __insn_stream_valid_bytes;
+
+  @ffi.Int()
+  external int __insn_offset;
+
+  @ffi.Int()
+  external int __out_of_synch;
+
+  @ffi.Array.multi([2380])
+  external ffi.Array<__uint8_t> __insn_bytes;
+
+  @ffi.Array.multi([64])
+  external ffi.Array<__uint8_t> __insn_cacheline;
+}
+
+typedef __uint8_t = ffi.UnsignedChar;
+typedef Dart__uint8_t = int;
+
+final class __last_branch_record extends ffi.Opaque {}
+
+final class __last_branch_state extends ffi.Opaque {}
+
+final class __x86_pagein_state extends ffi.Struct {
+  @ffi.Int()
+  external int __pagein_error;
+}
+
+final class __darwin_x86_thread_state64 extends ffi.Struct {
   @__uint64_t()
-  external int __far;
+  external int __rax;
 
-  @__uint32_t()
-  external int __esr;
+  @__uint64_t()
+  external int __rbx;
 
-  @__uint32_t()
-  external int __exception;
+  @__uint64_t()
+  external int __rcx;
+
+  @__uint64_t()
+  external int __rdx;
+
+  @__uint64_t()
+  external int __rdi;
+
+  @__uint64_t()
+  external int __rsi;
+
+  @__uint64_t()
+  external int __rbp;
+
+  @__uint64_t()
+  external int __rsp;
+
+  @__uint64_t()
+  external int __r8;
+
+  @__uint64_t()
+  external int __r9;
+
+  @__uint64_t()
+  external int __r10;
+
+  @__uint64_t()
+  external int __r11;
+
+  @__uint64_t()
+  external int __r12;
+
+  @__uint64_t()
+  external int __r13;
+
+  @__uint64_t()
+  external int __r14;
+
+  @__uint64_t()
+  external int __r15;
+
+  @__uint64_t()
+  external int __rip;
+
+  @__uint64_t()
+  external int __rflags;
+
+  @__uint64_t()
+  external int __cs;
+
+  @__uint64_t()
+  external int __fs;
+
+  @__uint64_t()
+  external int __gs;
 }
 
 typedef __uint64_t = ffi.UnsignedLongLong;
 typedef Dart__uint64_t = int;
 
-final class __darwin_arm_exception_state64_v2 extends ffi.Struct {
-  @__uint64_t()
-  external int __far;
+final class __darwin_x86_thread_full_state64 extends ffi.Struct {
+  external __darwin_x86_thread_state64 __ss64;
 
   @__uint64_t()
-  external int __esr;
+  external int __ds;
+
+  @__uint64_t()
+  external int __es;
+
+  @__uint64_t()
+  external int __ss;
+
+  @__uint64_t()
+  external int __gsbase;
 }
 
-final class __darwin_arm_thread_state extends ffi.Struct {
-  @ffi.Array.multi([13])
-  external ffi.Array<__uint32_t> __r;
+final class __darwin_x86_float_state64 extends ffi.Opaque {}
 
-  @__uint32_t()
-  external int __sp;
+final class __darwin_x86_avx_state64 extends ffi.Opaque {}
 
-  @__uint32_t()
-  external int __lr;
+final class __darwin_x86_avx512_state64 extends ffi.Opaque {}
 
-  @__uint32_t()
-  external int __pc;
-
-  @__uint32_t()
-  external int __cpsr;
-}
-
-final class __darwin_arm_thread_state64 extends ffi.Struct {
-  @ffi.Array.multi([29])
-  external ffi.Array<__uint64_t> __x;
-
-  @__uint64_t()
-  external int __fp;
-
-  @__uint64_t()
-  external int __lr;
-
-  @__uint64_t()
-  external int __sp;
-
-  @__uint64_t()
-  external int __pc;
-
-  @__uint32_t()
-  external int __cpsr;
-
-  @__uint32_t()
-  external int __pad;
-}
-
-final class __darwin_arm_vfp_state extends ffi.Struct {
-  @ffi.Array.multi([64])
-  external ffi.Array<__uint32_t> __r;
-
-  @__uint32_t()
-  external int __fpscr;
-}
-
-final class __darwin_arm_neon_state64 extends ffi.Opaque {}
-
-final class __darwin_arm_neon_state extends ffi.Opaque {}
-
-final class __arm_pagein_state extends ffi.Struct {
-  @ffi.Int()
-  external int __pagein_error;
-}
-
-final class __darwin_arm_sme_state extends ffi.Struct {
-  @__uint64_t()
-  external int __svcr;
-
-  @__uint64_t()
-  external int __tpidr2_el0;
+final class __darwin_x86_exception_state64 extends ffi.Struct {
+  @__uint16_t()
+  external int __trapno;
 
   @__uint16_t()
-  external int __svl_b;
-}
+  external int __cpu;
 
-typedef __uint16_t = ffi.UnsignedShort;
-typedef Dart__uint16_t = int;
-
-final class __darwin_arm_sve_z_state extends ffi.Struct {
-  @ffi.Array.multi([16, 256])
-  external ffi.Array<ffi.Array<ffi.Char>> __z;
-}
-
-final class __darwin_arm_sve_p_state extends ffi.Struct {
-  @ffi.Array.multi([16, 32])
-  external ffi.Array<ffi.Array<ffi.Char>> __p;
-}
-
-final class __darwin_arm_sme_za_state extends ffi.Struct {
-  @ffi.Array.multi([4096])
-  external ffi.Array<ffi.Char> __za;
-}
-
-final class __darwin_arm_sme2_state extends ffi.Struct {
-  @ffi.Array.multi([64])
-  external ffi.Array<ffi.Char> __zt0;
-}
-
-final class __arm_legacy_debug_state extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __bvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __bcr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __wvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __wcr;
-}
-
-final class __darwin_arm_debug_state32 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __bvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __bcr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __wvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint32_t> __wcr;
+  @__uint32_t()
+  external int __err;
 
   @__uint64_t()
-  external int __mdscr_el1;
+  external int __faultvaddr;
 }
 
-final class __darwin_arm_debug_state64 extends ffi.Struct {
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __bvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __bcr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __wvr;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<__uint64_t> __wcr;
+final class __darwin_x86_debug_state64 extends ffi.Struct {
+  @__uint64_t()
+  external int __dr0;
 
   @__uint64_t()
-  external int __mdscr_el1;
+  external int __dr1;
+
+  @__uint64_t()
+  external int __dr2;
+
+  @__uint64_t()
+  external int __dr3;
+
+  @__uint64_t()
+  external int __dr4;
+
+  @__uint64_t()
+  external int __dr5;
+
+  @__uint64_t()
+  external int __dr6;
+
+  @__uint64_t()
+  external int __dr7;
 }
 
-final class __darwin_arm_cpmu_state64 extends ffi.Struct {
+final class __darwin_x86_cpmu_state64 extends ffi.Struct {
   @ffi.Array.multi([16])
   external ffi.Array<__uint64_t> __ctrs;
 }
 
-final class __darwin_mcontext32 extends ffi.Struct {
-  external __darwin_arm_exception_state __es;
+final class __darwin_mcontext32 extends ffi.Opaque {}
 
-  external __darwin_arm_thread_state __ss;
+final class __darwin_mcontext_avx32 extends ffi.Opaque {}
 
-  external __darwin_arm_vfp_state __fs;
-}
+final class __darwin_mcontext_avx512_32 extends ffi.Opaque {}
 
 final class __darwin_mcontext64 extends ffi.Opaque {}
+
+final class __darwin_mcontext64_full extends ffi.Opaque {}
+
+final class __darwin_mcontext_avx64 extends ffi.Opaque {}
+
+final class __darwin_mcontext_avx64_full extends ffi.Opaque {}
+
+final class __darwin_mcontext_avx512_64 extends ffi.Opaque {}
+
+final class __darwin_mcontext_avx512_64_full extends ffi.Opaque {}
 
 final class __darwin_sigaltstack extends ffi.Struct {
   external ffi.Pointer<ffi.Void> ss_sp;
@@ -5928,8 +6053,8 @@ typedef NativeWait4 = pid_t Function(pid_t arg0, ffi.Pointer<ffi.Int> arg1,
     ffi.Int arg2, ffi.Pointer<rusage> arg3);
 typedef DartWait4 = int Function(
     int arg0, ffi.Pointer<ffi.Int> arg1, int arg2, ffi.Pointer<rusage> arg3);
-typedef NativeAlloca = ffi.Pointer<ffi.Void> Function(ffi.Size __size);
-typedef DartAlloca = ffi.Pointer<ffi.Void> Function(int __size);
+typedef NativeAlloca = ffi.Pointer<ffi.Void> Function(ffi.Size arg0);
+typedef DartAlloca = ffi.Pointer<ffi.Void> Function(int arg0);
 
 final class div_t extends ffi.Struct {
   @ffi.Int()
@@ -6116,13 +6241,13 @@ typedef DartLldiv = lldiv_t Function(int arg0, int arg1);
 typedef NativeMblen = ffi.Int Function(ffi.Pointer<ffi.Char> __s, ffi.Size __n);
 typedef DartMblen = int Function(ffi.Pointer<ffi.Char> __s, int __n);
 typedef NativeMbstowcs = ffi.Size Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __n);
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
 typedef DartMbstowcs = int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int __n);
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
 typedef NativeMbtowc = ffi.Int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __n);
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
 typedef DartMbtowc = int Function(
-    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int __n);
+    ffi.Pointer<ffi.WChar> arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
 typedef NativeQsort = ffi.Void Function(
     ffi.Pointer<ffi.Void> __base,
     ffi.Size __nel,
@@ -6174,9 +6299,9 @@ typedef DartStrtoull = int Function(ffi.Pointer<ffi.Char> __str,
 typedef NativeSystem = ffi.Int Function(ffi.Pointer<ffi.Char> arg0);
 typedef DartSystem = int Function(ffi.Pointer<ffi.Char> arg0);
 typedef NativeWcstombs = ffi.Size Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, ffi.Size __n);
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, ffi.Size arg2);
 typedef DartWcstombs = int Function(
-    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, int __n);
+    ffi.Pointer<ffi.Char> arg0, ffi.Pointer<ffi.WChar> arg1, int arg2);
 typedef NativeWctomb = ffi.Int Function(
     ffi.Pointer<ffi.Char> arg0, ffi.WChar arg1);
 typedef DartWctomb = int Function(ffi.Pointer<ffi.Char> arg0, int arg1);
@@ -6212,9 +6337,9 @@ typedef DartGetsubopt = int Function(
 typedef NativeGrantpt = ffi.Int Function(ffi.Int arg0);
 typedef DartGrantpt = int Function(int arg0);
 typedef NativeInitstate = ffi.Pointer<ffi.Char> Function(
-    ffi.UnsignedInt arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size __size);
+    ffi.UnsignedInt arg0, ffi.Pointer<ffi.Char> arg1, ffi.Size arg2);
 typedef DartInitstate = ffi.Pointer<ffi.Char> Function(
-    int arg0, ffi.Pointer<ffi.Char> arg1, int __size);
+    int arg0, ffi.Pointer<ffi.Char> arg1, int arg2);
 typedef NativeJrand48 = ffi.Long Function(ffi.Pointer<ffi.UnsignedShort> arg0);
 typedef DartJrand48 = int Function(ffi.Pointer<ffi.UnsignedShort> arg0);
 typedef NativeL64a = ffi.Pointer<ffi.Char> Function(ffi.Long arg0);
@@ -6275,9 +6400,9 @@ typedef DartUnsetenv = int Function(ffi.Pointer<ffi.Char> arg0);
 typedef NativeArc4random = ffi.Uint32 Function();
 typedef DartArc4random = int Function();
 typedef NativeArc4random_addrandom = ffi.Void Function(
-    ffi.Pointer<ffi.UnsignedChar> arg0, ffi.Int __datlen);
+    ffi.Pointer<ffi.UnsignedChar> arg0, ffi.Int arg1);
 typedef DartArc4random_addrandom = void Function(
-    ffi.Pointer<ffi.UnsignedChar> arg0, int __datlen);
+    ffi.Pointer<ffi.UnsignedChar> arg0, int arg1);
 typedef NativeArc4random_buf = ffi.Void Function(
     ffi.Pointer<ffi.Void> __buf, ffi.Size __nbytes);
 typedef DartArc4random_buf = void Function(
@@ -6344,9 +6469,8 @@ typedef NativeGetbsize = ffi.Pointer<ffi.Char> Function(
 typedef DartGetbsize = ffi.Pointer<ffi.Char> Function(
     ffi.Pointer<ffi.Int> arg0, ffi.Pointer<ffi.Long> arg1);
 typedef NativeGetloadavg = ffi.Int Function(
-    ffi.Pointer<ffi.Double> arg0, ffi.Int __nelem);
-typedef DartGetloadavg = int Function(
-    ffi.Pointer<ffi.Double> arg0, int __nelem);
+    ffi.Pointer<ffi.Double> arg0, ffi.Int arg1);
+typedef DartGetloadavg = int Function(ffi.Pointer<ffi.Double> arg0, int arg1);
 typedef NativeGetprogname = ffi.Pointer<ffi.Char> Function();
 typedef DartGetprogname = ffi.Pointer<ffi.Char> Function();
 typedef NativeSetprogname = ffi.Void Function(ffi.Pointer<ffi.Char> arg0);
@@ -6621,11 +6745,11 @@ typedef DartGet_last_error = ffi.Pointer<ffi.Char> Function();
 
 const int __has_safe_buffers = 1;
 
-const int __DARWIN_ONLY_64_BIT_INO_T = 1;
+const int __DARWIN_ONLY_64_BIT_INO_T = 0;
 
 const int __DARWIN_ONLY_UNIX_CONFORMANCE = 1;
 
-const int __DARWIN_ONLY_VERS_1050 = 1;
+const int __DARWIN_ONLY_VERS_1050 = 0;
 
 const int __DARWIN_UNIX03 = 1;
 
@@ -6634,6 +6758,10 @@ const int __DARWIN_64_BIT_INO_T = 1;
 const int __DARWIN_VERS_1050 = 1;
 
 const int __DARWIN_NON_CANCELABLE = 0;
+
+const String __DARWIN_SUF_64_BIT_INO_T = '\$INODE64';
+
+const String __DARWIN_SUF_1050 = '\$1050';
 
 const String __DARWIN_SUF_EXTSN = '\$DARWIN_EXTSN';
 
@@ -6649,17 +6777,11 @@ const int __DARWIN_NO_LONG_LONG = 0;
 
 const int _DARWIN_FEATURE_64_BIT_INODE = 1;
 
-const int _DARWIN_FEATURE_ONLY_64_BIT_INODE = 1;
-
-const int _DARWIN_FEATURE_ONLY_VERS_1050 = 1;
-
 const int _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE = 1;
 
 const int _DARWIN_FEATURE_UNIX_CONFORMANCE = 3;
 
 const int __has_ptrcheck = 0;
-
-const int __has_bounds_safety_attributes = 0;
 
 const int __DARWIN_NULL = 0;
 
@@ -6823,31 +6945,17 @@ const int __API_TO_BE_DEPRECATED = 100000;
 
 const int __API_TO_BE_DEPRECATED_MACOS = 100000;
 
-const int __API_TO_BE_DEPRECATED_MACOSAPPLICATIONEXTENSION = 100000;
-
 const int __API_TO_BE_DEPRECATED_IOS = 100000;
-
-const int __API_TO_BE_DEPRECATED_IOSAPPLICATIONEXTENSION = 100000;
 
 const int __API_TO_BE_DEPRECATED_MACCATALYST = 100000;
 
-const int __API_TO_BE_DEPRECATED_MACCATALYSTAPPLICATIONEXTENSION = 100000;
-
 const int __API_TO_BE_DEPRECATED_WATCHOS = 100000;
 
-const int __API_TO_BE_DEPRECATED_WATCHOSAPPLICATIONEXTENSION = 100000;
-
 const int __API_TO_BE_DEPRECATED_TVOS = 100000;
-
-const int __API_TO_BE_DEPRECATED_TVOSAPPLICATIONEXTENSION = 100000;
 
 const int __API_TO_BE_DEPRECATED_DRIVERKIT = 100000;
 
 const int __API_TO_BE_DEPRECATED_VISIONOS = 100000;
-
-const int __API_TO_BE_DEPRECATED_VISIONOSAPPLICATIONEXTENSION = 100000;
-
-const int __API_TO_BE_DEPRECATED_KERNELKIT = 100000;
 
 const int __MAC_10_0 = 1000;
 
@@ -6959,8 +7067,6 @@ const int __MAC_13_5 = 130500;
 
 const int __MAC_13_6 = 130600;
 
-const int __MAC_13_7 = 130700;
-
 const int __MAC_14_0 = 140000;
 
 const int __MAC_14_1 = 140100;
@@ -6973,21 +7079,9 @@ const int __MAC_14_4 = 140400;
 
 const int __MAC_14_5 = 140500;
 
-const int __MAC_14_6 = 140600;
-
-const int __MAC_14_7 = 140700;
-
 const int __MAC_15_0 = 150000;
 
 const int __MAC_15_1 = 150100;
-
-const int __MAC_15_2 = 150200;
-
-const int __MAC_15_3 = 150300;
-
-const int __MAC_15_4 = 150400;
-
-const int __MAC_15_5 = 150500;
 
 const int __IPHONE_2_0 = 20000;
 
@@ -7147,21 +7241,9 @@ const int __IPHONE_17_4 = 170400;
 
 const int __IPHONE_17_5 = 170500;
 
-const int __IPHONE_17_6 = 170600;
-
-const int __IPHONE_17_7 = 170700;
-
 const int __IPHONE_18_0 = 180000;
 
 const int __IPHONE_18_1 = 180100;
-
-const int __IPHONE_18_2 = 180200;
-
-const int __IPHONE_18_3 = 180300;
-
-const int __IPHONE_18_4 = 180400;
-
-const int __IPHONE_18_5 = 180500;
 
 const int __WATCHOS_1_0 = 10000;
 
@@ -7257,21 +7339,9 @@ const int __WATCHOS_10_4 = 100400;
 
 const int __WATCHOS_10_5 = 100500;
 
-const int __WATCHOS_10_6 = 100600;
-
-const int __WATCHOS_10_7 = 100700;
-
 const int __WATCHOS_11_0 = 110000;
 
 const int __WATCHOS_11_1 = 110100;
-
-const int __WATCHOS_11_2 = 110200;
-
-const int __WATCHOS_11_3 = 110300;
-
-const int __WATCHOS_11_4 = 110400;
-
-const int __WATCHOS_11_5 = 110500;
 
 const int __TVOS_9_0 = 90000;
 
@@ -7369,19 +7439,9 @@ const int __TVOS_17_4 = 170400;
 
 const int __TVOS_17_5 = 170500;
 
-const int __TVOS_17_6 = 170600;
-
 const int __TVOS_18_0 = 180000;
 
 const int __TVOS_18_1 = 180100;
-
-const int __TVOS_18_2 = 180200;
-
-const int __TVOS_18_3 = 180300;
-
-const int __TVOS_18_4 = 180400;
-
-const int __TVOS_18_5 = 180500;
 
 const int __BRIDGEOS_2_0 = 20000;
 
@@ -7435,19 +7495,9 @@ const int __BRIDGEOS_8_4 = 80400;
 
 const int __BRIDGEOS_8_5 = 80500;
 
-const int __BRIDGEOS_8_6 = 80600;
-
 const int __BRIDGEOS_9_0 = 90000;
 
 const int __BRIDGEOS_9_1 = 90100;
-
-const int __BRIDGEOS_9_2 = 90200;
-
-const int __BRIDGEOS_9_3 = 90300;
-
-const int __BRIDGEOS_9_4 = 90400;
-
-const int __BRIDGEOS_9_5 = 90500;
 
 const int __DRIVERKIT_19_0 = 190000;
 
@@ -7475,19 +7525,9 @@ const int __DRIVERKIT_23_4 = 230400;
 
 const int __DRIVERKIT_23_5 = 230500;
 
-const int __DRIVERKIT_23_6 = 230600;
-
 const int __DRIVERKIT_24_0 = 240000;
 
 const int __DRIVERKIT_24_1 = 240100;
-
-const int __DRIVERKIT_24_2 = 240200;
-
-const int __DRIVERKIT_24_3 = 240300;
-
-const int __DRIVERKIT_24_4 = 240400;
-
-const int __DRIVERKIT_24_5 = 240500;
 
 const int __VISIONOS_1_0 = 10000;
 
@@ -7495,19 +7535,9 @@ const int __VISIONOS_1_1 = 10100;
 
 const int __VISIONOS_1_2 = 10200;
 
-const int __VISIONOS_1_3 = 10300;
-
 const int __VISIONOS_2_0 = 20000;
 
 const int __VISIONOS_2_1 = 20100;
-
-const int __VISIONOS_2_2 = 20200;
-
-const int __VISIONOS_2_3 = 20300;
-
-const int __VISIONOS_2_4 = 20400;
-
-const int __VISIONOS_2_5 = 20500;
 
 const int MAC_OS_X_VERSION_10_0 = 1000;
 
@@ -7619,8 +7649,6 @@ const int MAC_OS_VERSION_13_5 = 130500;
 
 const int MAC_OS_VERSION_13_6 = 130600;
 
-const int MAC_OS_VERSION_13_7 = 130700;
-
 const int MAC_OS_VERSION_14_0 = 140000;
 
 const int MAC_OS_VERSION_14_1 = 140100;
@@ -7633,31 +7661,13 @@ const int MAC_OS_VERSION_14_4 = 140400;
 
 const int MAC_OS_VERSION_14_5 = 140500;
 
-const int MAC_OS_VERSION_14_6 = 140600;
-
-const int MAC_OS_VERSION_14_7 = 140700;
-
 const int MAC_OS_VERSION_15_0 = 150000;
 
 const int MAC_OS_VERSION_15_1 = 150100;
 
-const int MAC_OS_VERSION_15_2 = 150200;
-
-const int MAC_OS_VERSION_15_3 = 150300;
-
-const int MAC_OS_VERSION_15_4 = 150400;
-
-const int MAC_OS_VERSION_15_5 = 150500;
-
-const int __AVAILABILITY_VERSIONS_VERSION_HASH = 93585900;
-
-const String __AVAILABILITY_VERSIONS_VERSION_STRING = 'Local';
-
-const String __AVAILABILITY_FILE = 'AvailabilityVersions.h';
-
 const int __MAC_OS_X_VERSION_MIN_REQUIRED = 150000;
 
-const int __MAC_OS_X_VERSION_MAX_ALLOWED = 150500;
+const int __MAC_OS_X_VERSION_MAX_ALLOWED = 150100;
 
 const int __ENABLE_LEGACY_MAC_AVAILABILITY = 1;
 
@@ -7705,7 +7715,7 @@ const int __DARWIN_NSIG = 32;
 
 const int NSIG = 32;
 
-const int _ARM_SIGNAL_ = 1;
+const int _I386_SIGNAL_H_ = 1;
 
 const int SIGHUP = 1;
 
@@ -7771,7 +7781,27 @@ const int SIGUSR1 = 30;
 
 const int SIGUSR2 = 31;
 
-const int __DARWIN_OPAQUE_ARM_THREAD_STATE64 = 0;
+const int FP_PREC_24B = 0;
+
+const int FP_PREC_53B = 2;
+
+const int FP_PREC_64B = 3;
+
+const int FP_RND_NEAR = 0;
+
+const int FP_RND_DOWN = 1;
+
+const int FP_RND_UP = 2;
+
+const int FP_CHOP = 3;
+
+const int FP_STATE_BYTES = 512;
+
+const int _X86_INSTRUCTION_STATE_MAX_INSN_BYTES = 2380;
+
+const int _X86_INSTRUCTION_STATE_CACHELINE_SIZE = 64;
+
+const int __LASTBRANCH_MAX = 32;
 
 const int SIGEV_NONE = 0;
 
@@ -8078,8 +8108,6 @@ const int IOPOL_VFS_IGNORE_PERMISSIONS_ON = 1;
 const int IOPOL_VFS_SKIP_MTIME_UPDATE_OFF = 0;
 
 const int IOPOL_VFS_SKIP_MTIME_UPDATE_ON = 1;
-
-const int IOPOL_VFS_SKIP_MTIME_UPDATE_IGNORE = 2;
 
 const int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_OFF = 0;
 
