@@ -1,7 +1,7 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/theme_provider.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/provider/theme_provider.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter/services.dart';
 
 final systemOverlayColorProvider = Provider.autoDispose

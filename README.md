@@ -1,6 +1,6 @@
-# Aqua Wallet First-Time Setup Guide
+# COIN.CZ Wallet First-Time Setup Guide
 
-This guide provides the minimal necessary steps to compile and run the **Aqua Wallet** application on Android.
+This guide provides the minimal necessary steps to compile and run the **COIN.CZ Wallet** application on Android.
 
 ---
 
@@ -80,4 +80,4 @@ flutter clean
 
 ---
 
-✨ You’re now ready to use **Aqua Wallet** on Android!
+✨ You’re now ready to use **COIN.CZ Wallet** on Android!

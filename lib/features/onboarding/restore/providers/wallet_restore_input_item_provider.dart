@@ -1,5 +1,5 @@
-import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/onboarding/onboarding.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:rxdart/rxdart.dart';
 
 //TODO - Remove RxDart dependency

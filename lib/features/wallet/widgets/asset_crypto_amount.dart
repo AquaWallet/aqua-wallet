@@ -1,9 +1,9 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/constants.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/wallet.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/data/provider/formatter_provider.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class AssetCryptoAmount extends HookConsumerWidget {

@@ -1,5 +1,5 @@
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/settings/settings.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/settings/settings.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'transaction_details_argument_model.freezed.dart';

@@ -1,6 +1,6 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:decimal/decimal.dart';
 

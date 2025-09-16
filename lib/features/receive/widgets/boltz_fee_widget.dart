@@ -1,11 +1,11 @@
-import 'package:aqua/data/provider/fiat_provider.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/receive/providers/providers.dart';
-import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/settings/shared/providers/providers.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/data/provider/fiat_provider.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/receive/providers/providers.dart';
+import 'package:coin_cz/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/settings/shared/providers/providers.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 
 class BoltzFeeWidget extends ConsumerWidget {

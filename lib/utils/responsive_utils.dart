@@ -1,4 +1,4 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 enum DeviceCategory { smallMobile, mobile, wideMobile, tablet, desktop }
 

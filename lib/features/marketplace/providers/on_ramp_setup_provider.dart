@@ -1,9 +1,9 @@
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/features/marketplace/models/models.dart';
-import 'package:aqua/features/marketplace/providers/on_ramp_options_provider.dart';
-import 'package:aqua/features/private_integrations/private_integrations.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/user/user_hash_id_provider.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/features/marketplace/models/models.dart';
+import 'package:coin_cz/features/marketplace/providers/on_ramp_options_provider.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/user/user_hash_id_provider.dart';
 
 final onRampSetupProvider = NotifierProvider<OnRampSetupNotifier,
     Map<OnRampIntegrationType, OnRampIntegrationHandler>>(

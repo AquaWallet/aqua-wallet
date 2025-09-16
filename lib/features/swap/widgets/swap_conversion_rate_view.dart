@@ -1,6 +1,6 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
 
 class SwapConversionRateView extends HookConsumerWidget {
   const SwapConversionRateView({super.key});

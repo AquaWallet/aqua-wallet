@@ -1,7 +1,7 @@
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/extensions/provider_extensions.dart';
+import 'package:coin_cz/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/extensions/provider_extensions.dart';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'aqua_node_provider.freezed.dart';

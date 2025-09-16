@@ -1,5 +1,5 @@
-import 'package:aqua/config/constants/animations.dart' as animation;
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/constants/animations.dart' as animation;
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:lottie/lottie.dart';
 
 class TransactionProcessingAnimation extends HookConsumerWidget {

@@ -1,4 +1,4 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 // NOTE: Number of taps that are required to trigger the hidden feature
 const kDefaultTapCountThreshold = 5;

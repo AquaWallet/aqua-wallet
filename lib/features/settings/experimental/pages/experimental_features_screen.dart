@@ -1,14 +1,14 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/account/providers/jan3_auth_provider.dart';
-import 'package:aqua/features/logger_table/logger_table.dart';
-import 'package:aqua/features/settings/debug/debug_database_screen.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
-import 'package:aqua/features/settings/watch_only/watch_only.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/account/providers/jan3_auth_provider.dart';
+import 'package:coin_cz/features/logger_table/logger_table.dart';
+import 'package:coin_cz/features/settings/debug/debug_database_screen.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/settings/shared/keys/settings_screen_keys.dart';
+import 'package:coin_cz/features/settings/watch_only/watch_only.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 

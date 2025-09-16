@@ -1,5 +1,5 @@
-import 'package:aqua/features/qr_scan/models/qr_scan_arguments.dart';
-import 'package:aqua/features/text_scan/models/text_scan_arguments.dart';
+import 'package:coin_cz/features/qr_scan/models/qr_scan_arguments.dart';
+import 'package:coin_cz/features/text_scan/models/text_scan_arguments.dart';
 
 enum ScannerType { qr, text }
 

@@ -1,10 +1,10 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/config/colors/aqua_colors.dart';
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/config/colors/aqua_colors.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:pinput/pinput.dart';

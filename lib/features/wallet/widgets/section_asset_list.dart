@@ -1,6 +1,6 @@
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/wallet.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
 
 class SectionAssetList extends StatelessWidget {
   const SectionAssetList({

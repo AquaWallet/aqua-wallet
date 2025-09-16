@@ -1,5 +1,5 @@
-import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
-import 'package:aqua/features/feature_flags/services/feature_flags_service.dart';
+import 'package:coin_cz/features/feature_flags/models/feature_flags_models.dart';
+import 'package:coin_cz/features/feature_flags/services/feature_flags_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 final ankaraFeatureFlagsProvider = AsyncNotifierProvider.autoDispose<

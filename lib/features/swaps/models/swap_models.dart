@@ -1,6 +1,6 @@
-import 'package:aqua/common/decimal/decimal_converter.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/swaps/swaps.dart';
+import 'package:coin_cz/common/decimal/decimal_converter.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:decimal/decimal.dart';
 

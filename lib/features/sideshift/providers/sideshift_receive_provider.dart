@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/logger.dart';
 
 final sideshiftReceiveProvider = AutoDisposeAsyncNotifierProviderFamily<
     _Notifier, SideshiftVariableOrderResponse?, Asset>(_Notifier.new);

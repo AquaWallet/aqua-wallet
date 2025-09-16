@@ -1,6 +1,6 @@
-import 'package:aqua/data/models/database/swap_order_model.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/models/database/swap_order_model.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

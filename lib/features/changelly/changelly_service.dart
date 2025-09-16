@@ -1,6 +1,6 @@
-import 'package:aqua/data/models/database/swap_order_model.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
+import 'package:coin_cz/data/models/database/swap_order_model.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
 import 'package:decimal/decimal.dart';
 
 import 'changelly.dart';

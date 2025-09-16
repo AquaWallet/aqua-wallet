@@ -1,4 +1,4 @@
-import 'package:aqua/features/boltz/boltz.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'boltz_claim_data.freezed.dart';

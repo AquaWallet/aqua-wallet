@@ -1,5 +1,5 @@
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 enum SupportedDisplayUnits {
   btc('BTC', 0),

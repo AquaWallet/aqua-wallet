@@ -1,5 +1,5 @@
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class TransactionInfoItem extends StatelessWidget {

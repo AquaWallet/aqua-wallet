@@ -1,8 +1,8 @@
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:isar/isar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

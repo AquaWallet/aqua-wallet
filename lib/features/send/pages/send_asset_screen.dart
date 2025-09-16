@@ -1,11 +1,11 @@
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 enum SendFlowStep {

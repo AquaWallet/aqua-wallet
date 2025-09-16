@@ -1,9 +1,9 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/marketplace/meld_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/screens/common/webview_screen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/provider/marketplace/meld_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/screens/common/webview_screen.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class OnRampScreen extends ConsumerWidget {

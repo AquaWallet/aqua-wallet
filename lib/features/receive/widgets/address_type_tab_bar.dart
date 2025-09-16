@@ -1,5 +1,5 @@
-import 'package:aqua/common/widgets/tab_switch_view_address_history.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/widgets/tab_switch_view_address_history.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 

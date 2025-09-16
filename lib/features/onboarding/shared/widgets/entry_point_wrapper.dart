@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/home/home.dart';
-import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/home/home.dart';
+import 'package:coin_cz/features/onboarding/onboarding.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class EntryPointWrapper extends HookConsumerWidget {

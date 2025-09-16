@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:aqua/common/data_conversion/bip21_encoder.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/private_integrations/private_integrations.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/data_conversion/bip21_encoder.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

@@ -1,14 +1,14 @@
 import 'dart:async';
-import 'package:aqua/data/provider/qr_scanner/qr_scanner_pop_result.dart';
-import 'package:aqua/features/address_validator/address_validator.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/text_scan/models/text_scan_arguments.dart';
-import 'package:aqua/features/text_scan/models/text_scan_state.dart';
-import 'package:aqua/features/text_scan/providers/text_scan_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/provider/qr_scanner/qr_scanner_pop_result.dart';
+import 'package:coin_cz/features/address_validator/address_validator.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/text_scan/models/text_scan_arguments.dart';
+import 'package:coin_cz/features/text_scan/models/text_scan_state.dart';
+import 'package:coin_cz/features/text_scan/providers/text_scan_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.textScan);
 

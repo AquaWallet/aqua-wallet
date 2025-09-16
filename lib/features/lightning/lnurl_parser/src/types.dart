@@ -1,6 +1,6 @@
 // TODO: Convert all of these models to freezed
 
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class LNURLErrorResponse {
   LNURLErrorResponse.fromJson(Map<String, dynamic> json)

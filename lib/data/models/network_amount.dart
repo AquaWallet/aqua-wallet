@@ -1,4 +1,4 @@
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:decimal/decimal.dart';
 

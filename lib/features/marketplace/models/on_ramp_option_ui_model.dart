@@ -1,4 +1,4 @@
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/config/config.dart';
 
 enum PaymentOption {
   cash(SvgsMarketplace.paymentOptionCash),

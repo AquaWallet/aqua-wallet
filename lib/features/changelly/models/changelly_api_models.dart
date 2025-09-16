@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:aqua/features/changelly/models/changelly_models.dart';
+import 'package:coin_cz/features/changelly/models/changelly_models.dart';
 
 part 'changelly_api_models.freezed.dart';
 part 'changelly_api_models.g.dart';

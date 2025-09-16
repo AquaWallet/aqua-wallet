@@ -1,10 +1,10 @@
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:intl/intl.dart';
 
 class LightningTxnReviewContent extends ConsumerWidget {

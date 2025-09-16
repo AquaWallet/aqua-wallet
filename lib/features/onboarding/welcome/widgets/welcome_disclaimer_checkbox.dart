@@ -1,8 +1,8 @@
-import 'package:aqua/features/onboarding/welcome/widgets/welcome_disclaimer_screen.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/onboarding/welcome/widgets/welcome_disclaimer_screen.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/config/config.dart';
 
 class WelcomeDisclaimerCheckbox extends HookConsumerWidget {
   const WelcomeDisclaimerCheckbox({

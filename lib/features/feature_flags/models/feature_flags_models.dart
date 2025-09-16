@@ -1,4 +1,4 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'feature_flags_models.freezed.dart';

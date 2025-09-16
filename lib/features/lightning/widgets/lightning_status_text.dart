@@ -1,9 +1,9 @@
-import 'package:aqua/common/widgets/animated_status_text.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/common/widgets/animated_status_text.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 
 class LightningStatusText extends HookConsumerWidget {
   final LightningSuccessType type;

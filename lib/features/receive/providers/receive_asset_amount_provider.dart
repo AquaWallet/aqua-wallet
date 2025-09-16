@@ -1,8 +1,8 @@
-import 'package:aqua/data/provider/fiat_provider.dart';
-import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
-import 'package:aqua/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/provider/fiat_provider.dart';
+import 'package:coin_cz/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
+import 'package:coin_cz/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
 
 /////////////////////

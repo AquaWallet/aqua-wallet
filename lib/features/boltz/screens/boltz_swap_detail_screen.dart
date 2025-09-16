@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
-import 'package:aqua/utils/extensions/date_time_ext.dart';
+import 'package:coin_cz/common/widgets/aqua_elevated_button.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
+import 'package:coin_cz/utils/extensions/date_time_ext.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 
 class BoltzSwapDetailScreen extends HookConsumerWidget {

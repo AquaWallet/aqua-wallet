@@ -1,8 +1,8 @@
-import 'package:aqua/data/provider/electrs_provider.dart';
-import 'package:aqua/data/provider/isar_database_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/boltz/boltz.dart';
+import 'package:coin_cz/data/provider/electrs_provider.dart';
+import 'package:coin_cz/data/provider/isar_database_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 

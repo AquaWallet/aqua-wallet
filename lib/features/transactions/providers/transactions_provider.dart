@@ -1,12 +1,12 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/constants.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/providers/peg_storage_provider.dart';
-import 'package:aqua/features/swaps/providers/swap_storage_provider.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/providers/peg_storage_provider.dart';
+import 'package:coin_cz/features/swaps/providers/swap_storage_provider.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 

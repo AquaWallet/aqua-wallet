@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
-import 'package:aqua/features/backup/backup.dart';
-import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:coin_cz/features/backup/backup.dart';
+import 'package:coin_cz/features/onboarding/onboarding.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 const kMnemonicLength = 12;
 

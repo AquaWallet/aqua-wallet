@@ -1,5 +1,5 @@
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 /// Maintains a local cache of recently spent UTXOs.
 /// THIS IS NOT A COMPLETE LIST OF SPENT UTXOS, just recently spent ones.

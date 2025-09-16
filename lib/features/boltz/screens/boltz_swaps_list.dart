@@ -1,8 +1,8 @@
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/boltz/screens/boltz_swap_detail_screen.dart';
-import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/boltz/screens/boltz_swap_detail_screen.dart';
+import 'package:coin_cz/features/settings/shared/providers/prefs_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 
 class BoltzSwapsList extends HookConsumerWidget {

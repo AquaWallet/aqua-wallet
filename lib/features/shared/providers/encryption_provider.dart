@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/shared/shared.dart' hide Key;
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/shared/shared.dart' hide Key;
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
 

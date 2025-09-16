@@ -1,8 +1,8 @@
-import 'package:aqua/common/widgets/amount_text_field.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:coin_cz/common/widgets/amount_text_field.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 

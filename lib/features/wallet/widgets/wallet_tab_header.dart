@@ -1,9 +1,9 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/providers/wallet_header_display_provider.dart';
-import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/providers/wallet_header_display_provider.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 

@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
 
 part 'watch_only_wallet.freezed.dart';
 

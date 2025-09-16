@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:aqua/data/provider/app_links/app_link.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/sam_rock/models/sam_rock_exception.dart';
-import 'package:aqua/features/shared/providers/dio_provider.dart';
-import 'package:aqua/features/wallet/models/subaccounts.dart';
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:coin_cz/data/provider/app_links/app_link.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/sam_rock/models/sam_rock_exception.dart';
+import 'package:coin_cz/features/shared/providers/dio_provider.dart';
+import 'package:coin_cz/features/wallet/models/subaccounts.dart';
+import 'package:coin_cz/data/provider/secure_storage/secure_storage_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';

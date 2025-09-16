@@ -1,5 +1,5 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
 import 'package:decimal/decimal.dart';
 import 'package:isar/isar.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

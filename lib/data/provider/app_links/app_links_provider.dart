@@ -1,4 +1,4 @@
-import 'package:aqua/data/provider/app_links/app_link.dart';
+import 'package:coin_cz/data/provider/app_links/app_link.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final appLinkProvider = Provider<AppLinkProvider>((ref) {

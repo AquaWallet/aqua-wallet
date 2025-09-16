@@ -1,5 +1,5 @@
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/send/send.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/send/send.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'text_scan_state.freezed.dart';

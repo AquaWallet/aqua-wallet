@@ -1,11 +1,11 @@
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/config/theme/app_styles.dart';
-import 'package:aqua/features/boltz/providers/boltz_reverse_swap_provider.dart';
-import 'package:aqua/features/receive/receive.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/widgets/aqua_elevated_button.dart';
+import 'package:coin_cz/config/theme/app_styles.dart';
+import 'package:coin_cz/features/boltz/providers/boltz_reverse_swap_provider.dart';
+import 'package:coin_cz/features/receive/receive.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ReceiveAssetScreen extends HookConsumerWidget {

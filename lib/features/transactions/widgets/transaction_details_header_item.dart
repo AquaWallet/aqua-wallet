@@ -1,5 +1,5 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
 
 class TransactionDetailsHeaderItem extends StatelessWidget {
   const TransactionDetailsHeaderItem({

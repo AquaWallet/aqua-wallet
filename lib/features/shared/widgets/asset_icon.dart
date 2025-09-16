@@ -1,7 +1,7 @@
-import 'package:aqua/config/constants/svgs.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/constants/svgs.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AssetIcon extends ConsumerWidget {

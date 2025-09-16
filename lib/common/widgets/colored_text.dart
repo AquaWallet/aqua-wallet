@@ -1,5 +1,5 @@
-import 'package:aqua/config/colors/colors.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/colors/colors.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class ColoredText extends StatelessWidget {
   final String text;

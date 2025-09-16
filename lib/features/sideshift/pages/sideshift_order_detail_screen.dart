@@ -1,8 +1,8 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';

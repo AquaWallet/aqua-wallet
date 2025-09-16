@@ -1,7 +1,7 @@
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/widgets.dart';
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class SubaccountException implements ExceptionLocalized {
   @override

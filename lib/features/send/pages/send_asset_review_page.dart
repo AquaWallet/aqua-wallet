@@ -1,10 +1,10 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 //TODO - Ad-hoc solution, should revisit once more services are added

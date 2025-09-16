@@ -1,4 +1,4 @@
-import 'package:aqua/features/boltz/boltz.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
 
 /// Request body for `POST /createswap` type `reverse`
 

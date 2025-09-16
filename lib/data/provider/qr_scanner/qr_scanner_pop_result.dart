@@ -1,5 +1,5 @@
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

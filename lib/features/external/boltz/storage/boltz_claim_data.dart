@@ -1,4 +1,4 @@
-import 'package:aqua/features/external/boltz/storage/boltz_storage_provider.dart';
+import 'package:coin_cz/features/external/boltz/storage/boltz_storage_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'boltz_claim_data.freezed.dart';

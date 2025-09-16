@@ -1,12 +1,12 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
-import 'package:aqua/features/send/models/models.dart';
-import 'package:aqua/features/send/pages/pages.dart';
-import 'package:aqua/features/send/providers/providers.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/features/lightning/providers/lnurl_provider.dart';
+import 'package:coin_cz/features/send/models/models.dart';
+import 'package:coin_cz/features/send/pages/pages.dart';
+import 'package:coin_cz/features/send/providers/providers.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/features/sideshift/providers/sideshift_send_provider.dart';
+import 'package:coin_cz/features/sideshift/providers/sideshift_send_provider.dart';
 
 class SendAssetContainerScreen extends HookConsumerWidget {
   const SendAssetContainerScreen({super.key});

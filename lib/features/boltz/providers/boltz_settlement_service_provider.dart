@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/providers/transactions_storage_provider.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/transactions/providers/transactions_storage_provider.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 
 final _logger = CustomLogger(FeatureFlag.boltz);

@@ -1,29 +1,29 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/receive/providers/receive_asset_amount_provider.dart';
-import 'package:aqua/features/send/providers/send_asset_transaction_provider.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/receive/providers/receive_asset_amount_provider.dart';
+import 'package:coin_cz/features/send/providers/send_asset_transaction_provider.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
 import 'package:convert/convert.dart';
 import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
-import 'package:aqua/common/crypto/generate_random_bytes.dart';
-import 'package:aqua/common/crypto/secp256k1_key_pair.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/crypto/generate_random_bytes.dart';
+import 'package:coin_cz/common/crypto/secp256k1_key_pair.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:pointycastle/export.dart';
-import 'package:aqua/elements.dart';
-import 'package:aqua/features/settings/manage_assets/providers/manage_assets_provider.dart';
+import 'package:coin_cz/elements.dart';
+import 'package:coin_cz/features/settings/manage_assets/providers/manage_assets_provider.dart';
 import 'boltz.dart';
 
-const boltzReferralId = 'AQUA';
+const boltzReferralId = 'COIN.CZ';
 const boltzMin = 1000;
 const boltzMax = 25000000;
 const boltzMinString = "1,000";
@@ -175,7 +175,7 @@ class BoltzService {
       orderSide: OrderSide.sell,
       invoice: invoice,
       refundPublicKey: publicKeyHex,
-      referralId: 'AQUA',
+      referralId: 'COIN.CZ',
     );
 
     logger.d("[BOLTZ] boltz swap request: ${request.toJson()}");
@@ -278,8 +278,8 @@ class BoltzService {
 
     BoltzCreateReverseSwapRequest request;
 
-    // Create fallback address (this is a hack to fix an issue where if the send/receive is from aqua to aqua, boltz will add this to the ln invoice, and
-    // if that invoice is scanned by another user then aqua should look for this fallback address and pay to liquid onchain directly, bypassing the boltz swap)
+    // Create fallback address (this is a hack to fix an issue where if the send/receive is from COIN.CZ to COIN.CZ, boltz will add this to the ln invoice, and
+    // if that invoice is scanned by another user then COIN.CZ should look for this fallback address and pay to liquid onchain directly, bypassing the boltz swap)
     final address = await ref.read(liquidProvider).getReceiveAddress();
     if (address == null || address.address == null) {
       throw Exception(
@@ -701,7 +701,7 @@ class BoltzService {
 
   // ANCHOR: - Fetch Reverse Swap Bip21
 
-  /// Fetch bip21 for direct liquid send (this is a minor hack to fix an issue with Aqua > Aqua swaps)
+  /// Fetch bip21 for direct liquid send (this is a minor hack to fix an issue with COIN.CZ > COIN.CZ swaps)
   Future<BoltzReverseSwapBip21Response> fetchReverseSwapBip21(
       String lnInvoice) async {
     final client = ref.read(dioProvider);

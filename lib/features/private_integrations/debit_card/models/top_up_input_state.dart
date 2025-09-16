@@ -1,6 +1,6 @@
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'top_up_input_state.freezed.dart';

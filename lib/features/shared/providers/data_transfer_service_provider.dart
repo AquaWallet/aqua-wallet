@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:pointycastle/api.dart';
 
 final _logger = CustomLogger(FeatureFlag.dataTransfer);

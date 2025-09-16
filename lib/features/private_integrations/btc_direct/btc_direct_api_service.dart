@@ -1,12 +1,12 @@
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/features/marketplace/marketplace.dart';
-import 'package:aqua/features/marketplace/providers/on_ramp_setup_provider.dart';
-import 'package:aqua/features/private_integrations/btc_direct/btc_direct_providers.dart';
-import 'package:aqua/features/shared/providers/dio_interceptor.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/features/marketplace/marketplace.dart';
+import 'package:coin_cz/features/marketplace/providers/on_ramp_setup_provider.dart';
+import 'package:coin_cz/features/private_integrations/btc_direct/btc_direct_providers.dart';
+import 'package:coin_cz/features/shared/providers/dio_interceptor.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:dio/dio.dart';
-import 'package:aqua/config/constants/constants.dart' as constants;
+import 'package:coin_cz/config/constants/constants.dart' as constants;
 
 import 'btc_direct.dart';
 

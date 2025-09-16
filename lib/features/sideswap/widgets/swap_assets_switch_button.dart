@@ -1,6 +1,6 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SwapAssetsSwitchButton extends ConsumerWidget {

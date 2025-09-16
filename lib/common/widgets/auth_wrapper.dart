@@ -1,8 +1,8 @@
-import 'package:aqua/config/constants/svgs.dart';
-import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/constants/svgs.dart';
+import 'package:coin_cz/features/onboarding/onboarding.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 

@@ -1,6 +1,6 @@
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:rxdart/rxdart.dart';
 
 final networkTransactionsProvider =

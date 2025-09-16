@@ -1,4 +1,4 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 final urlLauncherProvider =

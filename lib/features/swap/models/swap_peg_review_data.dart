@@ -1,6 +1,6 @@
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/features/settings/manage_assets/manage_assets.dart';
+import 'package:coin_cz/features/swap/swap.dart';
 
 class SwapPegReviewModel {
   SwapPegReviewModel({

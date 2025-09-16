@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
 
 final reRemoveTrailingDecimals = RegExp(r"\.0+$|(\.\d*[1-9])(0+)$");

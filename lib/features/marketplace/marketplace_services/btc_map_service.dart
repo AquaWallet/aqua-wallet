@@ -1,9 +1,9 @@
-import 'package:aqua/config/constants/svgs.dart';
-import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/features/marketplace/models/market_place_service.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/screens/common/webview_screen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/constants/svgs.dart';
+import 'package:coin_cz/config/constants/urls.dart';
+import 'package:coin_cz/features/marketplace/models/market_place_service.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/screens/common/webview_screen.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 MarketplaceService buildBtcMapService({
   required BuildContext context,

@@ -1,10 +1,10 @@
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_http_provider.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/data/provider/sideshift/sideshift_http_provider.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 
 import 'models/sideshift.dart';

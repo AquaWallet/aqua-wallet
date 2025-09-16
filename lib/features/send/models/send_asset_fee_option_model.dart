@@ -1,6 +1,6 @@
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'send_asset_fee_option_model.freezed.dart';

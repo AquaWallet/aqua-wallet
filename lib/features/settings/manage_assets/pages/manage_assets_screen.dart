@@ -1,10 +1,10 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/constants.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ManageAssetsScreen extends HookConsumerWidget {

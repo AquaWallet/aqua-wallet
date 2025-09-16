@@ -1,5 +1,5 @@
-import 'package:aqua/features/receive/providers/providers.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/receive/providers/providers.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

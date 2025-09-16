@@ -1,19 +1,19 @@
-import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
-import 'package:aqua/common/widgets/custom_bottom_navigation_bar.dart';
+import 'package:coin_cz/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
+import 'package:coin_cz/common/widgets/custom_bottom_navigation_bar.dart';
 
-import 'package:aqua/features/backup/backup.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/home/home.dart';
-import 'package:aqua/features/marketplace/marketplace.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/lifecycle_observer.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/features/backup/backup.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/home/home.dart';
+import 'package:coin_cz/features/marketplace/marketplace.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
+import 'package:coin_cz/lifecycle_observer.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 

@@ -1,9 +1,9 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/receive_address/receive_address_provider.dart';
-import 'package:aqua/data/provider/receive_address/receive_address_ui_model.dart';
-import 'package:aqua/data/provider/receive_address/receive_addresses_history_arguments.dart';
-import 'package:aqua/features/receive/receive.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/provider/receive_address/receive_address_provider.dart';
+import 'package:coin_cz/data/provider/receive_address/receive_address_ui_model.dart';
+import 'package:coin_cz/data/provider/receive_address/receive_addresses_history_arguments.dart';
+import 'package:coin_cz/features/receive/receive.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_svg/svg.dart';
 
 class AllAddresses extends ConsumerWidget {

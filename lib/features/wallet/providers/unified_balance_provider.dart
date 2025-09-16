@@ -1,8 +1,8 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
 
 class UnifiedBalanceResult {

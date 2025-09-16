@@ -1,15 +1,15 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/conversion_provider.dart';
-import 'package:aqua/data/provider/fee_estimate_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/send/models/models.dart';
-import 'package:aqua/features/send/providers/providers.dart';
-import 'package:aqua/features/send/widgets/custom_fee_input_sheet.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/conversion_provider.dart';
+import 'package:coin_cz/data/provider/fee_estimate_provider.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/send/models/models.dart';
+import 'package:coin_cz/features/send/providers/providers.dart';
+import 'package:coin_cz/features/send/widgets/custom_fee_input_sheet.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class TransactionPrioritySelector extends HookConsumerWidget {

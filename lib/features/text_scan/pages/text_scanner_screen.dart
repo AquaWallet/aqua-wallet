@@ -1,13 +1,13 @@
-import 'package:aqua/features/lightning/pages/lnurl_withdraw_screen.dart';
-import 'package:aqua/features/send/pages/send_asset_screen.dart';
-import 'package:aqua/features/text_scan/models/text_scan_arguments.dart';
-import 'package:aqua/features/text_scan/providers/text_scan_provider.dart';
-import 'package:aqua/features/text_scan/providers/text_scan_state_provider.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/lightning/pages/lnurl_withdraw_screen.dart';
+import 'package:coin_cz/features/send/pages/send_asset_screen.dart';
+import 'package:coin_cz/features/text_scan/models/text_scan_arguments.dart';
+import 'package:coin_cz/features/text_scan/providers/text_scan_provider.dart';
+import 'package:coin_cz/features/text_scan/providers/text_scan_state_provider.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:camera/camera.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 import '../../send/pages/address_selection_screen.dart';
 

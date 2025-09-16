@@ -1,14 +1,14 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/receive/receive.dart';
-import 'package:aqua/features/send/widgets/usdt_swap_min_max_panel.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/receive/receive.dart';
+import 'package:coin_cz/features/send/widgets/usdt_swap_min_max_panel.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/config/config.dart';
 
 //TODO: Polygon DOESN'T work for Changelly, need to remove if Changelly
 class ReceiveSwapCard extends HookConsumerWidget {

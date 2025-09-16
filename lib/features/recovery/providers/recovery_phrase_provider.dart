@@ -1,7 +1,7 @@
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/recovery/recovery.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/recovery/recovery.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 final recoveryPhraseRequestProvider = StateNotifierProvider.autoDispose<
     RecoveryPhraseRequestNotifier,

@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/data/provider/app_links/app_link.dart';
-import 'package:aqua/features/qr_scan/qr_scan.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/data/provider/app_links/app_link.dart';
+import 'package:coin_cz/features/qr_scan/qr_scan.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 
 final qrCodeStateProvider = AutoDisposeAsyncNotifierProviderFamily<
     QrScannerNotifier, QrScanState, QrScannerArguments>(QrScannerNotifier.new);

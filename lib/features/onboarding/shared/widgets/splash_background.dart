@@ -1,7 +1,7 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/config/constants/images.dart' as images;
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/config/constants/images.dart' as images;
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SplashBackground extends HookConsumerWidget {

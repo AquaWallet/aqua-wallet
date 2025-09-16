@@ -1,8 +1,8 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
-import 'package:aqua/features/recovery/providers/seed_qr_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/backup/providers/wallet_backup_provider.dart';
+import 'package:coin_cz/features/recovery/providers/seed_qr_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class WalletRecoveryQRScreen extends HookConsumerWidget {

@@ -1,11 +1,11 @@
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/features/internal_send/internal_send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/data/provider/formatter_provider.dart';
+import 'package:coin_cz/features/internal_send/internal_send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/config/config.dart';
 
 class InternalSendReviewFeeEstimatesCard extends HookConsumerWidget {
   const InternalSendReviewFeeEstimatesCard({

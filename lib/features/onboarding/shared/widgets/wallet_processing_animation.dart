@@ -1,9 +1,9 @@
-import 'package:aqua/config/constants/animations.dart' as animation;
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/constants/animations.dart' as animation;
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:lottie/lottie.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/config/config.dart';
 
 enum WalletProcessType {
   create,

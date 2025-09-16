@@ -1,6 +1,6 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SwapErrorDialogContent extends HookConsumerWidget {

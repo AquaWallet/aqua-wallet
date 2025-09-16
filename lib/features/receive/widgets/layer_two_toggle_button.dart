@@ -1,7 +1,7 @@
-import 'package:aqua/common/widgets/tab_switch_view.dart';
-import 'package:aqua/features/receive/providers/receive_asset_amount_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/widgets/tab_switch_view.dart';
+import 'package:coin_cz/features/receive/providers/receive_asset_amount_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 enum LayerTwoOption { lightning, lbtc }
 

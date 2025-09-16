@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-For conversion currencies feature we need access to BTC prices expressed in fiat currencies, and in as many currencies as possible. BTC prices are usually pulled from services like CoinGecko. We do not want every AQUA app to ping CoinGecko for prices, we want to avoid: rate limiting, inconsistent data, and number of other potential issues. The better way is to centralise fiat rates data on our server, and provide the same data to all AQUA users. This way only our server pings CoinGecko and we can easily debug and handle communication issues between server <-> CoinGecko. Custom coding this interaction is time consuming. Alternative is to use BTCPay Server which already knows how to fetch fiat rates and expose rates through a public API.
+For conversion currencies feature we need access to BTC prices expressed in fiat currencies, and in as many currencies as possible. BTC prices are usually pulled from services like CoinGecko. We do not want every COIN.CZ app to ping CoinGecko for prices, we want to avoid: rate limiting, inconsistent data, and number of other potential issues. The better way is to centralise fiat rates data on our server, and provide the same data to all COIN.CZ users. This way only our server pings CoinGecko and we can easily debug and handle communication issues between server <-> CoinGecko. Custom coding this interaction is time consuming. Alternative is to use BTCPay Server which already knows how to fetch fiat rates and expose rates through a public API.
 
 ## Decision
 

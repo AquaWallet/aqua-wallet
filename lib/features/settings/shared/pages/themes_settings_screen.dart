@@ -1,7 +1,7 @@
-import 'package:aqua/config/constants/svgs.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/config/constants/svgs.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 enum AppTheme { light, dark, botev, system }

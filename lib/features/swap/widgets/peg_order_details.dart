@@ -1,6 +1,6 @@
-import 'package:aqua/constants.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
 
 class PegOrderDetails extends HookConsumerWidget {
   const PegOrderDetails({

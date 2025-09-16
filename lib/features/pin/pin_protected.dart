@@ -1,6 +1,6 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/features/pin/pin_screen.dart';
+import 'package:coin_cz/features/pin/pin_screen.dart';
 
 // Widget that enforces PIN authentication
 class PinProtectedScreen extends HookConsumerWidget {

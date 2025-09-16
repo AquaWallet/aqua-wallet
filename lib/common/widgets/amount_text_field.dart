@@ -1,5 +1,5 @@
-import 'package:aqua/common/input_formatters/comma_text_input_formatter.dart';
-import 'package:aqua/common/input_formatters/decimal_text_input_formatter.dart';
+import 'package:coin_cz/common/input_formatters/comma_text_input_formatter.dart';
+import 'package:coin_cz/common/input_formatters/decimal_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

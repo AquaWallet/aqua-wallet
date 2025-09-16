@@ -1,5 +1,5 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class StorageError {

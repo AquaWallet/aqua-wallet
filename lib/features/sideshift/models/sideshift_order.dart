@@ -1,4 +1,4 @@
-import 'package:aqua/features/sideshift/models/sideshift_order_status.dart';
+import 'package:coin_cz/features/sideshift/models/sideshift_order_status.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sideshift_order.freezed.dart';

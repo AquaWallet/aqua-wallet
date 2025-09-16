@@ -1,4 +1,4 @@
-import 'package:aqua/features/pin/pin_provider.dart';
+import 'package:coin_cz/features/pin/pin_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
 

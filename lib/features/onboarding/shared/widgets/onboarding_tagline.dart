@@ -1,6 +1,6 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/gen/fonts.gen.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 

@@ -1,5 +1,5 @@
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 enum AuthTokenService {
   btcDirect('btc_direct');

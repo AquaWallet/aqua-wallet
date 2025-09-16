@@ -1,10 +1,10 @@
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/account/providers/jan3_auth_token_provider.dart';
-import 'package:aqua/features/feature_flags/services/feature_flags_service.dart';
-import 'package:aqua/features/private_integrations/private_integrations.dart';
-import 'package:aqua/features/settings/language/models/language.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/account/providers/jan3_auth_token_provider.dart';
+import 'package:coin_cz/features/feature_flags/services/feature_flags_service.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/settings/language/models/language.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:flutter/foundation.dart';
 
 final _logger = CustomLogger(FeatureFlag.jan3Account);

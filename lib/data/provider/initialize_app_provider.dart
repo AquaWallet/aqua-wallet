@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/gdk.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/gdk.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 

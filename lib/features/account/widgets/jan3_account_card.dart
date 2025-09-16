@@ -1,10 +1,10 @@
-import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/features/account/models/auth_state.dart';
-import 'package:aqua/features/account/pages/jan3_login_screen.dart';
-import 'package:aqua/features/account/providers/providers.dart';
-import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/config/constants/urls.dart';
+import 'package:coin_cz/features/account/models/auth_state.dart';
+import 'package:coin_cz/features/account/pages/jan3_login_screen.dart';
+import 'package:coin_cz/features/account/providers/providers.dart';
+import 'package:coin_cz/features/settings/shared/providers/prefs_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:share_plus/share_plus.dart';
 

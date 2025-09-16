@@ -1,7 +1,7 @@
-import 'package:aqua/features/auth/models/auth_model.dart';
-import 'package:aqua/features/pin/pin_provider.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/auth/models/auth_model.dart';
+import 'package:coin_cz/features/pin/pin_provider.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 final authDepsProvider = Provider<AsyncValue<AuthDepsData>>((ref) {
   final pinAuthState = ref.watch(pinAuthProvider);

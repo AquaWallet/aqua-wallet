@@ -1,9 +1,9 @@
-import 'package:aqua/data/provider/sideshift/screens/sideshift_orders_list.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
-import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/data/provider/sideshift/screens/sideshift_orders_list.dart';
+import 'package:coin_cz/data/provider/sideshift/sideshift_order_provider.dart';
+import 'package:coin_cz/features/settings/shared/providers/prefs_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class SideShiftOrdersScreen extends ConsumerWidget {
   static const routeName = '/sideShiftOrdersScreen';

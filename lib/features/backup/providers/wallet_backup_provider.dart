@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
-import 'package:aqua/features/backup/providers/backup_reminder_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:coin_cz/features/backup/providers/backup_reminder_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 

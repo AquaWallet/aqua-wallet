@@ -1,12 +1,12 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/app_links/app_link.dart';
-import 'package:aqua/features/auth/auth_wrapper.dart';
-import 'package:aqua/features/sam_rock/models/sam_rock_exception.dart';
-import 'package:aqua/features/sam_rock/providers/sam_rock_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/providers/subaccounts_provider.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/provider/app_links/app_link.dart';
+import 'package:coin_cz/features/auth/auth_wrapper.dart';
+import 'package:coin_cz/features/sam_rock/models/sam_rock_exception.dart';
+import 'package:coin_cz/features/sam_rock/providers/sam_rock_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/providers/subaccounts_provider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class SamRockScreen extends HookConsumerWidget {
   const SamRockScreen({

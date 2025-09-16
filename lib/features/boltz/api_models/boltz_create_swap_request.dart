@@ -1,5 +1,5 @@
-import 'package:aqua/features/boltz/api_models/boltz_api_models.dart';
-import 'package:aqua/features/boltz/boltz_provider.dart';
+import 'package:coin_cz/features/boltz/api_models/boltz_api_models.dart';
+import 'package:coin_cz/features/boltz/boltz_provider.dart';
 
 /// Request body for `POST /createswap` type `normal`
 

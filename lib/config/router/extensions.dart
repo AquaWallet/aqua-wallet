@@ -1,4 +1,4 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 // Extension for GoRouter till below features are natively supported
 extension AquaGoRouterHelper on BuildContext {

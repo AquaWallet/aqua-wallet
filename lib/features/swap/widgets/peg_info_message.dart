@@ -1,6 +1,6 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class PegInfoMessageView extends HookConsumerWidget {
   const PegInfoMessageView({

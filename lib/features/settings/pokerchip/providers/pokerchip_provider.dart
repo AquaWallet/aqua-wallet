@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/provider/formatter_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 const _blockStreamApiBaseUrl = 'https://blockstream.info';
 const _bitcoinPrefix = 'BITCOIN:';

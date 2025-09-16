@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:aqua/logger.dart';
-import 'package:aqua/data/backend/gdk_backend_event.dart';
-import 'package:aqua/wallet.dart';
-import 'package:aqua/data/models/gdk_models.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/data/backend/gdk_backend_event.dart';
+import 'package:coin_cz/wallet.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
 import 'package:isolator/isolator.dart';
 import 'package:async/async.dart';
 

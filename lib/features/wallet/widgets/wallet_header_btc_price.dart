@@ -1,7 +1,7 @@
-import 'package:aqua/constants.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class HeaderAmount extends ConsumerWidget {

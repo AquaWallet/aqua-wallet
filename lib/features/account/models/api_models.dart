@@ -1,4 +1,4 @@
-import 'package:aqua/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'api_models.freezed.dart';

@@ -1,6 +1,6 @@
-import 'package:aqua/gen/assets.gen.dart';
-import 'package:aqua/utils/utils.dart';
-import 'package:aqua/common/keys/common_keys.dart';
+import 'package:coin_cz/gen/assets.gen.dart';
+import 'package:coin_cz/utils/utils.dart';
+import 'package:coin_cz/common/keys/common_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 

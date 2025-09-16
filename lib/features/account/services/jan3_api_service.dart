@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:chopper/chopper.dart';
 import 'package:http/io_client.dart' as http;
 

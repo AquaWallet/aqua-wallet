@@ -1,13 +1,13 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/data/models/network_amount.dart';
-import 'package:aqua/features/pokerchip/pokerchip.dart';
-import 'package:aqua/features/qr_scan/models/qr_scan_arguments.dart';
-import 'package:aqua/features/qr_scan/pages/qr_scanner_screen.dart';
-import 'package:aqua/features/qr_scan/providers/qr_scan_provider.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/data/models/network_amount.dart';
+import 'package:coin_cz/features/pokerchip/pokerchip.dart';
+import 'package:coin_cz/features/qr_scan/models/qr_scan_arguments.dart';
+import 'package:coin_cz/features/qr_scan/pages/qr_scanner_screen.dart';
+import 'package:coin_cz/features/qr_scan/providers/qr_scan_provider.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 //NOTE: This screen and the rest of the pokerchip views and logic can be abstracted to be re-used for all external private key sweeps

@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:aqua/common/common.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 extension SwapContextExt on WidgetRef {
   void handleSwapError(

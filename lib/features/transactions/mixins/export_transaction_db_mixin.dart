@@ -1,9 +1,9 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 
 final _logger = CustomLogger(FeatureFlag.export);
 

@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/extensions/provider_extensions.dart';
+import 'package:coin_cz/config/constants/urls.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/extensions/provider_extensions.dart';
 
 final _logger = CustomLogger(FeatureFlag.fees);
 

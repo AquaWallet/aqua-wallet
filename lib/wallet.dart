@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/wallet/models/subaccount.dart';
-import 'package:aqua/gdk.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/features/wallet/models/subaccount.dart';
+import 'package:coin_cz/gdk.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:async/async.dart';
 
 abstract class WalletService {

@@ -5,14 +5,14 @@
 
 import 'dart:async';
 
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:decimal/decimal.dart';
 
 final sendAssetInputStateProvider = AutoDisposeAsyncNotifierProviderFamily<

@@ -1,5 +1,5 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/main.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/main.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';

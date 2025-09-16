@@ -1,7 +1,7 @@
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class AssetListErrorView extends ConsumerWidget {
   const AssetListErrorView({

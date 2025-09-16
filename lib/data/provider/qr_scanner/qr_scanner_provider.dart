@@ -1,12 +1,12 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/data/provider/app_links/app_link.dart';
-import 'package:aqua/data/provider/app_links/app_links_provider.dart';
-import 'package:aqua/data/provider/qr_scanner/qr_scanner_pop_result.dart';
-import 'package:aqua/features/address_validator/address_validator.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/data/provider/app_links/app_link.dart';
+import 'package:coin_cz/data/provider/app_links/app_links_provider.dart';
+import 'package:coin_cz/data/provider/qr_scanner/qr_scanner_pop_result.dart';
+import 'package:coin_cz/features/address_validator/address_validator.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:rxdart/rxdart.dart';
 
 final _logger = CustomLogger(FeatureFlag.qr);

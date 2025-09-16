@@ -1,6 +1,6 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_svg/svg.dart';
 
 class PokerchipAssetIcon extends StatelessWidget {

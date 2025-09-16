@@ -1,10 +1,10 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SendConfirmationSlider extends HookConsumerWidget {

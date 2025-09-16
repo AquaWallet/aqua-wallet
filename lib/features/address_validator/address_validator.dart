@@ -1,17 +1,17 @@
-import 'package:aqua/common/data_conversion/bip21_encoder.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/elements.dart';
-import 'package:aqua/features/address_validator/money_badger_validator.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/data_conversion/bip21_encoder.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/elements.dart';
+import 'package:coin_cz/features/address_validator/money_badger_validator.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
 import 'package:decimal/decimal.dart';
-import 'package:aqua/features/boltz/providers/boltz_to_boltz_provider.dart';
-import 'package:aqua/features/wallet/utils/mini_private_key_service.dart';
+import 'package:coin_cz/features/boltz/providers/boltz_to_boltz_provider.dart';
+import 'package:coin_cz/features/wallet/utils/mini_private_key_service.dart';
 
 import 'models/address_validator_models.dart';
 

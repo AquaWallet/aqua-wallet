@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:isar/isar.dart';
 
 final _logger = CustomLogger(FeatureFlag.swapOrderStorage);

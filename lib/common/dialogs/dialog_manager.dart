@@ -1,5 +1,5 @@
-import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class DialogManager {
   static final DialogManager _instance = DialogManager._internal();

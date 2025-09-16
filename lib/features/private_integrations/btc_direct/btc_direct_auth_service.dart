@@ -1,8 +1,8 @@
-import 'package:aqua/data/provider/secure_storage/auth_token_storage.dart';
-import 'package:aqua/features/shared/providers/dio_interceptor.dart';
-import 'package:aqua/features/private_integrations/btc_direct/btc_direct_providers.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/provider/secure_storage/auth_token_storage.dart';
+import 'package:coin_cz/features/shared/providers/dio_interceptor.dart';
+import 'package:coin_cz/features/private_integrations/btc_direct/btc_direct_providers.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:dio/dio.dart';
 
 import 'btc_direct.dart';

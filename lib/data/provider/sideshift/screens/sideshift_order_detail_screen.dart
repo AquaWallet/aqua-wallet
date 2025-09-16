@@ -1,10 +1,10 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
-import 'package:aqua/data/provider/sideshift/sideshift_order_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/provider/sideshift/models/sideshift.dart';
+import 'package:coin_cz/data/provider/sideshift/sideshift_order_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:intl/intl.dart';
 
 class SideshiftOrderDetailScreen extends HookConsumerWidget {

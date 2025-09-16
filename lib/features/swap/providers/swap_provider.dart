@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 final swapProvider =

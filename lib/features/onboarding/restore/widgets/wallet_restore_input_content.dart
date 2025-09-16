@@ -1,8 +1,8 @@
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/common/widgets/sliver_grid_delegate.dart';
-import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/widgets/aqua_elevated_button.dart';
+import 'package:coin_cz/common/widgets/sliver_grid_delegate.dart';
+import 'package:coin_cz/features/onboarding/onboarding.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 

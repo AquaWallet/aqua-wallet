@@ -1,6 +1,6 @@
-import 'package:aqua/features/pokerchip/pokerchip.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/pokerchip/pokerchip.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class PokerchipBalanceCard extends HookConsumerWidget {
   const PokerchipBalanceCard({

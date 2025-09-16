@@ -1,8 +1,8 @@
-import 'package:aqua/features/qr_scan/qr_scan.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/features/wallet/keys/wallet_keys.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/qr_scan/qr_scan.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/features/wallet/keys/wallet_keys.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 import '../../scan/scan.dart';
 import '../../text_scan/text_scan.dart';

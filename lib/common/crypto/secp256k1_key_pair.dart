@@ -1,4 +1,4 @@
-import 'package:aqua/common/crypto/generate_random_bytes.dart';
+import 'package:coin_cz/common/crypto/generate_random_bytes.dart';
 import "package:pointycastle/export.dart";
 import 'package:convert/convert.dart';
 

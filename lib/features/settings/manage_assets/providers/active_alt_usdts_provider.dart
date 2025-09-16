@@ -1,7 +1,7 @@
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/settings/manage_assets/providers/manage_assets_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/settings/manage_assets/providers/manage_assets_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
 
 final activeAltUSDtsProvider = Provider.autoDispose<List<Asset>>((ref) {
   final preferredService = ref.watch(preferredUsdtSwapServiceProvider);

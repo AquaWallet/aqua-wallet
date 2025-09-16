@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:aqua/features/pin/models/pin_state.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/data/data.dart';
+import 'package:coin_cz/features/pin/models/pin_state.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/data/data.dart';
 
 enum PinAuthState { enabled, disabled, locked }
 

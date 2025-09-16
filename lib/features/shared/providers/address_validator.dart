@@ -1,9 +1,9 @@
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/settings/manage_assets/manage_assets.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
-import 'package:aqua/common/data_conversion/bip21_encoder.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/data_conversion/bip21_encoder.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 final altUsdtValidatorMap = {
   /// Basic Eth validation.

@@ -1,4 +1,4 @@
-const boltzReferralId = 'AQUA';
+const boltzReferralId = 'COIN.CZ';
 const boltzMin = 1000;
 const boltzMax = 25000000;
 const boltzMinString = "1,000";

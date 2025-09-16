@@ -1,7 +1,7 @@
-import 'package:aqua/features/marketplace/marketplace.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/marketplace/marketplace.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class MarketplaceTab extends HookConsumerWidget {
   const MarketplaceTab({super.key});

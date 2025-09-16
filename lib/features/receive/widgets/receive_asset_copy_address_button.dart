@@ -1,8 +1,8 @@
-import 'package:aqua/common/widgets/colored_text.dart';
-import 'package:aqua/common/widgets/middle_ellipsis_text.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/common/widgets/colored_text.dart';
+import 'package:coin_cz/common/widgets/middle_ellipsis_text.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';

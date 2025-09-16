@@ -1,5 +1,5 @@
-import 'package:aqua/logger.dart';
-import 'package:aqua/features/shared/providers/providers.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/features/shared/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

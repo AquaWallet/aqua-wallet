@@ -1,14 +1,14 @@
 import 'dart:ui';
 
-import 'package:aqua/config/router/go_router.dart';
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/theme_provider.dart';
-import 'package:aqua/features/onboarding/shared/shared.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/lifecycle_observer.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/config/router/go_router.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
+import 'package:coin_cz/data/provider/theme_provider.dart';
+import 'package:coin_cz/features/onboarding/shared/shared.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/settings/shared/pages/themes_settings_screen.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/lifecycle_observer.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -109,7 +109,7 @@ class AquaApp extends HookConsumerWidget {
         locale: Locale.fromSubtags(languageCode: languageCode),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        onGenerateTitle: (context) => "AQUA",
+        onGenerateTitle: (context) => "COIN.CZ",
         debugShowCheckedModeBanner: false,
         builder: (context, child) {
           final mediaQueryData = MediaQuery.of(context)

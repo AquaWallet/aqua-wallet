@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
 
 /// Generate a user ID based on the hash ofthe BIP84 (Native SegWit) subaccount zpub
 class UserHashIdNotifier extends AsyncNotifier<String> {

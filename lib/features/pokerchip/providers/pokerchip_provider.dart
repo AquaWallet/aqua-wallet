@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/models/network_amount.dart';
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/pokerchip/pokerchip.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/models/network_amount.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/provider/formatter_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/pokerchip/pokerchip.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:decimal/decimal.dart';
 
 const _bitcoinPrefix = 'BITCOIN:';

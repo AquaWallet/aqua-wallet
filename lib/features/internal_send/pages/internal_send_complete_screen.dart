@@ -1,10 +1,10 @@
-import 'package:aqua/features/auth/auth_wrapper.dart';
-import 'package:aqua/config/constants/animations.dart' as animation;
-import 'package:aqua/constants.dart';
-import 'package:aqua/features/internal_send/internal_send.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/auth/auth_wrapper.dart';
+import 'package:coin_cz/config/constants/animations.dart' as animation;
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/features/internal_send/internal_send.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:lottie/lottie.dart';
 
 class InternalSendCompleteScreen extends HookConsumerWidget {

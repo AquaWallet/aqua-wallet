@@ -1,10 +1,10 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/receive/pages/models/receive_asset_extensions.dart';
-import 'package:aqua/features/receive/providers/providers.dart';
-import 'package:aqua/features/receive/widgets/widgets.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/receive/pages/models/receive_asset_extensions.dart';
+import 'package:coin_cz/features/receive/providers/providers.dart';
+import 'package:coin_cz/features/receive/widgets/widgets.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 

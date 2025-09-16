@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

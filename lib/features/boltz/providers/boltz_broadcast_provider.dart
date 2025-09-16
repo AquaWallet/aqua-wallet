@@ -1,9 +1,9 @@
-import 'package:aqua/features/boltz/models/boltz_broadcast_tx_response.dart';
-import 'package:aqua/features/shared/providers/dio_provider.dart';
-import 'package:aqua/features/shared/providers/env_provider.dart';
+import 'package:coin_cz/features/boltz/models/boltz_broadcast_tx_response.dart';
+import 'package:coin_cz/features/shared/providers/dio_provider.dart';
+import 'package:coin_cz/features/shared/providers/env_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.boltz);
 

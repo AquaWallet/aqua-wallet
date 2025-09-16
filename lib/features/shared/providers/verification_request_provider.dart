@@ -1,9 +1,9 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/pin/pin_provider.dart';
-import 'package:aqua/features/pin/pin_screen.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/pin/pin_provider.dart';
+import 'package:coin_cz/features/pin/pin_screen.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 final verificationRequestProvider = StateNotifierProvider.autoDispose<
     VerificationRequestNotifier,

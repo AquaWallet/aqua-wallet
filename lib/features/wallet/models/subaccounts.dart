@@ -1,4 +1,4 @@
-import 'package:aqua/features/wallet/models/subaccount.dart';
+import 'package:coin_cz/features/wallet/models/subaccount.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'subaccounts.freezed.dart';

@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/settings/shared/pages/themes_settings_screen.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final prefsProvider = ChangeNotifierProvider<UserPreferencesNotifier>((ref) {

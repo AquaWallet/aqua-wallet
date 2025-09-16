@@ -1,7 +1,7 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/constants.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class AmountParsingException implements ExceptionLocalized {
   final AmountParsingExceptionType type;

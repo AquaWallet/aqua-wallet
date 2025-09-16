@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/features/bip329/bip329_label_model.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/features/bip329/bip329_label_model.dart';
 
 part 'bip329_import_provider.g.dart';
 

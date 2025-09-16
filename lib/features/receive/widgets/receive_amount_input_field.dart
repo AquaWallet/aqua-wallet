@@ -1,13 +1,13 @@
-import 'package:aqua/common/input_formatters/decimal_text_input_formatter.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/receive/providers/receive_asset_amount_provider.dart';
-import 'package:aqua/features/settings/exchange_rate/pages/currency_conversion_settings_screen.dart';
-import 'package:aqua/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
-import 'package:aqua/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/input_formatters/decimal_text_input_formatter.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/receive/providers/receive_asset_amount_provider.dart';
+import 'package:coin_cz/features/settings/exchange_rate/pages/currency_conversion_settings_screen.dart';
+import 'package:coin_cz/features/settings/exchange_rate/providers/conversion_currencies_provider.dart';
+import 'package:coin_cz/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/receive/keys/receive_screen_keys.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/services.dart';
 
 class AmountInputField extends HookConsumerWidget {

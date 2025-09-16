@@ -3,7 +3,7 @@ import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hex/hex.dart';
 import 'package:crypto/crypto.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/logger.dart';
 
 /// Generates a BIP32 fingerprint from a mnemonic phrase
 ///

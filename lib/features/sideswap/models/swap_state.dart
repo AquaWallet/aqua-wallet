@@ -1,6 +1,6 @@
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/sideswap/swap.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'swap_state.freezed.dart';

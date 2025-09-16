@@ -1,6 +1,6 @@
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/config/config.dart';
 
 class GenericErrorWidget extends StatelessWidget {
   const GenericErrorWidget(

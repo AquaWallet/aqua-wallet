@@ -1,6 +1,6 @@
-import 'package:aqua/common/widgets/middle_ellipsis_text.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/utils/extensions/extensions.dart';
+import 'package:coin_cz/common/widgets/middle_ellipsis_text.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/utils/extensions/extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';

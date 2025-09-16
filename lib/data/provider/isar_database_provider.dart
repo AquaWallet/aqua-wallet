@@ -1,8 +1,8 @@
-import 'package:aqua/data/data.dart';
-import 'package:aqua/data/provider/isar_migration_provider.dart';
-import 'package:aqua/features/boltz/models/db_models.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/data/provider/isar_migration_provider.dart';
+import 'package:coin_cz/features/boltz/models/db_models.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

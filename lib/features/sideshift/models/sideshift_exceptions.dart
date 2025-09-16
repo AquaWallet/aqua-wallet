@@ -1,7 +1,7 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 
 class DeliverAmountRequiredException implements ExceptionLocalized {

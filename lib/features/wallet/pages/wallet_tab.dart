@@ -1,8 +1,8 @@
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
+import 'package:coin_cz/logger.dart';
 
 class WalletTab extends ConsumerWidget {
   const WalletTab({super.key});

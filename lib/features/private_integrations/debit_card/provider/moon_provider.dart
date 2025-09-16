@@ -1,6 +1,6 @@
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/private_integrations/debit_card/provider/provider.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/private_integrations/debit_card/provider/provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 final moonCardsProvider =

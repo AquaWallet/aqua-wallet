@@ -1,10 +1,10 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/constants.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/models/subaccount.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/models/subaccount.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 import 'watch_only.dart';
 

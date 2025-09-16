@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:aqua/features/private_integrations/private_integrations.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 final topUpInputStateProvider =
     AutoDisposeAsyncNotifierProvider<TopUpInputStateNotifier, TopUpInputState>(

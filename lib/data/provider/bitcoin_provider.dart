@@ -1,9 +1,9 @@
-import 'package:aqua/data/backend/bitcoin_network.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/backend/bitcoin_network.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 
 final bitcoinProvider = Provider<BitcoinProvider>((ref) => BitcoinProvider(
       ref: ref,

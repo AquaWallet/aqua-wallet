@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 const kExternalStorageDir = '/storage/emulated/0/';

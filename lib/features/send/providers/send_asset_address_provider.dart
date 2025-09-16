@@ -1,11 +1,11 @@
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/settings/manage_assets/providers/manage_assets_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
-import 'package:aqua/features/lightning/lightning.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/settings/manage_assets/providers/manage_assets_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
 import 'package:decimal/decimal.dart';
 
 /// Base send address

@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/swaps/models/swap_models.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/swaps/models/swap_models.dart';
 
 final maxInt = double.maxFinite.toInt();
 

@@ -1,7 +1,7 @@
-import 'package:aqua/common/errors/error_localized.dart';
-import 'package:aqua/features/send/models/models.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/errors/error_localized.dart';
+import 'package:coin_cz/features/send/models/models.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'send_asset_validation_provider.g.dart';

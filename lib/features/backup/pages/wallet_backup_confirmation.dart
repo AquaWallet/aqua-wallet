@@ -1,10 +1,10 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/features/auth/auth_wrapper.dart';
-import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
-import 'package:aqua/features/backup/backup.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/features/auth/auth_wrapper.dart';
+import 'package:coin_cz/features/backup/providers/wallet_backup_provider.dart';
+import 'package:coin_cz/features/backup/backup.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
 
 class WalletBackupConfirmation extends ConsumerWidget {
   static const routeName = '/walletBackupConfirmation';

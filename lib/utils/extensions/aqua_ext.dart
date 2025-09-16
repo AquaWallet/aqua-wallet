@@ -1,8 +1,8 @@
-import 'package:aqua/data/provider/aqua_provider.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 extension RefExt on Ref {
-  // The AQUA provider follows this pattern throughout the codebase where
+  // The COIN.CZ provider follows this pattern throughout the codebase where
   // boolean preferences are read by calling a method on either the GDK SDK or
   // native platform channels and the result depends on whether the property
   // exists or not. This is evaluated by by checking whether the function call

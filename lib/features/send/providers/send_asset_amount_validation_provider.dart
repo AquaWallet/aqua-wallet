@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:aqua/constants.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 // This provider is used to validate the amount input of the send asset screen.
 // The UI listens to the error events to display messages as a sideeffect.

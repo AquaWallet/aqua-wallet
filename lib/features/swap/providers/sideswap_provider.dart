@@ -1,7 +1,7 @@
-import 'package:aqua/data/provider/fee_estimate_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:coin_cz/data/provider/fee_estimate_provider.dart';
+import 'package:coin_cz/data/provider/formatter_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
 
 final swapLoadingIndicatorStateProvider =
     StateProvider.autoDispose<SwapProgressState>((ref) {

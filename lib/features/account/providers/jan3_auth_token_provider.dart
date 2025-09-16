@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/account/models/models.dart';
-import 'package:aqua/features/account/providers/token_refresh_notifier.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/account/models/models.dart';
+import 'package:coin_cz/features/account/providers/token_refresh_notifier.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:chopper/chopper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

@@ -1,5 +1,5 @@
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SwapSetupNotifier

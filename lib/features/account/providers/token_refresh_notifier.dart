@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
-import 'package:aqua/features/account/models/api_models.dart';
-import 'package:aqua/features/account/providers/jan3_auth_token_provider.dart';
-import 'package:aqua/features/account/services/jan3_api_token_refresh.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:coin_cz/features/account/models/api_models.dart';
+import 'package:coin_cz/features/account/providers/jan3_auth_token_provider.dart';
+import 'package:coin_cz/features/account/services/jan3_api_token_refresh.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final tokenRefreshNotifierProvider =

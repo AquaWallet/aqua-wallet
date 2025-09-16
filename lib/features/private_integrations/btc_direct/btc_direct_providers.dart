@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aqua/features/shared/providers/env_provider.dart'; // ← Asegúrate de importar EnvConfig
-import 'package:aqua/config/constants/secrets.dart';
+import 'package:coin_cz/features/shared/providers/env_provider.dart'; // ← Asegúrate de importar EnvConfig
+import 'package:coin_cz/config/constants/secrets.dart';
 
 final btcDirectEnvConfigProvider = Provider<EnvConfig>((ref) {
   final isSandbox = true; // Cambia a false para producción

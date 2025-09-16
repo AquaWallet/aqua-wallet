@@ -1,6 +1,6 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class DebitCardCharacteristics extends StatelessWidget {
   const DebitCardCharacteristics({

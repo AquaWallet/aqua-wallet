@@ -1,8 +1,8 @@
-import 'package:aqua/features/private_integrations/private_integrations.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 final _logger = CustomLogger(FeatureFlag.debitCard);

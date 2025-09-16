@@ -1,5 +1,5 @@
-import 'package:aqua/common/widgets/colored_text.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/widgets/colored_text.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class MiddleEllipsisText extends StatelessWidget {
   final String text;

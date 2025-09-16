@@ -1,7 +1,7 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:aqua/features/sideswap/models/sideswap.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/sideswap/models/sideswap.dart';
+import 'package:coin_cz/logger.dart';
 
 part 'peg_status_state.freezed.dart';
 part 'peg_status_state.g.dart';

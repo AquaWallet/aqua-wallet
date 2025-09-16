@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:aqua/data/provider/register_wallet/register_wallet_provider.dart';
-import 'package:aqua/data/provider/provider.dart';
-import 'package:aqua/features/auth/auth_wrapper.dart';
-import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/data/provider/register_wallet/register_wallet_provider.dart';
+import 'package:coin_cz/data/provider/provider.dart';
+import 'package:coin_cz/features/auth/auth_wrapper.dart';
+import 'package:coin_cz/features/onboarding/onboarding.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/data/provider/theme_provider.dart';
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/common/common.dart';
-import 'package:aqua/features/onboarding/keys/onboarding_screen_keys.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/data/provider/theme_provider.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/features/onboarding/keys/onboarding_screen_keys.dart';
+import 'package:coin_cz/config/config.dart';
 
 const _fadeAnimationDuration = Duration(milliseconds: 300);
 const _slideAnimationDuration = Duration(milliseconds: 500);

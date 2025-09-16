@@ -1,5 +1,5 @@
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/wallet/utils/derivation_path_utils.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/features/wallet/utils/derivation_path_utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'shared_subaccount.freezed.dart';

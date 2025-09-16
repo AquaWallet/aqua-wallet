@@ -1,8 +1,8 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/bip329/bip329_export_provider.dart';
-import 'package:aqua/features/bip329/bip329_import_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/bip329/bip329_export_provider.dart';
+import 'package:coin_cz/features/bip329/bip329_import_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class NotesSettingsScreen extends HookConsumerWidget {
   static const routeName = '/notesSettingsScreen';

@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.network);
 

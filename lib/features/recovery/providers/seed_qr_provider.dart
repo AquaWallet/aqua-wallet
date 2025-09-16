@@ -1,6 +1,6 @@
-import 'package:aqua/features/onboarding/restore/providers/mnemonic_word_input_state_provider.dart';
-import 'package:aqua/features/onboarding/restore/providers/wallet_restore_suggestions_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/onboarding/restore/providers/mnemonic_word_input_state_provider.dart';
+import 'package:coin_cz/features/onboarding/restore/providers/wallet_restore_suggestions_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 final seedQrProvider =
     AsyncNotifierProvider.autoDispose<_SeedQrUtils, void>(() {

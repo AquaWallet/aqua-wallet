@@ -1,6 +1,6 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class WelcomeDisclaimerScreen extends HookConsumerWidget {
   const WelcomeDisclaimerScreen({super.key});

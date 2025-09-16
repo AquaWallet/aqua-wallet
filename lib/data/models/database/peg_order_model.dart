@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/models/sideswap.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/models/sideswap.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
 

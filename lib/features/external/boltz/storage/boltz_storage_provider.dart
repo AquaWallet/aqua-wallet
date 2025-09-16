@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:aqua/data/provider/secure_storage_provider.dart';
-import 'package:aqua/features/external/boltz/api_models/boltz_api_models.dart';
-import 'package:aqua/features/external/boltz/storage/boltz_swap_secure_data.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/provider/secure_storage_provider.dart';
+import 'package:coin_cz/features/external/boltz/api_models/boltz_api_models.dart';
+import 'package:coin_cz/features/external/boltz/storage/boltz_swap_secure_data.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 //ANCHOR - Convenience Providers

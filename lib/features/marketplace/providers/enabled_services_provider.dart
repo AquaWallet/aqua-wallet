@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
-import 'package:aqua/features/feature_flags/services/feature_flags_service.dart';
-import 'package:aqua/features/settings/region/region.dart';
+import 'package:coin_cz/features/feature_flags/models/feature_flags_models.dart';
+import 'package:coin_cz/features/feature_flags/services/feature_flags_service.dart';
+import 'package:coin_cz/features/settings/region/region.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 final enabledServicesTypesProvider = AsyncNotifierProvider<
     EnabledServicesTypesNotifier,

@@ -1,6 +1,6 @@
-import 'package:aqua/features/marketplace/models/models.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/marketplace/models/models.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:dio/dio.dart';
 
 final _logger = CustomLogger(FeatureFlag.onramp);

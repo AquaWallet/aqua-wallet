@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/fiat_provider.dart';
-import 'package:aqua/features/settings/exchange_rate/models/exchange_rate.dart';
-import 'package:aqua/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
+import 'package:coin_cz/data/provider/fiat_provider.dart';
+import 'package:coin_cz/features/settings/exchange_rate/models/exchange_rate.dart';
+import 'package:coin_cz/features/settings/exchange_rate/providers/exchange_rate_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:rxdart/rxdart.dart';
 

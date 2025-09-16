@@ -1,11 +1,11 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/address_list/address_list.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/address_list/address_list.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class AssetTransactionsScreen extends HookConsumerWidget {
   const AssetTransactionsScreen({super.key, required this.asset});

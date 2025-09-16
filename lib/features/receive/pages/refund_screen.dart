@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/config/theme/theme.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/constants/urls.dart';
+import 'package:coin_cz/config/theme/theme.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_file_saver/flutter_file_saver.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:share_plus/share_plus.dart';

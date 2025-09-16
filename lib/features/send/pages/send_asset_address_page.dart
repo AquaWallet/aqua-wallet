@@ -1,12 +1,12 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/qr_scan/qr_scan.dart';
-import 'package:aqua/features/text_scan/text_scan.dart';
-import 'package:aqua/features/scan/scan.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/qr_scan/qr_scan.dart';
+import 'package:coin_cz/features/text_scan/text_scan.dart';
+import 'package:coin_cz/features/scan/scan.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SendAssetAddressPage extends HookConsumerWidget {

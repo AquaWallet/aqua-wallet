@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
 import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';

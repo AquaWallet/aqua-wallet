@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-import 'package:aqua/common/utils/encode_query_component.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/external/boltz/boltz.dart';
-import 'package:aqua/features/receive/pages/refund_screen.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
-import 'package:aqua/constants.dart';
+import 'package:coin_cz/common/utils/encode_query_component.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/external/boltz/boltz.dart';
+import 'package:coin_cz/features/receive/pages/refund_screen.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
+import 'package:coin_cz/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BoltzSwapStatusButton extends ConsumerWidget {

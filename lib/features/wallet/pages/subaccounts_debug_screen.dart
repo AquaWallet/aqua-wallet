@@ -1,14 +1,14 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/config/theme/app_styles.dart';
-import 'package:aqua/features/wallet/models/subaccount.dart';
-import 'package:aqua/features/wallet/providers/current_shared_subaccount_provider.dart';
-import 'package:aqua/features/wallet/providers/liquid_native_segwit_sweep_provider.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/config/theme/app_styles.dart';
+import 'package:coin_cz/features/wallet/models/subaccount.dart';
+import 'package:coin_cz/features/wallet/providers/current_shared_subaccount_provider.dart';
+import 'package:coin_cz/features/wallet/providers/liquid_native_segwit_sweep_provider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/features/wallet/providers/subaccounts_provider.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/common/widgets/custom_error.dart';
-import 'package:aqua/features/wallet/utils/derivation_path_utils.dart';
+import 'package:coin_cz/features/wallet/providers/subaccounts_provider.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/common/widgets/custom_error.dart';
+import 'package:coin_cz/features/wallet/utils/derivation_path_utils.dart';
 
 //TODO: Block "Create Subaccount" button if not yet swept to native segwit
 class SubaccountsDebugScreen extends HookConsumerWidget {

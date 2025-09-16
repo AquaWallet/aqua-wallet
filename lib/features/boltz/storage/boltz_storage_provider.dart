@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/models/boltz_swap_status.dart';
-import 'package:aqua/features/boltz/models/db_models.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/models/boltz_swap_status.dart';
+import 'package:coin_cz/features/boltz/models/db_models.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:isar/isar.dart';
 

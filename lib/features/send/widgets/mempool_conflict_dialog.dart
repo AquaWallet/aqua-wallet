@@ -1,9 +1,9 @@
-import 'package:aqua/common/dialogs/dialog_manager.dart';
-import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/dialogs/dialog_manager.dart';
+import 'package:coin_cz/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'dart:async';
 
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 
 class MempoolConflictDialog {
   static void show(BuildContext context,

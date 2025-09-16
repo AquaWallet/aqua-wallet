@@ -1,6 +1,6 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/config/config.dart';
 
 class PokerchipScanViewButton extends StatelessWidget {
   const PokerchipScanViewButton({

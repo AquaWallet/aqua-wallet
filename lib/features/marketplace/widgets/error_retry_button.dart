@@ -1,7 +1,7 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/features/marketplace/providers/enabled_services_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/features/marketplace/providers/enabled_services_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class ErrorRetryButton extends ConsumerWidget {
   final VoidCallback onRetry;

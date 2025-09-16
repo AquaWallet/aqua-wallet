@@ -1,24 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/external/boltz/storage/boltz_refund_data.dart';
-import 'package:aqua/features/send/providers/send_asset_transaction_provider.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/external/boltz/storage/boltz_refund_data.dart';
+import 'package:coin_cz/features/send/providers/send_asset_transaction_provider.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
 import 'package:convert/convert.dart';
 import 'package:dio/dio.dart';
 
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
-import 'package:aqua/common/crypto/generate_random_bytes.dart';
-import 'package:aqua/common/crypto/secp256k1_key_pair.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/external/boltz/boltz.dart';
+import 'package:coin_cz/common/crypto/generate_random_bytes.dart';
+import 'package:coin_cz/common/crypto/secp256k1_key_pair.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/external/boltz/boltz.dart';
 import 'package:pointycastle/export.dart';
 
-import 'package:aqua/elements.dart';
+import 'package:coin_cz/elements.dart';
 
 const boltzMin = 1000;
 const boltzMax = 25000000;

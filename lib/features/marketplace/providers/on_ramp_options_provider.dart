@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/features/marketplace/models/models.dart';
-import 'package:aqua/features/marketplace/services/on_ramp_price_fetcher_factory.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
-import 'package:aqua/features/settings/region/providers/region_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/features/marketplace/models/models.dart';
+import 'package:coin_cz/features/marketplace/services/on_ramp_price_fetcher_factory.dart';
+import 'package:coin_cz/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:coin_cz/features/settings/region/providers/region_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 
 final onRampOptionsProvider =
     AutoDisposeNotifierProvider<OnRampOptionsNotifier, List<OnRampIntegration>>(

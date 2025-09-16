@@ -1,7 +1,7 @@
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 
 /// Navigates to the SendAssetContainerScreen with the given arguments
 final sendNavigationEntryProvider = Provider.autoDispose

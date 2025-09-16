@@ -1,16 +1,16 @@
 import 'dart:convert';
 
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/data/provider/sideshift/models/sideshift.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/data/provider/sideshift/models/sideshift.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
-import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/config/constants/api_keys.dart';
+import 'package:coin_cz/config/constants/urls.dart';
+import 'package:coin_cz/config/constants/api_keys.dart';
 
 const baseUrl = sideshiftUrl;
 const affiliateId = sideshiftAffiliateId;

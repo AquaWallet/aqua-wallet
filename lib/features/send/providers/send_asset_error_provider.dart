@@ -1,5 +1,5 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 final sendAddressErrorProvider =
     StateProvider.autoDispose<ExceptionLocalized?>((ref) {

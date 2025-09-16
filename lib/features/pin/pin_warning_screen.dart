@@ -1,9 +1,9 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/pin/pin_screen.dart';
-import 'package:aqua/features/recovery/pages/warning_phrase_screen.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/pin/pin_screen.dart';
+import 'package:coin_cz/features/recovery/pages/warning_phrase_screen.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class PinWarningScreen extends HookConsumerWidget {
   static const routeName = '/setupWarningPin';

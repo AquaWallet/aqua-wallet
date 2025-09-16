@@ -1,9 +1,9 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/receive/widgets/receive_asset_copy_address_button.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/models/subaccount.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/receive/widgets/receive_asset_copy_address_button.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/models/subaccount.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class WatchOnlyDetailScreen extends StatelessWidget {

@@ -1,4 +1,4 @@
-import 'package:aqua/features/lightning/models/bolt11_ext.dart';
+import 'package:coin_cz/features/lightning/models/bolt11_ext.dart';
 
 // These fees are DiscountCT fees (unless marked "legacy")
 const kBoltzLiquidLockupTxFee =

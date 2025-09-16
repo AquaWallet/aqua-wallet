@@ -5,10 +5,10 @@ library dart_lnurl;
 
 import 'dart:convert';
 
-import 'package:aqua/features/lightning/lnurl/src/bech32.dart';
+import 'package:coin_cz/features/lightning/lnurl/src/bech32.dart';
 import 'package:bech32/bech32.dart';
-import 'package:aqua/features/lightning/lnurl/src/lnurl.dart';
-import 'package:aqua/features/lightning/lnurl/src/types.dart';
+import 'package:coin_cz/features/lightning/lnurl/src/lnurl.dart';
+import 'package:coin_cz/features/lightning/lnurl/src/types.dart';
 import 'package:http/http.dart' as http;
 
 export 'src/types.dart';

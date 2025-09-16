@@ -1,9 +1,9 @@
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/models/swap_models.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/models/swap_models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'send_asset_input_state.freezed.dart';

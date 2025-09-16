@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:aqua/common/price/btc_price.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/elements.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/settings/manage_assets/providers/manage_assets_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/price/btc_price.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/elements.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/settings/manage_assets/providers/manage_assets_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:dio/dio.dart';
 
 final sideswapTaxiProvider =

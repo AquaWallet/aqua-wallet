@@ -1,9 +1,9 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/providers/display_units_provider.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/providers/display_units_provider.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 
 class TransactionInfoCard extends StatelessWidget {

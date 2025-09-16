@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/data/provider/fee_estimate_provider.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
-import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/data/provider/fee_estimate_provider.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:coin_cz/features/settings/manage_assets/manage_assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/logger.dart';
 
 final pegProvider =
     AutoDisposeAsyncNotifierProvider<PegNotifier, PegState>(PegNotifier.new);

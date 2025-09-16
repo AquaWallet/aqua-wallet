@@ -1,8 +1,8 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/config/router/routes.dart';
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/private_integrations/private_integrations.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/config/router/routes.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter/foundation.dart';
 
 // Routes that will require the user to be logged in.

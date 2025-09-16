@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/extensions/iterable_ext.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/extensions/iterable_ext.dart';
 import 'package:async/async.dart';
 import 'package:flutter/services.dart';
 

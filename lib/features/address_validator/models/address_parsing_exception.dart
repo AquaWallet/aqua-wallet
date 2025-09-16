@@ -1,6 +1,6 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class AddressParsingException implements ExceptionLocalized {
   final AddressParsingExceptionType type;

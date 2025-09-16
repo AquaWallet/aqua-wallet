@@ -1,4 +1,4 @@
-import 'package:aqua/features/settings/settings.dart';
+import 'package:coin_cz/features/settings/settings.dart';
 
 // TODO: This should be removed and QR scanner should always just pop back to caller. Caller should handle the navigation based on result.
 

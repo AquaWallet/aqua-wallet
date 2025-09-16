@@ -1,10 +1,10 @@
-import 'package:aqua/logger.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/receive_qr_code/receive_qr_code_arguments.dart';
-import 'package:aqua/data/provider/receive_qr_code/receive_qr_code_data.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/receive_qr_code/receive_qr_code_arguments.dart';
+import 'package:coin_cz/data/provider/receive_qr_code/receive_qr_code_data.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 

@@ -1,6 +1,6 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/settings/shared/providers/prefs_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class AddressListSkeleton extends ConsumerWidget {

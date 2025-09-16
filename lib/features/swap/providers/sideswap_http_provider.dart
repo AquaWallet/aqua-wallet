@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
 import 'package:http/http.dart' as http;
 
 final sideswapHttpProvider =

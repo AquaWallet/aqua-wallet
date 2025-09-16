@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 final _logger = CustomLogger(FeatureFlag.restore);

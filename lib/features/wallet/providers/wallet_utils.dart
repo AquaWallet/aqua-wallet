@@ -1,4 +1,4 @@
-import 'package:aqua/data/models/gdk_models.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
 
 class WalletUtils {
   static Map<String, List<GdkUnspentOutputs>> filterRecentlySpentUtxos(

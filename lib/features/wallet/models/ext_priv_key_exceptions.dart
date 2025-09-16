@@ -1,5 +1,5 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter/material.dart';
 
 class MiniPrivateKeyException implements ExceptionLocalized {

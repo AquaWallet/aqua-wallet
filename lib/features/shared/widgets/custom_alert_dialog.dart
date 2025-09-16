@@ -1,7 +1,7 @@
-import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
-import 'package:aqua/common/widgets/custom_dialog.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
+import 'package:coin_cz/common/widgets/custom_dialog.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class CustomAlertDialog extends StatelessWidget {
   const CustomAlertDialog({

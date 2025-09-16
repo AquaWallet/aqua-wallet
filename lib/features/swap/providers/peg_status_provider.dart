@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
+import 'package:coin_cz/logger.dart';
 
 const kStatusCheckInterval = Duration(seconds: 15);
 

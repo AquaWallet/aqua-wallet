@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:aqua/config/colors/aqua_colors.dart';
+import 'package:coin_cz/config/colors/aqua_colors.dart';
 import 'package:flutter/material.dart';
 
 //ANCHOR - Theme Colors

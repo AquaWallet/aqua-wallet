@@ -1,8 +1,8 @@
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/send/providers/providers.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/widgets/aqua_elevated_button.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/send/providers/providers.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';

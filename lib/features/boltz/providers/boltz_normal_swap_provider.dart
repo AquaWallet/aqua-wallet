@@ -1,9 +1,9 @@
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 
 // ANCHOR - Submarine Swap Provider
@@ -75,7 +75,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
       network: chain,
       electrumUrl: electrumUrl,
       boltzUrl: _ref.read(boltzEnvConfigProvider).apiUrl,
-      referralId: 'AQUA',
+      referralId: 'COIN.CZ',
     );
     state = response;
 

@@ -1,5 +1,5 @@
-import 'package:aqua/data/models/network_amount.dart';
-import 'package:aqua/features/settings/settings.dart';
+import 'package:coin_cz/data/models/network_amount.dart';
+import 'package:coin_cz/features/settings/settings.dart';
 
 class PokerchipBalanceState {
   PokerchipBalanceState({

@@ -1,7 +1,7 @@
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/features/settings/pokerchip/pokerchip.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/common/widgets/aqua_elevated_button.dart';
+import 'package:coin_cz/features/settings/pokerchip/pokerchip.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class PokerchipBalanceScreen extends HookConsumerWidget {

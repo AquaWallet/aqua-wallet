@@ -1,6 +1,6 @@
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 // Many future integrations will require the send flow to make transactions.
 // This provider functions as an adapter interface to convert the input state

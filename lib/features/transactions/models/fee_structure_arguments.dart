@@ -1,4 +1,4 @@
-import 'package:aqua/features/send/send.dart';
+import 'package:coin_cz/features/send/send.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'fee_structure_arguments.freezed.dart';

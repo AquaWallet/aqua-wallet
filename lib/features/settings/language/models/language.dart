@@ -1,5 +1,5 @@
-import 'package:aqua/features/account/models/api_models.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/account/models/api_models.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class Language {
   final String languageCode;

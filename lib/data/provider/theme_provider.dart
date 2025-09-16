@@ -1,5 +1,5 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/settings/settings.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 

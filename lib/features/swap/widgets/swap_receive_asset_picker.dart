@@ -1,5 +1,5 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
 
 class SwapReceiveAssetPicker extends ConsumerWidget {
   const SwapReceiveAssetPicker({Key? key}) : super(key: key);

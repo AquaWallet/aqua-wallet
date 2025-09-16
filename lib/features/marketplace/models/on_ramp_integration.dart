@@ -1,8 +1,8 @@
-import 'package:aqua/config/constants/svgs.dart';
-import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/features/marketplace/models/on_ramp_regions_integrations.dart';
-import 'package:aqua/features/settings/exchange_rate/exchange_rate.dart';
-import 'package:aqua/features/settings/region/models/region.dart';
+import 'package:coin_cz/config/constants/svgs.dart';
+import 'package:coin_cz/config/constants/urls.dart';
+import 'package:coin_cz/features/marketplace/models/on_ramp_regions_integrations.dart';
+import 'package:coin_cz/features/settings/exchange_rate/exchange_rate.dart';
+import 'package:coin_cz/features/settings/region/models/region.dart';
 
 import 'models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

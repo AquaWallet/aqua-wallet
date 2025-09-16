@@ -1,7 +1,7 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/feature_flags/models/feature_flags_models.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:chopper/chopper.dart';
 
 part 'feature_flags_service.chopper.dart';

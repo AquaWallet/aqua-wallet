@@ -1,11 +1,11 @@
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/config/constants/svgs.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/config/constants/svgs.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:decimal/decimal.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
 
 //ANCHOR: SwapAsset
 extension SwapAssetExt on SwapAsset {

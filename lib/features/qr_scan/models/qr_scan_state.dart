@@ -1,6 +1,6 @@
-import 'package:aqua/data/provider/app_links/app_link.dart';
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/send/send.dart';
+import 'package:coin_cz/data/provider/app_links/app_link.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/send/send.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'qr_scan_state.freezed.dart';

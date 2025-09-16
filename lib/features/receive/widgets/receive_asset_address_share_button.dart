@@ -1,7 +1,7 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/receive/keys/receive_screen_keys.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:share_plus/share_plus.dart';
 

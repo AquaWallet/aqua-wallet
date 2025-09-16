@@ -1,13 +1,13 @@
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/wallet/models/subaccount_exceptions.dart';
-import 'package:aqua/features/wallet/utils/derivation_path_utils.dart';
-import 'package:aqua/features/wallet/models/subaccount.dart';
-import 'package:aqua/features/wallet/models/subaccounts.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/wallet/models/subaccount_exceptions.dart';
+import 'package:coin_cz/features/wallet/utils/derivation_path_utils.dart';
+import 'package:coin_cz/features/wallet/models/subaccount.dart';
+import 'package:coin_cz/features/wallet/models/subaccounts.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 
 enum SortCriteria { name, balance, type }
 

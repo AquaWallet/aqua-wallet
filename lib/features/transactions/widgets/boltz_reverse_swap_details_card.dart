@@ -1,10 +1,10 @@
-import 'package:aqua/common/utils/encode_query_component.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/utils/encode_query_component.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BoltzReverseSwapDetailsCard extends HookConsumerWidget {

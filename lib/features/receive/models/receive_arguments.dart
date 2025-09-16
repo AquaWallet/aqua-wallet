@@ -1,6 +1,6 @@
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/swaps/models/swap_models.dart';
-import 'package:aqua/features/swaps/models/swap_models_ext.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/swaps/models/swap_models.dart';
+import 'package:coin_cz/features/swaps/models/swap_models_ext.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'receive_arguments.freezed.dart';

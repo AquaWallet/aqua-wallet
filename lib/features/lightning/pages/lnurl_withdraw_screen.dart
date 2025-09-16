@@ -1,12 +1,12 @@
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/common/widgets/custom_error.dart';
-import 'package:aqua/config/theme/app_styles.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/common/widgets/aqua_elevated_button.dart';
+import 'package:coin_cz/common/widgets/custom_error.dart';
+import 'package:coin_cz/config/theme/app_styles.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/extensions/context_ext.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 

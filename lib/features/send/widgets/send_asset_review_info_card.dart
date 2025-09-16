@@ -1,12 +1,12 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/private_integrations/private_integrations.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
-import 'package:aqua/features/settings/shared/providers/providers.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/manage_assets/manage_assets.dart';
+import 'package:coin_cz/features/settings/shared/providers/providers.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class SendAssetReviewInfoCard extends HookConsumerWidget {
   const SendAssetReviewInfoCard({

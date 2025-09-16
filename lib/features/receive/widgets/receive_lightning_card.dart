@@ -1,10 +1,10 @@
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/models/lightning_success_arguments.dart';
-import 'package:aqua/features/lightning/pages/lightning_transaction_success_screen.dart';
-import 'package:aqua/features/receive/receive.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/models/lightning_success_arguments.dart';
+import 'package:coin_cz/features/lightning/pages/lightning_transaction_success_screen.dart';
+import 'package:coin_cz/features/receive/receive.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ReceiveLightningCard extends HookConsumerWidget {

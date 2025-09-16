@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swap/swap.dart';
+import 'package:coin_cz/logger.dart';
 
 // Note: This only accounts for the first tx fee.
 // - ie, if you're pegging in, it only accounts for the btc fee to send to sideswap. Sideswap will then take out their fee and also the liquid fee for the second tx, which is minimal.

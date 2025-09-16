@@ -1,10 +1,10 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/data/provider/register_wallet/register_wallet_provider.dart';
-import 'package:aqua/data/provider/theme_provider.dart';
-import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/data/provider/register_wallet/register_wallet_provider.dart';
+import 'package:coin_cz/data/provider/theme_provider.dart';
+import 'package:coin_cz/features/onboarding/onboarding.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class WalletMenuSheet extends HookConsumerWidget {

@@ -1,4 +1,4 @@
-import 'package:aqua/features/external/boltz/api_models/boltz_swap_status.dart';
+import 'package:coin_cz/features/external/boltz/api_models/boltz_swap_status.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'boltz_swap_status_response.freezed.dart';

@@ -1,7 +1,7 @@
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BackupReminderPrefKeys {

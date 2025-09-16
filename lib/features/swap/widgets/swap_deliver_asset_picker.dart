@@ -1,4 +1,4 @@
-import 'package:aqua/features/swap/swap.dart';
+import 'package:coin_cz/features/swap/swap.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

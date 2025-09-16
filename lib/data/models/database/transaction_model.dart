@@ -1,7 +1,7 @@
-import 'package:aqua/data/models/database/peg_order_model.dart';
-import 'package:aqua/data/models/database/swap_order_model.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/features/swaps/swaps.dart';
+import 'package:coin_cz/data/models/database/peg_order_model.dart';
+import 'package:coin_cz/data/models/database/swap_order_model.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';

@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:aqua/data/models/database/peg_order_model.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/models/database/peg_order_model.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/logger.dart';
 
 const kStatusCheckInterval = Duration(seconds: 15);
 

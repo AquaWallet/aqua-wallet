@@ -1,7 +1,7 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/models/sideshift_order.dart';
-import 'package:aqua/features/swaps/models/swap_models.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/models/sideshift_order.dart';
+import 'package:coin_cz/features/swaps/models/swap_models.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sideshift_order_status.freezed.dart';

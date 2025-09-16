@@ -1,9 +1,9 @@
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:coin_cz/data/provider/secure_storage/secure_storage_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
 
 final registerWalletProvider = Provider.autoDispose<_RegisterWalletProvider>(
     (ref) => _RegisterWalletProvider(ref));

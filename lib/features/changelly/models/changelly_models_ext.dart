@@ -1,4 +1,4 @@
-import 'package:aqua/features/swaps/swaps.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
 import 'package:decimal/decimal.dart';
 
 import 'changelly_models.dart';

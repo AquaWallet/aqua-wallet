@@ -1,9 +1,9 @@
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/models/subaccount.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/data/provider/bitcoin_provider.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/models/subaccount.dart';
 
 class WatchOnlyNotifier extends AsyncNotifier<List<Subaccount>> {
   @override

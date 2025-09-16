@@ -1,5 +1,5 @@
-import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/receive/keys/receive_screen_keys.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 const kPlaceholderQrUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';

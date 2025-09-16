@@ -1,9 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:aqua/config/colors/aqua_colors.dart';
-import 'package:aqua/config/colors/colors_schemes.dart';
-import 'package:aqua/config/theme/typography.dart';
-import 'package:aqua/gen/fonts.gen.dart';
+import 'package:coin_cz/config/colors/aqua_colors.dart';
+import 'package:coin_cz/config/colors/colors_schemes.dart';
+import 'package:coin_cz/config/theme/typography.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
 import 'package:flutter/material.dart';
 
 class AppStyle {

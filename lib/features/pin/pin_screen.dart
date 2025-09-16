@@ -1,11 +1,11 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/pin/models/pin_state.dart';
-import 'package:aqua/features/pin/pin_provider.dart';
-import 'package:aqua/features/pin/pin_success_screen.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/pin/models/pin_state.dart';
+import 'package:coin_cz/features/pin/pin_provider.dart';
+import 'package:coin_cz/features/pin/pin_success_screen.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class PinScreenWidget extends ConsumerWidget {
   const PinScreenWidget(

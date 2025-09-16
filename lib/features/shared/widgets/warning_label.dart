@@ -1,4 +1,4 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class WarningLabel extends HookConsumerWidget {
   const WarningLabel({

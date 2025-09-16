@@ -1,5 +1,5 @@
-import 'package:aqua/wallet.dart';
-import 'package:aqua/data/models/gdk_models.dart';
+import 'package:coin_cz/wallet.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
 
 class BitcoinNetwork extends WalletService {
   BitcoinNetwork() : super() {

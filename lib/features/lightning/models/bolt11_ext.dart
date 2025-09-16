@@ -1,6 +1,6 @@
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/features/shared/providers/btc_price_provider.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/features/shared/providers/btc_price_provider.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
 import 'package:decimal/decimal.dart';
 

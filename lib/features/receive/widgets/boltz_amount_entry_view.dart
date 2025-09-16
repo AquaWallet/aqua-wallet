@@ -1,9 +1,9 @@
-import 'package:aqua/common/widgets/custom_error.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/receive/receive.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/widgets/custom_error.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/receive/receive.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class BoltzAmountEntryView extends ConsumerWidget {
   final Asset asset;

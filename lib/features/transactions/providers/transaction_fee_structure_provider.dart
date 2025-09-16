@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/models/sideshift_fees.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/features/transactions/transactions.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/models/sideshift_fees.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
 import 'package:decimal/decimal.dart';
 
 const kDefaultSideswapPegFeePercent = 0.1;

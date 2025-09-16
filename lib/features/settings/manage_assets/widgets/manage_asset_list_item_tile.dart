@@ -1,9 +1,9 @@
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/config/config.dart';
 
 class ManageAssetListItemTile extends StatelessWidget {
   const ManageAssetListItemTile({

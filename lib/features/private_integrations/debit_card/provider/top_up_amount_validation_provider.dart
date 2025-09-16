@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:aqua/constants.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/private_integrations/private_integrations.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/private_integrations/private_integrations.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 // This provider is used to validate the amount input of the top up screen.
 // The UI listens to the error events to display messages as a sideeffect.

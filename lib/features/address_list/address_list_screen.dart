@@ -1,11 +1,11 @@
-import 'package:aqua/common/widgets/tab_switch_view.dart';
-import 'package:aqua/config/constants/svgs.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/boltz/screens/boltz_swaps_screen.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/pages/swap_orders_screen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/widgets/tab_switch_view.dart';
+import 'package:coin_cz/config/constants/svgs.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/features/boltz/screens/boltz_swaps_screen.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/pages/swap_orders_screen.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 

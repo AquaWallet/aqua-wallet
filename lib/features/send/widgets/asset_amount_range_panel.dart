@@ -1,6 +1,6 @@
-import 'package:aqua/data/provider/sideshift/sideshift_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/data/provider/sideshift/sideshift_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 
 class AssetAmountRangePanel extends HookConsumerWidget {
   const AssetAmountRangePanel({super.key});

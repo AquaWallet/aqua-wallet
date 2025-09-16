@@ -1,6 +1,6 @@
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/models/bolt11_ext.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/models/bolt11_ext.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';

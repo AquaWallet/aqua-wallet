@@ -1,10 +1,10 @@
-import 'package:aqua/common/common.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/private_integrations/debit_card/debit_card.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/account/account.dart';
+import 'package:coin_cz/features/private_integrations/debit_card/debit_card.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/gen/fonts.gen.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class DebitCardOnboardingScreen extends HookConsumerWidget {

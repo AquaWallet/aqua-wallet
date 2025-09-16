@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:aqua/features/swaps/swaps.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
 
 part 'changelly_models.freezed.dart';
 part 'changelly_models.g.dart';

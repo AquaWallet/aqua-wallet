@@ -1,5 +1,5 @@
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/settings/settings.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/features/settings/settings.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sideswap_http_state.freezed.dart';

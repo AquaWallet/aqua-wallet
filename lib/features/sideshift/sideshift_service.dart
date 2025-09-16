@@ -1,9 +1,9 @@
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/models/database/swap_order_model.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/data/models/database/swap_order_model.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:decimal/decimal.dart';
 
 final _logger = CustomLogger(FeatureFlag.sideshift);

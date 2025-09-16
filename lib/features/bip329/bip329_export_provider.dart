@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/data/models/database/transaction_model.dart';
-import 'package:aqua/features/bip329/bip329_label_model.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
+import 'package:coin_cz/data/models/database/transaction_model.dart';
+import 'package:coin_cz/features/bip329/bip329_label_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 

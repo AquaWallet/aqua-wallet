@@ -1,4 +1,4 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'custom_alert_dialog_ui_model.freezed.dart';

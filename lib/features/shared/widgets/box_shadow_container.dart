@@ -1,5 +1,5 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class BoxShadowContainer extends Container {
   BoxShadowContainer({

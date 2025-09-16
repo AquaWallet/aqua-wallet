@@ -1,21 +1,21 @@
 import 'dart:async';
 
-import 'package:aqua/common/dialogs/dialog_manager.dart';
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/provider/electrs_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/lightning.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/providers/sideshift_send_provider.dart';
-import 'package:aqua/features/swap/swap.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/common/dialogs/dialog_manager.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/data/provider/electrs_provider.dart';
+import 'package:coin_cz/data/provider/formatter_provider.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/lightning.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/providers/sideshift_send_provider.dart';
+import 'package:coin_cz/features/swap/swap.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 final _debouncer = Debouncer(milliseconds: 300);

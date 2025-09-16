@@ -1,5 +1,5 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/config/config.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/config/config.dart';
 
 class ButtonLink extends StatelessWidget {
   const ButtonLink({super.key, required this.onPress, required this.text});

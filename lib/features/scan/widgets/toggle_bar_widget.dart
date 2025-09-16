@@ -1,6 +1,6 @@
-import 'package:aqua/features/scan/models/scan_arguments.dart';
-import 'package:aqua/utils/utils.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/scan/models/scan_arguments.dart';
+import 'package:coin_cz/utils/utils.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class ToggleButton extends StatelessWidget {
   final VoidCallback onTap;

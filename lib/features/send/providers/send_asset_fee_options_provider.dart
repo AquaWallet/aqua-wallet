@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:aqua/common/common.dart';
-import 'package:aqua/constants.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/common.dart';
+import 'package:coin_cz/constants.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideswap/swap.dart';
+import 'package:coin_cz/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.send);
 

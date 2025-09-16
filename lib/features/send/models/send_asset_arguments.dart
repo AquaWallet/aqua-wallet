@@ -1,9 +1,9 @@
-import 'package:aqua/data/models/network_amount.dart';
-import 'package:aqua/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/features/transactions/transactions.dart';
+import 'package:coin_cz/data/models/network_amount.dart';
+import 'package:coin_cz/features/lightning/lnurl_parser/dart_lnurl_parser.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/features/transactions/transactions.dart';
 import 'package:decimal/decimal.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

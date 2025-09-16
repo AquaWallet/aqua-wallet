@@ -1,6 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
-import 'package:aqua/data/models/gdk_models.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
 import 'package:ffi/ffi.dart';
 import 'ffi/generated_bindings.dart';
 

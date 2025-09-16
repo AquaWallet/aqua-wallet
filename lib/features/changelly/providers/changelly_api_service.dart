@@ -1,8 +1,8 @@
-import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/features/changelly/changelly.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/config/constants/urls.dart';
+import 'package:coin_cz/features/changelly/changelly.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';
 

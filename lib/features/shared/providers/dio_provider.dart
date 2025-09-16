@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:aqua/config/constants/urls.dart' as urls;
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/config/constants/urls.dart' as urls;
+import 'package:coin_cz/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 

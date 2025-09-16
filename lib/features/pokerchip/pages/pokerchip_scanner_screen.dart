@@ -1,7 +1,7 @@
-import 'package:aqua/features/pokerchip/pokerchip.dart';
-import 'package:aqua/features/qr_scan/qr_scan.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/pokerchip/pokerchip.dart';
+import 'package:coin_cz/features/qr_scan/qr_scan.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';

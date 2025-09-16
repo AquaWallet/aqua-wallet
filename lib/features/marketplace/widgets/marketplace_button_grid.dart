@@ -1,10 +1,10 @@
-import 'package:aqua/features/feature_flags/feature_flags.dart';
-import 'package:aqua/features/marketplace/marketplace_services/services.dart';
-import 'package:aqua/features/marketplace/models/models.dart';
-import 'package:aqua/features/marketplace/providers/enabled_services_provider.dart';
-import 'package:aqua/features/marketplace/widgets/error_retry_button.dart';
-import 'package:aqua/features/marketplace/widgets/marketplace_button.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/feature_flags/feature_flags.dart';
+import 'package:coin_cz/features/marketplace/marketplace_services/services.dart';
+import 'package:coin_cz/features/marketplace/models/models.dart';
+import 'package:coin_cz/features/marketplace/providers/enabled_services_provider.dart';
+import 'package:coin_cz/features/marketplace/widgets/error_retry_button.dart';
+import 'package:coin_cz/features/marketplace/widgets/marketplace_button.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 

@@ -1,5 +1,5 @@
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/wallet.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
 
 class CategorizedAssetListTablet extends HookConsumerWidget {
   const CategorizedAssetListTablet({super.key});

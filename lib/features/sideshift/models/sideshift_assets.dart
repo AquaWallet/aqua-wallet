@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:aqua/features/swaps/models/swap_models.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/swaps/models/swap_models.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
 
 part 'sideshift_assets.freezed.dart';
 part 'sideshift_assets.g.dart';

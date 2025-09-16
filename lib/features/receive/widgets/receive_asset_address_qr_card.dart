@@ -1,12 +1,12 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/receive/receive.dart';
-import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/models/swap_models.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/receive/receive.dart';
+import 'package:coin_cz/features/send/send.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/swaps/models/swap_models.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class ReceiveAssetAddressQrCard extends HookWidget {
   const ReceiveAssetAddressQrCard({

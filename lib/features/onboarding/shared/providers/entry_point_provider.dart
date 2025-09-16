@@ -1,7 +1,7 @@
-import 'package:aqua/data/provider/aqua_provider.dart';
-import 'package:aqua/data/provider/initialize_app_provider.dart';
-import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/provider/aqua_provider.dart';
+import 'package:coin_cz/data/provider/initialize_app_provider.dart';
+import 'package:coin_cz/features/onboarding/onboarding.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:rxdart/rxdart.dart';
 
 final _entryPointProvider =

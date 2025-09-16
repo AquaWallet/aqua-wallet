@@ -1,4 +1,4 @@
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 // Used to represent a service in the marketplace
 // Corresponds to a MarketplaceButton in the UI

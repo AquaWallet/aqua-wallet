@@ -1,6 +1,6 @@
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/swaps/swaps.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/swaps/swaps.dart';
 
 import 'sideshift_assets.dart';
 

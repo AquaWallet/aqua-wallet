@@ -1,19 +1,19 @@
 import 'dart:math';
 
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/data/provider/conversion_provider.dart';
-import 'package:aqua/data/provider/fiat_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
-import 'package:aqua/features/address_validator/address_validation.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
-import 'package:aqua/features/send/providers/providers.dart';
-import 'package:aqua/features/send/widgets/widgets.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/data/provider/conversion_provider.dart';
+import 'package:coin_cz/data/provider/fiat_provider.dart';
+import 'package:coin_cz/data/provider/formatter_provider.dart';
+import 'package:coin_cz/features/address_validator/address_validation.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/providers/lnurl_provider.dart';
+import 'package:coin_cz/features/send/providers/providers.dart';
+import 'package:coin_cz/features/send/widgets/widgets.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:decimal/decimal.dart';
 
 /// ---------------------

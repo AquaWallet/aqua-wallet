@@ -1,10 +1,10 @@
 //NOTE - Mock data for testing and skeleton loading
 
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/sideshift/models/sideshift_order.dart';
-import 'package:aqua/features/sideshift/models/sideshift_order_status.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/sideshift/models/sideshift_order.dart';
+import 'package:coin_cz/features/sideshift/models/sideshift_order_status.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 
 // Assets

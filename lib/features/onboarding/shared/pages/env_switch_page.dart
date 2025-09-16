@@ -1,6 +1,6 @@
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/features/auth/auth_wrapper.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/widgets/aqua_elevated_button.dart';
+import 'package:coin_cz/features/auth/auth_wrapper.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 
 class EnvSwitchScreen extends StatelessWidget {
   const EnvSwitchScreen({super.key});

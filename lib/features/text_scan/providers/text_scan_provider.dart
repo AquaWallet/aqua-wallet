@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.textScan);
 

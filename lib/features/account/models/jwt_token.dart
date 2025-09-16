@@ -1,4 +1,4 @@
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 final _logger = CustomLogger(FeatureFlag.jan3AuthToken);

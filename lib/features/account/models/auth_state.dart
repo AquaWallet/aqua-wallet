@@ -1,4 +1,4 @@
-import 'package:aqua/features/account/account.dart';
+import 'package:coin_cz/features/account/account.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'auth_state.freezed.dart';

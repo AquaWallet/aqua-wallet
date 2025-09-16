@@ -1,8 +1,8 @@
-import 'package:aqua/data/models/database/sideshift_order_model.dart';
-import 'package:aqua/features/sideshift/models/sideshift_assets.dart';
-import 'package:aqua/features/sideshift/models/sideshift_order.dart';
-import 'package:aqua/features/sideshift/models/sideshift_order_status.dart';
-import 'package:aqua/features/swaps/models/swap_models.dart';
+import 'package:coin_cz/data/models/database/sideshift_order_model.dart';
+import 'package:coin_cz/features/sideshift/models/sideshift_assets.dart';
+import 'package:coin_cz/features/sideshift/models/sideshift_order.dart';
+import 'package:coin_cz/features/sideshift/models/sideshift_order_status.dart';
+import 'package:coin_cz/features/swaps/models/swap_models.dart';
 
 extension SwapOrderToSideshiftOrderDbModel on SideshiftOrderDbModel {
   static SideshiftOrderDbModel fromSwapOrder(SwapOrder order) {

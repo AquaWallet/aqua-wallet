@@ -1,8 +1,8 @@
-import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/data/provider/fee_estimate_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/config/constants/urls.dart';
+import 'package:coin_cz/data/provider/fee_estimate_provider.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:dio/dio.dart';
 
 final _logger = CustomLogger(FeatureFlag.electrs);

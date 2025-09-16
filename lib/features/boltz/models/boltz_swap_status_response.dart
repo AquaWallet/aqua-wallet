@@ -1,5 +1,5 @@
-import 'package:aqua/features/boltz/models/boltz_swap_status.dart';
-import 'package:aqua/features/boltz/models/boltz_transaction.dart';
+import 'package:coin_cz/features/boltz/models/boltz_swap_status.dart';
+import 'package:coin_cz/features/boltz/models/boltz_transaction.dart';
 
 /// Response for `POST /swapstatus`
 class BoltzSwapStatusResponse {

@@ -1,4 +1,4 @@
-import 'package:aqua/features/changelly/models/changelly_models.dart';
+import 'package:coin_cz/features/changelly/models/changelly_models.dart';
 import 'package:decimal/decimal.dart';
 
 // These fees are the combined Changelly service fee + our service fee.

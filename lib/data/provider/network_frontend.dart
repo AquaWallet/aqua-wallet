@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/send/providers/send_asset_used_utxo_provider.dart';
-import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/logger.dart';
-import 'package:aqua/utils/utils.dart';
-import 'package:aqua/wallet.dart';
+import 'package:coin_cz/common/exceptions/exception_localized.dart';
+import 'package:coin_cz/data/models/gdk_models.dart';
+import 'package:coin_cz/features/send/providers/send_asset_used_utxo_provider.dart';
+import 'package:coin_cz/features/settings/shared/providers/prefs_provider.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/wallet/wallet.dart';
+import 'package:coin_cz/logger.dart';
+import 'package:coin_cz/utils/utils.dart';
+import 'package:coin_cz/wallet.dart';
 import 'package:async/async.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:rxdart/rxdart.dart';

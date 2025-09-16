@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:crypto/crypto.dart';
 import 'package:pointycastle/digests/sha256.dart';
-import 'package:aqua/features/wallet/models/ext_priv_key_exceptions.dart';
+import 'package:coin_cz/features/wallet/models/ext_priv_key_exceptions.dart';
 
 // https://en.bitcoin.it/wiki/Mini_private_key_format#Decoding
 class MiniPrivateKeyService {

@@ -1,6 +1,6 @@
-import 'package:aqua/common/widgets/confirmation_slider.dart';
-import 'package:aqua/config/config.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/common/widgets/confirmation_slider.dart';
+import 'package:coin_cz/config/config.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 

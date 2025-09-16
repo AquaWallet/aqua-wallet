@@ -1,10 +1,10 @@
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/data.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/receive/pages/models/models.dart';
-import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/data/data.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/receive/pages/models/models.dart';
+import 'package:coin_cz/features/settings/settings.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/logger.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:decimal/decimal.dart';
 
@@ -72,7 +72,7 @@ class BoltzReverseSwapNotifier extends StateNotifier<ReceiveBoltzState> {
         network: chain,
         electrumUrl: electrumUrl,
         boltzUrl: _ref.read(boltzEnvConfigProvider).apiUrl,
-        referralId: 'AQUA',
+        referralId: 'COIN.CZ',
       );
 
       // Mask sensitive data before logging

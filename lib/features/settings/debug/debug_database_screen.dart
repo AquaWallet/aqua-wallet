@@ -1,7 +1,7 @@
-import 'package:aqua/data/models/models.dart';
-import 'package:aqua/data/provider/isar_database_provider.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:coin_cz/data/models/models.dart';
+import 'package:coin_cz/data/provider/isar_database_provider.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:isar/isar.dart';
 

@@ -1,6 +1,6 @@
-import 'package:aqua/features/recovery/recovery.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:coin_cz/features/recovery/recovery.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/utils/utils.dart';
 
 class RecoveryPhraseWidget extends ConsumerWidget {
   const RecoveryPhraseWidget({super.key});

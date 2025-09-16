@@ -1,4 +1,4 @@
-import 'package:aqua/features/settings/region/models/region.dart';
+import 'package:coin_cz/features/settings/region/models/region.dart';
 
 class RegionsIntegrations {
   // Pocket excludes these regions: Albania, Kosovo, Belarus, Bosnia and Herzegovina, Cyprus, United Kingdom, Ireland, Isle of Man, Malta, Monaco, Turkey and Ukraine

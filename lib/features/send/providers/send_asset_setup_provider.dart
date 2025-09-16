@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/provider/liquid_provider.dart';
-import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/boltz/boltz.dart';
-import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
-import 'package:aqua/features/send/providers/providers.dart';
-import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
-import 'package:aqua/logger.dart';
+import 'package:coin_cz/common/decimal/decimal_ext.dart';
+import 'package:coin_cz/data/provider/liquid_provider.dart';
+import 'package:coin_cz/data/provider/network_frontend.dart';
+import 'package:coin_cz/features/boltz/boltz.dart';
+import 'package:coin_cz/features/lightning/providers/lnurl_provider.dart';
+import 'package:coin_cz/features/send/providers/providers.dart';
+import 'package:coin_cz/features/settings/manage_assets/models/assets.dart';
+import 'package:coin_cz/features/shared/shared.dart';
+import 'package:coin_cz/features/sideshift/sideshift.dart';
+import 'package:coin_cz/logger.dart';
 
 final sendAssetSetupProvider = FutureProvider.autoDispose<bool>((ref) async {
   return await SendAssetSetupService(ref).setup();
