@@ -13,8 +13,7 @@ class FiatRatesNotifier extends AsyncNotifier<List<BitcoinFiatRatesResponse>> {
   @override
   FutureOr<List<BitcoinFiatRatesResponse>> build() async {
     final client = ref.read(dioProvider);
-    const endpoint =
-        'https://btcpay.aquawallet.io/api/rates?storeId=6pQ5dngUNiack4TKgoehPFxDzwoXX961mYjHgWMrZC6X';
+    const endpoint = 'https://ankara.aquabtc.com/api/v1/prices/exrates/';
 
     try {
       final response = await client.get(endpoint);

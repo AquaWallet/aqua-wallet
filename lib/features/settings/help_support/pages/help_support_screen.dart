@@ -1,5 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/urls.dart' as urls;
+import 'package:aqua/features/settings/shared/providers/version_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,6 +12,7 @@ class HelpSupportScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final aquaVersion = ref.watch(versionProvider);
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: true,
@@ -62,7 +64,9 @@ class HelpSupportScreen extends ConsumerWidget {
                   buttonSubText: context.loc.zendeskSubtitle,
                   buttonText: context.loc.zendeskTitle,
                   onPressed: () {
-                    ref.read(urlLauncherProvider).open(urls.aquaZendeskUrl);
+                    ref
+                        .read(urlLauncherProvider)
+                        .open(getAquaZendeskUrl(aquaVersion.valueOrNull ?? ''));
                   },
                 ),
                 HelpSupportWidgetButton(

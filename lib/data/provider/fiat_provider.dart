@@ -23,42 +23,40 @@ class SatoshiToFiatConversionModel {
   });
 }
 
-// Used for top ups. Forces USD.
-final usdFiatProvider = Provider.autoDispose<FiatProvider>(
-    (ref) => FiatProvider(ref, forcedCurrency: 'USD'));
-
 // Respects user settings (user session default currency default)
 final fiatProvider =
     Provider.autoDispose<FiatProvider>((ref) => FiatProvider(ref));
 
 class FiatProvider {
   final AutoDisposeProviderRef ref;
-  final String? _forcedCurrency;
+  final Stream<(Decimal, String)>? _forcedRateStream;
 
-  FiatProvider(this.ref, {String? forcedCurrency})
-      : _forcedCurrency = forcedCurrency;
+  FiatProvider(this.ref, {Stream<(Decimal, String)>? forcedRateStream})
+      : _forcedRateStream = forcedRateStream;
 
   final _formatter = NumberFormat.currency(
     locale: Platform.localeName,
     symbol: '',
   );
 
-  late final Stream<(Decimal, String)> rateStream = Stream<void>.periodic(
-          const Duration(milliseconds: 5000))
-      .startWith(null)
-      .switchMap((_) => Stream.value(_)
-              .map((_) =>
-                  GdkConvertData(satoshi: 1, fiatCurrency: _forcedCurrency))
-              .asyncMap((data) => ref.read(bitcoinProvider).convertAmount(data))
-              .asyncMap((data) {
-            final rate = data?.fiatRate;
-            if (rate == null) {
-              throw FiatProviderNullFiatRateException();
-            }
+  late final Stream<(Decimal, String)> rateStream = _forcedRateStream ??
+      Stream<void>.periodic(const Duration(milliseconds: 5000))
+          .startWith(null)
+          .switchMap((_) => Stream.value(_)
+                  .map((_) => const GdkConvertData(
+                        satoshi: 1,
+                      ))
+                  .asyncMap(
+                      (data) => ref.read(bitcoinProvider).convertAmount(data))
+                  .asyncMap((data) {
+                final rate = data?.fiatRate;
+                if (rate == null) {
+                  throw FiatProviderNullFiatRateException();
+                }
 
-            return (Decimal.parse(rate), data?.fiatCurrency ?? '');
-          }).onErrorResumeNext(const Stream.empty()))
-      .shareReplay(maxSize: 1);
+                return (Decimal.parse(rate), data?.fiatCurrency ?? '');
+              }).onErrorResumeNext(const Stream.empty()))
+          .shareReplay(maxSize: 1);
 
   //ANCHOR: - Satoshi to Fiat
   Decimal satoshiToFiat(Asset asset, int satoshi, Decimal rate) {
@@ -136,8 +134,8 @@ class FiatProvider {
 }
 
 /// Provider to get the fiat value of a satoshi amount
-final satsToFiatDisplayWithSymbolProvider = FutureProvider.family<String, int>(
-    (ref, satoshi) =>
+final satsToFiatDisplayWithSymbolProvider = FutureProvider.autoDispose
+    .family<String, int>((ref, satoshi) =>
         ref.read(fiatProvider).getSatsToFiatDisplay(satoshi, true));
 
 /// Provider to convert a fiat amount to its equivalent in satoshis as a double

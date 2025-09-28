@@ -51,99 +51,106 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
             ? context.loc.topUp
             : context.loc.send,
       ),
-      body: LayoutBuilder(
-        builder: (context, viewportConstraints) => SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: viewportConstraints.maxHeight,
-            ),
-            child: IntrinsicHeight(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: context.adaptiveDouble(
-                            smallMobile: 5,
-                            mobile: 18,
-                          ),
-                        ),
-                        //ANCHOR - Checkmark Animation
-                        Lottie.asset(
-                          botevMode ? animation.tickBotev : animation.tick,
-                          repeat: false,
-                          width: context.adaptiveDouble(
-                            smallMobile: 100,
-                            mobile: 140,
-                            tablet: 140,
-                          ),
-                          height: context.adaptiveDouble(
-                            smallMobile: 100,
-                            mobile: 140,
-                            tablet: 140,
-                          ),
-                          fit: BoxFit.contain,
-                        ),
-                        switch (args.transactionType) {
-                          SendTransactionType.send =>
-                            _SendTransactionAmountDetails(args: args),
-                          SendTransactionType.topUp =>
-                            _TopUpTransactionAmountDetails(args: args),
-                          SendTransactionType.privateKeySweep =>
-                            _PrivateKeySweepTransactionAmountDetails(
-                                args: args),
-                        },
-                        const SizedBox(height: 28),
-                        if (asset.isLightning) ...{
-                          //ANCHOR - Lightning Fee
-                          TransactionFeeBreakdownCard(
-                            args: FeeStructureArguments.aquaSend(
-                              sendAssetArgs:
-                                  SendAssetArguments.fromAsset(asset),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, viewportConstraints) => SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: viewportConstraints.maxHeight,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: context.adaptiveDouble(
+                              smallMobile: 5,
+                              mobile: 18,
                             ),
                           ),
-                        } else if (asset.isAltUsdt) ...{
-                          //ANCHOR - USDt Swap Fee
-                          TransactionFeeBreakdownCard(
-                            args: FeeStructureArguments.usdtSwap(
-                              sendAssetArgs:
-                                  SendAssetArguments.fromAsset(asset),
+                          //ANCHOR - Checkmark Animation
+                          Lottie.asset(
+                            botevMode ? animation.tickBotev : animation.tick,
+                            repeat: false,
+                            width: context.adaptiveDouble(
+                              smallMobile: 100,
+                              mobile: 140,
+                              tablet: 140,
                             ),
+                            height: context.adaptiveDouble(
+                              smallMobile: 100,
+                              mobile: 140,
+                              tablet: 140,
+                            ),
+                            fit: BoxFit.contain,
                           ),
-                        } else ...{
-                          //ANCHOR - Transaction Info
-                          TransactionInfoCard(
-                            arguments: args,
-                          )
-                        },
-                        const SizedBox(height: 20),
-                        //ANCHOR - Transaction ID
-                        TransactionIdCard(arguments: args),
-                      ],
+                          switch (args.transactionType) {
+                            SendTransactionType.send =>
+                              _SendTransactionAmountDetails(args: args),
+                            SendTransactionType.topUp =>
+                              _TopUpTransactionAmountDetails(args: args),
+                            SendTransactionType.privateKeySweep =>
+                              _PrivateKeySweepTransactionAmountDetails(
+                                  args: args),
+                          },
+                          const SizedBox(height: 28),
+                          if (asset.isLightning) ...{
+                            //ANCHOR - Lightning Fee
+                            TransactionFeeBreakdownCard(
+                              args: FeeStructureArguments.aquaSend(
+                                sendAssetArgs:
+                                    SendAssetArguments.fromAsset(asset),
+                              ),
+                            ),
+                          } else if (asset.isAltUsdt) ...{
+                            //ANCHOR - USDt Swap Fee
+                            TransactionFeeBreakdownCard(
+                              args: FeeStructureArguments.usdtSwap(
+                                sendAssetArgs:
+                                    SendAssetArguments.fromAsset(asset),
+                              ),
+                            ),
+                          } else if (args.transactionType ==
+                              SendTransactionType.topUp) ...{
+                            TopUpTransactionInfoCard(
+                              arguments: args,
+                            )
+                          } else ...{
+                            //ANCHOR - Transaction Info
+                            TransactionInfoCard(
+                              arguments: args,
+                            )
+                          },
+                          const SizedBox(height: 20),
+                          //ANCHOR - Transaction ID
+                          TransactionIdCard(arguments: args),
+                        ],
+                      ),
                     ),
-                  ),
-                  Column(
-                    children: [
-                      //ANCHOR - Button
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      SizedBox(
-                        width: double.maxFinite,
-                        child: BoxShadowElevatedButton(
-                          onPressed: onDone,
-                          child: Text(
-                            context.loc.done,
+                    Column(
+                      children: [
+                        //ANCHOR - Button
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        SizedBox(
+                          width: double.maxFinite,
+                          child: BoxShadowElevatedButton(
+                            onPressed: onDone,
+                            child: Text(
+                              context.loc.done,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: kBottomPadding),
-                    ],
-                  )
-                ],
+                        const SizedBox(height: kBottomPadding),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -209,7 +216,6 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
   const _TopUpTransactionAmountDetails({
     required this.args,
   });
-
   final SendAssetCompletionArguments args;
 
   @override
@@ -220,10 +226,10 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
     final amount = (Decimal.fromInt(args.amountSats ?? 0) /
             DecimalExt.fromAssetPrecision(args.asset.precision))
         .toDouble();
-    final fiatAmount = useFuture(ref.read(usdFiatProvider).getSatsToFiatDisplay(
-          args.amountSats ?? 0,
-          false,
-        ));
+    final fiatAmount =
+        ref.read(moonBtcPriceProvider.notifier).getSatsToFiatDisplay(
+              args.amountSats ?? 0,
+            );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -243,7 +249,7 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
         Text(
           args.asset.isAnyUsdt
               ? '\$${amount.toStringAsFixed(2)}'
-              : '\$${fiatAmount.data ?? '0'}',
+              : '\$$fiatAmount',
           style: const TextStyle(
             fontSize: 32,
             fontFamily: UiFontFamily.helveticaNeue,

@@ -73,7 +73,8 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
       throw TransactionSizeNotFoundError();
     }
 
-    final refCurrency = ref.read(prefsProvider).referenceCurrency;
+    final refCurrency =
+        ref.read(prefsProvider).referenceCurrency ?? FiatCurrency.usd.value;
     final rates = await ref.read(fiatRatesProvider.future).onError((e, st) {
       _logger.error('Error fetching fiat rates', e, st);
       return [];

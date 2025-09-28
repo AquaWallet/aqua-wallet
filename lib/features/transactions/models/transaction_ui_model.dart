@@ -78,6 +78,8 @@ extension TransactionUiModelX on TransactionUiModel {
           context.loc.assetTransactionsTypeBoltzSwap,
         _ when (dbTransaction?.isBoltzReverseSwap == true) =>
           context.loc.assetTransactionsTypeBoltzReverseSwap,
+        _ when (dbTransaction?.isTopUp == true) => context.loc
+            .assetTransactionsTypeTopup(dbTransaction!.serviceAddress!),
         _ when (dbTransaction?.isAquaSend == true) =>
           context.loc.assetTransactionsTypeSent,
         _ when (dbTransaction?.isBoltzRefund == true) =>

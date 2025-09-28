@@ -16,11 +16,17 @@ class WalletRestoreInputContent extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = useMemoized(GlobalKey<FormState>.new);
     final node = useFocusScopeNode();
-    final formKey = useMemoized(() => GlobalKey<FormState>());
     final focusedIndex = useState(0);
     final mnemonicComplete = ref.watch(walletRestoreInputCompleteProvider);
     const devMnemonic = String.fromEnvironment('DEV_WALLET_MNEMONIC');
+
+    ref.listen(focusActionProvider, (_, focusAction) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        error.value = false;
+      });
+    });
 
     //ANCHOR - Fill mnemonic input fields with dev mnemonic
     useEffect(() {

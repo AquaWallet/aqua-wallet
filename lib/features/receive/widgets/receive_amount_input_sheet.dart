@@ -1,9 +1,9 @@
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
 import 'package:aqua/features/receive/providers/providers.dart';
 import 'package:aqua/features/receive/widgets/widgets.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -43,9 +43,11 @@ class ReceiveAmountInputSheet extends HookConsumerWidget {
 
     // fiat entry toggle
     final isFiatToggled = ref.watch(amountCurrencyProvider) != null;
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 21.0),
+      padding: EdgeInsets.only(
+          left: 28.0, right: 28.0, top: 21.0, bottom: 21 + bottomPadding),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

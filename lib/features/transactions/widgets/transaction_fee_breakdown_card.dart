@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/private_integrations/debit_card/provider/moon_btc_price_provider.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
@@ -630,6 +631,27 @@ class _Header extends StatelessWidget {
           height: context.adaptiveDouble(mobile: 16.0, smallMobile: 10.0),
         ),
       ],
+    );
+  }
+}
+
+class UsdtTopUpInfo extends ConsumerWidget {
+  const UsdtTopUpInfo({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return BoxShadowCard(
+      color: context.colors.altScreenSurface,
+      bordered: true,
+      borderColor: context.colors.cardOutlineColor,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+        child: _FeeBreakdownItem(
+          title: context.loc.dolphinCardTopUpFee,
+          value:
+              '${ref.read(moonBtcPriceProvider.notifier).getUsdtTopUpFeePercentage.toStringAsFixed(2)}%',
+        ),
+      ),
     );
   }
 }

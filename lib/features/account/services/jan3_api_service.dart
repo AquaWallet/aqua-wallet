@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:chopper/chopper.dart';
 import 'package:http/io_client.dart' as http;
 
@@ -20,80 +22,99 @@ final jan3ApiServiceProvider =
       tokenManager, onUnauthorized, debitCardStagingEnabled);
 });
 
-@ChopperApi(baseUrl: '/api/v1/')
+@ChopperApi(baseUrl: '/api/')
 abstract class Jan3ApiService extends ChopperService {
   // Authentication
-  @Post(path: 'auth/login/')
+  @Post(path: 'v1/auth/login/')
   Future<Response<MessageResponse>> login(
     @Body() LoginRequest request,
   );
 
-  @Post(path: 'auth/verify/')
+  @Post(path: 'v1/auth/verify/')
   Future<Response<AuthTokenResponse>> verify(
     @Body() VerifyRequest request,
   );
 
-  @Post(path: 'auth/user/email-reset/')
+  @Post(path: 'v1/auth/user/email-reset/')
   Future<Response<AuthTokenResponse>> resetAccount();
 
-  @Get(path: 'auth/user/')
+  @Get(path: 'v1/auth/user/')
   Future<Response<ProfileResponse>> getUser();
 
   // Exchange Rates
-  @Get(path: 'exrates/')
+  @Get(path: 'v1/exrates/')
   Future<Response<ExchangeRateResponse>> getExchangeRates();
 
-  @Get(path: 'daily-price/')
-  Future<Response<DailyPriceResponse>> getDailyPrice();
+  @Get(path: 'v1/daily-price/')
+  Future<Response<DailyPriceResponse>> getDailyPrice({
+    @Query('currency') String? currency,
+  });
+
+  @Get(path: 'v1/prices/last-day/')
+  Future<Response<List<DailyPriceResponse>>> getLastDayPrices({
+    @Query('currency') String? currency,
+  });
 
   // Health Check
-  @Get(path: 'health/')
+  @Get(path: 'v1/health/')
   Future<Response<HealthResponse>> healthCheck();
 
   // Card Management
-  @Post(path: 'moon/card/')
+  @Post(path: 'v1/moon/card/')
   Future<Response<CardResponse>> createCard(
     @Body() CardCreationRequest? request,
   );
 
-  @Get(path: 'moon/card/{card_id}/')
+  @Get(path: 'v1/moon/card/{card_id}/')
   Future<Response<CardResponse>> getCard(
     @Path('card_id') String cardId,
   );
 
-  @Get(path: 'moon/cards/')
+  @Get(path: 'v1/moon/cards/')
   Future<Response<CardListResponse>> getCards();
 
-  @Patch(path: 'moon/card/{card_id}/settings')
+  @Patch(path: 'v1/moon/card/{card_id}/settings')
   Future<Response<CardResponse>> updateCardSettings(
     @Path('card_id') String cardId,
     @Body() CardCreationRequest request,
   );
 
-  @Post(path: 'moon/card/{card_id}/add-balance')
+  @Post(path: 'v1/moon/card/{card_id}/add-balance')
   Future<Response<AddBalanceResponse>> addCardBalance(
     @Path('card_id') String cardId,
     @Body() AmountRequest request,
   );
 
-  @Get(path: 'moon/card/{card_id}/events')
-  Future<Response<CardEventsResponse>> getCardEvents(
-    @Path('card_id') String cardId,
-  );
+  @Get(path: 'v2/moon/card/{card_id}/events')
+  Future<Response<CardEventsResponse>> getCardEvents({
+    @Path('card_id') required String cardId,
+    @Query('limit') int? perPage,
+    @Query('page') int? page,
+    @Query('pending') bool? pending,
+  });
 
-  @Get(path: 'moon/card/{card_id}/velocity')
+  @Get(path: 'v1/moon/card/{card_id}/velocity')
   Future<Response<CardVelocityResponse>> getCardVelocity(
     @Path('card_id') String cardId,
   );
 
   // Moon On-chain Operations
-  @Post(path: 'moon/onchain/invoice')
+  @Post(path: 'v1/moon/onchain/invoice')
   Future<Response<GenerateInvoiceResponse>> generateInvoice(
     @Body() InvoiceRequest request,
   );
 
+  @Patch(path: 'v1/moon/topup/{invoice_id}')
+  Future<Response<TopupResponse>> updateTopup(
+    @Path('invoice_id') String invoiceId,
+  );
+
+  // Moon Rates
+  @Get(path: 'v1/moon/rates/')
+  Future<Response<MoonRatesResponse>> getMoonRates();
+
   // Public Endpoint
-  @Get(path: 'public/')
+  @Get(path: 'v1/public/')
   Future<Response<MessageResponse>> getPublicMessage();
 
   static Jan3ApiService create(
@@ -130,6 +151,8 @@ abstract class Jan3ApiService extends ChopperService {
         CardEventsResponse: CardEventsResponse.fromJson,
         CardVelocityResponse: CardVelocityResponse.fromJson,
         CardCreationRequest: CardCreationRequest.fromJson,
+        TopupResponse: TopupResponse.fromJson,
+        MoonRatesResponse: MoonRatesResponse.fromJson,
       }),
     );
     return _$Jan3ApiService(client);
@@ -162,7 +185,16 @@ class Jan3ApiResponseInterceptor implements ResponseInterceptor {
   FutureOr<Response> onResponse(Response response) {
     if (response.statusCode == 401) {
       onUnauthorized();
+    } else if (response.statusCode == 403) {
+      throw const RegionRestrictionException();
     }
     return response;
   }
+}
+
+class RegionRestrictionException implements ExceptionLocalized {
+  const RegionRestrictionException();
+
+  @override
+  String toLocalizedString(BuildContext context) => context.loc.commonRegionBan;
 }

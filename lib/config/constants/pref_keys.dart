@@ -35,11 +35,14 @@ class PrefKeys {
   static const changellyForUSDtSwapsEnabled = 'changelly_usdt_swaps_enabled';
   static const btcDirectEnabled = 'btc_direct_enabled';
   static const seedQrEnabled = 'seed_qr_enabled';
-  static const myFirstBitcoinEnabled = 'my_first_bitcoin_enabled';
   static const balanceHidden = "balance_hidden";
   static const displayUnits = 'display_units';
   static const payWithMoonEnabled = 'payWithMoonEnabled';
   static const customElectrumUrlEnabled = 'customElectrumUrlEnabled';
   static const debitCardStagingEnabled = 'debitCardStagingEnabled';
   static const jan3CardExpanded = 'jan3_card_expanded';
+  static const lendASatMockDataEnabled = 'lendASatMockDataEnabled';
+  static const marketplaceTilesMockDataEnabled =
+      'marketplaceTilesMockDataEnabled';
+  static const autoLockAfter = 'auto_lock_after';
 }

@@ -19,14 +19,15 @@ const aquaSupportEmail = 'support@aqua.net';
 const aquaTermsOfServiceUrl = 'https://aqua.net/terms';
 const aquaPrivacyUrl = 'https://aqua.net/privacy';
 const aquaDownloadUrl = 'https://aqua.net/download';
-const aquaZendeskUrl = "https://jan3.zendesk.com/hc/en-us/requests/new";
+const aquaZendeskUrl =
+    "https://jan3.zendesk.com/hc/en-us/requests/new?ticket_form_id=16924244244763";
+const aquaZendeskMoonUrl =
+    "https://jan3.zendesk.com/hc/en-us/requests/new?ticket_form_id=40190398487067";
+
 const aquaZendeskFaqUrl = "http://jan3.zendesk.com/";
 
-String getAquaMoonZendeskUrl(String subject, String description) {
-  final encodedSubject = Uri.encodeComponent(subject);
-  final encodedDescription = Uri.encodeComponent(description);
-  return "$aquaZendeskUrl?tf_subject=$encodedSubject&tf_description=$encodedDescription";
-}
+const zendeskFormFieldCardFieldId = "40744642792347";
+const zendeskFormFieldAquaVersion = "35450967121051";
 
 // BLOCKSTREAM.INFO
 const blockstreamInfoBaseUrl = 'https://blockstream.info';

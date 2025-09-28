@@ -1,6 +1,7 @@
 //NOTE - Mock data for testing and skeleton loading
 
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/sideshift/models/sideshift_order.dart';
@@ -197,3 +198,38 @@ final kMockDbBoltzSwaps = [
     scriptAddress: 'scriptAddress4',
   ),
 ];
+
+// Card Transactions
+
+class FakeMoonTransactions {
+  static final cardTransaction = CardEventResponse.cardTransaction(
+    type: CardEventType.cardTransaction,
+    id: '1',
+    card: const CardInfo(
+      name: 'Card 1',
+      publicId: '1',
+      type: 'Debit',
+    ),
+    transactionId: '1',
+    transactionStatus: TransactionStatus.pending,
+    datetime: DateTime.now(),
+    merchant: 'Merchant 1',
+    amount: '100',
+    ledgerCurrency: 'USD',
+    amountFeesInLedgerCurrency: '10',
+    amountInTransactionCurrency: '90',
+    transactionCurrency: 'USD',
+    amountFeesInTransactionCurrency: '1',
+  );
+
+  static final reloadTransaction = CardEventResponse.reload(
+    type: CardEventType.reload,
+    id: 1,
+    card: 'Card 1',
+    datetime: DateTime.now(),
+    expiration: DateTime.now(),
+    invoiceId: '1',
+    status: TransactionStatus.pending,
+    amount: '100',
+  );
+}

@@ -12,6 +12,13 @@ enum AquaButtonSize {
   large,
 }
 
+enum AquaButtonVariant {
+  normal,
+  error,
+  success,
+  warning,
+}
+
 enum _ButtonVariant {
   primary,
   secondary,
@@ -27,7 +34,8 @@ class AquaButton extends StatelessWidget {
     this.onPressed,
     this.icon,
     this.isLoading = false,
-    this.isDanger = false,
+    this.primaryButtonVariant = AquaButtonVariant.normal,
+    this.secondaryButtonVariant = AquaButtonVariant.normal,
     required this.variant,
     required this.size,
   });
@@ -37,8 +45,8 @@ class AquaButton extends StatelessWidget {
     required String text,
     Widget? icon,
     AquaButtonSize size = AquaButtonSize.large,
+    AquaButtonVariant variant = AquaButtonVariant.normal,
     bool isLoading = false,
-    bool isDanger = false,
     VoidCallback? onPressed,
   }) {
     return AquaButton._(
@@ -48,7 +56,7 @@ class AquaButton extends StatelessWidget {
       onPressed: onPressed,
       variant: _ButtonVariant.primary,
       isLoading: isLoading,
-      isDanger: isDanger,
+      primaryButtonVariant: variant,
       size: size,
     );
   }
@@ -58,6 +66,7 @@ class AquaButton extends StatelessWidget {
     required String text,
     Widget? icon,
     AquaButtonSize size = AquaButtonSize.large,
+    AquaButtonVariant variant = AquaButtonVariant.normal,
     bool isLoading = false,
     VoidCallback? onPressed,
   }) {
@@ -67,6 +76,7 @@ class AquaButton extends StatelessWidget {
       icon: icon,
       onPressed: onPressed,
       variant: _ButtonVariant.secondary,
+      secondaryButtonVariant: variant,
       isLoading: isLoading,
       size: size,
     );
@@ -133,7 +143,8 @@ class AquaButton extends StatelessWidget {
   final _ButtonVariant variant;
   final AquaButtonSize size;
   final bool isLoading;
-  final bool isDanger;
+  final AquaButtonVariant primaryButtonVariant;
+  final AquaButtonVariant secondaryButtonVariant;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +158,7 @@ class AquaButton extends StatelessWidget {
           child: AquaIndefinateProgressIndicator(
             color: switch (variant) {
               _ButtonVariant.primary => AquaColors.lightColors.textInverse,
-              _ButtonVariant.secondary => AquaColors.lightColors.textPrimary,
+              _ButtonVariant.secondary => AquaColors.lightColors.accentBrand,
               _ => Theme.of(context).colorScheme.onSurface,
             },
           ),
@@ -175,11 +186,23 @@ class AquaButton extends StatelessWidget {
 
     final style = switch (variant) {
       _ButtonVariant.primary => size == AquaButtonSize.large
-          ? _AquaButtonStyle.primary(context, isDanger: isDanger)
-          : _AquaButtonStyle.primarySmall(context, isDanger: isDanger),
+          ? _AquaButtonStyle.primary(
+              context,
+              variant: primaryButtonVariant,
+            )
+          : _AquaButtonStyle.primarySmall(
+              context,
+              variant: primaryButtonVariant,
+            ),
       _ButtonVariant.secondary => size == AquaButtonSize.large
-          ? _AquaButtonStyle.secondary(context)
-          : _AquaButtonStyle.secondarySmall(context),
+          ? _AquaButtonStyle.secondary(
+              context,
+              variant: secondaryButtonVariant,
+            )
+          : _AquaButtonStyle.secondarySmall(
+              context,
+              variant: secondaryButtonVariant,
+            ),
       _ButtonVariant.tertiary => size == AquaButtonSize.large
           ? _AquaButtonStyle.tertiary(context)
           : _AquaButtonStyle.tertiarySmall(context),
@@ -225,7 +248,7 @@ class _AquaButtonStyle {
 
   static _buttonStylePrimary(
     BuildContext context, {
-    bool isDanger = false,
+    AquaButtonVariant variant = AquaButtonVariant.normal,
   }) =>
       ElevatedButton.styleFrom(
         fixedSize: const Size(double.maxFinite, kButtonHeightLarge),
@@ -246,13 +269,22 @@ class _AquaButtonStyle {
         ),
         backgroundColor: WidgetStateProperty.resolveWith((state) {
           if (state.isDisabled) {
-            return isDanger
-                ? AquaColors.lightColors.accentDanger.withOpacity(0.5)
-                : AquaColors.lightColors.accentBrand.withOpacity(0.5);
+            return switch (variant) {
+              AquaButtonVariant.error =>
+                AquaColors.lightColors.accentDanger.withOpacity(0.5),
+              AquaButtonVariant.success =>
+                AquaColors.lightColors.accentSuccess.withOpacity(0.5),
+              AquaButtonVariant.warning =>
+                AquaColors.lightColors.accentWarning.withOpacity(0.5),
+              _ => AquaColors.lightColors.accentBrand.withOpacity(0.5),
+            };
           }
-          return isDanger
-              ? AquaColors.lightColors.accentDanger
-              : AquaColors.lightColors.accentBrand;
+          return switch (variant) {
+            AquaButtonVariant.error => AquaColors.lightColors.accentDanger,
+            AquaButtonVariant.success => AquaColors.lightColors.accentSuccess,
+            AquaButtonVariant.warning => AquaColors.lightColors.accentWarning,
+            _ => AquaColors.lightColors.accentBrand,
+          };
         }),
         side: WidgetStateProperty.resolveWith((state) {
           if (state.isSelected || state.isFocused) {
@@ -267,18 +299,18 @@ class _AquaButtonStyle {
 
   static primary(
     BuildContext context, {
-    bool isDanger = false,
+    AquaButtonVariant variant = AquaButtonVariant.normal,
   }) =>
       _AquaButtonStyle(
-        buttonStyle: _buttonStylePrimary(context, isDanger: isDanger),
+        buttonStyle: _buttonStylePrimary(context, variant: variant),
       );
 
   static primarySmall(
     BuildContext context, {
-    bool isDanger = false,
+    AquaButtonVariant variant = AquaButtonVariant.normal,
   }) =>
       _AquaButtonStyle(
-        buttonStyle: _buttonStylePrimary(context, isDanger: isDanger).copyWith(
+        buttonStyle: _buttonStylePrimary(context, variant: variant).copyWith(
           padding: const WidgetStatePropertyAll(_textSmallPadding),
           fixedSize: const WidgetStatePropertyAll(
             Size.fromHeight(kButtonHeightSmall),
@@ -289,7 +321,10 @@ class _AquaButtonStyle {
 
   // Secondary
 
-  static _buttonStyleSecondary(BuildContext context) =>
+  static _buttonStyleSecondary(
+    BuildContext context, {
+    AquaButtonVariant variant = AquaButtonVariant.normal,
+  }) =>
       ElevatedButton.styleFrom(
         elevation: 0,
         fixedSize: const Size(double.maxFinite, kButtonHeightLarge),
@@ -306,31 +341,67 @@ class _AquaButtonStyle {
         splashFactory: InkSparkle.splashFactory,
         overlayColor: WidgetStatePropertyAll(Colors.black.withOpacity(0.04)),
         foregroundColor: WidgetStatePropertyAll(
-          AquaColors.lightColors.textPrimary,
+          switch (variant) {
+            AquaButtonVariant.error => AquaColors.lightColors.accentDanger,
+            AquaButtonVariant.success => AquaColors.lightColors.accentSuccess,
+            AquaButtonVariant.warning => AquaColors.lightColors.accentWarning,
+            _ => AquaColors.lightColors.accentBrand,
+          },
         ),
         backgroundColor: WidgetStateProperty.resolveWith((state) {
           if (state.isDisabled) {
-            return AquaColors.lightColors.surfaceTertiary.withOpacity(0.5);
+            return switch (variant) {
+              AquaButtonVariant.error =>
+                AquaColors.lightColors.accentDanger.withOpacity(0.08),
+              AquaButtonVariant.success =>
+                AquaColors.lightColors.accentSuccess.withOpacity(0.08),
+              AquaButtonVariant.warning =>
+                AquaColors.lightColors.accentWarning.withOpacity(0.08),
+              _ => AquaColors.lightColors.accentBrand.withOpacity(0.08),
+            };
           }
-          return AquaColors.lightColors.surfaceTertiary;
+          return switch (variant) {
+            AquaButtonVariant.error =>
+              AquaColors.lightColors.accentDanger.withOpacity(0.16),
+            AquaButtonVariant.success =>
+              AquaColors.lightColors.accentSuccess.withOpacity(0.16),
+            AquaButtonVariant.warning =>
+              AquaColors.lightColors.accentWarning.withOpacity(0.16),
+            _ => AquaColors.lightColors.accentBrand.withOpacity(0.16),
+          };
         }),
         side: WidgetStateProperty.resolveWith((state) {
           if (state.isSelected || state.isFocused) {
             return BorderSide(
               width: 2,
-              color: AquaColors.lightColors.accentBrand,
+              color: switch (variant) {
+                AquaButtonVariant.error => AquaColors.lightColors.accentDanger,
+                AquaButtonVariant.success =>
+                  AquaColors.lightColors.accentSuccess,
+                AquaButtonVariant.warning =>
+                  AquaColors.lightColors.accentWarning,
+                _ => AquaColors.lightColors.accentBrand,
+              },
             );
           }
           return null;
         }),
       );
 
-  static secondary(BuildContext context) => _AquaButtonStyle(
-        buttonStyle: _buttonStyleSecondary(context),
+  static secondary(
+    BuildContext context, {
+    AquaButtonVariant variant = AquaButtonVariant.normal,
+  }) =>
+      _AquaButtonStyle(
+        buttonStyle: _buttonStyleSecondary(context, variant: variant),
       );
 
-  static secondarySmall(BuildContext context) => _AquaButtonStyle(
-        buttonStyle: _buttonStyleSecondary(context).copyWith(
+  static secondarySmall(
+    BuildContext context, {
+    AquaButtonVariant variant = AquaButtonVariant.normal,
+  }) =>
+      _AquaButtonStyle(
+        buttonStyle: _buttonStyleSecondary(context, variant: variant).copyWith(
           padding: const WidgetStatePropertyAll(_textSmallPadding),
           fixedSize: const WidgetStatePropertyAll(
             Size.fromHeight(kButtonHeightSmall),

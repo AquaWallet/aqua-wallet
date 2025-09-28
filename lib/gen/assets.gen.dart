@@ -1556,6 +1556,9 @@ class $AssetsMarketplaceGen {
   SvgGenImage get exchange =>
       const SvgGenImage('assets/marketplace/exchange.svg');
 
+  /// File path: assets/marketplace/map.svg
+  SvgGenImage get map => const SvgGenImage('assets/marketplace/map.svg');
+
   /// File path: assets/marketplace/meld_black.svg
   SvgGenImage get meldBlack =>
       const SvgGenImage('assets/marketplace/meld_black.svg');
@@ -1599,6 +1602,7 @@ class $AssetsMarketplaceGen {
         btse,
         buy,
         exchange,
+        map,
         meldBlack,
         meldWhite,
         paymentBank,
@@ -2032,6 +2036,7 @@ class UiAssets {
   static const SvgGenImage tabProfile = SvgGenImage('assets/tab_profile.svg');
   static const SvgGenImage tabSettings = SvgGenImage('assets/tab_settings.svg');
   static const SvgGenImage tabWallet = SvgGenImage('assets/tab_wallet.svg');
+  static const SvgGenImage telegram = SvgGenImage('assets/telegram.svg');
   static const SvgGenImage touch = SvgGenImage('assets/touch.svg');
   static const SvgGenImage twitter = SvgGenImage('assets/twitter.svg');
   static const SvgGenImage walletAdd = SvgGenImage('assets/wallet_add.svg');
@@ -2150,6 +2155,7 @@ class UiAssets {
         tabProfile,
         tabSettings,
         tabWallet,
+        telegram,
         touch,
         twitter,
         walletAdd,

@@ -161,7 +161,10 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
     final input = ref.watch(topUpInputStateProvider).value!;
     final displayUnit = ref.watch(
         displayUnitsProvider.select((p) => p.getForcedDisplayUnit(asset)));
-
+    final formattedAmount = '\$${input.amountInUsd}';
+    if (input.amountInUsd == null) {
+      return const CircularProgressIndicator();
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,18 +182,9 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
         ),
         if (asset.isAnyUsdt) ...{
           //ANCHOR - Amount & Symbol
-          AssetCryptoAmount(
-            forceVisible: true,
-            forceDisplayUnit: displayUnit,
-            amount: input.amount.toString(),
-            asset: asset,
+          Text(
+            '${input.amountInUsd} ${asset.displayName}',
             style: const TextStyle(
-              fontSize: 22,
-              fontFamily: UiFontFamily.helveticaNeue,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-            ),
-            unitStyle: const TextStyle(
               fontSize: 22,
               fontFamily: UiFontFamily.helveticaNeue,
               fontWeight: FontWeight.w700,
@@ -200,7 +194,7 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
         } else ...{
           //ANCHOR - USD Amount
           Text(
-            '\$${input.amountInUsd}',
+            formattedAmount,
             style: const TextStyle(
               fontSize: 22,
               fontFamily: UiFontFamily.helveticaNeue,

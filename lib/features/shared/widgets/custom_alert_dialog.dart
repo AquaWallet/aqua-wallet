@@ -1,7 +1,8 @@
 import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
 import 'package:aqua/common/widgets/custom_dialog.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:ui_components/ui_components.dart';
 
 class CustomAlertDialog extends StatelessWidget {
   const CustomAlertDialog({
@@ -101,31 +102,29 @@ class CustomAlertDialog extends StatelessWidget {
 Future<T?> showCustomAlertDialog<T>({
   required BuildContext context,
   required CustomAlertDialogUiModel uiModel,
+  bool isDarkMode = true,
 }) {
-  return showDialog<T>(
-    context: context,
-    builder: (BuildContext context) {
-      return CustomAlertDialog(
-        title: uiModel.title,
-        subtitle: uiModel.subtitle,
-        content: uiModel.content,
-        controlWidgets: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: uiModel.onButtonPressed,
-              child: Text(uiModel.buttonTitle),
-            ),
-          ),
-          if (uiModel.secondaryButtonTitle != null) const SizedBox(width: 16.0),
-          if (uiModel.secondaryButtonTitle != null)
-            Expanded(
-              child: ElevatedButton(
-                onPressed: uiModel.onSecondaryButtonPressed,
-                child: Text(uiModel.secondaryButtonTitle!),
-              ),
-            ),
-        ],
-      );
+  AquaModalSheet.show(
+    context,
+    title: uiModel.title,
+    message: uiModel.subtitle,
+    primaryButtonText: uiModel.buttonTitle,
+    onPrimaryButtonTap: () {
+      Navigator.of(context).pop();
+      uiModel.onButtonPressed();
     },
+    secondaryButtonText: uiModel.secondaryButtonTitle,
+    onSecondaryButtonTap: uiModel.onSecondaryButtonPressed != null
+        ? () {
+            Navigator.of(context).pop();
+            uiModel.onSecondaryButtonPressed!();
+          }
+        : null,
+    iconVariant: uiModel.iconVariant ?? AquaModalSheetVariant.normal,
+    icon: uiModel.icon,
+    colors: isDarkMode ? AquaColors.darkColors : AquaColors.lightColors,
   );
+
+  // Return a completed future since modal sheet doesn't return values
+  return Future.value(null);
 }

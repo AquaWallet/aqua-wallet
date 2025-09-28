@@ -1,10 +1,25 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:ui_components/components/components.dart';
+import 'package:ui_components/ui_components.dart';
 
 const kDefaultTooltipDuration = Duration(seconds: 4);
 const kPermanentTooltipDuration = Duration(days: 1);
+const kDefaultPointerSize = 8.0;
+const kDefaultBorderRadius = 32.0;
+
+enum AquaTooltipVariant {
+  normal,
+  success,
+  warning,
+  error,
+}
+
+enum AquaTooltipPointerPosition {
+  none,
+  top,
+  bottom,
+}
 
 class AquaTooltip extends StatelessWidget {
   const AquaTooltip({
@@ -12,14 +27,15 @@ class AquaTooltip extends StatelessWidget {
     required this.message,
     this.onLeadingIconTap,
     this.onTrailingIconTap,
-    this.backgroundColor,
-    this.foregroundColor,
-    this.trailingIconColor,
     this.isDismissible = false,
     this.isInfo = false,
     this.leadingIcon,
     this.margin = const EdgeInsets.all(16),
     this.trailingIcon,
+    this.variant = AquaTooltipVariant.normal,
+    this.pointerPosition = AquaTooltipPointerPosition.none,
+    this.pointerSize = kDefaultPointerSize,
+    required this.colors,
   });
 
   const AquaTooltip.info({
@@ -27,13 +43,14 @@ class AquaTooltip extends StatelessWidget {
     required this.message,
     this.onLeadingIconTap,
     this.onTrailingIconTap,
-    this.backgroundColor,
-    this.foregroundColor,
-    this.trailingIconColor,
     this.isDismissible = false,
     this.margin = const EdgeInsets.all(16),
     this.leadingIcon,
     this.trailingIcon,
+    this.variant = AquaTooltipVariant.normal,
+    this.pointerPosition = AquaTooltipPointerPosition.none,
+    this.pointerSize = kDefaultPointerSize,
+    required this.colors,
   }) : isInfo = true;
 
   final String message;
@@ -41,40 +58,53 @@ class AquaTooltip extends StatelessWidget {
   final Widget? trailingIcon;
   final VoidCallback? onLeadingIconTap;
   final VoidCallback? onTrailingIconTap;
-  final Color? backgroundColor;
-  final Color? foregroundColor;
-  final Color? trailingIconColor;
   final EdgeInsets margin;
   final bool isInfo;
   final bool isDismissible;
+  final AquaTooltipVariant variant;
+  final AquaTooltipPointerPosition pointerPosition;
+  final double pointerSize;
+  final AquaColors colors;
+
+  Color get _backgroundColor => switch (variant) {
+        AquaTooltipVariant.success => colors.accentSuccessTransparent,
+        AquaTooltipVariant.warning => colors.accentWarningTransparent,
+        AquaTooltipVariant.error => colors.accentDangerTransparent,
+        _ => colors.glassInverse.withOpacity(.8),
+      };
+
+  EdgeInsets get _contentPadding {
+    return EdgeInsets.only(
+      left: 16,
+      right: 16,
+      top: 8 +
+          (pointerPosition == AquaTooltipPointerPosition.top ? pointerSize : 0),
+      bottom: 8 +
+          (pointerPosition == AquaTooltipPointerPosition.bottom
+              ? pointerSize
+              : 0),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       margin: margin,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
+      child: ClipPath(
+        clipper: _TooltipClipper(
+          ptrPos: pointerPosition,
+          ptrSize: pointerSize,
+          borderRadius: kDefaultBorderRadius,
+        ),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+          filter: variant == AquaTooltipVariant.normal
+              ? ImageFilter.blur(sigmaX: 2, sigmaY: 2)
+              : ImageFilter.blur(),
           child: Material(
             elevation: 0,
-            borderRadius: BorderRadius.circular(32),
-            color:
-                (backgroundColor ?? theme.colorScheme.surface).withOpacity(.8),
+            color: _backgroundColor,
             child: Container(
-              padding: isDismissible
-                  ? EdgeInsetsDirectional.only(
-                      start: leadingIcon != null ? 8 : 16,
-                      end: 8,
-                      top: 8,
-                      bottom: 8,
-                    )
-                  : const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
+              padding: _contentPadding,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -83,14 +113,21 @@ class AquaTooltip extends StatelessWidget {
                       icon: leadingIcon ??
                           Icon(
                             Icons.info_outline,
-                            color: foregroundColor,
+                            color: switch (variant) {
+                              AquaTooltipVariant.success =>
+                                colors.accentSuccess,
+                              AquaTooltipVariant.warning =>
+                                colors.accentWarning,
+                              AquaTooltipVariant.error => colors.accentDanger,
+                              AquaTooltipVariant.normal => colors.textInverse,
+                            },
                           ),
                       onPressed: onLeadingIconTap,
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
                       splashRadius: 4,
                       iconSize: 18,
-                      color: foregroundColor,
+                      color: colors.textInverse,
                       constraints: const BoxConstraints(
                         minWidth: 18,
                         minHeight: 18,
@@ -101,7 +138,12 @@ class AquaTooltip extends StatelessWidget {
                   Flexible(
                     child: AquaText.body2Medium(
                       text: message,
-                      color: foregroundColor,
+                      color: switch (variant) {
+                        AquaTooltipVariant.success => colors.accentSuccess,
+                        AquaTooltipVariant.warning => colors.accentWarning,
+                        AquaTooltipVariant.error => colors.accentDanger,
+                        AquaTooltipVariant.normal => colors.textInverse,
+                      },
                     ),
                   ),
                   if (isDismissible) ...[
@@ -110,14 +152,26 @@ class AquaTooltip extends StatelessWidget {
                       icon: trailingIcon ??
                           Icon(
                             Icons.close,
-                            color: trailingIconColor ?? foregroundColor,
+                            color: switch (variant) {
+                              AquaTooltipVariant.success =>
+                                colors.accentSuccess,
+                              AquaTooltipVariant.warning =>
+                                colors.accentWarning,
+                              AquaTooltipVariant.error => colors.accentDanger,
+                              AquaTooltipVariant.normal => colors.textTertiary,
+                            },
                           ),
                       onPressed: onTrailingIconTap,
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
                       splashRadius: 4,
                       iconSize: 18,
-                      color: trailingIconColor ?? foregroundColor,
+                      color: switch (variant) {
+                        AquaTooltipVariant.success => colors.accentSuccess,
+                        AquaTooltipVariant.warning => colors.accentWarning,
+                        AquaTooltipVariant.error => colors.accentDanger,
+                        AquaTooltipVariant.normal => colors.textTertiary,
+                      },
                       constraints: const BoxConstraints(
                         minWidth: 18,
                         minHeight: 18,
@@ -135,18 +189,21 @@ class AquaTooltip extends StatelessWidget {
 
   static void show(
     BuildContext context, {
+    Key? key,
     required String message,
     Widget? leadingIcon,
     Widget? trailingIcon,
     VoidCallback? onLeadingIconTap,
     VoidCallback? onTrailingIconTap,
-    Color? backgroundColor,
-    Color? foregroundColor,
-    Color? trailingIconColor,
     bool isDismissible = false,
     bool isInfo = false,
     Duration? duration,
     bool useRootNavigator = false,
+    AquaTooltipVariant variant = AquaTooltipVariant.normal,
+    AquaTooltipPointerPosition pointerPosition =
+        AquaTooltipPointerPosition.none,
+    double pointerSize = kDefaultPointerSize,
+    required AquaColors colors,
   }) {
     // Use Overlay instead of SnackBar to ensure the tooltip appears above everything
     final overlayState = Overlay.of(context, rootOverlay: true);
@@ -169,6 +226,7 @@ class AquaTooltip extends StatelessWidget {
               child: Center(
                 child: IntrinsicWidth(
                   child: AquaTooltip(
+                    key: key,
                     message: message,
                     leadingIcon: leadingIcon,
                     trailingIcon: trailingIcon,
@@ -179,10 +237,11 @@ class AquaTooltip extends StatelessWidget {
                     },
                     isDismissible: isDismissible,
                     isInfo: isInfo,
-                    backgroundColor: backgroundColor,
-                    foregroundColor: foregroundColor,
-                    trailingIconColor: trailingIconColor,
                     margin: EdgeInsets.zero,
+                    variant: variant,
+                    pointerPosition: pointerPosition,
+                    pointerSize: pointerSize,
+                    colors: colors,
                   ),
                 ),
               ),
@@ -202,4 +261,63 @@ class AquaTooltip extends StatelessWidget {
       });
     }
   }
+}
+
+class _TooltipClipper extends CustomClipper<Path> {
+  const _TooltipClipper({
+    required this.ptrPos,
+    required this.ptrSize,
+    required this.borderRadius,
+  });
+
+  final AquaTooltipPointerPosition ptrPos;
+  final double ptrSize;
+  final double borderRadius;
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    // Calculate base rectangle bounds
+    const rectLeft = 0.0;
+    final rectTop = ptrPos == AquaTooltipPointerPosition.top ? ptrSize : 0.0;
+    final rectRight = size.width;
+    final rectBottom = ptrPos == AquaTooltipPointerPosition.bottom
+        ? size.height - ptrSize
+        : size.height;
+
+    // Add the main rounded rectangle
+    path.addRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTRB(rectLeft, rectTop, rectRight, rectBottom),
+        Radius.circular(borderRadius),
+      ),
+    );
+
+    // Add pointer based on position
+    if (ptrPos != AquaTooltipPointerPosition.none) {
+      switch (ptrPos) {
+        case AquaTooltipPointerPosition.top:
+          path.moveTo(size.width / 2 - ptrSize, ptrSize);
+          path.lineTo(size.width / 2, 0);
+          path.lineTo(size.width / 2 + ptrSize, ptrSize);
+          break;
+        case AquaTooltipPointerPosition.bottom:
+          path.moveTo(size.width / 2 - ptrSize, size.height - ptrSize);
+          path.lineTo(size.width / 2, size.height);
+          path.lineTo(size.width / 2 + ptrSize, size.height - ptrSize);
+          break;
+        case AquaTooltipPointerPosition.none:
+          break;
+      }
+    }
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(_TooltipClipper oldClipper) =>
+      ptrPos != oldClipper.ptrPos ||
+      ptrSize != oldClipper.ptrSize ||
+      borderRadius != oldClipper.borderRadius;
 }

@@ -11,6 +11,7 @@ export 'env_provider.dart';
 export 'export_transaction_db_backup_provider.dart';
 export 'file_system_service_provider.dart';
 export 'number_format_provider.dart';
+export 'pagination_provider.dart';
 export 'restore_transaction_db_backup_provider.dart';
 export 'shared_prefs_provider.dart';
 export 'system_overlay_color_provider.dart';

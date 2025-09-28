@@ -15,6 +15,7 @@ export 'send_asset_confirm_slider.dart';
 export 'send_asset_max_button.dart';
 export 'send_asset_review_info_card.dart';
 export 'send_confirmation_slider.dart';
+export 'top_up_transaction_info_card.dart';
 export 'transaction_id_card.dart';
 export 'transaction_info_card.dart';
 export 'transaction_info_item.dart';

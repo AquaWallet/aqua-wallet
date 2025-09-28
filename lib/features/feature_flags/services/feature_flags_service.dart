@@ -1,6 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
+import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:chopper/chopper.dart';
 
@@ -9,8 +10,12 @@ part 'feature_flags_service.chopper.dart';
 final featureFlagsServiceProvider =
     FutureProvider<FeatureFlagsService>((ref) async {
   final tokenManager = ref.read(jan3AuthTokenManagerProvider);
+  final debitCardStagingEnabled =
+      ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
   return FeatureFlagsService.create(
-      tokenManager, ref.read(jan3AuthProvider.notifier).onUnauthorized);
+      tokenManager,
+      ref.read(jan3AuthProvider.notifier).onUnauthorized,
+      debitCardStagingEnabled);
 });
 
 @ChopperApi(baseUrl: '/api/v1/')
@@ -33,9 +38,12 @@ abstract class FeatureFlagsService extends ChopperService {
   static FeatureFlagsService create(
     Jan3AuthTokenManager tokenManager,
     VoidCallback onUnauthorized,
+    bool debitCardStagingEnabled,
   ) {
     final client = ChopperClient(
-      baseUrl: Uri.parse(aquaAnkaraProdApiUrl),
+      baseUrl: Uri.parse(debitCardStagingEnabled
+          ? aquaAnkaraStagingApiUrl
+          : aquaAnkaraProdApiUrl),
       services: [_$FeatureFlagsService()],
       interceptors: [
         HttpLoggingInterceptor(),

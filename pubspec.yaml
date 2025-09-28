@@ -3,7 +3,7 @@ description: AQUA - Bitcoin & Layer 2 Wallet
 
 publish_to: "none"
 
-version: 0.3.4+196
+version: 0.3.5+208
 
 environment:
   sdk: "3.4.4"
@@ -85,6 +85,8 @@ dependencies:
   skeletonizer: ^1.0.1
   talker_flutter: ^4.4.1
   talker_riverpod_logger: ^4.4.1
+  ui_components:
+    path: packages/ui_components/
   url_launcher: ^6.1.12
   web_socket_channel: ^2.1.0
   webview_flutter: ^4.2.2

@@ -1,5 +1,4 @@
 import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/account/providers/jan3_auth_token_provider.dart';
 import 'package:aqua/features/feature_flags/services/feature_flags_service.dart';
 import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/settings/language/models/language.dart';

@@ -50,17 +50,14 @@ class FeatureFlagsNotifier extends ChangeNotifier {
 
   bool get seedQrEnabled => _prefs.getBool(PrefKeys.seedQrEnabled) ?? false;
 
-  bool get myFirstBitcoinEnabled =>
-      _prefs.getBool(PrefKeys.myFirstBitcoinEnabled) ?? false;
-
-  bool get payWithMoonEnabled =>
-      _prefs.getBool(PrefKeys.payWithMoonEnabled) ?? false;
-
   bool get customElectrumUrlEnabled =>
       _prefs.getBool(PrefKeys.customElectrumUrlEnabled) ?? false;
 
   bool get debitCardStagingEnabled =>
       _prefs.getBool(PrefKeys.debitCardStagingEnabled) ?? false;
+
+  bool get marketplaceTilesMockDataEnabled =>
+      _prefs.getBool(PrefKeys.marketplaceTilesMockDataEnabled) ?? false;
 
   void toggleFeatureFlag({
     required String key,

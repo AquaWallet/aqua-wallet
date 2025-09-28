@@ -78,6 +78,9 @@ class _TransactionReviewContent extends StatelessWidget {
   final SendTransactionType transactionType;
   final VoidCallback onConfirmed;
 
+  double _bottomPadding(BuildContext context) =>
+      MediaQuery.of(context).viewPadding.bottom + 28;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -118,7 +121,7 @@ class _TransactionReviewContent extends StatelessWidget {
         //ANCHOR - Transaction Execution Slider
         Container(
           alignment: Alignment.bottomCenter,
-          margin: const EdgeInsets.only(bottom: 28),
+          margin: EdgeInsets.only(bottom: _bottomPadding(context)),
           child: SendConfirmationSlider(
             args: args,
             onConfirmed: onConfirmed,
@@ -173,6 +176,11 @@ class _AquaTxnReviewContent extends ConsumerWidget {
               }
             ],
           ),
+        },
+        if (input.transactionType == SendTransactionType.topUp &&
+            input.asset.isUsdtLiquid) ...{
+          const SizedBox(height: 22),
+          const UsdtTopUpInfo(),
         },
         const SizedBox(height: 22),
         //ANCHOR - Add Note

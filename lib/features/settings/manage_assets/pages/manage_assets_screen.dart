@@ -1,7 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
-import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
@@ -24,57 +24,60 @@ class ManageAssetsScreen extends HookConsumerWidget {
         title: context.loc.manageAssets,
         backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
       ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 28.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: assets.isNotEmpty
-                  ? SeparatedReorderableListView.separated(
-                      itemCount: items.length,
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(vertical: 24.0),
-                      onReorder: (oldIndex, newIndex) {
-                        final item = items.removeAt(oldIndex);
-                        items.insert(newIndex, item);
-                        Future.microtask(() async =>
-                            ref.read(manageAssetsProvider).saveAssets(items));
-                      },
-                      proxyDecorator: (child, index, _) => Card(
-                        elevation: 8.0,
-                        child: child,
+      body: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
+          child: Column(
+            children: [
+              Expanded(
+                child: assets.isNotEmpty
+                    ? SeparatedReorderableListView.separated(
+                        itemCount: items.length,
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(vertical: 24.0),
+                        onReorder: (oldIndex, newIndex) {
+                          final item = items.removeAt(oldIndex);
+                          items.insert(newIndex, item);
+                          Future.microtask(() async =>
+                              ref.read(manageAssetsProvider).saveAssets(items));
+                        },
+                        proxyDecorator: (child, index, _) => Card(
+                          elevation: 8.0,
+                          child: child,
+                        ),
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 16.0),
+                        itemBuilder: (_, index) {
+                          final asset = items[index];
+                          return ManageAssetListItemTile(
+                            key: ValueKey(asset),
+                            asset: asset,
+                            isUserAsset: true,
+                            onRemove: (asset) async => Future.microtask(() {
+                              ref.read(manageAssetsProvider).removeAsset(asset);
+                            }),
+                          );
+                        },
+                      )
+                    : AssetListErrorView(
+                        message: context.loc.manageAssetsScreenError,
                       ),
-                      separatorBuilder: (_, __) => const SizedBox(height: 16.0),
-                      itemBuilder: (_, index) {
-                        final asset = items[index];
-                        return ManageAssetListItemTile(
-                          key: ValueKey(asset),
-                          asset: asset,
-                          isUserAsset: true,
-                          onRemove: (asset) async => Future.microtask(() {
-                            ref.read(manageAssetsProvider).removeAsset(asset);
-                          }),
-                        );
-                      },
-                    )
-                  : AssetListErrorView(
-                      message: context.loc.manageAssetsScreenError,
-                    ),
-            ),
-            SizedBox(
-              key: ManageAssetsScreenKeys.manageAssetAddAssetButton,
-              width: double.maxFinite,
-              child: BoxShadowElevatedButton(
-                onPressed: assets.isEmpty
-                    ? null
-                    : () => context.push(AddAssetsScreen.routeName),
-                child: Text(
-                  context.loc.addMoreAssets,
+              ),
+              SizedBox(
+                key: ManageAssetsScreenKeys.manageAssetAddAssetButton,
+                width: double.maxFinite,
+                child: BoxShadowElevatedButton(
+                  onPressed: assets.isEmpty
+                      ? null
+                      : () => context.push(AddAssetsScreen.routeName),
+                  child: Text(
+                    context.loc.addMoreAssets,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: kBottomPadding),
-          ],
+              const SizedBox(height: kBottomPadding),
+            ],
+          ),
         ),
       ),
     );

@@ -1,8 +1,9 @@
+import 'package:aqua/common/keys/common_keys.dart';
 import 'package:aqua/gen/assets.gen.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:aqua/common/keys/common_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart' hide ResponsiveEx;
 
 class CustomBottomNavigationBar extends HookWidget {
   const CustomBottomNavigationBar({
@@ -23,6 +24,11 @@ class CustomBottomNavigationBar extends HookWidget {
       ),
       child: Container(
         height: context.adaptiveDouble(mobile: 115.0, smallMobile: 85.0),
+        margin: context.isButtonSystemNavigationOn
+            ? EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewPadding.bottom,
+              )
+            : EdgeInsets.zero,
         decoration: BoxDecoration(
           color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           border: Border(

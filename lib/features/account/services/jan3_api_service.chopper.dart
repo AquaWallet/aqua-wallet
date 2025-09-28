@@ -77,14 +77,34 @@ final class _$Jan3ApiService extends Jan3ApiService {
   }
 
   @override
-  Future<Response<DailyPriceResponse>> getDailyPrice() {
+  Future<Response<DailyPriceResponse>> getDailyPrice({String? currency}) {
     final Uri $url = Uri.parse('/api/v1/daily-price/');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'currency': currency
+    };
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
+      parameters: $params,
     );
     return client.send<DailyPriceResponse, DailyPriceResponse>($request);
+  }
+
+  @override
+  Future<Response<List<DailyPriceResponse>>> getLastDayPrices(
+      {String? currency}) {
+    final Uri $url = Uri.parse('/api/v1/prices/last-day/');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'currency': currency
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    return client.send<List<DailyPriceResponse>, DailyPriceResponse>($request);
   }
 
   @override
@@ -166,12 +186,23 @@ final class _$Jan3ApiService extends Jan3ApiService {
   }
 
   @override
-  Future<Response<CardEventsResponse>> getCardEvents(String cardId) {
-    final Uri $url = Uri.parse('/api/v1/moon/card/${cardId}/events');
+  Future<Response<CardEventsResponse>> getCardEvents({
+    required String cardId,
+    int? perPage,
+    int? page,
+    bool? pending,
+  }) {
+    final Uri $url = Uri.parse('/api/v2/moon/card/${cardId}/events');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'limit': perPage,
+      'page': page,
+      'pending': pending,
+    };
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
+      parameters: $params,
     );
     return client.send<CardEventsResponse, CardEventsResponse>($request);
   }
@@ -200,6 +231,28 @@ final class _$Jan3ApiService extends Jan3ApiService {
     );
     return client
         .send<GenerateInvoiceResponse, GenerateInvoiceResponse>($request);
+  }
+
+  @override
+  Future<Response<TopupResponse>> updateTopup(String invoiceId) {
+    final Uri $url = Uri.parse('/api/v1/moon/topup/${invoiceId}');
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<TopupResponse, TopupResponse>($request);
+  }
+
+  @override
+  Future<Response<MoonRatesResponse>> getMoonRates() {
+    final Uri $url = Uri.parse('/api/v1/moon/rates/');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<MoonRatesResponse, MoonRatesResponse>($request);
   }
 
   @override

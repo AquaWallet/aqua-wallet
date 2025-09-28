@@ -47,14 +47,12 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         ref.watch(featureFlagsProvider.select((p) => p.btcDirectEnabled));
     final isSeedQrEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.seedQrEnabled));
-    final myFirstBitcoinEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.myFirstBitcoinEnabled));
-    final isPayWithMoonEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.payWithMoonEnabled));
     final isCustomElectrumUrlEnabled = ref
         .watch(featureFlagsProvider.select((p) => p.customElectrumUrlEnabled));
     final displayUnit =
         ref.watch(displayUnitsProvider.select((p) => p.currentDisplayUnit));
+    final isMarketplaceTilesMockDataEnabled = ref.watch(
+        featureFlagsProvider.select((p) => p.marketplaceTilesMockDataEnabled));
     final isDebitCardStagingEnabled = ref.watch(
       featureFlagsProvider.select((p) => p.debitCardStagingEnabled),
     );
@@ -219,35 +217,19 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                     ),
           ),
 
-          //ANCHOR: My First Bitcoin
-          MenuItemWidget.switchItem(
-            context: context,
-            title: context.loc.marketplaceScreenMyFirstBitcoinButton,
-            assetName: Svgs.website,
-            value: myFirstBitcoinEnabled,
-            onPressed: () =>
-                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                      key: PrefKeys.myFirstBitcoinEnabled,
-                      currentValue: myFirstBitcoinEnabled,
-                    ),
-          ),
           const SizedBox(height: 16.0),
 
-          //ANCHOR: Pay with Moon
+          //ANCHOR: Marketplace Tiles Mock Data
           MenuItemWidget.switchItem(
             context: context,
-            title: context.loc.marketplaceScreenBankingButton,
+            title: context.loc.expFeaturesScreenItemsMarketplaceTilesMockData,
             assetName: Svgs.marketplaceBankings,
-            value: isPayWithMoonEnabled,
-            onPressed: () {
-              if (isPayWithMoonEnabled) {
-                ref.read(jan3AuthProvider.notifier).signOut();
-              }
-              ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                    key: PrefKeys.payWithMoonEnabled,
-                    currentValue: isPayWithMoonEnabled,
-                  );
-            },
+            value: isMarketplaceTilesMockDataEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.marketplaceTilesMockDataEnabled,
+                      currentValue: isMarketplaceTilesMockDataEnabled,
+                    ),
           ),
           const SizedBox(height: 16.0),
 

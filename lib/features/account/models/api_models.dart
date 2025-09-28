@@ -111,11 +111,25 @@ class AuthTokenResponse with _$AuthTokenResponse {
 }
 
 @freezed
+class MoonCardStatsResponse with _$MoonCardStatsResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory MoonCardStatsResponse({
+    int? cardsCount,
+    int? cardsToday,
+    int? cardsThisMonth,
+  }) = _MoonCardStatsResponse;
+
+  factory MoonCardStatsResponse.fromJson(Map<String, dynamic> json) =>
+      _$MoonCardStatsResponseFromJson(json);
+}
+
+@freezed
 class ProfileResponse with _$ProfileResponse {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ProfileResponse({
     required String id,
     required String email,
+    MoonCardStatsResponse? moonStats,
     required DateTime? lastLogin,
     required bool isSuperuser,
     required bool isStaff,
@@ -181,12 +195,20 @@ class AmountRequest with _$AmountRequest {
 @freezed
 class InvoiceRequest with _$InvoiceRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory InvoiceRequest({
+  const factory InvoiceRequest.usd({
     required String usdAmount,
     required Currency currency,
     required Blockchain blockchain,
     required String cardId,
-  }) = _InvoiceRequest;
+  }) = _UsdInvoiceRequest;
+
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory InvoiceRequest.crypto({
+    required String cryptoAmount,
+    required Currency currency,
+    required Blockchain blockchain,
+    required String cardId,
+  }) = _CryptoInvoiceRequest;
 
   factory InvoiceRequest.fromJson(Map<String, dynamic> json) =>
       _$InvoiceRequestFromJson(json);
@@ -256,6 +278,7 @@ class CardResponse with _$CardResponse {
     CardStyle style,
     required String user,
     required Map<String, String?> giftCardInfo,
+    @Default("10000.0") String remainingTopup,
   }) = _CardResponse;
 
   factory CardResponse.fromJson(Map<String, dynamic> json) =>
@@ -317,7 +340,8 @@ class CardEventsResponse with _$CardEventsResponse {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory CardEventsResponse({
     required List<Map<String, dynamic>> events,
-    PaginationInfoModel? pagination,
+    int? previous,
+    int? next,
   }) = _CardEventsResponse;
 
   factory CardEventsResponse.fromJson(Map<String, dynamic> json) =>
@@ -406,6 +430,21 @@ class CardEventResponse with _$CardEventResponse {
 
   factory CardEventResponse.fromJson(Map<String, dynamic> json) =>
       _$CardEventResponseFromJson(json);
+
+  static String getCardRuntimeType(String type) {
+    switch (type) {
+      case 'CARD_TRANSACTION':
+        return 'cardTransaction';
+      case 'CARD_AUTHORIZATION_REFUND':
+        return 'cardAuthorizationRefund';
+      case 'DECLINE':
+        return 'decline';
+      case 'RELOAD':
+        return 'reload';
+      default:
+        return type;
+    }
+  }
 }
 
 @freezed
@@ -419,4 +458,34 @@ class CardVelocityResponse with _$CardVelocityResponse {
 
   factory CardVelocityResponse.fromJson(Map<String, dynamic> json) =>
       _$CardVelocityResponseFromJson(json);
+}
+
+@freezed
+class TopupResponse with _$TopupResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory TopupResponse({
+    required int id,
+    required String amount,
+    required String btcAmount,
+    required DateTime created,
+    required DateTime expiration,
+    required String invoiceId,
+    required String status,
+    required String card,
+  }) = _TopupResponse;
+
+  factory TopupResponse.fromJson(Map<String, dynamic> json) =>
+      _$TopupResponseFromJson(json);
+}
+
+@freezed
+class MoonRatesResponse with _$MoonRatesResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory MoonRatesResponse({
+    required double usdtUsd,
+    required double btcUsd,
+  }) = _MoonRatesResponse;
+
+  factory MoonRatesResponse.fromJson(Map<String, dynamic> json) =>
+      _$MoonRatesResponseFromJson(json);
 }

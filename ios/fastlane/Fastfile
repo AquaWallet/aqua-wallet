@@ -3,8 +3,9 @@ default_platform(:ios)
 platform :ios do
   before_all do
     ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
+    # Set the specific Xcode version to use
+    xcode_select("/Applications/Xcode_16.4.app")
   end
-
 
   app_store_connect_api_key(
       key_id: ENV["APPLE_KEY_ID"],

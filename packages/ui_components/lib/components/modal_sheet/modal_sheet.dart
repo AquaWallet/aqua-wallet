@@ -4,6 +4,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/shared/shared.dart';
 import 'package:ui_components/ui_components.dart';
 
+enum AquaModalSheetVariant {
+  normal,
+  success,
+  danger,
+  warning,
+  info,
+}
+
 class AquaModalSheet extends StatelessWidget {
   const AquaModalSheet({
     super.key,
@@ -16,10 +24,18 @@ class AquaModalSheet extends StatelessWidget {
     this.onSecondaryButtonTap,
     this.copyableContentTitle,
     this.copyableContentMessage,
-    required this.icon,
-    this.isDanger = false,
-    this.colors,
-  });
+    this.icon,
+    this.illustration,
+    this.iconVariant = AquaModalSheetVariant.normal,
+    this.primaryButtonVariant = AquaButtonVariant.normal,
+    this.secondaryButtonVariant = AquaButtonVariant.normal,
+    this.titleMaxLines = 3,
+    this.messageMaxLines = 5,
+    required this.colors,
+  }) : assert(
+          icon == null || illustration == null,
+          'icon and illustration cannot be provided at the same time',
+        );
 
   final String title;
   final String message;
@@ -30,18 +46,27 @@ class AquaModalSheet extends StatelessWidget {
   final VoidCallback onPrimaryButtonTap;
   final String? secondaryButtonText;
   final VoidCallback? onSecondaryButtonTap;
-  final Widget icon;
-  final bool isDanger;
-  final AquaColors? colors;
+  final Widget? icon;
+  final Widget? illustration;
+  final AquaModalSheetVariant iconVariant;
+  final AquaButtonVariant primaryButtonVariant;
+  final AquaButtonVariant secondaryButtonVariant;
+  final int titleMaxLines;
+  final int messageMaxLines;
+  final AquaColors colors;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: EdgeInsets.only(
+        bottom: 20,
+        left: context.isSmallMobile || context.isMobile ? 16 : 0,
+        right: context.isSmallMobile || context.isMobile ? 16 : 0,
+      ),
       child: Card(
         elevation: 0,
         margin: EdgeInsets.zero,
-        color: colors?.surfacePrimary,
+        color: colors.surfacePrimary,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
@@ -55,49 +80,73 @@ class AquaModalSheet extends StatelessWidget {
                 height: 5,
                 margin: const EdgeInsets.only(top: 8),
                 decoration: BoxDecoration(
-                  color: colors?.systemBackgroundColor,
+                  color: colors.systemBackgroundColor,
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),
               const SizedBox(height: 32),
-              Container(
-                width: 88,
-                height: 88,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isDanger
-                      ? colors?.accentDangerTransparent
-                      : colors?.surfaceTertiary,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Container(
+              if (icon != null) ...[
+                Container(
+                  width: 88,
+                  height: 88,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isDanger
-                        ? colors?.accentDanger
-                        : colors?.surfaceSecondary,
+                    color: switch (iconVariant) {
+                      AquaModalSheetVariant.normal => colors.surfaceTertiary,
+                      AquaModalSheetVariant.success =>
+                        colors.accentSuccessTransparent,
+                      AquaModalSheetVariant.danger =>
+                        colors.accentDangerTransparent,
+                      AquaModalSheetVariant.warning =>
+                        colors.accentWarningTransparent,
+                      AquaModalSheetVariant.info =>
+                        colors.accentBrandTransparent,
+                    },
                     borderRadius: BorderRadius.circular(100),
                   ),
-                  child: icon,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: switch (iconVariant) {
+                        AquaModalSheetVariant.normal => colors.surfaceSecondary,
+                        AquaModalSheetVariant.success => colors.accentSuccess,
+                        AquaModalSheetVariant.danger => colors.accentDanger,
+                        AquaModalSheetVariant.warning => colors.accentWarning,
+                        AquaModalSheetVariant.info => colors.accentBrand,
+                      },
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: icon,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
+              ],
+              if (illustration != null) ...[
+                SizedBox(
+                  width: 88,
+                  height: 88,
+                  child: illustration,
+                ),
+                const SizedBox(height: 20),
+              ],
               AquaText.h4Medium(
                 text: title,
                 size: 24,
-                color: colors?.textPrimary,
+                color: colors.textPrimary,
+                maxLines: titleMaxLines,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 6),
               Text(
                 message,
-                maxLines: 5,
+                maxLines: messageMaxLines,
                 textAlign: TextAlign.center,
                 style: AquaTypography.body1Medium.copyWith(
                   height: 1.2,
-                  color: colors?.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 32),
               if (copyableContentTitle != null) ...[
                 _CopyableSection(
                   colors: colors,
@@ -111,8 +160,7 @@ class AquaModalSheet extends StatelessWidget {
                       context,
                       isInfo: true,
                       message: context.loc.copiedToClipboard,
-                      foregroundColor: colors?.textInverse,
-                      backgroundColor: colors?.glassInverse,
+                      colors: colors,
                     );
                   },
                 ),
@@ -125,20 +173,21 @@ class AquaModalSheet extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: AquaTypography.body1SemiBold.copyWith(
                     height: 1,
-                    color: colors?.accentDanger,
+                    color: colors.accentDanger,
                   ),
                 ),
                 const SizedBox(height: 34),
               ],
               AquaButton.primary(
                 text: primaryButtonText,
+                variant: primaryButtonVariant,
                 onPressed: onPrimaryButtonTap,
-                isDanger: isDanger,
               ),
               if (secondaryButtonText != null) ...[
                 const SizedBox(height: 16),
                 AquaButton.secondary(
                   text: secondaryButtonText!,
+                  variant: secondaryButtonVariant,
                   onPressed: onSecondaryButtonTap!,
                 )
               ],
@@ -161,16 +210,19 @@ class AquaModalSheet extends StatelessWidget {
     required VoidCallback onPrimaryButtonTap,
     String? secondaryButtonText,
     VoidCallback? onSecondaryButtonTap,
-    bool isDanger = false,
-    required Widget icon,
-    AquaColors? colors,
+    AquaModalSheetVariant iconVariant = AquaModalSheetVariant.normal,
+    AquaButtonVariant primaryButtonVariant = AquaButtonVariant.normal,
+    AquaButtonVariant secondaryButtonVariant = AquaButtonVariant.normal,
+    Widget? icon,
+    Widget? illustration,
+    required AquaColors colors,
   }) {
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      constraints: const BoxConstraints(
-        maxWidth: 343,
-      ),
+      constraints: context.isDesktop || context.isTablet
+          ? const BoxConstraints(maxWidth: 343)
+          : null,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(24)),
       ),
@@ -184,6 +236,7 @@ class AquaModalSheet extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 20),
         child: AquaModalSheet(
           icon: icon,
+          illustration: illustration,
           title: title,
           message: message,
           colors: colors,
@@ -194,7 +247,9 @@ class AquaModalSheet extends StatelessWidget {
           copyableContentTitle: copyableContentTitle,
           copyableContentMessage: copyableContentMessage,
           messageTertiary: messageTertiary,
-          isDanger: isDanger,
+          iconVariant: iconVariant,
+          primaryButtonVariant: primaryButtonVariant,
+          secondaryButtonVariant: secondaryButtonVariant,
         ),
       ),
     );
@@ -286,6 +341,7 @@ class _CopyableSection extends HookWidget {
                       child: AquaText.body2Medium(
                         text: copyableContentMessage!,
                         color: colors?.textTertiary,
+                        maxLines: 10,
                       ),
                     ),
                     const SizedBox(width: 16),

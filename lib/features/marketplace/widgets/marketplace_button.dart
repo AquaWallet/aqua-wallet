@@ -3,11 +3,13 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/responsive_utils.dart';
 import 'package:flutter_svg/svg.dart';
 
-class MarketplaceButton extends StatelessWidget {
+class MarketplaceButton extends HookConsumerWidget {
   final String title;
   final String subtitle;
   final String icon;
   final VoidCallback? onPressed;
+  final VoidCallback? onDisabledPressed;
+  final bool isDisabled;
 
   const MarketplaceButton({
     super.key,
@@ -15,17 +17,19 @@ class MarketplaceButton extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     this.onPressed,
+    this.onDisabledPressed,
+    this.isDisabled = false,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Material(
       borderRadius: BorderRadius.circular(12.0),
       color: Theme.of(context).colorScheme.onInverseSurface,
       child: Opacity(
-        opacity: onPressed != null ? 1 : 0.5,
+        opacity: isDisabled ? 0.5 : 1,
         child: InkWell(
-          onTap: onPressed,
+          onTap: isDisabled ? onDisabledPressed : onPressed,
           borderRadius: BorderRadius.circular(12.0),
           child: Ink(
             padding:

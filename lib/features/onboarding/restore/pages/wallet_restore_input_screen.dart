@@ -1,10 +1,10 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/recovery/providers/seed_qr_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/config/config.dart';
 
 class WalletRestoreInputScreen extends HookConsumerWidget {
   static const routeName = '/walletRestoreInput';

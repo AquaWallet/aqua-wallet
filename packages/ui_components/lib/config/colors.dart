@@ -156,7 +156,7 @@ class DarkColors implements AquaColors {
   @override
   Color get accentWarning => const Color(0xFFFFC20A);
   @override
-  Color get accentWarningTransparent => const Color(0xF7B90029);
+  Color get accentWarningTransparent => const Color(0x29F7B900);
   @override
   Color get accentDanger => const Color(0xFFFF4747);
   @override
@@ -221,7 +221,7 @@ class DeepOceanColors implements AquaColors {
   @override
   Color get accentWarning => const Color(0xFFFFC20A);
   @override
-  Color get accentWarningTransparent => const Color(0xF7B90029);
+  Color get accentWarningTransparent => const Color(0x29F7B900);
   @override
   Color get accentDanger => const Color(0xFFFF4747);
   @override

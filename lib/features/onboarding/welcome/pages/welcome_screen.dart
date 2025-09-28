@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:aqua/data/provider/register_wallet/register_wallet_provider.dart';
+import 'package:aqua/common/common.dart';
+import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/provider.dart';
+import 'package:aqua/data/provider/register_wallet/register_wallet_provider.dart';
+import 'package:aqua/data/provider/theme_provider.dart';
 import 'package:aqua/features/auth/auth_wrapper.dart';
+import 'package:aqua/features/onboarding/keys/onboarding_screen_keys.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/data/provider/theme_provider.dart';
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/common/common.dart';
-import 'package:aqua/features/onboarding/keys/onboarding_screen_keys.dart';
-import 'package:aqua/config/config.dart';
 
 const _fadeAnimationDuration = Duration(milliseconds: 300);
 const _slideAnimationDuration = Duration(milliseconds: 500);
@@ -138,13 +138,20 @@ class WelcomeScreen extends HookConsumerWidget {
       );
     }, []);
 
+    final welcomeTopSpacing = useMemoized(() {
+      final height = MediaQuery.of(context).size.height;
+      if (height < 600) return 32.0;
+      if (height < 700) return 48.0;
+      return 75.0;
+    }, [MediaQuery.of(context).size.height]);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 75.0),
+            SizedBox(height: welcomeTopSpacing),
             //ANCHOR - Logo
             GestureDetector(
               child: Container(

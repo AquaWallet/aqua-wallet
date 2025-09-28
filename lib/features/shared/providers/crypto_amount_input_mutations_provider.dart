@@ -1,4 +1,5 @@
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/private_integrations/debit_card/provider/moon_btc_price_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
@@ -8,7 +9,9 @@ final amountInputMutationsProvider =
 
 final topUpAmountInputMutationsProvider = Provider.autoDispose((ref) =>
     CryptoAmountInputMutationsNotifier(ref,
-        fiatProviderOverride: ref.read(usdFiatProvider)));
+        fiatProviderOverride: ref
+            .read(moonBtcPriceProvider.notifier)
+            .getMoonUsdFiatProvider(ref)));
 
 class CryptoAmountInputMutationsNotifier {
   const CryptoAmountInputMutationsNotifier(this._ref,
