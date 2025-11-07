@@ -38,7 +38,8 @@ enum FeatureFlag {
   unifiedBalance('UnifiedBalance'),
   jan3Account('Jan3Account'),
   jan3AuthToken('Jan3AuthToken'),
-  debitCard('DebitCard');
+  debitCard('DebitCard'),
+  captcha('Captcha');
 
   const FeatureFlag(this.value);
 

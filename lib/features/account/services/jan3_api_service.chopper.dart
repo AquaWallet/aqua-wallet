@@ -19,7 +19,7 @@ final class _$Jan3ApiService extends Jan3ApiService {
 
   @override
   Future<Response<MessageResponse>> login(LoginRequest request) {
-    final Uri $url = Uri.parse('/api/v1/auth/login/');
+    final Uri $url = Uri.parse('/api/v2/auth/login/');
     final $body = request;
     final Request $request = Request(
       'POST',

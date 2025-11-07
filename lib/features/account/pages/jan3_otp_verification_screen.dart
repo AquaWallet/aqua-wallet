@@ -179,11 +179,7 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
             _TappableTextSpan(
               description: context.loc.otpScreenResendCode,
               tappableText: context.loc.otpScreenResendButton,
-              onTap: () => ref.read(jan3AuthProvider.notifier).sendOtp(
-                    email,
-                    ref.read(languageProvider(context)
-                        .select((p) => p.currentLanguage)),
-                  ),
+              onTap: () => context.pop(),
             ),
             const Spacer(),
             // ANCHOR - Verify OTP button

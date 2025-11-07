@@ -34,7 +34,7 @@ class MoneyBadgerValidator {
     'Bootleggers': RegExp(r'((.*)(wigroup\.co|yoyogroup\.co)(.*))'),
     'Zapper': RegExp(
         r'^((.*zapper\.com.*)|(.{2}\/.{4}\/.{20})|(.*payat\.io.*)|(.*(paynow\.netcash|paynow\.sagepay)\.co\.za.*)|(SK-\d{1,}-\d{23})|(\d{20})|(.*\d+\.zap\.pe(.*\n?)*)|(.*transactionjunction\.co\.za.*)|(CRSTPC-\d+-\d+-\d+-\d+-\d+))\s*$'),
-    'ScanToPay': RegExp(r'(^\d{10}$)|(scantopay\.io)|(payat\.io)|(UMPQR)|(\.oltio\.co\.za)|(easypay)'),
+    'ScanToPay': RegExp(r'.*(scantopay\.io).*'),
     'SnapScan': RegExp(r'.*(snapscan).*'),
   };
 

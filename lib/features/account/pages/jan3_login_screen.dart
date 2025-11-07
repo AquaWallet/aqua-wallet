@@ -35,6 +35,9 @@ class Jan3LoginScreen extends HookConsumerWidget {
           ),
         }));
 
+    final captchaToken = useState<String?>(null);
+    final captchaKey = useState(0);
+
     ref.listen(jan3AuthProvider, (prev, next) {
       if (prev?.value == next.value) return;
       next.value?.maybeWhen(
@@ -45,10 +48,13 @@ class Jan3LoginScreen extends HookConsumerWidget {
             context.push(continueRoute);
           }
         },
-        pendingOtpVerification: () => context.push(
-          Jan3OtpVerificationScreen.routeName,
-          extra: emailFormGroup.control(_emailFormControlName).value,
-        ),
+        pendingOtpVerification: () {
+          captchaKey.value++;
+          context.push(
+            Jan3OtpVerificationScreen.routeName,
+            extra: emailFormGroup.control(_emailFormControlName).value,
+          );
+        },
         orElse: () {},
       );
     });
@@ -172,16 +178,32 @@ class Jan3LoginScreen extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 const Spacer(),
+                // ANCHOR - Captcha widget
+                CaptchaWidget(
+                  key: ValueKey(captchaKey.value),
+                  onTokenReceived: (token) {
+                    captchaToken.value = token;
+                  },
+                ),
+                const SizedBox(height: 16),
                 // ANCHOR - Continue button
                 ReactiveFormConsumer(
                   builder: (context, form, _) => AquaElevatedButton(
-                    onPressed: (profileState.isLoading || form.invalid)
+                    onPressed: (profileState.isLoading ||
+                            form.invalid ||
+                            captchaToken.value == null ||
+                            captchaToken.value!.isEmpty)
                         ? null
-                        : () => ref.read(jan3AuthProvider.notifier).sendOtp(
-                              form.control(_emailFormControlName).value,
-                              ref.read(languageProvider(context)
-                                  .select((p) => p.currentLanguage)),
-                            ),
+                        : () {
+                            ref.read(jan3AuthProvider.notifier).sendOtp(
+                                  form.control(_emailFormControlName).value,
+                                  ref.read(languageProvider(context)
+                                      .select((p) => p.currentLanguage)),
+                                  captchaToken.value!,
+                                );
+                            // reset the captcha token
+                            captchaToken.value = null;
+                          },
                     child: profileState.isLoading
                         ? const CircularProgressIndicator()
                         : Text(context.loc.loginScreenContinue),

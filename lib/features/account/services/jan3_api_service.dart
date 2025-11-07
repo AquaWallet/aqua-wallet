@@ -25,7 +25,7 @@ final jan3ApiServiceProvider =
 @ChopperApi(baseUrl: '/api/')
 abstract class Jan3ApiService extends ChopperService {
   // Authentication
-  @Post(path: 'v1/auth/login/')
+  @Post(path: 'v2/auth/login/')
   Future<Response<MessageResponse>> login(
     @Body() LoginRequest request,
   );

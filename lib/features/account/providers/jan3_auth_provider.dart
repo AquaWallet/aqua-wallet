@@ -24,7 +24,8 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
     return const Jan3AuthState.unauthenticated();
   }
 
-  Future<void> sendOtp(String email, Language currentLang) async {
+  Future<void> sendOtp(
+      String email, Language currentLang, String captchaToken) async {
     state = const AsyncData(Jan3AuthState.unauthenticated());
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
@@ -32,6 +33,7 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
       final response = await api.login(LoginRequest(
         email: email,
         language: currentLang.toAnkaraLanguage,
+        captchaToken: captchaToken,
       ));
       if (response.isSuccessful) {
         _logger.debug('[Jan3Account] Successfully sent OTP to: $email');
@@ -45,7 +47,10 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
     });
   }
 
-  Future<void> verifyOtp({required String email, required String otp}) async {
+  Future<void> verifyOtp({
+    required String email,
+    required String otp,
+  }) async {
     state = const AsyncValue.loading();
     final api = await ref.read(jan3ApiServiceProvider.future);
     final tokenResponse = await api.verify(VerifyRequest(
