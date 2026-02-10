@@ -92,8 +92,8 @@ void main() async {
 
       expect(initialBtcUrl, kCustomBtcUrl2);
       expect(initialLiquidUrl, kCustomLiquidUrl2);
-      expect(provider.customElectrumServerBtcUrl, '');
-      expect(provider.customElectrumServerLiquidUrl, '');
+      expect(provider.customElectrumServerBtcUrl, isNull);
+      expect(provider.customElectrumServerLiquidUrl, isNull);
     });
   });
 }

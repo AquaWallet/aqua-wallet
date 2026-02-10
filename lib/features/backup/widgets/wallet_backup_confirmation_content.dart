@@ -1,9 +1,9 @@
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/common/widgets/sliver_grid_delegate.dart';
-import 'package:aqua/config/config.dart';
+import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:ui_components/ui_components.dart';
 
 class WalletBackupConfirmationContent extends ConsumerWidget {
   const WalletBackupConfirmationContent({super.key});
@@ -17,25 +17,22 @@ class WalletBackupConfirmationContent extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const SizedBox(height: 30.0),
-        Text(
-          context.loc.backupConfirmationTitle,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontSize: 21.0,
-                letterSpacing: .8,
-              ),
-        ),
         const Expanded(
           child: _SectionsContainerWidget(),
         ),
         const SizedBox(height: 16.0),
-        AquaElevatedButton(
+        AquaButton.primary(
+          text: context.loc.backupConfirmationButton,
           onPressed: !isFilled
               ? null
               : () => ref.read(walletBackupConfirmationProvider).confirm(),
-          child: Text(context.loc.backupConfirmationButton),
         ),
-        const SizedBox(height: 64.0),
+        const SizedBox(height: 16.0),
+        AquaButton.secondary(
+          text: context.loc.backupLater,
+          onPressed: () => context.go(AuthWrapper.routeName),
+        ),
+        const SizedBox(height: 66.0),
       ],
     );
   }
@@ -69,7 +66,7 @@ class _SectionsListWidget extends StatelessWidget {
       padding: const EdgeInsets.only(top: 18.0),
       itemCount: sections.length,
       itemBuilder: (context, index) => _SectionWidget(section: sections[index]),
-      separatorBuilder: (context, _) => Container(height: 19.0),
+      separatorBuilder: (context, _) => const SizedBox(height: 24.0),
     );
   }
 }
@@ -90,19 +87,21 @@ class _SectionWidget extends ConsumerWidget {
       children: <Widget>[
         Text(
           context.loc.backupConfirmationSelect('${section.wordToSelect}'),
-          style: Theme.of(context).textTheme.titleMedium,
+          style: AquaTypography.body1SemiBold.copyWith(
+            color: context.aquaColors.textPrimary,
+          ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 12.0),
+          padding: const EdgeInsets.only(top: 16.0),
           child: SizedBox(
-            height: 48.0,
+            height: 34.0,
             child: GridView.builder(
               gridDelegate:
                   const SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
                 crossAxisCount: 3,
-                mainAxisSpacing: 25.0,
-                crossAxisSpacing: 15.0,
-                height: 38.0,
+                mainAxisSpacing: 24.0,
+                crossAxisSpacing: 16.0,
+                height: 34.0,
               ),
               physics: const NeverScrollableScrollPhysics(),
               itemCount: section.words.length,
@@ -132,15 +131,21 @@ class _SectionWordWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.aquaColors;
     return ChoiceChip(
       labelPadding: EdgeInsets.zero,
-      backgroundColor: !selected ? AquaColors.eerieBlack : null,
-      selectedColor: AquaColors.blueGreen,
+      backgroundColor: colors.accentBrandTransparent,
+      selectedColor: colors.accentBrand,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(8.0),
       ),
       label: Center(
-        child: Text(word.title),
+        child: Text(
+          word.title,
+          style: AquaTypography.body2SemiBold.copyWith(
+            color: selected ? colors.textInverse : colors.accentBrand,
+          ),
+        ),
       ),
       selected: selected,
       onSelected: (bool newValue) {

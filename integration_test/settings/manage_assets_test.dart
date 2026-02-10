@@ -1,18 +1,19 @@
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
-import 'package:aqua/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
-import 'package:aqua/features/wallet/keys/wallet_keys.dart';
-import 'package:aqua/features/shared/keys/shared_keys.dart';
-import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
-import 'package:aqua/features/settings/shared/pages/settings_tab.dart';
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
 import 'package:aqua/common/keys/common_keys.dart';
+import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:aqua/features/home/home.dart';
+import 'package:aqua/features/receive/receive.dart';
+import 'package:aqua/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
+import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
+import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
+import 'package:aqua/features/settings/shared/pages/settings_tab.dart';
+import 'package:aqua/features/shared/keys/shared_keys.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/keys/wallet_keys.dart';
 import 'package:aqua/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:aqua/features/home/home.dart';
+
 import '../mocks/secure_storate_mocks.dart';
 
 void main() {
@@ -31,6 +32,7 @@ void main() {
     String tetherUsdt = 'Tether USDt';
     SharedPreferences.setMockInitialValues({});
     final sp = await SharedPreferences.getInstance();
+
     // Load app widget.
     await tester.pumpWidget(ProviderScope(overrides: [
       sharedPreferencesProvider.overrideWithValue(sp),
@@ -95,7 +97,7 @@ void main() {
     await verifyButtonNavigationAndNoAsset(
       tester,
       buttonKey: WalletKeys.homeReceiveButton,
-      expectedScreenType: TransactionMenuScreen,
+      expectedScreenType: ReceiveMenuScreen,
       isPresent: false,
       assetText: tetherUsdt,
     );
@@ -103,7 +105,7 @@ void main() {
     await verifyButtonNavigationAndNoAsset(
       tester,
       buttonKey: WalletKeys.homeSendButton,
-      expectedScreenType: TransactionMenuScreen,
+      expectedScreenType: ReceiveMenuScreen,
       isPresent: false,
       assetText: tetherUsdt,
     );
@@ -169,7 +171,7 @@ void main() {
     await verifyButtonNavigationAndNoAsset(
       tester,
       buttonKey: WalletKeys.homeReceiveButton,
-      expectedScreenType: TransactionMenuScreen,
+      expectedScreenType: ReceiveMenuScreen,
       isPresent: true,
       assetText: tetherUsdt,
     );
@@ -177,7 +179,7 @@ void main() {
     await verifyButtonNavigationAndNoAsset(
       tester,
       buttonKey: WalletKeys.homeSendButton,
-      expectedScreenType: TransactionMenuScreen,
+      expectedScreenType: ReceiveMenuScreen,
       isPresent: true,
       assetText: tetherUsdt,
     );

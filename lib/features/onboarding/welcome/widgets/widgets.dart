@@ -1,1 +1,1 @@
-export 'welcome_tos_checkbox.dart';
+export 'welcome_tos_disclaimer.dart';

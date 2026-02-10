@@ -11,6 +11,7 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		5651710D2EF9963E00C339D1 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 5651710C2EF9963E00C339D1 /* AppIcon.icon */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		952AB2BE062DE913E97775EC /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80F09E17B8360C3C45312DE0 /* Pods_Runner.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -44,6 +45,7 @@
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		529D73F32B05506800EBD265 /* libboltz_rust.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libboltz_rust.a; sourceTree = "<group>"; };
+		5651710C2EF9963E00C339D1 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		6CF4818FE55FFAF49D4EDF43 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -58,12 +60,8 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B11FBCC42C28C9780052842C /* NSBundleHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSBundleHelper.h; sourceTree = "<group>"; };
 		B14E726C2C53FC6A00033A73 /* libgreen_gdk_full.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgreen_gdk_full.a; path = "../crypto/gdk-iphone/lib/arm64-apple-ios13.00/libgreen_gdk_full.a"; sourceTree = "<group>"; };
-		B15C67322C24F1EC009DF56A /* EnforceBundling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnforceBundling.swift; sourceTree = "<group>"; };
-		B15C67332C24F1EC009DF56A /* frb_generated.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = frb_generated.h; sourceTree = "<group>"; };
-		B15C67372C24F1EC009DF56A /* boltz_dart.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = boltz_dart.podspec; sourceTree = "<group>"; };
-		B15C67382C24F1EC009DF56A /* libboltz.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libboltz.xcframework; sourceTree = "<group>"; };
 		B15C67452C25C913009DF56A /* NSBundleHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSBundleHelper.m; sourceTree = "<group>"; };
-		B15C674E2C25E93A009DF56A /* boltz_dart.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = boltz_dart.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B15C674E2C25E93A009DF56A /* boltz.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = boltz.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B179D3A82A7ABAE80087EBED /* callbacks.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = callbacks.c; path = ../ffi/dart_helper/callbacks.c; sourceTree = "<group>"; };
 		B1D4246A2B7D779000017E39 /* libboltz_rust.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libboltz_rust.a; sourceTree = "<group>"; };
 		B1DADEF22A7A99C300B018DD /* FlutterMethodChannel+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FlutterMethodChannel+Extensions.swift"; sourceTree = "<group>"; };
@@ -163,6 +161,7 @@
 				97C147021CF9000F007C117D /* Info.plist */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
+				5651710C2EF9963E00C339D1 /* AppIcon.icon */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				B11FBCC42C28C9780052842C /* NSBundleHelper.h */,
@@ -178,32 +177,11 @@
 			name = "Recovered References";
 			sourceTree = "<group>";
 		};
-		B15C67342C24F1EC009DF56A /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				B15C67322C24F1EC009DF56A /* EnforceBundling.swift */,
-				B15C67332C24F1EC009DF56A /* frb_generated.h */,
-			);
-			path = Classes;
-			sourceTree = "<group>";
-		};
-		B15C67392C24F1EC009DF56A /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				B15C67342C24F1EC009DF56A /* Classes */,
-				B15C67372C24F1EC009DF56A /* boltz_dart.podspec */,
-				B15C67382C24F1EC009DF56A /* libboltz.xcframework */,
-			);
-			name = ios;
-			path = "../../boltz-dart/ios";
-			sourceTree = "<group>";
-		};
 		B1DADEF72A7A99E400B018DD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				B14E726C2C53FC6A00033A73 /* libgreen_gdk_full.a */,
-				B15C674E2C25E93A009DF56A /* boltz_dart.framework */,
-				B15C67392C24F1EC009DF56A /* ios */,
+				B15C674E2C25E93A009DF56A /* boltz.framework */,
 				529D73F32B05506800EBD265 /* libboltz_rust.a */,
 				B1DADEF82A7A99E400B018DD /* libc++.tbd */,
 				80F09E17B8360C3C45312DE0 /* Pods_Runner.framework */,
@@ -310,6 +288,7 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				5651710D2EF9963E00C339D1 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,7 +524,7 @@
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "8KC4F7DWTY";
+				DEVELOPMENT_TEAM = 8KC4F7DWTY;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 8KC4F7DWTY;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -612,8 +591,6 @@
 					"\"UIKit\"",
 					"-framework",
 					"\"app_settings\"",
-					"-framework",
-					"\"boltz_dart\"",
 					"-framework",
 					"\"file_picker\"",
 					"-framework",
@@ -911,8 +888,6 @@
 					"-framework",
 					"\"app_settings\"",
 					"-framework",
-					"\"boltz_dart\"",
-					"-framework",
 					"\"file_picker\"",
 					"-framework",
 					"\"flutter_file_manager_ios\"",
@@ -976,7 +951,7 @@
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "8KC4F7DWTY";
+				DEVELOPMENT_TEAM = 8KC4F7DWTY;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 8KC4F7DWTY;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -1043,8 +1018,6 @@
 					"\"UIKit\"",
 					"-framework",
 					"\"app_settings\"",
-					"-framework",
-					"\"boltz_dart\"",
 					"-framework",
 					"\"file_picker\"",
 					"-framework",

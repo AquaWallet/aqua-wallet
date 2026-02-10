@@ -7,9 +7,15 @@
     "flutter": true
   },
   "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
     "**/*.freezed.dart": true,
     "**/*.g.dart": true,
     "flutter": true
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "hide-files.files": []
 }

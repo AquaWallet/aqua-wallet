@@ -1,13 +1,18 @@
 import 'package:aqua/features/backup/providers/backup_reminder_provider.dart';
 import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
-import 'package:aqua/features/marketplace/widgets/error_retry_button.dart';
-import 'package:aqua/features/marketplace/widgets/marketplace_button.dart';
-import 'package:aqua/features/marketplace/widgets/marketplace_button_grid.dart';
 import 'package:aqua/features/marketplace/providers/enabled_services_provider.dart';
+import 'package:aqua/features/marketplace/widgets/error_retry_button.dart';
+import 'package:aqua/features/marketplace/widgets/marketplace_button_grid.dart';
+import 'package:aqua/features/marketplace/widgets/marketplace_tile.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
+import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'mocks/prefs_provider_mocks.dart';
 
 class FakeAssetsNotifier extends AssetsNotifier {
   @override
@@ -37,11 +42,19 @@ class FakeEnabledServicesNotifier extends EnabledServicesTypesNotifier {
   }
 }
 
+class FakeBuildContext extends Fake implements BuildContext {}
+
 List<Override> defaultOverrides({Override? enabledServicesOverride}) {
+  final mockPrefsProvider = MockUserPreferencesNotifier();
+  mockPrefsProvider.mockGetDarkModeCall(false);
+
+  SharedPreferences.setMockInitialValues({});
+
   return [
     assetsProvider.overrideWith(() => FakeAssetsNotifier()),
     hasTransactedProvider.overrideWith((_) => Future.value(false)),
     if (enabledServicesOverride != null) enabledServicesOverride,
+    prefsProvider.overrideWith((_) => mockPrefsProvider),
   ];
 }
 
@@ -49,6 +62,10 @@ const shortDelay = Duration(milliseconds: 50);
 const longDelay = Duration(milliseconds: 250);
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(FakeBuildContext());
+  });
+
   Widget buildTestableWidget(
       {Widget child = const MarketplaceButtonGrid(),
       List<Override> overrides = const []}) {
@@ -131,7 +148,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     // Check for MarketplaceButton widgets
-    expect(find.byType(MarketplaceButton), findsNWidgets(2));
+    expect(find.byType(MarketplaceTile), findsNWidgets(2));
   });
 
   testWidgets('Takes into account if they are enabled', (tester) async {
@@ -152,6 +169,6 @@ void main() {
       ],
     ));
     await tester.pumpAndSettle();
-    expect(find.byType(MarketplaceButton), findsOne);
+    expect(find.byType(MarketplaceTile), findsOne);
   });
 }

@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../mocks/mocks.dart';
-import 'send_asset_input_provider_test.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +21,7 @@ void main() {
     final args = SendAssetArguments.fromAsset(asset);
     final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
       input: SendAssetInputState(
+        rate: kBtcUsdExchangeRate,
         asset: asset,
         amount: 0,
       ),
@@ -49,7 +49,7 @@ void main() {
     final args = SendAssetArguments.fromAsset(asset);
     final mockManageAssetsProvider = MockManageAssetsProvider();
     final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-      input: SendAssetInputState(asset: asset),
+      input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
     );
 
     final container = ProviderContainer(overrides: [
@@ -69,7 +69,7 @@ void main() {
     });
     test('throws FeeNotFoundError when send txn fee is null', () async {
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-        input: SendAssetInputState(asset: asset),
+        input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
       );
       final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
         transaction: const SendAssetOnchainTx.gdkTx(
@@ -92,17 +92,22 @@ void main() {
     test('returns correct fee structure when fee & txn are present', () async {
       const kFakeFeeRate = 10.0;
       const kFakeFee = 1000;
+      final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
+        input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
+      );
       final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
         transaction: const SendAssetOnchainTx.gdkTx(
           GdkNewTransactionReply(fee: kFakeFee),
         ),
       );
       final mockBalanceProvider = MockBalanceProvider();
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockBitcoinProvider = MockBitcoinProvider();
       final container = ProviderContainer(overrides: [
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kFakeFeeRate)),
+        sendAssetInputStateProvider
+            .overrideWith(() => mockSendAssetInputStateNotifier),
         sendAssetTxnProvider.overrideWith(() => mockSendAssetTxnProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
         prefsProvider.overrideWith((_) => mockPrefsProvider),
@@ -127,7 +132,8 @@ void main() {
       () async {
         final asset = Asset.liquidTest().copyWith(isLBTC: true);
         final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-          input: SendAssetInputState(asset: asset, feeAsset: FeeAsset.btc),
+          input: SendAssetInputState(
+              rate: kBtcUsdExchangeRate, asset: asset, feeAsset: FeeAsset.btc),
         );
         final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
           transaction: const SendAssetOnchainTx.gdkTx(
@@ -142,8 +148,7 @@ void main() {
           sendAssetInputStateProvider
               .overrideWith(() => mockSendAssetInputStateNotifier),
         ]);
-        mockManageAssetsProvider.mockIsUsdtEnabledCall(value: false);
-
+        mockManageAssetsProvider.mockIsUsdtEnabledCall(value: true);
         expect(
           expectAsync0(() => container.read(sendAssetFeeProvider(args).future)),
           throwsA(isA<FeeAssetMismatchError>()),
@@ -159,6 +164,7 @@ void main() {
       final asset = Asset.liquidTest().copyWith(isLBTC: true);
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
         input: SendAssetInputState(
+          rate: kBtcUsdExchangeRate,
           asset: asset,
           feeAsset: FeeAsset.tetherUsdt,
           amount: kFakeUserAmountSats,
@@ -179,7 +185,7 @@ void main() {
           GdkNewTransactionReply(fee: kFakeFee),
         ),
       );
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final container = ProviderContainer(overrides: [
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kFakeFeeRate)),
@@ -212,7 +218,7 @@ void main() {
     final asset = Asset.usdtLiquid();
     final args = SendAssetArguments.fromAsset(asset);
     final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-      input: SendAssetInputState(asset: asset),
+      input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
     );
 
     test(
@@ -245,7 +251,7 @@ void main() {
         'throws FeeTransactionNotFoundError when send txn is null && USDt disabled',
         () async {
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-        input: SendAssetInputState(asset: asset),
+        input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
       );
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final mockSideswapTaxiProvider = MockSideswapTaxiProvider();
@@ -272,7 +278,7 @@ void main() {
         'throws FeeNotFoundError when send txn fee is null && Taxi unavailable',
         () async {
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-        input: SendAssetInputState(asset: asset),
+        input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
       );
       final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
         transaction: const SendAssetOnchainTx.gdkTx(
@@ -300,7 +306,7 @@ void main() {
     test('throws FeeNotFoundError when send txn fee is null && USDt disabled',
         () async {
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-        input: SendAssetInputState(asset: asset),
+        input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
       );
       final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
         transaction: const SendAssetOnchainTx.gdkTx(
@@ -333,10 +339,11 @@ void main() {
         ),
       );
       final mockBalanceProvider = MockBalanceProvider();
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockBitcoinProvider = MockBitcoinProvider();
       final mockInputStateNotifier = MockSendAssetInputStateNotifier(
         input: SendAssetInputState(
+          rate: kBtcUsdExchangeRate,
           asset: asset,
           feeAsset: FeeAsset.lbtc,
         ),
@@ -376,10 +383,11 @@ void main() {
         ),
       );
       final mockBalanceProvider = MockBalanceProvider();
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockBitcoinProvider = MockBitcoinProvider();
       final mockInputStateNotifier = MockSendAssetInputStateNotifier(
         input: SendAssetInputState(
+          rate: kBtcUsdExchangeRate,
           asset: asset,
           feeAsset: FeeAsset.tetherUsdt,
         ),
@@ -437,10 +445,11 @@ void main() {
         transaction: null,
       );
       final mockBalanceProvider = MockBalanceProvider();
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockBitcoinProvider = MockBitcoinProvider();
       final mockInputStateNotifier = MockSendAssetInputStateNotifier(
         input: SendAssetInputState(
+          rate: kBtcUsdExchangeRate,
           asset: asset,
           feeAsset: FeeAsset.tetherUsdt,
         ),
@@ -462,9 +471,8 @@ void main() {
             isEnabled: false,
             feeSats: 0,
             feeFiat: 0,
-            fiatCurrency: kUsdCurrency,
             fiatFeeDisplay: '0',
-            satsPerByte: kVbPerKb.toDouble(),
+            feeDisplay: '0',
           ),
         ),
         SendAssetFeeOptionModel.liquid(
@@ -519,7 +527,8 @@ void main() {
       () async {
         final asset = Asset.liquidTest().copyWith(isLBTC: true);
         final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-          input: SendAssetInputState(asset: asset, feeAsset: FeeAsset.btc),
+          input: SendAssetInputState(
+              rate: kBtcUsdExchangeRate, asset: asset, feeAsset: FeeAsset.btc),
         );
         final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
           transaction: const SendAssetOnchainTx.gdkTx(
@@ -550,6 +559,7 @@ void main() {
       final asset = Asset.liquidTest().copyWith(isLBTC: true);
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
         input: SendAssetInputState(
+          rate: kBtcUsdExchangeRate,
           asset: asset,
           feeAsset: FeeAsset.tetherUsdt,
           amount: kFakeUserAmountSats,
@@ -570,7 +580,7 @@ void main() {
           GdkNewTransactionReply(fee: kFakeFee),
         ),
       );
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final container = ProviderContainer(overrides: [
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
@@ -604,7 +614,7 @@ void main() {
     final asset = Asset.lightning();
     final args = SendAssetArguments.fromAsset(asset);
     final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-      input: SendAssetInputState(asset: asset),
+      input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
     );
     final mockManageAssetsProvider = MockManageAssetsProvider();
     final container = ProviderContainer(overrides: [
@@ -624,7 +634,7 @@ void main() {
     });
     test('throws FeeNotFoundError when send txn fee is null', () async {
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-        input: SendAssetInputState(asset: asset),
+        input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
       );
       final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
         transaction: const SendAssetOnchainTx.gdkTx(
@@ -647,18 +657,23 @@ void main() {
     test('returns correct fee structure when fee & txn are present', () async {
       const kFakeFeeRate = 10.0;
       const kFakeFee = 1000;
+      final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
+        input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
+      );
       final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
         transaction: const SendAssetOnchainTx.gdkTx(
           GdkNewTransactionReply(fee: kFakeFee),
         ),
       );
       final mockBalanceProvider = MockBalanceProvider();
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockBitcoinProvider = MockBitcoinProvider();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final container = ProviderContainer(overrides: [
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kFakeFeeRate)),
+        sendAssetInputStateProvider
+            .overrideWith(() => mockSendAssetInputStateNotifier),
         sendAssetTxnProvider.overrideWith(() => mockSendAssetTxnProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
         prefsProvider.overrideWith((_) => mockPrefsProvider),
@@ -687,6 +702,7 @@ void main() {
       final asset = Asset.liquidTest().copyWith(isLBTC: true);
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
         input: SendAssetInputState(
+          rate: kBtcUsdExchangeRate,
           asset: asset,
           feeAsset: FeeAsset.tetherUsdt,
           amount: kFakeUserAmountSats,
@@ -707,7 +723,7 @@ void main() {
           GdkNewTransactionReply(fee: kFakeFee),
         ),
       );
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final container = ProviderContainer(overrides: [
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
@@ -741,7 +757,7 @@ void main() {
     final asset = Asset.btc();
     final args = SendAssetArguments.fromAsset(asset);
     final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-      input: SendAssetInputState(asset: asset),
+      input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
     );
 
     final container = ProviderContainer(overrides: [
@@ -764,7 +780,7 @@ void main() {
           transaction: const SendAssetOnchainTx.gdkPsbt('xxx'),
         );
         final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-          input: SendAssetInputState(asset: asset),
+          input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
         );
         final container = ProviderContainer(overrides: [
           sendAssetInputStateProvider
@@ -788,7 +804,7 @@ void main() {
           ),
         );
         final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-          input: SendAssetInputState(asset: asset),
+          input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
         );
         final container = ProviderContainer(overrides: [
           sendAssetInputStateProvider
@@ -813,7 +829,7 @@ void main() {
         ),
       );
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
-        input: SendAssetInputState(asset: asset),
+        input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),
       );
       final container = ProviderContainer(overrides: [
         sendAssetInputStateProvider
@@ -842,6 +858,7 @@ void main() {
       );
       final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
         input: SendAssetInputState(
+          rate: kBtcUsdExchangeRate,
           asset: asset,
           fee: SendAssetFeeOptionModel.bitcoin(BitcoinFeeModel.high(
             feeRate: kFakeFeeRate,

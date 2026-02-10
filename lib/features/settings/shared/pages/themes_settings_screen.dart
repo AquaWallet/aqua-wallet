@@ -1,15 +1,17 @@
-import 'package:aqua/config/constants/svgs.dart';
+import 'package:aqua/common/utils/utils.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ui_components/components/top_app_bar/top_app_bar.dart';
 
 enum AppTheme { light, dark, botev, system }
 
 final mapThemeToIcon = {
-  AppTheme.light.name: Svgs.sun,
-  AppTheme.dark.name: Svgs.darkMode,
-  AppTheme.botev.name: [Svgs.botev, Svgs.botevDark],
+  AppTheme.system.name: 'U+1F317', // U+1F317
+  AppTheme.light.name: 'U+1F31E', // U+1F31E
+  AppTheme.dark.name: 'U+1F31A', // U+1F31A
+  // TODO: Uncomment when Botev theme is implemented
+  // AppTheme.botev.name: [Svgs.botev, Svgs.botevDark],
 };
 
 class ThemesSettingsScreen extends HookConsumerWidget {
@@ -40,48 +42,37 @@ class ThemesSettingsScreen extends HookConsumerWidget {
         index: 2,
         length: 3,
       ),
-      SettingsItem.create(
-        AppTheme.botev,
-        name: context.loc.themesSettingsScreenItemBotev,
-        index: 3,
-        length: 3,
-      ),
+      // TODO: Uncomment when Botev theme is implemented
+      // SettingsItem.create(
+      //   AppTheme.botev,
+      //   name: context.loc.themesSettingsScreenItemBotev,
+      //   index: 3,
+      //   length: 3,
+      // ),
     ];
 
-    return Scaffold(
-      appBar: AquaAppBar(
+    return DesignRevampScaffold(
+      appBar: AquaTopAppBar(
         title: context.loc.themesSettingsScreenTitle,
-        backgroundColor: context.colors.appBarBackgroundColor,
-        showActionButton: false,
+        colors: context.aquaColors,
       ),
       body: SafeArea(
         child: SettingsSelectionList(
-          label: currentTheme.toUpperCase(),
           items: themeItems,
           itemBuilder: (context, item) {
             final theme = item.object as AppTheme;
-            final icon = mapThemeToIcon[theme.name];
+            final emoji = mapThemeToIcon[theme.name];
 
             return SettingsListSelectionItem(
-              content: Text(item.name),
-              icon: icon != null
-                  ? SvgPicture.asset(
-                      icon is String
-                          ? icon
-                          : theme == AppTheme.light
-                              ? (icon as List).firstOrNull
-                              : (icon as List).lastOrNull,
-                      width: 24,
-                      height: 24,
-                      colorFilter: icon is String
-                          ? ColorFilter.mode(
-                              Theme.of(context).colorScheme.onSecondary,
-                              BlendMode.srcIn,
-                            )
-                          : null,
+              title: item.name,
+              icon: emoji != null
+                  ? Text(
+                      emoji.toEmoji(),
                     )
                   : null,
-              position: item.position,
+              isRadioButton: true,
+              radioValue: theme.name,
+              radioGroupValue: currentTheme,
               onPressed: () {
                 ref.read(prefsProvider).setTheme(theme);
               },

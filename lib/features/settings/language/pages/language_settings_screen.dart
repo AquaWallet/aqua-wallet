@@ -1,7 +1,7 @@
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:ui_components/ui_components.dart';
 
 class LanguageSettingsScreen extends HookConsumerWidget {
   static const routeName = '/languageSettingsScreen';
@@ -35,35 +35,47 @@ class LanguageSettingsScreen extends HookConsumerWidget {
       });
     });
 
-    return Scaffold(
-      appBar: AquaAppBar(
+    return DesignRevampScaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AquaTopAppBar(
         showBackButton: true,
-        showActionButton: false,
         title: context.loc.language,
-        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
+        colors: context.aquaColors,
         onTitlePressed: () =>
             ref.read(featureUnlockTapCountProvider.notifier).increment(),
       ),
-      body: SafeArea(
-        child: SettingsSelectionList(
-          label: currentLang.languageCode.toUpperCase(),
-          items: languages
-              .mapIndexed((index, item) => SettingsItem.create(item,
-                  name: item.languageCode.toUpperCase(),
-                  index: index,
-                  length: languages.length))
-              .toList(),
-          itemBuilder: (context, item) {
-            final language = item.object as Language;
-            return SettingsListSelectionItem(
-              content: Text(language.languageCode.toUpperCase()),
-              position: item.position,
-              onPressed: () => ref
-                  .read(languageProvider(context))
-                  .setCurrentLanguage(language),
-            );
-          },
+      body: SettingsSelectionList(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          16 + MediaQuery.of(context).padding.bottom,
         ),
+        items: languages
+            .mapIndexed((index, item) => SettingsItem.create(item,
+                name: item.languageCode.toUpperCase(),
+                index: index,
+                length: languages.length))
+            .toList(),
+        itemBuilder: (context, item) {
+          final language = item.object as Language;
+
+          return SettingsListSelectionItem<String>(
+            icon: CountryFlag(
+              svgAsset: language.region.flagSvg,
+              width: 18,
+              height: 18,
+            ),
+            title: language.originalLanguageName,
+            subTitle: language.translatedLanguageName,
+            onPressed: () => ref
+                .read(languageProvider(context))
+                .setCurrentLanguage(language),
+            radioValue: language.languageCode,
+            radioGroupValue: currentLang.languageCode,
+            isRadioButton: true,
+          );
+        },
       ),
     );
   }

@@ -3,6 +3,7 @@ export 'data_conversion/bip21_encoder.dart';
 export 'decimal/decimal_ext.dart';
 export 'dialogs/dialog_manager.dart';
 export 'exceptions/exception_localized.dart';
+export 'exceptions/selection_unavailable_exception.dart';
 export 'input_formatters/comma_text_input_formatter.dart';
 export 'input_formatters/decimal_text_input_formatter.dart';
 export 'price/btc_price.dart';

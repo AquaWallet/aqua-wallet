@@ -1,32 +1,70 @@
-import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:aqua/config/config.dart';
+import 'package:boltz/boltz.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
-import 'boltz_swaps_list.dart';
-
-class BoltzSwapsScreen extends ConsumerWidget {
+class BoltzSwapsScreen extends HookConsumerWidget {
   static const routeName = '/boltzSwapsScreen';
 
   const BoltzSwapsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode =
-        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
+    final tabs = useMemoized(() => [context.loc.send, context.loc.receive], []);
+    final selectedTab = useState(0);
+    final searchController = useTextEditingController();
 
-    return Scaffold(
+    final type = selectedTab.value == 0 ? SwapType.submarine : SwapType.reverse;
+    final state = ref.watch(boltzSwapsFilterProvider(type)).valueOrNull;
+
+    final swaps = useMemoized(
+      () => state?.items ?? [],
+      [state],
+    );
+    final hasMore = useMemoized(
+      () => state?.hasMore ?? false,
+      [state],
+    );
+
+    return DesignRevampScaffold(
       extendBodyBehindAppBar: false,
-      appBar: AquaAppBar(
-        title: context.loc.boltzSwaps,
+      appBar: AquaTopAppBar(
+        title: context.loc.swapOrders,
         showBackButton: true,
-        showActionButton: false,
-        backgroundColor: darkMode
-            ? Colors.transparent
-            : Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colors.onBackground,
+        colors: context.aquaColors,
       ),
-      body: const BoltzSwapsList(),
+      body: Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            AquaTabBar(
+              height: 36,
+              tabs: tabs,
+              onTabChanged: (index) => selectedTab.value = index,
+            ),
+            const SizedBox(height: 24),
+            AquaSearchField(
+              hint: context.loc.searchTitle,
+              controller: searchController,
+              onChanged: (value) => ref
+                  .read(boltzSwapsFilterProvider(type).notifier)
+                  .updateSearchQuery(value),
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: BoltzSwapsList(
+                swaps: swaps,
+                hasMore: hasMore,
+                onLoadMore: () => ref
+                    .read(boltzSwapsFilterProvider(type).notifier)
+                    .fetchNext(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

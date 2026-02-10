@@ -1,5 +1,9 @@
 class RecoveryPhraseScreenArguments {
-  RecoveryPhraseScreenArguments({required this.isOnboarding});
+  const RecoveryPhraseScreenArguments({
+    this.isOnboarding = false,
+    this.walletId,
+  });
 
   final bool isOnboarding;
+  final String? walletId;
 }

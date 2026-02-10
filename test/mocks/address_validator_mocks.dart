@@ -12,6 +12,13 @@ extension MockAddressParserProviderX on MockAddressParserProvider {
         )).thenAnswer((_) => Future.value(value));
   }
 
+  void mockIsLightningInvoiceCall({
+    required String input,
+    required bool value,
+  }) {
+    when(() => isLightningInvoice(input: input)).thenReturn(value);
+  }
+
   void mockParseInputCall({ParsedAddress? value}) {
     when(() => parseInput(
           input: any(named: 'input'),

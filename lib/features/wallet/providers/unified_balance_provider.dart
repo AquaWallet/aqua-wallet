@@ -15,15 +15,21 @@ class UnifiedBalanceResult {
 final unifiedBalanceProvider = Provider<UnifiedBalanceResult?>((ref) {
   final fiatRates = ref.watch(fiatRatesProvider).asData?.value;
   final allAssets = ref.watch(assetsProvider).asData?.value;
+  final formatter = ref.read(formatProvider);
 
   if (fiatRates == null || allAssets == null) {
     return null;
   }
 
-  final referenceCurrency = ref
+  final referenceCurrencyCode = ref
       .watch(exchangeRatesProvider.select((p) => p.currentCurrency))
       .currency
       .value;
+
+  final referenceCurrency = FiatCurrency.values.firstWhere(
+    (c) => c.value == referenceCurrencyCode,
+    orElse: () => FiatCurrency.usd, // Default to USD if not found
+  );
 
   final convertedBalances = allAssets
       .where((asset) => asset.isBTC || asset.isLBTC)
@@ -46,8 +52,7 @@ final unifiedBalanceProvider = Provider<UnifiedBalanceResult?>((ref) {
       ? (usdtBalanceInDecimal.toDouble() / usdRate) * satsPerBtc
       : 0;
 
-  final usdtBalanceInSelectedCurrency = referenceCurrency ==
-          FiatCurrency.usd.value
+  final usdtBalanceInSelectedCurrency = referenceCurrency == FiatCurrency.usd
       ? usdtBalanceInDecimal?.toDecimal()
       : ref
           .watch(conversionProvider((Asset.btc(), usdtBalanceInSats.toInt())))
@@ -59,5 +64,7 @@ final unifiedBalanceProvider = Provider<UnifiedBalanceResult?>((ref) {
 
   return UnifiedBalanceResult(
       decimal: unifiedBalance,
-      formatted: ref.read(fiatProvider).formattedFiat(unifiedBalance));
+      formatted: formatter.formatFiatAmount(
+        amount: unifiedBalance,
+      ));
 });

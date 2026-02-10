@@ -4,7 +4,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/data/models/network_amount.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/pokerchip/pokerchip.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -36,6 +36,7 @@ class PokerchipBalanceNotifier
         arg.replaceFirst(_bitcoinPrefix, '').replaceFirst(_liquidPrefix, '');
     final isBtc = await ref.read(bitcoinProvider).isValidAddress(scanInput);
     final isLiquid = await ref.read(liquidProvider).isValidAddress(scanInput);
+    final formatter = ref.read(formatProvider);
 
     if (!isBtc && !isLiquid) {
       return Future.error(PokerChipInvalidAddressError());
@@ -84,13 +85,13 @@ class PokerchipBalanceNotifier
     final pokerChipAssetResponse = PokerChipAssetResponse.fromJson(data);
 
     final balance = pokerChipAssetResponse.value;
-    final balanceForDisplay = ref
-        .read(formatterProvider)
-        .formatAssetAmountDirect(
-            amount: pokerChipAssetResponse.value, precision: 8);
-
     asset =
         isBtc ? Asset.btc() : await _getUserAsset(pokerChipAssetResponse.asset);
+
+    final balanceForDisplay = formatter.formatAssetAmount(
+      amount: pokerChipAssetResponse.value,
+      asset: asset,
+    );
 
     _logger.debug('Balance: $balanceForDisplay ${asset.ticker} $scanInput');
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ui_components/gen/assets.gen.dart';
 import 'package:ui_components/ui_components.dart';
 
 class AquaRadio<T> extends StatelessWidget {
@@ -9,6 +8,7 @@ class AquaRadio<T> extends StatelessWidget {
     this.onChanged,
     this.groupValue,
     this.enabled = true,
+    this.colors,
   }) : size = AquaControlSize.large;
 
   const AquaRadio.small({
@@ -16,6 +16,7 @@ class AquaRadio<T> extends StatelessWidget {
     required this.value,
     this.onChanged,
     this.groupValue,
+    this.colors,
     this.enabled = true,
   }) : size = AquaControlSize.small;
 
@@ -23,6 +24,7 @@ class AquaRadio<T> extends StatelessWidget {
   final T? groupValue;
   final AquaControlSize size;
   final ValueChanged<T>? onChanged;
+  final AquaColors? colors;
   final bool enabled;
 
   @override
@@ -33,10 +35,10 @@ class AquaRadio<T> extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         customBorder: const CircleBorder(),
-        onTap: enabled
-            ? onChanged != null
-                ? () => onChanged!(value)
-                : null
+        splashFactory: InkRipple.splashFactory,
+        onTap: enabled && onChanged != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onChanged!(value))
             : null,
         child: Opacity(
           opacity: enabled ? 1 : 0.5,
@@ -44,27 +46,20 @@ class AquaRadio<T> extends StatelessWidget {
             width: size == AquaControlSize.large ? 24 : 18,
             height: size == AquaControlSize.large ? 24 : 18,
             decoration: BoxDecoration(
-              color: !isSelected
-                  ? Theme.of(context).colorScheme.surfaceContainerHigh
-                  : null,
-              borderRadius: BorderRadius.circular(100),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected
+                    ? (colors?.accentBrand ?? Colors.transparent)
+                    : (colors?.surfaceBorderSecondary ?? Colors.transparent),
+                width: isSelected
+                    ? size == AquaControlSize.large
+                        ? 7
+                        : 5.25
+                    : size == AquaControlSize.large
+                        ? 2
+                        : 1,
+              ),
             ),
-            child: switch (size) {
-              AquaControlSize.large => isSelected
-                  ? AquaUiAssets.svgs.radioSelected.svg(
-                      package: AquaUiAssets.package,
-                    )
-                  : AquaUiAssets.svgs.radioUnselected.svg(
-                      package: AquaUiAssets.package,
-                    ),
-              AquaControlSize.small => isSelected
-                  ? AquaUiAssets.svgs.radioSelectedSmall.svg(
-                      package: AquaUiAssets.package,
-                    )
-                  : AquaUiAssets.svgs.radioUnselectedSmall.svg(
-                      package: AquaUiAssets.package,
-                    ),
-            },
           ),
         ),
       ),

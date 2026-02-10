@@ -63,10 +63,8 @@ class SwapForm extends HookConsumerWidget {
               bottomLeft: Radius.circular(30.0),
               bottomRight: Radius.circular(30.0),
             ),
-            boxShadow: [Theme.of(context).shadow],
           ),
-          padding: EdgeInsets.only(
-            top: context.adaptiveDouble(mobile: 114.0, smallMobile: 94.0),
+          padding: const EdgeInsets.only(
             bottom: 34.0,
             left: 28.0,
             right: 28.0,
@@ -168,8 +166,7 @@ class SwapForm extends HookConsumerWidget {
               //ANCHOR - Error Message
               CustomError(errorMessage: validationError?.message),
               SizedBox(
-                  height:
-                      context.adaptiveDouble(mobile: 22.0, smallMobile: 5.0)),
+                  height: context.adaptiveDouble(mobile: 30, smallMobile: 10)),
               //ANCHOR - Swap Button
               AquaElevatedButton(
                 onPressed: isContinueEnabled ? onContinueHandler : null,
@@ -276,7 +273,7 @@ class SwapScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colors.inverseSurfaceColor,
       appBar: AquaAppBar(
         title: context.loc.swaps,
         showActionButton: false,
@@ -286,7 +283,7 @@ class SwapScreen extends HookConsumerWidget {
             Theme.of(context).colors.addressFieldContainerBackgroundColor,
         iconForegroundColor: Theme.of(context).colors.onBackground,
       ),
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       body: const SwapForm(),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ui_components/shared/shared.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components/ui_components.dart';
 
 class AquaWalletHeaderBitcoinPrice extends StatelessWidget {
@@ -8,71 +8,120 @@ class AquaWalletHeaderBitcoinPrice extends StatelessWidget {
     required this.currencySymbol,
     required this.bitcoinPrice,
     required this.isNegative,
+    required this.showChart,
+    required this.isCached,
     required this.trendPercent,
     required this.trendAmount,
-    this.priceChartData,
+    this.bitcoinPriceText = 'Bitcoin Price',
     this.colors,
+    this.isSymbolLeading,
   });
 
-  final String currencySymbol;
-  final String bitcoinPrice;
+  final String? currencySymbol;
+  final String? bitcoinPrice;
   final bool isNegative;
-  final List<ChartDataItem>? priceChartData;
+  final bool showChart;
+  final bool isCached;
   final String? trendPercent;
   final String? trendAmount;
   final AquaColors? colors;
+  final bool? isSymbolLeading;
+  final String bitcoinPriceText;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AquaText.body2SemiBold(
-                text: context.loc.bitcoinPrice,
-                color: colors?.textSecondary,
-              ),
-              const SizedBox(height: 4),
-              Text.rich(
-                TextSpan(
+    final isTrendDataAvailable = trendPercent != null || trendAmount != null;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //ANCHOR - Price label
+                if (!showChart && isTrendDataAvailable) ...{
+                  AquaText.caption1SemiBold(
+                    text: bitcoinPriceText,
+                    color: colors?.textSecondary,
+                  ),
+                } else ...{
+                  AquaText.body2SemiBold(
+                    text: bitcoinPriceText,
+                    color: colors?.textSecondary,
+                  ),
+                },
+                SizedBox(height: !showChart && isTrendDataAvailable ? 2 : 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    TextSpan(
-                      text: currencySymbol,
-                      style: AquaTypography.h5SemiBold.copyWith(
-                        color: colors?.textSecondary,
+                    //ANCHOR - Price
+                    Skeletonizer(
+                      enabled: bitcoinPrice == null,
+                      child: Skeleton.unite(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Opacity(
+                          opacity: isCached ? 0.5 : 1,
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                if (isSymbolLeading == true)
+                                  TextSpan(
+                                    text: currencySymbol,
+                                    style: AquaTypography.h5SemiBold.copyWith(
+                                      color: colors?.textSecondary,
+                                    ),
+                                  ),
+                                TextSpan(
+                                  text: bitcoinPrice,
+                                  style: AquaTypography.h5SemiBold,
+                                ),
+                                if (isSymbolLeading != true)
+                                  TextSpan(
+                                    text: ' ${currencySymbol ?? ''}',
+                                    style: AquaTypography.h5SemiBold.copyWith(
+                                      color: colors?.textSecondary,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                    TextSpan(
-                      text: bitcoinPrice,
-                      style: AquaTypography.h5SemiBold,
-                    ),
+                    //ANCHOR - Trend
+                    if (isTrendDataAvailable) ...[
+                      const SizedBox(width: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          AquaText.caption1SemiBold(
+                            text: trendAmount!,
+                            color: isNegative
+                                ? colors?.accentDanger
+                                : colors?.accentSuccess,
+                          ),
+                          const SizedBox(width: 2),
+                          AquaText.caption1SemiBold(
+                            text: '(${trendPercent!})',
+                            color: isNegative
+                                ? colors?.accentDanger
+                                : colors?.accentSuccess,
+                          ),
+                        ],
+                      )
+                    ],
                   ],
                 ),
-              ),
-              if (trendPercent != null || trendAmount != null) ...[
-                const SizedBox(height: 6),
-                AquaWalletHeaderPriceTrend(
-                  isNegative: isNegative,
-                  trendPercent: trendPercent!,
-                  trendAmount: trendAmount!,
-                  currencySymbol: currencySymbol,
-                  colors: colors,
-                ),
               ],
-            ],
+            ),
           ),
-        ),
-        if (priceChartData != null) ...{
-          const SizedBox(width: 8),
-          AquaWalletPriceChart(
-            data: priceChartData!,
-            isNegative: isNegative,
-            colors: colors,
-          ),
-        },
-      ],
+        ],
+      ),
     );
   }
 }

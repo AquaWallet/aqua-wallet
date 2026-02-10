@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/config/config.dart';
 
 class AquaToggle extends HookWidget {
   const AquaToggle({
@@ -76,7 +77,7 @@ class AquaToggle extends HookWidget {
                     color: thumbColorValue,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: AquaPrimitiveColors.shadow,
                         blurRadius: 4,
                         offset: Offset(0, position * 2),
                       ),

@@ -1,8 +1,11 @@
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/changelly/changelly.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/features/swaps/swaps.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/logger.dart';
 
 class UnsupportedSwapAssetException implements Exception {
@@ -25,15 +28,24 @@ class SwapServicesRegistryNotifier
 
     final storage = ref.read(swapStorageProvider.notifier);
     final dio = ref.read(dioProvider);
+    final formatter = ref.read(formatProvider);
+    final fiat = ref.read(fiatProvider);
+    final displayUnits = ref.read(displayUnitsProvider);
 
     return {
       SwapServiceSource.sideshift: SideshiftService(
         httpProvider: SideshiftHttpProvider(),
         storageProvider: storage,
+        formatter: formatter,
+        fiatProvider: fiat,
+        displayUnitsProvider: displayUnits,
       ),
       SwapServiceSource.changelly: ChangellyService(
         apiService: ChangellyApiService(dio),
         storageProvider: storage,
+        formatter: formatter,
+        fiatProvider: fiat,
+        displayUnitsProvider: displayUnits,
       ),
     };
   }

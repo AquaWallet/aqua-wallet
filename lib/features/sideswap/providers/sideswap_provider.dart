@@ -1,4 +1,5 @@
 import 'package:aqua/data/provider/fee_estimate_provider.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
@@ -77,17 +78,18 @@ final swapIncomingDeliverAmountProvider = Provider.autoDispose<String>((ref) {
   if (deliverAsset == null ||
       inputState.receiveAsset == null ||
       priceStream == null) {
-    return inputState.deliverAmount.toString();
+    return inputState.deliverAmount;
   }
 
-  if (priceStream.sendAmount == inputState.deliverAmountSatoshi) {
+  // Only use price stream amount if user hasn't entered anything
+  if (inputState.deliverAmount.isEmpty && priceStream.sendAmount != null) {
     return ref.read(formatterProvider).convertAssetAmountToDisplayUnit(
           amount: priceStream.sendAmount ?? 0,
-          precision: deliverAsset.precision,
+          asset: deliverAsset,
         );
   }
 
-  return inputState.deliverAmount.toString();
+  return inputState.deliverAmount;
 });
 
 final swapIncomingDeliverSatoshiAmountProvider =
@@ -101,9 +103,10 @@ final swapIncomingDeliverSatoshiAmountProvider =
     return 0;
   }
 
-  return ref.watch(formatterProvider).parseAssetAmountDirect(
+  return ref.watch(formatterProvider).parseAssetAmountToSats(
         amount: deliverIncomingAmount,
         precision: deliverAsset.precision,
+        asset: deliverAsset,
       );
 });
 
@@ -140,9 +143,9 @@ final swapIncomingReceiveAmountProvider = FutureProvider.autoDispose
           SideSwapFeeCalculator.subtractSideSwapFeeForPegDeliverAmount(
               amountMinusChainFee, inputState.isPegIn, statusStream, feeRate);
 
-      return ref.read(formatterProvider).formatAssetAmountDirect(
+      return ref.read(formatProvider).formatAssetAmount(
             amount: amountAfterSideSwapFee.toInt(),
-            precision: receiveAsset.precision,
+            asset: receiveAsset,
           );
     }
   }
@@ -157,9 +160,9 @@ final swapIncomingReceiveAmountProvider = FutureProvider.autoDispose
   }
 
   if (priceStream.recvAmount != null) {
-    return ref.watch(formatterProvider).convertAssetAmountToDisplayUnit(
+    return ref.watch(formatProvider).formatAssetAmount(
           amount: priceStream.recvAmount ?? 0,
-          precision: receiveAsset.precision,
+          asset: receiveAsset,
         );
   }
 
@@ -178,8 +181,9 @@ final swapIncomingReceiveSatoshiAmountProvider =
     return 0;
   }
 
-  return ref.watch(formatterProvider).parseAssetAmountDirect(
+  return ref.watch(formatterProvider).parseAssetAmountToSats(
         amount: receiveIncomingAmount,
         precision: receiveAsset.precision,
+        asset: receiveAsset,
       );
 });

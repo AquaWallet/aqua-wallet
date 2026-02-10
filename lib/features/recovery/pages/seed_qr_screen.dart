@@ -12,7 +12,8 @@ class WalletRecoveryQRScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recoveryPhrase = ref.watch(recoveryPhraseWordsProvider).asData?.value;
+    final recoveryPhrase =
+        ref.watch(recoveryPhraseWordsProvider(null)).asData?.value;
 
     return Scaffold(
       appBar: AquaAppBar(
@@ -56,26 +57,35 @@ class WalletRecoveryQRScreen extends HookConsumerWidget {
                       if (recoveryPhrase == null || qrCode.isEmpty) {
                         return const CircularProgressIndicator();
                       }
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 9.0, vertical: 12.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        child: SizedBox.square(
-                          child: QrImageView(
-                            data: qrCode,
-                            version: QrVersions.auto,
-                            size: 200.0,
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9.0,
+                              vertical: 12.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: SizedBox.square(
+                              dimension: 200.0,
+                              child: QrImageView(
+                                data: qrCode,
+                                version: QrVersions.auto,
+                                size: 200.0,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 46.0),
+                          CopyableTextView(text: qrCode),
+                        ],
                       );
                     },
                   ),
                 ),
               ),
-              const SizedBox(height: 66.0),
             ],
           ),
         ),

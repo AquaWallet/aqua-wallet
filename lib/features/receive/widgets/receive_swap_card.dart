@@ -1,18 +1,18 @@
-import 'package:aqua/common/common.dart';
+import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/receive/receive.dart';
-import 'package:aqua/features/send/widgets/usdt_swap_min_max_panel.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:aqua/config/config.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:ui_components/ui_components.dart';
 
-//TODO: Polygon DOESN'T work for Changelly, need to remove if Changelly
-class ReceiveSwapCard extends HookConsumerWidget {
-  const ReceiveSwapCard({
+class ReceiveSwapContent extends HookConsumerWidget
+    with GenericErrorPromptMixin {
+  const ReceiveSwapContent({
     super.key,
     required this.deliverAsset,
     this.swapPair,
@@ -21,42 +21,29 @@ class ReceiveSwapCard extends HookConsumerWidget {
   final Asset deliverAsset;
   final SwapPair? swapPair;
 
-  Widget _buildErrorContent(BuildContext context, String errorMessage) {
-    useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final alertModel = CustomAlertDialogUiModel(
-          title: context.loc.somethingWentWrong,
-          subtitle: errorMessage,
-          buttonTitle: context.loc.ok,
-          onButtonPressed: () {
-            DialogManager().dismissDialog(context);
-          },
-        );
-        DialogManager().showDialog(context, alertModel);
-      });
-      return null;
-    }, []);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100.0),
-      alignment: Alignment.center,
-      child: Text(
-        context.loc.somethingWentWrong,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (swapPair == null) {
-      return _buildErrorContent(
-          context, context.loc.swapServiceGeneralError(''));
+      return const SizedBox.shrink();
     }
 
     final args = useMemoized(() => SwapArgs(pair: swapPair!), [swapPair]);
+
     final swapOrder = ref.watch(swapOrderProvider(args));
+    final order = swapOrder.valueOrNull?.order;
     final swapOrderNotifier = ref.read(swapOrderProvider(args).notifier);
+
+    // Handle swap provider errors with modal
+    ref.listen(swapOrderProvider(args), (_, state) {
+      showGenericErrorPromptOnAsyncError(
+        context,
+        state,
+        title: context.loc.genericSwapError,
+        onPrimaryButtonTap: () {
+          context.popUntilPath(ReceiveMenuScreen.routeName);
+        },
+      );
+    });
 
     // create order
     final createSwapOrder = useCallback((String? amount) async {
@@ -76,6 +63,7 @@ class ReceiveSwapCard extends HookConsumerWidget {
     // amount (if needed)
     final needsAmount = swapOrderNotifier.needsAmountOnReceive;
     final showAmountSheet = useState(needsAmount);
+
     useEffect(() {
       if (!needsAmount) {
         createSwapOrder(null);
@@ -84,83 +72,62 @@ class ReceiveSwapCard extends HookConsumerWidget {
 
       if (showAmountSheet.value && needsAmount) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            isDismissible: true,
-            useSafeArea: true,
-            backgroundColor: Theme.of(context).colors.background,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30.0),
-                topRight: Radius.circular(30.0),
+          if (context.mounted && swapOrder.valueOrNull?.rate != null) {
+            final minLimit =
+                '${swapOrder.valueOrNull?.rate?.min.toStringAsFixed(2)} USDt';
+            final maxLimit =
+                '${swapOrder.valueOrNull?.rate?.max.toStringAsFixed(2)} USDt';
+            context.push(
+              ReceiveAmountScreen.routeName,
+              extra: ReceiveAmountArguments(
+                asset: deliverAsset,
+                swapPair: swapPair,
+                minLimit: minLimit,
+                maxLimit: maxLimit,
+                onContinuePressed: () {
+                  final amount = ref.read(receiveAssetAmountProvider);
+                  showAmountSheet.value = false;
+                  if (amount != null) {
+                    createSwapOrder(amount.replaceAll(',', ''));
+                  }
+                },
+                isAmountCompulsory: true,
               ),
-            ),
-            builder: (_) => _AmountModalContent(
-              asset: deliverAsset,
-              swapPair: swapPair!,
-              onAmountConfirmed: (amount) {
-                showAmountSheet.value = false;
-                createSwapOrder(amount);
-              },
-              onDismiss: () {
-                showAmountSheet.value = false;
-              },
-            ),
-          );
+            );
+          } else {
+            swapOrderNotifier.getRate();
+          }
         });
       }
       return null;
-    }, [showAmountSheet.value, needsAmount]);
+    }, [showAmountSheet.value, needsAmount, swapOrder.valueOrNull?.rate]);
+
+    // Handle errors and timeout - navigate to error screen
+    ref.listen(swapOrderProvider(args), (_, state) {
+      if (state.hasError) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            context.push(ServiceErrorScreen.routeName);
+          }
+        });
+      }
+    });
 
     // main qr content
     final enableShareButton = swapOrder.hasValue;
     final address = swapOrder.valueOrNull?.order?.depositAddress ?? '';
-    return swapOrder.when(
-      data: (orderState) => orderState.order != null
-          ? _SwapContent(
-              order: orderState.order!,
+
+    //NOTE - The Swap content is too complicated to have simple Skeletonizer
+    //wrapping, hence the easier route it just create a simplified loading state
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: order == null
+          ? _LoadingContent(args: args)
+          : _SwapContent(
+              order: order,
               enableShareButton: enableShareButton,
               address: address,
-            )
-          : _LoadingContent(
-              asset: deliverAsset, address: address, swapPair: swapPair),
-      loading: () => _LoadingContent(
-          asset: deliverAsset, address: address, swapPair: swapPair),
-      error: (error, stackTrace) {
-        final errorMessage =
-            ((error as ExceptionLocalized?)?.toLocalizedString(context) ??
-                    context.loc.swapServiceGeneralError(''))
-                .toString();
-        return _buildErrorContent(context, errorMessage);
-      },
-    );
-  }
-}
-
-class _LoadingContent extends StatelessWidget {
-  const _LoadingContent({
-    required this.asset,
-    required this.address,
-    this.swapPair,
-  });
-
-  final Asset asset;
-  final String address;
-  final SwapPair? swapPair;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 24.0),
-        ReceiveAssetAddressQrCard(
-          asset: asset,
-          address: address,
-          swapOrder: null,
-          swapPair: swapPair,
-        ),
-      ],
+            ),
     );
   }
 }
@@ -186,133 +153,172 @@ class _SwapContent extends StatelessWidget {
 
     return Column(
       children: [
-        const SizedBox(height: 24.0),
+        //ANCHOR - USDt Swap Warning
+        const _SwapWarningLabel(),
+        const SizedBox(height: 24),
+        //ANCHOR - Address QR Code
         ReceiveAssetAddressQrCard(
           asset: deliverAsset,
           address: address,
           swapOrder: order,
           swapPair: swapPair,
         ),
-        const SizedBox(height: 21.0),
+        const SizedBox(height: 23),
+        //ANCHOR - Swap Information Card
         ReceiveSwapInformation(
           order: order,
+          swapPair: swapPair,
           deliverAssetNetwork: deliverAsset.usdtOption.networkLabel(context),
-        ),
-        const SizedBox(height: 21.0),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 28.0),
-          child: Row(
-            children: [
-              Flexible(
-                flex: deliverAsset.shouldShowAmountInputOnReceive ? 0 : 1,
-                child: ReceiveAssetAddressShareButton(
-                  isEnabled: enableShareButton,
-                  isExpanded: !deliverAsset.shouldShowAmountInputOnReceive,
-                  address: address,
-                ),
-              ),
-            ],
-          ),
         ),
       ],
     );
   }
 }
 
-class _AmountModalContent extends HookConsumerWidget {
-  const _AmountModalContent({
-    required this.asset,
-    required this.swapPair,
-    required this.onAmountConfirmed,
-    required this.onDismiss,
+class _SwapWarningLabel extends StatelessWidget {
+  const _SwapWarningLabel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Skeleton.keep(
+      child: AquaText.body2Medium(
+        text: context.loc.usdAutoSwapToLUsdtDescription,
+        color: context.aquaColors.textTertiary,
+      ),
+    );
+  }
+}
+
+class _LoadingContent extends HookConsumerWidget {
+  const _LoadingContent({
+    required this.args,
   });
 
-  final Asset asset;
-  final SwapPair swapPair;
-  final Function(String amount) onAmountConfirmed;
-  final VoidCallback onDismiss;
+  final SwapArgs args;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final args = useMemoized(() => SwapArgs(pair: swapPair), [swapPair]);
-    final rate = ref.watch(swapOrderProvider(args)).valueOrNull?.rate;
+    final serviceProvider = args.serviceProvider ??
+        ref.watch(swapServiceResolverProvider(args.pair));
+    final serviceName = serviceProvider!.displayName;
 
-    final amountController = useTextEditingController();
-    final amountError = useState<String?>(null);
-    final isValidAmount = useState(false);
-
-    final debouncer = useMemoized(() => Debouncer(milliseconds: 500));
-    useEffect(() => debouncer.dispose, []);
-
-    final validateAmount = useCallback((String amount) {
-      try {
-        final decimal = Decimal.parse(amount);
-        if (rate != null) {
-          final deliverAsset = asset.name;
-          if (decimal < rate.min) {
-            return context.loc.swapServiceMinAmountError(deliverAsset);
-          }
-          if (decimal > rate.max) {
-            return context.loc.swapServiceMaxAmountError(deliverAsset);
-          }
-        }
-        return null;
-      } catch (e) {
-        return context.loc.swapServiceAmountError;
-      }
-    }, [rate]);
-
-    final onAmountChanged = useCallback((String amount) {
-      if (amount.isEmpty) {
-        amountError.value = null;
-        isValidAmount.value = false;
-        return;
-      }
-
-      debouncer.run(() {
-        final error = validateAmount(amount);
-        amountError.value = error;
-        isValidAmount.value = error == null;
-      });
-    }, [validateAmount]);
-
-    final onConfirm = useCallback((String amount) async {
-      final error = validateAmount(amount);
-      if (error != null) {
-        amountError.value = error;
-        isValidAmount.value = false;
-        return;
-      }
-      isValidAmount.value = true;
-      onAmountConfirmed(amount);
-      context.pop(); // pop modal
-    }, [validateAmount, onAmountConfirmed]);
-
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+    return Skeletonizer(
+      enabled: true,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          ReceiveAmountInputSheet(
-            asset: asset,
-            controller: amountController,
-            errorText: amountError.value,
-            onCancel: onDismiss,
-            onConfirm: onConfirm,
-            onChanged: onAmountChanged,
-            isConfirmEnabled: isValidAmount.value,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28.0),
-            child: USDtSwapMinMaxPanel(
-              swapPair: swapPair,
+          //ANCHOR - USDt Swap Warning
+          const _SwapWarningLabel(),
+          const SizedBox(height: 24),
+          //ANCHOR - Address QR Code
+          AquaCard.glass(
+            width: double.maxFinite,
+            elevation: 8,
+            borderRadius: BorderRadius.circular(8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 24),
+                //ANCHOR - Warning Chip
+                Skeleton.keep(
+                  child: AltUsdtNetworkWarningChip(
+                    asset: Asset.usdtEth(),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                //ANCHOR - Single Use Address with expiry
+                const Skeleton.keep(
+                  child: SingleUseReceiveAddressLabel(),
+                ),
+                const SizedBox(height: 4),
+                //ANCHOR - Expiry date
+                AquaText.caption1Medium(
+                  text: 'lorem ipsum dolor sit',
+                  textAlign: TextAlign.center,
+                  color: context.aquaColors.textSecondary,
+                ),
+                const SizedBox(height: 16),
+                Skeleton.shade(
+                  child: Container(
+                    width: kQrCardSize,
+                    height: kQrCardSize,
+                    decoration: BoxDecoration(
+                      color: context.aquaColors.surfaceTertiary,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'lorem ipsum dolor sit amet lorem ipsum sit',
+                ),
+                const Text(
+                  'lorem ipsum dolor',
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
           ),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: 24),
+          AquaCard.glass(
+            elevation: 8,
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  //ANCHOR - Range Min/Max
+                  _LoadingStateInfoItem(
+                    context.loc.range,
+                  ),
+                  const SizedBox(height: 32),
+                  //ANCHOR - Swap Service Fee
+                  _LoadingStateInfoItem(
+                    context.loc.receiveAssetScreenSwapServiceFee,
+                  ),
+                  const SizedBox(height: 32),
+                  //ANCHOR - Provider Processing Fee
+                  _LoadingStateInfoItem(
+                    context.loc.providerProcessingFee(serviceName),
+                  ),
+                  const SizedBox(height: 32),
+                  //ANCHOR - Swap ID with copy button
+                  _LoadingStateInfoItem(
+                    context.loc.providerId(serviceName),
+                  ),
+                ],
+              ),
+            ),
+          )
         ],
       ),
+    );
+  }
+}
+
+class _LoadingStateInfoItem extends StatelessWidget {
+  const _LoadingStateInfoItem(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Skeleton.keep(
+          child: Text(
+            label,
+            style: AquaTypography.body1SemiBold,
+          ),
+        ),
+        const Text(
+          'lorem',
+          style: AquaTypography.body1SemiBold,
+        ),
+      ],
     );
   }
 }

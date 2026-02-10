@@ -1,16 +1,21 @@
+import 'package:aqua/data/provider/format_provider.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:decimal/decimal.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class USDtSwapMinMaxPanel extends HookConsumerWidget {
-  final SwapPair swapPair;
-
   const USDtSwapMinMaxPanel({
+    required this.currency,
     required this.swapPair,
     super.key,
   });
+
+  final FiatCurrency currency;
+  final SwapPair swapPair;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,26 +30,21 @@ class USDtSwapMinMaxPanel extends HookConsumerWidget {
       return null;
     }, [swapPair]);
 
-    final formatAmount = useCallback((Decimal? amount) {
-      final ticker = swapPair.to.ticker;
-      return amount != null ? '${amount.toStringAsFixed(2)} $ticker' : '--';
-    }, [swapPair]);
+    final formatAmount = useCallback((Decimal usdAmount) {
+      return ref.read(formatProvider).formatFiatAmount(
+            amount: usdAmount,
+            specOverride: FiatCurrency.usd.format,
+            withSymbol: false,
+          );
+    }, []);
 
-    final minAmount = rate?.min;
-    final maxAmount = rate?.max;
-
-    return Row(
-      children: [
-        Text(
-          '${context.loc.min}: ${formatAmount(minAmount)}',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        const Spacer(),
-        Text(
-          '${context.loc.max}: ${formatAmount(maxAmount)}',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-      ],
-    );
+    return rate != null
+        ? AquaText.caption1Medium(
+            text: context.loc.amountRange(
+              formatAmount(rate.max),
+              formatAmount(rate.min),
+            ),
+          )
+        : const SizedBox.shrink();
   }
 }

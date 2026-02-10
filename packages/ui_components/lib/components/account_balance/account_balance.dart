@@ -7,12 +7,14 @@ class AquaAccountBalance extends HookWidget {
     super.key,
     required this.asset,
     this.title,
+    this.amountWidget,
     this.onTap,
     this.colors,
   });
 
   final AssetUiModel asset;
   final String? title;
+  final Widget? amountWidget;
   final Function(String?)? onTap;
   final AquaColors? colors;
 
@@ -26,8 +28,11 @@ class AquaAccountBalance extends HookWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: InkWell(
-        onTap: onTap != null ? () => onTap?.call(asset.assetId) : null,
-        splashFactory: NoSplash.splashFactory,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call(asset.assetId))
+            : null,
+        splashFactory: InkRipple.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {
           if (state.isHovered) {
             return Colors.transparent;
@@ -49,26 +54,33 @@ class AquaAccountBalance extends HookWidget {
                     AquaText.body2SemiBold(
                       text: title ?? 'Balance',
                       color: colors?.textSecondary,
+                      height: 0,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
-                        AquaText.h5SemiBold(
-                          text: asset.amount,
-                          color: colors?.textPrimary,
-                        ),
+                        amountWidget ??
+                            AquaText.h5SemiBold(
+                              text: asset.amount,
+                              color: colors?.textPrimary,
+                              height: 0,
+                            ),
                         const SizedBox(width: 4),
                         AquaText.h5SemiBold(
                           text: asset.subtitle,
                           color: colors?.textTertiary,
+                          height: 1.45,
                         ),
                       ],
                     ),
                     if (asset.amountFiat != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       AquaText.body2Medium(
                         text: asset.amountFiat!,
                         color: colors?.textSecondary,
+                        height: 0,
                       ),
                     ],
                   ],

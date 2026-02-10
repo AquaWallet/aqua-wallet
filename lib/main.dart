@@ -1,11 +1,12 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:aqua/config/router/go_router.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/theme_provider.dart';
-import 'package:aqua/features/onboarding/shared/shared.dart';
+import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
+import 'package:aqua/features/settings/shared/providers/auto_lock_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/lifecycle_observer.dart';
 import 'package:aqua/logger.dart';
@@ -14,41 +15,68 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:talker_riverpod_logger/talker_riverpod_logger_observer.dart';
+import 'package:ui_components/shared/constants/constants.dart';
+import 'package:window_manager/window_manager.dart';
 
 final isAppInBackground = StateProvider<bool>((ref) => false);
+final _backgroundStartTime = StateProvider<DateTime?>((ref) => null);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final prefs = await SharedPreferences.getInstance();
+  if (isDesktop) {
+    ///There is additional setup for specific functionality that needs to be followed
+    ///For example, Hidden at launch, Quit on close, Confirm before closing, Listening events
+    ///here => [https://leanflutter.dev/documentation/window_manager/quick-start]
+    await windowManager.ensureInitialized();
 
-  const needsDevicePreview = String.fromEnvironment('DEVICE_PREVIEW') == 'true';
+    WindowOptions windowOptions = const WindowOptions(
+      minimumSize: Size(
+        minWidthOfDesktopWindow,
+        minHeightOfDesktopWindow,
+      ),
+      size: Size(
+        initWidthOfDesktopWindow,
+        initHeightOfDesktopWindow,
+      ),
+      // fullScreen: true,
+      center: true,
+      title: 'AQUA',
+      // skipTaskbar: true,
+      titleBarStyle: TitleBarStyle.normal,
+    );
 
-  await SystemChrome.setPreferredOrientations([
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
+
+  // Set orientation immediately to avoid UI jumps
+  SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
 
-  runApp(
-    needsDevicePreview
-        ? DevicePreview(
-            enabled: !kReleaseMode,
-            builder: (_) => ProviderScope(
-              observers: kDebugMode
-                  ? [TalkerRiverpodObserver(talker: logger.internalLogger)]
-                  : null,
-              overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-              child: const AquaApp(),
-            ),
-          )
-        : ProviderScope(
-            observers: kDebugMode
-                ? [TalkerRiverpodObserver(talker: logger.internalLogger)]
-                : null,
-            overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-            child: const AquaApp(),
-          ),
-  );
+  // Start loading SharedPreferences but don't wait for it
+  final prefs = await SharedPreferences.getInstance();
+
+  // Precache the aqua logo SVG to prevent flicker
+  await PreloadBackgroundPainter.precacheAquaLogo();
+
+  const needsDevicePreview = String.fromEnvironment('DEVICE_PREVIEW') == 'true';
+
+  // Launch app immediately and handle prefs when they're ready
+  runApp(needsDevicePreview
+      ? DevicePreview(
+          enabled: !kReleaseMode,
+          builder: (_) => ProviderScope(
+                overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+                child: const AquaApp(),
+              ))
+      : ProviderScope(
+          overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+          child: const AquaApp(),
+        ));
 }
 
 class AquaApp extends HookConsumerWidget {
@@ -63,40 +91,63 @@ class AquaApp extends HookConsumerWidget {
     final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
     final isInBackground = ref.watch(isAppInBackground);
 
-    observeAppLifecycle((state) {
+    final lifecycleCallback = useCallback((AppLifecycleState state) {
       if ([
         AppLifecycleState.inactive,
         AppLifecycleState.paused,
         AppLifecycleState.detached
       ].contains(state)) {
-        logger.debug("[Lifecycle] App in background");
-        Future.microtask(() {
-          ref.read(isAppInBackground.notifier).state = true;
-        });
+        logger.debug("[Lifecycle] App in background at ${DateTime.now()}");
+        ref.read(isAppInBackground.notifier).state = true;
+        if (ref.read(_backgroundStartTime) == null) {
+          ref.read(_backgroundStartTime.notifier).state = DateTime.now();
+        }
       } else if (state == AppLifecycleState.resumed) {
-        logger.debug("[Lifecycle] App resumed");
-        Future.microtask(() {
+        logger.debug("[Lifecycle] App resumed at ${DateTime.now()}");
+        Future.microtask(() async {
           ref.read(isAppInBackground.notifier).state = false;
+          final backgroundStartTime = ref.read(_backgroundStartTime);
+
+          logger.debug("[Lifecycle] backgroundStartTime: $backgroundStartTime");
+
+          await ref.read(autoLockProvider).handleAppResume(
+                backgroundStartTime: backgroundStartTime,
+              );
+
+          ref.read(_backgroundStartTime.notifier).state = null;
         });
       }
-    });
+    }, []);
 
+    observeAppLifecycle(lifecycleCallback);
+
+    // Defer theme-based operations
     useEffect(() {
-      Future.microtask(() {
+      // Use a short delay to prioritize UI rendering first
+      Future.delayed(const Duration(milliseconds: 50), () {
         ref.read(systemOverlayColorProvider(context)).themeBased();
       });
       return null;
     }, [theme]);
 
+    // Defer secure storage check to after initial rendering
     useEffect(
       () {
-        ref.read(aquaProvider).clearSecureStorageOnReinstall();
+        // Schedule this operation with a lower priority
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Future.microtask(() {
+            ref.read(aquaProvider).clearSecureStorageOnReinstall();
+          });
+        });
         return null;
       },
       [],
     );
+
     return CustomPaint(
-      painter: PreloadBackgroundPainter(isBotevMode: botevMode),
+      painter: PreloadBackgroundPainter(
+        isBotevMode: botevMode,
+      ),
       child: MaterialApp.router(
         theme: ref.watch(lightThemeProvider(context)),
         darkTheme: ref.watch(darkThemeProvider(context)),
@@ -107,7 +158,9 @@ class AquaApp extends HookConsumerWidget {
                 ? ThemeMode.dark
                 : ThemeMode.light,
         locale: Locale.fromSubtags(languageCode: languageCode),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localizationsDelegates: const [
+          ...AppLocalizations.localizationsDelegates,
+        ],
         supportedLocales: AppLocalizations.supportedLocales,
         onGenerateTitle: (context) => "AQUA",
         debugShowCheckedModeBanner: false,
@@ -120,9 +173,9 @@ class AquaApp extends HookConsumerWidget {
             child: Stack(
               children: [
                 child!,
-                if (isInBackground) ...[
+                if (isInBackground && !isDesktop) ...[
                   BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 25.0, sigmaY: 25.0),
+                    filter: ui.ImageFilter.blur(sigmaX: 25.0, sigmaY: 25.0),
                     child: Container(
                       color: Colors.black.withOpacity(0.1),
                     ),

@@ -3,6 +3,7 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -32,9 +33,17 @@ class SwapAmountInput extends HookConsumerWidget {
         value == const SwapProgressState.waiting();
     final amount = isReceive
         ? ref.watch(swapIncomingReceiveAmountProvider(context)).valueOrNull
-        : ref.watch(sideswapInputStateProvider).deliverAmount;
+        : ref.watch(swapIncomingDeliverAmountProvider);
     final selectedAsset = ref.watch(sideswapInputStateProvider
         .select((p) => isReceive ? p.receiveAsset : p.deliverAsset));
+
+    final displayUnit = ref.watch(displayUnitsProvider
+        .select((p) => p.getForcedDisplayUnit(selectedAsset)));
+
+    final inputPrecision = useMemoized(() {
+      return displayUnit.getDisplayPrecision(selectedAsset);
+    }, [selectedAsset, displayUnit]);
+
     final counterAsset = ref.watch(sideswapInputStateProvider
         .select((p) => isReceive ? p.deliverAsset : p.receiveAsset));
 
@@ -60,6 +69,7 @@ class SwapAmountInput extends HookConsumerWidget {
                     key: globalKey,
                     controller: controller,
                     focusNode: focusNode,
+                    precision: inputPrecision,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: readOnly && amount == '0'
                               ? Theme.of(context).colorScheme.onSurface

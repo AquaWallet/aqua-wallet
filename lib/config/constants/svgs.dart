@@ -84,6 +84,9 @@ class Svgs {
   static const telegram = 'assets/telegram.svg';
   static const jan3LogoWithAquaDark = 'assets/jan3_logo_with_aqua_dark.svg';
   static const jan3LogoWithAquaLight = 'assets/jan3_logo_with_aqua_light.svg';
+  static const jan3MiniLogoWithAquaDark = 'assets/svgs/dark/jan3_mini_logo.svg';
+  static const jan3MiniLogoWithAquaLight =
+      'assets/svgs/light/jan3_mini_logo.svg';
   static const lightningBolt = 'assets/lightning_bolt.svg';
   static const whatsappLogo = 'assets/asset_icons/whatsapp_logo.svg';
   static const zendeskLogo = 'assets/asset_icons/zendesk_logo.svg';
@@ -110,7 +113,6 @@ class Svgs {
   static const layerTwoSingle = 'assets/asset_icons/layer_two_single.svg';
   static const internalSendArrow = 'assets/internal_send_arrow.svg';
   static const internalSendArrowLight = 'assets/internal_send_arrow_light.svg';
-  static const mapIcon = 'assets/marketplace/map.svg';
   static const refreshIcon = 'assets/arrow_clockwise.svg';
   static const eyeIcon = 'assets/eye.svg';
   static const eyeSlashIcon = 'assets/eye_slash.svg';

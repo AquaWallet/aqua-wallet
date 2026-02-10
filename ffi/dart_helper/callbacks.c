@@ -1,7 +1,7 @@
 #include "callbacks.h"
 
 #include <stdint.h>
-#include <gdk/gdk.h>
+#include "gdk/gdk.h"
 #include <assert.h>
 #include <stdlib.h>
 

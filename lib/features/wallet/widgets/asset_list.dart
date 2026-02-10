@@ -1,30 +1,36 @@
-import 'dart:io';
 import 'dart:async';
 
-import 'package:aqua/constants.dart';
+import 'package:aqua/features/account/account.dart';
+import 'package:aqua/features/qr_scan/qr_scan.dart';
+import 'package:aqua/features/receive/receive.dart';
+import 'package:aqua/features/scan/scan.dart';
+import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/shared/utils/wallet_header_localizations_extension.dart';
+import 'package:aqua/features/text_scan/text_scan.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:ui_components/ui_components.dart';
 
 class AssetsList extends HookConsumerWidget {
   const AssetsList({
     super.key,
     required this.assets,
+    required this.refreshController,
   });
 
   final List<Asset> assets;
+  final AquaRefreshController refreshController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final anyNonZeroBalance = assets.any((asset) => asset.amount > 0);
+    final btcPriceAsync = ref.watch(btcPriceUiModelProvider(2));
+    final btcPriceUiModel = btcPriceAsync.valueOrNull;
+    final btcPriceHistory = ref.watch(bitcoinPriceHistoryProvider).valueOrNull;
     final savingAssetList = assets.where((asset) => asset.isBTC).toList();
     final spendingAssetList = assets.where((asset) => !asset.isBTC).toList();
-    final refresherKey = useMemoized(UniqueKey.new);
-    final controller =
-        useMemoized(() => RefreshController(initialRefresh: false));
 
     // Scroll controller to scroll to the top of the list after inactivity
     final scrollController = useScrollController();
@@ -62,85 +68,109 @@ class AssetsList extends HookConsumerWidget {
       };
     }, []);
 
-    //NOTE - Hide swap button under two scenarios:
-    // 1. Device is iOS AND the feature flag for disabling swaps is enabled
-    // 2. The user has zero balance
-    final isSwapEnabled = useMemoized(
-      () => !(Platform.isIOS && disableSideswapOnIOS && !anyNonZeroBalance),
-      [disableSideswapOnIOS, anyNonZeroBalance],
-    );
-
-    return SmartRefresher(
+    return AquaPullToRefresh(
       enablePullDown: true,
-      key: refresherKey,
-      controller: controller,
-      physics: const BouncingScrollPhysics(),
-      onRefresh: () async {
-        await ref.read(assetsProvider.notifier).reloadAssets();
-        controller.refreshCompleted();
-      },
-      header: ClassicHeader(
-        height: 72.0,
-        refreshingText: '',
-        releaseText: '',
-        completeText: '',
-        failedText: '',
-        idleText: '',
-        idleIcon: null,
-        failedIcon: null,
-        releaseIcon: null,
-        refreshingIcon: null,
-        completeIcon: null,
-        outerBuilder: (child) => Container(child: child),
-      ),
-      child: ListView(
+      controller: refreshController,
+      // Don't show indicator here, it will be in the header
+      showIndicator: false,
+      child: SingleChildScrollView(
         controller: scrollController,
         padding: const EdgeInsets.only(
-          left: 28.0,
-          right: 28.0,
+          left: 16,
+          right: 16,
+          top: 2,
           bottom: 80,
         ),
-        primary: false,
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
-        children: [
-          const SizedBox(height: 18),
-          //ANCHOR - Savings Header
-          AssetListSectionHeader(
-            text: context.loc.tabSavings,
-            children: const [
-              Spacer(),
-              SizedBox(height: 33),
-              // Replicate the height taken up by Swap button to make gaps even
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //ANCHOR - Price/Balance Header
+            AquaWalletHeader(
+              text: context.loc.walletHeaderLocalizations,
+              currencySymbol: btcPriceUiModel?.symbol,
+              bitcoinPrice: btcPriceUiModel?.price,
+              isSymbolLeading: btcPriceUiModel?.isSymbolLeading,
+              priceChartData: btcPriceHistory,
+              showChart: true,
+              onSend: () => context.push(SendMenuScreen.routeName),
+              onReceive: () => context.push(ReceiveMenuScreen.routeName),
+              onScan: () async {
+                final result = await context.push(
+                  ScanScreen.routeName,
+                  extra: ScanArguments(
+                    qrArguments: QrScannerArguments(
+                      parseAction: QrScannerParseAction.attemptToParse,
+                    ),
+                    textArguments: TextScannerArguments(
+                      parseAction: TextScannerParseAction.attemptToParse,
+                    ),
+                    initialType: ScannerType.qr,
+                  ),
+                );
+
+                // Handle QR scan result
+                if (result is QrScanState) {
+                  result.maybeWhen(
+                    sendAsset: (args) {
+                      context.push(SendAssetScreen.routeName, extra: args);
+                    },
+                    orElse: () {},
+                  );
+                }
+                // Handle text scan result
+                else if (result is String) {
+                  // Use first asset (prefer BTC if available) - send flow will parse address and switch if needed
+                  final defaultAsset = assets.isEmpty
+                      ? Asset.btc()
+                      : assets.firstWhere(
+                          (a) => a.isBTC,
+                          orElse: () => assets.first,
+                        );
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.push(
+                      SendAssetScreen.routeName,
+                      extra:
+                          SendAssetArguments.fromAsset(defaultAsset).copyWith(
+                        input: result,
+                      ),
+                    );
+                  });
+                }
+              },
+              colors: context.aquaColors,
+            ),
+            const SizedBox(height: 22),
+            //ANCHOR - Savings Header
+            AquaText.body1SemiBold(text: context.loc.tabSavings),
+            const SizedBox(height: 16),
+            //ANCHOR - Savings List
+            if (savingAssetList.isNotEmpty) ...[
+              SectionAssetList(items: savingAssetList),
+            ] else ...[
+              const SkeletonAssetListItem(),
             ],
-          ),
-          const SizedBox(height: 18),
-          //ANCHOR - Savings List
-          SectionAssetList(items: savingAssetList),
-          const SizedBox(height: 18),
-          //ANCHOR - Spending Header
-          AssetListSectionHeader(
-            text: spendingAssetList.length == 1
-                ? context.loc.tabSpendingSingular
-                : context.loc.tabSpending,
-            children: [
-              const Spacer(),
-              if (isSwapEnabled) ...{
-                const WalletInternalSwapButton(),
-              } else ...{
-                const SizedBox(height: 33),
-              }
+            const SizedBox(height: 22),
+            //ANCHOR - Spending Header
+            AquaText.body1SemiBold(
+              text: spendingAssetList.length == 1
+                  ? context.loc.tabSpendingSingular
+                  : context.loc.tabSpending,
+            ),
+            const SizedBox(height: 16),
+            //ANCHOR - Spending List
+            if (spendingAssetList.isNotEmpty) ...[
+              SectionAssetList(items: spendingAssetList),
+            ] else ...[
+              SkeletonAssetListItem(
+                assets: [Asset.lbtc(), Asset.usdtLiquid()],
+              ),
             ],
-          ),
-          const SizedBox(height: 19.0),
-          //ANCHOR - Spending List
-          spendingAssetList.isNotEmpty
-              ? SectionAssetList(items: spendingAssetList)
-              : AssetListErrorView(
-                  message: context.loc.manageAssetsScreenError,
-                ),
-        ],
+            const SizedBox(height: 100),
+          ],
+        ),
       ),
     );
   }

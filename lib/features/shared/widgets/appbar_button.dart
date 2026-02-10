@@ -48,6 +48,7 @@ class AppbarButton extends HookWidget {
               onPressed: onPressed,
               style: ElevatedButton.styleFrom(
                 elevation: 0,
+                padding: const EdgeInsets.all(12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
                   side: BorderSide(

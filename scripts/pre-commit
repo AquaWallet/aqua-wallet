@@ -1,0 +1,34 @@
+#!/bin/bash
+
+
+empty_files=$(find . -type f -name '*.dart' -empty)
+
+if [ ! -z "$empty_files" ]; then
+    echo "COMMIT REJECTED: Found empty files:"
+    echo "$empty_files"
+    exit 1
+fi
+
+# Run dart format and check for unformatted files
+if ! unformatted=$(fvm dart format -o none --set-exit-if-changed lib test); then
+    echo "COMMIT REJECTED: Dart format found unformatted files:"
+    echo "$unformatted"
+    exit 1
+fi
+
+# Run Flutter analyze and check for errors
+if ! output=$(fvm flutter analyze --no-fatal-infos | grep -v 'deprecated_member_use_from_same_package'); then
+    echo "COMMIT REJECTED: Flutter analyze found the following errors:"
+    echo "$output"
+    exit 1
+fi
+
+# Run Flutter test and check for errors
+if ! output=$(fvm flutter test); then
+    echo "COMMIT REJECTED: Flutter test found the following errors:"
+    echo "$output"
+    exit 1
+fi
+
+# If we made it this far, the commit is allowed
+exit 0

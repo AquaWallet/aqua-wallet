@@ -7,6 +7,7 @@ class PrefKeys {
   static const languageCode = 'language_code';
   static const region = 'region';
   static const exchangeRate = 'exchange_rate';
+  static const priceSource = 'price_source';
   static const blockExplorer = 'block_explorer';
   static const customElectrumServerBtcUrl = 'custom_electrum_btc_url';
   static const customElectrumServerLiquidUrl = 'custom_electrum_liquid_url';
@@ -34,15 +35,25 @@ class PrefKeys {
       'force_aqua_node_not_synced_enabled';
   static const changellyForUSDtSwapsEnabled = 'changelly_usdt_swaps_enabled';
   static const btcDirectEnabled = 'btc_direct_enabled';
-  static const seedQrEnabled = 'seed_qr_enabled';
   static const balanceHidden = "balance_hidden";
   static const displayUnits = 'display_units';
-  static const payWithMoonEnabled = 'payWithMoonEnabled';
+  static const displayUnitsEnabled = 'display_units_enabled';
   static const customElectrumUrlEnabled = 'customElectrumUrlEnabled';
   static const debitCardStagingEnabled = 'debitCardStagingEnabled';
   static const jan3CardExpanded = 'jan3_card_expanded';
   static const lendASatMockDataEnabled = 'lendASatMockDataEnabled';
   static const marketplaceTilesMockDataEnabled =
       'marketplaceTilesMockDataEnabled';
+
+  // Per-wallet settings keys
+  static String userAssetsForWallet(String walletId, String env) {
+    final envSuffix = env == 'mainnet' ? '' : '_${env.toLowerCase()}';
+    return 'user_assets${envSuffix}_$walletId';
+  }
+
   static const autoLockAfter = 'auto_lock_after';
+  static const nonLiquidUsdtReceiveWarningDisplayed =
+      'non_liquid_usdt_receive_warning_displayed';
+  static const lightningReceiveWarningDisplayed =
+      'lightning_receive_warning_displayed';
 }

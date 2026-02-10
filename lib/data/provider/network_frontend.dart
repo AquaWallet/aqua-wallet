@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/models/gdk_models.dart';
+import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/data/provider/lwk_provider.dart';
 import 'package:aqua/features/send/providers/send_asset_used_utxo_provider.dart';
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -116,6 +118,10 @@ abstract class NetworkFrontend {
         // refresh balances & transactions
         await getBalance(requiresRefresh: true);
         await getTransactions(requiresRefresh: true);
+        if (this is LiquidProvider) {
+          await ref.read(lwkProvider).syncWallet();
+        }
+
         break;
       default:
         logger.debug(
@@ -177,7 +183,8 @@ abstract class NetworkFrontend {
     final int end = _listenersCount;
     for (int i = 0; i < end; i++) {
       try {
-        await _eventListeners[i]?.call(value);
+        final listener = _eventListeners.length > i ? _eventListeners[i] : null;
+        await listener?.call(value);
       } catch (e) {
         logger.error(e);
         logger.error(StackTrace.current);

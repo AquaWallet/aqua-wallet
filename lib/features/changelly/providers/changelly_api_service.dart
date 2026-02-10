@@ -3,7 +3,6 @@ import 'package:aqua/features/changelly/changelly.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/logger.dart';
-import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';
 
 class ChangellyApiService {
@@ -15,10 +14,7 @@ class ChangellyApiService {
 
   Future<List<String>> fetchCurrencyList() async {
     try {
-      final response = await _dio.get(
-        '$baseUrl/currencies',
-        options: Options(headers: {'Content-Type': 'application/json'}),
-      );
+      final response = await _dio.get('$baseUrl/currencies');
 
       final apiResponse = ChangellyCurrencyListResponse.fromJson(
         response.data as Map<String, dynamic>,
@@ -46,7 +42,6 @@ class ChangellyApiService {
       final response = await _dio.post(
         '$baseUrl/pairs',
         data: data,
-        options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
       final apiResponse = ChangellyPairsResponse.fromJson(
@@ -63,21 +58,29 @@ class ChangellyApiService {
     }
   }
 
-  Future<ChangellyQuoteResponse> requestQuote({
-    required String from,
-    required String to,
-    required Decimal? amountFrom,
-  }) async {
+  Future<ChangellyFixedQuoteResponse> requestFixedQuote(
+    ChangellyFixedRatePayload payload,
+  ) async {
     try {
-      const fixedQuoteAmount = '100';
+      final response = await _dio.post(
+        '$baseUrl/get-fix-rate-for-amount',
+        data: payload.toJson(),
+      );
+
+      final apiResponse = ChangellyFixedQuoteResponse.fromJson(response.data);
+      return apiResponse;
+    } catch (e) {
+      throw SwapServiceQuoteException('Unexpected error');
+    }
+  }
+
+  Future<ChangellyQuoteResponse> requestQuote(
+    ChangellyQuotePayload payload,
+  ) async {
+    try {
       final response = await _dio.post(
         '$baseUrl/quote',
-        data: {
-          'from': from,
-          'to': to,
-          'amountFrom': fixedQuoteAmount,
-        },
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: payload.toJson(),
       );
 
       final apiResponse = ChangellyQuoteListResponse.fromJson(response.data);
@@ -85,38 +88,24 @@ class ChangellyApiService {
         throw SwapServiceQuoteException('No quotes available');
       }
 
-      logger.debug('[Changelly] Fetched order quote - from: $from to: $to');
       return apiResponse.quotes.first;
     } on DioException catch (e) {
       logger.error(
           '[Changelly] Order Quote Error: ${e.message}', e, StackTrace.current);
-      throw SwapServiceQuoteException('$from to $to swap');
+      throw SwapServiceQuoteException('${payload.from} to ${payload.to} swap');
     } catch (e) {
       logger.error('[Changelly] Unexpected error: $e');
       throw SwapServiceQuoteException('Unexpected error');
     }
   }
 
-  Future<ChangellyVariableOrderResponse> requestVariableOrder({
-    required String from,
-    required String to,
-    String? amountFrom,
-    required String address,
-    String? refundAddress,
-  }) async {
+  Future<ChangellyVariableOrderResponse> requestVariableOrder(
+    ChangellyVariableOrderPayload payload,
+  ) async {
     try {
-      final Map<String, dynamic> data = {
-        'from': from,
-        'to': to,
-        'address': address,
-        if (refundAddress?.isNotEmpty == true) 'refundAddress': refundAddress,
-        if (amountFrom?.isNotEmpty == true) 'amountFrom': amountFrom,
-      };
-
       final response = await _dio.post(
         '$baseUrl/create-transaction',
-        data: data,
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: payload.toJson(),
       );
       if (response.data is! Map<String, dynamic>) {
         throw SwapServiceOrderCreationException('Invalid response format');
@@ -125,19 +114,40 @@ class ChangellyApiService {
     } on DioException catch (e) {
       logger.error('[Changelly] Variable Order Error: ${e.message}', e,
           StackTrace.current);
-      throw SwapServiceOrderCreationException('$from to $to swap');
+      throw SwapServiceOrderCreationException(
+          '${payload.from} to ${payload.to} swap', e.toString());
     } catch (e) {
       logger.error('[Changelly] Unexpected error: $e');
-      throw SwapServiceOrderCreationException('Unexpected error');
+      throw SwapServiceOrderCreationException('Unexpected error', e.toString());
+    }
+  }
+
+  Future<ChangellyFixedOrderResponse> requestFixedOrder(
+    ChangellyFixedOrderPayload payload,
+  ) async {
+    try {
+      final response = await _dio.post(
+        '$baseUrl/create-fix-transaction',
+        data: payload.toJson(),
+      );
+      if (response.data is! Map<String, dynamic>) {
+        throw SwapServiceOrderCreationException('Invalid response format');
+      }
+      return ChangellyFixedOrderResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      logger.error(
+          '[Changelly] Fixed Order Error: ${e.message}', e, StackTrace.current);
+      throw SwapServiceOrderCreationException(
+          '${payload.from} to ${payload.to} swap', e.toString());
+    } catch (e) {
+      logger.error('[Changelly] Unexpected error: $e');
+      throw SwapServiceOrderCreationException('Unexpected error', e.toString());
     }
   }
 
   Future<ChangellyOrderStatus> fetchOrderStatus(String orderId) async {
     try {
-      final response = await _dio.get(
-        '$baseUrl/status/$orderId',
-        options: Options(headers: {'Content-Type': 'application/json'}),
-      );
+      final response = await _dio.get('$baseUrl/status/$orderId');
 
       final status = response.data as String;
 

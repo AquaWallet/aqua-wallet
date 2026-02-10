@@ -188,5 +188,43 @@ void main() {
         "12345678901234567890@cryptoqr.net",
       );
     });
+    test('validates ScanToPay scantopay.io pattern', () {
+      const qrData = 'https://scantopay.io/merchant/abc';
+      expect(MoneyBadgerValidator.isValidRetailerQR(qrData), true);
+    });
+
+    test('validates ScanToPay 10-digit numeric code', () {
+      const qrData = '0123456789';
+      expect(MoneyBadgerValidator.isValidRetailerQR(qrData), true);
+    });
+
+    test('validates payat.io pattern', () {
+      const qrData = 'https://payat.io/merchant/xyz';
+      expect(MoneyBadgerValidator.isValidRetailerQR(qrData), true);
+    });
+
+    test('validates UMPQR pattern', () {
+      const qrData = 'UMPQR12345';
+      expect(MoneyBadgerValidator.isValidRetailerQR(qrData), true);
+    });
+
+    test('validates oltio domain', () {
+      const qrData = 'https://demo.oltio.co.za/pay';
+      expect(MoneyBadgerValidator.isValidRetailerQR(qrData), true);
+    });
+
+    test('validates easypay pattern', () {
+      const qrData = 'please pay with easypay';
+      expect(MoneyBadgerValidator.isValidRetailerQR(qrData), true);
+    });
+
+    test('converts scantopay URL to Lightning address', () {
+      const qrData = 'https://scantopay.io/pay/123';
+      final lightningAddress =
+          MoneyBadgerValidator.convertToLightningAddress(qrData);
+      expect(lightningAddress, isNotNull);
+      expect(lightningAddress, contains('@cryptoqr.net'));
+      expect(lightningAddress, contains('scantopay.io'));
+    });
   });
 }

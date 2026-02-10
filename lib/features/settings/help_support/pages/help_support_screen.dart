@@ -1,9 +1,9 @@
-import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/urls.dart' as urls;
 import 'package:aqua/features/settings/shared/providers/version_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ui_components/ui_components.dart';
 
 class HelpSupportScreen extends ConsumerWidget {
   static const routeName = '/helpSupportScreen';
@@ -13,71 +13,74 @@ class HelpSupportScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final aquaVersion = ref.watch(versionProvider);
-    return Scaffold(
-      appBar: AquaAppBar(
+
+    return DesignRevampScaffold(
+      appBar: AquaTopAppBar(
         showBackButton: true,
-        showActionButton: false,
-        title: context.loc.getHelpSupportScreenTitle,
-        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
+        colors: context.aquaColors,
+        title: context.loc.zendeskTitle,
       ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            //ANCHOR - Description
-            const SizedBox(height: 28.0),
-            Padding(
-                padding: const EdgeInsets.only(left: 30.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(context.loc.contactUsHelpSupportScreenHeaderText,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 28.0,
-                              fontWeight: FontWeight.w800,
-                              height: 1.25,
-                            )),
-                    const SizedBox(height: 16.0),
-                    Text(
-                        context
-                            .loc.contactUsHelpSupportScreenHeaderSubtitleText,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w500,
-                              height: 1.25,
-                            )),
-                  ],
-                )),
-            const SizedBox(height: 32.0),
+            const SizedBox(height: 16),
             //ANCHOR - Buttons
             GridView.count(
               crossAxisCount: 2,
               crossAxisSpacing: 20.0,
               mainAxisSpacing: 25.0,
-              childAspectRatio: 175 / 190,
+              childAspectRatio: 1,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 28.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                HelpSupportWidgetButton(
-                  svgPicture: Svgs.zendeskLogo,
-                  buttonSubText: context.loc.zendeskSubtitle,
-                  buttonText: context.loc.zendeskTitle,
-                  onPressed: () {
+                AquaMarketplaceTile(
+                  titleWidget: AquaText.body1SemiBold(
+                    text: context.loc.zendesk,
+                  ),
+                  subtitleWidget: AquaText.caption1Medium(
+                    text: context.loc.zendeskSubtitle,
+                    maxLines: 2,
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  icon: UiAssets.assetIcons.zendeskLogo.svg(
+                    height: 18,
+                    width: 18,
+                    colorFilter: ColorFilter.mode(
+                      context.aquaColors.textPrimary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  colors: context.aquaColors,
+                  onTap: () {
                     ref
                         .read(urlLauncherProvider)
                         .open(getAquaZendeskUrl(aquaVersion.valueOrNull ?? ''));
                   },
                 ),
-                HelpSupportWidgetButton(
-                    svgPicture: UiAssets.svgs.faq.path,
-                    buttonSubText: context.loc.faqSubtitle,
-                    buttonText: context.loc.faqTitle,
-                    onPressed: () {
-                      ref
-                          .read(urlLauncherProvider)
-                          .open(urls.aquaZendeskFaqUrl);
-                    }),
+                AquaMarketplaceTile(
+                  titleWidget: AquaText.body1SemiBold(
+                    text: context.loc.faqTitle,
+                  ),
+                  subtitleWidget: AquaText.caption1Medium(
+                    text: context.loc.faqSubtitle,
+                    maxLines: 2,
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  icon: UiAssets.svgs.faq.svg(
+                    height: 18,
+                    width: 18,
+                    colorFilter: ColorFilter.mode(
+                      context.aquaColors.textPrimary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  colors: context.aquaColors,
+                  onTap: () {
+                    ref.read(urlLauncherProvider).open(urls.aquaZendeskFaqUrl);
+                  },
+                ),
               ],
             ),
           ],

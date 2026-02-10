@@ -2,6 +2,7 @@ import 'package:aqua/data/data.dart';
 import 'package:aqua/features/private_integrations/debit_card/provider/moon_btc_price_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:decimal/decimal.dart';
 
 final amountInputMutationsProvider =
@@ -28,17 +29,22 @@ class CryptoAmountInputMutationsNotifier {
     required Asset asset,
     bool? isFiatAmountInput,
     bool withSymbol = true,
+    SupportedDisplayUnits? displayUnitOverride,
   }) async {
     // 0 amount is not converted
-    if (amountSats == 0 || asset.isAnyUsdt) {
+    if (amountSats == 0 || asset.isNonSatsAsset) {
       return null;
     }
 
     final isFiatInput = isFiatAmountInput ?? false;
     if (isFiatInput) {
-      return _ref.read(formatterProvider).formatAssetAmountDirect(
+      // For fiat input, show crypto conversion using the user's selected display unit
+      final displayUnit = displayUnitOverride ??
+          _ref.read(displayUnitsProvider).getForcedDisplayUnit(asset);
+      return _ref.read(formatProvider).formatAssetAmount(
             amount: amountSats,
-            precision: asset.precision,
+            asset: asset,
+            displayUnitOverride: displayUnit,
           );
     }
 
@@ -57,15 +63,18 @@ class CryptoAmountInputMutationsNotifier {
       return sats.toBigInt().toInt();
     }
 
+    final displayUnit =
+        _ref.read(displayUnitsProvider).getForcedDisplayUnit(asset);
     // Crypto to Sats
-    return _ref.read(formatterProvider).parseAssetAmountDirect(
+    return _ref.read(formatterProvider).parseAssetAmountToSats(
           amount: text.isNotEmpty
               ? text
               :
               // text is empty string ("")
               // interpret as 0 sats
               "0",
-          precision: asset.precision,
+          precision: displayUnit.getDisplayPrecision(asset),
+          asset: asset,
         );
   }
 }

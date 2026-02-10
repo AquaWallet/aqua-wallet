@@ -1,5 +1,7 @@
 sealed class MnemonicKeyboardKey {
   static const _backspace = 'backspace';
+  static const kDecimalCharacter = '.';
+  static const kBackspaceCharacter = '⌫';
 
   const MnemonicKeyboardKey();
   factory MnemonicKeyboardKey.letter({String text}) = MnemonicKeyboardLetterKey;
@@ -29,6 +31,12 @@ extension MnemonicKeyboardKeyExt on MnemonicKeyboardKey {
   bool get isBackspaceKey => this is MnemonicKeyboardBackspaceKey;
 
   bool get isSpecialKey => isBackspaceKey;
+
+  bool get isDecimalKey {
+    final key = this;
+    return key is MnemonicKeyboardLetterKey &&
+        key.text == MnemonicKeyboardKey.kDecimalCharacter;
+  }
 }
 
 extension MnemonicKeyboardKeysExt on List<MnemonicKeyboardKey> {

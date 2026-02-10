@@ -22,7 +22,12 @@ extension SwapAssetExt on SwapAsset {
       isLBTC: ticker == AssetExt.lBtcMainnetTicker ||
           ticker == AssetExt.lBtcTestnetTicker,
       isUSDt: isUSDt(),
+      tokenStandard: getTokenStandard(),
     );
+  }
+
+  String? getTokenStandard() {
+    return AssetIds.tokenStandards[id];
   }
 
   bool isUSDt() {

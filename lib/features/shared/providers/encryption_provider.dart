@@ -7,8 +7,15 @@ import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
 
 final encryptionProvider = FutureProvider.autoDispose<Encryption>((ref) async {
-  final (mnemonic, err) =
-      await ref.read(secureStorageProvider).get(StorageKeys.mnemonic);
+  final (currentWalletId, _) =
+      await ref.read(secureStorageProvider).get(StorageKeys.currentWalletId);
+  if (currentWalletId == null) {
+    throw Exception('Falied to get current wallet ID');
+  }
+
+  final (mnemonic, err) = await ref
+      .read(secureStorageProvider)
+      .get(StorageKeys.mnemonic(currentWalletId));
   if (err != null || mnemonic == null) {
     throw Exception('Failed to get mnemonic from secure storage');
   }

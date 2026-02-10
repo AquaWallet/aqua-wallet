@@ -1,12 +1,13 @@
 import 'dart:io';
 
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class WalletRecoveryPhraseScreen extends StatefulHookConsumerWidget {
   static const routeName = '/walletRecoveryPhraseScreen';
@@ -62,60 +63,43 @@ class _State extends ConsumerState<WalletRecoveryPhraseScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
+    final isHidden = useState(false);
     return Scaffold(
-      appBar: AquaAppBar(
-        showBackButton: false,
-        showActionButton: true,
-        iconBackgroundColor: Theme.of(context).colors.background,
-        iconForegroundColor: Theme.of(context).colors.onBackground,
-        actionButtonAsset: Svgs.close,
-        actionButtonIconSize: 13.0,
-        onActionButtonPressed: () => context.pop(),
+      appBar: AquaTopAppBar(
+        colors: context.aquaColors,
+        title: context.loc.seedPhraseTitle,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(height: 16.0),
+              WalletBackupMnemonicWords(
+                isHidden: isHidden.value,
+                walletId: arguments.walletId,
+              ),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 12.0),
-                  Text(
-                    context.loc.backupRecoveryPhraseTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          letterSpacing: 1,
-                          height: 1.2,
-                        ),
-                  ),
-                  const SizedBox(height: 18.0),
-                  Text(
-                    context.loc.backupRecoveryPhraseSubtitle,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          letterSpacing: .15,
-                          height: 1.2,
-                          fontWeight: FontWeight.w400,
-                        ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 36.0),
-                    child: WalletBackupMnemonicWords(),
-                  ),
+                  if (!arguments.isOnboarding) ...[
+                    AquaButton.secondary(
+                      text: context.loc.hideSeedPhrase,
+                      onPressed: () => isHidden.value = !isHidden.value,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  if (arguments.isOnboarding) ...[
+                    AquaButton.primary(
+                      text: context.loc.continueLabel,
+                      onPressed: () => context
+                          .pushReplacement(WalletBackupConfirmation.routeName),
+                    ),
+                  ]
                 ],
               ),
-              const Spacer(),
-              if (arguments.isOnboarding) ...[
-                AquaElevatedButton(
-                  child: Text(
-                    context.loc.continueLabel,
-                  ),
-                  onPressed: () => context
-                      .pushReplacement(WalletBackupConfirmation.routeName),
-                ),
-                const SizedBox(height: 66.0),
-              ]
             ],
           ),
         ),

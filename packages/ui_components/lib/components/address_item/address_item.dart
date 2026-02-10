@@ -26,8 +26,11 @@ class AquaAddressItem extends HookWidget {
       color: Theme.of(context).colorScheme.surface,
       shape: const ContinuousRectangleBorder(),
       child: InkWell(
-        onTap: () => onTap?.call(address),
-        splashFactory: NoSplash.splashFactory,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call(address))
+            : null,
+        splashFactory: InkRipple.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {
           if (state.isHovered) {
             return Colors.transparent;

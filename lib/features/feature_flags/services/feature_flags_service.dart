@@ -1,7 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:chopper/chopper.dart';
 
@@ -13,26 +13,20 @@ final featureFlagsServiceProvider =
   final debitCardStagingEnabled =
       ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
   return FeatureFlagsService.create(
-      tokenManager,
-      ref.read(jan3AuthProvider.notifier).onUnauthorized,
-      debitCardStagingEnabled);
+    tokenManager,
+    ref.read(jan3AuthProvider.notifier).onUnauthorized,
+    debitCardStagingEnabled,
+  );
 });
 
-@ChopperApi(baseUrl: '/api/v1/')
+@ChopperApi(baseUrl: '/api/v1/config/')
 abstract class FeatureFlagsService extends ChopperService {
-  // tiles
-  @Get(path: 'marketplace/tiles')
-  Future<Response<List<ServiceTilesResponse>>> getMarketPlaceTiles({
-    @Query('build') String? buildNumber,
-    @Query('region') String? region,
-  });
-
   // Feature Flags
-  @Get(path: 'config/flags/')
+  @Get(path: 'flags/')
   Future<Response<List<FeatureFlag>>> getFlags();
 
   // Switches
-  @Get(path: 'config/switches/')
+  @Get(path: 'switches/')
   Future<Response<List<SwitchType>>> getSwitches();
 
   static FeatureFlagsService create(
@@ -53,7 +47,6 @@ abstract class FeatureFlagsService extends ChopperService {
       converter: const JsonToTypeConverter({
         FeatureFlag: FeatureFlag.fromJson,
         SwitchType: SwitchType.fromJson,
-        ServiceTilesResponse: ServiceTilesResponse.fromJson
       }),
     );
     return _$FeatureFlagsService(client);

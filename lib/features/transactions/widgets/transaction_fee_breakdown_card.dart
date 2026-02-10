@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:aqua/config/config.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/private_integrations/debit_card/provider/moon_btc_price_provider.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -85,19 +87,26 @@ class _USDtSwapInfo extends ConsumerWidget {
                 title: context.loc.totalFees,
                 value: '\$${fees.totalFees}',
                 children: [
+                  const SizedBox(height: 4),
                   _FeeBreakdownItem(
                     title: '${context.loc.swapFee(swapServiceName ?? '')} '
-                        '(${fees.serviceFeePercentage}%)',
+                        '(${fees.serviceFeePercentage.toStringAsFixed(2)}%)',
                     value: '\$${fees.serviceFee}',
                   ),
                   const SizedBox(height: 4),
-                  //TODO: Network fee comes back for Changelly but doesn't seem to calculate in the settleAmount. Need to revise. Need to revise.
-                  if (fees.networkFee > 0) ...[
+                  //TODO: Network fee comes back for Changelly but doesn't seem to calculate in the settleAmount. Need to revise.
+                  if (fees.receiveNetworkFee > 0) ...[
                     _FeeBreakdownItem(
-                      title: context.loc.networkFees,
-                      value: '\$${fees.networkFee}',
+                      title: context.loc.receiveNetworkFees,
+                      value: '\$${fees.receiveNetworkFee}',
                     ),
+                    const SizedBox(height: 4),
                   ],
+                  _FeeBreakdownItem(
+                      title: context.loc.sendNetworkFees,
+                      value: fees.estimatedSendNetworkFee == 0
+                          ? '-'
+                          : '\$${fees.estimatedSendNetworkFee.toStringAsFixed(2)}'),
                 ],
               ),
             ],
@@ -108,7 +117,7 @@ class _USDtSwapInfo extends ConsumerWidget {
   }
 }
 
-class _InstantSwapInfo extends StatelessWidget {
+class _InstantSwapInfo extends ConsumerWidget {
   const _InstantSwapInfo({
     required this.fees,
   });
@@ -116,7 +125,15 @@ class _InstantSwapInfo extends StatelessWidget {
   final SideswapInstantSwapFee fees;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formatter = ref.read(formatProvider);
+    final feeAsset = Asset.lbtc();
+    final formattedFee = formatter.formatAssetAmount(
+      amount: fees.estimatedFee,
+      asset: feeAsset,
+      displayUnitOverride: SupportedDisplayUnits.sats,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,13 +157,12 @@ class _InstantSwapInfo extends StatelessWidget {
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.networkFees,
-                value:
-                    '${fees.estimatedFee.toStringAsFixed(2)} ${SupportedDisplayUnits.sats.value}',
+                value: '$formattedFee ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.internalSendReviewCurrentRate,
-                value: context.loc.satsPerVbyte(fees.feeRate),
+                value: context.loc.satsPerVByte(fees.feeRate),
               ),
               const SizedBox(height: 6.0),
             ],
@@ -157,7 +173,7 @@ class _InstantSwapInfo extends StatelessWidget {
   }
 }
 
-class _PegInInfo extends StatelessWidget {
+class _PegInInfo extends ConsumerWidget {
   const _PegInInfo({
     required this.fees,
   });
@@ -165,7 +181,23 @@ class _PegInInfo extends StatelessWidget {
   final SideswapPegInFee fees;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final btcAsset = Asset.btc();
+    final lbtcAsset = Asset.lbtc();
+    final formatter = ref.read(formatProvider);
+
+    final formattedBtcFee = formatter.formatAssetAmount(
+      amount: fees.estimatedBtcFee,
+      asset: btcAsset,
+      displayUnitOverride: SupportedDisplayUnits.sats,
+    );
+
+    final formattedLbtcFee = formatter.formatAssetAmount(
+      amount: fees.estimatedLbtcFee,
+      asset: lbtcAsset,
+      displayUnitOverride: SupportedDisplayUnits.sats,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,22 +221,22 @@ class _PegInInfo extends StatelessWidget {
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.pegBitcoinNetworkFees,
-                value: fees.estimatedBtcFee.toString(),
+                value: '$formattedBtcFee ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.pegLiquidNetworkFees,
-                value: fees.estimatedLbtcFee.toString(),
+                value: '$formattedLbtcFee ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.currentBitcoinRate,
-                value: context.loc.satsPerVbyte(fees.btcFeeRate),
+                value: context.loc.satsPerVByte(fees.btcFeeRate),
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.currentLiquidRate,
-                value: context.loc.satsPerVbyte(fees.lbtcFeeRate),
+                value: context.loc.satsPerVByte(fees.lbtcFeeRate),
               ),
               const SizedBox(height: 6.0),
             ],
@@ -215,7 +247,7 @@ class _PegInInfo extends StatelessWidget {
   }
 }
 
-class _PegOutInfo extends StatelessWidget {
+class _PegOutInfo extends ConsumerWidget {
   const _PegOutInfo({
     required this.fees,
   });
@@ -223,7 +255,23 @@ class _PegOutInfo extends StatelessWidget {
   final SideswapPegOutFee fees;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formatter = ref.read(formatProvider);
+    final btcAsset = Asset.btc();
+    final lbtcAsset = Asset.lbtc();
+
+    final formattedBtcFee = formatter.formatAssetAmount(
+      amount: fees.estimatedBtcFee,
+      asset: btcAsset,
+      displayUnitOverride: SupportedDisplayUnits.sats,
+    );
+
+    final formattedLbtcFee = formatter.formatAssetAmount(
+      amount: fees.estimatedLbtcFee,
+      asset: lbtcAsset,
+      displayUnitOverride: SupportedDisplayUnits.sats,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,22 +295,22 @@ class _PegOutInfo extends StatelessWidget {
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.pegBitcoinNetworkFees,
-                value: fees.estimatedBtcFee.toString(),
+                value: '$formattedBtcFee ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.pegLiquidNetworkFees,
-                value: fees.estimatedLbtcFee.toString(),
+                value: '$formattedLbtcFee ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.currentBitcoinRate,
-                value: context.loc.satsPerVbyte(fees.btcFeeRate),
+                value: context.loc.satsPerVByte(fees.btcFeeRate),
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.currentLiquidRate,
-                value: context.loc.satsPerVbyte(fees.lbtcFeeRate),
+                value: context.loc.satsPerVByte(fees.lbtcFeeRate),
               ),
               const SizedBox(height: 6.0),
             ],
@@ -300,12 +348,13 @@ class _BitcoinSendInfo extends StatelessWidget {
             children: [
               _FeeBreakdownItem(
                 title: context.loc.networkFees,
-                value: '${fees.estimatedFee} sats',
+                value:
+                    '${fees.estimatedFee} ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.internalSendReviewCurrentRate,
-                value: context.loc.satsPerVbyte(fees.feeRate),
+                value: context.loc.satsPerVByte(fees.feeRate),
               ),
               const SizedBox(height: 6.0),
             ],
@@ -343,12 +392,13 @@ class _LiquidSendInfo extends StatelessWidget {
             children: [
               _FeeBreakdownItem(
                 title: context.loc.networkFees,
-                value: '${fees.estimatedFee} sats',
+                value:
+                    '${fees.estimatedFee} ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.internalSendReviewCurrentRate,
-                value: context.loc.satsPerVbyte(fees.feeRate),
+                value: context.loc.satsPerVByte(fees.feeRate),
               ),
               const SizedBox(height: 6.0),
             ],
@@ -391,12 +441,13 @@ class _BoltzSendInfo extends StatelessWidget {
               const SizedBox(height: 14),
               _FeeBreakdownItem(
                 title: context.loc.liquidNetworkFees,
-                value: '${fees.estimatedOnchainFee} sats',
+                value:
+                    '${fees.estimatedOnchainFee} ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14),
               _FeeBreakdownItem(
                 title: context.loc.currentLiquidRate,
-                value: context.loc.satsPerVbyte(
+                value: context.loc.satsPerVByte(
                   fees.onchainFeeRate / kVbPerKb,
                 ),
               ),
@@ -436,7 +487,8 @@ class _LiquidTaxiSendInfo extends StatelessWidget {
             children: [
               _FeeBreakdownItem(
                 title: context.loc.estimatedLiquidNetworkFee,
-                value: '${fees.estimatedLbtcFee} sats',
+                value:
+                    '${fees.estimatedLbtcFee} ${SupportedDisplayUnits.sats.value}',
               ),
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
@@ -446,7 +498,7 @@ class _LiquidTaxiSendInfo extends StatelessWidget {
               const SizedBox(height: 14.0),
               _FeeBreakdownItem(
                 title: context.loc.liquidNetworkRate,
-                value: context.loc.satsPerVbyte(fees.lbtcFeeRate),
+                value: context.loc.satsPerVByte(fees.lbtcFeeRate),
               ),
               const SizedBox(height: 6.0),
             ],

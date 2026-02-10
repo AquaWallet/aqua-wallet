@@ -1,70 +1,73 @@
-import 'package:aqua/config/config.dart';
-import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../../mocks/mocks.dart';
 
-void main() async {
-  SharedPreferences.setMockInitialValues({
-    PrefKeys.blockExplorer: 'blockstream.info',
-  });
-  final sp = await SharedPreferences.getInstance();
+void main() {
+  late ProviderContainer container;
+  late MockUserPreferencesNotifier mockPrefs;
   const kExtExplorers = BlockExplorer.availableBlockExplorers;
   final kExpBlockstream = kExtExplorers.first;
   final kExpMempool = kExtExplorers.last;
-  final mockAquaConnectionProvider = MockAquaConnectionProvider();
-  final container = ProviderContainer(
-    overrides: [
-      sharedPreferencesProvider.overrideWithValue(sp),
-      aquaConnectionProvider.overrideWith(() => mockAquaConnectionProvider),
-    ],
-  );
 
-  group('External Block Explorers', () {
+  setUp(() {
+    mockPrefs = MockUserPreferencesNotifier();
+    container = ProviderContainer(
+      overrides: [
+        prefsProvider.overrideWith((ref) => mockPrefs),
+      ],
+    );
+  });
+
+  tearDown(() {
+    container.dispose();
+  });
+
+  group('BlockExplorerProvider', () {
     test('should return the first explorer when no explorer is set', () async {
-      SharedPreferences.setMockInitialValues({
-        PrefKeys.blockExplorer: '',
-      });
-      final sp = await SharedPreferences.getInstance();
-      final mockAquaConnectionProvider = MockAquaConnectionProvider();
+      when(() => mockPrefs.blockExplorer).thenReturn(null);
 
-      final container = ProviderContainer(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(sp),
-          aquaConnectionProvider.overrideWith(() => mockAquaConnectionProvider),
-        ],
-      );
       final provider = container.read(blockExplorerProvider);
+      final result = provider.currentBlockExplorer;
 
-      expect(provider.prefs.blockExplorer, '');
       expect(
-        provider.currentBlockExplorer,
+        result,
         isA<BlockExplorer>()
             .having((e) => e.name, 'name', kExpBlockstream.name)
             .having((e) => e.btcUrl, 'btcUrl', kExpBlockstream.btcUrl)
             .having((e) => e.liquidUrl, 'liquidUrl', kExpBlockstream.liquidUrl),
       );
     });
-    test('should have blockstream as default', () {
-      final provider = container.read(blockExplorerProvider);
 
-      expect(provider.prefs.blockExplorer, kExpBlockstream.name);
+    test('should return saved block explorer when one is set', () async {
+      when(() => mockPrefs.blockExplorer).thenReturn(kExpBlockstream.name);
+
+      final provider = container.read(blockExplorerProvider);
+      final result = provider.currentBlockExplorer;
+
       expect(
-        provider.currentBlockExplorer,
+        result,
         isA<BlockExplorer>()
             .having((e) => e.name, 'name', kExpBlockstream.name)
             .having((e) => e.btcUrl, 'btcUrl', kExpBlockstream.btcUrl)
             .having((e) => e.liquidUrl, 'liquidUrl', kExpBlockstream.liquidUrl),
       );
     });
-    test('should have correct value on explorer change', () async {
+
+    test('should update block explorer when changed', () async {
+      when(() => mockPrefs.blockExplorer).thenReturn(kExpBlockstream.name);
+      when(() => mockPrefs.setBlockExplorer(any())).thenAnswer((_) async {});
+
       final provider = container.read(blockExplorerProvider);
       final initialExplorer = provider.currentBlockExplorer;
 
       await provider.setBlockExplorer(kExpMempool);
+
+      // Update the mock to return the new value after setBlockExplorer
+      when(() => mockPrefs.blockExplorer).thenReturn(kExpMempool.name);
 
       expect(
         initialExplorer,

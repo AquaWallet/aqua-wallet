@@ -14,10 +14,22 @@ class FeeNotFoundError extends ExceptionLocalized {
       context.loc.feeNotFoundError;
 }
 
+class FeeOptionsNotFoundError extends ExceptionLocalized {
+  @override
+  String toLocalizedString(BuildContext context) =>
+      context.loc.failedToFetchFeeOptions;
+}
+
 class FeeRateNotFoundError extends ExceptionLocalized {
   @override
   String toLocalizedString(BuildContext context) =>
       context.loc.feeRateNotFoundError;
+}
+
+class InsufficientBalanceError extends ExceptionLocalized {
+  @override
+  String toLocalizedString(BuildContext context) =>
+      context.loc.insufficientBalanceToCoverFees;
 }
 
 class UnknownTransactionSizeError extends ExceptionLocalized {

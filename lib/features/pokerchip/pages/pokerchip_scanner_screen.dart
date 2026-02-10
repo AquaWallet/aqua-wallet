@@ -1,10 +1,12 @@
 import 'package:aqua/features/pokerchip/pokerchip.dart';
+import 'package:aqua/features/pokerchip/widgets/scanner_button.dart';
 import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:ui_components/ui_components.dart';
 
 //TODO: This might be a duplicate of the QR scanner screen
 class PokerchipScannerScreen extends HookConsumerWidget {
@@ -33,11 +35,6 @@ class PokerchipScannerScreen extends HookConsumerWidget {
     }, [barcodeStream]);
 
     return Scaffold(
-      appBar: AquaAppBar(
-        showBackButton: true,
-        showActionButton: false,
-        title: context.loc.bitcoinChip,
-      ),
       body: SafeArea(
         child: Stack(children: [
           //ANCHOR - Scanner
@@ -59,64 +56,91 @@ class PokerchipScannerScreen extends HookConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Spacer(),
-              //ANCHOR - Camera Focus Overlay
-              SizedBox.square(
-                dimension: 196.0,
-                child: CustomPaint(
-                  painter: PokerchipScannerOverlayPainter(
-                    borderColor:
-                        Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: 0.0,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Container(
-                height: 52.0,
-                padding: const EdgeInsets.symmetric(horizontal: 28.0),
-                margin: const EdgeInsets.only(bottom: 118.0),
+              const SizedBox(height: 45),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    //ANCHOR - Gallery Button
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        brightness: Brightness.light,
                       ),
-                      child: IconButton(
-                        color: Colors.black,
-                        icon: const Icon(Icons.photo_library_outlined),
-                        onPressed: () async {
-                          final image = await imagePicker.pickImage(
-                              source: ImageSource.gallery);
-                          final path = image?.path;
-                          if (path != null) {
-                            await controller.analyzeImage(path);
-                          }
+                      child: ScannerButton(
+                        onTap: () async {
+                          controller.stop();
+                          context.pop();
                         },
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 20.0,
-                    ),
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      ),
-                      child: IconButton(
-                        color: Colors.black,
-                        icon: const Icon(Icons.flashlight_on_outlined),
-                        onPressed:
-                            ref.read(qrScanProvider.notifier).toggleFlash,
+                        icon: AquaIcon.close(
+                          color: context.aquaColors.textInverse,
+                          size: 24,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
+              const Spacer(),
+              //ANCHOR - Camera Focus Overlay
+              Expanded(
+                child: SizedBox.square(
+                  dimension: 196.0,
+                  child: CustomPaint(
+                    painter: PokerchipScannerOverlayPainter(
+                      borderColor:
+                          Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius: 0.0,
+                    ),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    //ANCHOR - Gallery Button
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        brightness: Brightness.light,
+                      ),
+                      child: ScannerButton(
+                        onTap: () async {
+                          final image = await imagePicker.pickImage(
+                            source: ImageSource.gallery,
+                          );
+                          final path = image?.path;
+                          if (path != null) {
+                            await controller.analyzeImage(path);
+                          }
+                        },
+                        icon: AquaIcon.image(
+                          color: context.aquaColors.textInverse,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        brightness: Brightness.light,
+                      ),
+                      child: ScannerButton(
+                        onTap: ref.read(qrScanProvider.notifier).toggleFlash,
+                        icon: AquaIcon.lightbulb(
+                          color: context.aquaColors.textInverse,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 45),
             ],
           ),
         ]),

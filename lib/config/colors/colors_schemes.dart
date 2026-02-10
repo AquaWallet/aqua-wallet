@@ -138,6 +138,8 @@ abstract class AppColors {
 
   Color get success;
 
+  Color get warning;
+
   Color get keyboardBackground;
 
   Color get inverseSurfaceColor;
@@ -405,6 +407,9 @@ class DarkThemeColors implements AppColors {
 
   @override
   Color get success => Colors.green;
+
+  @override
+  Color get warning => AquaColors.vermillion500;
 
   @override
   Color get keyboardBackground => AquaColors.brightGray;
@@ -738,6 +743,9 @@ class LightThemeColors implements AppColors {
 
   @override
   Color get success => Colors.green;
+
+  @override
+  Color get warning => AquaColors.amber600;
 
   @override
   Color get keyboardBackground => AquaColors.brightGray;

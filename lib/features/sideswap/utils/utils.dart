@@ -21,6 +21,8 @@ extension SwapContextExt on WidgetRef {
       errorMessage = error.errorMessage();
     } else if (error is SideswapHttpStateNetworkError) {
       errorMessage = error.message!;
+    } else if (error is ExceptionLocalized) {
+      errorMessage = error.toLocalizedString(context);
     } else if (error is TimeoutException) {
       errorMessage = context.loc.internalSendTimeoutError;
     } else if (error is PegSideSwapMinBtcLimitException ||

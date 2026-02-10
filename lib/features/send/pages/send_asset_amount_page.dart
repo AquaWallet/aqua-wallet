@@ -1,220 +1,302 @@
-import 'package:aqua/common/common.dart';
+import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class SendAssetAmountPage extends HookConsumerWidget {
   const SendAssetAmountPage({
     super.key,
     required this.onContinuePressed,
-    required this.arguments,
+    required this.args,
   });
 
   final VoidCallback onContinuePressed;
-  final SendAssetArguments arguments;
+  final SendAssetArguments args;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
 
-    final provider = useMemoized(() => sendAssetInputStateProvider(arguments));
+    final currencyChipKey = useMemoized(GlobalKey.new);
+    final provider = useMemoized(() => sendAssetInputStateProvider(args));
     final notifier = useMemoized(() => ref.read(provider.notifier));
-    final input = ref.watch(provider).value!;
-    final validationsProvider = useMemoized(() {
-      return sendAssetAmountValidationProvider(arguments);
-    });
-    final error = ref.watch(validationsProvider).error as ExceptionLocalized?;
-    final constraints =
-        ref.watch(sendAssetAmountConstraintsProvider(arguments)).valueOrNull;
-    final isValidAmount = ref.watch(validationsProvider).valueOrNull ?? false;
-    final currency = ref.watch(exchangeRatesProvider.select(
-      (p) => p.currentCurrency.currency.value,
-    ));
-    final isContinueButtonEnabled = useMemoized(
-      () => error == null && isValidAmount,
-      [error, isValidAmount],
+    final input = ref.watch(provider).valueOrNull;
+    final isDisplayUnitsEnabled = ref.watch(
+      featureFlagsProvider.select((p) => p.displayUnitsEnabled),
     );
-    final controller = useTextEditingController(text: input.amountFieldText);
 
-    ref.listen(provider, (_, state) {
-      controller.text = state.value?.amountFieldText ?? '';
+    //NOTE: The input state is null for a few milliseconds at the startup,
+    // This check avoids a crash. Circular progress indicator is almost not shown.
+    if (input == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final isSatsAsset = input.asset.isSatsAsset;
+    final validationsProvider = useMemoized(() {
+      return sendAssetAmountValidationProvider(args);
     });
+    final errorController = useMemoized(AquaInputErrorController.new);
+    final constraints =
+        ref.watch(sendAssetAmountConstraintsProvider(args)).valueOrNull;
 
-    final displayUnit = ref.watch(displayUnitsProvider
-        .select((p) => p.getForcedDisplayUnit(input.asset)));
+    // Check if validation passes (no exception thrown)
+    final validationState = ref.watch(validationsProvider);
+    final isValidAmount = !validationState.hasError &&
+        !validationState.isLoading &&
+        validationState.valueOrNull == true;
+    final decimalSeparator = input.rate.currency.format.decimalSeparator;
+    final controllerText = input.amountFieldText;
+    final controller = useTextEditingController(text: controllerText);
+    final showLightningConstraints = input.asset.isLightning &&
+        input.isFiatDisplayAmountAvailable &&
+        !input.isLnurlPayFixedAmount &&
+        constraints != null;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 32.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          //ANCHOR - Logo
-          AssetIcon(
-            assetId: input.asset.id,
-            assetLogoUrl: input.asset.logoUrl,
-            size: 60.0,
-          ),
-          const SizedBox(height: 20.0),
-
-          //ANCHOR - Balance Amount & Symbol
-          AssetCryptoAmount(
-            forceVisible: true,
-            forceDisplayUnit: displayUnit,
-            amount: input.balanceInSats.toString(),
-            asset: input.asset,
-            style: context.textTheme.headlineLarge,
-          ),
-          const SizedBox(height: 14.0),
-
-          //ANCHOR - Balance USD Equivalent
-          if (input.asset.shouldShowConversionOnSend) ...[
-            Container(
-              decoration: BoxDecoration(
-                color: context.colors.usdCenterPillBackgroundColor,
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-              child: AssetCryptoAmount(
-                forceVisible: true,
-                style: context.textTheme.titleMedium,
-                amount: input.balanceFiatDisplay,
-              ),
+    // Handle validation errors from exceptions
+    final tooltipError = validationState.hasError
+        ? ref.watch(assetValidationErrorProvider(
+            AssetValidationErrorParams(
+              exception: validationState.error as ExceptionLocalized?,
+              context: context,
+              decoratorType: TooltipExceptionDecorator,
+              balanceDisplay: input.balanceDisplay,
             ),
-          ],
-          const SizedBox(height: 40.0),
-
-          //ANCHOR - Amount Input
-          SendAssetAmountInput(
-            controller: controller,
-            symbol: input.isFiatAmountInput ? currency : input.asset.ticker,
-            allowUsdToggle: input.asset.shouldAllowUsdToggleOnSend,
-            precision: input.asset.precision,
-            onChanged: (text) => notifier.updateAmountFieldText(text),
-            disabled: !input.isAmountEditable,
-            onCurrencyTypeToggle: () => notifier.setInputType(
-              input.isFiatAmountInput
-                  ? CryptoAmountInputType.crypto
-                  : CryptoAmountInputType.fiat,
+          ))
+        : null;
+    final inputFieldError = validationState.hasError
+        ? ref.watch(assetValidationErrorProvider(
+            AssetValidationErrorParams(
+              exception: validationState.error as ExceptionLocalized?,
+              context: context,
+              decoratorType: InputFieldExceptionDecorator,
+              balanceDisplay: input.balanceDisplay,
             ),
-          ),
+          ))
+        : null;
 
-          const SizedBox(height: 2.0),
+    final debouncedErrors = ref.watch(debouncedValidationErrorsProvider(args));
 
-          //ANCHOR - Min/Max Range Panel
-          if (input.asset.isAltUsdt) ...{
-            const SizedBox(height: 16.0),
-            USDtSwapMinMaxPanel(
-              swapPair: SwapPair(
-                from: SwapAssetExt.usdtLiquid,
-                to: SwapAsset.fromAsset(input.asset),
-              ),
-            ),
-          } else if (input.asset.isLightning &&
-              input.isFiatDisplayAmountAvailable) ...{
-            const SizedBox(height: 6.0),
+    useEffect(() {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(debouncedValidationErrorsProvider(args).notifier)
+            .updateErrors(tooltipError, inputFieldError);
+      });
+      return null;
+    }, [tooltipError, inputFieldError]);
+
+    useEffect(() {
+      if (debouncedErrors.inputFieldError != null) {
+        errorController.addError(debouncedErrors.inputFieldError!);
+      } else {
+        errorController.clearError();
+      }
+      return null;
+    }, [debouncedErrors.inputFieldError]);
+
+    final handleTypeSwap = useCallback(
+      (AquaAssetInputType type) {
+        final newText = ref.read(provider.notifier).setType(type);
+        if (newText != controller.text) {
+          controller.text = newText;
+        }
+      },
+      [provider, controller],
+    );
+
+    useEffect(() {
+      final newText = input.amountFieldText ?? '';
+      if (newText != controller.text) {
+        controller.text = newText;
+      }
+      return null;
+    }, [input.amountFieldText]);
+
+    useEffect(() {
+      //NOTE - The amount textfield has a bi-directional binding to the input
+      //provider i.e. when the textfield changes, the input provider is updated
+      //with the new value while the derrived data inside the input provider's
+      //state can also change the textfield content.
+      //This listener updates the input provider when the textfield changes.
+      void listener() {
+        final currentState = ref.read(provider).value;
+        if (currentState == null) return;
+
+        final formattedCurrentText =
+            ref.read(amountInputServiceProvider).getFormattedAmountFieldText(
+                  amountFieldText: input.amountFieldText,
+                  rate: input.rate,
+                );
+
+        if (formattedCurrentText == null) {
+          if (controller.text.isNotEmpty) {
+            ref.read(provider.notifier).updateAmountFieldText(controller.text);
+          }
+        } else {
+          // Strip thousands separators for comparison
+          final textWithoutThousands = formattedCurrentText.replaceAll(
+              currentState.rate.currency.format.thousandsSeparator, '');
+          if (controller.text != textWithoutThousands) {
+            ref.read(provider.notifier).updateAmountFieldText(controller.text,
+                isSendAllFunds: currentState.isSendAllFunds);
+          } else if (controller.text.isEmpty) {
+            ref.read(provider.notifier).updateAmountFieldText('');
+          }
+        }
+      }
+
+      controller.addListener(listener);
+      return () => controller.removeListener(listener);
+    }, [controller, provider]);
+
+    return SafeArea(
+      bottom: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //ANCHOR - Fiat/Crypto Amount Conversion
-                _ConvertedAmountLabel(input.amountConversionDisplay!),
+                //ANCHOR - Use All Funds Button
+                if (input.asset.shouldShowUseAllFundsButton &&
+                    input.balanceInSats > 0) ...{
+                  AquaChip.accent(
+                    label: context.loc.maxAmount,
+                    onTap: () async {
+                      await notifier.setSendMaxAmount(true);
+                      onContinuePressed();
+                    },
+                  ),
+                } else ...{
+                  const SizedBox.shrink()
+                },
+                //ANCHOR - Fiat Currency Picker
+                if (isSatsAsset && isDisplayUnitsEnabled) ...[
+                  UnitCurrencyChip(
+                    key: currencyChipKey,
+                    asset: args.asset,
+                    rate: input.rate,
+                    unit: input.inputUnit,
+                    showUnit: true,
+                    onTap: () async {
+                      final result = await context.push(
+                        UnitCurrencySelectionScreen.routeName,
+                        extra: UnitCurrencySelectionArguments(
+                          asset: args.asset,
+                          allowUnitSelection: true,
+                          currentRate: input.rate,
+                          currentUnit: input.inputUnit,
+                        ),
+                      );
+                      if (result is UnitCurrencySelectionArguments) {
+                        ref.read(provider.notifier)
+                          ..setRate(result.currentRate)
+                          ..setUnit(result.currentUnit);
+                      }
+                    },
+                  ),
+                ]
               ],
             ),
-            if (!input.isLnurlPayFixedAmount && constraints != null) ...[
-              const SizedBox(height: 24.0),
-              //ANCHOR - Lightning Amount Constraints
-              _LightningAmountConstraintsLabel(constraints),
-            ],
-          } else ...{
-            SizedBox(
-              height: 60.0,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  if (error != null) ...{
-                    //ANCHOR - Error Message
-                    Text(
-                      error.toLocalizedString(context),
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colorScheme.error,
-                      ),
-                    )
-                  } else if (input.asset.shouldShowConversionOnSend &&
-                      input.isFiatDisplayAmountAvailable) ...{
-                    //ANCHOR - Conversion to fiat
-                    _ConvertedAmountLabel(input.amountConversionDisplay!),
-                  },
-
-                  const Spacer(),
-
-                  //ANCHOR - Use All Funds Button
-                  if (input.asset.shouldShowUseAllFundsButton) ...{
-                    SendAssetMaxButton(
-                      isSelected: input.isSendAllFunds,
-                      onPressed: () =>
-                          notifier.setSendMaxAmount(!input.isSendAllFunds),
-                    ),
-                  },
-                ],
+            const SizedBox(height: 14),
+            //ANCHOR - Amount Input
+            AquaCard.surface(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(8),
+              child: AquaAssetInputField(
+                key: ValueKey(controller.text),
+                controller: controller,
+                errorController: errorController,
+                assetId: args.asset.id,
+                assetIconUrl:
+                    !args.asset.isInternal ? args.asset.logoUrl : null,
+                ticker: args.asset.ticker,
+                type: input.inputType,
+                unit: input.inputUnit,
+                balance: input.balanceDisplay,
+                balanceValueText:
+                    context.loc.balanceValue(input.balanceDisplay),
+                conversionAmount: input.displayConversionAmount ?? '',
+                usdtCryptoAmount: input.usdtCryptoAmount,
+                fiatSymbol: input.rate.currency.format.symbol,
+                isUsdCurrency: input.rate.currency.isUsd,
+                showUsdtConversion: false,
+                showCaret: false,
+                showFiatRate: args.asset.hasFiatRate,
+                isSwapable: isSatsAsset,
+                colors: context.aquaColors,
+                decimalSeparator: decimalSeparator,
+                precision: input.precision,
+                onClear: () => notifier.updateAmountFieldText(''),
+                onInputTypeSwap: handleTypeSwap,
+                onUnitSelected: notifier.setUnit,
               ),
             ),
-          },
-
-          const Spacer(),
-
-          //ANCHOR - Continue Button
-          Container(
-            width: double.maxFinite,
-            margin: const EdgeInsets.only(top: 12.0, bottom: 32.0),
-            child: AquaElevatedButton(
-              onPressed: isContinueButtonEnabled ? onContinuePressed : null,
-              child: Text(context.loc.continueLabel),
+            const SizedBox(height: 2.0),
+            //ANCHOR - Min/Max Range Panel
+            if (input.asset.isAltUsdt) ...{
+              const SizedBox(height: 8.0),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: USDtSwapMinMaxPanel(
+                  currency: input.rate.currency,
+                  swapPair: SwapPair(
+                    from: SwapAssetExt.usdtLiquid,
+                    to: SwapAsset.fromAsset(input.asset),
+                  ),
+                ),
+              ),
+            } else if (showLightningConstraints) ...[
+              const SizedBox(height: 8.0),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: LightningMinMaxRangePanel(
+                  args: args,
+                  constraints: constraints,
+                ),
+              ),
+            ],
+            const Spacer(),
+            if (debouncedErrors.tooltipError?.isNotEmpty == true) ...[
+              AquaChipLabel(
+                message: debouncedErrors.tooltipError!,
+                colors: context.aquaColors,
+                maxLines: 2,
+                variant: AquaChipLabelVariant.error,
+              ),
+            ],
+            //ANCHOR - Numpad
+            AquaNumpad(
+              decimalAllowed: !input.isSatsUnit,
+              decimalSeparator: decimalSeparator,
+              onKeyPressed: (key) => controller.addKey(
+                key,
+                decimalSeparator: decimalSeparator,
+                precision: input.precision,
+              ),
+              colors: context.aquaColors,
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            //ANCHOR - Confirm Button
+            SizedBox(
+              width: double.infinity,
+              child: AquaButton.primary(
+                onPressed: isValidAmount ? onContinuePressed : null,
+                text: context.loc.next,
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class _ConvertedAmountLabel extends ConsumerWidget {
-  const _ConvertedAmountLabel(this.fiatAmount);
-
-  final String fiatAmount;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Text(
-      "≈ $fiatAmount",
-      style: const TextStyle(fontWeight: FontWeight.bold),
-    );
-  }
-}
-
-class _LightningAmountConstraintsLabel extends ConsumerWidget {
-  const _LightningAmountConstraintsLabel(this.constraints);
-
-  final SendAssetAmountConstraints constraints;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
-      children: [
-        Text(
-          '${context.loc.min}: ${constraints.minSats} sats',
-          style: context.textTheme.titleSmall,
-        ),
-        const Spacer(),
-        Text(
-          '${context.loc.max}: ${constraints.maxSats} sats',
-          style: context.textTheme.titleSmall,
-        ),
-      ],
     );
   }
 }

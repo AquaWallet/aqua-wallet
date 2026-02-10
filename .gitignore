@@ -21,6 +21,7 @@ migrate_working_dir/
 ._crypto
 lib/ffi/generated_bindings.dart
 lib/gen/
+untranslated-messages.json
 
 # IntelliJ related
 *.iml
@@ -43,8 +44,9 @@ lib/gen/
 .pub-cache/
 .pub/
 /build/
-*.g.dart 
+*.g.dart
 *.freezed.dart
+devtools_options.yaml
 
 # Symbolication related
 app.*.symbols
@@ -59,8 +61,6 @@ app.*.map.json
 
 android/app/.cxx
 
-macos/
-linux/
 .vscode/launch.json
 
 # FVM Version Cache
@@ -72,3 +72,13 @@ coverage/lcov.info
 
 # Environment files
 *.env
+
+# Unused localization keys
+unused_localizations.txt
+
+# Linux plugins
+/linux/flutter/generated_plugins.cmake
+
+# Isar database libraries for tests
+libisar.dylib
+libisar.so

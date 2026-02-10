@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:aqua/common/common.dart';
-import 'package:aqua/constants.dart';
 import 'package:aqua/data/data.dart';
+import 'package:aqua/data/provider/lwk_provider.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
-import 'package:aqua/logger.dart';
-
-final _logger = CustomLogger(FeatureFlag.send);
+import 'package:aqua/features/transactions/providers/transaction_fee_structure_provider.dart';
+import 'package:aqua/features/wallet/wallet.dart';
+import 'package:ui_components/ui_components.dart';
 
 final sendAssetFeeOptionsProvider = AutoDisposeAsyncNotifierProviderFamily<
     SendAssetFeeOptionsNotifier,
@@ -23,8 +23,20 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
     if (state.hasError) {
       state = const AsyncLoading();
     }
+
+    final txnState = ref.watch(sendAssetTxnProvider(arg));
+    // NOTE: If the transaction is complete, return the cached fee options
+    // Recalculating the fee options after causes it to fail.
+    if (txnState.hasValue &&
+        txnState.value?.mapOrNull(complete: (_) => true) == true) {
+      if (state.hasValue) {
+        return state.value!;
+      }
+      return [];
+    }
+
     final txn = await ref.watch(sendAssetTxnProvider(arg).future);
-    final input = await ref.read(sendAssetInputStateProvider(arg).future);
+    final input = await ref.watch(sendAssetInputStateProvider(arg).future);
 
     final gdkTransaction = txn.mapOrNull(
       created: (e) => e.tx.mapOrNull(gdkTx: (t) => t.gdkTx),
@@ -38,32 +50,55 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
 
       final liquidFeeOption = await _getLiquidFeeOption(
         gdkTransaction,
+        unit: input.inputUnit,
+        currency: input.rate.currency,
         isTaxiAvailable: !isTaxiDisabled,
       );
       items.add(liquidFeeOption);
 
-      final liquidTaxiFeeOption = await _getLiquidTaxiFeeOption(
-        input,
-        isUsdtAssetEnabled: isUsdtAssetEnabled,
-        isTaxiDisabled: isTaxiDisabled,
-      );
-      if (liquidTaxiFeeOption != null) {
-        items.add(liquidTaxiFeeOption);
+      // Only add USDt taxi fee option for USDT sends (not for L-BTC)
+      if (arg.asset.isAnyUsdt) {
+        final liquidTaxiFeeOption = await _getLiquidTaxiFeeOption(
+          input,
+          isUsdtAssetEnabled: isUsdtAssetEnabled,
+          isTaxiDisabled: isTaxiDisabled,
+        );
+        if (liquidTaxiFeeOption != null) {
+          items.add(liquidTaxiFeeOption);
+        }
       }
 
-      return items.map(SendAssetFeeOptionModel.liquid).toList();
+      final options = items.map(SendAssetFeeOptionModel.liquid).toList();
+      if (options.isEmpty) {
+        throw FeeOptionsNotFoundError();
+      }
+
+      final canPayFees = options.any((option) => option.maybeMap(
+            liquid: (op) => op.fee.isEnabled && op.fee.availableForFeePayment,
+            orElse: () => false,
+          ));
+      if (!canPayFees) {
+        throw InsufficientBalanceError();
+      }
+
+      return options;
     }
 
     if (arg.asset.isBTC) {
-      return _getBitcoinFeeOptions(gdkTransaction);
+      final options = await _getBitcoinFeeOptions(
+        gdkTransaction,
+        currency: input.rate.currency,
+      );
+      return options.isNotEmpty ? options : throw FeeOptionsNotFoundError();
     }
 
     return [];
   }
 
   Future<List<SendAssetFeeOptionModel>> _getBitcoinFeeOptions(
-    GdkNewTransactionReply? gdkTransaction,
-  ) async {
+    GdkNewTransactionReply? gdkTransaction, {
+    required FiatCurrency currency,
+  }) async {
     if (gdkTransaction == null) {
       throw FeeTransactionNotFoundError();
     }
@@ -73,17 +108,17 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
       throw TransactionSizeNotFoundError();
     }
 
-    final refCurrency =
-        ref.read(prefsProvider).referenceCurrency ?? FiatCurrency.usd.value;
-    final rates = await ref.read(fiatRatesProvider.future).onError((e, st) {
-      _logger.error('Error fetching fiat rates', e, st);
-      return [];
-    });
-    final fiatRate =
-        rates.firstWhereOrNull((e) => e.code == refCurrency)?.rate ?? 0;
     final feeRatesByPriority = await ref.read(onChainFeeProvider.future);
+    if (feeRatesByPriority.isEmpty) {
+      throw FeeOptionsNotFoundError();
+    }
 
-    return feeRatesByPriority.entries
+    final rates = ref.read(fiatRatesProvider).valueOrNull ?? [];
+    final rate =
+        rates.firstWhereOrNull((e) => e.code == currency.value)?.rate ?? 0;
+    final balance = await ref.read(balanceProvider).getBalance(arg.asset);
+
+    final options = feeRatesByPriority.entries
         // Standard Fee goes first
         .sorted((e, _) => e.key == TransactionPriority.medium ? -1 : 1)
         .map((e) {
@@ -95,44 +130,76 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
               .satoshiToFiat(
                 arg.asset,
                 feeSatsByTxnSize,
-                DecimalExt.fromDouble(fiatRate),
+                DecimalExt.fromDouble(rate),
               )
               .toDouble();
+          final canPayThisFee = balance >= feeSatsByTxnSize;
+          if (!canPayThisFee) {
+            return null;
+          }
+
+          final feeFiatValue = ref.watch(fiatProvider).formatFiat(
+                DecimalExt.fromDouble(feeFiat),
+                currency.value,
+              );
+          final feeFiatDisplay = '≈ $feeFiatValue';
+          final feeRateDisplay = feeRate % 1 == 0
+              ? feeRate.toStringAsFixed(0)
+              : feeRate.toStringAsFixed(1);
 
           return switch (e.key) {
             TransactionPriority.high => BitcoinFeeModel.high(
                 feeSats: feeSats,
                 feeFiat: feeFiat,
                 feeRate: feeRate,
+                feeFiatDisplay: feeFiatDisplay,
+                feeRateDisplay: feeRateDisplay,
               ),
             TransactionPriority.medium => BitcoinFeeModel.medium(
                 feeSats: feeSats,
                 feeFiat: feeFiat,
                 feeRate: feeRate,
+                feeFiatDisplay: feeFiatDisplay,
+                feeRateDisplay: feeRateDisplay,
               ),
             TransactionPriority.low => BitcoinFeeModel.low(
                 feeSats: feeSats,
                 feeFiat: feeFiat,
                 feeRate: feeRate,
+                feeFiatDisplay: feeFiatDisplay,
+                feeRateDisplay: feeRateDisplay,
               ),
             TransactionPriority.min => BitcoinFeeModel.min(
                 feeSats: feeSats,
                 feeFiat: feeFiat,
                 feeRate: feeRate,
+                feeFiatDisplay: feeFiatDisplay,
+                feeRateDisplay: feeRateDisplay,
               ),
           };
         })
+        .nonNulls
         .map(SendAssetFeeOptionModel.bitcoin)
         .toList();
+
+    //NOTE - Fee options are available but the user has insufficient balance
+    if (feeRatesByPriority.entries.isNotEmpty && options.isEmpty) {
+      throw InsufficientBalanceError();
+    }
+
+    return options;
   }
 
   Future<LiquidFeeModel> _getLiquidFeeOption(
     GdkNewTransactionReply? gdkTransaction, {
+    required AquaAssetInputUnit unit,
+    required FiatCurrency currency,
     required bool isTaxiAvailable,
   }) async {
-    // NOTE: Don't throw the errors if Taxi can be used for fee payment
-    final transactionFee = gdkTransaction?.fee;
-    final isFeeAvailable = transactionFee != null;
+    // NOTE: Don't throw the errors if Taxi can be used for fee payment OR when the transaction fee is loading
+    final transactionFee =
+        gdkTransaction?.fee ?? kEstimatedLiquidSendNetworkFee.toInt();
+    final isFeeAvailable = gdkTransaction?.error?.isEmpty ?? true;
 
     if (!isTaxiAvailable && gdkTransaction == null) {
       throw FeeTransactionNotFoundError();
@@ -142,30 +209,38 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
       throw FeeNotFoundError();
     }
 
-    final feeRatePerVb = await ref.read(liquidFeeRateProvider.future);
-    final fiatRates = await ref.read(fiatRatesProvider.future).onError((e, st) {
-      _logger.error('Error fetching fiat rates', e, st);
-      return [];
-    });
-    final refCurrency = ref.read(prefsProvider).referenceCurrency;
-    final rate = fiatRates.firstWhereOrNull((e) => e.code == refCurrency)?.rate;
-    final feeFiatAmount = isFeeAvailable
+    final lbtcAsset = Asset.lbtc();
+    final lbtcFiatFeeDisplay = ref.read(formatProvider).formatAssetAmount(
+          asset: lbtcAsset,
+          amount: transactionFee,
+          displayUnitOverride: SupportedDisplayUnits.fromAssetInputUnit(unit),
+        );
+
+    final fiatRates =
+        ref.read(fiatRatesProvider).unwrapPrevious().valueOrNull ?? [];
+    final rate =
+        fiatRates.firstWhereOrNull((e) => e.code == currency.value)?.rate;
+    final amount = isFeeAvailable
         ? rate != null
             ? transactionFee / (satsPerBtc / rate)
             : -1.0
         : 0.0;
-    final balance = await ref.read(balanceProvider).getBalance(arg.asset);
+    final fiatFeeAmount =
+        ref.read(fiatProvider).formatSatsToFiatWithRateDisplay(
+              asset: Asset.lbtc(),
+              satoshi: transactionFee,
+              rate: DecimalExt.fromDouble(rate ?? 0),
+              currencyCode: currency.value,
+            );
+
+    final balance = await ref.read(balanceProvider).getBalance(lbtcAsset);
     final canPayLbtcFee = isFeeAvailable ? balance >= transactionFee : false;
-    final lbtcFiatFeeDisplay = feeFiatAmount >= 0
-        ? '≈ $refCurrency ${feeFiatAmount.toStringAsFixed(2)}'
-        : '';
 
     return LiquidFeeModel.lbtc(
-      feeSats: transactionFee ?? 0,
-      feeFiat: feeFiatAmount,
-      fiatCurrency: refCurrency ?? '',
-      fiatFeeDisplay: lbtcFiatFeeDisplay,
-      satsPerByte: feeRatePerVb,
+      feeSats: transactionFee,
+      feeFiat: amount,
+      fiatFeeDisplay: '≈ $fiatFeeAmount',
+      feeDisplay: lbtcFiatFeeDisplay,
       isEnabled: canPayLbtcFee,
       availableForFeePayment: canPayLbtcFee,
     );
@@ -177,6 +252,12 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
     required bool isTaxiDisabled,
   }) async {
     if (isUsdtAssetEnabled && !isTaxiDisabled) {
+      // TODO - This is a temporary fix to prevent the taxi fee option from being shown when the user is sending all funds.
+      // Remove this once this is fixed.
+      if (input.isSendAllFunds) {
+        return null;
+      }
+
       final usdtAsset = ref.read(manageAssetsProvider).liquidUsdtAsset;
       final usdtBalance = await ref.read(balanceProvider).getBalance(usdtAsset);
       //NOTE - Taxi fee estimate crashes if invoked with zero USDt balance
@@ -184,23 +265,26 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
           ? await ref.read(estimatedTaxiFeeUsdtProvider((
               input.amount,
               input.isSendAllFunds,
-              // TODO: isLowball hardcoded true as a temporary hack. Need to revisit when taxi fee estimate is using DiscountCT values
-              true,
             )).future)
           : 0;
-      final taxiFeeFiat = ref.read(formatterProvider).formatAssetAmountDirect(
-            amount: taxiFeeEstimate,
-            precision: usdtAsset.precision,
-            roundingOverride: kUsdtDisplayPrecision,
-            removeTrailingZeros: false,
-          );
-      final taxiFiatFeeDisplay = '~$taxiFeeFiat ${usdtAsset.ticker}';
+
+      final currency = input.rate.currency;
+      final taxiFiatFeeDisplay =
+          ref.read(amountInputServiceProvider).formatUsdtAmount(
+                amountInSats: taxiFeeEstimate,
+                asset: usdtAsset,
+                targetCurrency: currency,
+                currencyFormat: currency.format,
+                withSymbol: true,
+              );
 
       final canPayUsdtFee = usdtBalance >= taxiFeeEstimate;
 
       // NOTE: The fee is paid with LBTC by default. The taxi option is only
       // available if the asset being sent is a USDT
-      final usdtFeeEnabled = input.asset.isAnyUsdt && canPayUsdtFee;
+      final isLwkLoggedIn = await ref.read(lwkProvider).verifyInitialized();
+      final usdtFeeEnabled =
+          input.asset.isAnyUsdt && canPayUsdtFee && isLwkLoggedIn;
 
       return LiquidFeeModel.usdt(
         feeAmount: taxiFeeEstimate,

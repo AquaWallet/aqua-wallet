@@ -93,6 +93,7 @@ class SwapOrderRequest with _$SwapOrderRequest {
     String? refundAddress,
     String? receiveAddress,
     Decimal? amount,
+    @Default(true) bool senderPaysFees,
     SwapQuote? quote,
     @Default(SwapOrderType.fixed) SwapOrderType type,
   }) = _SwapOrderRequest;

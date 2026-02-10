@@ -67,9 +67,11 @@ class AquaTransactionIcon extends HookWidget {
                   color: colors?.accentDanger,
                   shape: BoxShape.circle,
                 ),
-                child: AquaIcon.warning(
-                  color: colors?.textInverse,
-                  size: 16,
+                child: Center(
+                  child: AquaIcon.warning(
+                    color: Colors.white,
+                    size: 12,
+                  ),
                 ),
               ),
             ),

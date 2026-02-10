@@ -35,9 +35,6 @@ class Jan3LoginScreen extends HookConsumerWidget {
           ),
         }));
 
-    final captchaToken = useState<String?>(null);
-    final captchaKey = useState(0);
-
     ref.listen(jan3AuthProvider, (prev, next) {
       if (prev?.value == next.value) return;
       next.value?.maybeWhen(
@@ -48,13 +45,10 @@ class Jan3LoginScreen extends HookConsumerWidget {
             context.push(continueRoute);
           }
         },
-        pendingOtpVerification: () {
-          captchaKey.value++;
-          context.push(
-            Jan3OtpVerificationScreen.routeName,
-            extra: emailFormGroup.control(_emailFormControlName).value,
-          );
-        },
+        pendingOtpVerification: () => context.push(
+          Jan3OtpVerificationScreen.routeName,
+          extra: emailFormGroup.control(_emailFormControlName).value,
+        ),
         orElse: () {},
       );
     });
@@ -98,48 +92,63 @@ class Jan3LoginScreen extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 // ANCHOR - Email input field
-                ReactiveTextField<String>(
+                ReactiveValueListenableBuilder<String?>(
                   formControlName: _emailFormControlName,
-                  style: const TextStyle(
-                    fontSize: 22,
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  validationMessages: {
-                    ValidationMessage.required: (control) =>
-                        context.loc.loginScreenFieldRequired,
-                    ValidationMessage.email: (control) =>
-                        context.loc.loginScreenInvalidEmail,
+                  builder: (context, control, child) {
+                    final hasText = control.value?.isNotEmpty ?? false;
+                    return ReactiveTextField<String>(
+                      formControlName: _emailFormControlName,
+                      style: const TextStyle(
+                        fontSize: 22,
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      validationMessages: {
+                        ValidationMessage.required: (control) =>
+                            context.loc.loginScreenFieldRequired,
+                        ValidationMessage.email: (control) =>
+                            context.loc.loginScreenInvalidEmail,
+                      },
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: context.colors.jan3InputFieldBackgroundColor,
+                        hintText: context.loc.loginScreenEmailHint,
+                        hintStyle: const TextStyle(
+                          color: AquaColors.dimMarble,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: UiFontFamily.inter,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        suffixIcon: hasText
+                            ? IconButton(
+                                icon: const Icon(
+                                  Icons.clear,
+                                  color: AquaColors.dimMarble,
+                                ),
+                                onPressed: () => control.value = '',
+                              )
+                            : null,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            width: 1,
+                            color: AquaColors.dimMarble,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            width: 1,
+                            color: context.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    );
                   },
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: context.colors.jan3InputFieldBackgroundColor,
-                    hintText: context.loc.loginScreenEmailHint,
-                    hintStyle: const TextStyle(
-                      color: AquaColors.dimMarble,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: UiFontFamily.inter,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(
-                        width: 1,
-                        color: AquaColors.dimMarble,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        width: 1,
-                        color: context.colorScheme.primary,
-                      ),
-                    ),
-                  ),
                 ),
 
                 if (profileState.error != null) ...{
@@ -178,32 +187,16 @@ class Jan3LoginScreen extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 const Spacer(),
-                // ANCHOR - Captcha widget
-                CaptchaWidget(
-                  key: ValueKey(captchaKey.value),
-                  onTokenReceived: (token) {
-                    captchaToken.value = token;
-                  },
-                ),
-                const SizedBox(height: 16),
                 // ANCHOR - Continue button
                 ReactiveFormConsumer(
                   builder: (context, form, _) => AquaElevatedButton(
-                    onPressed: (profileState.isLoading ||
-                            form.invalid ||
-                            captchaToken.value == null ||
-                            captchaToken.value!.isEmpty)
+                    onPressed: (profileState.isLoading || form.invalid)
                         ? null
-                        : () {
-                            ref.read(jan3AuthProvider.notifier).sendOtp(
-                                  form.control(_emailFormControlName).value,
-                                  ref.read(languageProvider(context)
-                                      .select((p) => p.currentLanguage)),
-                                  captchaToken.value!,
-                                );
-                            // reset the captcha token
-                            captchaToken.value = null;
-                          },
+                        : () => ref.read(jan3AuthProvider.notifier).sendOtp(
+                              form.control(_emailFormControlName).value,
+                              ref.read(languageProvider(context)
+                                  .select((p) => p.currentLanguage)),
+                            ),
                     child: profileState.isLoading
                         ? const CircularProgressIndicator()
                         : Text(context.loc.loginScreenContinue),

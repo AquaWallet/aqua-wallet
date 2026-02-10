@@ -1,11 +1,8 @@
-import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
+import 'package:ui_components/ui_components.dart';
 
 class SwapOrderDetailScreen extends HookConsumerWidget {
   static const routeName = '/swapOrderDetailScreen';
@@ -15,265 +12,160 @@ class SwapOrderDetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final statusAsyncValue = ref.watch(
-      swapStatusProvider(SwapStatusParams.fromOrder(order)),
-    );
+    final status = ref
+        .watch(swapStatusProvider(SwapStatusParams.fromOrder(order)))
+        .valueOrNull;
 
-    final depositAmountStr = double.parse(order.depositAmount) == 0
-        ? '-'
-        : order.depositAmount.toString();
-    final settleAmountStr = double.parse(order.settleAmount ?? "0") == 0
-        ? '-'
-        : order.settleAmount.toString();
+    final depositAmountStr =
+        order.depositAmount.isEmpty ? '-' : order.depositAmount;
+    final settleAmountStr =
+        order.settleAmount == null || order.settleAmount!.isEmpty
+            ? '-'
+            : order.settleAmount!;
 
-    return Scaffold(
+    final createdAtStr = order.createdAt.mmMdyyyyHmma();
+    final expiresAtStr = order.expiresAt?.mmMdyyyyHmma() ?? '-';
+
+    return DesignRevampScaffold(
+      appBar: AquaTopAppBar(
+        title: context.loc.swapOrder,
+        showBackButton: true,
+        colors: context.aquaColors,
+      ),
       body: SafeArea(
-        child: statusAsyncValue.when(
-          data: (status) => SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20.0),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    onPressed: () => context.maybePop(),
-                    icon: const Icon(Icons.close),
-                  ),
+          child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              //ANCHOR - Status
+              if (status != null) ...[
+                AquaListItem(
+                  title: context.loc.status,
+                  subtitleTrailing:
+                      (status.orderStatus ?? SwapOrderStatus.unknown)
+                          .toLocalizedString(context),
                 ),
-                Container(
-                  padding: const EdgeInsets.only(
-                    top: 31.0,
-                    left: 16.0,
-                    right: 16.0,
-                    bottom: 71.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _SwapOrderDetailHeaderWidget(
-                        order: order,
-                        status: status.orderStatus ?? SwapOrderStatus.unknown,
-                      ),
-                      const SizedBox(height: 10.0),
-                      _SwapOrderDetailsWidget(order: order),
-                      const SizedBox(height: 12.0),
-                      _SwapOrderAmountDetailWidget(
-                        title: context.loc.depositAmount,
-                        amount: depositAmountStr,
-                      ),
-                      _SwapOrderAmountDetailWidget(
-                        title: context.loc.settleAmount,
-                        amount: settleAmountStr,
-                      ),
-                      const SizedBox(height: 12.0),
-                      DashedDivider(
-                        color: Theme.of(context).colors.onBackground,
-                      ),
-                      const SizedBox(height: 36.0),
-                      _SwapOrderDetailCopyableItemWidget(
-                        title: context.loc.orderId,
-                        text: order.orderId,
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: order.orderId));
-                          context.showAquaSnackbar(
-                              context.loc.swapIdCopiedSnackbar);
-                        },
-                      ),
-                      const SizedBox(height: 24.0),
-                      _SwapOrderDetailCopyableItemWidget(
-                        title: context.loc.depositAddress,
-                        text: order.depositAddress,
-                        onPressed: () {
-                          Clipboard.setData(
-                              ClipboardData(text: order.depositAddress));
-                          context.showAquaSnackbar(
-                              context.loc.depositAddressCopied);
-                        },
-                      ),
-                      const SizedBox(height: 24.0),
-                      _SwapOrderDetailCopyableItemWidget(
-                        title: context.loc.settleAddress,
-                        text: order.settleAddress,
-                        onPressed: () {
-                          Clipboard.setData(
-                              ClipboardData(text: order.settleAddress));
-                          context.showAquaSnackbar(
-                              context.loc.settleAddressCopied);
-                        },
-                      ),
-                      const SizedBox(height: 48.0),
-                      Center(
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            foregroundColor:
-                                Theme.of(context).colorScheme.secondary,
-                          ),
-                          onPressed: () => ref.read(urlLauncherProvider).open(
-                              order.serviceType
-                                  .serviceUrl(orderId: order.orderId)),
-                          child: Text(context.loc.customerService),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                AquaDivider(colors: context.aquaColors),
               ],
-            ),
-          ),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(child: Text('Error: $error')),
-        ),
-      ),
-    );
-  }
-}
-
-class _SwapOrderDetailHeaderWidget extends StatelessWidget {
-  const _SwapOrderDetailHeaderWidget({
-    required this.order,
-    required this.status,
-  });
-
-  final SwapOrderDbModel order;
-  final SwapOrderStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final orderStatusStr = status.toLocalizedString(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("${context.loc.status}: $orderStatusStr",
-              style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 10.0),
-          Text("${context.loc.service}: ${order.serviceType.displayName}",
-              style: Theme.of(context).textTheme.bodyMedium),
-        ],
-      ),
-    );
-  }
-}
-
-class _SwapOrderDetailsWidget extends StatelessWidget {
-  const _SwapOrderDetailsWidget({
-    required this.order,
-  });
-
-  final SwapOrderDbModel order;
-
-  @override
-  Widget build(BuildContext context) {
-    final createAtStr = DateFormat(
-            'MMM d, yyyy \'${context.loc.assetTransactionDetailsTimeAt}\' HH:mm')
-        .format(order.createdAt);
-    final expiresAtStr = order.expiresAt != null
-        ? DateFormat(
-                'MMM d, yyyy \'${context.loc.assetTransactionDetailsTimeAt}\' HH:mm')
-            .format(order.expiresAt!)
-        : '-';
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("${context.loc.createdAt} $createAtStr",
-              style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 10.0),
-          Text("${context.loc.expiresAt} $expiresAtStr",
-              style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 10.0),
-          Text("${context.loc.from} ${order.fromAsset}",
-              style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 10.0),
-          Text("${context.loc.to} ${order.toAsset}",
-              style: Theme.of(context).textTheme.bodyMedium),
-        ],
-      ),
-    );
-  }
-}
-
-class _SwapOrderAmountDetailWidget extends StatelessWidget {
-  const _SwapOrderAmountDetailWidget({
-    required this.title,
-    required this.amount,
-  });
-
-  final String amount;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 4.0),
-          Text(
-            amount,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SwapOrderDetailCopyableItemWidget extends StatelessWidget {
-  const _SwapOrderDetailCopyableItemWidget({
-    required this.title,
-    required this.text,
-    required this.onPressed,
-  });
-
-  final String title;
-  final String text;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
+              //ANCHOR - Service
+              AquaListItem(
+                title: context.loc.service,
+                subtitleTrailing: order.serviceType.displayName,
               ),
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                text,
-                style: Theme.of(context).textTheme.bodyMedium,
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - Created At
+              AquaListItem(
+                title: context.loc.createdAt,
+                subtitleTrailing: createdAtStr,
               ),
-            ),
-            const SizedBox(width: 20.0),
-            InkWell(
-              onTap: onPressed,
-              child: SvgPicture.asset(
-                Svgs.copy,
-                width: 17.0,
-                height: 17.0,
-                colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurface, BlendMode.srcIn),
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - Expires At
+              AquaListItem(
+                title: context.loc.expiresAt,
+                subtitleTrailing: expiresAtStr,
               ),
-            ),
-          ],
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - From Asset
+              AquaListItem(
+                title: context.loc.from,
+                subtitleTrailing: order.fromAsset,
+              ),
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - To Asset
+              AquaListItem(
+                title: context.loc.to,
+                subtitleTrailing: order.toAsset,
+              ),
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - Deposit Amount
+              AquaListItem(
+                title: context.loc.depositAmount,
+                subtitleTrailing: depositAmountStr,
+              ),
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - Settle Amount
+              AquaListItem(
+                title: context.loc.settleAmount,
+                subtitleTrailing: settleAmountStr,
+              ),
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - Order ID
+              AquaListItem(
+                title: context.loc.orderId,
+                subtitle: order.orderId,
+                iconTrailing: AquaIcon.copy(
+                  size: 18,
+                  color: context.aquaColors.textSecondary,
+                ),
+                onTap: () => context.copyToClipboard(
+                  order.orderId,
+                  successMessage: context.loc.swapIdCopiedSnackbar,
+                ),
+              ),
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - Deposit Address
+              AquaListItem(
+                title: context.loc.depositAddress,
+                contentWidget: AquaColoredText(
+                  text: order.depositAddress,
+                  maxLines: 2,
+                  style: AquaAddressTypography.body2.copyWith(
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  colorType: ColoredTextEnum.coloredIntegers,
+                  shouldWrap: true,
+                ),
+                iconTrailing: AquaIcon.copy(
+                  size: 18,
+                  color: context.aquaColors.textSecondary,
+                ),
+                onTap: () => context.copyToClipboard(
+                  order.depositAddress,
+                  successMessage: context.loc.depositAddressCopied,
+                ),
+              ),
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - Settle Address
+              AquaListItem(
+                title: context.loc.settleAddress,
+                contentWidget: AquaColoredText(
+                  text: order.settleAddress,
+                  maxLines: 2,
+                  style: AquaAddressTypography.body2.copyWith(
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  colorType: ColoredTextEnum.coloredIntegers,
+                  shouldWrap: true,
+                ),
+                iconTrailing: AquaIcon.copy(
+                  size: 18,
+                  color: context.aquaColors.textSecondary,
+                ),
+                onTap: () => context.copyToClipboard(
+                  order.settleAddress,
+                  successMessage: context.loc.settleAddressCopied,
+                ),
+              ),
+              AquaDivider(colors: context.aquaColors),
+              //ANCHOR - Contact Support
+              AquaListItem(
+                title: context.loc.commonContactSupport,
+                titleColor: context.aquaColors.accentBrand,
+                iconTrailing: AquaIcon.externalLink(
+                  size: 18,
+                  color: context.aquaColors.textSecondary,
+                ),
+                onTap: () => ref
+                    .read(urlLauncherProvider)
+                    .open(order.serviceType.serviceUrl(orderId: order.orderId)),
+              ),
+            ],
+          ),
         ),
-      ],
+      )),
     );
   }
 }

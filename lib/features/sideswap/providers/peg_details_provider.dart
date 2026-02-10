@@ -1,5 +1,5 @@
 import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
@@ -13,7 +13,7 @@ class PegDetailsNotifier
   @override
   SwapSuccessModel build(PegStateSuccess arg) {
     final GdkNewTransactionReply transaction = arg.txn;
-
+    final formatter = ref.read(formatProvider);
     final assets = ref.read(assetsProvider).asData?.value ?? [];
 
     final fee = transaction.fee ?? 0;
@@ -27,20 +27,18 @@ class PegDetailsNotifier
     final feeAsset = assets.firstWhere(
         (asset) => deliveredAsset.isBTC ? asset.isBTC : asset.isLBTC);
 
-    final formattedDelivered =
-        ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: delivered,
-              precision: deliveredAsset.precision,
-            );
-    final formattedReceived =
-        ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: received,
-              precision: receivedAsset.precision,
-            );
-    final formattedFee = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: fee,
-          precision: feeAsset.precision,
-        );
+    final formattedDelivered = formatter.formatAssetAmount(
+      amount: delivered,
+      asset: deliveredAsset,
+    );
+    final formattedReceived = formatter.formatAssetAmount(
+      amount: received,
+      asset: receivedAsset,
+    );
+    final formattedFee = formatter.formatAssetAmount(
+      amount: fee,
+      asset: feeAsset,
+    );
     final feeText = '$formattedFee ${feeAsset.ticker}';
     final receivedTicker = receivedAsset.ticker;
     final transactionId = transaction.txhash ?? '-';

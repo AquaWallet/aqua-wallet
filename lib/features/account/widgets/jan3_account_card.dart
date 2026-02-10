@@ -7,6 +7,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:ui_components/ui_components.dart';
 
 class Jan3AccountCard extends HookConsumerWidget {
   final bool isExpanded;
@@ -54,49 +55,42 @@ class Jan3AccountCard extends HookConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      context.loc.jan3AccountTitle,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                    AquaText.body1SemiBold(
+                      text: context.loc.jan3AccountTitle,
                     ),
-                    const SizedBox(height: 1),
-                    Text(
-                        accountState?.mapOrNull(
-                              authenticated: (state) => state.profile.email,
-                            ) ??
-                            context.loc.jan3UnlockFeatures,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            )),
+                    AquaText.body2Medium(
+                      text: accountState?.mapOrNull(
+                            authenticated: (state) => state.profile.email,
+                          ) ??
+                          context.loc.unlockMoreFeatures,
+                      color: context.aquaColors.textSecondary,
+                    ),
                   ],
                 ),
               ),
               // Close button
-              IconButton(
-                icon: UiAssets.cross.svg(
-                  width: 10,
-                  height: 10,
-                ),
-                onPressed: onClose,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
+              isLoggedIn
+                  ? const SizedBox.shrink()
+                  : AquaIcon.close(
+                      size: 18,
+                      color: context.aquaColors.textTertiary,
+                      onTap: onClose,
+                    ),
             ],
           ),
         ),
-        Divider(
-          color: context.colors.divider,
-          thickness: 1,
-          height: 1,
+        AquaDivider(
+          colors: context.aquaColors,
         ),
         // Action Buttons
-        IntrinsicHeight(
-            child: Row(
+        Row(
           children: [
-            // First Button (Invite Friends or Log In)
-            Expanded(
+            Flexible(
+              fit: FlexFit.tight,
               child: InkWell(
+                borderRadius: isLoggedIn
+                    ? const BorderRadius.only(bottomLeft: Radius.circular(8))
+                    : const BorderRadius.vertical(bottom: Radius.circular(8)),
                 onTap: () {
                   if (isLoggedIn) {
                     shareInvite();
@@ -105,64 +99,58 @@ class Jan3AccountCard extends HookConsumerWidget {
                   }
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   child: Center(
-                    child: Text(
-                      isLoggedIn
+                    child: AquaText.body2SemiBold(
+                      text: isLoggedIn
                           ? context.loc.jan3InviteFriends
-                          : context.loc.jan3Login,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
+                          : context.loc.loginScreenTitle,
                     ),
                   ),
                 ),
               ),
             ),
-            // Vertical Divider
-            VerticalDivider(
-              width: 1,
-              thickness: 1,
-              color: context.colors.divider,
-            ),
-            // Second Button (Log Out or Create Account)
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  if (isLoggedIn) {
+            if (isLoggedIn) ...[
+              SizedBox(
+                height: 48,
+                width: 1,
+                child: ColoredBox(
+                  color: context.aquaColors.surfaceBackground,
+                ),
+              ),
+              Flexible(
+                fit: FlexFit.tight,
+                child: InkWell(
+                  borderRadius:
+                      const BorderRadius.only(bottomRight: Radius.circular(8)),
+                  onTap: () {
                     ref.read(jan3AuthProvider.notifier).signOut();
-                  } else {
-                    context.push(Jan3LoginScreen.routeName);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Center(
-                    child: Text(
-                      isLoggedIn ? context.loc.jan3LogOut : context.loc.signUp,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    child: Center(
+                      child: AquaText.body2SemiBold(
+                        text: context.loc.jan3LogOut,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
-        )),
+        ),
       ],
     );
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      height: isExpanded ? 134 : 0,
+      height: isExpanded ? 121 : 0,
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+      child: AquaCard(
+        borderRadius: BorderRadius.circular(8),
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 300),
           opacity: isExpanded ? 1.0 : 0.0,

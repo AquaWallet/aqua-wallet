@@ -7,11 +7,15 @@ class AquaNavDrawer extends HookWidget {
   const AquaNavDrawer({
     super.key,
     required this.sections,
+    required this.colors,
+    this.onLogoTap,
     this.footer,
   });
 
   final List<AquaNavDrawerSection> sections;
   final Widget? footer;
+  final AquaColors colors;
+  final VoidCallback? onLogoTap;
 
   @override
   Widget build(BuildContext context) {
@@ -21,23 +25,23 @@ class AquaNavDrawer extends HookWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              margin: const EdgeInsetsDirectional.only(
-                start: 16,
-                top: 32,
-              ),
-              child: AquaUiAssets.svgs.aquaLogo.svg(
-                height: 24,
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
-                  BlendMode.srcIn,
+            InkWell(
+              onTap: onLogoTap,
+              child: Container(
+                margin: const EdgeInsetsDirectional.only(
+                  start: 16,
+                  top: 32,
+                ),
+                child: AquaUiAssets.svgs.aquaLogo.svg(
+                  height: 24,
+                  color: colors.textPrimary,
                 ),
               ),
             ),
             Divider(
               height: 64,
               thickness: 1,
-              color: Theme.of(context).colorScheme.outline,
+              color: colors.surfaceBorderPrimary,
             ),
             ListView.separated(
               shrinkWrap: true,
@@ -49,7 +53,7 @@ class AquaNavDrawer extends HookWidget {
             Divider(
               height: 48,
               thickness: 1,
-              color: Theme.of(context).colorScheme.outline,
+              color: colors.surfaceBorderPrimary,
             ),
             if (footer != null) ...[
               footer!,
@@ -124,9 +128,12 @@ class AquaNavDrawerItem extends StatelessWidget {
       color: isSelected ? colors?.surfaceSecondary : Colors.transparent,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call())
+            : null,
         borderRadius: BorderRadius.circular(8),
-        splashFactory: NoSplash.splashFactory,
+        splashFactory: InkRipple.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {
           if (state.isHovered || state.isPressed) {
             return null;
@@ -162,18 +169,23 @@ class AquaNavDrawerFooterButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.icon,
+    required this.colors,
     this.onTap,
   });
 
   final String label;
   final AquaIconBuilder icon;
   final VoidCallback? onTap;
+  final AquaColors colors;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
-      splashFactory: NoSplash.splashFactory,
+      onTap: onTap != null
+          ? () =>
+              WidgetsBinding.instance.addPostFrameCallback((_) => onTap?.call())
+          : null,
+      splashFactory: InkRipple.splashFactory,
       borderRadius: BorderRadius.circular(8),
       child: Ink(
         padding: const EdgeInsets.symmetric(
@@ -183,10 +195,13 @@ class AquaNavDrawerFooterButton extends StatelessWidget {
         child: Row(
           children: [
             icon(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: colors.textPrimary,
             ),
             const SizedBox(width: 16),
-            AquaText.body1SemiBold(text: label),
+            AquaText.body1SemiBold(
+              text: label,
+              color: colors.textPrimary,
+            ),
           ],
         ),
       ),

@@ -60,7 +60,7 @@ class QrScannerProvider {
     if (asset != null) {
       final parsedInput = await ref
           .read(addressParserProvider)
-          .parseInput(input: uri.toString(), asset: asset);
+          .parseInput(input: value, asset: asset);
 
       if (parsedInput == null) {
         throw QrScannerInvalidQrParametersException();
@@ -97,9 +97,8 @@ class QrScannerProvider {
 
       // all other assets
       // address
-      final parsedInput = await ref
-          .read(addressParserProvider)
-          .parseInput(input: uri.toString());
+      final parsedInput =
+          await ref.read(addressParserProvider).parseInput(input: value);
 
       if (parsedInput == null) {
         throw QrScannerInvalidQrParametersException();

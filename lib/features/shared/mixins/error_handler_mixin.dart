@@ -5,14 +5,12 @@ import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/features/settings/help_support/pages/help_support_screen.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:ui_components/components/icon/icon.dart';
-import 'package:ui_components/components/modal_sheet/modal_sheet.dart';
+import 'package:ui_components/ui_components.dart';
 
 mixin ErrorHandlerMixin on Widget {
   void handleRegionRestrictionErrorOnAsyncValue(
     BuildContext context,
     AsyncValue value,
-    bool isDarkMode,
   ) {
     if (value.hasError &&
         value.error is RegionRestrictionException &&
@@ -31,18 +29,18 @@ mixin ErrorHandlerMixin on Widget {
             DialogManager().dismissDialog(context);
             context.push(HelpSupportScreen.routeName);
           },
-          iconVariant: AquaModalSheetVariant.warning,
+          iconVariant: AquaRingedIconVariant.warning,
           icon: AquaIcon.warning(
             color: Colors.white,
           ),
         );
 
-        DialogManager().showDialog(context, alertModel, isDarkMode: isDarkMode);
+        DialogManager().showDialog(context, alertModel);
       });
     }
   }
 
-  void showGenericErrorDialog(BuildContext context, bool isDarkMode) {
+  void showGenericErrorDialog(BuildContext context) {
     if (context.mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final alertModel = CustomAlertDialogUiModel(
@@ -58,13 +56,13 @@ mixin ErrorHandlerMixin on Widget {
             DialogManager().dismissDialog(context);
             context.push(HelpSupportScreen.routeName);
           },
-          iconVariant: AquaModalSheetVariant.warning,
+          iconVariant: AquaRingedIconVariant.warning,
           icon: AquaIcon.warning(
             color: Colors.white,
           ),
         );
 
-        DialogManager().showDialog(context, alertModel, isDarkMode: isDarkMode);
+        DialogManager().showDialog(context, alertModel);
       });
     }
   }

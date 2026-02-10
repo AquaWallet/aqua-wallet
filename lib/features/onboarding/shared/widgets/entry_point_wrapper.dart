@@ -1,79 +1,110 @@
 import 'dart:math';
 
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/desktop/pages/desktop_home_screen.dart';
 import 'package:aqua/features/home/home.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/shared/constants/constants.dart';
+
+enum _EntryScreenKey {
+  splash,
+  welcome,
+  home,
+  desktopHome,
+}
 
 class EntryPointWrapper extends HookConsumerWidget {
   const EntryPointWrapper({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final taglines = useMemoized(() => [
-          context.loc.welcomeScreenDesc1,
-          context.loc.welcomeScreenDesc2,
-          context.loc.welcomeScreenDesc3,
-          context.loc.welcomeScreenDesc4,
-          context.loc.welcomeScreenDesc5,
-        ]);
-    final description = useState(taglines[Random().nextInt(5)]);
-    final onSwitchTagline = useCallback(() {
-      final currentIndex = taglines.indexOf(description.value);
-      final nextTagline = taglines[(currentIndex + 1) % taglines.length];
-      description.value = nextTagline;
-    }, [description.value]);
+    final tagLines = useMemoized(
+        () => [
+              context.loc.welcomeScreenDesc1,
+              context.loc.welcomeScreenDesc2,
+              context.loc.welcomeScreenDesc3,
+              context.loc.welcomeScreenDesc4,
+              context.loc.welcomeScreenDesc5,
+              context.loc.welcomeScreenDesc6,
+            ],
+        [context.loc]);
 
-    ref.listen(aquaConnectionProvider, (_, asyncValue) {
-      if (ref.read(initAppProvider).isLoading == true) {
-        // ignore before app is initialized
-        return;
-      }
+    final selectedTagline = useMemoized(
+      () => tagLines[Random().nextInt(tagLines.length)],
+      [tagLines],
+    );
 
-      return asyncValue.maybeWhen(
-          data: (_) {
-            /**
-             * When connected make sure we are on the HomeScreen.
-             * Required for wallet restore flow.
-             */
-            context.pushReplacement(HomeScreen.routeName);
-          },
-          orElse: () {});
+    final initAppState = ref.watch(initAppProvider);
+    final storedWalletsState = ref.watch(storedWalletsProvider);
+    final aquaConnectionState = ref.watch(aquaConnectionProvider);
+
+    ref.listen(storedWalletsProvider, (prev, next) {
+      next.whenData((walletState) {
+        final hadNoWallet = prev?.valueOrNull?.currentWallet == null;
+        final hasWallet = walletState.currentWallet != null;
+        final currentRoute =
+            GoRouter.of(context).routeInformationProvider.value.uri.path;
+
+        if (hadNoWallet && hasWallet && currentRoute == '/') {
+          context.pushReplacement(HomeScreen.routeName);
+        }
+      });
     });
-    final mnemonicFuture =
-        useFuture(ref.read(secureStorageProvider).get(StorageKeys.mnemonic));
 
-    return ref.watch(initAppProvider).maybeWhen(
-              data: (_) {
-                return ref.watch(aquaConnectionProvider).when(data: (data) {
-                  final (mnemonic, err) = mnemonicFuture.data!;
-                  if (err != null || mnemonic == null) {
-                    // Need to redirect users without wallet to onboarding
-                    return WelcomeScreen(
-                      description: description.value,
-                      onSwitchTagline: onSwitchTagline,
-                    );
-                  }
-                  return const HomeScreen();
-                }, error: (error, stackTrace) {
-                  return WelcomeScreen(
-                    description: description.value,
-                    onSwitchTagline: onSwitchTagline,
-                  );
-                }, loading: () {
-                  return SplashScreen(
-                    description: description.value,
-                    onSwitchTagline: onSwitchTagline,
-                  );
-                });
-              },
-              orElse: () => SplashScreen(
-                description: description.value,
-                onSwitchTagline: onSwitchTagline,
+    final currentScreen = initAppState.maybeWhen(
+      data: (_) => storedWalletsState.when(
+        data: (walletState) {
+          if (walletState.currentWallet != null) {
+            return aquaConnectionState.when(
+              data: (_) => isDesktop
+                  ? DesktopHomeScreen(
+                      key: ValueKey(_EntryScreenKey.desktopHome.name),
+                    )
+                  : HomeScreen(
+                      key: ValueKey(_EntryScreenKey.home.name),
+                    ),
+              error: (_, __) => HomeScreen(
+                key: ValueKey(_EntryScreenKey.welcome.name),
               ),
-            ) ??
-        Container();
+              loading: () => SplashScreen(
+                key: ValueKey(_EntryScreenKey.splash.name),
+                description: selectedTagline,
+              ),
+            );
+          }
+          return WelcomeScreen(
+            key: ValueKey(_EntryScreenKey.welcome.name),
+            description: selectedTagline,
+          );
+        },
+        loading: () => SplashScreen(
+          key: ValueKey(_EntryScreenKey.splash.name),
+          description: selectedTagline,
+        ),
+        error: (_, __) => WelcomeScreen(
+          key: ValueKey(_EntryScreenKey.welcome.name),
+          description: selectedTagline,
+        ),
+      ),
+      orElse: () => SplashScreen(
+        key: ValueKey(_EntryScreenKey.splash.name),
+        description: selectedTagline,
+      ),
+    );
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (child, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+      child: currentScreen,
+    );
   }
 }

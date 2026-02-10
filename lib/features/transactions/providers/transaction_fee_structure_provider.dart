@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideshift/models/sideshift_fees.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -14,6 +12,7 @@ import 'package:decimal/decimal.dart';
 
 const kDefaultSideswapPegFeePercent = 0.1;
 const kDefaultSideswapSwapFeePercent = 0.6;
+const kEstimatedLiquidSendNetworkFee = 44.0;
 
 final transactionFeeStructureProvider = AutoDisposeAsyncNotifierProviderFamily<
     TransactionFeeStructureNotifier,
@@ -115,9 +114,23 @@ class TransactionFeeStructureNotifier extends AutoDisposeFamilyAsyncNotifier<
           throw StateError('No swap service selected');
         }
 
+        // Get the input state to check fee selection
+        final inputState =
+            ref.watch(sendAssetInputStateProvider(args)).valueOrNull;
+
+        // Check if there's an actual transaction with real fee available
+        final actualFee = await ref
+            .watch(sendAssetFeeProvider(args).future)
+            .then((value) => value.maybeMap(
+                  liquid: (fee) => fee.estimatedFee,
+                  orElse: () => null,
+                ))
+            .catchError((_) => null);
+
         final swapPair = SwapPair(
-            from: SwapAssetExt.usdtLiquid,
-            to: SwapAsset.fromAsset(deliverAsset));
+          from: SwapAssetExt.usdtLiquid,
+          to: SwapAsset.fromAsset(deliverAsset),
+        );
         final orderState =
             await ref.watch(swapOrderProvider(SwapArgs(pair: swapPair)).future);
         if (orderState.rate?.rate == null ||
@@ -128,44 +141,20 @@ class TransactionFeeStructureNotifier extends AutoDisposeFamilyAsyncNotifier<
 
         final depositAmount = orderState.order?.depositAmount ?? Decimal.zero;
         final settleAmount = orderState.order?.settleAmount ?? Decimal.zero;
+        final settleCoinNetworkFee =
+            orderState.order?.settleCoinNetworkFee ?? Decimal.zero;
 
-        switch (swapServiceSource) {
-          case SwapServiceSource.sideshift:
-            // Sideshift: Fixed 0.9% service fee, network fee is the remainder
-            final serviceFee = depositAmount *
-                DecimalExt.fromDouble(kSideshiftServiceFee, precision: 3);
-            final totalFees = depositAmount - settleAmount;
-            final networkFees = totalFees - serviceFee;
-
-            return FeeStructure.usdtSwap(
-              serviceFee: serviceFee.truncate(scale: 2).toDouble(),
-              serviceFeePercentage: kSideshiftServiceFee * 100,
-              networkFee: networkFees.truncate(scale: 2).toDouble(),
-              totalFees: totalFees.truncate(scale: 2).toDouble(),
+        return ref
+            .read(usdtSwapFeeCalculatorServiceProvider)
+            .calculateFeeStructure(
+              swapServiceSource: swapServiceSource,
+              depositAmount: depositAmount,
+              settleAmount: settleAmount,
+              settleCoinNetworkFee: settleCoinNetworkFee,
+              sendNetworkFeeInSats: actualFee,
+              isUsdtFeeAsset: inputState?.isUsdtFeeAsset ?? false,
+              usdtFeeInSats: inputState?.taxiFeeSats,
             );
-
-          case SwapServiceSource.changelly:
-            // Changelly: Network fees provided in response, service fee is the remainder. Service fee percentage is calculated from total fees
-            //TODO: Network fee is not being substracted from settleAmount for Changelly. Need to revise. For now set to 0.
-            final networkFees = Decimal.zero;
-            // final settleCoinNetworkFee = orderState.order?.settleCoinNetworkFee;
-            // final depositCoinNetworkFee = orderState.order?.depositCoinNetworkFee ?? Decimal.zero;
-            // final networkFees = (settleCoinNetworkFee ?? Decimal.zero) +
-            //     depositCoinNetworkFee;
-
-            final totalFees = depositAmount - settleAmount;
-            final serviceFee = totalFees - networkFees;
-            final serviceFeePercentage =
-                (serviceFee / depositAmount).toDouble() * 100;
-
-            return FeeStructure.usdtSwap(
-              serviceFee: serviceFee.truncate(scale: 2).toDouble(),
-              serviceFeePercentage:
-                  double.parse(serviceFeePercentage.toStringAsFixed(2)),
-              networkFee: networkFees.truncate(scale: 2).toDouble(),
-              totalFees: totalFees.truncate(scale: 2).toDouble(),
-            );
-        }
       },
     );
   }

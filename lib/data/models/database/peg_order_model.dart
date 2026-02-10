@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/sideswap/models/sideswap.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
 
@@ -19,9 +19,13 @@ class PegOrderDbModel with _$PegOrderDbModel {
     @JsonKey(required: true, disallowNullValue: true)
     @Index()
     required String orderId,
+    @Index() String? walletId,
+    @Index() String? txhash,
     @Index() required bool isPegIn,
     required int amount,
     required String statusJson,
+    String? depositAddress,
+    String? receiveAddress,
     DateTime? createdAt,
   }) = _PegOrderDbModel;
 
@@ -34,6 +38,7 @@ class PegOrderDbModel with _$PegOrderDbModel {
 
   factory PegOrderDbModel.fromStatus({
     required String orderId,
+    required String walletId,
     required bool isPegIn,
     required int amount,
     required SwapPegStatusResult status,
@@ -41,7 +46,11 @@ class PegOrderDbModel with _$PegOrderDbModel {
   }) {
     return PegOrderDbModel(
       orderId: orderId,
+      walletId: walletId,
       isPegIn: isPegIn,
+      txhash: status.transactions.firstOrNull?.txHash,
+      depositAddress: status.depositAddress,
+      receiveAddress: status.receiveAddress,
       amount: amount,
       statusJson: jsonEncode(status.toJson()),
       createdAt: createdAt,
@@ -53,7 +62,10 @@ class PegOrderDbModel with _$PegOrderDbModel {
       SwapPegStatusResult.fromJson(jsonDecode(statusJson));
 
   PegOrderDbModel copyWithStatus(SwapPegStatusResult newStatus) {
-    return copyWith(statusJson: jsonEncode(newStatus.toJson()));
+    return copyWith(
+      statusJson: jsonEncode(newStatus.toJson()),
+      txhash: newStatus.transactions.firstOrNull?.txHash ?? txhash,
+    );
   }
 }
 
@@ -70,5 +82,14 @@ extension PegOrderFutureListX on Future<List<PegOrderDbModel>> {
   Future<List<PegOrderDbModel>> sortByCreated() async {
     final orders = await this;
     return orders.sortByCreated();
+  }
+}
+
+extension PegOrderX on PegOrderDbModel {
+  bool get isPendingConfirmations {
+    final orderStatus = status.getConsolidatedStatus();
+    final confirmations = orderStatus.detectedConfs ?? 0;
+    final requiredConfirmations = orderStatus.totalConfs ?? 999;
+    return confirmations < requiredConfirmations;
   }
 }

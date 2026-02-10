@@ -8,6 +8,7 @@ import 'package:aqua/features/text_scan/providers/text_scan_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.textScan);
@@ -94,10 +95,16 @@ class TextScannerNotifier extends AutoDisposeFamilyAsyncNotifier<TextScanState,
         if (asset == null) {
           return const TextScanState.unknownText('No asset found');
         }
-
+        final userEnteredAmount =
+            parsedAddress.amountInSats != null && parsedAddress.asset != null
+                ? ref.read(displayUnitsProvider).convertSatsToUnit(
+                      sats: parsedAddress.amountInSats!,
+                      asset: parsedAddress.asset!,
+                    )
+                : null;
         final sendArgs = SendAssetArguments.fromAsset(asset).copyWith(
           input: parsedAddress.address,
-          userEnteredAmount: parsedAddress.amount,
+          userEnteredAmount: userEnteredAmount,
           lnurlParseResult: parsedAddress.lnurlParseResult,
           externalPrivateKey: parsedAddress.extPrivateKey,
         );

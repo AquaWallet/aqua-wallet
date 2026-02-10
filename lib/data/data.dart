@@ -3,3 +3,4 @@
 export 'backend/backend.dart';
 export 'models/models.dart';
 export 'provider/provider.dart';
+export 'extensions/extensions.dart';

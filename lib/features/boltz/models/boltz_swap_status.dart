@@ -1,3 +1,5 @@
+import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 /// See Boltz docs: https://docs.boltz.exchange/v/api/lifecycle
@@ -93,6 +95,29 @@ extension SwapStatusExtension on BoltzSwapStatus {
         this == BoltzSwapStatus.transactionRefunded ||
         this == BoltzSwapStatus.transactionClaimed ||
         this == BoltzSwapStatus.transactionFailed;
+  }
+
+  String label(BuildContext context) {
+    return switch (this) {
+      BoltzSwapStatus.created => context.loc.swapCreated,
+      BoltzSwapStatus.invoicePending => context.loc.invoicePending,
+      BoltzSwapStatus.invoiceSet => context.loc.invoiceSet,
+      BoltzSwapStatus.invoiceFailedToPay => context.loc.invoiceFailedToPay,
+      BoltzSwapStatus.invoiceExpired => context.loc.invoiceExpired,
+      BoltzSwapStatus.transactionMempool => context.loc.transactionMempool,
+      BoltzSwapStatus.transactionConfirmed => context.loc.transactionConfirmed,
+      BoltzSwapStatus.swapExpired => context.loc.swapExpired,
+      BoltzSwapStatus.swapRefunded => context.loc.swapRefunded,
+      BoltzSwapStatus.transactionLockupFailed =>
+        context.loc.transactionLockupFailed,
+      BoltzSwapStatus.invoiceSettled => context.loc.invoiceSettled,
+      BoltzSwapStatus.submarineBroadcasted => context.loc.submarineBroadcasted,
+      BoltzSwapStatus.transactionClaimPending =>
+        context.loc.transactionClaimPending,
+      BoltzSwapStatus.transactionClaimed => context.loc.transactionClaimed,
+      BoltzSwapStatus.transactionRefunded => context.loc.transactionRefunded,
+      BoltzSwapStatus.transactionFailed => context.loc.transactionFailed,
+    };
   }
 }
 

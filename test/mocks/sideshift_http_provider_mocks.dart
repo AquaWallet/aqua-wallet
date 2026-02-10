@@ -31,6 +31,7 @@ extension MockSideshiftServiceX on MockSideshiftService {
   }
 
   void mockCacheOrderToDatabase() {
-    when(() => cacheOrderToDatabase(any(), any())).thenAnswer((_) async {});
+    when(() => cacheOrderToDatabase(any(), any(), any()))
+        .thenAnswer((_) async {});
   }
 }

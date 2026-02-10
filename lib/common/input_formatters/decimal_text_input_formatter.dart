@@ -5,11 +5,15 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/services.dart';
 
 class DecimalTextInputFormatter extends TextInputFormatter {
-  DecimalTextInputFormatter(
-      {required this.decimalRange, this.integerRange = 10});
+  DecimalTextInputFormatter({
+    required this.decimalRange,
+    this.integerRange = 10,
+    this.decimalSeparator = '.',
+  });
 
   final int decimalRange;
   final int integerRange;
+  final String decimalSeparator;
 
   @override
   TextEditingValue formatEditUpdate(
@@ -34,9 +38,10 @@ class DecimalTextInputFormatter extends TextInputFormatter {
     }
 
     // Prefix with zero if decimal is pressed as the first digit
-    if (newValue.text.startsWith('.')) {
+    if (newValue.text.startsWith(decimalSeparator)) {
       return newValue.copyWith(
-        text: newValue.text.replaceFirst('.', '0.'),
+        text:
+            newValue.text.replaceFirst(decimalSeparator, '0$decimalSeparator'),
         selection: newValue.selection.copyWith(
           baseOffset: 2,
           extentOffset: 2,
@@ -55,7 +60,9 @@ class DecimalTextInputFormatter extends TextInputFormatter {
       );
     }
 
-    final decimalValue = Decimal.tryParse(newValue.text);
+    // Convert custom decimal separator to dot for decimal parsing
+    final normalizedText = newValue.text.replaceAll(decimalSeparator, '.');
+    final decimalValue = Decimal.tryParse(normalizedText);
     if (decimalValue == null) {
       return oldValue;
     }
@@ -65,20 +72,21 @@ class DecimalTextInputFormatter extends TextInputFormatter {
 
     var value = newValue.text;
 
-    if (value.contains('.') &&
-        value.substring(value.indexOf('.') + 1).length > decimalRange) {
+    if (value.contains(decimalSeparator) &&
+        value.substring(value.indexOf(decimalSeparator) + 1).length >
+            decimalRange) {
       truncated = oldValue.text;
       newSelection = oldValue.selection;
-    } else if (value == '.') {
-      truncated = '0.';
+    } else if (value == decimalSeparator) {
+      truncated = '0$decimalSeparator';
 
       newSelection = newValue.selection.copyWith(
         baseOffset: min(truncated.length, truncated.length + 1),
         extentOffset: min(truncated.length, truncated.length + 1),
       );
     } else {
-      if (value.contains('.')) {
-        final index = value.indexOf('.');
+      if (value.contains(decimalSeparator)) {
+        final index = value.indexOf(decimalSeparator);
         final sub = value.substring(0, index);
         if (sub.length > integerRange) {
           truncated = oldValue.text;

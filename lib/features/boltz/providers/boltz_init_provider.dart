@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:aqua/logger.dart';
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:boltz/boltz.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
@@ -18,7 +18,7 @@ class BoltzInitProvider extends AsyncNotifier<void> {
     try {
       final externalLibrary = Platform.isIOS
           ? ExternalLibrary.open(
-              '${NSBundleHelper.mainBundlePath}/Frameworks/boltz_dart.framework/boltz_dart')
+              '${NSBundleHelper.mainBundlePath}/Frameworks/boltz.framework/boltz')
           : null;
       await BoltzCore.init(externalLibrary: externalLibrary);
       logger.debug('[Boltz] BoltzCore initialized successfully.');

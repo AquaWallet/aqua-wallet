@@ -217,9 +217,12 @@ class $AssetsFlagsGen {
   /// File path: assets/flags/anguilla.svg
   SvgGenImage get anguilla => const SvgGenImage('assets/flags/anguilla.svg');
 
-  /// File path: assets/flags/antigua-and-barbuda.svg
-  SvgGenImage get antiguaAndBarbuda =>
-      const SvgGenImage('assets/flags/antigua-and-barbuda.svg');
+  /// File path: assets/flags/antartica.svg
+  SvgGenImage get antartica => const SvgGenImage('assets/flags/antartica.svg');
+
+  /// File path: assets/flags/antigua-&-barbuda.svg
+  SvgGenImage get antiguaBarbuda =>
+      const SvgGenImage('assets/flags/antigua-&-barbuda.svg');
 
   /// File path: assets/flags/argentina.svg
   SvgGenImage get argentina => const SvgGenImage('assets/flags/argentina.svg');
@@ -310,9 +313,8 @@ class $AssetsFlagsGen {
   SvgGenImage get britishVirginIslands =>
       const SvgGenImage('assets/flags/british-virgin-islands.svg');
 
-  /// File path: assets/flags/brunei-darussalam.svg
-  SvgGenImage get bruneiDarussalam =>
-      const SvgGenImage('assets/flags/brunei-darussalam.svg');
+  /// File path: assets/flags/brunei.svg
+  SvgGenImage get brunei => const SvgGenImage('assets/flags/brunei.svg');
 
   /// File path: assets/flags/bulgaria.svg
   SvgGenImage get bulgaria => const SvgGenImage('assets/flags/bulgaria.svg');
@@ -339,6 +341,9 @@ class $AssetsFlagsGen {
 
   /// File path: assets/flags/cape-verde.svg
   SvgGenImage get capeVerde => const SvgGenImage('assets/flags/cape-verde.svg');
+
+  /// File path: assets/flags/catalan.svg
+  SvgGenImage get catalan => const SvgGenImage('assets/flags/catalan.svg');
 
   /// File path: assets/flags/cayman-islands.svg
   SvgGenImage get caymanIslands =>
@@ -621,9 +626,8 @@ class $AssetsFlagsGen {
   SvgGenImage get kyrgyzstan =>
       const SvgGenImage('assets/flags/kyrgyzstan.svg');
 
-  /// File path: assets/flags/lao-peoples-democratic-republic.svg
-  SvgGenImage get laoPeoplesDemocraticRepublic =>
-      const SvgGenImage('assets/flags/lao-peoples-democratic-republic.svg');
+  /// File path: assets/flags/laos.svg
+  SvgGenImage get laos => const SvgGenImage('assets/flags/laos.svg');
 
   /// File path: assets/flags/latvia.svg
   SvgGenImage get latvia => const SvgGenImage('assets/flags/latvia.svg');
@@ -646,6 +650,9 @@ class $AssetsFlagsGen {
 
   /// File path: assets/flags/lithuania.svg
   SvgGenImage get lithuania => const SvgGenImage('assets/flags/lithuania.svg');
+
+  /// File path: assets/flags/luna.svg
+  SvgGenImage get luna => const SvgGenImage('assets/flags/luna.svg');
 
   /// File path: assets/flags/luxembourg.svg
   SvgGenImage get luxembourg =>
@@ -675,6 +682,9 @@ class $AssetsFlagsGen {
 
   /// File path: assets/flags/malta.svg
   SvgGenImage get malta => const SvgGenImage('assets/flags/malta.svg');
+
+  /// File path: assets/flags/mars.svg
+  SvgGenImage get mars => const SvgGenImage('assets/flags/mars.svg');
 
   /// File path: assets/flags/marshall-islands.svg
   SvgGenImage get marshallIslands =>
@@ -784,6 +794,10 @@ class $AssetsFlagsGen {
   SvgGenImage get northernMarianaIslands =>
       const SvgGenImage('assets/flags/northern-mariana-islands.svg');
 
+  /// File path: assets/flags/northern-marianas-islands.svg
+  SvgGenImage get northernMarianasIslands =>
+      const SvgGenImage('assets/flags/northern-marianas-islands.svg');
+
   /// File path: assets/flags/norway.svg
   SvgGenImage get norway => const SvgGenImage('assets/flags/norway.svg');
 
@@ -819,6 +833,10 @@ class $AssetsFlagsGen {
   SvgGenImage get philippines =>
       const SvgGenImage('assets/flags/philippines.svg');
 
+  /// File path: assets/flags/pitcairn-islands.svg
+  SvgGenImage get pitcairnIslands =>
+      const SvgGenImage('assets/flags/pitcairn-islands.svg');
+
   /// File path: assets/flags/pitcairn.svg
   SvgGenImage get pitcairn => const SvgGenImage('assets/flags/pitcairn.svg');
 
@@ -841,6 +859,10 @@ class $AssetsFlagsGen {
   /// File path: assets/flags/republic-of-korea.svg
   SvgGenImage get republicOfKorea =>
       const SvgGenImage('assets/flags/republic-of-korea.svg');
+
+  /// File path: assets/flags/republic-of-macedonia.svg
+  SvgGenImage get republicOfMacedonia =>
+      const SvgGenImage('assets/flags/republic-of-macedonia.svg');
 
   /// File path: assets/flags/republic-of-moldova.svg
   SvgGenImage get republicOfMoldova =>
@@ -866,33 +888,17 @@ class $AssetsFlagsGen {
   SvgGenImage get sahrawiArabDemocraticRepublic =>
       const SvgGenImage('assets/flags/sahrawi-arab-democratic-republic.svg');
 
-  /// File path: assets/flags/saint-barthélemy.svg
-  SvgGenImage get saintBarthLemy =>
-      const SvgGenImage('assets/flags/saint-barthélemy.svg');
-
   /// File path: assets/flags/saint-helena.svg
   SvgGenImage get saintHelena =>
       const SvgGenImage('assets/flags/saint-helena.svg');
 
-  /// File path: assets/flags/saint-kitts-and-nevis.svg
-  SvgGenImage get saintKittsAndNevis =>
-      const SvgGenImage('assets/flags/saint-kitts-and-nevis.svg');
+  /// File path: assets/flags/saint-kitts-&-nevis.svg
+  SvgGenImage get saintKittsNevis =>
+      const SvgGenImage('assets/flags/saint-kitts-&-nevis.svg');
 
   /// File path: assets/flags/saint-lucia.svg
   SvgGenImage get saintLucia =>
       const SvgGenImage('assets/flags/saint-lucia.svg');
-
-  /// File path: assets/flags/saint-martin.svg
-  SvgGenImage get saintMartin =>
-      const SvgGenImage('assets/flags/saint-martin.svg');
-
-  /// File path: assets/flags/saint-pierre-and-miquelon.svg
-  SvgGenImage get saintPierreAndMiquelon =>
-      const SvgGenImage('assets/flags/saint-pierre-and-miquelon.svg');
-
-  /// File path: assets/flags/saint-vincent-and-the-grenadines.svg
-  SvgGenImage get saintVincentAndTheGrenadines =>
-      const SvgGenImage('assets/flags/saint-vincent-and-the-grenadines.svg');
 
   /// File path: assets/flags/samoa.svg
   SvgGenImage get samoa => const SvgGenImage('assets/flags/samoa.svg');
@@ -900,9 +906,9 @@ class $AssetsFlagsGen {
   /// File path: assets/flags/san-marino.svg
   SvgGenImage get sanMarino => const SvgGenImage('assets/flags/san-marino.svg');
 
-  /// File path: assets/flags/sao-tome-and-principe.svg
-  SvgGenImage get saoTomeAndPrincipe =>
-      const SvgGenImage('assets/flags/sao-tome-and-principe.svg');
+  /// File path: assets/flags/sao-tome-principe.svg
+  SvgGenImage get saoTomePrincipe =>
+      const SvgGenImage('assets/flags/sao-tome-principe.svg');
 
   /// File path: assets/flags/sardinia.svg
   SvgGenImage get sardinia => const SvgGenImage('assets/flags/sardinia.svg');
@@ -977,11 +983,26 @@ class $AssetsFlagsGen {
   /// File path: assets/flags/sri-lanka.svg
   SvgGenImage get sriLanka => const SvgGenImage('assets/flags/sri-lanka.svg');
 
+  /// File path: assets/flags/st-barthelemy.svg
+  SvgGenImage get stBarthelemy =>
+      const SvgGenImage('assets/flags/st-barthelemy.svg');
+
   /// File path: assets/flags/st-barts.svg
   SvgGenImage get stBarts => const SvgGenImage('assets/flags/st-barts.svg');
 
   /// File path: assets/flags/st-lucia.svg
   SvgGenImage get stLucia => const SvgGenImage('assets/flags/st-lucia.svg');
+
+  /// File path: assets/flags/st-martin.svg
+  SvgGenImage get stMartin => const SvgGenImage('assets/flags/st-martin.svg');
+
+  /// File path: assets/flags/st-pierre-&-miquelon.svg
+  SvgGenImage get stPierreMiquelon =>
+      const SvgGenImage('assets/flags/st-pierre-&-miquelon.svg');
+
+  /// File path: assets/flags/st-vincent-&-the-grenadines.svg
+  SvgGenImage get stVincentTheGrenadines =>
+      const SvgGenImage('assets/flags/st-vincent-&-the-grenadines.svg');
 
   /// File path: assets/flags/st-vincent-and-the-grenadines.svg
   SvgGenImage get stVincentAndTheGrenadines =>
@@ -993,9 +1014,8 @@ class $AssetsFlagsGen {
   /// File path: assets/flags/suriname.svg
   SvgGenImage get suriname => const SvgGenImage('assets/flags/suriname.svg');
 
-  /// File path: assets/flags/svalbard-and-jan-mayen.svg
-  SvgGenImage get svalbardAndJanMayen =>
-      const SvgGenImage('assets/flags/svalbard-and-jan-mayen.svg');
+  /// File path: assets/flags/svalbard.svg
+  SvgGenImage get svalbard => const SvgGenImage('assets/flags/svalbard.svg');
 
   /// File path: assets/flags/swaziland.svg
   SvgGenImage get swaziland => const SvgGenImage('assets/flags/swaziland.svg');
@@ -1043,9 +1063,9 @@ class $AssetsFlagsGen {
   SvgGenImage get transnistria =>
       const SvgGenImage('assets/flags/transnistria.svg');
 
-  /// File path: assets/flags/trinidad-and-tobago.svg
-  SvgGenImage get trinidadAndTobago =>
-      const SvgGenImage('assets/flags/trinidad-and-tobago.svg');
+  /// File path: assets/flags/trinidad-&-tobago.svg
+  SvgGenImage get trinidadTobago =>
+      const SvgGenImage('assets/flags/trinidad-&-tobago.svg');
 
   /// File path: assets/flags/tunisia.svg
   SvgGenImage get tunisia => const SvgGenImage('assets/flags/tunisia.svg');
@@ -1057,9 +1077,13 @@ class $AssetsFlagsGen {
   SvgGenImage get turkmenistan =>
       const SvgGenImage('assets/flags/turkmenistan.svg');
 
-  /// File path: assets/flags/turks-and-caicos-islands.svg
-  SvgGenImage get turksAndCaicosIslands =>
-      const SvgGenImage('assets/flags/turks-and-caicos-islands.svg');
+  /// File path: assets/flags/turks-&-caicos-islands.svg
+  SvgGenImage get turksCaicosIslands =>
+      const SvgGenImage('assets/flags/turks-&-caicos-islands.svg');
+
+  /// File path: assets/flags/turks-and-caicos.svg
+  SvgGenImage get turksAndCaicos =>
+      const SvgGenImage('assets/flags/turks-and-caicos.svg');
 
   /// File path: assets/flags/tuvalu.svg
   SvgGenImage get tuvalu => const SvgGenImage('assets/flags/tuvalu.svg');
@@ -1110,6 +1134,9 @@ class $AssetsFlagsGen {
   /// File path: assets/flags/viet-nam.svg
   SvgGenImage get vietNam => const SvgGenImage('assets/flags/viet-nam.svg');
 
+  /// File path: assets/flags/vietnam.svg
+  SvgGenImage get vietnam => const SvgGenImage('assets/flags/vietnam.svg');
+
   /// File path: assets/flags/virgin-islands.svg
   SvgGenImage get virginIslands =>
       const SvgGenImage('assets/flags/virgin-islands.svg');
@@ -1117,9 +1144,9 @@ class $AssetsFlagsGen {
   /// File path: assets/flags/wales.svg
   SvgGenImage get wales => const SvgGenImage('assets/flags/wales.svg');
 
-  /// File path: assets/flags/wallis-and-futuna.svg
-  SvgGenImage get wallisAndFutuna =>
-      const SvgGenImage('assets/flags/wallis-and-futuna.svg');
+  /// File path: assets/flags/wallis-&-futuna.svg
+  SvgGenImage get wallisFutuna =>
+      const SvgGenImage('assets/flags/wallis-&-futuna.svg');
 
   /// File path: assets/flags/western-sahara.svg
   SvgGenImage get westernSahara =>
@@ -1145,7 +1172,8 @@ class $AssetsFlagsGen {
         andorra,
         angola,
         anguilla,
-        antiguaAndBarbuda,
+        antartica,
+        antiguaBarbuda,
         argentina,
         armenia,
         aruba,
@@ -1173,7 +1201,7 @@ class $AssetsFlagsGen {
         britishColumbia,
         britishIndianOceanTerritory,
         britishVirginIslands,
-        bruneiDarussalam,
+        brunei,
         bulgaria,
         burkinaFaso,
         burundi,
@@ -1182,6 +1210,7 @@ class $AssetsFlagsGen {
         canada,
         canaryIslands,
         capeVerde,
+        catalan,
         caymanIslands,
         centralAfricanRepublic,
         ceuta,
@@ -1268,7 +1297,7 @@ class $AssetsFlagsGen {
         kosovo,
         kuwait,
         kyrgyzstan,
-        laoPeoplesDemocraticRepublic,
+        laos,
         latvia,
         lebanon,
         lesotho,
@@ -1276,6 +1305,7 @@ class $AssetsFlagsGen {
         libya,
         liechtenstein,
         lithuania,
+        luna,
         luxembourg,
         macao,
         madagascar,
@@ -1285,6 +1315,7 @@ class $AssetsFlagsGen {
         maldives,
         mali,
         malta,
+        mars,
         marshallIslands,
         martinique,
         mauritania,
@@ -1316,6 +1347,7 @@ class $AssetsFlagsGen {
         northMacedonia,
         northernCyprus,
         northernMarianaIslands,
+        northernMarianasIslands,
         norway,
         oman,
         ossetia,
@@ -1327,6 +1359,7 @@ class $AssetsFlagsGen {
         paraguay,
         peru,
         philippines,
+        pitcairnIslands,
         pitcairn,
         poland,
         portugal,
@@ -1334,6 +1367,7 @@ class $AssetsFlagsGen {
         qatar,
         rapaNui,
         republicOfKorea,
+        republicOfMacedonia,
         republicOfMoldova,
         romania,
         russia,
@@ -1341,16 +1375,12 @@ class $AssetsFlagsGen {
         rUnion,
         sabaIsland,
         sahrawiArabDemocraticRepublic,
-        saintBarthLemy,
         saintHelena,
-        saintKittsAndNevis,
+        saintKittsNevis,
         saintLucia,
-        saintMartin,
-        saintPierreAndMiquelon,
-        saintVincentAndTheGrenadines,
         samoa,
         sanMarino,
-        saoTomeAndPrincipe,
+        saoTomePrincipe,
         sardinia,
         saudiArabia,
         scotland,
@@ -1372,12 +1402,16 @@ class $AssetsFlagsGen {
         southSudan,
         spain,
         sriLanka,
+        stBarthelemy,
         stBarts,
         stLucia,
+        stMartin,
+        stPierreMiquelon,
+        stVincentTheGrenadines,
         stVincentAndTheGrenadines,
         sudan,
         suriname,
-        svalbardAndJanMayen,
+        svalbard,
         swaziland,
         sweden,
         switzerland,
@@ -1392,11 +1426,12 @@ class $AssetsFlagsGen {
         tokelau,
         tonga,
         transnistria,
-        trinidadAndTobago,
+        trinidadTobago,
         tunisia,
         turkey,
         turkmenistan,
-        turksAndCaicosIslands,
+        turksCaicosIslands,
+        turksAndCaicos,
         tuvalu,
         uganda,
         ukraine,
@@ -1411,9 +1446,10 @@ class $AssetsFlagsGen {
         vaticanCity,
         venezuela,
         vietNam,
+        vietnam,
         virginIslands,
         wales,
-        wallisAndFutuna,
+        wallisFutuna,
         westernSahara,
         yemen,
         zambia,
@@ -1437,8 +1473,11 @@ class $AssetsIconGen {
   /// File path: assets/icon/app_icon.jpg
   AssetGenImage get appIcon => const AssetGenImage('assets/icon/app_icon.jpg');
 
+  /// File path: assets/icon/splash.png
+  AssetGenImage get splash => const AssetGenImage('assets/icon/splash.png');
+
   /// List of all assets
-  List<AssetGenImage> get values => [appIcon];
+  List<AssetGenImage> get values => [appIcon, splash];
 }
 
 class $AssetsImagesGen {
@@ -1556,9 +1595,6 @@ class $AssetsMarketplaceGen {
   SvgGenImage get exchange =>
       const SvgGenImage('assets/marketplace/exchange.svg');
 
-  /// File path: assets/marketplace/map.svg
-  SvgGenImage get map => const SvgGenImage('assets/marketplace/map.svg');
-
   /// File path: assets/marketplace/meld_black.svg
   SvgGenImage get meldBlack =>
       const SvgGenImage('assets/marketplace/meld_black.svg');
@@ -1602,7 +1638,6 @@ class $AssetsMarketplaceGen {
         btse,
         buy,
         exchange,
-        map,
         meldBlack,
         meldWhite,
         paymentBank,
@@ -1683,6 +1718,10 @@ class $AssetsSvgsGen {
 
   /// File path: assets/svgs/refund.svg
   SvgGenImage get refund => const SvgGenImage('assets/svgs/refund.svg');
+
+  /// Directory path: assets/svgs/success_illustrations
+  $AssetsSvgsSuccessIllustrationsGen get successIllustrations =>
+      const $AssetsSvgsSuccessIllustrationsGen();
 
   /// File path: assets/svgs/sun.svg
   SvgGenImage get sun => const SvgGenImage('assets/svgs/sun.svg');
@@ -1889,6 +1928,29 @@ class $AssetsSvgsLightGen {
       [aquaLogo, botev, decline, jan3Logo, jan3MiniLogo];
 }
 
+class $AssetsSvgsSuccessIllustrationsGen {
+  const $AssetsSvgsSuccessIllustrationsGen();
+
+  /// File path: assets/svgs/success_illustrations/btc.svg
+  SvgGenImage get btc =>
+      const SvgGenImage('assets/svgs/success_illustrations/btc.svg');
+
+  /// File path: assets/svgs/success_illustrations/lbtc.svg
+  SvgGenImage get lbtc =>
+      const SvgGenImage('assets/svgs/success_illustrations/lbtc.svg');
+
+  /// File path: assets/svgs/success_illustrations/lightning.svg
+  SvgGenImage get lightning =>
+      const SvgGenImage('assets/svgs/success_illustrations/lightning.svg');
+
+  /// File path: assets/svgs/success_illustrations/usdt.svg
+  SvgGenImage get usdt =>
+      const SvgGenImage('assets/svgs/success_illustrations/usdt.svg');
+
+  /// List of all assets
+  List<SvgGenImage> get values => [btc, lbtc, lightning, usdt];
+}
+
 class UiAssets {
   UiAssets._();
 
@@ -2036,7 +2098,6 @@ class UiAssets {
   static const SvgGenImage tabProfile = SvgGenImage('assets/tab_profile.svg');
   static const SvgGenImage tabSettings = SvgGenImage('assets/tab_settings.svg');
   static const SvgGenImage tabWallet = SvgGenImage('assets/tab_wallet.svg');
-  static const SvgGenImage telegram = SvgGenImage('assets/telegram.svg');
   static const SvgGenImage touch = SvgGenImage('assets/touch.svg');
   static const SvgGenImage twitter = SvgGenImage('assets/twitter.svg');
   static const SvgGenImage walletAdd = SvgGenImage('assets/wallet_add.svg');
@@ -2155,7 +2216,6 @@ class UiAssets {
         tabProfile,
         tabSettings,
         tabWallet,
-        telegram,
         touch,
         twitter,
         walletAdd,

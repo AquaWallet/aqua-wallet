@@ -1,24 +1,23 @@
 import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:aqua/utils/extensions/extensions.dart';
+import 'package:ui_components/ui_components.dart';
 
 class MarketplaceTab extends HookConsumerWidget {
   const MarketplaceTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedRegion =
-        ref.watch(regionsProvider.select((p) => p.currentRegion));
+    final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
 
-    if (selectedRegion != null) {
+    if (region != null) {
       return const MarketplaceContent();
     }
 
     final regionAsyncValue = ref.watch(availableRegionsProvider);
 
     return regionAsyncValue.maybeWhen(
-      data: (data) => const MarketplaceRegionSelection(),
       loading: () => const Center(
         child: CircularProgressIndicator(),
       ),
@@ -29,7 +28,7 @@ class MarketplaceTab extends HookConsumerWidget {
   }
 }
 
-class MarketplaceContent extends ConsumerWidget {
+class MarketplaceContent extends HookConsumerWidget {
   const MarketplaceContent({super.key});
 
   @override
@@ -43,10 +42,10 @@ class MarketplaceContent extends ConsumerWidget {
       );
 
       return Scaffold(
-        appBar: AquaAppBar(
+        appBar: AquaTopAppBar(
           showBackButton: false,
-          showActionButton: false,
           title: context.loc.marketplaceTitle,
+          colors: context.aquaColors,
         ),
         body: SafeArea(
           child: SizedBox(
@@ -73,12 +72,8 @@ class MarketplaceView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //ANCHOR - Description
-        SizedBox(
-          height: context.adaptiveDouble(
-            smallMobile: 26.0,
-            mobile: 60.0,
-            tablet: 26.0,
-          ),
+        const SizedBox(
+          height: 16,
         ),
         //ANCHOR - Buttons
         const Expanded(child: MarketplaceButtonGrid()),

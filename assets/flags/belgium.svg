@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><rect style="fill:#464655;" width="170.67" height="512"/><rect x="170.67" style="fill:#FFE15A;" width="170.67" height="512"/><rect x="341.33" style="fill:#FF4B55;" width="170.67" height="512"/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_8615_27678)">
+<path d="M8.00179 0H0.00170898V23.9998H8.00179V0Z" fill="#464655"/>
+<path d="M16.0018 0H8.00171V23.9998H16.0018V0Z" fill="#FFE15A"/>
+<path d="M24.0013 0H16.0012V23.9998H24.0013V0Z" fill="#FF4B55"/>
+</g>
+<defs>
+<clipPath id="clip0_8615_27678">
+<path d="M-0.00146484 2C-0.00146484 0.895432 0.893966 0 1.99854 0H21.9983C23.1029 0 23.9983 0.895431 23.9983 2V21.9998C23.9983 23.1043 23.1029 23.9998 21.9983 23.9998H1.99854C0.893967 23.9998 -0.00146484 23.1043 -0.00146484 21.9998V2Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

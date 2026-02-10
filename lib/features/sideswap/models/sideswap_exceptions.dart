@@ -1,3 +1,7 @@
+import 'package:aqua/common/common.dart';
+import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
+
 abstract class SideswapException {
   SideswapException({required this.message});
 
@@ -62,4 +66,12 @@ class SideswapMinPegOutAmountException extends SideswapException {
 
   @override
   String toString() => message;
+}
+
+class SideswapPayjoinTimeoutException implements ExceptionLocalized {
+  const SideswapPayjoinTimeoutException();
+
+  @override
+  String toLocalizedString(BuildContext context) =>
+      context.loc.commonPleaseCheckYourConnectionAndTry;
 }

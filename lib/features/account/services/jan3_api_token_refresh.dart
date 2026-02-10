@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/account/account.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:chopper/chopper.dart';
 
@@ -12,7 +12,10 @@ final jan3RequestTokenApiProvider =
     FutureProvider.autoDispose<Jan3ApiTokenlessService>((ref) async {
   final debitCardStagingEnabled =
       ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
-  return Jan3ApiTokenlessService.create(debitCardStagingEnabled);
+
+  return Jan3ApiTokenlessService.create(
+    debitCardStagingEnabled: debitCardStagingEnabled,
+  );
 });
 
 @ChopperApi(baseUrl: '/api/v1/auth/')
@@ -22,7 +25,9 @@ abstract class Jan3ApiTokenlessService extends ChopperService {
     @Body() RefreshTokenRequest request,
   );
 
-  static Jan3ApiTokenlessService create(bool debitCardStagingEnabled) {
+  static Jan3ApiTokenlessService create({
+    required bool debitCardStagingEnabled,
+  }) {
     final client = ChopperClient(
       baseUrl: Uri.parse(debitCardStagingEnabled
           ? aquaAnkaraStagingApiUrl

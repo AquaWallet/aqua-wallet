@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:ui_components/shared/shared.dart';
 import 'package:ui_components/ui_components.dart';
 
 enum AquaAssetSelectorType {
@@ -17,6 +16,8 @@ class AquaAssetSelector extends HookWidget {
     this.onAssetSelected,
     this.selectedAssetId,
     this.colors,
+    this.trailingWidget,
+    this.tapForOptionsText,
   });
 
   const AquaAssetSelector.receive({
@@ -26,6 +27,8 @@ class AquaAssetSelector extends HookWidget {
     this.onAssetSelected,
     this.selectedAssetId,
     this.colors,
+    this.trailingWidget,
+    this.tapForOptionsText,
   });
 
   final AquaAssetSelectorType type;
@@ -33,6 +36,8 @@ class AquaAssetSelector extends HookWidget {
   final Function(String?)? onAssetSelected;
   final String? selectedAssetId;
   final AquaColors? colors;
+  final Widget? trailingWidget;
+  final String? tapForOptionsText;
 
   @override
   Widget build(BuildContext context) {
@@ -58,14 +63,16 @@ class AquaAssetSelector extends HookWidget {
                   AquaAccountItem(
                     asset: parentAsset.copyWith(
                       subtitle: childAssets.isNotEmpty
-                          ? context.loc.tapForOptions
-                          : parentAsset._getSubtitle(context, type),
+                          ? (tapForOptionsText ?? parentAsset.subtitle)
+                          : parentAsset.subtitle,
                     ),
-                    showBalance: type == AquaAssetSelectorType.send,
+                    showBalance: trailingWidget != null ||
+                        type == AquaAssetSelectorType.send,
+                    cryptoAmountItem: trailingWidget,
                     shape: const ContinuousRectangleBorder(),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 4,
-                      vertical: 3,
+                      vertical: 2,
                     ),
                     selected: childAssets.isNotEmpty
                         ? (childAssets.isNotEmpty && isExpanded)
@@ -90,46 +97,86 @@ class AquaAssetSelector extends HookWidget {
                       }
                     },
                   ),
-                  if (childAssets.isNotEmpty)
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      child: SizedBox(
-                        height: isExpanded ? null : 0,
-                        child: AnimatedOpacity(
-                          opacity: isExpanded ? 1.0 : 0.0,
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: childAssets
-                                .mapIndexed(
-                                    (index, asset) => _ChildAssetListItem(
-                                          asset: asset,
-                                          colors: colors,
-                                          index: index,
-                                          type: type,
-                                          length: childAssets.length,
-                                          onTap: (assetId) {
-                                            onAssetSelected?.call(assetId);
-                                          },
-                                        ))
-                                .toList(),
-                          ),
-                        ),
-                      ),
+                  if (childAssets.isNotEmpty) ...{
+                    _ExpandableChildList(
+                      isExpanded: isExpanded,
+                      childAssets: childAssets,
+                      type: type,
+                      colors: colors,
+                      onAssetSelected: onAssetSelected,
+                      trailingWidget: trailingWidget,
                     ),
+                  },
                 ],
               ),
               if (index < assets.length - 1) ...{
-                Divider(
-                  height: 1,
-                  color: colors?.surfaceBorderSecondary,
-                )
+                const SizedBox(height: 1),
               },
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _ExpandableChildList extends HookWidget {
+  const _ExpandableChildList({
+    required this.isExpanded,
+    required this.childAssets,
+    required this.type,
+    this.colors,
+    this.onAssetSelected,
+    this.trailingWidget,
+  });
+
+  final bool isExpanded;
+  final List<AssetUiModel> childAssets;
+  final AquaAssetSelectorType type;
+  final AquaColors? colors;
+  final Function(String?)? onAssetSelected;
+  final Widget? trailingWidget;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = useAnimationController(
+      duration: const Duration(milliseconds: 250),
+    );
+
+    useEffect(() {
+      if (isExpanded) {
+        controller.forward();
+      } else {
+        controller.reverse();
+      }
+      return null;
+    }, [isExpanded]);
+
+    final animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOut,
+    );
+
+    return ClipRect(
+      child: SizeTransition(
+        sizeFactor: animation,
+        axisAlignment: -1.0,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: childAssets
+              .mapIndexed((index, asset) => _ChildAssetListItem(
+                    asset: asset,
+                    colors: colors,
+                    index: index,
+                    type: type,
+                    length: childAssets.length,
+                    trailingWidget: trailingWidget,
+                    onTap: (assetId) {
+                      onAssetSelected?.call(assetId);
+                    },
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
@@ -143,6 +190,7 @@ class _ChildAssetListItem extends StatelessWidget {
     required this.type,
     this.colors,
     this.onTap,
+    this.trailingWidget,
   });
 
   final AssetUiModel asset;
@@ -151,17 +199,23 @@ class _ChildAssetListItem extends StatelessWidget {
   final AquaAssetSelectorType type;
   final int index;
   final int length;
+  final Widget? trailingWidget;
 
   @override
   Widget build(BuildContext context) {
+    final subtitle = (asset.subtitle ?? '').trim();
+
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: const ContinuousRectangleBorder(),
       color: Theme.of(context).colorScheme.surface,
       child: InkWell(
-        onTap: () => onTap?.call(asset.assetId),
-        splashFactory: NoSplash.splashFactory,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call(asset.assetId))
+            : null,
+        splashFactory: InkRipple.splashFactory,
         highlightColor: Theme.of(context).highlightColor,
         overlayColor: WidgetStateProperty.resolveWith((state) {
           if (state.isHovered) {
@@ -206,58 +260,45 @@ class _ChildAssetListItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
+              // 🔥 Force the text block to fill the same height and center its contents
               Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AquaText.body2SemiBold(
-                      text: asset.name,
-                      color: colors?.textPrimary,
-                    ),
-                    const SizedBox(height: 2),
-                    AquaText.caption1Medium(
-                      text: asset._getSubtitle(context, type),
-                      color: colors?.textSecondary,
-                    ),
-                  ],
+                child: SizedBox(
+                  height: 64,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          AquaText.body2SemiBold(
+                            text: asset.name,
+                            color: colors?.textPrimary,
+                          ),
+                          if (asset.standard != null) ...[
+                            const SizedBox(width: 4),
+                            AquaText.caption2SemiBold(
+                              text: "(${asset.standard!})",
+                              color: colors?.textSecondary,
+                            ),
+                          ]
+                        ],
+                      ),
+                      if (subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        AquaText.caption1Medium(
+                          text: subtitle,
+                          color: colors?.textSecondary,
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  AquaText.body2SemiBold(
-                    text: asset.amount,
-                    color: colors?.textPrimary,
-                  ),
-                  const SizedBox(height: 2),
-                  AquaText.caption1Medium(
-                    text: asset.amountFiat ?? '',
-                    color: colors?.textSecondary,
-                  ),
-                ],
-              ),
+              if (trailingWidget != null) trailingWidget!,
             ],
           ),
         ),
       ),
     );
-  }
-}
-
-extension on AssetUiModel {
-  String _getSubtitle(BuildContext context, AquaAssetSelectorType type) {
-    return switch (assetId) {
-      AssetIds.btc => context.loc.onChain,
-      AssetIds.lightning => context.loc.swappedToLBtc,
-      AssetIds.lightning when (type == AquaAssetSelectorType.send) =>
-        context.loc.swappedFromLBtc,
-      _ when (AssetIds.usdtliquid.contains(assetId)) => context.loc.lUsdt,
-      _ when (AssetIds.lbtc.contains(assetId)) => context.loc.lBtc,
-      _ when (type == AquaAssetSelectorType.receive) =>
-        context.loc.swappedToLUsdt,
-      _ => context.loc.swappedFromLUsdt,
-    };
   }
 }

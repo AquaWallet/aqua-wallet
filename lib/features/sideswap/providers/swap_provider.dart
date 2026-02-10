@@ -22,31 +22,36 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
   }
 
   Future<void> processSwapCompletion(SwapDoneResponse response) async {
-    final orderId = response.params!.orderId!;
-    final txId = response.params!.txid!;
-    final recvAsset = response.params!.recvAsset;
+    final params = response.params!;
+    final orderId = params.orderId!;
+    final txId = params.txid!;
 
-    final assets = ref.read(assetsProvider).asData?.value ?? [];
-    final asset = assets.firstWhere((asset) => recvAsset == asset.id);
+    final assets = await ref.read(assetsProvider.future);
+    final receiveAsset = assets.firstWhere((a) => params.recvAsset == a.id);
 
     await ref.read(transactionStorageProvider.notifier).save(TransactionDbModel(
           txhash: txId,
-          assetId: asset.id,
+          assetId: receiveAsset.id,
           serviceOrderId: orderId,
+          ghostTxnCreatedAt: DateTime.now(),
+          ghostTxnAmount: params.recvAmount,
+          //NOTE - Only used for LBTC/USDT swaps.
+          ghostTxnSideswapDeliverAmount: params.sendAmount,
+          ghostTxnFee: params.networkFee,
           type: TransactionDbModelType.sideswapSwap,
         ));
 
     final successState = await ref
         .read(completedTransactionStreamProvider(txId).future)
         .then((transaction) => SwapState.createSuccessFromGdkTxn(
-              asset: asset,
+              asset: receiveAsset,
               orderId: orderId,
               transaction: transaction,
             ))
         .catchError((error, stackTrace) {
       _logger.error('Completed Txn Error', error, stackTrace);
       return SwapState.createSuccessFromSwapResponse(
-        asset: asset,
+        asset: receiveAsset,
         orderId: orderId,
         response: response,
       );

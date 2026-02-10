@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/logger.dart';
 import 'package:isar/isar.dart';
 
@@ -34,28 +34,79 @@ abstract class SwapOrderStorage {
     Asset? settleAsset,
   });
 
+  // Pagination
+  Future<List<SwapOrderDbModel>> getOrdersPaginated({
+    required List<SwapOrderStatus> statuses,
+    required int offset,
+    required int limit,
+    String? searchQuery,
+  });
+
   Future<void> clear();
 }
 
 class SwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
     implements SwapOrderStorage {
+  Future<({Isar storage, String walletId})> _requireWallet() async {
+    final storage = await ref.read(storageProvider.future);
+    final walletId =
+        await ref.read(storedWalletsProvider.notifier).getCurrentWalletId();
+    if (walletId == null) throw const NoActiveWalletException();
+    return (storage: storage, walletId: walletId);
+  }
+
+  Future<({Isar storage, String walletId})?> _getStorageWithWallet() async {
+    final storage = await ref.read(storageProvider.future);
+    final walletId =
+        await ref.read(storedWalletsProvider.notifier).getCurrentWalletId();
+    if (walletId == null) return null;
+    return (storage: storage, walletId: walletId);
+  }
+
   @override
   FutureOr<List<SwapOrderDbModel>> build() async {
     try {
       final storage = await ref.watch(storageProvider.future);
-      return storage.swapOrderDbModels.where().sortByCreatedAt().findAll();
+      final currentWallet = ref.watch(
+        storedWalletsProvider.select((s) => s.valueOrNull?.currentWallet),
+      );
+      final walletId = currentWallet?.id;
+      if (walletId == null) {
+        return [];
+      }
+      return storage.swapOrderDbModels
+          .filter()
+          .walletIdEqualTo(walletId)
+          .sortByCreatedAt()
+          .findAll();
     } catch (e, st) {
       _logger.error('Error building orders list', e, st);
       return [];
     }
   }
 
+  Future<void> _reloadCurrentWalletOrders() async {
+    final walletStorage = await _getStorageWithWallet();
+    if (walletStorage == null) {
+      state = const AsyncValue.data([]);
+      return;
+    }
+    final orders = await walletStorage.storage.swapOrderDbModels
+        .filter()
+        .walletIdEqualTo(walletStorage.walletId)
+        .sortByCreatedAt()
+        .findAll();
+    state = AsyncValue.data(orders);
+  }
+
   @override
   Future<SwapOrderDbModel?> getOrderById(String orderId) async {
     try {
-      final storage = await ref.read(storageProvider.future);
-      return await storage.swapOrderDbModels
-          .where()
+      final walletStorage = await _getStorageWithWallet();
+      if (walletStorage == null) return null;
+      return await walletStorage.storage.swapOrderDbModels
+          .filter()
+          .walletIdEqualTo(walletStorage.walletId)
           .orderIdEqualTo(orderId)
           .findFirst();
     } catch (e, st) {
@@ -67,23 +118,23 @@ class SwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
   @override
   Future<void> save(SwapOrderDbModel model) async {
     try {
-      final storage = await ref.read(storageProvider.future);
+      final (:storage, :walletId) = await _requireWallet();
+
       await storage.writeTxn(() async {
         final existing = await storage.swapOrderDbModels
-            .where()
+            .filter()
+            .walletIdEqualTo(walletId)
             .orderIdEqualTo(model.orderId)
             .findFirst();
         if (existing != null) {
-          final updated = model.copyWith(id: existing.id);
+          final updated = model.copyWith(id: existing.id, walletId: walletId);
           storage.swapOrderDbModels.put(updated);
         } else {
-          storage.swapOrderDbModels.put(model);
+          storage.swapOrderDbModels.put(model.copyWith(walletId: walletId));
         }
       });
 
-      final update =
-          await storage.swapOrderDbModels.where().sortByCreatedAt().findAll();
-      state = AsyncValue.data(update);
+      await _reloadCurrentWalletOrders();
     } catch (e, st) {
       _logger.error('Error saving order', e, st);
       rethrow;
@@ -96,10 +147,12 @@ class SwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
     String? txHash,
     SwapOrderStatus? status,
   }) async {
-    final storage = await ref.read(storageProvider.future);
+    final (:storage, :walletId) = await _requireWallet();
+
     await storage.writeTxn(() async {
       var model = await storage.swapOrderDbModels
-          .where()
+          .filter()
+          .walletIdEqualTo(walletId)
           .orderIdEqualTo(orderId)
           .findFirst();
 
@@ -119,8 +172,7 @@ class SwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
       await storage.swapOrderDbModels.put(model);
     });
 
-    final updated = await storage.swapOrderDbModels.all().sortByCreatedAt();
-    state = AsyncValue.data(updated);
+    await _reloadCurrentWalletOrders();
   }
 
   @override
@@ -128,25 +180,33 @@ class SwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
     final storage = await ref.read(storageProvider.future);
     await storage.writeTxn(() => storage.clear());
 
-    final updated = await storage.swapOrderDbModels.all().sortByCreatedAt();
-    state = AsyncValue.data(updated);
+    await _reloadCurrentWalletOrders();
   }
 
   @override
   Future<void> delete(String orderId) async {
-    final storage = await ref.read(storageProvider.future);
+    final (:storage, :walletId) = await _requireWallet();
+
     await storage.writeTxn(() async {
-      storage.swapOrderDbModels.where().orderIdEqualTo(orderId).deleteAll();
+      await storage.swapOrderDbModels
+          .filter()
+          .walletIdEqualTo(walletId)
+          .orderIdEqualTo(orderId)
+          .deleteAll();
     });
   }
 
   @override
   Future<List<SwapOrderDbModel>> getAllPendingSettlementSwaps() async {
     try {
-      final storage = await ref.read(storageProvider.future);
-      final allSwaps = await storage.swapOrderDbModels.all();
+      final walletStorage = await _getStorageWithWallet();
+      if (walletStorage == null) return [];
+      final walletSwaps = await walletStorage.storage.swapOrderDbModels
+          .filter()
+          .walletIdEqualTo(walletStorage.walletId)
+          .findAll();
       final pendingSwaps =
-          allSwaps.where((swap) => swap.status.isPendingSettlement).toList();
+          walletSwaps.where((swap) => swap.status.isPendingSettlement).toList();
       return pendingSwaps;
     } catch (e, st) {
       _logger.error('Error fetching pending swaps', e, st);
@@ -208,5 +268,48 @@ class SwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
       _logger.error('Error fetching pending swaps for assets', e, st);
       return [];
     }
+  }
+
+  @override
+  Future<List<SwapOrderDbModel>> getOrdersPaginated({
+    required List<SwapOrderStatus> statuses,
+    required int offset,
+    required int limit,
+    String? searchQuery,
+  }) async {
+    final walletStorage = await _getStorageWithWallet();
+    if (walletStorage == null) return [];
+
+    var query = walletStorage.storage.swapOrderDbModels
+        .filter()
+        .walletIdEqualTo(walletStorage.walletId);
+
+    query = query.group((q) {
+      var statusQuery = q.statusEqualTo(statuses.first);
+      for (var i = 1; i < statuses.length; i++) {
+        statusQuery = statusQuery.or().statusEqualTo(statuses[i]);
+      }
+      return statusQuery;
+    });
+
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      final lowerQuery = searchQuery.toLowerCase();
+      query = query.group((q) => q
+          .orderIdContains(lowerQuery, caseSensitive: false)
+          .or()
+          .fromAssetContains(lowerQuery, caseSensitive: false)
+          .or()
+          .toAssetContains(lowerQuery, caseSensitive: false)
+          .or()
+          .depositAddressContains(lowerQuery, caseSensitive: false)
+          .or()
+          .settleAddressContains(lowerQuery, caseSensitive: false));
+    }
+
+    // Apply sorting, offset, and limit (descending order - newest first)
+    final results =
+        await query.sortByCreatedAtDesc().offset(offset).limit(limit).findAll();
+
+    return results;
   }
 }

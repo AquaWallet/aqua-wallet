@@ -15,13 +15,15 @@ class MarketplaceButtonGrid extends HookConsumerWidget {
 
     // Define all services with their properties
     // To add new services: Create new service type in MarketplaceServiceType,
-    // create a new service class in marketplace_services folder, and add it to this map.
+    // create a new service class in marketplace_tiles folder, and add it to this map.
     final allServices = useMemoized(() {
       return <MarketplaceServiceType, Widget Function()>{
         MarketplaceServiceType.buyBitcoin: () => const BuyBitcoinTile(),
         MarketplaceServiceType.swaps: () => const SwapsTile(),
         MarketplaceServiceType.btcMap: () => const BtcMapTile(),
         MarketplaceServiceType.debitCard: () => const DebitCardTile(),
+        // MarketplaceServiceType.giftCards: () => const GiftCardTile(),
+        MarketplaceServiceType.lendasat: () => const LendasatTile(),
       };
     }, []);
 
@@ -30,7 +32,7 @@ class MarketplaceButtonGrid extends HookConsumerWidget {
     }, [ref]);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: availableServices.when(
           error: (e, _) => ErrorRetryButton(
                 onRetry: reload,
@@ -59,8 +61,8 @@ class MarketplaceButtonGrid extends HookConsumerWidget {
                   (enabledServices.length / 2).ceil(),
                   (_) => auto,
                 ),
-                rowGap: 25.0,
-                columnGap: 22.0,
+                rowGap: 16,
+                columnGap: 16.0,
                 children: enabledServices,
               ),
             );

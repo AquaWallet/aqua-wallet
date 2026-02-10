@@ -1,8 +1,8 @@
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/components/top_app_bar/top_app_bar.dart';
 
 class BlockExplorerSettingsScreen extends HookConsumerWidget {
   static const routeName = '/blockExplorerSettingsScreen';
@@ -17,16 +17,14 @@ class BlockExplorerSettingsScreen extends HookConsumerWidget {
     final current =
         ref.watch(blockExplorerProvider.select((p) => p.currentBlockExplorer));
 
-    return Scaffold(
-      appBar: AquaAppBar(
+    return DesignRevampScaffold(
+      appBar: AquaTopAppBar(
         showBackButton: true,
-        showActionButton: false,
         title: context.loc.blockExplorerSettingsTitle,
-        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
+        colors: context.aquaColors,
       ),
       body: SafeArea(
         child: SettingsSelectionList(
-          label: current.name,
           items: availableExplorers
               .mapIndexed((index, item) => SettingsItem.create(item,
                   name: item.name,
@@ -35,11 +33,13 @@ class BlockExplorerSettingsScreen extends HookConsumerWidget {
               .toList(),
           itemBuilder: (_, item) {
             final explorer = item.object as BlockExplorer;
-            return SettingsListSelectionItem(
-              content: Text(item.name),
-              position: item.position,
+            return SettingsListSelectionItem<BlockExplorer>(
+              title: item.name,
               onPressed: () =>
                   ref.read(blockExplorerProvider).setBlockExplorer(explorer),
+              isRadioButton: true,
+              radioValue: explorer,
+              radioGroupValue: current,
             );
           },
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:ui_components/shared/shared.dart';
+import 'package:ui_components/components/transaction/transaction_summary_text.dart';
 import 'package:ui_components/ui_components.dart';
 
 class AquaTransactionSummary extends HookWidget {
@@ -10,7 +10,10 @@ class AquaTransactionSummary extends HookWidget {
     required this.assetTicker,
     required this.amountCrypto,
     required this.amountFiat,
+    this.assetIconUrl,
     this.isPending = false,
+    this.isConfidential = false,
+    this.isLightning = false,
     this.colors,
   }) : _icon = AquaTransactionIcon.send(
           colors: colors,
@@ -22,17 +25,23 @@ class AquaTransactionSummary extends HookWidget {
     required this.assetTicker,
     required this.amountCrypto,
     required this.amountFiat,
+    this.assetIconUrl,
     this.isPending = false,
+    this.isConfidential = false,
+    this.isLightning = false,
     this.colors,
   }) : _icon = AquaTransactionIcon.receive(
           colors: colors,
         );
 
   final String assetId;
+  final String? assetIconUrl;
   final String assetTicker;
   final String amountCrypto;
   final String amountFiat;
   final bool isPending;
+  final bool isConfidential;
+  final bool isLightning;
   final AquaColors? colors;
   final Widget _icon;
 
@@ -43,10 +52,21 @@ class AquaTransactionSummary extends HookWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            AquaAssetIcon.fromAssetId(
-              assetId: assetId,
-              size: 40,
-            ),
+            if (assetIconUrl.isValidUrl) ...{
+              AquaAssetIcon.fromUrl(
+                url: assetIconUrl!,
+                size: 40,
+              ),
+            } else if (isLightning) ...{
+              AquaAssetIcon.lightningBtcComposite(
+                size: 40,
+              )
+            } else ...{
+              AquaAssetIcon.fromAssetId(
+                assetId: assetId,
+                size: 40,
+              ),
+            },
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -66,10 +86,10 @@ class AquaTransactionSummary extends HookWidget {
                       ),
                     ],
                   ),
-                  if (!AssetIds.isAnyUsdt(assetId)) ...[
+                  if (!isConfidential) ...[
                     const SizedBox(height: 4),
                     AquaText.body2Medium(
-                      text: amountFiat,
+                      text: amountFiat.isNotEmpty ? amountFiat : ' ',
                       color: colors?.textSecondary,
                     ),
                   ],
@@ -105,18 +125,24 @@ class AquaSwapTransactionSummary extends StatelessWidget {
     required this.toAmountCrypto,
     required this.fromAssetTicker,
     required this.toAssetTicker,
+    this.fromAssetIconUrl,
+    this.toAssetIconUrl,
     this.isPending = false,
     required this.colors,
+    required this.text,
   });
 
   final String fromAssetId;
   final String toAssetId;
+  final String? fromAssetIconUrl;
+  final String? toAssetIconUrl;
   final String fromAssetTicker;
   final String toAssetTicker;
   final String fromAmountCrypto;
   final String toAmountCrypto;
   final bool isPending;
   final AquaColors? colors;
+  final TransactionSummaryText text;
 
   @override
   Widget build(BuildContext context) {
@@ -124,13 +150,14 @@ class AquaSwapTransactionSummary extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SwapLineItem(
-          label: context.loc.from,
+          label: text.from,
           assetId: fromAssetId,
           assetTicker: fromAssetTicker,
           amountCrypto: fromAmountCrypto,
+          assetIconUrl: fromAssetIconUrl,
           colors: colors,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         SizedBox(
           height: 18,
           child: Row(
@@ -157,12 +184,13 @@ class AquaSwapTransactionSummary extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         _SwapLineItem(
-          label: context.loc.to,
+          label: text.to,
           assetId: toAssetId,
           assetTicker: toAssetTicker,
           amountCrypto: toAmountCrypto,
+          assetIconUrl: toAssetIconUrl,
           colors: colors,
         ),
       ],
@@ -176,6 +204,7 @@ class _SwapLineItem extends StatelessWidget {
     required this.assetId,
     required this.amountCrypto,
     required this.assetTicker,
+    required this.assetIconUrl,
     required this.colors,
   });
 
@@ -183,6 +212,7 @@ class _SwapLineItem extends StatelessWidget {
   final String amountCrypto;
   final String assetTicker;
   final String assetId;
+  final String? assetIconUrl;
   final AquaColors? colors;
 
   @override
@@ -217,10 +247,17 @@ class _SwapLineItem extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        AquaAssetIcon.fromAssetId(
-          assetId: assetId,
-          size: 32,
-        ),
+        if (assetIconUrl.isValidUrl) ...{
+          AquaAssetIcon.fromUrl(
+            url: assetIconUrl!,
+            size: 32,
+          ),
+        } else ...{
+          AquaAssetIcon.fromAssetId(
+            assetId: assetId,
+            size: 32,
+          ),
+        }
       ],
     );
   }

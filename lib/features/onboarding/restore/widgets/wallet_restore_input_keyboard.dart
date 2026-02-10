@@ -1,9 +1,11 @@
+import 'dart:math';
+
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
-import 'dart:math';
+import 'package:ui_components/components/text/text.dart';
 
 class WalletRestoreInputKeyboard extends HookConsumerWidget {
   const WalletRestoreInputKeyboard({
@@ -19,9 +21,7 @@ class WalletRestoreInputKeyboard extends HookConsumerWidget {
     final isCapsLock = ref.watch(mnemonicKeyboardCapsLockStatusProvider);
 
     return Container(
-      height: double.maxFinite,
       margin: EdgeInsets.zero,
-      color: Theme.of(context).colors.keyboardBackground,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -118,18 +118,16 @@ class _KeyboardKey extends StatelessWidget {
           padding: const EdgeInsets.all(2.0),
           visualDensity: VisualDensity.compact,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          backgroundColor: Theme.of(context).colors.background,
+          backgroundColor: context.aquaColors.surfacePrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6.0),
           ),
         ),
         child: value.when(
-          letter: (char) => Text(
-            char,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize:
-                      context.adaptiveDouble(smallMobile: 18, mobile: 26.0),
-                ),
+          letter: (char) => AquaText.body1(
+            text: char,
+            size: context.adaptiveDouble(mobile: 26.0, smallMobile: 18),
+            color: context.aquaColors.textPrimary,
           ),
           backspace: () => SvgPicture.asset(
             Svgs.backspace,

@@ -13,3 +13,10 @@ class SideswapSendAllFeeWarning extends SideswapWarning {
   @override
   String toString() => message;
 }
+
+class SideswapInsufficientLiquidityWarning extends SideswapWarning {
+  SideswapInsufficientLiquidityWarning({required super.message});
+
+  @override
+  String toString() => message;
+}

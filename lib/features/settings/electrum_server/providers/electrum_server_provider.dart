@@ -1,6 +1,12 @@
+import 'package:aqua/config/constants/urls.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+
+const defaultElectrumServerBtcUrl = '$blockstreamElectrumBaseUrl:700';
+const defaultElectrumServerLiquidUrl = '$blockstreamElectrumBaseUrl:995';
+const defaultElectrumServerBtcTestnetUrl = '$blockstreamElectrumBaseUrl:993';
+const defaultElectrumServerLiquidTestnetUrl = '$blockstreamElectrumBaseUrl:465';
 
 final electrumServerProvider =
     Provider.autoDispose<ElectrumServerNotifier>((ref) {
@@ -19,11 +25,10 @@ class ElectrumServerNotifier extends ChangeNotifier {
       prefs.customElectrumServerBtcUrl != null ||
       prefs.customElectrumServerLiquidUrl != null;
 
-  String get customElectrumServerBtcUrl =>
-      prefs.customElectrumServerBtcUrl ?? '';
+  String? get customElectrumServerBtcUrl => prefs.customElectrumServerBtcUrl;
 
-  String get customElectrumServerLiquidUrl =>
-      prefs.customElectrumServerLiquidUrl ?? '';
+  String? get customElectrumServerLiquidUrl =>
+      prefs.customElectrumServerLiquidUrl;
 
   Future<void> setElectrumServer(ElectrumConfig config) async {
     prefs.setCustomElectrumServerBtcUrl(config.btcUrl);
@@ -35,5 +40,18 @@ class ElectrumServerNotifier extends ChangeNotifier {
   Future<void> setDefaultElectrumServerUrls() async {
     prefs.removeCustomElectrumServerUrls();
     notifyListeners();
+  }
+
+  String getElectrumUrl(NetworkType network) {
+    switch (network) {
+      case NetworkType.bitcoin:
+        return customElectrumServerBtcUrl ?? defaultElectrumServerBtcUrl;
+      case NetworkType.liquid:
+        return customElectrumServerLiquidUrl ?? defaultElectrumServerLiquidUrl;
+      case NetworkType.bitcoinTestnet:
+        return defaultElectrumServerBtcTestnetUrl;
+      case NetworkType.liquidTestnet:
+        return defaultElectrumServerLiquidTestnetUrl;
+    }
   }
 }

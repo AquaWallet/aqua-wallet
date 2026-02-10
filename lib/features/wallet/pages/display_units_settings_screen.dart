@@ -32,7 +32,6 @@ class DisplayUnitsSettingsScreen extends HookConsumerWidget {
           itemBuilder: (context, item) {
             return SettingsListSelectionItem(
               content: Text(item.name),
-              position: item.position,
               onPressed: () => ref
                   .read(displayUnitsProvider)
                   .setCurrentDisplayUnit(item.name),

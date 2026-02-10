@@ -1,5 +1,4 @@
 import 'package:aqua/common/exceptions/exception_localized.dart';
-import 'package:aqua/constants.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 
@@ -7,8 +6,10 @@ class AmountParsingException implements ExceptionLocalized {
   final AmountParsingExceptionType type;
   final String? amount;
   final String? customMessage;
+  final String? displayUnitTicker;
 
-  AmountParsingException(this.type, {this.customMessage, this.amount});
+  AmountParsingException(this.type,
+      {this.customMessage, this.amount, this.displayUnitTicker});
 
   @override
   String toLocalizedString(BuildContext context) {
@@ -16,13 +17,15 @@ class AmountParsingException implements ExceptionLocalized {
       case AmountParsingExceptionType.emptyAmount:
         return context.loc.sendAssetAmountScreenEmptyAmountError;
       case AmountParsingExceptionType.belowMin:
-        return context.loc.amountBelowMin(kGdkMinSendAmountSats.toString());
+        return context.loc.amountBelowMin(amount!, displayUnitTicker!);
       case AmountParsingExceptionType.belowLbtcMin:
-        return context.loc.amountBelowMin(kGdkMinSendAmountLbtcSats.toString());
+        return context.loc.amountBelowMin(amount!, displayUnitTicker!);
       case AmountParsingExceptionType.notEnoughFunds:
         return context.loc.sendAssetAmountScreenNotEnoughFundsError;
       case AmountParsingExceptionType.notEnoughFundsForFee:
         return context.loc.sendAssetAmountScreenNotEnoughFundsForFeeError;
+      case AmountParsingExceptionType.invalidArguments:
+        return context.loc.commonSomethingWentWrong;
       case AmountParsingExceptionType.belowSendMin:
         return context.loc.sendMinAmountError(amount!);
       case AmountParsingExceptionType.aboveSendMax:
@@ -43,5 +46,6 @@ enum AmountParsingExceptionType {
   notEnoughFundsForFee,
   belowSendMin,
   aboveSendMax,
-  generic;
+  generic,
+  invalidArguments;
 }

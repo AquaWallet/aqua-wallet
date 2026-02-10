@@ -1,12 +1,95 @@
-import 'package:aqua/config/config.dart';
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:aqua/features/receive/receive.dart';
-import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/models/swap_models.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:ui_components/ui_components.dart';
+
+class CopyButton extends StatelessWidget {
+  const CopyButton({super.key, required this.onPressed, required this.label});
+
+  final void Function() onPressed;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.maxFinite,
+      height: 40,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          visualDensity: VisualDensity.compact,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+          side: BorderSide(
+            color: context.colors.swapButtonForeground,
+            width: 1.0,
+          ),
+        ),
+        child: Row(
+          mainAxisSize:
+              MainAxisSize.min, // Let the Row take up only the space needed
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14.0,
+                letterSpacing: 0,
+                fontWeight: FontWeight.w700,
+                color: context.colors.swapButtonForeground,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+shareWidgetAsImage(GlobalKey widgetKey) async {
+  RenderRepaintBoundary boundary =
+      widgetKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+
+  final image = await boundary.toImage(pixelRatio: 3.0);
+
+  // Create a new image with white background
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  final size = Size(image.width.toDouble(), image.height.toDouble());
+
+  // Fill with white background
+  final paint = Paint()..color = const Color(0xFFFFFFFF);
+  canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
+
+  // Draw the captured image on top
+  canvas.drawImage(image, Offset.zero, Paint());
+
+  // Convert to image
+  final picture = recorder.endRecording();
+  final finalImage =
+      await picture.toImage(size.width.toInt(), size.height.toInt());
+  final byteData = await finalImage.toByteData(format: ui.ImageByteFormat.png);
+  final bytes = byteData!.buffer.asUint8List();
+
+  // Save to temporary file
+  final tempDir = await getTemporaryDirectory();
+  final file = await File('${tempDir.path}/share_widget_img.png').create();
+  await file.writeAsBytes(bytes);
+
+  // Share the file
+  await Share.shareXFiles([XFile(file.path)]);
+}
 
 class ReceiveAssetAddressQrCard extends HookWidget {
   const ReceiveAssetAddressQrCard({
@@ -14,7 +97,6 @@ class ReceiveAssetAddressQrCard extends HookWidget {
     this.isDirectPegIn = false,
     this.swapOrder,
     this.swapPair,
-    this.onRegenerate,
     required this.asset,
     required this.address,
   });
@@ -24,155 +106,62 @@ class ReceiveAssetAddressQrCard extends HookWidget {
   final bool isDirectPegIn;
   final SwapOrder? swapOrder;
   final SwapPair? swapPair;
-  final Function? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
-    final rawAddress = useMemoized(() {
-      // extract the raw address
-      if (address.contains("liquidnetwork")) {
-        return address
-            .split('?')[0]
-            .replaceAll("liquidnetwork:", "")
-            .replaceAll("/", "");
-      }
-      if (address.contains("bitcoin")) {
-        return address
-            .split('?')[0]
-            .replaceAll("bitcoin:", "")
-            .replaceAll("/", "");
-      }
-      return address;
-    }, [address]);
-
-    return BoxShadowCard(
-      elevation: 4.0,
-      color: context.colors.addressFieldContainerBackgroundColor,
-      margin: const EdgeInsets.symmetric(horizontal: 28.0),
-      borderRadius: BorderRadius.circular(12.0),
-      bordered: true,
-      borderColor: context.colors.cardOutlineColor,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            //ANCHOR - Description
-            const SizedBox(height: 20.0),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9.0),
-              child: Text(
-                getAddressTitle(asset, isDirectPegIn, context),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).richTextStyleBold,
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            //ANCHOR - QR Code
-            ReceiveAssetQrCode(
-                assetAddress: address,
-                assetId: asset.id,
-                assetIconUrl: asset.logoUrl),
-            const SizedBox(height: 21.0),
-            //ANCHOR - Copy Address Button
-            CopyAddressButton(
-              address: rawAddress,
-            ),
-            const SizedBox(height: 20.0),
-            // ANCHOR - Regenerate address
-            if (onRegenerate != null) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    height: 30.0,
-                    child: OutlinedButton(
-                      onPressed: () => onRegenerate!(),
-                      style: OutlinedButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 9.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        side: BorderSide(
-                          color: context.colors.swapButtonForeground,
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize
-                            .min, // Let the Row take up only the space needed
-                        children: [
-                          SvgPicture.asset(
-                            Svgs.refreshIcon,
-                            height: 20,
-                            colorFilter: ColorFilter.mode(
-                              context.colors.onBackground,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          const SizedBox(width: 5.0),
-                          Text(
-                            context.loc.receiveAssetScreenGenerateNewAddress,
-                            style: TextStyle(
-                              fontSize: 14.0,
-                              letterSpacing: 0,
-                              fontWeight: FontWeight.w700,
-                              color: context.colors.swapButtonForeground,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20.0)
+    return AquaCard.glass(
+      width: double.maxFinite,
+      elevation: 8,
+      borderRadius: BorderRadius.circular(8),
+      onTap: () => context.copyToClipboard(address),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (swapPair != null && asset.isAnyUsdt) ...[
+            const SizedBox(height: 24),
+            //ANCHOR - Warning Chip
+            AltUsdtNetworkWarningChip(asset: asset),
+            const SizedBox(height: 14),
+            //ANCHOR - Single Use Address with expiry
+            if (swapOrder != null) ...[
+              const SingleUseReceiveAddressLabel(),
+              //ANCHOR - Expiry date (only if expiresAt is set)
+              if (swapOrder!.expiresAt != null) ...[
+                const SizedBox(height: 4),
+                AquaText.caption1Medium(
+                  text: context.loc.exp(swapOrder!.expiresAt!.yMMMd()),
+                  textAlign: TextAlign.center,
+                  color: context.aquaColors.textSecondary,
+                ),
+              ],
+              const SizedBox(height: 16),
             ],
-            //ANCHOR - Shift min and max
-            if (asset.isAltUsdt && swapPair != null) ...[
-              //ANCHOR - Expiry
-              ReceiveSwapOrderExpireLabel(order: swapOrder),
-              const SizedBox(height: 14.0),
-              //ANCHOR - Min-Max Bound
-              USDtSwapMinMaxPanel(swapPair: swapPair!),
-              const SizedBox(height: 20.0),
-            ],
+          ] else ...[
+            const SizedBox(height: 24),
           ],
-        ),
+          //ANCHOR - QR Code
+          ReceiveAssetQrCode(
+            assetAddress: address,
+            asset: asset,
+          ),
+          const SizedBox(height: 16),
+          //ANCHOR - Address field
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 38),
+            child: AquaColoredText(
+              text: address,
+              colorType: ColoredTextEnum.coloredIntegers,
+              textAlign: TextAlign.center,
+              style: AquaAddressTypography.body2.copyWith(
+                color: context.colors.onBackground,
+              ),
+              shouldWrap: asset.isLightning,
+            ),
+          ),
+          const SizedBox(height: 26),
+        ],
       ),
     );
   }
-}
-
-String getAddressTitle(Asset asset, bool isDirectPegIn, BuildContext context) {
-  if (isDirectPegIn) {
-    return AppLocalizations.of(context)!
-        .receiveAssetScreenDirectPegInDescription;
-  }
-
-  if (asset.isUsdtLiquid) {
-    return AppLocalizations.of(context)!
-        .receiveAssetScreenDescriptionUsdt(asset.network);
-  }
-
-  if (asset.isTrx) {
-    return AppLocalizations.of(context)!
-        .receiveAssetScreenDescriptionUsdt(AppLocalizations.of(context)!.tron);
-  }
-
-  if (asset.isEth) {
-    return AppLocalizations.of(context)!
-        .receiveAssetScreenDescriptionUsdt(AppLocalizations.of(context)!.eth);
-  }
-
-  if (asset.isLightning) {
-    return AppLocalizations.of(context)!.lightningInvoice;
-  }
-
-  return AppLocalizations.of(context)!
-      .receiveAssetScreenDescriptionAll(asset.name);
 }

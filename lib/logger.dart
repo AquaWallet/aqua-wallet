@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 enum FeatureFlag {
+  autoLock('AutoLock'),
+  biometric('Biometric'),
   dataTransfer('DataTransfer'),
   aquaNodeStatus('AquaNodeStatus'),
   initAppProvider('InitAppProvider'),
@@ -16,7 +18,7 @@ enum FeatureFlag {
   swap('Swap'),
   swapOrderStorage('SwapOrderStorage'),
   sideswap('Sideswap'),
-  sideshift('Sideshift'),
+  sideshift('SideShift'),
   sideshiftOrderStorage('SideshiftOrderStorage'),
   peg('Peg'),
   pokerchip('Pokerchip'),
@@ -39,7 +41,7 @@ enum FeatureFlag {
   jan3Account('Jan3Account'),
   jan3AuthToken('Jan3AuthToken'),
   debitCard('DebitCard'),
-  captcha('Captcha');
+  multiWallet('MultiWallet');
 
   const FeatureFlag(this.value);
 
@@ -66,7 +68,7 @@ class FeatureFilter implements TalkerFilter {
     for (final featureFlag in enabledFeatureFlags) {
       final featureFlagFormatted = "[${featureFlag.value.toLowerCase()}]";
 
-      if (lowercaseMessage.startsWith(featureFlagFormatted)) {
+      if (lowercaseMessage.contains(featureFlagFormatted)) {
         return true;
       }
     }
@@ -81,7 +83,7 @@ String formatFeatureFlag(FeatureFlag? feature) {
 
 class CustomLogger {
   factory CustomLogger(FeatureFlag? feature) {
-    feature = feature;
+    _customLogger.feature = feature;
     return _customLogger;
   }
 
@@ -110,7 +112,8 @@ class CustomLogger {
   }
 
   void error(dynamic message, [Object? exception, StackTrace? stackTrace]) {
-    internalLogger.error('$appName: ${formatFeatureFlag(feature)} $message');
+    internalLogger.error('$appName: ${formatFeatureFlag(feature)} $message',
+        exception, stackTrace);
   }
 }
 

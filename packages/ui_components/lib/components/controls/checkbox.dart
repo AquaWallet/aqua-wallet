@@ -28,10 +28,10 @@ class AquaCheckBox extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         customBorder: const CircleBorder(),
-        onTap: enabled
-            ? onChanged != null
-                ? () => onChanged!(value)
-                : null
+        splashFactory: InkRipple.splashFactory,
+        onTap: enabled && onChanged != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onChanged!(value))
             : null,
         child: Opacity(
           opacity: enabled ? 1 : 0.5,

@@ -39,18 +39,19 @@ class ChangellyPair with _$ChangellyPair {
 @freezed
 class ChangellyVariableOrderResponse with _$ChangellyVariableOrderResponse {
   const factory ChangellyVariableOrderResponse({
-    String? id,
-    String? trackUrl,
-    int? createdAt,
-    ChangellyOrderType? type,
-    ChangellyOrderStatus? status,
-    String? currencyFrom,
-    String? currencyTo,
-    String? payinAddress,
-    String? amountExpectedFrom,
-    String? payoutAddress,
-    String? amountExpectedTo,
-    String? networkFee,
+    required String id,
+    required String trackUrl,
+    required int createdAt,
+    required ChangellyOrderType type,
+    required ChangellyOrderStatus status,
+    required String currencyFrom,
+    required String currencyTo,
+    required String payinAddress,
+    required String amountExpectedFrom,
+    required String payoutAddress,
+    String? refundAddress,
+    required String amountExpectedTo,
+    required String networkFee,
   }) = _ChangellyVariableOrderResponse;
 
   factory ChangellyVariableOrderResponse.fromJson(Map<String, dynamic> json) =>
@@ -58,26 +59,128 @@ class ChangellyVariableOrderResponse with _$ChangellyVariableOrderResponse {
 }
 
 @freezed
+class ChangellyFixedOrderResponse with _$ChangellyFixedOrderResponse {
+  const factory ChangellyFixedOrderResponse({
+    required String id,
+    required String trackUrl,
+    required int createdAt,
+    required ChangellyOrderType type,
+    required ChangellyOrderStatus status,
+    required String currencyFrom,
+    required String currencyTo,
+    required String payinAddress,
+    required String amountExpectedFrom,
+    required String payoutAddress,
+    String? refundAddress,
+    required String amountExpectedTo,
+    required String networkFee,
+    required DateTime payTill,
+  }) = _ChangellyFixedOrderResponse;
+
+  factory ChangellyFixedOrderResponse.fromJson(Map<String, dynamic> json) =>
+      _$ChangellyFixedOrderResponseFromJson(json);
+}
+
+@freezed
 class ChangellyQuoteResponse with _$ChangellyQuoteResponse {
   const factory ChangellyQuoteResponse({
-    String? from,
-    String? to,
-    String? networkFee,
-    String? amountFrom,
-    String? amountTo,
-    String? max,
-    String? maxFrom,
-    String? maxTo,
-    String? min,
-    String? minFrom,
-    String? minTo,
-    String? visibleAmount,
-    String? rate,
-    String? fee,
+    required String from,
+    required String to,
+    required String networkFee,
+    required String amountFrom,
+    required String amountTo,
+    required String max,
+    required String maxFrom,
+    required String maxTo,
+    required String min,
+    required String minFrom,
+    required String minTo,
+    required String visibleAmount,
+    required String rate,
+    required String fee,
   }) = _ChangellyQuoteResponse;
 
   factory ChangellyQuoteResponse.fromJson(Map<String, dynamic> json) =>
       _$ChangellyQuoteResponseFromJson(json);
+}
+
+@freezed
+class ChangellyQuotePayload with _$ChangellyQuotePayload {
+  const factory ChangellyQuotePayload({
+    required String from,
+    required String to,
+    required String amountFrom,
+  }) = _ChangellyQuotePayload;
+
+  factory ChangellyQuotePayload.fromJson(Map<String, dynamic> json) =>
+      _$ChangellyQuotePayloadFromJson(json);
+}
+
+@freezed
+class ChangellyFixedRatePayload with _$ChangellyFixedRatePayload {
+  const factory ChangellyFixedRatePayload({
+    required String from,
+    required String to,
+    String? amountFrom,
+    String? amountTo,
+  }) = _ChangellyFixedRatePayload;
+
+  factory ChangellyFixedRatePayload.fromJson(Map<String, dynamic> json) =>
+      _$ChangellyFixedRatePayloadFromJson(json);
+}
+
+@freezed
+class ChangellyVariableOrderPayload with _$ChangellyVariableOrderPayload {
+  const factory ChangellyVariableOrderPayload({
+    required String from,
+    required String to,
+    required String address,
+    String? refundAddress,
+    String? amountTo,
+    String? amountFrom,
+  }) = _ChangellyVariableOrderPayload;
+
+  factory ChangellyVariableOrderPayload.fromJson(Map<String, dynamic> json) =>
+      _$ChangellyVariableOrderPayloadFromJson(json);
+}
+
+@freezed
+class ChangellyFixedOrderPayload with _$ChangellyFixedOrderPayload {
+  const factory ChangellyFixedOrderPayload({
+    required String from,
+    required String to,
+    required String address,
+    required String rateId,
+    required String refundAddress,
+    String? amountTo,
+    String? amountFrom,
+  }) = _ChangellyFixedOrderPayload;
+
+  factory ChangellyFixedOrderPayload.fromJson(Map<String, dynamic> json) =>
+      _$ChangellyFixedOrderPayloadFromJson(json);
+}
+
+@freezed
+class ChangellyFixedQuoteResponse with _$ChangellyFixedQuoteResponse {
+  const factory ChangellyFixedQuoteResponse({
+    required String from,
+    required String to,
+    required String id,
+    required String result,
+    required String networkFee,
+    required String max,
+    required String maxFrom,
+    required String maxTo,
+    required String min,
+    required String minFrom,
+    required String minTo,
+    required String amountFrom,
+    required String amountTo,
+    required int expiredAt,
+  }) = _ChangellyFixedQuoteResponse;
+
+  factory ChangellyFixedQuoteResponse.fromJson(Map<String, dynamic> json) =>
+      _$ChangellyFixedQuoteResponseFromJson(json);
 }
 
 class ChangellyAssetIds {

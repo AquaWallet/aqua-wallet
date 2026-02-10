@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ui_components/gen/ui_localizations.dart';
-
 import 'pages/pages.dart';
 import 'providers/providers.dart';
 
@@ -41,8 +39,6 @@ class DesignSystemPlaygroundApp extends HookConsumerWidget {
       useInheritedMediaQuery: true,
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
-      localizationsDelegates: UiLocalizations.localizationsDelegates,
-      supportedLocales: UiLocalizations.supportedLocales,
       home: const HomeScreen(),
       routes: {
         NavBarDemoPage.routeName: (context) => const NavBarDemoPage(),

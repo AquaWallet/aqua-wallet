@@ -2,9 +2,13 @@ import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/common/widgets/custom_error.dart';
 import 'package:aqua/config/theme/app_styles.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
+import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:decimal/decimal.dart';
@@ -19,16 +23,28 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final errorMessage = useState('');
+    final unitsProvider = ref.watch(displayUnitsProvider);
+    final formatter = ref.watch(formatProvider);
+    final currentUnit = unitsProvider.currentDisplayUnit;
+    final displayUnitTicker =
+        unitsProvider.getAssetDisplayUnit(Asset.lightning());
 
     final maxWithdrawableSats = arguments.maxWithdrawable ~/
         1000; // maxWithdrawable is in millisats, convert to sats
 
-    final showSuccesScreen = useCallback((receiveSatoshiAmount) {
+    final maxWithdrawableFormatted = formatter.formatAssetAmount(
+      amount: maxWithdrawableSats,
+      asset: Asset.btc(),
+      displayUnitOverride: currentUnit,
+    );
+
+    final showSuccesScreen = useCallback((receiveSatoshiAmount, boltzOrderId) {
       context.pushReplacement(
-        LightningTransactionSuccessScreen.routeName,
+        AssetTransactionSuccessScreen.routeName,
         extra: LightningSuccessArguments(
-            satoshiAmount: receiveSatoshiAmount,
-            type: LightningSuccessType.receive),
+          satoshiAmount: receiveSatoshiAmount,
+          boltzOrderId: boltzOrderId,
+        ).toTransactionSucessArguments(),
       );
     }, []);
 
@@ -40,9 +56,10 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
             .create(Decimal.fromInt(maxWithdrawableSats));
         final boltzState = ref.watch(boltzReverseSwapProvider);
         final invoice = boltzState.mapOrNull(qrCode: (s) => s.swap?.invoice);
+        final boltzOrderId = boltzState.mapOrNull(qrCode: (s) => s.swap?.id);
         logger.debug("[LNURL] withdraw - invoice from boltz: $invoice");
 
-        if (invoice != null) {
+        if (invoice != null && boltzOrderId != null) {
           // call lnurlwithdraw callback with boltz invoice
           await ref
               .read(lnurlProvider)
@@ -50,7 +67,7 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
 
           //TODO: Need to show fee breakdown + Change success screen to show actual received sats
           //TODO: Temp showing success screeen here, but need to listen to boltz swap status for claim completion before showing success screen
-          showSuccesScreen(maxWithdrawableSats);
+          showSuccesScreen(maxWithdrawableSats, boltzOrderId);
         }
       } on ExceptionLocalized catch (e) {
         if (context.mounted) {
@@ -80,8 +97,8 @@ class LnurlWithdrawScreen extends HookConsumerWidget {
           onPressed: () async {
             processWithdrawal();
           },
-          child: Text(
-              context.loc.lnurlwWithdrawPrompt(maxWithdrawableSats.toString())),
+          child: Text(context.loc.lnurlWithdrawPrompt(
+              maxWithdrawableFormatted, displayUnitTicker)),
         ),
       ),
       body: SafeArea(

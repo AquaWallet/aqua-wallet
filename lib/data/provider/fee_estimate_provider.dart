@@ -21,7 +21,8 @@ enum TransactionPriority {
 
 // fallback hardcoded rates in case blockstream call fails
 const liquidFallbackFeeRates = 0.1;
-const liquidFallbackFeeRatesLowball = 0.01;
+const liquidTaxiFallbackFeeRates = 0.01;
+const bitcoinFallbackFeeRate = 10.0;
 
 enum FeeEstimateService { mempool, blockstream }
 
@@ -35,17 +36,17 @@ class FeeEstimateClient {
   }
 
   /// Returns sats/vbyte
-  double getLiquidFeeRate({bool isLowball = false}) {
+  double getLiquidFeeRate({bool isLiquidTaxi = false}) {
     if (ref.read(envProvider) == Env.testnet) {
-      return isLowball ? liquidFallbackFeeRatesLowball : liquidFallbackFeeRates;
+      return isLiquidTaxi ? liquidTaxiFallbackFeeRates : liquidFallbackFeeRates;
     }
 
-    return isLowball ? liquidFallbackFeeRatesLowball : liquidFallbackFeeRates;
+    return isLiquidTaxi ? liquidTaxiFallbackFeeRates : liquidFallbackFeeRates;
   }
 
   Future<Map<TransactionPriority, double>> fetchMempoolFeeRates() async {
     final client = ref.read(dioProvider);
-    const endpoint = '$mempoolSpaceUrl/fees/recommended';
+    const endpoint = '$mempoolSpaceApiUrl/fees/recommended';
 
     final response = await client.get(endpoint);
     final json = response.data as Map<String, dynamic>;

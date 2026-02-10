@@ -10,6 +10,6 @@ class SendAssetTransactionState with _$SendAssetTransactionState {
     required SendAssetOnchainTx tx,
   }) = SendAssetTransactionCreated;
   const factory SendAssetTransactionState.complete({
-    required SendAssetCompletionArguments args,
+    required TransactionSuccessArguments args,
   }) = SendAssetTransactionComplete;
 }

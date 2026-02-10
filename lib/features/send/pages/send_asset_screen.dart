@@ -1,18 +1,11 @@
-import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
-enum SendFlowStep {
-  address,
-  amount,
-  review,
-}
+import 'package:ui_components/ui_components.dart';
 
 final _logger = CustomLogger(FeatureFlag.send);
 
@@ -27,25 +20,42 @@ class SendAssetScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final args = useState(arguments);
     final input = ref.watch(sendAssetInputStateProvider(args.value));
-    final currentStep = useState<SendFlowStep?>(null);
+    final currentStep = ref.watch(sendFlowStepProvider);
 
-    // Set initial step only once when input first has a value
     useEffect(() {
-      if (currentStep.value == null &&
-          input.hasValue &&
-          input.value?.initialStep != null) {
-        currentStep.value = input.value!.initialStep;
+      final initialStep = input.value?.initialStep;
+      if (currentStep == null && input.hasValue && initialStep != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(sendFlowStepProvider.notifier).setStep(initialStep);
+        });
       }
       return null;
-    }, [input]);
+    }, [input, currentStep]);
+
+    final goToStep = useCallback((SendFlowStep step) {
+      ref.read(sendFlowStepProvider.notifier).setStep(step);
+    }, []);
+
+    final onAmountSubmit = useCallback(() {
+      ref.invalidate(sendAssetFeeOptionsProvider(args.value));
+      goToStep(SendFlowStep.review);
+    }, [args.value, goToStep]);
 
     final stepPages = useMemoized(
       () => [
         SendAssetAddressPage(
           arguments: args.value,
           onContinuePressed: (arguments, address, amount) async {
-            args.value = arguments;
-            currentStep.value = SendFlowStep.amount;
+            final inputState =
+                ref.read(sendAssetInputStateProvider(args.value)).valueOrNull;
+
+            if (inputState?.isAmbiguousAssets ?? false) {
+              goToStep(SendFlowStep.network);
+              return;
+            }
+            if (args.value.asset.id != arguments.asset.id) {
+              args.value = arguments;
+            }
             //NOTE - This is definately a hack and should be fixed in the future
             // There is scenario where the user selects a non-liquid asset from
             // the transaction menu screen and then provides a liquid asset
@@ -65,46 +75,45 @@ class SendAssetScreen extends HookConsumerWidget {
                   .read(sendAssetInputStateProvider(args.value).notifier)
                   .updateAmountFieldText(amount),
             );
+
+            // NOTE: Since we are updating the state of the sendAssetInputStateProvider
+            // We need to re-read it in order to continue operating that way we ensure
+            // its working with the updated state.
+            // Even if isAmountEditable casuses revaluation of this steps.
+            // The currently running function won't update since the value is closured
+            final updatedInput =
+                ref.read(sendAssetInputStateProvider(args.value)).valueOrNull;
+            if (updatedInput?.isAmountEditable ?? true) {
+              goToStep(SendFlowStep.amount);
+            } else {
+              onAmountSubmit();
+            }
           },
         ),
+        NetworkSelectionPage(args: args),
         SendAssetAmountPage(
-          arguments: args.value,
-          onContinuePressed: () {
-            ref.invalidate(sendAssetFeeOptionsProvider(args.value));
-            currentStep.value = SendFlowStep.review;
-          },
+          args: args.value,
+          onContinuePressed: onAmountSubmit,
         ),
         SendAssetReviewPage(
-          arguments: args.value,
+          args: args.value,
           onConfirmed: () => ref
               .read(sendAssetTxnProvider(args.value).notifier)
               .executeGdkSendTransaction(),
+          onErrorButtonTap: () => ref
+              .read(sendFlowStepProvider.notifier)
+              .goBack(to: SendFlowStep.amount),
         ),
       ],
-      [args.value],
+      [args.value, goToStep, onAmountSubmit],
     );
-    final controller = usePageController(
-      initialPage: currentStep.value?.index ?? SendFlowStep.address.index,
-      keepPage: true,
-    );
-    final onAppBarBackPressed = useCallback(() {
-      final step = currentStep.value;
-      if (step == SendFlowStep.address) {
-        context.pop();
-      } else if (step == SendFlowStep.amount) {
-        currentStep.value = SendFlowStep.address;
-      } else if (step == SendFlowStep.review) {
-        currentStep.value = SendFlowStep.amount;
-      }
-    }, [currentStep]);
 
-    currentStep.addListener(() {
-      controller.animateToPage(
-        currentStep.value?.index ?? SendFlowStep.address.index,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-      );
-    });
+    final onAppBarBackPressed = useCallback(() {
+      final previousStep = ref.read(sendFlowStepProvider.notifier).goBack();
+      if (previousStep == null) {
+        context.pop();
+      }
+    }, []);
 
     // swap providers
     if (args.value.swapPair != null) {
@@ -127,42 +136,36 @@ class SendAssetScreen extends HookConsumerWidget {
       ..listen(sendAssetTxnProvider(args.value), (_, value) {
         value.asData?.value.whenOrNull(complete: (args) {
           _logger.debug("${args.network.name} txn complete: ${args.txId}");
-          // TODO: Include amount and fee information
-          if (args.asset.isLightning) {
-            context.push(
-              LightningTransactionSuccessScreen.routeName,
-              extra: LightningSuccessArguments(
-                satoshiAmount: args.amountSats ?? 0,
-                type: LightningSuccessType.send,
-                orderId: args.serviceOrderId,
-              ),
-            );
-          } else {
-            context.push(
-              SendAssetTransactionCompleteScreen.routeName,
-              extra: args,
-            );
-          }
+          context.push(
+            AssetTransactionSuccessScreen.routeName,
+            extra: args,
+          );
         });
       });
 
-    return Scaffold(
-      appBar: AquaAppBar(
-        title: context.loc.send,
-        showActionButton: false,
-        backgroundColor: context.colors.inverseSurfaceColor,
-        iconBackgroundColor:
-            context.colors.addressFieldContainerBackgroundColor,
-        shouldPopOnCustomBack: currentStep.value == SendFlowStep.address,
-        onBackPressed: onAppBarBackPressed,
-      ),
-      // Make sure the Continue button is behind the keyboard
-      resizeToAvoidBottomInset: false,
-      backgroundColor: context.colors.inverseSurfaceColor,
-      body: PageView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: controller,
-        children: stepPages,
+    return PopScope(
+      canPop: currentStep == SendFlowStep.address,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          onAppBarBackPressed();
+        }
+      },
+      child: DesignRevampScaffold(
+        appBar: AquaTopAppBar(
+          showBackButton: true,
+          title: switch (currentStep) {
+            SendFlowStep.review => context.loc.confirmSend,
+            SendFlowStep.network => context.loc.selectNetwork,
+            _ => context.loc.send,
+          },
+          colors: context.aquaColors,
+          onBackPressed: onAppBarBackPressed,
+        ),
+        body: SafeArea(
+          child: SendFlowPageView(
+            children: stepPages,
+          ),
+        ),
       ),
     );
   }

@@ -10,6 +10,8 @@ const loginClient = 'login_client';
 const serverStatus = 'server_status';
 const assets = 'assets';
 const subscribePriceStream = 'subscribe_price_stream';
+const subscribeValue = 'subscribe_value';
+const unsubscribeValue = 'unsubscribe_value';
 const startSwapWeb = 'start_swap_web';
 const startPeg = 'peg';
 const pegStatus = 'peg_status';
@@ -17,6 +19,7 @@ const swapDone = 'swap_done';
 
 const notificationUpdatePriceStream = 'update_price_stream';
 const notificationServerStatus = 'server_status';
+const notificationSubscribedValue = 'subscribed_value';
 
 @freezed
 class ServerStatusResponse with _$ServerStatusResponse {
@@ -38,10 +41,54 @@ class ServerStatusResult with _$ServerStatusResult {
     @JsonKey(name: 'min_peg_out_amount') int? minPegOutAmount,
     @JsonKey(name: 'server_fee_percent_peg_in') double? serverFeePercentPegIn,
     @JsonKey(name: 'server_fee_percent_peg_out') double? serverFeePercentPegOut,
+    @JsonKey(name: 'PegInWalletBalance') int? pegInWalletBalance,
+    @JsonKey(name: 'PegOutWalletBalance') int? pegOutWalletBalance,
   }) = _ServerStatusResult;
 
   factory ServerStatusResult.fromJson(Map<String, dynamic> json) =>
       _$ServerStatusResultFromJson(json);
+}
+
+@freezed
+class SubscribedValueNotification with _$SubscribedValueNotification {
+  const factory SubscribedValueNotification({
+    String? method,
+    SubscribedValueParams? params,
+  }) = _SubscribedValueNotification;
+
+  factory SubscribedValueNotification.fromJson(Map<String, dynamic> json) =>
+      _$SubscribedValueNotificationFromJson(json);
+}
+
+@freezed
+class SubscribedValueParams with _$SubscribedValueParams {
+  const factory SubscribedValueParams({
+    SubscribedValueData? value,
+  }) = _SubscribedValueParams;
+
+  factory SubscribedValueParams.fromJson(Map<String, dynamic> json) =>
+      _$SubscribedValueParamsFromJson(json);
+}
+
+@freezed
+class SubscribedValueData with _$SubscribedValueData {
+  const factory SubscribedValueData({
+    @JsonKey(name: 'PegInWalletBalance') PegBalanceData? pegInWalletBalance,
+    @JsonKey(name: 'PegOutWalletBalance') PegBalanceData? pegOutWalletBalance,
+  }) = _SubscribedValueData;
+
+  factory SubscribedValueData.fromJson(Map<String, dynamic> json) =>
+      _$SubscribedValueDataFromJson(json);
+}
+
+@freezed
+class PegBalanceData with _$PegBalanceData {
+  const factory PegBalanceData({
+    int? available,
+  }) = _PegBalanceData;
+
+  factory PegBalanceData.fromJson(Map<String, dynamic> json) =>
+      _$PegBalanceDataFromJson(json);
 }
 
 @freezed
@@ -404,8 +451,8 @@ class SwapPegStatusResponse with _$SwapPegStatusResponse {
 @freezed
 class SwapPegStatusResult with _$SwapPegStatusResult {
   factory SwapPegStatusResult({
-    String? addr,
-    @JsonKey(name: 'addr_recv') String? addrRecv,
+    @JsonKey(name: 'addr') String? depositAddress,
+    @JsonKey(name: 'addr_recv') String? receiveAddress,
     @JsonKey(name: 'created_at') int? createdAt,
     @JsonKey(name: 'expires_at') int? expiresAt,
     @JsonKey(name: 'list') @Default([]) List<PegStatusTxns> transactions,
@@ -433,11 +480,11 @@ class PegStatusTxns with _$PegStatusTxns {
   factory PegStatusTxns({
     int? amount,
     @JsonKey(name: 'created_at') int? createdAt,
-    @JsonKey(name: 'detected_confs') dynamic detectedConfs,
+    @JsonKey(name: 'detected_confs') int? detectedConfs,
     dynamic payout,
     @JsonKey(name: 'payout_txid') dynamic payoutTxid,
     String? status,
-    @JsonKey(name: 'total_confs') dynamic totalConfs,
+    @JsonKey(name: 'total_confs') int? totalConfs,
     @JsonKey(name: 'tx_hash') String? txHash,
     @JsonKey(name: 'tx_state') PegTxState? txState,
     @JsonKey(name: 'tx_state_code') int? txStateCode,

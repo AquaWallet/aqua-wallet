@@ -102,7 +102,6 @@ class CustomAlertDialog extends StatelessWidget {
 Future<T?> showCustomAlertDialog<T>({
   required BuildContext context,
   required CustomAlertDialogUiModel uiModel,
-  bool isDarkMode = true,
 }) {
   AquaModalSheet.show(
     context,
@@ -120,9 +119,10 @@ Future<T?> showCustomAlertDialog<T>({
             uiModel.onSecondaryButtonPressed!();
           }
         : null,
-    iconVariant: uiModel.iconVariant ?? AquaModalSheetVariant.normal,
+    iconVariant: uiModel.iconVariant ?? AquaRingedIconVariant.normal,
     icon: uiModel.icon,
-    colors: isDarkMode ? AquaColors.darkColors : AquaColors.lightColors,
+    colors: context.aquaColors,
+    copiedToClipboardText: context.loc.copiedToClipboard,
   );
 
   // Return a completed future since modal sheet doesn't return values

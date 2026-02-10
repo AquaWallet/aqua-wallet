@@ -24,7 +24,10 @@ class AquaFloatingActionButton extends StatelessWidget {
         ),
       ),
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call())
+            : null,
         splashFactory: InkSparkle.splashFactory,
         borderRadius: BorderRadius.circular(100),
         child: Ink(

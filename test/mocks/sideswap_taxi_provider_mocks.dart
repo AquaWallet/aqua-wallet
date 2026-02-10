@@ -17,12 +17,8 @@ class MockSideswapTaxiProvider extends AutoDisposeAsyncNotifier<TaxiState>
 }
 
 extension MockSideswapTaxiProviderX on MockSideswapTaxiProvider {
-  void mockEstimatedTaxiFeeUsdt(
-    int fee, {
-    bool isLowball = true,
-  }) {
-    when(() => estimatedTaxiFeeUsdt(any(), any(), isLowball: isLowball))
-        .thenAnswer(
+  void mockEstimatedTaxiFeeUsdt(int fee) {
+    when(() => estimatedTaxiFeeUsdt(any(), any())).thenAnswer(
       (_) => Future.value(fee),
     );
   }

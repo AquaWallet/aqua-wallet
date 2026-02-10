@@ -1,44 +1,51 @@
 import 'dart:convert';
 
-import 'package:aqua/config/constants/urls.dart' as urls;
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/features/marketplace/api_services/marketplace_service.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
-import 'package:async/async.dart';
 import 'package:flutter/services.dart';
-
-Future<Result<RegionResponse>> fetchRegions(
-    AutoDisposeFutureProviderRef ref) async {
-  try {
-    final fetchedRegionsResponse =
-        await ref.read(dioProvider).get(urls.regionsUrl);
-    final regionsJson = fetchedRegionsResponse.data as Map<String, dynamic>;
-    final response = RegionResponse.fromJson(regionsJson);
-    logger.info(
-        '[availableRegionsProvider] Fetched ${response.data?.regions.length} regions');
-
-    return Result.value(response);
-  } catch (e) {
-    logger.warning('[availableRegionsProvider] Failed to fetch regions');
-    return Result.error(e);
-  }
-}
 
 final availableRegionsProvider =
     FutureProvider.autoDispose<List<Region>>((ref) async {
   final keepAliveLink = ref.keepAlive();
   Future.delayed(const Duration(hours: 1), () => keepAliveLink.close());
+  final marketPlaceService = ref.read(marketplaceServiceProvider);
 
+  try {
+    final fetchedRegionsResponse = await marketPlaceService.fetchRegions();
+    final fetchedRegions = fetchedRegionsResponse.body?.regions;
+
+    var validRegions = fetchedRegions != null && fetchedRegions.isNotEmpty;
+    var isValidResponse = fetchedRegionsResponse.isSuccessful && validRegions;
+
+    if (isValidResponse) {
+      logger.info(
+          '[availableRegionsProvider] Set regions: ${fetchedRegions.length}');
+      return fetchedRegions;
+    }
+  } catch (e) {
+    return await getStaticRegionsFn();
+  }
+
+  return await getStaticRegionsFn();
+});
+
+// This variable allows to override function call for testing.
+Future<List<Region>> Function() getStaticRegionsFn = getStaticRegions;
+
+Future<List<Region>> getStaticRegions() async {
   final staticRegionsJson =
       await json.decode(await rootBundle.loadString('assets/regions.json'));
-  final fetchedRegionsJson = await fetchRegions(ref);
 
-  final regions = fetchedRegionsJson.asValue?.value.data!.regions ??
-      RegionResponse.fromJson(staticRegionsJson).data!.regions;
-  logger.info('[availableRegionsProvider] Set regions: ${regions.length}');
-  return regions;
-});
+  try {
+    return RegionResponse.fromJson(staticRegionsJson).data!.regions;
+  } catch (e) {
+    throw Exception(
+        'An error occurred while trying to fetch static regions json $e');
+  }
+}
 
 final regionsProvider = Provider.autoDispose<RegionsProvider>((ref) {
   final prefs = ref.watch(prefsProvider);
@@ -52,8 +59,9 @@ class RegionsProvider extends ChangeNotifier {
   final UserPreferencesNotifier prefs;
 
   Region? get currentRegion {
-    return prefs.region != null
-        ? Region.fromJson(jsonDecode(prefs.region!) as Map<String, dynamic>)
+    final region = prefs.region;
+    return region != null
+        ? Region.fromJson(jsonDecode(region) as Map<String, dynamic>)
         : null;
   }
 

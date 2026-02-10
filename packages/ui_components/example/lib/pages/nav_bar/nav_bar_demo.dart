@@ -45,6 +45,7 @@ class NavBarDemoPage extends HookConsumerWidget {
         width: _kDrawerWidth,
         backgroundColor: Theme.of(context).colorScheme.surface,
         child: AquaNavDrawer(
+          colors: theme.colors,
           sections: [
             AquaNavDrawerSection(
               title: 'Digital Wallets',
@@ -60,6 +61,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                   AquaTooltip.show(
                     context,
                     message: 'Wallet ${index + 1} tapped',
+                    colors: theme.colors,
                   );
                 },
               ),
@@ -78,17 +80,19 @@ class NavBarDemoPage extends HookConsumerWidget {
                   AquaTooltip.show(
                     context,
                     message: 'HW Wallet ${index + 1} tapped',
+                    colors: theme.colors,
                   );
                 },
               ),
             ),
           ],
-          footer: AquaNavDrawerFooterButton(
+          footer: AquaNavDrawerFooterButton(colors: theme.colors,
             label: 'Add Wallet',
             icon: AquaIcon.plus,
             onTap: () => AquaTooltip.show(
               context,
               message: 'Add Wallet tapped',
+              colors: theme.colors,
             ),
           ),
         ),
@@ -130,6 +134,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                               onTap: () => AquaTooltip.show(
                                 context,
                                 message: 'FAB tapped',
+                                colors: theme.colors,
                               ),
                             ),
                           ),
@@ -144,6 +149,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                                   AquaTooltip.show(
                                     context,
                                     message: '${items1[index].label} selected',
+                                    colors: theme.colors,
                                   );
                                 }
                               },
@@ -161,6 +167,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                               onTap: () => AquaTooltip.show(
                                 context,
                                 message: '${items2[index].label} tapped',
+                                colors: theme.colors,
                               ),
                               icon: items2[index].icon,
                               label: items2[index].label,
@@ -175,6 +182,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                               onTap: () => AquaTooltip.show(
                                 context,
                                 message: '${items3[index].label} tapped',
+                                colors: theme.colors,
                               ),
                               icon: items3[index].icon,
                               label: items3[index].label,
@@ -189,6 +197,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                               onTap: () => AquaTooltip.show(
                                 context,
                                 message: '${items4[index].label} tapped',
+                                colors: theme.colors,
                               ),
                               icon: items4[index].icon,
                               label: items4[index].label,
@@ -228,6 +237,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                                   onTap: () => AquaTooltip.show(
                                     context,
                                     message: 'FAB tapped',
+                                    colors: theme.colors,
                                   ),
                                 ),
                               ),
@@ -240,6 +250,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                                     if (selectedBottomNavIndex.value != index) {
                                       selectedBottomNavIndex.value = index;
                                       AquaTooltip.show(
+                                        colors: theme.colors,
                                         context,
                                         message:
                                             '${items1[index].label} selected',
@@ -259,6 +270,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                                 itemCount: items2.length,
                                 itemBuilder: (context, index) => AquaNavBarItem(
                                   onTap: () => AquaTooltip.show(
+                                    colors: theme.colors,
                                     context,
                                     message: '${items2[index].label} tapped',
                                   ),
@@ -273,6 +285,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                                 itemCount: items3.length,
                                 itemBuilder: (context, index) => AquaNavBarItem(
                                   onTap: () => AquaTooltip.show(
+                                    colors: theme.colors,
                                     context,
                                     message: '${items3[index].label} tapped',
                                   ),
@@ -287,6 +300,7 @@ class NavBarDemoPage extends HookConsumerWidget {
                                 itemCount: items4.length,
                                 itemBuilder: (context, index) => AquaNavBarItem(
                                   onTap: () => AquaTooltip.show(
+                                    colors: theme.colors,
                                     context,
                                     message: '${items4[index].label} tapped',
                                   ),

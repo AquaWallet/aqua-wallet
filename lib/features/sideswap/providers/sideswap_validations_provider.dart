@@ -1,13 +1,16 @@
-import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/settings/settings.dart' hide AssetsResponse;
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:decimal/decimal.dart';
 
 final swapValidationsProvider = Provider.autoDispose
     .family<SideswapException?, BuildContext>((ref, context) {
   final priceStream = ref.watch(sideswapPriceStreamResultStateProvider);
   final inputState = ref.watch(sideswapInputStateProvider);
+  final formatter = ref.read(formatProvider);
   final deliverIncomingSatoshi =
       ref.watch(swapIncomingDeliverSatoshiAmountProvider);
   final deliverAsset = inputState.deliverAsset;
@@ -66,32 +69,20 @@ final swapValidationsProvider = Provider.autoDispose
     );
   }
 
-  //ANCHOR - Sideswap API errors
-  if (priceStream != null && priceStream.errorMsg != null) {
-    if (inputState.userInputSide == SwapUserInputSide.deliver &&
-        priceStream.sendAmount != null) {
-      return SideswapSendAmountException(message: priceStream.errorMsg!);
-    }
-    if (inputState.userInputSide == SwapUserInputSide.receive &&
-        priceStream.recvAmount != null) {
-      return SideswapReceiveAmountException(message: priceStream.errorMsg!);
-    }
-  }
-
   //ANCHOR - Sideswap Peg errors
   final deliverAmountSat = inputState.deliverAmountSatoshi;
   if (inputState.isPeg && deliverAmountSat > 0) {
     final minPegInAmountSatWithFee = ref.watch(minPegInAmountWithFeeProvider);
     final minPegOutAmountSatWithFee = ref.watch(minPegOutAmountWithFeeProvider);
 
-    final minPegInAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: minPegInAmountSatWithFee,
-          precision: deliverAsset.precision,
-        );
-    final minPegOutAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: minPegOutAmountSatWithFee,
-          precision: deliverAsset.precision,
-        );
+    final minPegInAmount = formatter.formatAssetAmount(
+      amount: minPegInAmountSatWithFee,
+      asset: deliverAsset,
+    );
+    final minPegOutAmount = formatter.formatAssetAmount(
+      amount: minPegOutAmountSatWithFee,
+      asset: deliverAsset,
+    );
 
     if (inputState.isPegIn) {
       final pegInAmountLessThanMinLimit =
@@ -109,6 +100,89 @@ final swapValidationsProvider = Provider.autoDispose
           message: context.loc.errorMinPegOutAmount(minPegOutAmount),
         );
       }
+    }
+  }
+
+  //ANCHOR - Sideswap API errors
+  if (priceStream != null && priceStream.errorMsg != null) {
+    final convertedErrorMsg = _convertApiErrorToDisplayUnit(
+      priceStream.errorMsg!,
+      deliverAsset,
+      formatter,
+      ref.read(displayUnitsProvider),
+    );
+
+    if (inputState.userInputSide == SwapUserInputSide.deliver &&
+        priceStream.sendAmount != null) {
+      return SideswapSendAmountException(message: convertedErrorMsg);
+    }
+    if (inputState.userInputSide == SwapUserInputSide.receive &&
+        priceStream.recvAmount != null) {
+      return SideswapReceiveAmountException(message: convertedErrorMsg);
+    }
+  }
+
+  return null;
+});
+
+/// Converts BTC amounts in API error messages to the user's display unit.
+/// API errors like "Min: 0.000001626" are always in BTC format.
+String _convertApiErrorToDisplayUnit(
+  String errorMsg,
+  Asset asset,
+  FormatService formatter,
+  DisplayUnitsProvider displayUnits,
+) {
+  final numberPattern = RegExp(r'(\d+\.?\d*)');
+  final displayUnit = displayUnits.getForcedDisplayUnit(asset);
+  final unitName = displayUnits.getAssetDisplayUnit(
+    asset,
+    forcedDisplayUnit: displayUnit,
+  );
+
+  return errorMsg.replaceAllMapped(numberPattern, (match) {
+    final btcString = match.group(1)!;
+    final btcDecimal = Decimal.tryParse(btcString);
+    if (btcDecimal == null) return btcString;
+
+    final sats = (btcDecimal * Decimal.fromInt(satsPerBtc)).toBigInt().toInt();
+    final formattedAmount = formatter.formatAssetAmount(
+      amount: sats,
+      asset: asset,
+      displayUnitOverride: displayUnit,
+    );
+    return '$formattedAmount $unitName';
+  });
+}
+
+final swapLiquidityWarningProvider =
+    Provider.autoDispose.family<SideswapWarning?, AppLocalizations>((ref, loc) {
+  final inputState = ref.watch(sideswapInputStateProvider);
+  final serverStatus = ref.watch(sideswapStatusStreamResultStateProvider);
+  final deliverAmountSatoshi = inputState.deliverAmountSatoshi;
+
+  if (!inputState.isPeg || deliverAmountSatoshi <= 0) {
+    return null;
+  }
+
+  final receiveAsset = inputState.receiveAsset;
+  if (receiveAsset == null) {
+    return null;
+  }
+
+  if (inputState.isPegIn) {
+    final liquidity = serverStatus?.pegInWalletBalance;
+    if (liquidity != null && liquidity < deliverAmountSatoshi) {
+      return SideswapInsufficientLiquidityWarning(
+        message: loc.swapWarningInsufficientLiquidity,
+      );
+    }
+  } else {
+    final liquidity = serverStatus?.pegOutWalletBalance;
+    if (liquidity != null && liquidity < deliverAmountSatoshi) {
+      return SideswapInsufficientLiquidityWarning(
+        message: loc.swapWarningInsufficientLiquidity,
+      );
     }
   }
 

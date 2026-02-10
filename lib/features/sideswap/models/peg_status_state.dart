@@ -1,7 +1,7 @@
 import 'package:aqua/features/shared/shared.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:aqua/features/sideswap/models/sideswap.dart';
 import 'package:aqua/logger.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'peg_status_state.freezed.dart';
 part 'peg_status_state.g.dart';
@@ -44,8 +44,8 @@ class ConsolidatedPegStatus with _$ConsolidatedPegStatus {
   const factory ConsolidatedPegStatus({
     PegTxState? state,
     PegStatusTxns? transaction,
-    dynamic detectedConfs,
-    dynamic totalConfs,
+    int? detectedConfs,
+    int? totalConfs,
   }) = _ConsolidatedPegStatus;
 
   factory ConsolidatedPegStatus.fromJson(Map<String, dynamic> json) =>

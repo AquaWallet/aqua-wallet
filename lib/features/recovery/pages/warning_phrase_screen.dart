@@ -1,14 +1,17 @@
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ui_components/ui_components.dart';
 
 class WalletPhraseWarningScreen extends HookConsumerWidget {
-  const WalletPhraseWarningScreen({super.key});
+  const WalletPhraseWarningScreen({
+    super.key,
+    this.arguments = const RecoveryPhraseScreenArguments(),
+  });
 
   static const routeName = '/walletPhraseWarningScreen';
+
+  final RecoveryPhraseScreenArguments arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,7 +20,7 @@ class WalletPhraseWarningScreen extends HookConsumerWidget {
       (_, state) => state?.when(
         authorized: () => context.pushReplacement(
           WalletRecoveryPhraseScreen.routeName,
-          extra: RecoveryPhraseScreenArguments(isOnboarding: false),
+          extra: arguments,
         ),
         verificationFailed: () => context.showErrorSnackbar(
           context.loc.verificationFailed,
@@ -26,138 +29,73 @@ class WalletPhraseWarningScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AquaAppBar(
-        showBackButton: true,
-        showActionButton: false,
-        iconBackgroundColor: context.colors.background,
-        iconForegroundColor: context.colors.onBackground,
+      appBar: AquaTopAppBar(
+        colors: context.aquaColors,
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 80),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 28),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 12.0),
+              AquaText.h4SemiBold(
+                text: context.loc.warningPhraseScreenTitle,
+              ),
+              const SizedBox(height: 18.0),
+              AquaText.body1(
+                text: context.loc.backupRecoveryPhraseSubtitle,
+                color: context.aquaColors.textSecondary,
+                maxLines: 5,
+              ),
+              const SizedBox(
+                height: 24,
+              ),
+              AquaCard(
+                borderRadius: BorderRadius.circular(8),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 12.0),
-                    Text(
-                      context.loc.warningPhraseScreenTitle,
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                letterSpacing: 1,
-                                height: 1.2,
-                              ),
+                    AquaListItem(
+                      title: context.loc.warningPhraseScreenFirstCardTitle,
+                      subtitle: context.loc.warningPhraseScreenFirstCardText,
+                      iconLeading: AquaIcon.home(
+                        color: context.aquaColors.textPrimary,
+                        size: 24,
+                      ),
                     ),
-                    const SizedBox(height: 18.0),
-                    Text(
-                      context.loc.warningPhraseScreenSubtitle,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            letterSpacing: .15,
-                            height: 1.2,
-                            fontWeight: FontWeight.w500,
-                          ),
+                    AquaDivider(
+                      colors: context.aquaColors,
                     ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    WarningMessage(
-                        icon: Svgs.houseIcon,
-                        title: context.loc.warningPhraseScreenFirstCardTitle,
-                        message: context.loc.warningPhraseScreenFirstCardText),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    WarningMessage(
-                        icon: Svgs.warningIcon,
+                    AquaListItem(
+                        iconLeading: AquaIcon.danger(
+                            color: context.aquaColors.textPrimary),
                         title: context.loc.warningPhraseScreenSecondCardTitle,
-                        message: context.loc.warningPhraseScreenSecondCardText),
-                    const SizedBox(
-                      height: 15,
+                        subtitle:
+                            context.loc.warningPhraseScreenSecondCardText),
+                    AquaDivider(
+                      colors: context.aquaColors,
                     ),
-                    WarningMessage(
-                        icon: Svgs.shieldCheckIcon,
-                        title: context.loc.warningPhraseScreenThirdCardTitle,
-                        message: context.loc.warningPhraseScreenThirdCardText),
+                    AquaListItem(
+                      iconLeading: AquaIcon.shield(
+                        color: context.aquaColors.textPrimary,
+                        size: 24,
+                      ),
+                      title: context.loc.verify,
+                      subtitle: context.loc.warningPhraseScreenThirdCardText,
+                    )
                   ],
                 ),
               ),
-            ),
-            Container(
-              alignment: Alignment.bottomCenter,
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
-              child: AquaElevatedButton(
-                  child: Text(context.loc.warningPhraseScreenNextButton),
+              const Spacer(),
+              AquaButton.primary(
+                  text: context.loc.showSeedPhrase,
                   onPressed: () => ref
                       .read(verificationRequestProvider.notifier)
                       .requestVerification()),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class WarningMessage extends StatelessWidget {
-  const WarningMessage(
-      {super.key,
-      required this.title,
-      required this.message,
-      required this.icon});
-
-  final String title;
-  final String message;
-  final String icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(9)),
-        color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: context.colors.bottomNavBarBorder,
-            width: 1,
+              const SizedBox(height: 32),
+            ],
           ),
         ),
-      ),
-      padding: const EdgeInsets.only(
-        left: 53,
-        right: 53,
-        top: 16,
-        bottom: 16,
-      ),
-      height: 140,
-      child: Column(
-        children: [
-          SvgPicture.asset(
-            icon,
-            fit: BoxFit.scaleDown,
-            colorFilter: ColorFilter.mode(
-              context.colors.onBackground,
-              BlendMode.srcIn,
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Text(title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    height: 1.2,
-                  )),
-          Text(message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    letterSpacing: .15,
-                    height: 1.2,
-                    fontWeight: FontWeight.w500,
-                  )),
-        ],
       ),
     );
   }

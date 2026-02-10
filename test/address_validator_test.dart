@@ -1,17 +1,20 @@
-import 'package:aqua/common/decimal/decimal_ext.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/address_validator/address_validator.dart';
+import 'package:aqua/features/address_validator/models/address_parsing_exception.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockLiquidProvider extends Mock implements LiquidProvider {}
 
 class MockBitcoinProvider extends Mock implements BitcoinProvider {}
 
 class MockBalanceService extends Mock implements BalanceService {}
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
   final mockLiquidProvider = MockLiquidProvider();
@@ -42,7 +45,7 @@ void main() {
       final asset = await container
           .read(addressParserProvider)
           .parseAsset(address: address);
-      expect(asset, Asset.btc());
+      expect(asset, [Asset.btc()]);
     });
 
     test('Liquid address', () async {
@@ -56,11 +59,28 @@ void main() {
   });
 
   group('BIP21', () {
+    final mockSharedPreferences = MockSharedPreferences();
     final container = ProviderContainer(overrides: [
       liquidProvider.overrideWithValue(mockLiquidProvider),
       bitcoinProvider.overrideWithValue(mockBitcoinProvider),
       balanceProvider.overrideWithValue(mockBalanceService),
+      sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+      activeAltUSDtsProvider.overrideWithValue([]),
     ]);
+    setUp(() {
+      when(() => mockSharedPreferences.getString(any())).thenReturn(null);
+      when(() => mockSharedPreferences.getStringList(any())).thenReturn(null);
+      when(() => mockBitcoinProvider.isValidAddress(any()))
+          .thenAnswer((invocation) async {
+        final address = invocation.positionalArguments.first as String;
+        return address.startsWith('bitcoin:') || !address.contains(':');
+      });
+      when(() => mockLiquidProvider.isValidAddress(any()))
+          .thenAnswer((invocation) async {
+        final address = invocation.positionalArguments.first as String;
+        return !address.contains(':');
+      });
+    });
     test('returns parsed address for valid bitcoin BIP21 input', () async {
       const input =
           'bitcoin:1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2?amount=1.23&label=Example';
@@ -73,8 +93,21 @@ void main() {
 
       expect(result, isNotNull);
       expect(result!.address, equals('1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'));
-      expect(result.amount, equals(DecimalExt.fromDouble(1.23)));
+      expect(result.amountInSats, equals(123000000));
       expect(result.asset, equals(asset));
+      expect(result.label, equals('Example'));
+    });
+    test('parses bip21 input when asset is null', () async {
+      const input =
+          'bitcoin:1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2?amount=1.23&label=Example';
+
+      final result =
+          await container.read(addressParserProvider).parseInput(input: input);
+
+      expect(result, isNotNull);
+      expect(result!.address, equals('1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'));
+      expect(result.amountInSats, equals(123000000));
+      expect(result.asset, equals(Asset.btc()));
       expect(result.label, equals('Example'));
     });
 
@@ -82,7 +115,7 @@ void main() {
         () async {
       const input =
           'liquidnetwork:VJLEjJNWQsD4x7cFBiuj54m7BpVhvxcff8nVjynvBECE5QefcSV5zjcaXjsN8LTKLsQhPmMzGT?amount=1.23&assetid=ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2&label=Example';
-      final asset = Asset.unknown();
+      final asset = Asset.usdtLiquid();
       const accountForCompatibleAssets = true;
 
       final result = await container
@@ -94,12 +127,31 @@ void main() {
           result!.address,
           equals(
               'VJLEjJNWQsD4x7cFBiuj54m7BpVhvxcff8nVjynvBECE5QefcSV5zjcaXjsN8LTKLsQhPmMzGT'));
-      expect(result.amount, equals(DecimalExt.fromDouble(1.23)));
+      expect(result.amountInSats, equals(123000000));
       expect(
           result.assetId,
           equals(
               'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2'));
       expect(result.label, equals('Example'));
+    });
+    test('returns error for non matching asset id', () async {
+      const input =
+          'liquidnetwork:VJLEjJNWQsD4x7cFBiuj54m7BpVhvxcff8nVjynvBECE5QefcSV5zjcaXjsN8LTKLsQhPmMzGT?amount=1.23&assetid=ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2&label=Example';
+      final asset = Asset.lbtc();
+      const accountForCompatibleAssets = true;
+
+      await expectLater(
+        () => container
+            .read(addressParserProvider)
+            .parseBIP21(input, asset, accountForCompatibleAssets),
+        throwsA(
+          isA<AddressParsingException>().having(
+            (e) => e.type,
+            'type',
+            AddressParsingExceptionType.nonMatchingAssetId,
+          ),
+        ),
+      );
     });
 
     test('returns parsed lightning invoice for BIP21 with lightning invoice',

@@ -17,7 +17,6 @@ class TabChipTooltipDemoPage extends HookConsumerWidget {
     final theme = ref.watch(prefsProvider).selectedTheme;
     return Container(
       constraints: BoxConstraints(
-        maxWidth: 440,
         maxHeight: MediaQuery.of(context).size.height,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -47,7 +46,8 @@ class TabChipTooltipDemoPage extends HookConsumerWidget {
                 text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
                         ' Sed do eiusmod tempor incididunt ut labore et dolore'
                         ' magna aliqua.' *
-                    3,
+                    10,
+                maxLines: 100,
               ),
             ),
           )
@@ -66,12 +66,61 @@ class _TooltipDemoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.spaceEvenly,
-      crossAxisAlignment: WrapCrossAlignment.end,
-      runAlignment: WrapAlignment.spaceEvenly,
-      spacing: 16,
-      runSpacing: 16,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AquaText.h4(text: 'Normal'),
+          const SizedBox(height: 8),
+          _TooltipDemoRow(
+            variant: AquaTooltipVariant.normal,
+            theme: theme,
+          ),
+          const SizedBox(height: 20),
+          const AquaText.h4(text: 'Normal + Pointer'),
+          const SizedBox(height: 8),
+          _TooltipDemoRow(
+            variant: AquaTooltipVariant.normal,
+            showPointer: true,
+            theme: theme,
+          ),
+          const SizedBox(height: 20),
+          const AquaText.h4(text: 'Error'),
+          const SizedBox(height: 8),
+          _TooltipDemoRow(
+            variant: AquaTooltipVariant.error,
+            theme: theme,
+          ),
+          const SizedBox(height: 20),
+          const AquaText.h4(text: 'Error + Pointer'),
+          const SizedBox(height: 8),
+          _TooltipDemoRow(
+            variant: AquaTooltipVariant.error,
+            showPointer: true,
+            theme: theme,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TooltipDemoRow extends StatelessWidget {
+  const _TooltipDemoRow({
+    required this.theme,
+    required this.variant,
+    this.showPointer = false,
+  });
+
+  final AppTheme theme;
+  final AquaTooltipVariant variant;
+  final bool showPointer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
       children: [
         AquaButton.utility(
           text: 'Show Tooltip',
@@ -79,8 +128,11 @@ class _TooltipDemoSection extends StatelessWidget {
             AquaTooltip.show(
               context,
               message: 'Tooltip Title',
-              foregroundColor: theme.colors.textInverse,
-              backgroundColor: theme.colors.glassInverse,
+              variant: variant,
+              pointerPosition: showPointer
+                  ? AquaTooltipPointerPosition.bottom
+                  : AquaTooltipPointerPosition.none,
+              colors: theme.colors,
               onTrailingIconTap: () {
                 // Handle close button tap
               },
@@ -94,8 +146,11 @@ class _TooltipDemoSection extends StatelessWidget {
             AquaTooltip.show(
               context,
               message: 'Tooltip Title',
-              foregroundColor: theme.colors.textInverse,
-              backgroundColor: theme.colors.glassInverse,
+              variant: variant,
+              pointerPosition: showPointer
+                  ? AquaTooltipPointerPosition.top
+                  : AquaTooltipPointerPosition.none,
+              colors: theme.colors,
               isInfo: true,
               onTrailingIconTap: () {
                 // Handle close button tap
@@ -111,9 +166,11 @@ class _TooltipDemoSection extends StatelessWidget {
               context,
               message: 'Tooltip Title',
               isDismissible: true,
-              foregroundColor: theme.colors.textInverse,
-              backgroundColor: theme.colors.glassInverse,
-              trailingIconColor: theme.colors.textTertiary,
+              variant: variant,
+              pointerPosition: showPointer
+                  ? AquaTooltipPointerPosition.bottom
+                  : AquaTooltipPointerPosition.none,
+              colors: theme.colors,
               onTrailingIconTap: () {
                 // Handle close button tap
               },
@@ -127,9 +184,11 @@ class _TooltipDemoSection extends StatelessWidget {
             AquaTooltip.show(
               context,
               message: 'Tooltip Title',
-              foregroundColor: theme.colors.textInverse,
-              backgroundColor: theme.colors.glassInverse,
-              trailingIconColor: theme.colors.textTertiary,
+              variant: variant,
+              pointerPosition: showPointer
+                  ? AquaTooltipPointerPosition.top
+                  : AquaTooltipPointerPosition.none,
+              colors: theme.colors,
               isInfo: true,
               isDismissible: true,
               onTrailingIconTap: () {

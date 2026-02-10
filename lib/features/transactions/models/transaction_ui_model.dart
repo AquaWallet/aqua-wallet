@@ -1,8 +1,6 @@
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'transaction_ui_model.freezed.dart';
@@ -10,85 +8,47 @@ part 'transaction_ui_model.freezed.dart';
 @freezed
 class TransactionUiModel with _$TransactionUiModel {
   const factory TransactionUiModel.normal({
-    required String createdAt,
+    required DateTime createdAt,
     required String cryptoAmount,
-    required String icon,
     required Asset asset,
     required Asset? otherAsset,
     required GdkTransaction transaction,
     TransactionDbModel? dbTransaction,
-    @Default(false) bool isRbfSuccess,
+    Asset? fiatAsset,
+    @Default(false) bool isFailed,
+    Asset? feeForAsset,
   }) = NormalTransactionUiModel;
 
-  const factory TransactionUiModel.ghost({
-    required String createdAt,
+  const factory TransactionUiModel.pending({
+    String? transactionId,
+    required DateTime createdAt,
     required String cryptoAmount,
-    required String icon,
     required Asset asset,
+    required Asset? otherAsset,
     TransactionDbModel? dbTransaction,
-  }) = GhostTransactionUiModel;
+    Asset? feeForAsset,
+  }) = PendingTransactionUiModel;
 }
 
 extension TransactionUiModelX on TransactionUiModel {
-  bool get isPegIn => dbTransaction?.isPeg == true && asset.isBTC;
+  bool get isPending => this is PendingTransactionUiModel;
 
-  bool get isPegOut => dbTransaction?.isPeg == true && asset.isLBTC;
+  bool get isFeeTransaction => map(
+        normal: (model) => model.feeForAsset != null,
+        pending: (model) => model.feeForAsset != null,
+      );
 
-  bool get isGhost => this is GhostTransactionUiModel;
+  bool get isOutgoingAsset =>
+      asset.id ==
+      map(
+        normal: (model) => model.transaction.swapOutgoingAssetId,
+        pending: (model) => model.dbTransaction?.assetId,
+      );
 
-  String type(BuildContext context) {
-    return map(
-      normal: (model) => switch (model.transaction.type) {
-        _ when (dbTransaction?.isPegIn == true) =>
-          context.loc.assetTransactionsTypePegIn,
-        _ when (dbTransaction?.isPegOut == true) =>
-          context.loc.assetTransactionsTypePegOut,
-        _ when (dbTransaction?.isBoltzSwap == true) =>
-          context.loc.assetTransactionsTypeBoltzSwap,
-        _ when (dbTransaction?.isBoltzReverseSwap == true) =>
-          context.loc.assetTransactionsTypeBoltzReverseSwap,
-        _ when (dbTransaction?.isAquaSend == true) =>
-          context.loc.assetTransactionsTypeSent,
-        _ when (dbTransaction?.isUSDtSwap == true) => context.loc.usdtSwap,
-        _ when (dbTransaction?.isTopUp == true) => context.loc
-            .assetTransactionsTypeTopup(dbTransaction!.serviceAddress!),
-        _ when (dbTransaction?.isBoltzRefund == true) =>
-          context.loc.assetTransactionsTypeBoltzRefund,
-        _ when (dbTransaction?.isBoltzSendFailed == true) =>
-          context.loc.assetTransactionsTypeBoltzSendFailed,
-        GdkTransactionTypeEnum.incoming => context.loc.received,
-        GdkTransactionTypeEnum.outgoing =>
-          context.loc.assetTransactionsTypeSent,
-        GdkTransactionTypeEnum.redeposit =>
-          context.loc.assetTransactionsTypeRedeposit,
-        GdkTransactionTypeEnum.swap => asset.id ==
-                model.transaction.swapOutgoingAssetId
-            ? context.loc
-                .assetTransactionsTypeSwapTo(model.otherAsset?.ticker ?? '')
-            : context.loc
-                .assetTransactionsTypeSwapFrom(model.otherAsset?.ticker ?? ''),
-        _ => throw AssetTransactionsInvalidTypeException(),
-      },
-      ghost: (model) => switch (model.dbTransaction) {
-        _ when (dbTransaction?.isPegIn == true) =>
-          context.loc.assetTransactionsTypePegIn,
-        _ when (dbTransaction?.isPegOut == true) =>
-          context.loc.assetTransactionsTypePegOut,
-        _ when (dbTransaction?.isBoltzSwap == true) =>
-          context.loc.assetTransactionsTypeBoltzSwap,
-        _ when (dbTransaction?.isBoltzReverseSwap == true) =>
-          context.loc.assetTransactionsTypeBoltzReverseSwap,
-        _ when (dbTransaction?.isTopUp == true) => context.loc
-            .assetTransactionsTypeTopup(dbTransaction!.serviceAddress!),
-        _ when (dbTransaction?.isAquaSend == true) =>
-          context.loc.assetTransactionsTypeSent,
-        _ when (dbTransaction?.isBoltzRefund == true) =>
-          context.loc.assetTransactionsTypeBoltzRefund,
-        _ when (dbTransaction?.isBoltzSendFailed == true) =>
-          context.loc.assetTransactionsTypeBoltzSendFailed,
-        _ => '',
-      },
-    );
+  bool get involvesUsdt {
+    return (dbTransaction?.isUSDtSwap ?? false) ||
+        asset.isAnyUsdt ||
+        (otherAsset?.isAnyUsdt ?? false);
   }
 
   Iterable<String> inOutToBlindingString(List<GdkTransactionInOut> inOuts) {
@@ -101,24 +61,61 @@ extension TransactionUiModelX on TransactionUiModel {
             '${inOut.assetBlinder}');
   }
 
-  String get blindingUrl {
-    return maybeMap(
-      normal: (model) {
-        if (asset.isLiquid) {
-          final blindingStrings = [
-            if (model.transaction.inputs?.isNotEmpty ?? false)
-              ...inOutToBlindingString(model.transaction.inputs!),
-            if (model.transaction.outputs?.isNotEmpty ?? false)
-              ...inOutToBlindingString(model.transaction.outputs!)
-          ].join(',');
+  String get blindingUrl => maybeMap(
+        normal: (model) {
+          if (asset.isLiquid) {
+            final blindingStrings = [
+              if (model.transaction.inputs?.isNotEmpty ?? false)
+                ...inOutToBlindingString(model.transaction.inputs!),
+              if (model.transaction.outputs?.isNotEmpty ?? false)
+                ...inOutToBlindingString(model.transaction.outputs!)
+            ].join(',');
 
-          return blindingStrings.isNotEmpty
-              ? '${model.transaction.txhash}#blinded=$blindingStrings'
-              : '';
-        }
-        return '';
-      },
-      orElse: () => '',
+            return blindingStrings.isNotEmpty
+                ? '${model.transaction.txhash}#blinded=$blindingStrings'
+                : '';
+          }
+          return '';
+        },
+        orElse: () => '',
+      );
+
+  TransactionUiModel applyFeeTransactionFlag(
+    GdkTransaction? networkTxn,
+    Asset asset,
+    List<Asset> availableAssets,
+  ) {
+    if (networkTxn == null) {
+      return this;
+    }
+
+    final deliveredAssetId = networkTxn.getDeliverAssetId(asset);
+    if (deliveredAssetId == null) {
+      return this;
+    }
+
+    final deliveredAsset =
+        availableAssets.firstWhereOrNull((a) => a.id == deliveredAssetId);
+    if (deliveredAsset == null) {
+      return this;
+    }
+
+    return map(
+      normal: (model) => model.copyWith(feeForAsset: deliveredAsset),
+      pending: (model) => model.copyWith(feeForAsset: deliveredAsset),
+    );
+  }
+}
+
+extension TransactionUiModelListX on List<TransactionUiModel> {
+  TransactionUiModel findUiModelForTransaction(String transactionId) {
+    return firstWhere(
+      (txn) => txn.map(
+        normal: (model) => model.transaction.txhash == transactionId,
+        pending: (model) =>
+            model.transactionId == transactionId ||
+            model.dbTransaction?.txhash == transactionId,
+      ),
     );
   }
 }

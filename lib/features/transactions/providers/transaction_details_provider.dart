@@ -1,269 +1,93 @@
 import 'dart:async';
 
-import 'package:aqua/constants.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/utils/utils.dart';
-import 'package:intl/intl.dart';
-
-typedef AssetTransaction = (
-  BuildContext,
-  NormalTransactionUiModel,
-);
 
 final assetTransactionDetailsProvider = AsyncNotifierProvider.family
     .autoDispose<
         AssetTransactionDetailsNotifier,
         AssetTransactionDetailsUiModel,
-        AssetTransaction?>(AssetTransactionDetailsNotifier.new);
+        TransactionDetailsArgs>(AssetTransactionDetailsNotifier.new);
 
+// Responsible for creating transaction details UI models for a given asset.
 class AssetTransactionDetailsNotifier extends AutoDisposeFamilyAsyncNotifier<
-    AssetTransactionDetailsUiModel, AssetTransaction?> {
+    AssetTransactionDetailsUiModel, TransactionDetailsArgs> {
   @override
-  FutureOr<AssetTransactionDetailsUiModel> build(AssetTransaction? arg) async {
-    if (arg == null) {
+  FutureOr<AssetTransactionDetailsUiModel> build(
+      TransactionDetailsArgs arg) async {
+    final networkTxns =
+        await ref.read(networkTransactionsProvider(arg.asset).future);
+    final localDbTxns = ref.read(transactionStorageProvider).valueOrNull ?? [];
+    final availableAssets = ref.read(availableAssetsProvider).value ?? [];
+
+    final networkTxn =
+        networkTxns.firstWhereOrNull((t) => t.txhash == arg.transactionId);
+    TransactionDbModel? dbTxn = localDbTxns.firstWhereOrNull((t) {
+      if (t.txhash == arg.transactionId) return true;
+      if (t.serviceOrderId == arg.transactionId) return true;
+      return false;
+    });
+
+    // If not found in transactionStorage, check pegStorage for peg orders
+    if (arg.asset.isSwappable) {
+      final pegOrders = await ref.read(pegStorageProvider.future);
+      final pegOrder = pegOrders.findMatchingOrder(
+        transactionId: arg.transactionId,
+        asset: arg.asset,
+        outputs: networkTxn?.outputs,
+      );
+      if (pegOrder != null) {
+        // Prefer peg order over non-peg db entries
+        final pegDbModel = TransactionDbModel.fromPegOrderDbModel(
+          pegOrder,
+          walletId: pegOrder.walletId ?? '',
+        );
+        if (dbTxn == null || !dbTxn.isPeg) {
+          dbTxn = pegDbModel;
+        }
+      }
+    }
+
+    ref.listen(pegStatusProvider, (prev, curr) {
+      final prevState = prev?.consolidatedStatus?.state;
+      final currState = curr.consolidatedStatus?.state;
+      if (dbTxn?.isPeg == true && prevState != currState) {
+        Future.microtask(() => ref.invalidateSelf());
+      }
+    });
+
+    if (networkTxn == null && dbTxn == null) {
       throw AssetTransactionDetailsInvalidArgumentsException();
     }
 
-    final asset = arg.$2.asset;
-    final transaction = arg.$2.transaction;
-    final allAssets = await ref.read(availableAssetsProvider.future);
-    final allUserAssets = await ref.read(assetsProvider.future);
-    final feeAsset =
-        allUserAssets.firstWhere((a) => asset.isBTC ? a.isBTC : a.isLBTC);
-    final network =
-        asset.isBTC ? ref.read(bitcoinProvider) : ref.read(liquidProvider);
+    final strategy = ref.read(transactionUiModelsFactoryProvider).create(
+          dbTransaction: dbTxn,
+          networkTransaction: networkTxn,
+          asset: arg.asset,
+        );
 
-    final transactions =
-        await network.getTransactions(requiresRefresh: true) ?? [];
-    final updatedTransaction = transactions.firstWhereOrNull((txn) {
-      return txn.txhash == transaction.txhash;
-    });
+    final args = TransactionDetailsStrategyArgs(
+      asset: arg.asset,
+      availableAssets: availableAssets,
+      dbTransaction: dbTxn,
+      networkTransaction: networkTxn,
+    );
 
-    if (updatedTransaction == null) {
-      throw AssetTransactionDetailsTransactionNotFoundException();
+    final details = networkTxn != null
+        ? await strategy.createConfirmedDetails(args)
+        : await strategy.createPendingDetails(args);
+
+    if (details == null) {
+      throw AssetTransactionDetailsInvalidArgumentsException();
     }
 
-    final assetList = updatedTransaction.satoshi?.keys
-        .map((id) => allAssets.firstWhereOrNull((asset) => asset.id == id))
-        .whereNotNull()
-        .toList();
-    final count = await ref
-        .read(aquaProvider)
-        .getConfirmationCount(
-          asset: asset,
-          transactionBlockHeight: updatedTransaction.blockHeight ?? 0,
-        )
-        .first;
-
-    final arguments = TransactionDataArgument(
-      transaction: updatedTransaction,
-      transactionAsset: asset,
-      feeAsset: feeAsset,
-      satoshiAssets: assetList ?? [],
-      confirmationCount: count,
-      isPending: _isPending(asset, count),
-      requiredConfirmationCount: _getRequiredConfirmationCount(asset),
-      memo: updatedTransaction.memo,
-      dbTransaction: arg.$2.dbTransaction,
-    );
-
-    return switch (transaction.type) {
-      GdkTransactionTypeEnum.swap => _swapItemUiModels(arg.$1, arguments),
-      GdkTransactionTypeEnum.redeposit => _redepositItems(arg.$1, arguments),
-      GdkTransactionTypeEnum.outgoing => _outgoingItems(arg.$1, arguments),
-      GdkTransactionTypeEnum.incoming => _incomingItems(arg.$1, arguments),
-      _ => throw UnimplementedError(),
-    };
-  }
-
-  int _getRequiredConfirmationCount(Asset asset) {
-    return asset.isBTC
-        ? onchainConfirmationBlockCount
-        : liquidConfirmationBlockCount;
-  }
-
-  bool _isPending(Asset asset, int confirmationCount) {
-    return confirmationCount < _getRequiredConfirmationCount(asset);
-  }
-
-  AssetTransactionDetailsUiModel _swapItemUiModels(
-    BuildContext context,
-    TransactionDataArgument arguments,
-  ) {
-    final transaction = arguments.transaction;
-    final satoshiAssets = arguments.satoshiAssets;
-
-    final date = formattedDate(context, transaction.createdAtTs);
-    final confirmationCount = arguments.confirmationCount;
-
-    final deliveredAsset = satoshiAssets!
-        .firstWhere((asset) => asset.id == transaction.swapOutgoingAssetId);
-    final deliveredAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-        amount: (transaction.swapOutgoingSatoshi as int).abs(),
-        precision: deliveredAsset.precision,
-        removeTrailingZeros: deliveredAsset.isNonSatsAsset);
-
-    final receivedAsset = satoshiAssets
-        .firstWhere((asset) => asset.id == transaction.swapIncomingAssetId);
-    final receivedAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-        amount: transaction.swapIncomingSatoshi as int,
-        precision: receivedAsset.precision,
-        removeTrailingZeros: deliveredAsset.isNonSatsAsset);
-
-    return AssetTransactionDetailsUiModel.swap(
-      transactionId: transaction.txhash ?? '',
-      date: date,
-      confirmationCount: confirmationCount,
-      requiredConfirmationCount: arguments.requiredConfirmationCount,
-      isPending: arguments.isPending,
-      notes: transaction.memo,
-      deliverAmount: deliveredAmount,
-      deliverAssetTicker: deliveredAsset.ticker,
-      receiveAmount: receivedAmount,
-      receiveAssetTicker: receivedAsset.ticker,
-      dbTransaction: arguments.dbTransaction,
-    );
-  }
-
-  AssetTransactionDetailsUiModel _redepositItems(
-    BuildContext context,
-    TransactionDataArgument arguments,
-  ) {
-    final asset = arguments.transactionAsset;
-    final transaction = arguments.transaction;
-
-    final date = formattedDate(context, transaction.createdAtTs);
-    final confirmationCount = arguments.confirmationCount;
-
-    final isConfidential = transaction.outputs?.first.assetId != null;
-
-    final deliveredAmount = !isConfidential
-        ? ref.read(formatterProvider).formatAssetAmountDirect(
-            amount: transaction.outputs?.first.satoshi as int,
-            precision: asset.precision,
-            removeTrailingZeros: asset.isNonSatsAsset)
-        : null;
-    final deliveredAssetTicker = !isConfidential
-        ? arguments.satoshiAssets?.firstOrNull?.ticker ?? ''
-        : null;
-
-    final feeAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-        amount: transaction.fee as int,
-        precision: asset.precision,
-        removeTrailingZeros: asset.isNonSatsAsset);
-    final feeAssetTicker = asset.ticker;
-
-    return AssetTransactionDetailsUiModel.redeposit(
-      transactionId: transaction.txhash ?? '',
-      date: date,
-      confirmationCount: confirmationCount,
-      requiredConfirmationCount: arguments.requiredConfirmationCount,
-      isPending: arguments.isPending,
-      isConfidential: isConfidential,
-      deliverAmount: deliveredAmount,
-      deliverAssetTicker: deliveredAssetTicker,
-      feeAmount: feeAmount,
-      feeAssetTicker: feeAssetTicker,
-      notes: transaction.memo,
-      dbTransaction: arguments.dbTransaction,
-    );
-  }
-
-  AssetTransactionDetailsUiModel _outgoingItems(
-    BuildContext context,
-    TransactionDataArgument arguments,
-  ) {
-    final TransactionDataArgument(
-      :transactionAsset,
-      :transaction,
-      :feeAsset,
-      :confirmationCount
-    ) = arguments;
-
-    final date = formattedDate(context, transaction.createdAtTs);
-
-    final deliveredAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-        amount: -(transaction.satoshi?[transactionAsset.id] as int),
-        precision: transactionAsset.precision,
-        removeTrailingZeros: transactionAsset.isNonSatsAsset);
-
-    final networkFees = (arguments.dbTransaction?.type?.isPeg ?? false
-            // PEG: we do estimated seconds chain fees, so we save total fee in TX db
-            // if it was not saved, fallback to first TX fee
-            ? arguments.dbTransaction?.estimatedFee ?? transaction.fee
-            // other: take transaction fee
-            : transaction.fee) ??
-        // when fee not available fallback to 0
-        0;
-
-    final feeAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-        amount: networkFees,
-        precision: feeAsset.precision,
-        removeTrailingZeros: transactionAsset.isNonSatsAsset);
-
-    return AssetTransactionDetailsUiModel.send(
-      transactionId: transaction.txhash ?? '',
-      date: date,
-      confirmationCount: confirmationCount,
-      requiredConfirmationCount: arguments.requiredConfirmationCount,
-      isPending: arguments.isPending,
-      deliverAmount: deliveredAmount,
-      deliverAssetTicker: transactionAsset.ticker,
-      feeAmount: feeAmount,
-      feeAssetTicker: feeAsset.ticker,
-      notes: arguments.memo,
-      dbTransaction: arguments.dbTransaction,
-    );
-  }
-
-  AssetTransactionDetailsUiModel _incomingItems(
-    BuildContext context,
-    TransactionDataArgument arguments,
-  ) {
-    final asset = arguments.transactionAsset;
-    final transaction = arguments.transaction;
-
-    final receivedAmount = ref.read(formatterProvider).formatAssetAmountDirect(
-        amount: transaction.satoshi?[asset.id] as int,
-        precision: asset.precision,
-        removeTrailingZeros: asset.isNonSatsAsset);
-
-    return AssetTransactionDetailsUiModel.receive(
-      transactionId: transaction.txhash ?? '',
-      date: formattedDate(context, transaction.createdAtTs),
-      confirmationCount: arguments.confirmationCount,
-      requiredConfirmationCount: arguments.requiredConfirmationCount,
-      isPending: arguments.isPending,
-      receivedAmount: receivedAmount,
-      receivedAssetTicker: asset.ticker,
-      notes: arguments.memo,
-      dbTransaction: arguments.dbTransaction,
-    );
-  }
-
-  String formattedDate(BuildContext context, int? timestamp) {
-    return timestamp != null
-        ? DateFormat(
-                'MMM d, yyyy \'${context.loc.assetTransactionDetailsTimeAt}\' HH:mm')
-            .format(DateTime.fromMicrosecondsSinceEpoch(timestamp))
-        : '';
+    return details;
   }
 
   Future<void> refresh() async {
-    final asset = arg?.$2.asset;
-    if (asset != null) {
-      ref.invalidate(networkTransactionsProvider(asset));
-    }
+    ref.invalidate(networkTransactionsProvider(arg.asset));
   }
 }
-
-class AssetTransactionDetailsInvalidArgumentsException implements Exception {}
-
-class AssetTransactionDetailsTransactionNotFoundException
-    implements Exception {}
-
-class AssetTransactionDetailsProviderUnableToLaunchLinkException
-    implements Exception {}

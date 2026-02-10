@@ -4,11 +4,13 @@ import 'package:aqua/constants.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
+import 'package:ui_components/ui_components.dart';
 
-// This provider is used to validate the amount input of the send asset screen.
-// The UI listens to the error events to display messages as a sideeffect.
-// The boolean state can be used for decision making such as toggling buttons.
+// This provider validates the amount input and throws exceptions to block invalid sends.
+// The UI layer handles these exceptions to create appropriate validation result objects.
 
 final sendAssetAmountValidationProvider =
     AutoDisposeAsyncNotifierProviderFamily<SendAssetAmountValidationNotifier,
@@ -22,13 +24,14 @@ class SendAssetAmountValidationNotifier
     final asset = input.asset;
     final amount = input.amount;
     final balance = input.balanceInSats;
+    final formatter = ref.read(formatProvider);
+    final unitsProvider = ref.read(displayUnitsProvider);
+    final currentUnit = unitsProvider.currentDisplayUnit;
+    final displayUnitTicker = unitsProvider.getAssetDisplayUnit(asset,
+        forcedDisplayUnit: currentUnit);
 
     if (amount == 0) {
-      // Not throwing an error here because this will also be the initial state.
-      // Therefore, we should be more forgiving about zero/empty amount inputs
-      // than other validations.
-      // We will use the state to disable the send button to prevent the user
-      // from sending zero amount though.
+      // Don't throw for zero amounts - this is handled by disabling the send button
       return false;
     }
 
@@ -37,10 +40,25 @@ class SendAssetAmountValidationNotifier
     }
 
     if (asset.isLBTC && amount < kGdkMinSendAmountLbtcSats) {
-      throw AmountParsingException(AmountParsingExceptionType.belowLbtcMin);
+      final minAmountFormatted = _formatAmountForError(
+        amount: kGdkMinSendAmountLbtcSats,
+        asset: asset,
+        input: input,
+        formatter: formatter,
+      );
+      throw AmountParsingException(AmountParsingExceptionType.belowLbtcMin,
+          amount: minAmountFormatted, displayUnitTicker: displayUnitTicker);
     }
+
     if (!asset.isLBTC && amount < kGdkMinSendAmountSats) {
-      throw AmountParsingException(AmountParsingExceptionType.belowMin);
+      final minAmountFormatted = _formatAmountForError(
+        amount: kGdkMinSendAmountSats,
+        asset: asset,
+        input: input,
+        formatter: formatter,
+      );
+      throw AmountParsingException(AmountParsingExceptionType.belowMin,
+          amount: minAmountFormatted, displayUnitTicker: displayUnitTicker);
     }
 
     final constraints =
@@ -49,25 +67,58 @@ class SendAssetAmountValidationNotifier
     final maxServiceSend = constraints.maxSats;
 
     if (amount < minServiceSend) {
+      final minFormatted = _formatAmountForError(
+        amount: minServiceSend,
+        asset: asset,
+        input: input,
+        formatter: formatter,
+      );
+
       throw AmountParsingException(
         AmountParsingExceptionType.belowSendMin,
-        amount: ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: minServiceSend,
-              precision: asset.precision,
-            ),
+        amount: minFormatted,
       );
     }
 
     if (amount > maxServiceSend) {
+      final maxFormatted = _formatAmountForError(
+        amount: maxServiceSend,
+        asset: asset,
+        input: input,
+        formatter: formatter,
+      );
+
       throw AmountParsingException(
         AmountParsingExceptionType.aboveSendMax,
-        amount: ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: maxServiceSend,
-              precision: asset.precision,
-            ),
+        amount: maxFormatted,
       );
     }
 
     return true;
+  }
+
+  /// Formats amount for error messages, converting USD to selected currency for USDt
+  String _formatAmountForError({
+    required int amount,
+    required Asset asset,
+    required SendAssetInputState input,
+    required FormatService formatter,
+  }) {
+    // USDt in fiat mode needs currency conversion
+    if (asset.isUSDt && input.inputType == AquaAssetInputType.fiat) {
+      return ref.read(amountInputServiceProvider).formatUsdtAmount(
+            amountInSats: amount,
+            asset: asset,
+            targetCurrency: input.rate.currency,
+            currencyFormat: input.rate.currency.format,
+            withSymbol: false,
+          );
+    }
+
+    // For other assets, use standard crypto formatting
+    return formatter.formatAssetAmount(
+      amount: amount,
+      asset: asset,
+    );
   }
 }

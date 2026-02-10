@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ui_components/ui_components.dart';
 
 class AquaCard extends StatelessWidget {
   const AquaCard({
@@ -45,15 +46,23 @@ class AquaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final background = switch (null) {
+      _ when glassEffect && color == null =>
+        Theme.of(context).brightness == Brightness.dark
+            ? AquaColors.darkColors.glassSurface
+            : AquaColors.lightColors.glassSurface,
+      _ when color == null => Theme.of(context).colorScheme.surface,
+      _ => color,
+    };
     return Ink(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: color,
+        color: background,
         borderRadius: borderRadius ?? BorderRadius.circular(4),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0A000000),
+            color: AquaPrimitiveColors.shadow,
             blurRadius: 16,
             offset: Offset(0, 0),
             spreadRadius: 0,
@@ -61,18 +70,19 @@ class AquaCard extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: glassEffect && color == null
-            ? Theme.of(context).colorScheme.surface
-            : color,
+        color: background,
         borderRadius: borderRadius ?? BorderRadius.circular(4),
         shadowColor: glassEffect ? color?.withAlpha(125) : null,
         child: InkWell(
           onTap: onTap,
-          splashFactory: NoSplash.splashFactory,
+          splashFactory: InkRipple.splashFactory,
           highlightColor: color?.withAlpha(25) ??
               Theme.of(context).colorScheme.surface.withAlpha(25),
           borderRadius: borderRadius ?? BorderRadius.circular(4),
-          child: child,
+          child: ClipRRect(
+            borderRadius: borderRadius ?? BorderRadius.circular(4),
+            child: child,
+          ),
         ),
       ),
     );

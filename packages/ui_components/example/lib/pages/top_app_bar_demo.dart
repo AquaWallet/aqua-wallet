@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ui_components/ui_components.dart';
 import 'package:ui_components_playground/shared/shared.dart';
@@ -13,6 +14,7 @@ class TopAppbarDemoPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(prefsProvider).selectedTheme;
+    final isBalanceVisible = useState(true);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -26,6 +28,7 @@ class TopAppbarDemoPage extends HookConsumerWidget {
               children: [
                 AquaHeader(
                   showNotifications: true,
+                  isBalanceVisible: isBalanceVisible.value,
                   colors: theme.colors,
                 ),
                 const SizedBox(height: 40),
@@ -33,6 +36,7 @@ class TopAppbarDemoPage extends HookConsumerWidget {
                   showNotifications: true,
                   walletName: 'Wallet 1',
                   walletBalance: '\$222,475.48',
+                  isBalanceVisible: isBalanceVisible.value,
                   colors: theme.colors,
                 ),
                 const SizedBox(height: 40),
@@ -61,6 +65,7 @@ class TopAppbarDemoPage extends HookConsumerWidget {
                   children: [
                     AquaHeader(
                       showNotifications: true,
+                      isBalanceVisible: isBalanceVisible.value,
                       colors: theme.colors,
                     ),
                     const SizedBox(height: 40),
@@ -68,6 +73,7 @@ class TopAppbarDemoPage extends HookConsumerWidget {
                       showNotifications: true,
                       walletName: 'Wallet 1',
                       walletBalance: '\$222,475.48',
+                      isBalanceVisible: isBalanceVisible.value,
                       colors: theme.colors,
                     ),
                     const SizedBox(height: 40),

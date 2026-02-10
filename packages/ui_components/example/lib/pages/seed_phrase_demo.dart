@@ -53,16 +53,16 @@ class SeedPhraseDemoPage extends HookConsumerWidget {
                   children: [
                     AquaSeedInputField(
                       index: 1,
-                      isValidWord: true,
+                      validationState: SeedWordValidationState.valid,
                       controller: TextEditingController(text: 'word'),
                       colors: theme.colors,
                     ),
                     const SizedBox(height: 20),
                     AquaSeedInputField(
-                      index: 1,
+                      index: 2,
                       forceFocus: true,
-                      isValidWord: true,
-                      controller: TextEditingController(text: 'word'),
+                      validationState: SeedWordValidationState.invalid,
+                      controller: TextEditingController(text: 'invalid'),
                       colors: theme.colors,
                     ),
                   ],

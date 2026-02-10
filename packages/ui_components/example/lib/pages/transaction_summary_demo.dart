@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ui_components/components/transaction/transaction_summary_text.dart';
 import 'package:ui_components/ui_components.dart';
 import 'package:ui_components_playground/shared/shared.dart';
 
@@ -198,6 +199,7 @@ class _SwapSummarySection extends StatelessWidget {
             fromAmountCrypto: fromAmount,
             toAmountCrypto: toAmount,
             colors: colors,
+            text: _getTransactionSummaryText(),
           ),
           const SizedBox(height: 20),
           AquaSwapTransactionSummary(
@@ -208,6 +210,7 @@ class _SwapSummarySection extends StatelessWidget {
             fromAmountCrypto: fromAmount,
             toAmountCrypto: toAmount,
             colors: colors,
+            text: _getTransactionSummaryText(),
           ),
           const SizedBox(height: 20),
           AquaSwapTransactionSummary(
@@ -219,6 +222,7 @@ class _SwapSummarySection extends StatelessWidget {
             toAmountCrypto: toAmount,
             isPending: true,
             colors: colors,
+            text: _getTransactionSummaryText(),
           ),
           const SizedBox(height: 20),
           AquaSwapTransactionSummary(
@@ -230,6 +234,7 @@ class _SwapSummarySection extends StatelessWidget {
             toAmountCrypto: toAmount,
             isPending: true,
             colors: colors,
+            text: _getTransactionSummaryText(),
           ),
         ],
       ),
@@ -244,3 +249,10 @@ String _getAssetTicker(String assetId) => switch (assetId) {
       AssetIds.lightning => 'Lightning',
       _ => throw UnimplementedError(),
     };
+
+TransactionSummaryText _getTransactionSummaryText() {
+  return const TransactionSummaryText(
+    from: 'From',
+    to: 'To',
+  );
+}

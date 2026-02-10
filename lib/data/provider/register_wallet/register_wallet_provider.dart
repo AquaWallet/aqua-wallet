@@ -1,9 +1,7 @@
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rxdart/rxdart.dart';
-
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/features/wallet/wallet.dart';
+import 'package:rxdart/rxdart.dart';
 
 final registerWalletProvider = Provider.autoDispose<_RegisterWalletProvider>(
     (ref) => _RegisterWalletProvider(ref));
@@ -17,35 +15,43 @@ class _RegisterWalletProvider {
 
   final AutoDisposeProviderRef _ref;
 
-  final PublishSubject<void> _registerSubject = PublishSubject();
-  void register() {
-    _registerSubject.add(null);
+  final PublishSubject<String?> _registerSubject = PublishSubject();
+  void register({String? walletName}) {
+    _registerSubject.add(walletName);
   }
 
   late final Stream<AsyncValue<void>> _registrationProcessingStream =
       _registerSubject
-          .switchMap((_) => Rx.combineLatest2(
-                Rx.timer(null, const Duration(seconds: 12)),
-                Stream.value(_)
-                    .asyncMap((_) async {
-                      final mnemonic =
-                          await _ref.read(liquidProvider).generateMnemonic12();
-                      if (mnemonic == null) {
-                        throw RegisterWalletInvalidMnemonicException();
-                      }
-                      return mnemonic;
-                    })
-                    .map((mnemonic) => mnemonic.join(' '))
-                    .asyncMap((mnemonic) => _ref
-                        .read(secureStorageProvider)
-                        .save(key: StorageKeys.mnemonic, value: mnemonic)),
-                (a, b) => AsyncValue.data(_),
-              )
-                  .doOnData((_) =>
-                      _ref.read(aquaConnectionProvider.notifier).connect())
-                  .startWith(const AsyncValue.loading())
-                  .onErrorReturnWith((error, stackTrace) =>
-                      AsyncValue.error(error, stackTrace)))
+          .switchMap((walletName) => Rx.combineLatest2(
+                Rx.timer(null, const Duration(seconds: 2)),
+                Stream.value(walletName).asyncMap((walletName) async {
+                  // 1. Perform full cleanup before creating new wallet
+                  await _ref
+                      .read(aquaConnectionProvider.notifier)
+                      .fullCleanup();
+
+                  // 2. Generate mnemonic
+                  final mnemonic =
+                      await _ref.read(liquidProvider).generateMnemonic12();
+                  if (mnemonic == null) {
+                    throw RegisterWalletInvalidMnemonicException();
+                  }
+                  return (mnemonic: mnemonic.join(' '), walletName: walletName);
+                }).asyncMap((data) async {
+                  // 3. Add wallet to stored wallets (this will handle connection internally)
+                  if (data.walletName != null) {
+                    await _ref.read(storedWalletsProvider.notifier).addWallet(
+                          mnemonic: data.mnemonic,
+                          name: data.walletName!,
+                          operationType: WalletOperationType.create,
+                        );
+                  }
+
+                  return null;
+                }),
+                (a, b) => const AsyncValue.data(null),
+              ).startWith(const AsyncValue.loading()).onErrorReturnWith(
+                  (error, stackTrace) => AsyncValue.error(error, stackTrace)))
           .shareReplay(maxSize: 1);
 }
 

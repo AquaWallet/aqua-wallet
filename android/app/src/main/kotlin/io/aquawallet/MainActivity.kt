@@ -1,9 +1,11 @@
 package io.aquawallet
 
 import android.content.Context
+import android.os.Bundle
 import android.security.keystore.KeyProperties
 import android.view.WindowManager
 import androidx.annotation.NonNull
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.aquawallet.extension.SharedPreferencesUnableToCommitException
 import io.aquawallet.extension.callHandlerFlowable
 import io.aquawallet.extension.getStringSingle
@@ -20,10 +22,15 @@ import kotlin.system.exitProcess
 
 class MainActivity : FlutterFragmentActivity() {
 
-
     private val UTILS_CHANNEL = "com.example.aqua/utils"
 
     private val disposable = CompositeDisposable()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // Handle the splash screen transition
+        installSplashScreen()
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onDestroy() {
         // This will terminate flutter but not the process itself.

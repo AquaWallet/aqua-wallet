@@ -7,6 +7,7 @@ import 'mocks/mocks.dart';
 
 const kFakeMnemonic = 'this is a fake mnemonic';
 const kTestString = 'this is a test string';
+const kTestWalletId = 'test-wallet-id';
 
 void main() {
   final mockSecureStorageProvider = MockSecureStorageProvider();
@@ -35,8 +36,11 @@ void main() {
     // );
 
     test('should encrypt given text in a deterministic way', () async {
-      when(() => mockSecureStorageProvider.get(StorageKeys.mnemonic))
-          .thenAnswer((_) async => Future.value((kFakeMnemonic, null)));
+      when(() => mockSecureStorageProvider.get(StorageKeys.currentWalletId))
+          .thenAnswer((_) async => (kTestWalletId, null));
+      when(() => mockSecureStorageProvider
+              .get(StorageKeys.mnemonic(kTestWalletId)))
+          .thenAnswer((_) async => (kFakeMnemonic, null));
 
       final encryption1 = await container.read(encryptionProvider.future);
       final encryption2 = await container.read(encryptionProvider.future);

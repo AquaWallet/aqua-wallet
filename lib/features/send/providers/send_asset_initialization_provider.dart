@@ -11,6 +11,7 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/logger.dart';
+import 'package:decimal/decimal.dart';
 
 final _logger = CustomLogger(FeatureFlag.send);
 
@@ -25,8 +26,13 @@ class SendAssetTransactionSetupNotifier
   FutureOr<bool> build(SendAssetArguments arg) async {
     final input = ref.read(sendAssetInputStateProvider(arg));
     final inputValue = input.valueOrNull;
+
     if (inputValue == null || input.isLoading) {
       return false;
+    }
+
+    if (input.hasError) {
+      throw input.error!;
     }
 
     ref.listen(sendAssetInputStateProvider(arg), (prev, next) async {
@@ -95,7 +101,7 @@ class SendAssetTransactionSetupNotifier
   Future<bool> _initUSDtSwap(SendAssetInputState input) async {
     // get refund address
     final refundAddress = await ref.read(liquidProvider).getReceiveAddress();
-    _logger.debug("[Send][Sideshift] refundAddress: $refundAddress");
+
     if (refundAddress == null) {
       throw SideshiftRefundAddressNotFoundError();
     }
@@ -129,9 +135,26 @@ class SendAssetTransactionSetupNotifier
     if (swapOrder == null || swapOrder.order == null) {
       throw Exception('Swap order is null');
     }
+
+    // Update the input state with the service order ID
     ref
         .read(sendAssetInputStateProvider(arg).notifier)
         .setServiceOrderId(swapOrder.order!.id);
+
+    // Always use the depositAmount from the swap order to ensure we're sending exactly
+    // what the swap service expects. When senderPaysFees is true, this will include fees.
+    // When senderPaysFees is false, this should match the original amount, but we use
+    // the swap service's value for consistency and to handle any edge cases or adjustments.
+    final precisionsMultiplier =
+        pow(10, Asset.usdtLiquid().usdtLiquidPrecision).toInt();
+    final networkDepositAmount =
+        (swapOrder.order!.depositAmount * Decimal.fromInt(precisionsMultiplier))
+            .toInt();
+
+    // Update the input state with the actual deposit amount that needs to be sent
+    ref
+        .read(sendAssetInputStateProvider(arg).notifier)
+        .updateSwapDepositAmount(networkDepositAmount);
 
     return true;
   }

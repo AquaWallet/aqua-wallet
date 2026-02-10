@@ -1,35 +1,33 @@
-import 'dart:async';
-
-import 'package:aqua/features/onboarding/onboarding.dart';
+import 'package:aqua/features/onboarding/shared/widgets/widgets.dart';
+import 'package:aqua/features/onboarding/welcome/widgets/widgets.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class SplashScreen extends HookConsumerWidget {
   static const routeName = '/splash';
+  static const double _bottomSpacingHeight = 56 + 20 + 56;
 
-  const SplashScreen({
-    super.key,
-    this.description,
-    this.onSwitchTagline,
-  });
+  const SplashScreen({super.key, required this.description});
 
-  final String? description;
-  final VoidCallback? onSwitchTagline;
+  final String description;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final String selectedTagline = description;
+
     final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
 
     useEffect(() {
-      Future.microtask(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (botevMode) {
           ref.read(systemOverlayColorProvider(context)).forceDark();
         } else {
-          ref
-              .read(systemOverlayColorProvider(context))
-              .aqua(aquaColorNav: true);
+          ref.read(systemOverlayColorProvider(context)).custom(
+                statusBarColor: AquaPrimitiveColors.aquaBlue300,
+                navBarColor: AquaPrimitiveColors.aquaBlue300,
+              );
         }
         ref.invalidate(availableAssetsProvider);
       });
@@ -47,28 +45,38 @@ class SplashScreen extends HookConsumerWidget {
       );
     }
 
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 75.0),
-          //ANCHOR - Logo
-          Container(
-            margin: const EdgeInsetsDirectional.only(end: 9.0),
-            child: UiAssets.svgs.aquaLogoColorSpaced.svg(
-              height: 59.3,
+    return Material(
+      color: AquaPrimitiveColors.aquaBlue300,
+      child: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                const SizedBox(height: 48),
+                AquaIcon.aquaLogo(
+                  size: 40,
+                  color: AquaPrimitiveColors.palatinateBlue750,
+                ),
+                // const Expanded(flex: 2, child: SizedBox.shrink()),
+                const Spacer(),
+                Center(
+                  child: SplashTaglineText(text: selectedTagline),
+                ),
+                const Spacer(),
+                const SizedBox(height: _bottomSpacingHeight),
+                const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32.0),
+                    child: WelcomeToSDisclaimer(
+                      textColor: AquaPrimitiveColors.aquaBlue300,
+                      canLaunch: false,
+                    )),
+                // const Expanded(flex: 5, child: SizedBox.shrink()),
+              ],
             ),
           ),
-          const Spacer(),
-          //ANCHOR - Tagline
-          OnboardingTagline(
-            description: description ?? context.loc.welcomeScreenDesc1,
-            onTap: onSwitchTagline,
-            onLongPress: () => context.push(WelcomeScreen.routeName),
-          ),
-          const Spacer(),
-          const SizedBox(height: 194.0),
-        ],
+        ),
       ),
     );
   }

@@ -52,7 +52,7 @@ class Jan3AuthTokenManager {
     _logger.debug('[Jan3AuthTokenManager] Token deleted');
   }
 
-  Future<AuthTokenResponse?> _readTokenWithoutRefresh() async {
+  Future<AuthTokenResponse?> readTokenWithoutRefresh() async {
     _logger.debug('[Jan3AuthTokenManager] _readTokenWithoutRefresh called');
     final (token, error) = await storage.get(tokenKey);
 
@@ -67,7 +67,7 @@ class Jan3AuthTokenManager {
 
   Future<String?> getAccessToken() async {
     _logger.debug('[Jan3AuthTokenManager] getAccessToken called');
-    AuthTokenResponse? tokenResponse = await _readTokenWithoutRefresh();
+    AuthTokenResponse? tokenResponse = await readTokenWithoutRefresh();
 
     if (tokenResponse == null) {
       _logger.debug(
@@ -82,7 +82,7 @@ class Jan3AuthTokenManager {
         // Wait for the refresh operation to complete, even if it's already in progress
         await tokenRefreshNotifier.refreshToken();
         // Re-read the token after refresh completes
-        tokenResponse = await _readTokenWithoutRefresh();
+        tokenResponse = await readTokenWithoutRefresh();
       } catch (e) {
         _logger.error('[Jan3AuthTokenManager] Error during token refresh: $e');
         return null;

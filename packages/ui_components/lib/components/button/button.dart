@@ -34,6 +34,7 @@ class AquaButton extends StatelessWidget {
     this.onPressed,
     this.icon,
     this.isLoading = false,
+    this.isInverted = false,
     this.primaryButtonVariant = AquaButtonVariant.normal,
     this.secondaryButtonVariant = AquaButtonVariant.normal,
     required this.variant,
@@ -47,6 +48,7 @@ class AquaButton extends StatelessWidget {
     AquaButtonSize size = AquaButtonSize.large,
     AquaButtonVariant variant = AquaButtonVariant.normal,
     bool isLoading = false,
+    bool isInverted = false,
     VoidCallback? onPressed,
   }) {
     return AquaButton._(
@@ -56,6 +58,7 @@ class AquaButton extends StatelessWidget {
       onPressed: onPressed,
       variant: _ButtonVariant.primary,
       isLoading: isLoading,
+      isInverted: isInverted,
       primaryButtonVariant: variant,
       size: size,
     );
@@ -68,6 +71,7 @@ class AquaButton extends StatelessWidget {
     AquaButtonSize size = AquaButtonSize.large,
     AquaButtonVariant variant = AquaButtonVariant.normal,
     bool isLoading = false,
+    bool isInverted = false,
     VoidCallback? onPressed,
   }) {
     return AquaButton._(
@@ -78,6 +82,7 @@ class AquaButton extends StatelessWidget {
       variant: _ButtonVariant.secondary,
       secondaryButtonVariant: variant,
       isLoading: isLoading,
+      isInverted: isInverted,
       size: size,
     );
   }
@@ -88,6 +93,7 @@ class AquaButton extends StatelessWidget {
     Widget? icon,
     AquaButtonSize size = AquaButtonSize.large,
     bool isLoading = false,
+    bool isInverted = false,
     VoidCallback? onPressed,
   }) {
     return AquaButton._(
@@ -97,6 +103,7 @@ class AquaButton extends StatelessWidget {
       onPressed: onPressed,
       variant: _ButtonVariant.tertiary,
       isLoading: isLoading,
+      isInverted: isInverted,
       size: size,
     );
   }
@@ -106,6 +113,7 @@ class AquaButton extends StatelessWidget {
     required String text,
     Widget? icon,
     bool isLoading = false,
+    bool isInverted = false,
     VoidCallback? onPressed,
   }) {
     return AquaButton._(
@@ -115,6 +123,7 @@ class AquaButton extends StatelessWidget {
       onPressed: onPressed,
       variant: _ButtonVariant.utility,
       isLoading: isLoading,
+      isInverted: isInverted,
       size: AquaButtonSize.small,
     );
   }
@@ -124,6 +133,7 @@ class AquaButton extends StatelessWidget {
     required String text,
     Widget? icon,
     bool isLoading = false,
+    bool isInverted = false,
     VoidCallback? onPressed,
   }) {
     return AquaButton._(
@@ -133,6 +143,7 @@ class AquaButton extends StatelessWidget {
       onPressed: onPressed,
       variant: _ButtonVariant.utilitySecondary,
       isLoading: isLoading,
+      isInverted: isInverted,
       size: AquaButtonSize.small,
     );
   }
@@ -145,6 +156,7 @@ class AquaButton extends StatelessWidget {
   final bool isLoading;
   final AquaButtonVariant primaryButtonVariant;
   final AquaButtonVariant secondaryButtonVariant;
+  final bool isInverted;
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +169,8 @@ class AquaButton extends StatelessWidget {
           constraints: const BoxConstraints(minWidth: 120),
           child: AquaIndefinateProgressIndicator(
             color: switch (variant) {
-              _ButtonVariant.primary => AquaColors.lightColors.textInverse,
-              _ButtonVariant.secondary => AquaColors.lightColors.accentBrand,
+              _ButtonVariant.primary => Theme.of(context).colorScheme.surface,
+              _ButtonVariant.secondary => Theme.of(context).colorScheme.primary,
               _ => Theme.of(context).colorScheme.onSurface,
             },
           ),
@@ -189,10 +201,12 @@ class AquaButton extends StatelessWidget {
           ? _AquaButtonStyle.primary(
               context,
               variant: primaryButtonVariant,
+              isInverted: isInverted,
             )
           : _AquaButtonStyle.primarySmall(
               context,
               variant: primaryButtonVariant,
+              isInverted: isInverted,
             ),
       _ButtonVariant.secondary => size == AquaButtonSize.large
           ? _AquaButtonStyle.secondary(
@@ -204,11 +218,22 @@ class AquaButton extends StatelessWidget {
               variant: secondaryButtonVariant,
             ),
       _ButtonVariant.tertiary => size == AquaButtonSize.large
-          ? _AquaButtonStyle.tertiary(context)
-          : _AquaButtonStyle.tertiarySmall(context),
-      _ButtonVariant.utility => _AquaButtonStyle.utility(context),
-      _ButtonVariant.utilitySecondary =>
-        _AquaButtonStyle.utilitySecondary(context),
+          ? _AquaButtonStyle.tertiary(
+              context,
+              isInverted: isInverted,
+            )
+          : _AquaButtonStyle.tertiarySmall(
+              context,
+              isInverted: isInverted,
+            ),
+      _ButtonVariant.utility => _AquaButtonStyle.utility(
+          context,
+          isInverted: isInverted,
+        ),
+      _ButtonVariant.utilitySecondary => _AquaButtonStyle.utilitySecondary(
+          context,
+          isInverted: isInverted,
+        ),
     };
 
     return switch (variant) {
@@ -249,68 +274,76 @@ class _AquaButtonStyle {
   static _buttonStylePrimary(
     BuildContext context, {
     AquaButtonVariant variant = AquaButtonVariant.normal,
-  }) =>
-      ElevatedButton.styleFrom(
-        fixedSize: const Size(double.maxFinite, kButtonHeightLarge),
-        foregroundBuilder: (context, state, child) => Opacity(
-          opacity: state.isDisabled ? 0.5 : 1,
-          child: child,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kButtonBorderRadius),
-        ),
-        textStyle: _textStyle,
-      ).copyWith(
-        overlayColor: WidgetStatePropertyAll(Colors.black.withOpacity(0.04)),
-        elevation: const WidgetStatePropertyAll(0),
-        splashFactory: InkSparkle.splashFactory,
-        foregroundColor: WidgetStatePropertyAll(
-          AquaColors.lightColors.textInverse,
-        ),
-        backgroundColor: WidgetStateProperty.resolveWith((state) {
-          if (state.isDisabled) {
-            return switch (variant) {
-              AquaButtonVariant.error =>
-                AquaColors.lightColors.accentDanger.withOpacity(0.5),
-              AquaButtonVariant.success =>
-                AquaColors.lightColors.accentSuccess.withOpacity(0.5),
-              AquaButtonVariant.warning =>
-                AquaColors.lightColors.accentWarning.withOpacity(0.5),
-              _ => AquaColors.lightColors.accentBrand.withOpacity(0.5),
-            };
-          }
-          return switch (variant) {
-            AquaButtonVariant.error => AquaColors.lightColors.accentDanger,
-            AquaButtonVariant.success => AquaColors.lightColors.accentSuccess,
-            AquaButtonVariant.warning => AquaColors.lightColors.accentWarning,
-            _ => AquaColors.lightColors.accentBrand,
-          };
-        }),
-        side: WidgetStateProperty.resolveWith((state) {
-          if (state.isSelected || state.isFocused) {
-            return BorderSide(
-              width: 2,
-              color: AquaColors.lightColors.textInverse,
-            );
-          }
-          return null;
-        }),
-      );
+    required bool isInverted,
+  }) {
+    final foregroundColor = Theme.of(context).colorScheme.surface;
+    final backgroundColor = switch (variant) {
+      AquaButtonVariant.error => Theme.of(context).colorScheme.error,
+      AquaButtonVariant.success => Theme.of(context).colorScheme.primary,
+      AquaButtonVariant.warning => Theme.of(context).colorScheme.warning,
+      _ => Theme.of(context).colorScheme.primary,
+    };
+    return ElevatedButton.styleFrom(
+      fixedSize: const Size(double.maxFinite, kButtonHeightLarge),
+      foregroundBuilder: (context, state, child) => Opacity(
+        opacity: state.isDisabled ? 0.5 : 1,
+        child: child,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kButtonBorderRadius),
+      ),
+      textStyle: _textStyle,
+    ).copyWith(
+      overlayColor: WidgetStatePropertyAll(Colors.black.withOpacity(0.04)),
+      elevation: const WidgetStatePropertyAll(0),
+      splashFactory: InkSparkle.splashFactory,
+      foregroundColor: WidgetStatePropertyAll(
+        isInverted ? AquaPrimitiveColors.palatinateBlue750 : foregroundColor,
+      ),
+      backgroundColor: WidgetStateProperty.resolveWith((state) {
+        if (state.isDisabled) {
+          return isInverted
+              ? foregroundColor
+              : backgroundColor.withOpacity(0.5);
+        }
+        return isInverted ? foregroundColor : backgroundColor;
+      }),
+      side: WidgetStateProperty.resolveWith((state) {
+        if (state.isSelected || state.isFocused) {
+          return BorderSide(
+            width: 2,
+            color: isInverted ? backgroundColor : foregroundColor,
+          );
+        }
+        return null;
+      }),
+    );
+  }
 
   static primary(
     BuildContext context, {
     AquaButtonVariant variant = AquaButtonVariant.normal,
+    required bool isInverted,
   }) =>
       _AquaButtonStyle(
-        buttonStyle: _buttonStylePrimary(context, variant: variant),
+        buttonStyle: _buttonStylePrimary(
+          context,
+          variant: variant,
+          isInverted: isInverted,
+        ),
       );
 
   static primarySmall(
     BuildContext context, {
     AquaButtonVariant variant = AquaButtonVariant.normal,
+    required bool isInverted,
   }) =>
       _AquaButtonStyle(
-        buttonStyle: _buttonStylePrimary(context, variant: variant).copyWith(
+        buttonStyle: _buttonStylePrimary(
+          context,
+          variant: variant,
+          isInverted: isInverted,
+        ).copyWith(
           padding: const WidgetStatePropertyAll(_textSmallPadding),
           fixedSize: const WidgetStatePropertyAll(
             Size.fromHeight(kButtonHeightSmall),
@@ -324,76 +357,80 @@ class _AquaButtonStyle {
   static _buttonStyleSecondary(
     BuildContext context, {
     AquaButtonVariant variant = AquaButtonVariant.normal,
-  }) =>
-      ElevatedButton.styleFrom(
-        elevation: 0,
-        fixedSize: const Size(double.maxFinite, kButtonHeightLarge),
-        foregroundBuilder: (context, state, child) => Opacity(
-          opacity: state.isDisabled ? 0.5 : 1,
-          child: child,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kButtonBorderRadius),
-        ),
-        textStyle: _textStyle,
-      ).copyWith(
-        elevation: const WidgetStatePropertyAll(0),
-        splashFactory: InkSparkle.splashFactory,
-        overlayColor: WidgetStatePropertyAll(Colors.black.withOpacity(0.04)),
-        foregroundColor: WidgetStatePropertyAll(
-          switch (variant) {
-            AquaButtonVariant.error => AquaColors.lightColors.accentDanger,
-            AquaButtonVariant.success => AquaColors.lightColors.accentSuccess,
-            AquaButtonVariant.warning => AquaColors.lightColors.accentWarning,
-            _ => AquaColors.lightColors.accentBrand,
-          },
-        ),
-        backgroundColor: WidgetStateProperty.resolveWith((state) {
-          if (state.isDisabled) {
-            return switch (variant) {
-              AquaButtonVariant.error =>
-                AquaColors.lightColors.accentDanger.withOpacity(0.08),
-              AquaButtonVariant.success =>
-                AquaColors.lightColors.accentSuccess.withOpacity(0.08),
-              AquaButtonVariant.warning =>
-                AquaColors.lightColors.accentWarning.withOpacity(0.08),
-              _ => AquaColors.lightColors.accentBrand.withOpacity(0.08),
-            };
-          }
+  }) {
+    return ElevatedButton.styleFrom(
+      elevation: 0,
+      fixedSize: const Size(double.maxFinite, kButtonHeightLarge),
+      foregroundBuilder: (context, state, child) => Opacity(
+        opacity: state.isDisabled ? 0.5 : 1,
+        child: child,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kButtonBorderRadius),
+      ),
+      textStyle: _textStyle,
+    ).copyWith(
+      elevation: const WidgetStatePropertyAll(0),
+      splashFactory: InkSparkle.splashFactory,
+      overlayColor: WidgetStatePropertyAll(Colors.black.withOpacity(0.04)),
+      foregroundColor: WidgetStatePropertyAll(
+        switch (variant) {
+          AquaButtonVariant.error => Theme.of(context).colorScheme.error,
+          AquaButtonVariant.success => Theme.of(context).colorScheme.primary,
+          AquaButtonVariant.warning => Theme.of(context).colorScheme.warning,
+          _ => Theme.of(context).colorScheme.primary,
+        },
+      ),
+      backgroundColor: WidgetStateProperty.resolveWith((state) {
+        if (state.isDisabled) {
           return switch (variant) {
             AquaButtonVariant.error =>
-              AquaColors.lightColors.accentDanger.withOpacity(0.16),
+              Theme.of(context).colorScheme.error.withOpacity(0.08),
             AquaButtonVariant.success =>
-              AquaColors.lightColors.accentSuccess.withOpacity(0.16),
+              Theme.of(context).colorScheme.primary.withOpacity(0.08),
             AquaButtonVariant.warning =>
-              AquaColors.lightColors.accentWarning.withOpacity(0.16),
-            _ => AquaColors.lightColors.accentBrand.withOpacity(0.16),
+              Theme.of(context).colorScheme.warning.withOpacity(0.08),
+            _ => Theme.of(context).colorScheme.primary.withOpacity(0.08),
           };
-        }),
-        side: WidgetStateProperty.resolveWith((state) {
-          if (state.isSelected || state.isFocused) {
-            return BorderSide(
-              width: 2,
-              color: switch (variant) {
-                AquaButtonVariant.error => AquaColors.lightColors.accentDanger,
-                AquaButtonVariant.success =>
-                  AquaColors.lightColors.accentSuccess,
-                AquaButtonVariant.warning =>
-                  AquaColors.lightColors.accentWarning,
-                _ => AquaColors.lightColors.accentBrand,
-              },
-            );
-          }
-          return null;
-        }),
-      );
+        }
+        return switch (variant) {
+          AquaButtonVariant.error =>
+            Theme.of(context).colorScheme.error.withOpacity(0.16),
+          AquaButtonVariant.success =>
+            Theme.of(context).colorScheme.primary.withOpacity(0.16),
+          AquaButtonVariant.warning =>
+            Theme.of(context).colorScheme.warning.withOpacity(0.16),
+          _ => Theme.of(context).colorScheme.primary.withOpacity(0.16),
+        };
+      }),
+      side: WidgetStateProperty.resolveWith((state) {
+        if (state.isSelected || state.isFocused) {
+          return BorderSide(
+            width: 2,
+            color: switch (variant) {
+              AquaButtonVariant.error => Theme.of(context).colorScheme.error,
+              AquaButtonVariant.success =>
+                Theme.of(context).colorScheme.primary,
+              AquaButtonVariant.warning =>
+                Theme.of(context).colorScheme.warning,
+              _ => Theme.of(context).colorScheme.primary,
+            },
+          );
+        }
+        return null;
+      }),
+    );
+  }
 
   static secondary(
     BuildContext context, {
     AquaButtonVariant variant = AquaButtonVariant.normal,
   }) =>
       _AquaButtonStyle(
-        buttonStyle: _buttonStyleSecondary(context, variant: variant),
+        buttonStyle: _buttonStyleSecondary(
+          context,
+          variant: variant,
+        ),
       );
 
   static secondarySmall(
@@ -401,7 +438,10 @@ class _AquaButtonStyle {
     AquaButtonVariant variant = AquaButtonVariant.normal,
   }) =>
       _AquaButtonStyle(
-        buttonStyle: _buttonStyleSecondary(context, variant: variant).copyWith(
+        buttonStyle: _buttonStyleSecondary(
+          context,
+          variant: variant,
+        ).copyWith(
           padding: const WidgetStatePropertyAll(_textSmallPadding),
           fixedSize: const WidgetStatePropertyAll(
             Size.fromHeight(kButtonHeightSmall),
@@ -412,48 +452,77 @@ class _AquaButtonStyle {
 
   // Tertiary
 
-  static _buttonStyleTertiary(BuildContext context) => OutlinedButton.styleFrom(
-        elevation: 0,
-        fixedSize: const Size(double.maxFinite, kButtonHeightLarge),
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-        foregroundBuilder: (context, state, child) => Opacity(
-          opacity: state.isDisabled ? 0.5 : 1,
-          child: child,
-        ),
-        side: const BorderSide(color: Colors.transparent),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kButtonBorderRadius),
-        ),
-        textStyle: _textStyle,
-      ).copyWith(
-        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-        side: WidgetStateProperty.resolveWith((state) {
-          if (state.isSelected || state.isFocused) {
-            return BorderSide(color: AquaColors.lightColors.accentBrand);
-          }
-          return const BorderSide(color: Colors.transparent);
-        }),
-        splashFactory: InkSparkle.splashFactory,
-        backgroundColor: WidgetStateProperty.resolveWith((state) {
-          if (state.isSelected || state.isFocused) {
-            return AquaColors.lightColors.accentBrand;
-          }
-          if (state.isPressed) {
-            return AquaColors.lightColors.surfaceTertiary.withOpacity(0.5);
-          }
-          return Colors.transparent;
-        }),
-        foregroundColor: WidgetStatePropertyAll(
-          Theme.of(context).colorScheme.onSurface,
+  static _buttonStyleTertiary(
+    BuildContext context, {
+    required bool isInverted,
+  }) {
+    return OutlinedButton.styleFrom(
+      elevation: 0,
+      fixedSize: const Size(double.maxFinite, kButtonHeightLarge),
+      foregroundColor: isInverted
+          ? AquaPrimitiveColors.palatinateBlue750
+          : Theme.of(context).colorScheme.onSurface,
+      foregroundBuilder: (context, state, child) => Opacity(
+        opacity: state.isDisabled ? 0.5 : 1,
+        child: child,
+      ),
+      side: const BorderSide(color: Colors.transparent),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kButtonBorderRadius),
+      ),
+      textStyle: _textStyle,
+    ).copyWith(
+      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+      side: WidgetStateProperty.resolveWith((state) {
+        if (state.isSelected || state.isFocused) {
+          return BorderSide(color: Theme.of(context).colorScheme.primary);
+        }
+        return BorderSide(
+          color: isInverted
+              ? AquaPrimitiveColors.palatinateBlue750.withOpacity(
+                  state.isDisabled ? 0.5 : 1,
+                )
+              : Colors.transparent,
+        );
+      }),
+      splashFactory: InkSparkle.splashFactory,
+      backgroundColor: WidgetStateProperty.resolveWith((state) {
+        if (state.isSelected || state.isFocused) {
+          return Theme.of(context).colorScheme.primary;
+        }
+        if (state.isPressed) {
+          return AquaColors.lightColors.surfaceTertiary.withOpacity(0.5);
+        }
+        return Colors.transparent;
+      }),
+      foregroundColor: WidgetStatePropertyAll(
+        isInverted
+            ? AquaPrimitiveColors.palatinateBlue750
+            : Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+
+  static tertiary(
+    BuildContext context, {
+    required bool isInverted,
+  }) =>
+      _AquaButtonStyle(
+        buttonStyle: _buttonStyleTertiary(
+          context,
+          isInverted: isInverted,
         ),
       );
 
-  static tertiary(BuildContext context) => _AquaButtonStyle(
-        buttonStyle: _buttonStyleTertiary(context),
-      );
-
-  static tertiarySmall(BuildContext context) => _AquaButtonStyle(
-        buttonStyle: _buttonStyleTertiary(context).copyWith(
+  static tertiarySmall(
+    BuildContext context, {
+    required bool isInverted,
+  }) =>
+      _AquaButtonStyle(
+        buttonStyle: _buttonStyleTertiary(
+          context,
+          isInverted: isInverted,
+        ).copyWith(
           padding: const WidgetStatePropertyAll(_textSmallPadding),
           fixedSize: const WidgetStatePropertyAll(
             Size.fromHeight(kButtonHeightSmall),
@@ -464,7 +533,11 @@ class _AquaButtonStyle {
 
   // Utility
 
-  static utility(BuildContext context) => _AquaButtonStyle(
+  static utility(
+    BuildContext context, {
+    required bool isInverted,
+  }) =>
+      _AquaButtonStyle(
         buttonStyle: ElevatedButton.styleFrom(
           fixedSize: const Size(double.maxFinite, kButtonHeightSmall),
           foregroundBuilder: (context, state, child) => Opacity(
@@ -480,13 +553,18 @@ class _AquaButtonStyle {
         ).copyWith(
           splashFactory: InkSparkle.splashFactory,
           foregroundColor: WidgetStatePropertyAll(
-            Theme.of(context).colorScheme.onSurface,
+            isInverted
+                ? Theme.of(context).colorScheme.surface
+                : Theme.of(context).colorScheme.onSurface,
           ),
           backgroundColor: WidgetStateProperty.resolveWith((state) {
+            final color = isInverted
+                ? Theme.of(context).colorScheme.onSurface
+                : Theme.of(context).colorScheme.surface;
             if (state.isDisabled) {
-              return Theme.of(context).colorScheme.surface.withOpacity(0.5);
+              return color.withOpacity(0.5);
             }
-            return Theme.of(context).colorScheme.surface;
+            return color;
           }),
           padding: const WidgetStatePropertyAll(_textSmallPaddingUtility),
           fixedSize: const WidgetStatePropertyAll(
@@ -495,41 +573,44 @@ class _AquaButtonStyle {
         ),
       );
 
-  static utilitySecondary(BuildContext context) => _AquaButtonStyle(
-        buttonStyle: OutlinedButton.styleFrom(
-          elevation: 0,
-          fixedSize: const Size.fromHeight(kButtonHeightSmall),
-          foregroundColor: Theme.of(context).colorScheme.onSurface,
-          foregroundBuilder: (context, state, child) => Opacity(
-            opacity: state.isDisabled ? 0.5 : 1,
-            child: child,
-          ),
-          side: const BorderSide(color: Colors.transparent),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kButtonBorderRadius),
-          ),
-          textStyle: _textStyleSmallUtility,
-        ).copyWith(
-          side: WidgetStateProperty.resolveWith((state) {
-            if (state.isSelected || state.isFocused) {
-              return BorderSide(color: AquaColors.lightColors.accentBrand);
-            }
-            return const BorderSide(color: Colors.transparent);
-          }),
-          padding: const WidgetStatePropertyAll(_textSmallPaddingUtility),
-          splashFactory: InkSparkle.splashFactory,
-          backgroundColor: WidgetStateProperty.resolveWith((state) {
-            if (state.isDisabled) {
-              return Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHigh
-                  .withOpacity(0.5);
-            }
-            return Theme.of(context).colorScheme.surfaceContainerHigh;
-          }),
-          foregroundColor: WidgetStatePropertyAll(
-            Theme.of(context).colorScheme.onSurface,
-          ),
+  static utilitySecondary(
+    BuildContext context, {
+    required bool isInverted,
+  }) {
+    return _AquaButtonStyle(
+      buttonStyle: OutlinedButton.styleFrom(
+        elevation: 0,
+        fixedSize: const Size.fromHeight(kButtonHeightSmall),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        foregroundBuilder: (context, state, child) => Opacity(
+          opacity: state.isDisabled ? 0.5 : 1,
+          child: child,
         ),
-      );
+        side: const BorderSide(color: Colors.transparent),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kButtonBorderRadius),
+        ),
+        textStyle: _textStyleSmallUtility,
+      ).copyWith(
+        side: WidgetStateProperty.resolveWith((state) {
+          if (state.isSelected || state.isFocused) {
+            return BorderSide(color: Theme.of(context).colorScheme.primary);
+          }
+          return const BorderSide(color: Colors.transparent);
+        }),
+        padding: const WidgetStatePropertyAll(_textSmallPaddingUtility),
+        splashFactory: InkSparkle.splashFactory,
+        backgroundColor: WidgetStateProperty.resolveWith((state) {
+          final color = Theme.of(context).colorScheme.surfaceContainerHigh;
+          if (state.isDisabled) {
+            return color.withOpacity(0.5);
+          }
+          return Theme.of(context).colorScheme.surfaceContainerHigh;
+        }),
+        foregroundColor: WidgetStatePropertyAll(
+          Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
+    );
+  }
 }

@@ -35,6 +35,8 @@ class ConversionFiatProvider {
 final _conversionStreamProvider =
     StreamProvider.family<SatoshiToFiatConversionModel, (Asset, int)>(
         (ref, arguments) async* {
+  // Watch gdkSettingsProvider to rebuild when currency changes
+  ref.watch(gdkSettingsProvider);
   yield* ref.watch(_conversionProvider(arguments))._conversion();
 });
 

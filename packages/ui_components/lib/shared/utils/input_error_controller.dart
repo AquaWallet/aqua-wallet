@@ -45,11 +45,10 @@ class AquaInputErrorController {
     _visibilityTimer?.cancel();
     _debounceTimer?.cancel();
 
-    // If the error is the same as the current error, just reset the visibility timer
+    // If the error is the same as the current error, just keep it visible
     if (error == _lastError) {
       _isVisible = true;
       _visibilityController.add(true);
-      _visibilityTimer = Timer(kVisibilityDuration, hideError);
       return;
     }
 
@@ -59,7 +58,6 @@ class AquaInputErrorController {
       _errorController.add(error);
       _isVisible = true;
       _visibilityController.add(true);
-      _visibilityTimer = Timer(kVisibilityDuration, hideError);
     });
   }
 

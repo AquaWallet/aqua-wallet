@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ui_components/components/debit_card/debit_card_text.dart';
 import 'package:ui_components/ui_components.dart';
 import 'package:ui_components_playground/shared/shared.dart';
 
@@ -39,6 +40,7 @@ class DebitCardDemoPage extends HookConsumerWidget {
                     expiration: DateTime(2016, 7),
                     pan: _kCardNumber,
                     cvv: _cardCvv,
+                    text: _getDebitCardText(),
                   ),
                 },
               ],
@@ -62,6 +64,7 @@ class DebitCardDemoPage extends HookConsumerWidget {
                         expiration: DateTime(2016, 7),
                         pan: _kCardNumber,
                         cvv: _cardCvv,
+                        text: _getDebitCardText(),
                       ),
                       const SizedBox(height: 20),
                     }
@@ -82,6 +85,7 @@ class DebitCardDemoPage extends HookConsumerWidget {
                         expiration: DateTime(2016, 7),
                         pan: _kCardNumber,
                         cvv: _cardCvv,
+                        text: _getDebitCardText(),
                       ),
                       const SizedBox(height: 20),
                     },
@@ -103,6 +107,7 @@ class DebitCardDemoPage extends HookConsumerWidget {
                         pan: _kCardNumber,
                         cvv: _cardCvv,
                         cardProduct: 'Dolphin Card 1x',
+                        text: _getDebitCardText(),
                       ),
                       const SizedBox(height: 20),
                     }
@@ -118,6 +123,7 @@ class DebitCardDemoPage extends HookConsumerWidget {
                   children: [
                     for (final style in CardStyle.values) ...{
                       AquaDebitCard(
+                        text: _getDebitCardText(),
                         isRevealed: true,
                         isReloadable: false,
                         style: style,
@@ -137,4 +143,13 @@ class DebitCardDemoPage extends HookConsumerWidget {
       ),
     );
   }
+}
+
+DebitCardText _getDebitCardText() {
+  return const DebitCardText(
+    reloadable: 'Reloadable',
+    nonReloadable: 'Non-reloadable',
+    expiryDate: 'Expiry Date',
+    cvv: 'CVV',
+  );
 }

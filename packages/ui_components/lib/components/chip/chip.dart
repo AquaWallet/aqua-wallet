@@ -79,9 +79,12 @@ class AquaChip extends StatelessWidget {
       elevation: variant == AquaChipVariant.normal ? 8 : 0,
       shadowColor: variant == AquaChipVariant.normal ? Colors.black26 : null,
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call())
+            : null,
         borderRadius: BorderRadius.circular(32),
-        splashFactory: NoSplash.splashFactory,
+        splashFactory: InkRipple.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith(
           (state) => state.isHovered ? Colors.transparent : null,
         ),
@@ -98,6 +101,7 @@ class AquaChip extends StatelessWidget {
                   bottom: 4,
                 ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 label,

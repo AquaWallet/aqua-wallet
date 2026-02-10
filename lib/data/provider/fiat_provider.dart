@@ -1,12 +1,9 @@
-import 'dart:io';
 import 'dart:math';
 
-import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/data/provider/bitcoin_provider.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
-import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SatoshiToFiatConversionModel {
@@ -24,22 +21,20 @@ class SatoshiToFiatConversionModel {
 }
 
 // Respects user settings (user session default currency default)
-final fiatProvider =
-    Provider.autoDispose<FiatProvider>((ref) => FiatProvider(ref));
+// Rebuilds when currency changes to ensure rateStream fetches fresh rates
+final fiatProvider = Provider.autoDispose<FiatProvider>((ref) {
+  ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
+  return FiatProvider(ref);
+});
 
 class FiatProvider {
   final AutoDisposeProviderRef ref;
-  final Stream<(Decimal, String)>? _forcedRateStream;
+  final Stream<(Decimal, String, String)>? _forcedRateStream;
 
-  FiatProvider(this.ref, {Stream<(Decimal, String)>? forcedRateStream})
+  FiatProvider(this.ref, {Stream<(Decimal, String, String)>? forcedRateStream})
       : _forcedRateStream = forcedRateStream;
 
-  final _formatter = NumberFormat.currency(
-    locale: Platform.localeName,
-    symbol: '',
-  );
-
-  late final Stream<(Decimal, String)> rateStream = _forcedRateStream ??
+  late final Stream<(Decimal, String, String)> rateStream = _forcedRateStream ??
       Stream<void>.periodic(const Duration(milliseconds: 5000))
           .startWith(null)
           .switchMap((_) => Stream.value(_)
@@ -54,7 +49,11 @@ class FiatProvider {
                   throw FiatProviderNullFiatRateException();
                 }
 
-                return (Decimal.parse(rate), data?.fiatCurrency ?? '');
+                return (
+                  Decimal.parse(rate),
+                  data?.fiatCurrency ?? '',
+                  data?.currencySymbol ?? '\$',
+                );
               }).onErrorResumeNext(const Stream.empty()))
           .shareReplay(maxSize: 1);
 
@@ -70,23 +69,43 @@ class FiatProvider {
     return (Decimal.fromInt(satoshi) / precisionRate).toDecimal() * rate;
   }
 
-  String formattedFiat(Decimal fiat) {
-    final parsedResult = double.parse(fiat.toString());
+  String formatFiat(Decimal fiatValue, String code, {bool withSymbol = true}) {
+    final availableCurrencies =
+        ref.read(exchangeRatesProvider).availableCurrencies;
+    final currency =
+        availableCurrencies.firstWhere((c) => c.currency.value == code);
+    final formatter = ref.read(formatProvider);
 
-    return _formatter.format(parsedResult);
+    return formatter.formatFiatAmount(
+      amount: fiatValue,
+      specOverride: currency.currency.format,
+      withSymbol: withSymbol,
+    );
+  }
+
+  // ANCHOR: - Format Sats to Fiat with Rate and Currency Code Display
+  String formatSatsToFiatWithRateDisplay(
+      {required Asset asset,
+      required int satoshi,
+      required Decimal rate,
+      required String currencyCode}) {
+    final fiatValue = satoshiToFiat(asset, satoshi, rate);
+    return formatFiat(fiatValue, currencyCode);
   }
 
   Stream<SatoshiToFiatConversionModel> satoshiToReferenceCurrencyStream(
           Asset asset, int satoshi) =>
       rateStream.map((rate) {
         final decimalAmount = satoshiToFiat(asset, satoshi, rate.$1);
-        final formattedAmount = formattedFiat(decimalAmount);
+        final formattedAmount =
+            formatFiat(decimalAmount, rate.$2, withSymbol: true);
 
         return SatoshiToFiatConversionModel(
-            currencySymbol: rate.$2,
-            decimal: decimalAmount,
-            formatted: formattedAmount,
-            formattedWithCurrency: '${rate.$2} $formattedAmount');
+          currencySymbol: rate.$2,
+          decimal: decimalAmount,
+          formatted: formattedAmount,
+          formattedWithCurrency: formattedAmount,
+        );
       }).onErrorResumeNext(const Stream.empty());
 
   //ANCHOR: - Fiat to Satoshi
@@ -119,15 +138,16 @@ class FiatProvider {
 
   /// Convenience method to get the fiat value of a satoshi amount to display
   Future<String> getSatsToFiatDisplay(int satoshi, bool withSymbol) async {
-    final (rate, currency) = await rateStream.first;
+    final (rate, symbol, _) = await rateStream.first;
     final fiatValue = satoshiToFiat(Asset.btc(amount: satoshi), satoshi, rate);
-    final formattedValue = formattedFiat(fiatValue);
-    return withSymbol ? '$currency $formattedValue' : formattedValue;
+    final formattedValue =
+        formatFiat(fiatValue, symbol, withSymbol: withSymbol);
+    return formattedValue;
   }
 
   /// Convenience method to get the fiat value of a satoshi amount
   Future<Decimal> getSatsToFiat(int satoshi) async {
-    final (rate, _) = await rateStream.first;
+    final (rate, _, _) = await rateStream.first;
     final fiatValue = satoshiToFiat(Asset.btc(amount: satoshi), satoshi, rate);
     return fiatValue;
   }

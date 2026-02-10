@@ -1,3 +1,4 @@
+import 'package:aqua/common/data_conversion/bip21_encoder.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/send/send.dart';
@@ -33,7 +34,6 @@ abstract class Transactor {
   Future<String> broadcastTransaction({
     required String rawTx,
     NetworkType network = NetworkType.liquid,
-    bool useAquaNode = false,
   });
 }
 
@@ -81,10 +81,16 @@ class SendGdkTransactor extends Transactor {
     if (address == null || address.isEmpty) {
       throw AddressParsingException(AddressParsingExceptionType.emptyAddress);
     }
+    final amountInSats = sendInput.adjustedAmountToSend ?? sendInput.amount;
+
+    if (!validateBip21Amount(
+        amountInSats: amountInSats, asset: sendInput.asset, address: address)) {
+      throw AmountParsingException(AmountParsingExceptionType.invalidArguments);
+    }
 
     final addressee = GdkAddressee(
       address: address,
-      satoshi: sendInput.amount,
+      satoshi: amountInSats,
       assetId: sendInput.sendAssetId,
       isGreedy: sendInput.isSendAllFunds,
     );
@@ -164,11 +170,8 @@ class SendGdkTransactor extends Transactor {
   Future<String> broadcastTransaction({
     required String rawTx,
     NetworkType network = NetworkType.liquid,
-    bool useAquaNode = false,
   }) async {
-    final txHash = await ref
-        .read(electrsProvider)
-        .broadcast(rawTx, network, useAquaNode: useAquaNode);
+    final txHash = await ref.read(electrsProvider).broadcast(rawTx, network);
 
     logger.info('[SEND] broadcast gdk tx - tx hash: $txHash');
 

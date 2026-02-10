@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/settings/shared/pages/themes_settings_screen.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ui_components/shared/constants/constants.dart';
 
 final prefsProvider = ChangeNotifierProvider<UserPreferencesNotifier>((ref) {
   final prefs = ref.read(sharedPreferencesProvider);
@@ -118,7 +118,9 @@ class UserPreferencesNotifier extends ChangeNotifier {
 
   //ANCHOR - Biometric Auth
 
-  bool get isBiometricEnabled => _prefs.getBool(PrefKeys.biometric) ?? false;
+  ///TODO: biometric for desktop needs to be implemented if possible
+  bool get isBiometricEnabled =>
+      isDesktop ? false : _prefs.getBool(PrefKeys.biometric) ?? false;
 
   Future<void> switchBiometricAuth() async {
     _prefs.setBool(PrefKeys.biometric, !isBiometricEnabled);
@@ -127,6 +129,7 @@ class UserPreferencesNotifier extends ChangeNotifier {
 
   //ANCHOR - Language
 
+  /// Gets the language code for the current wallet or falls back appropriately.
   String get languageCode {
     final configuredLanguage = _prefs.getString(PrefKeys.languageCode);
 
@@ -144,19 +147,21 @@ class UserPreferencesNotifier extends ChangeNotifier {
      * 
      * we only need the language value
      */
-    final platformLocale = Platform.localeName.substring(0, 2);
+    try {
+      final platformLocale = Platform.localeName.substring(0, 2);
+      final isDeviceLocaleSupported =
+          SupportedLanguageCodes.values.any((lc) => lc.value == platformLocale);
 
-    final isDeviceLocaleSupported = SupportedLanguageCodes.values
-        .where((lc) => lc.value == platformLocale)
-        .isNotEmpty;
-
-    if (isDeviceLocaleSupported) {
-      /**
-       *  user has not yet configured language
-       *  fallback to device locale if supported
-       **/
-
-      return platformLocale;
+      if (isDeviceLocaleSupported) {
+        /**
+         *  user has not yet configured language
+         *  fallback to device locale if supported
+         **/
+        return platformLocale;
+      }
+    } catch (e) {
+      // Handle potential errors with localeName (e.g., empty string)
+      // Fall through to default
     }
 
     // default to English
@@ -164,7 +169,8 @@ class UserPreferencesNotifier extends ChangeNotifier {
   }
 
   Future<void> setLanguageCode(String languageCode) async {
-    _prefs.setString(PrefKeys.languageCode, languageCode);
+    await _prefs.setString(PrefKeys.languageCode, languageCode);
+
     notifyListeners();
   }
 
@@ -182,15 +188,19 @@ class UserPreferencesNotifier extends ChangeNotifier {
 
   //ANCHOR Region
 
-  String? get region => _prefs.getString(PrefKeys.region);
+  String? get region {
+    return _prefs.getString(PrefKeys.region);
+  }
 
   Future<void> setRegion(String region) async {
-    _prefs.setString(PrefKeys.region, region);
+    await _prefs.setString(PrefKeys.region, region);
+
     notifyListeners();
   }
 
   Future<void> removeRegion() async {
-    _prefs.remove(PrefKeys.region);
+    await _prefs.remove(PrefKeys.region);
+
     notifyListeners();
   }
 
@@ -203,12 +213,23 @@ class UserPreferencesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? get priceSource => _prefs.getString(PrefKeys.priceSource);
+
+  Future<void> setPriceSource(String value) async {
+    _prefs.setString(PrefKeys.priceSource, value);
+    notifyListeners();
+  }
+
   //ANCHOR - Block Explorer
 
-  String? get blockExplorer => _prefs.getString(PrefKeys.blockExplorer);
+  /// Gets the block explorer for the current wallet or falls back appropriately.
+  String? get blockExplorer {
+    return _prefs.getString(PrefKeys.blockExplorer);
+  }
 
   Future<void> setBlockExplorer(String name) async {
-    _prefs.setString(PrefKeys.blockExplorer, name);
+    await _prefs.setString(PrefKeys.blockExplorer, name);
+
     notifyListeners();
   }
 
@@ -302,6 +323,58 @@ class UserPreferencesNotifier extends ChangeNotifier {
 
   Future<void> disableTxnDatabaseRestoreReminder() async {
     _prefs.setBool(PrefKeys.txnDbRestoreReminder, false);
+    notifyListeners();
+  }
+
+  //ANCHOR - Auto Lock Duration
+  AutoLockOption get autoLockAfter {
+    final savedDuration = _prefs.getInt(PrefKeys.autoLockAfter);
+
+    if (savedDuration == null) {
+      // initialize default value 10 minutes
+      _prefs.setInt(PrefKeys.autoLockAfter, AutoLockOption.tenMinutes.value);
+      return AutoLockOption.tenMinutes;
+    }
+
+    final val =
+        AutoLockOption.values.firstWhere((val) => val.value == savedDuration);
+
+    return val;
+  }
+
+  Future<void> setAutoLockAfter(AutoLockOption duration) async {
+    await _prefs.setInt(PrefKeys.autoLockAfter, duration.value);
+    notifyListeners();
+  }
+
+  Future<void> removeAutoLock() async {
+    await _prefs.remove(PrefKeys.autoLockAfter);
+    notifyListeners();
+  }
+
+  //ANCHOR - Non-Liquid USDt Receive Warning
+
+  bool get isNonLiquidUsdtWarningDisplayed =>
+      _prefs.getBool(PrefKeys.nonLiquidUsdtReceiveWarningDisplayed) ?? false;
+
+  Future<void> markNonLiquidUsdtWarningDisplayed() async {
+    _prefs.setBool(PrefKeys.nonLiquidUsdtReceiveWarningDisplayed, true);
+    notifyListeners();
+  }
+
+  Future<void> resetReceiveWarnings() async {
+    _prefs.setBool(PrefKeys.nonLiquidUsdtReceiveWarningDisplayed, false);
+    _prefs.setBool(PrefKeys.lightningReceiveWarningDisplayed, false);
+    notifyListeners();
+  }
+
+  //ANCHOR - Lightning Receive Warning
+
+  bool get isLightningWarningDisplayed =>
+      _prefs.getBool(PrefKeys.lightningReceiveWarningDisplayed) ?? false;
+
+  Future<void> markLightningWarningDisplayed() async {
+    _prefs.setBool(PrefKeys.lightningReceiveWarningDisplayed, true);
     notifyListeners();
   }
 }

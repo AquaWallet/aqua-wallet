@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:aqua/common/common.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
+import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/logger.dart';
 import 'package:decimal/decimal.dart';
 
@@ -22,6 +24,31 @@ class _Notifier
     final asset = arg.$1;
     final amount = arg.$2;
 
+    // Lightning invoices come from boltz reverse swap state and change when new invoices
+    // are generated. We skip caching to ensure we always get the current invoice.
+    if (asset.isLightning) {
+      final invoice = ref
+              .watch(boltzReverseSwapProvider)
+              .mapOrNull(qrCode: (res) => res.swap?.invoice) ??
+          '';
+      logger.debug('[Receive] Lightning invoice: $invoice');
+      return invoice;
+    }
+
+    // For alt-USDT assets, the address comes from the swap order deposit address.
+    if (asset.isAltUsdt) {
+      final swapPair = ReceiveArguments.fromAsset(asset).swapPair;
+      if (swapPair != null) {
+        final swapState =
+            ref.watch(swapOrderProvider(SwapArgs(pair: swapPair)));
+        final depositAddress =
+            swapState.valueOrNull?.order?.depositAddress ?? '';
+        logger.debug('[Receive] AltUSDT deposit address: $depositAddress');
+        return depositAddress;
+      }
+      return '';
+    }
+
     final existingAddress = _addresses[asset.id];
 
     if (existingAddress?.isNotEmpty ?? false) {
@@ -32,7 +59,8 @@ class _Notifier
     final address = await _generateAddress(asset, amount);
     //NOTE - The Sideshift implementation is too tightly coupled to have orders
     // cached reliably, so we are not caching the address for Sideshift.
-    if (!asset.isAltUsdt) {
+    // Lightning addresses should not be cached as they come from boltz provider state
+    if (!asset.isAltUsdt && !asset.isLightning) {
       _addresses[asset.id] = address;
     }
     logger.debug('[Receive] Generate ${asset.id}: $address');
@@ -73,7 +101,14 @@ class _Notifier
         // Use the activeAltUSDtsProvider to check for alt-USDT assets
         final activeAltUSDts = ref.read(activeAltUSDtsProvider);
         if (activeAltUSDts.any((altUsdt) => altUsdt.id == asset.id)) {
-          throw UnimplementedError('Use alt-usdt address from the order');
+          // For alt-USDT assets, get address from swap order
+          final swapPair = ReceiveArguments.fromAsset(asset).swapPair;
+          if (swapPair != null) {
+            final swapArgs = SwapArgs(pair: swapPair);
+            final swapOrderState = ref.read(swapOrderProvider(swapArgs));
+            return swapOrderState.valueOrNull?.order?.depositAddress ?? '';
+          }
+          return '';
         }
 
         // default is all liquid assets

@@ -1,6 +1,6 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ui_components/components/modal_sheet/modal_sheet.dart';
+import 'package:ui_components/ui_components.dart';
 
 part 'custom_alert_dialog_ui_model.freezed.dart';
 
@@ -14,7 +14,7 @@ class CustomAlertDialogUiModel with _$CustomAlertDialogUiModel {
     String? secondaryButtonTitle,
     VoidCallback? onSecondaryButtonPressed,
     Widget? content,
-    AquaModalSheetVariant? iconVariant,
+    AquaRingedIconVariant? iconVariant,
     Widget? icon,
   }) = _CustomAlertDialogUiModel;
 }

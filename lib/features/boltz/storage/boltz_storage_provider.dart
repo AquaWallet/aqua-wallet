@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/models/boltz_swap_status.dart';
 import 'package:aqua/features/boltz/models/db_models.dart';
-import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/logger.dart';
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:boltz/boltz.dart';
 import 'package:isar/isar.dart';
 
 final _logger = CustomLogger(FeatureFlag.boltzStorage);
@@ -54,6 +54,13 @@ abstract class BoltzSwapStorage {
   Future<List<BoltzSwapDbModel>> getSwaps(
       {BoltzVersion? version, SwapType? type});
 
+  Future<List<BoltzSwapDbModel>> getSwapsPaginated({
+    required SwapType type,
+    required int offset,
+    required int limit,
+    String? searchQuery,
+  });
+
   Future<BoltzSwapDbModel?> getSubmarineSwapDbModelByInvoice(String invoice);
   Future<BoltzSwapDbModel?> getSubmarineSwapDbModelByTxId(String txId);
   Future<BoltzSwapDbModel?> getReverseSwapDbModelByTxId(String txId);
@@ -62,10 +69,43 @@ abstract class BoltzSwapStorage {
 
 class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
     implements BoltzSwapStorage {
+  Future<({Isar storage, String walletId})?> _getStorageWithWallet() async {
+    final storage = await ref.read(storageProvider.future);
+    final walletId =
+        await ref.read(storedWalletsProvider.notifier).getCurrentWalletId();
+    if (walletId == null) return null;
+    return (storage: storage, walletId: walletId);
+  }
+
+  Future<void> _reloadCurrentWalletSwaps() async {
+    final walletStorage = await _getStorageWithWallet();
+    if (walletStorage == null) {
+      state = const AsyncValue.data([]);
+      return;
+    }
+    final swaps = await walletStorage.storage.boltzSwapDbModels
+        .filter()
+        .walletIdEqualTo(walletStorage.walletId)
+        .sortByCreatedAtDesc()
+        .findAll();
+    state = AsyncValue.data(swaps);
+  }
+
   @override
   FutureOr<List<BoltzSwapDbModel>> build() async {
     final storage = await ref.watch(storageProvider.future);
-    return storage.boltzSwapDbModels.all().sortByCreated();
+    final currentWallet = ref.watch(
+      storedWalletsProvider.select((s) => s.valueOrNull?.currentWallet),
+    );
+    final walletId = currentWallet?.id;
+    if (walletId == null) {
+      return [];
+    }
+    return storage.boltzSwapDbModels
+        .filter()
+        .walletIdEqualTo(walletId)
+        .sortByCreatedAtDesc()
+        .findAll();
   }
 
   Future<BoltzSwapDbModel?> _getSwapById(String boltzId) async {
@@ -99,8 +139,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
         }
       });
 
-      final update = await storage.boltzSwapDbModels.all().sortByCreated();
-      state = AsyncValue.data(update);
+      await _reloadCurrentWalletSwaps();
     } catch (e, st) {
       _logger.error('Error saving transaction', e, st);
       rethrow;
@@ -112,8 +151,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
     final storage = await ref.read(storageProvider.future);
     await storage.writeTxn(() => storage.boltzSwapDbModels.clear());
 
-    final updated = await storage.boltzSwapDbModels.all().sortByCreated();
-    state = AsyncValue.data(updated);
+    await _reloadCurrentWalletSwaps();
   }
 
   @override
@@ -264,6 +302,35 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
       bool matchesType = type == null || swap.kind == type;
       return matchesVersion && matchesType;
     }).toList();
+  }
+
+  @override
+  Future<List<BoltzSwapDbModel>> getSwapsPaginated({
+    required SwapType type,
+    required int offset,
+    required int limit,
+    String? searchQuery,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+
+    var query = storage.boltzSwapDbModels.filter().kindEqualTo(type);
+
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      final lowerQuery = searchQuery.toLowerCase();
+      query = query.group((q) => q
+          .boltzIdContains(lowerQuery, caseSensitive: false)
+          .or()
+          .invoiceContains(lowerQuery, caseSensitive: false)
+          .or()
+          .onchainSubmarineTxIdContains(lowerQuery, caseSensitive: false)
+          .or()
+          .claimTxIdContains(lowerQuery, caseSensitive: false));
+    }
+
+    final results =
+        await query.sortByCreatedAtDesc().offset(offset).limit(limit).findAll();
+
+    return results;
   }
 
   @override

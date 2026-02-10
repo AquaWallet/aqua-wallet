@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'package:web_socket_channel/io.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -27,6 +26,7 @@ class BoltzWebSocket {
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 5;
   final _subscriptionQueue = <String>[];
+  bool _isConnectionReady = false;
 
   BoltzWebSocket(this._ref) {
     _logger.debug('[Boltz] -- BoltzWebSocket init --');
@@ -40,11 +40,10 @@ class BoltzWebSocket {
       return false;
     }
 
-    final isConnected =
-        _wssStream!.innerWebSocket?.readyState == WebSocket.open;
+    final isConnected = _wssStream!.closeCode == null && _isConnectionReady;
     if (!isConnected) {
-      _logger
-          .info('[Boltz] [WSS] Connection check: WebSocket is not connected');
+      _logger.info(
+          '[Boltz] [WSS] Connection check: WebSocket is not ready (closeCode: ${_wssStream!.closeCode}, ready: $_isConnectionReady)');
     }
     return isConnected;
   }
@@ -56,6 +55,7 @@ class BoltzWebSocket {
     }
 
     _logger.info('[Boltz] [WSS] Initializing WebSocket connection');
+    _isConnectionReady = false;
 
     final baseUrl = _ref
         .read(boltzEnvConfigProvider.select((env) => env.apiUrl))
@@ -83,10 +83,12 @@ class BoltzWebSocket {
       );
 
       _reconnectAttempts = 0;
+      _isConnectionReady = true;
       _logger.info('[Boltz] [WSS] WebSocket connection established');
 
       _processSubscriptionQueue();
     } catch (e) {
+      _isConnectionReady = false;
       _logger
           .error('[Boltz] [WSS] Failed to establish WebSocket connection: $e');
       _scheduleReconnection();
@@ -116,11 +118,13 @@ class BoltzWebSocket {
 
   void _handleError(error) {
     _logger.error('[Boltz] [WSS] WebSocket error: $error');
+    _isConnectionReady = false;
     _scheduleReconnection();
   }
 
   void _handleDisconnection() {
     _logger.info('[Boltz] [WSS] WebSocket connection closed');
+    _isConnectionReady = false;
 
     if (hasActiveSubscriptions) {
       _logger.info(
@@ -185,6 +189,7 @@ class BoltzWebSocket {
 
   Future<void> _cleanupConnection() async {
     _logger.info('[Boltz] [WSS] Cleaning up existing connection');
+    _isConnectionReady = false;
     try {
       // Set timeouts for each cleanup operation
       await Future.wait([

@@ -21,6 +21,7 @@ class AquaOutlinedButton extends StatelessWidget {
       onPressed: onPressed ?? () {},
       style: ElevatedButton.styleFrom(
         elevation: 0,
+        padding: const EdgeInsets.all(12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
           side: BorderSide(

@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><rect style="fill:#4173CD;" width="512" height="512"/><polygon style="fill:#FFE15A;" points="512,232 211.862,232 211.862,0 158.897,0 158.897,232 0,232 0,280 158.897,280 158.897,512   211.862,512 211.862,280 512,280 "/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_8615_27472)">
+<path d="M23.9998 0H0V23.9998H23.9998V0Z" fill="#4173CD"/>
+<path d="M23.9998 10.8749H9.93093V0H7.44822V10.8749H0V13.1249H7.44822V23.9998H9.93093V13.1249H23.9998V10.8749Z" fill="#FFE15A"/>
+</g>
+<defs>
+<clipPath id="clip0_8615_27472">
+<path d="M0 2C0 0.895432 0.895431 0 2 0H21.9998C23.1043 0 23.9998 0.895431 23.9998 2V21.9998C23.9998 23.1043 23.1043 23.9998 21.9998 23.9998H2C0.895432 23.9998 0 23.1043 0 21.9998V2Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

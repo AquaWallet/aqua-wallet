@@ -46,6 +46,14 @@ class TextfieldDemoPage extends HookConsumerWidget {
               _TextfieldDemoSection(
                 controller: controller,
                 copyIcon: pasteIcon,
+                autofocus: true,
+                title: 'Textfield (Transparent Focused)',
+                transparentBorder: true,
+              ),
+              const SizedBox(width: 20),
+              _TextfieldDemoSection(
+                controller: controller,
+                copyIcon: pasteIcon,
                 showErrors: true,
                 title: 'Textfield (Error)',
               ),
@@ -101,6 +109,13 @@ class TextfieldDemoPage extends HookConsumerWidget {
           ),
         ),
         const SizedBox(height: 32),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: const _AmountTextfieldDemoSection(
+            title: 'Amount Textfield',
+          ),
+        ),
+        const SizedBox(height: 32),
       ],
     );
   }
@@ -113,6 +128,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
     this.autofocus = false,
     this.showErrors = false,
     this.enabled = true,
+    this.transparentBorder = false,
     required this.title,
   });
 
@@ -121,6 +137,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
   final bool autofocus;
   final bool showErrors;
   final bool enabled;
+  final bool transparentBorder;
   final String title;
 
   @override
@@ -133,7 +150,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
       AquaTooltip.show(
         context,
         message: 'Copied to clipboard',
-        foregroundColor: theme.colors.textInverse,
+        colors: theme.colors,
       );
     }, [theme]);
 
@@ -158,6 +175,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
             error: showErrors,
             forceFocus: isFocused.value,
             enabled: enabled,
+            transparentBorder: transparentBorder,
             maxLines: 3,
           ),
           const SizedBox(height: 12),
@@ -169,6 +187,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
             error: showErrors,
             forceFocus: isFocused.value,
             enabled: enabled,
+            transparentBorder: transparentBorder,
             maxLines: 3,
           ),
           const SizedBox(height: 12),
@@ -177,6 +196,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
             error: showErrors,
             forceFocus: isFocused.value,
             enabled: enabled,
+            transparentBorder: transparentBorder,
             maxLines: 3,
           ),
           const SizedBox(height: 12),
@@ -187,6 +207,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
             error: showErrors,
             forceFocus: isFocused.value,
             enabled: enabled,
+            transparentBorder: transparentBorder,
             maxLines: 3,
           ),
           const SizedBox(height: 32),
@@ -197,6 +218,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
             error: showErrors,
             forceFocus: isFocused.value,
             enabled: enabled,
+            transparentBorder: transparentBorder,
             maxLines: 3,
           ),
           const SizedBox(height: 13),
@@ -209,6 +231,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
             error: showErrors,
             forceFocus: isFocused.value,
             enabled: enabled,
+            transparentBorder: transparentBorder,
             maxLines: 3,
           ),
           const SizedBox(height: 13),
@@ -218,6 +241,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
             error: showErrors,
             forceFocus: isFocused.value,
             enabled: enabled,
+            transparentBorder: transparentBorder,
             maxLines: 3,
           ),
           const SizedBox(height: 12),
@@ -229,6 +253,7 @@ class _TextfieldDemoSection extends HookConsumerWidget {
             error: showErrors,
             forceFocus: isFocused.value,
             enabled: enabled,
+            transparentBorder: transparentBorder,
             maxLines: 3,
           ),
         ],
@@ -354,6 +379,45 @@ class _SearchFieldDemoSection extends HookConsumerWidget {
           AquaSearchField(
             controller: controller,
             forceFocus: isFocused.value,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AmountTextfieldDemoSection extends HookConsumerWidget {
+  const _AmountTextfieldDemoSection({
+    this.autofocus = false,
+    required this.title,
+  });
+
+  final bool autofocus;
+  final String title;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = useTextEditingController();
+    final isFocused = useState(autofocus);
+
+    useEffect(() {
+      if (autofocus) {
+        isFocused.value = true;
+      }
+      return null;
+    }, []);
+
+    return Container(
+      alignment: Alignment.center,
+      constraints: const BoxConstraints(maxWidth: 343),
+      child: Column(
+        children: [
+          AquaText.h4SemiBold(text: title),
+          const SizedBox(height: 24),
+          AquaAmountTextfield(
+            focusNode: FocusNode(),
+            controller: controller,
+            prefix: '\$',
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -7,7 +8,7 @@ import 'package:flutter/services.dart' show rootBundle;
 final walletHintWordListProvider = FutureProvider<List<String>>((_) async {
   try {
     final words = await rootBundle.loadString('assets/wordlist.txt');
-    return words.split('\n');
+    return const LineSplitter().convert(words);
   } catch (e) {
     throw WalletRestoreInvalidOptionsException();
   }

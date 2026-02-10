@@ -1,17 +1,36 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class SeparatedReorderableListView extends ReorderableListView {
+  /// Helper method to build a drag handle for use with [handleOnlyMode].
+  ///
+  /// When [handleOnlyMode] is true, wrap your drag handle widget (e.g., a grab icon)
+  /// with this method to enable drag-and-drop only when that widget is touched.
+  ///
+  /// The [index] should be the item index (0-based, not including separators).
+  /// The [child] is the widget that will act as the drag handle.
+  static Widget buildDragHandle({
+    required int index,
+    required Widget child,
+  }) {
+    return ReorderableDragStartListener(
+      // Multiply by 2 to account for separator items in the internal list
+      index: index * 2,
+      child: child,
+    );
+  }
+
   SeparatedReorderableListView.separated({
     super.key,
     required IndexedWidgetBuilder itemBuilder,
     required IndexedWidgetBuilder separatorBuilder,
     required int itemCount,
     required ReorderCallback onReorder,
+    bool handleOnlyMode = false,
     super.itemExtent,
     super.prototypeItem,
     super.proxyDecorator,
-    super.buildDefaultDragHandles,
     super.padding,
     super.header,
     super.scrollDirection,
@@ -27,6 +46,7 @@ class SeparatedReorderableListView extends ReorderableListView {
     super.restorationId,
     super.clipBehavior,
   }) : super.builder(
+          buildDefaultDragHandles: false,
           itemCount: max(0, itemCount * 2 - 1),
           itemBuilder: (BuildContext context, int index) {
             if (index % 2 == 1) {
@@ -42,7 +62,23 @@ class SeparatedReorderableListView extends ReorderableListView {
               return separator;
             }
 
-            return itemBuilder.call(context, index ~/ 2);
+            final itemIndex = index ~/ 2;
+            final item = itemBuilder.call(context, itemIndex);
+
+            // In handleOnlyMode, the caller is responsible for wrapping their
+            // drag handle with buildDragHandle(). Otherwise, wrap the entire item.
+            if (handleOnlyMode) {
+              return KeyedSubtree(
+                key: item.key ?? ValueKey('item_$itemIndex'),
+                child: item,
+              );
+            }
+
+            return ReorderableDragStartListener(
+              key: ValueKey('item_$itemIndex'),
+              index: index,
+              child: item,
+            );
           },
           onReorder: (int oldIndex, int newIndex) {
             if (oldIndex < newIndex) {

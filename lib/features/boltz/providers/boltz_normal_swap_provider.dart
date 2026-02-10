@@ -1,12 +1,12 @@
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
+import 'package:aqua/features/lightning/models/bolt11_ext.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:boltz/boltz.dart';
 
-// ANCHOR - Submarine Swap Provider
 final boltzSubmarineSwapProvider =
     StateNotifierProvider<BoltzSubmarineSwapNotifier, LbtcLnSwap?>(
         BoltzSubmarineSwapNotifier.new);
@@ -28,7 +28,6 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
 
     if (existingSwap != null) {
       state = existingSwap;
-      existingSwap.txSize();
 
       // Check if swap already broadcast or settled. This is very important!
       // We don't want to double pay for a swap!
@@ -70,7 +69,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
         : Chain.liquidTestnet;
     final response = await LbtcLnSwap.newSubmarine(
       mnemonic: mnemonicString,
-      index: 0,
+      index: BigInt.zero,
       invoice: address,
       network: chain,
       electrumUrl: electrumUrl,
@@ -79,27 +78,22 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
     );
     state = response;
 
-    // Mask sensitive data before logging
-    final maskedResponse = response.copyWith(
-      keys: response.keys.copyWith(
-        secretKey: '********',
-      ),
-      preimage: PreImage(
-        value: '********',
-        sha256: response.preimage.sha256,
-        hash160: response.preimage.hash160,
-      ),
-    );
-
-    logger.debug("[Send] Boltz Submarine Swap response: $maskedResponse");
-
-    final swapDbModel = BoltzSwapDbModel.fromV2SwapResponse(response)
-        .copyWith(lastKnownStatus: BoltzSwapStatus.created);
+    // Log response (masking sensitive data)
+    logger.debug("[Send] Boltz Submarine Swap created - ID: ${response.id}");
+    final deliverAmount =
+        Bolt11Ext.getAmountFromLightningInvoice(response.invoice);
+    final walletId = await _ref.read(currentWalletIdOrThrowProvider.future);
+    final swapDbModel = BoltzSwapDbModel.fromV2SwapResponse(
+      response,
+      walletId: walletId,
+    ).copyWith(lastKnownStatus: BoltzSwapStatus.created);
     final transactionDbModel = TransactionDbModel.fromV2SwapResponse(
       txhash: "",
-      settleAddress: "",
+      settleAddress: address,
       assetId: Asset.lightning().id,
       swap: response,
+      walletId: walletId,
+      deliverAmount: deliverAmount,
     );
     await _ref.read(boltzStorageProvider.notifier).saveBoltzSwapResponse(
           txnDbModel: transactionDbModel,
@@ -128,14 +122,25 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
       // For refund debugging purposes, sending an amount 1 sat less than the
       // expected amount will cause the swap to fail and put the swap in a state
       // where a refund is needed
-      final amount = forceBoltzFailedNormalSwapEnabled
-          ? boltzOrder.outAmount - 1
+      final adjustedAmount = forceBoltzFailedNormalSwapEnabled
+          ? boltzOrder.outAmount - BigInt.one
           : boltzOrder.outAmount;
+
+      // Extract the original invoice amount from the invoice
+      // This is what the user expects to send to the recipient
+      final invoiceAmount =
+          Bolt11Ext.getAmountFromLightningInvoice(boltzOrder.id);
+
+      final rate = _ref.read(exchangeRatesProvider).currentCurrency;
 
       final sendInput = SendAssetInputState(
         addressFieldText: boltzOrder.swapScript.fundingAddrs,
-        amount: amount,
+        // Use the invoice amount for display if available, otherwise fall back to adjusted amount
+        amount: invoiceAmount ?? adjustedAmount.toInt(),
+        // Always use the exact amount needed for the transaction
+        adjustedAmountToSend: adjustedAmount.toInt(),
         asset: _ref.read(manageAssetsProvider).lbtcAsset,
+        rate: rate,
       );
 
       final txn = await _ref
@@ -145,8 +150,6 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
             rbfEnabled: false,
           );
 
-      logger.debug(
-          '[Send] Boltz Submarine Swap createGdkTransaction response: $txn}');
       return txn;
     } catch (e) {
       logger

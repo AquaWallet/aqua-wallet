@@ -58,7 +58,9 @@ class FeeStructure with _$FeeStructure {
   const factory FeeStructure.usdtSwap({
     required double serviceFee,
     required double serviceFeePercentage,
-    required double networkFee,
+    required double receiveNetworkFee,
+    required double estimatedSendNetworkFee,
     required double totalFees,
+    required String totalFeesCrypto,
   }) = USDtSwapFee;
 }

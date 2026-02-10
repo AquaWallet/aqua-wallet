@@ -11,7 +11,7 @@ class TopUpTransactionInfoCard extends StatelessWidget {
     required this.arguments,
   });
 
-  final SendAssetCompletionArguments arguments;
+  final TransactionSuccessArguments arguments;
 
   @override
   Widget build(BuildContext context) {
