@@ -730,7 +730,7 @@
   "settingsAlertsSetTargetFeeConditionCrossing": "Crossing",
   "pushNotificationAllowNotification": "Don't miss your alerts! Enable notifications for AQUA in Settings.",
   "settingsAlertsSetAlertSuccess": "Alert Set",
-  "lnurlRedeemSatsBody": "Du hast einen LNURL-Link erhalten. Tippe unten, um deine Sats direkt abzuheben.",
+  "lnurlRedeemSatsBody": "Sie haben einen LNURL-Link erhalten. Tippen Sie unten, um Ihre Sats direkt abzuheben.",
   "lnurlRedeemSats": "Sats abheben",
   "lnurlSatsRedeemed": "Abhebung erfolgreich",
   "lnurlSatsRedeemedBody": "Ihre Sats wurden erfolgreich zur Wallet hinzugefügt.",
