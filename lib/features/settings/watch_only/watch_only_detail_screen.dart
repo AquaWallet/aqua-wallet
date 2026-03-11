@@ -1,6 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/receive/widgets/receive_asset_copy_address_button.dart';
+import 'package:aqua/features/receive/widgets/address_box.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/models/subaccount.dart';
 import 'package:aqua/utils/utils.dart';
@@ -24,31 +24,36 @@ class WatchOnlyDetailScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(28.0),
-          child: BoxShadowCard(
-            elevation: 4.0,
-            color:
-                Theme.of(context).colors.addressFieldContainerBackgroundColor,
-            borderRadius: BorderRadius.circular(12.0),
-            bordered: true,
-            borderColor: Theme.of(context).colors.cardOutlineColor,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  Text(
-                    context.loc
-                        .watchOnlyWalletTitle(wallet.networkType.displayName),
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 28.0),
-                  WatchOnlyQrCode(
-                    exportData: wallet.exportData,
-                  ),
-                  const SizedBox(height: 36.0),
-                  CopyAddressButton(
-                    address: wallet.exportData,
-                  ),
-                ],
+          child: GestureDetector(
+            onTap: () {
+              context.copyToClipboard(wallet.exportData);
+            },
+            child: BoxShadowCard(
+              elevation: 4.0,
+              color:
+                  Theme.of(context).colors.addressFieldContainerBackgroundColor,
+              borderRadius: BorderRadius.circular(12.0),
+              bordered: true,
+              borderColor: Theme.of(context).colors.cardOutlineColor,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+                    Text(
+                      context.loc
+                          .watchOnlyWalletTitle(wallet.networkType.displayName),
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 28.0),
+                    WatchOnlyQrCode(
+                      exportData: wallet.exportData,
+                    ),
+                    const SizedBox(height: 36.0),
+                    AddressBox(
+                      address: wallet.exportData,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

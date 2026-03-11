@@ -6,21 +6,25 @@ part 'region.g.dart';
 @freezed
 class RegionResponse with _$RegionResponse {
   factory RegionResponse({
-    @JsonKey(name: 'QueryResponse') Response? data,
+    @JsonKey(name: 'QueryResponse') RegionList? data,
   }) = _RegionResponse;
 
   factory RegionResponse.fromJson(Map<String, dynamic> json) =>
       _$RegionResponseFromJson(json);
 }
 
-@freezed
-class Response with _$Response {
-  factory Response({
-    @Default([]) @JsonKey(name: 'Regions') List<Region> regions,
-  }) = _Response;
+extension RegionResponseExt on RegionResponse {
+  List<Region> get regions => data?.regions ?? [];
+}
 
-  factory Response.fromJson(Map<String, dynamic> json) =>
-      _$ResponseFromJson(json);
+@freezed
+class RegionList with _$RegionList {
+  factory RegionList({
+    @Default([]) @JsonKey(name: 'Regions') List<Region> regions,
+  }) = _RegionList;
+
+  factory RegionList.fromJson(Map<String, dynamic> json) =>
+      _$RegionListFromJson(json);
 }
 
 @freezed
@@ -34,32 +38,75 @@ class Region with _$Region {
 }
 
 extension RegionExt on Region {
-  String get flagSvg {
-    // Map ISO codes to flag filenames where they differ from the standard pattern
-    const isoToFlag = {
-      'KR': 'republic-of-korea.svg',
-      'MD': 'republic-of-moldova.svg',
-      'SH': 'saint-helena.svg',
-      'TZ': 'tanzania.svg',
-      'GB': 'united-kingdom.svg'
-    };
+  String get flagSvg => FlagHelper.getFlagPath(iso, name);
+}
 
-    if (isoToFlag.containsKey(iso)) {
-      return 'assets/flags/${isoToFlag[iso]}';
-    }
+/// Helper class for flag file resolution
+class FlagHelper {
+  static const _basePath = 'assets/flags/';
 
-    const ext = '.svg';
-    final filename = name
-        // Remove text in parentheses AND any commas, periods, or apostrophes
+  /// Map of ISO codes to flag filenames
+  static const _isoToFileName = {
+    // Special naming cases
+    'SH': 'saint-helena',
+    'KR': 'republic-of-korea',
+    'MD': 'republic-of-moldova',
+    'GB': 'united-kingdom',
+    'US': 'united-states-of-america',
+    'EU': 'european-union',
+    'CZ': 'czechia',
+    'TZ': 'tanzania',
+    'VG': 'british-virgin-islands',
+    'VI': 'virgin-islands',
+    'BL': 'st-barthelemy',
+    'ST': 'sao-tome-principe',
+
+    // All currencies from exchange_rate.dart
+    'CA': 'canada',
+    'MX': 'mexico',
+    'RU': 'russia',
+    'DK': 'denmark',
+    'IL': 'israel',
+    'MY': 'malaysia',
+    'NG': 'nigeria',
+    'NO': 'norway',
+    'NZ': 'new-zealand',
+    'PL': 'poland',
+    'AU': 'australia',
+    'BR': 'brazil',
+    'CN': 'china',
+    'HK': 'hong-kong',
+    'IN': 'india',
+    'JP': 'japan',
+    'CH': 'switzerland',
+    'SE': 'sweden',
+    'SG': 'singapore',
+    'TH': 'thailand',
+    'TR': 'turkey',
+    'VN': 'vietnam',
+    'ZA': 'south-africa',
+    'ES-CT': 'catalan',
+  };
+
+  /// Get flag SVG path from ISO code and optional country name
+  static String getFlagPath(String iso, [String? countryName]) {
+    final filename = _isoToFileName[iso] ??
+        (countryName?.isNotEmpty == true
+            ? _normalizeCountryName(countryName!)
+            : null) ??
+        'united-nations';
+
+    return '$_basePath$filename.svg';
+  }
+
+  /// Normalize country name to filename format
+  static String _normalizeCountryName(String name) {
+    return name
         .replaceAll(RegExp(r"\(([^)]+)\)|[,.']"), '')
-        // Replace spaces with hyphens and remove any double hyphens
         .replaceAll(' ', '-')
-        // Remove any double hyphens
         .replaceAll('--', '-')
-        .toLowerCase();
-    // If the filename ends with a hyphen, remove it
-    final filenameWithExt = '$filename$ext'.replaceAll('-$ext', ext);
-    return 'assets/flags/$filenameWithExt';
+        .toLowerCase()
+        .replaceAll(RegExp(r'-$'), '');
   }
 }
 
@@ -85,6 +132,7 @@ extension RegionsStatic on Region {
   static final Region hu = Region(name: 'Hungary', iso: 'HU');
   static final Region is_ = Region(name: 'Iceland', iso: 'IS');
   static final Region it = Region(name: 'Italy', iso: 'IT');
+  static final Region sq = Region(name: 'Albania', iso: 'AL');
   static final Region lv = Region(name: 'Latvia', iso: 'LV');
   static final Region li = Region(name: 'Liechtenstein', iso: 'LI');
   static final Region lt = Region(name: 'Lithuania', iso: 'LT');
@@ -102,6 +150,8 @@ extension RegionsStatic on Region {
   static final Region sk = Region(name: 'Slovakia', iso: 'SK');
   static final Region si = Region(name: 'Slovenia', iso: 'SI');
   static final Region es = Region(name: 'Spain', iso: 'ES');
+  static final Region catalonia = Region(name: 'Catalonia', iso: 'ES-CT');
   static final Region se = Region(name: 'Sweden', iso: 'SE');
   static final Region ch = Region(name: 'Switzerland', iso: 'CH');
+  static final Region th = Region(name: 'Thailand', iso: 'TH');
 }

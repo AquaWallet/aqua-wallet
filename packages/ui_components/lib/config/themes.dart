@@ -4,6 +4,15 @@ import 'package:ui_components/ui_components.dart';
 abstract class AquaTheme {
   ThemeData get themeData;
   ColorScheme get colorScheme;
+
+  static const List<BoxShadow> boxShadow = [
+    BoxShadow(
+      color: AquaPrimitiveColors.shadow,
+      blurRadius: 16,
+      offset: Offset(0, 0),
+      spreadRadius: 0,
+    ),
+  ];
 }
 
 class AquaLightTheme extends AquaTheme {
@@ -45,6 +54,7 @@ class AquaLightTheme extends AquaTheme {
         surfaceTint: AquaColors.lightColors.accentBrand,
         outline: AquaColors.lightColors.surfaceBorderPrimary,
         outlineVariant: AquaColors.lightColors.surfaceBorderSecondary,
+        shadow: AquaPrimitiveColors.shadow,
       );
 }
 
@@ -87,6 +97,7 @@ class AquaDarkTheme extends AquaTheme {
         surfaceTint: AquaColors.darkColors.accentBrand,
         outline: AquaColors.darkColors.surfaceBorderPrimary,
         outlineVariant: AquaColors.darkColors.surfaceBorderSecondary,
+        shadow: AquaPrimitiveColors.shadow,
       );
 }
 
@@ -129,5 +140,6 @@ class AquaDeepOceanTheme extends AquaTheme {
         surfaceTint: AquaColors.deepOceanColors.accentBrand,
         outline: AquaColors.deepOceanColors.surfaceBorderPrimary,
         outlineVariant: AquaColors.deepOceanColors.surfaceBorderSecondary,
+        shadow: AquaPrimitiveColors.shadow,
       );
 }

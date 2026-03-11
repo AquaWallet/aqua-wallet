@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'gdk_models.freezed.dart';
@@ -613,6 +613,16 @@ class GdkTransaction with _$GdkTransaction {
 
   factory GdkTransaction.createFromJson(Map<String, dynamic> json) {
     return _$GdkTransactionFromJson(json);
+  }
+
+  String? getDeliverAssetId(Asset viewingAsset) {
+    if (type != GdkTransactionTypeEnum.outgoing || !viewingAsset.isLBTC) {
+      return null;
+    }
+
+    final nonLbtcEntry =
+        satoshi?.entries.where((e) => e.key != Asset.lbtc().id).firstOrNull;
+    return nonLbtcEntry?.key;
   }
 }
 

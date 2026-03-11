@@ -32,6 +32,9 @@ class AquaAccountItem extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Normalize subtitle: treat null as empty, trim whitespace
+    final subtitle = (asset.subtitle ?? '').trim();
+
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
@@ -41,8 +44,11 @@ class AquaAccountItem extends HookWidget {
             borderRadius: BorderRadius.circular(4),
           ),
       child: InkWell(
-        onTap: () => onTap?.call(asset.assetId),
-        splashFactory: NoSplash.splashFactory,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call(asset.assetId))
+            : null,
+        splashFactory: InkRipple.splashFactory,
         highlightColor: selected == null
             ? Theme.of(context).highlightColor
             : Colors.transparent,
@@ -80,21 +86,28 @@ class AquaAccountItem extends HookWidget {
                   )
                 },
                 const SizedBox(width: 16),
+                // Text block: same height as icon, centered vertically.
                 Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AquaText.body1SemiBold(
-                        text: asset.name,
-                        color: textColorTitle ?? colors?.textPrimary,
-                      ),
-                      const SizedBox(height: 4),
-                      AquaText.body2Medium(
-                        text: asset.subtitle,
-                        color: textColorSubtitle ?? colors?.textSecondary,
-                      ),
-                    ],
+                  child: SizedBox(
+                    height: 40,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AquaText.body1SemiBold(
+                          text: asset.name,
+                          color: textColorTitle ?? colors?.textPrimary,
+                        ),
+                        if (subtitle.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          AquaText.body2Medium(
+                            text: subtitle,
+                            color:
+                                textColorSubtitle ?? colors?.textSecondary,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
                 if (showBalance) ...{
@@ -111,7 +124,8 @@ class AquaAccountItem extends HookWidget {
                       fiatAmountItem ??
                           AquaText.body2Medium(
                             text: asset.amountFiat ?? '',
-                            color: textColorSubtitle ?? colors?.textSecondary,
+                            color:
+                                textColorSubtitle ?? colors?.textSecondary,
                           ),
                     ],
                   ),

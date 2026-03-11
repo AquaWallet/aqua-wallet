@@ -6,6 +6,7 @@ import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class SendConfirmationSlider extends HookConsumerWidget {
   const SendConfirmationSlider({
@@ -29,7 +30,7 @@ class SendConfirmationSlider extends HookConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final sliderState = useState(SliderState.initial);
+    final sliderState = useState(AquaSliderState.initial);
 
     // Txn Errors
     final txnInitError = ref.watch(sendAssetSetupProvider(args)).error;
@@ -42,7 +43,8 @@ class SendConfirmationSlider extends HookConsumerWidget {
     // Validation Errors
     final amountValidationState =
         ref.watch(sendAssetAmountValidationProvider(args));
-    final isValidAmount = amountValidationState.valueOrNull ?? false;
+    final input = ref.watch(sendAssetInputStateProvider(args)).value!;
+    final isValidAmount = amountValidationState.hasValue && input.amount > 0;
     final amountError = amountValidationState.error;
     final amountParsingError = amountError as AmountParsingException?;
     final isInsufficientBalance = amountParsingError != null &&
@@ -70,21 +72,21 @@ class SendConfirmationSlider extends HookConsumerWidget {
     ]);
 
     final onTransactionConfirm = useCallback(() async {
-      sliderState.value = SliderState.inProgress;
+      sliderState.value = AquaSliderState.inProgress;
       onConfirmed();
     }, []);
 
     ref.listen(sendAssetTxnProvider(args), (_, state) {
       if (state.hasError) {
         logger.error('[Send] Error', state.error, state.stackTrace);
-        sliderState.value = SliderState.error;
+        sliderState.value = AquaSliderState.error;
       } else {
-        sliderState.value = SliderState.initial;
+        sliderState.value = AquaSliderState.initial;
       }
 
       state.asData?.value.mapOrNull(complete: (args) {
         logger.info('Transaction sent successfully: ${state.asData?.value}');
-        sliderState.value = SliderState.completed;
+        sliderState.value = AquaSliderState.completed;
       });
     });
 
@@ -98,11 +100,14 @@ class SendConfirmationSlider extends HookConsumerWidget {
       [isValidAmount, txnInitError, feeOptionsError, feeStructureError],
     );
 
-    return SendAssetConfirmSlider(
-      enabled: isSliderEnabled,
+    return AquaSlider(
+      width: MediaQuery.sizeOf(context).width,
+      onConfirm: onTransactionConfirm,
       sliderState: sliderState.value,
       text: sliderText,
-      onConfirm: onTransactionConfirm,
+      enabled: isSliderEnabled,
+      stickToEnd: false,
+      colors: context.aquaColors,
     );
   }
 }

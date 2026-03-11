@@ -18,30 +18,40 @@ class BitcoinFeeModel with _$BitcoinFeeModel {
     required int feeSats,
     required double feeFiat,
     required double feeRate,
+    @Default('') String feeFiatDisplay,
+    @Default('') String feeRateDisplay,
   }) = BitcoinFeeModelHigh;
 
   factory BitcoinFeeModel.medium({
     required int feeSats,
     required double feeFiat,
     required double feeRate,
+    @Default('') String feeFiatDisplay,
+    @Default('') String feeRateDisplay,
   }) = BitcoinFeeModelMedium;
 
   factory BitcoinFeeModel.low({
     required int feeSats,
     required double feeFiat,
     required double feeRate,
+    @Default('') String feeFiatDisplay,
+    @Default('') String feeRateDisplay,
   }) = BitcoinFeeModelLow;
 
   factory BitcoinFeeModel.min({
     required int feeSats,
     required double feeFiat,
     required double feeRate,
+    @Default('') String feeFiatDisplay,
+    @Default('') String feeRateDisplay,
   }) = BitcoinFeeModelMin;
 
   factory BitcoinFeeModel.custom({
     required int feeSats,
     required double feeFiat,
     required double feeRate,
+    @Default('') String feeFiatDisplay,
+    @Default('') String feeRateDisplay,
   }) = BitcoinFeeModelCustom;
 }
 
@@ -50,9 +60,8 @@ class LiquidFeeModel with _$LiquidFeeModel {
   factory LiquidFeeModel.lbtc({
     required int feeSats,
     required double feeFiat,
-    required String fiatCurrency,
     required String fiatFeeDisplay,
-    required double satsPerByte,
+    required String feeDisplay,
     @Default(true) bool isEnabled,
     @Default(false) bool availableForFeePayment,
   }) = LbtcLiquidFeeModel;
@@ -76,7 +85,7 @@ class SendAssetFeeOptionModel with _$SendAssetFeeOptionModel {
 
 extension BitcoinFeeModelExt on BitcoinFeeModel {
   String label(BuildContext context) => maybeMap(
-        high: (e) => context.loc.high,
+        high: (e) => context.loc.commonFeeratePriority,
         medium: (e) => context.loc.standard,
         low: (e) => context.loc.low,
         min: (e) => context.loc.minimum,

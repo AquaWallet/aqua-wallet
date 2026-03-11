@@ -2,7 +2,9 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:ui_components/ui_components.dart';
 
 class SwapAssetPickerButton extends HookConsumerWidget {
   const SwapAssetPickerButton({
@@ -64,20 +66,27 @@ class SwapAssetPickerButton extends HookConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   //ANCHOR - Asset Logo
+
                   Skeleton.ignore(
                     ignore: isLoading,
-                    child: AssetIcon(
-                      assetId: selectedAsset!.isLBTC
-                          ? kLayer2BitcoinId
-                          : selectedAsset!.id,
-                      assetLogoUrl: selectedAsset!.logoUrl,
-                      size: 24.0,
-                    ),
+                    child: selectedAsset!.isLBTC
+                        ? AquaAssetIcon.lightningBtcComposite(
+                            size: 24.0,
+                          )
+                        : AssetIcon(
+                            assetId: selectedAsset!.id,
+                            assetLogoUrl: selectedAsset!.logoUrl,
+                            size: 24.0,
+                          ),
                   ),
                   const SizedBox(width: 10.0),
                   //ANCHOR - Asset Symbol
                   Text(
-                    selectedAsset!.ticker,
+                    selectedAsset != null
+                        ? ref
+                            .watch(displayUnitsProvider)
+                            .getAssetDisplayUnit(selectedAsset!)
+                        : '',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(width: 4.0),

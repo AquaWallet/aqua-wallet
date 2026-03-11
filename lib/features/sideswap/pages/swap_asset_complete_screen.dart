@@ -1,7 +1,7 @@
-import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/config/constants/animations.dart' as animation;
 import 'package:aqua/constants.dart';
+import 'package:aqua/features/home/pages/home_screen.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/utils/utils.dart';
@@ -172,7 +172,7 @@ class _SuccessUi extends StatelessWidget {
             SizedBox(
               width: double.maxFinite,
               child: BoxShadowElevatedButton(
-                onPressed: () => context.go(AuthWrapper.routeName),
+                onPressed: () => context.go(HomeScreen.routeName),
                 child: Text(
                   context.loc.done,
                 ),

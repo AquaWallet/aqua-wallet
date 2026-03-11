@@ -1,6 +1,69 @@
+import 'dart:math';
+
 import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
+
+const kBip21BasePrecision = 8;
+
+String encodeBip21AmountFromSats({
+  required int amountInSats,
+  required Asset asset,
+}) {
+  // First change it back to the original amount.
+  final amount = amountInSats / satsPerBtc;
+  // Then scale the amount to the base precision.
+  // BIP21 for Liquid uses 10^(8-precision) scale for amount parameter.
+  // For USDT (precision 8): scale = 10^0 = 1, so amount=10 means 10 USDT.
+  // For other asset with precision 2: scale = 10^(8-2) = 10^6, so amount=10 means 0.00001000
+  final bip21Amount = amount / pow(10, kBip21BasePrecision - asset.precision);
+  return bip21Amount.toString();
+}
+
+int decodeBip21AmountToSats({
+  required Decimal bip21Amount,
+  required Asset asset,
+}) {
+  final scaleFactor = Decimal.parse(
+      BigInt.from(10).pow(kBip21BasePrecision - asset.precision).toString());
+  final satsDecimal = bip21Amount * scaleFactor * Decimal.fromInt(satsPerBtc);
+  return satsDecimal.toBigInt().toInt();
+}
+
+bool validateBip21Amount({
+  required int amountInSats,
+  required Asset asset,
+  required String address,
+}) {
+  final decoded = Bip21Decoder.decodeOrNull(address);
+  if (decoded == null) {
+    return true; // not a valid bip21 address
+  }
+  final decodedAmount = decoded['amount'] as Decimal?;
+  if (decodedAmount == null) {
+    return true; // no amount means no validation needed
+  }
+  final decodedNetwork = decoded['network'] as NetworkType?;
+  if (decodedNetwork == NetworkType.bitcoin) {
+    if (!asset.isBTC) {
+      return false; // bitcoin bip21 should only be used with BTC
+    }
+    final decodedAmountInSats =
+        decodeBip21AmountToSats(bip21Amount: decodedAmount, asset: asset);
+    return decodedAmountInSats == amountInSats;
+  }
+  final decodedAssetId = decoded['assetId'] as String?;
+  if (decodedAssetId == null) {
+    return true; // no asset id means no validation needed
+  }
+  if (decodedAssetId != asset.id) {
+    return false; // asset id mismatch
+  }
+  final decodedAmountInSats =
+      decodeBip21AmountToSats(bip21Amount: decodedAmount, asset: asset);
+  return decodedAmountInSats == amountInSats;
+}
 
 class Bip21Encoder {
   final String address;
@@ -119,5 +182,16 @@ class Bip21Decoder {
       'assetId': queryParameters['assetid'],
       'network': network,
     };
+  }
+
+  static Map<String, dynamic>? decodeOrNull(String? uri) {
+    if (uri == null) {
+      return null;
+    }
+    try {
+      return Bip21Decoder(uri)._decode();
+    } catch (e) {
+      return null;
+    }
   }
 }

@@ -67,14 +67,14 @@ enum MarketplaceServiceType {
   @JsonValue('btc_map')
   btcMap,
 
-  @JsonValue('my_first_bitcoin')
-  myFirstBitcoin,
-
   @JsonValue('dolphin_card')
   debitCard,
 
   @JsonValue('gift_cards')
-  giftCards
+  giftCards,
+
+  @JsonValue('lendasat')
+  lendasat,
 }
 
 extension on MarketplaceServiceType {

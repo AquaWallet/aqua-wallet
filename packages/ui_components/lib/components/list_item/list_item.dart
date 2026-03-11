@@ -6,10 +6,12 @@ class AquaListItem extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
+    this.contentWidget,
     this.titleTrailing,
     this.subtitleTrailing,
     this.iconLeading,
     this.iconTrailing,
+    this.iconSecondaryTrailing,
     this.titleColor,
     this.subtitleColor,
     this.titleTrailingColor,
@@ -18,10 +20,13 @@ class AquaListItem extends StatelessWidget {
     this.selected,
     this.onTap,
     this.colors,
+    this.titleMaxLines = 2,
+    this.subtitleMaxLines = 3,
   });
 
   final String title;
   final String? subtitle;
+  final Widget? contentWidget;
   final String? titleTrailing;
   final String? subtitleTrailing;
   final Color? titleColor;
@@ -31,8 +36,11 @@ class AquaListItem extends StatelessWidget {
   final Color? backgroundColor;
   final Widget? iconLeading;
   final Widget? iconTrailing;
+  final Widget? iconSecondaryTrailing;
   final bool? selected;
   final VoidCallback? onTap;
+  final int titleMaxLines;
+  final int subtitleMaxLines;
   final AquaColors? colors;
 
   @override
@@ -44,7 +52,7 @@ class AquaListItem extends StatelessWidget {
       borderOnForeground: false,
       color: backgroundColor ?? Theme.of(context).colorScheme.surfaceContainer,
       child: InkWell(
-        splashFactory: NoSplash.splashFactory,
+        splashFactory: InkRipple.splashFactory,
         highlightColor: selected == null
             ? Theme.of(context).highlightColor
             : Colors.transparent,
@@ -58,7 +66,7 @@ class AquaListItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(4),
           child: Ink(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: selected == true ? colors?.surfaceSelected : null,
               borderRadius: BorderRadius.circular(4),
@@ -82,12 +90,17 @@ class AquaListItem extends StatelessWidget {
                       AquaText.body1SemiBold(
                         text: title,
                         color: titleColor,
+                        maxLines: titleMaxLines,
+                        height: 1.3,
                       ),
-                      if (subtitle != null) ...{
-                        const SizedBox(height: 4),
+                      if (contentWidget != null) ...{
+                        contentWidget!,
+                      } else if (subtitle != null && subtitle!.isNotEmpty) ...{
                         AquaText.body2Medium(
                           text: subtitle!,
                           color: subtitleColor,
+                          height: 0,
+                          maxLines: subtitleMaxLines,
                         ),
                       },
                     ],
@@ -97,29 +110,32 @@ class AquaListItem extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    if (titleTrailing != null) ...{
+                    if (titleTrailing != null && titleTrailing!.isNotEmpty) ...{
                       AquaText.body1SemiBold(
                         text: titleTrailing!,
                         color: titleTrailingColor,
+                        height: 1.3,
                       ),
                     },
-                    if (subtitleTrailing != null) ...{
-                      if (titleTrailing != null) ...{
-                        const SizedBox(height: 4),
-                      },
+                    if (subtitleTrailing != null &&
+                        subtitleTrailing!.isNotEmpty) ...{
                       AquaText.body2Medium(
                         text: subtitleTrailing!,
                         color: subtitleTrailingColor,
+                        height: 0,
                       ),
                     },
                   ],
                 ),
+                if (iconSecondaryTrailing != null) ...{
+                  const SizedBox(width: 14),
+                  iconSecondaryTrailing!,
+                },
                 if (iconTrailing != null) ...{
-                  const SizedBox(width: 16),
+                  SizedBox(width: iconSecondaryTrailing != null ? 10 : 16),
                   iconTrailing!,
                 }
               ],
-              // style: AquaTypography.body1,
             ),
           ),
         ),

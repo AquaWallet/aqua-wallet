@@ -1,4 +1,4 @@
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:boltz/boltz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'receive_boltz_ui_state.freezed.dart';
@@ -18,6 +18,8 @@ extension ReceiveBoltzStateExt on ReceiveBoltzState {
   bool get isAmountEntry => this is _EnterAmountState;
 
   bool get isGeneratingInvoice => this is _GenInvoiceState;
+
+  bool get isQrCode => this is _QrCodeState;
 
   bool get isLightningView =>
       this is _EnterAmountState || this is _GenInvoiceState;

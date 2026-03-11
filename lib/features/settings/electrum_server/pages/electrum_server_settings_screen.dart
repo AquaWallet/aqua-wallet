@@ -1,11 +1,13 @@
 import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
+import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:ui_components/ui_components.dart' hide AquaColors;
 
 const kBitcoinUrl = 'bitcoinUrl';
 const kLiquidUrl = 'liquidUrl';
@@ -23,10 +25,12 @@ class ElectrumServerSettingsScreen extends HookConsumerWidget {
       electrumServerProvider.select((p) => p.isCustomElectrumServer),
     );
     final currentBitcoinUrl = ref.watch(
-      electrumServerProvider.select((p) => p.customElectrumServerBtcUrl),
+      electrumServerProvider
+          .select((p) => p.getElectrumUrl(NetworkType.bitcoin)),
     );
     final currentLiquidUrl = ref.watch(
-      electrumServerProvider.select((p) => p.customElectrumServerLiquidUrl),
+      electrumServerProvider
+          .select((p) => p.getElectrumUrl(NetworkType.liquid)),
     );
     final options = useMemoized(() {
       final items = [
@@ -44,17 +48,10 @@ class ElectrumServerSettingsScreen extends HookConsumerWidget {
     });
 
     final showCustomUrlInputSheet = useCallback(() {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: context.colors.background,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-        ),
-        builder: (_) => _CustomBlockExplorerUrlSheet(
+      AquaBottomSheet.show(
+        context,
+        colors: context.aquaColors,
+        content: _CustomBlockExplorerUrlSheet(
           onConfirm: ref.read(electrumServerProvider).setElectrumServer,
           customBlockExplorerBitcoinUrl: currentBitcoinUrl,
           customBlockExplorerLiquidUrl: currentLiquidUrl,
@@ -79,7 +76,6 @@ class ElectrumServerSettingsScreen extends HookConsumerWidget {
             final isCustom = item.object as bool;
             return SettingsListSelectionItem(
               content: Text(item.name),
-              position: item.position,
               onPressed: isCustom
                   ? showCustomUrlInputSheet
                   : ref

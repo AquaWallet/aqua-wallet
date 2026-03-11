@@ -2,8 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:ui_components/components/icon/lightning_btc_composite_icon.dart';
 import 'package:ui_components/gen/assets.gen.dart';
 import 'package:ui_components/shared/shared.dart';
+
+export 'contextual_glass_icon.dart';
+export 'lightning_btc_composite_icon.dart';
 
 const _defaultSize = 24.0;
 
@@ -563,6 +567,13 @@ class AquaIcon extends StatelessWidget {
     this.padding,
     this.size = _defaultSize,
   }) : asset = AquaUiAssets.svgs.tool;
+  AquaIcon.upload({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.upload;
   AquaIcon.user({
     super.key,
     this.color,
@@ -659,8 +670,9 @@ class AquaIcon extends StatelessWidget {
     this.color,
     this.onTap,
     this.padding,
+    bool colored = false,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.visa;
+  }) : asset = colored ? AquaUiAssets.svgs.visaColor : AquaUiAssets.svgs.visa;
   AquaIcon.lock({
     super.key,
     this.color,
@@ -675,6 +687,125 @@ class AquaIcon extends StatelessWidget {
     this.padding,
     this.size = _defaultSize,
   }) : asset = AquaUiAssets.svgs.trash;
+  AquaIcon.mastercard({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.mastercard;
+  AquaIcon.googlePay({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.googlePay;
+  AquaIcon.applePay({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.applePay;
+  AquaIcon.sepa({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.sepa;
+  AquaIcon.btcDirect({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.btcDirect;
+  AquaIcon.changelly({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.changelly;
+  AquaIcon.coinbits({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.coinbits;
+  AquaIcon.selectAll({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.selectAll;
+  AquaIcon.copyMultiple({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.copyMultiple;
+  AquaIcon.btcpay({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.btcpay;
+  AquaIcon.telegram({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.telegram;
+  AquaIcon.note({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.note;
+  AquaIcon.web({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.web;
+  AquaIcon.twitter({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.twitter;
+  AquaIcon.instagram({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.instagram;
+  AquaIcon.jan3Logo({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.jan3Logo;
+  AquaIcon.jan3LogoDark({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : asset = AquaUiAssets.svgs.jan3MiniLogoDark;
 
   final SvgGenImage asset;
   final double size;
@@ -687,7 +818,10 @@ class AquaIcon extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call())
+            : null,
         borderRadius: BorderRadius.circular(100),
         splashFactory: InkSparkle.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {
@@ -731,9 +865,7 @@ class AquaAssetIcon extends StatelessWidget {
     final Color? color,
   }) =>
       switch (assetId) {
-        AssetIds.layer2 ||
-        _ when (AssetIds.lbtc.contains(assetId)) =>
-          AquaAssetIcon.l2Bitcoin(
+        AssetIds.layer2 => AquaAssetIcon.l2Bitcoin(
             size: size,
             color: color,
             padding: padding,
@@ -758,6 +890,12 @@ class AquaAssetIcon extends StatelessWidget {
             onTap: onTap,
           ),
         AssetIds.usdtEth => AquaAssetIcon.usdtEthereum(
+            size: size,
+            color: color,
+            padding: padding,
+            onTap: onTap,
+          ),
+        _ when (AssetIds.mexas.contains(assetId)) => AquaAssetIcon.mexas(
             size: size,
             color: color,
             padding: padding,
@@ -842,6 +980,20 @@ class AquaAssetIcon extends StatelessWidget {
     this.padding,
     this.size = _defaultSize,
   }) : icon = AquaUiAssets.svgs.currency.lightningBtc.svg();
+  AquaAssetIcon.lightningBtcComposite({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : icon = LightningBtcCompositeIcon(size: size);
+  AquaAssetIcon.mexas({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  }) : icon = AquaUiAssets.svgs.currency.mexas.svg();
   AquaAssetIcon.usdtTether({
     super.key,
     this.color,
@@ -967,7 +1119,10 @@ class AquaAssetIcon extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call())
+            : null,
         borderRadius: BorderRadius.circular(100),
         splashFactory: InkSparkle.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {

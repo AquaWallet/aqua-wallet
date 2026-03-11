@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/gen/assets.gen.dart';
@@ -10,8 +12,8 @@ const kSliderDefaultThumbSize = 56.0;
 enum AquaSliderState { initial, inProgress, completed, error }
 
 class AquaSlider extends HookWidget {
+  final double? width;
   final double height;
-  final double width;
   final String text;
   final VoidCallback onConfirm;
   final bool stickToEnd;
@@ -19,10 +21,12 @@ class AquaSlider extends HookWidget {
   final double thumbWidth;
   final double thumbHeight;
   final AquaSliderState sliderState;
+  final AquaColors colors;
 
   const AquaSlider({
     super.key,
-    required this.width,
+    required this.colors,
+    this.width,
     this.height = kSliderDefaultThumbSize,
     this.text = '',
     required this.onConfirm,
@@ -38,6 +42,7 @@ class AquaSlider extends HookWidget {
     final position = useState(0.0);
     final animationDuration = useState(0);
 
+    final width = this.width ?? MediaQuery.sizeOf(context).width;
     final maxSlidePosition = useMemoized(
       () => width - thumbWidth - 2,
       [width, thumbWidth],
@@ -105,7 +110,7 @@ class AquaSlider extends HookWidget {
 
     final backgroundColorTween = useMemoized(
       () => ColorTween(
-        begin: Theme.of(context).colorScheme.surfaceContainerHighest,
+        begin: Theme.of(context).colorScheme.primary.withOpacity(0.16),
         end: Theme.of(context).colorScheme.primary.withOpacity(0),
       ),
       [Theme.of(context)],
@@ -118,60 +123,77 @@ class AquaSlider extends HookWidget {
       [backgroundColorTween, percent],
     );
 
-    return AnimatedContainer(
-      duration: Duration(milliseconds: animationDuration.value),
-      curve: Curves.ease,
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: enabled
-            ? backgroundColor
-            : Theme.of(context).colorScheme.inverseSurface.withOpacity(0.5),
-      ),
-      child: Stack(
-        children: [
-          _Label(
-            textOpacity: textOpacity,
-            color: enabled
-                ? Theme.of(context).colorScheme.onSurface
-                : Theme.of(context)
-                    .colorScheme
-                    .onInverseSurface
-                    .withOpacity(0.5),
-            text: text,
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          color: colors.glassBackground.withOpacity(0.7),
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: 12,
           ),
-          AnimatedContainer(
+          child: AnimatedContainer(
             duration: Duration(milliseconds: animationDuration.value),
-            curve: Curves.bounceOut,
-            width: backgroundWidth,
+            curve: Curves.ease,
+            width: width,
             height: height,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-              ),
-              child: Opacity(
-                opacity: enabled ? 1.0 : 0.5,
-                child: _SliderThumb(state: sliderState),
-              ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: enabled
+                  ? backgroundColor
+                  : Theme.of(context)
+                      .colorScheme
+                      .inverseSurface
+                      .withOpacity(0.5),
+            ),
+            child: Stack(
+              children: [
+                _Label(
+                  textOpacity: textOpacity,
+                  color: enabled
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context)
+                          .colorScheme
+                          .onInverseSurface
+                          .withOpacity(0.5),
+                  text: text,
+                ),
+                AnimatedContainer(
+                  duration: Duration(milliseconds: animationDuration.value),
+                  curve: Curves.bounceOut,
+                  width: backgroundWidth,
+                  height: height,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Opacity(
+                      opacity: enabled ? 1.0 : 0.5,
+                      child: _SliderThumb(state: sliderState),
+                    ),
+                  ),
+                ),
+                AnimatedPositioned(
+                  duration: Duration(milliseconds: animationDuration.value),
+                  curve: Curves.bounceOut,
+                  left: currentPosition,
+                  child: GestureDetector(
+                    onPanUpdate: onPanUpdate,
+                    onPanEnd: onPanEnd,
+                    child: Container(
+                      color: Colors.transparent,
+                      width: thumbWidth,
+                      height: thumbHeight,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          AnimatedPositioned(
-            duration: Duration(milliseconds: animationDuration.value),
-            curve: Curves.bounceOut,
-            left: currentPosition,
-            child: GestureDetector(
-              onPanUpdate: onPanUpdate,
-              onPanEnd: onPanEnd,
-              child: Container(
-                color: Colors.transparent,
-                width: thumbWidth,
-                height: thumbHeight,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

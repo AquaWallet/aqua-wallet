@@ -132,9 +132,7 @@ class OnRampOptionCard extends HookConsumerWidget {
       } catch (e) {
         _logger.error('Failed to launch integration: $e');
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.loc.unknownErrorSubtitle)),
-          );
+          context.showErrorSnackbar(context.loc.unknownErrorSubtitle);
         }
       }
     }, []);

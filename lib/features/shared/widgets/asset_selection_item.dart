@@ -1,8 +1,9 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/conversion_provider.dart';
-import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
 
 const usdteName = '(USDT.e)';
@@ -17,6 +18,7 @@ class AssetSelectionDropDownItem extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final formatter = ref.read(formatProvider);
     return Container(
       height: 62.0,
       decoration: const BoxDecoration(
@@ -52,7 +54,7 @@ class AssetSelectionDropDownItem extends HookConsumerWidget {
                 const SizedBox(height: 4.0),
                 // Ticker
                 Text(
-                  asset.ticker,
+                  ref.watch(displayUnitsProvider).getAssetDisplayUnit(asset),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontSize: 14.0,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -67,8 +69,10 @@ class AssetSelectionDropDownItem extends HookConsumerWidget {
             children: [
               // Balance
               Text(
-                ref.read(formatterProvider).formatAssetAmountDirect(
-                    amount: asset.amount, precision: asset.precision),
+                formatter.formatAssetAmount(
+                  amount: asset.amount,
+                  asset: asset,
+                ),
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Theme.of(context)
                           .colors

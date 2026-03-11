@@ -21,7 +21,8 @@ final amountCurrencyProvider = StateProvider.autoDispose<String?>((ref) {
 /// - This will be different from the user entered amount if user entered amount is in fiat, as we want to add the btc/lbtc amount to the bip21 uri
 final receiveAssetAmountForBip21Provider =
     Provider.family.autoDispose<String?, Asset>((ref, asset) {
-  final userEntered = ref.watch(receiveAssetAmountProvider);
+  final userEntered =
+      ref.watch(receiveAssetAmountProvider)?.replaceAll(',', '');
   final fiatCurrency = ref.watch(amountCurrencyProvider);
   final fiatRates = ref.watch(fiatRatesProvider).unwrapPrevious().valueOrNull;
   final fiatAmount = ref.read(parsedAssetAmountAsDecimalProvider(userEntered));

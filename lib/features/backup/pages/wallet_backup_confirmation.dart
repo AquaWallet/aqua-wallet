@@ -1,10 +1,10 @@
 import 'package:aqua/common/common.dart';
 import 'package:aqua/features/auth/auth_wrapper.dart';
-import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
 import 'package:aqua/features/backup/backup.dart';
+import 'package:aqua/features/backup/providers/wallet_backup_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:aqua/config/config.dart';
+import 'package:ui_components/ui_components.dart';
 
 class WalletBackupConfirmation extends ConsumerWidget {
   static const routeName = '/walletBackupConfirmation';
@@ -16,28 +16,61 @@ class WalletBackupConfirmation extends ConsumerWidget {
     ref.listen(
       walletBackupConfirmationResultProvider,
       (_, asyncValue) => asyncValue?.when(
-          data: (_) => context.go(AuthWrapper.routeName),
+          data: (_) {
+            AquaModalSheet.show(
+              context,
+              title: context.loc.backupVerifiedTitle,
+              message: context.loc.backupVerifiedDescription,
+              primaryButtonText: context.loc.backupVerifiedButton,
+              onPrimaryButtonTap: () {
+                Navigator.of(context).pop(); // Close modal
+                context.go(AuthWrapper.routeName);
+              },
+              icon: AquaIcon.checkCircle(
+                color: context.aquaColors.textInverse,
+              ),
+              iconVariant: AquaRingedIconVariant.info,
+              colors: context.aquaColors,
+              copiedToClipboardText: context.loc.copiedToClipboard,
+            );
+          },
           loading: () => showLoadingDialog(
                 context,
                 context.loc.backupInviteLoadingIndicator,
               ),
           error: (e, _) {
-            context
-              ..popUntilPath(routeName)
-              ..push(WalletBackupConfirmationFailure.routeName);
+            AquaModalSheet.show(
+              context,
+              title: context.loc.backupIncorrectWordsTitle,
+              message: context.loc.backupIncorrectWordsDescription,
+              primaryButtonText: context.loc.backupIncorrectWordsTryAgain,
+              onPrimaryButtonTap: () {
+                Navigator.of(context).pop();
+              },
+              secondaryButtonText: context.loc.backupLater,
+              onSecondaryButtonTap: () {
+                Navigator.of(context).pop();
+                context.go(AuthWrapper.routeName);
+              },
+              icon: AquaIcon.warning(
+                color: context.aquaColors.textInverse,
+              ),
+              iconVariant: AquaRingedIconVariant.warning,
+              colors: context.aquaColors,
+              copiedToClipboardText: context.loc.copiedToClipboard,
+            );
           }),
     );
 
     return Scaffold(
-      appBar: AquaAppBar(
-        showActionButton: false,
-        iconBackgroundColor: Theme.of(context).colors.background,
-        iconForegroundColor: Theme.of(context).colors.onBackground,
+      appBar: AquaTopAppBar(
+        title: context.loc.backupConfirmationTitle,
+        colors: context.aquaColors,
       ),
-      body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0),
-          child: const WalletBackupConfirmationContent(),
+      body: const SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: WalletBackupConfirmationContent(),
         ),
       ),
     );

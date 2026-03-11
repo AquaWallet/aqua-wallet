@@ -117,7 +117,10 @@ class AddressInputView extends HookConsumerWidget {
                                   Svgs.walletScan,
                                   width: 20,
                                   height: 20,
-                                  color: Theme.of(context).colors.onBackground,
+                                  colorFilter: ColorFilter.mode(
+                                    Theme.of(context).colors.onBackground,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                               ),
                             ),

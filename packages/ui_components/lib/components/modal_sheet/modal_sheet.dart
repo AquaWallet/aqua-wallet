@@ -1,16 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:ui_components/shared/shared.dart';
 import 'package:ui_components/ui_components.dart';
-
-enum AquaModalSheetVariant {
-  normal,
-  success,
-  danger,
-  warning,
-  info,
-}
 
 class AquaModalSheet extends StatelessWidget {
   const AquaModalSheet({
@@ -24,14 +16,18 @@ class AquaModalSheet extends StatelessWidget {
     this.onSecondaryButtonTap,
     this.copyableContentTitle,
     this.copyableContentMessage,
+    this.hyperlinkText,
+    this.onHyperlinkTap,
     this.icon,
     this.illustration,
-    this.iconVariant = AquaModalSheetVariant.normal,
+    this.iconVariant = AquaRingedIconVariant.normal,
+    this.primaryButtonKey,
     this.primaryButtonVariant = AquaButtonVariant.normal,
     this.secondaryButtonVariant = AquaButtonVariant.normal,
     this.titleMaxLines = 3,
     this.messageMaxLines = 5,
     required this.colors,
+    required this.copiedToClipboardText,
   }) : assert(
           icon == null || illustration == null,
           'icon and illustration cannot be provided at the same time',
@@ -42,18 +38,22 @@ class AquaModalSheet extends StatelessWidget {
   final String? messageTertiary;
   final String? copyableContentTitle;
   final String? copyableContentMessage;
+  final String? hyperlinkText;
+  final VoidCallback? onHyperlinkTap;
   final String primaryButtonText;
   final VoidCallback onPrimaryButtonTap;
   final String? secondaryButtonText;
   final VoidCallback? onSecondaryButtonTap;
   final Widget? icon;
   final Widget? illustration;
-  final AquaModalSheetVariant iconVariant;
+  final AquaRingedIconVariant iconVariant;
+  final Key? primaryButtonKey;
   final AquaButtonVariant primaryButtonVariant;
   final AquaButtonVariant secondaryButtonVariant;
   final int titleMaxLines;
   final int messageMaxLines;
   final AquaColors colors;
+  final String copiedToClipboardText;
 
   @override
   Widget build(BuildContext context) {
@@ -75,49 +75,12 @@ class AquaModalSheet extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 48,
-                height: 5,
-                margin: const EdgeInsets.only(top: 8),
-                decoration: BoxDecoration(
-                  color: colors.systemBackgroundColor,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-              ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 45),
               if (icon != null) ...[
-                Container(
-                  width: 88,
-                  height: 88,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: switch (iconVariant) {
-                      AquaModalSheetVariant.normal => colors.surfaceTertiary,
-                      AquaModalSheetVariant.success =>
-                        colors.accentSuccessTransparent,
-                      AquaModalSheetVariant.danger =>
-                        colors.accentDangerTransparent,
-                      AquaModalSheetVariant.warning =>
-                        colors.accentWarningTransparent,
-                      AquaModalSheetVariant.info =>
-                        colors.accentBrandTransparent,
-                    },
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: switch (iconVariant) {
-                        AquaModalSheetVariant.normal => colors.surfaceSecondary,
-                        AquaModalSheetVariant.success => colors.accentSuccess,
-                        AquaModalSheetVariant.danger => colors.accentDanger,
-                        AquaModalSheetVariant.warning => colors.accentWarning,
-                        AquaModalSheetVariant.info => colors.accentBrand,
-                      },
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: icon,
-                  ),
+                AquaRingedIcon(
+                  icon: icon!,
+                  variant: iconVariant,
+                  colors: colors,
                 ),
                 const SizedBox(height: 20),
               ],
@@ -137,21 +100,48 @@ class AquaModalSheet extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 6),
-              Text(
-                message,
-                maxLines: messageMaxLines,
-                textAlign: TextAlign.center,
-                style: AquaTypography.body1Medium.copyWith(
-                  height: 1.2,
-                  color: colors.textSecondary,
+              if (hyperlinkText != null && onHyperlinkTap != null) ...[
+                RichText(
+                  maxLines: messageMaxLines,
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: AquaTypography.subtitle.copyWith(
+                      height: 1.2,
+                      color: colors.textSecondary,
+                    ),
+                    children: [
+                      TextSpan(text: message.trim()),
+                      const TextSpan(text: ' '),
+                      TextSpan(
+                        text: hyperlinkText,
+                        style: AquaTypography.subtitleSemiBold.copyWith(
+                          height: 1.2,
+                          color: colors.accentBrand,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = onHyperlinkTap,
+                      ),
+                    ],
+                  ),
+                )
+              ] else ...[
+                Text(
+                  message,
+                  maxLines: messageMaxLines,
+                  textAlign: TextAlign.center,
+                  style: AquaTypography.subtitle.copyWith(
+                    height: 1.2,
+                    color: colors.textSecondary,
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 32),
               if (copyableContentTitle != null) ...[
                 _CopyableSection(
                   colors: colors,
                   copyableContentTitle: copyableContentTitle,
                   copyableContentMessage: copyableContentMessage,
+                  copiedToClipboardText: copiedToClipboardText,
                   onTap: () {
                     Clipboard.setData(ClipboardData(
                       text: copyableContentMessage!,
@@ -159,7 +149,7 @@ class AquaModalSheet extends StatelessWidget {
                     AquaTooltip.show(
                       context,
                       isInfo: true,
-                      message: context.loc.copiedToClipboard,
+                      message: copiedToClipboardText,
                       colors: colors,
                     );
                   },
@@ -179,6 +169,7 @@ class AquaModalSheet extends StatelessWidget {
                 const SizedBox(height: 34),
               ],
               AquaButton.primary(
+                key: primaryButtonKey,
                 text: primaryButtonText,
                 variant: primaryButtonVariant,
                 onPressed: onPrimaryButtonTap,
@@ -199,25 +190,30 @@ class AquaModalSheet extends StatelessWidget {
     );
   }
 
-  static void show(
+  static Future<dynamic> show(
     BuildContext context, {
     required String title,
     required String message,
     String? messageTertiary,
     String? copyableContentTitle,
     String? copyableContentMessage,
+    String? hyperlinkText,
+    VoidCallback? onHyperlinkTap,
     required String primaryButtonText,
     required VoidCallback onPrimaryButtonTap,
     String? secondaryButtonText,
     VoidCallback? onSecondaryButtonTap,
-    AquaModalSheetVariant iconVariant = AquaModalSheetVariant.normal,
+    AquaRingedIconVariant iconVariant = AquaRingedIconVariant.normal,
+    Key? primaryButtonKey,
     AquaButtonVariant primaryButtonVariant = AquaButtonVariant.normal,
     AquaButtonVariant secondaryButtonVariant = AquaButtonVariant.normal,
     Widget? icon,
     Widget? illustration,
     required AquaColors colors,
+    required String copiedToClipboardText,
+    double bottomPadding = 20.0,
   }) {
-    showModalBottomSheet(
+    return showModalBottomSheet(
       context: context,
       useRootNavigator: true,
       constraints: context.isDesktop || context.isTablet
@@ -233,23 +229,27 @@ class AquaModalSheet extends StatelessWidget {
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => Padding(
-        padding: const EdgeInsets.only(bottom: 20),
+        padding: EdgeInsets.only(bottom: bottomPadding),
         child: AquaModalSheet(
           icon: icon,
           illustration: illustration,
           title: title,
           message: message,
           colors: colors,
+          primaryButtonKey: primaryButtonKey,
           primaryButtonText: primaryButtonText,
           onPrimaryButtonTap: onPrimaryButtonTap,
           secondaryButtonText: secondaryButtonText,
           onSecondaryButtonTap: onSecondaryButtonTap,
           copyableContentTitle: copyableContentTitle,
           copyableContentMessage: copyableContentMessage,
+          hyperlinkText: hyperlinkText,
+          onHyperlinkTap: onHyperlinkTap,
           messageTertiary: messageTertiary,
           iconVariant: iconVariant,
           primaryButtonVariant: primaryButtonVariant,
           secondaryButtonVariant: secondaryButtonVariant,
+          copiedToClipboardText: copiedToClipboardText,
         ),
       ),
     );
@@ -261,12 +261,14 @@ class _CopyableSection extends HookWidget {
     required this.colors,
     required this.copyableContentTitle,
     required this.copyableContentMessage,
+    required this.copiedToClipboardText,
     this.onTap,
   });
 
   final AquaColors? colors;
   final String? copyableContentTitle;
   final String? copyableContentMessage;
+  final String copiedToClipboardText;
   final VoidCallback? onTap;
 
   @override
@@ -276,15 +278,15 @@ class _CopyableSection extends HookWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
+        onTap: () => WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!isExpanded.value) {
             isExpanded.value = true;
           } else {
             onTap?.call();
           }
-        },
+        }),
         borderRadius: BorderRadius.circular(8),
-        splashFactory: NoSplash.splashFactory,
+        splashFactory: InkRipple.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {
           if (state.isHovered) {
             return Colors.transparent;

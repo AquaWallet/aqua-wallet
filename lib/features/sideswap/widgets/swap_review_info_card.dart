@@ -1,4 +1,5 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -6,6 +7,7 @@ import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/components/icon/icon.dart';
 
 class SwapReviewInfoCard extends HookConsumerWidget {
   const SwapReviewInfoCard({
@@ -18,28 +20,37 @@ class SwapReviewInfoCard extends HookConsumerWidget {
   final SideswapInputState input;
 
   @override
-  Widget build(BuildContext context, ref) {
-    final asset = useMemoized(() => input.deliverAsset!);
-    final receiveAmount = useMemoized(() {
-      final asset = input.receiveAsset;
-      final receiveAmount = order.recvAmount;
-      if (asset != null) {
-        final amount = ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: receiveAmount,
-              precision: asset.precision,
-            );
-        return "$amount ${input.receiveAsset!.ticker}";
+  Widget build(BuildContext context, WidgetRef ref) {
+    final deliverAsset = useMemoized(() => input.deliverAsset!);
+    final deliverDisplayUnit = ref.watch(displayUnitsProvider
+        .select((p) => p.getForcedDisplayUnit(deliverAsset)));
+    final formatter = ref.read(formatProvider);
+    final deliverCryptoAmountInSats = useMemoized(() {
+      if (input.deliverAmount.isEmpty) return 0;
+      return ref.read(formatterProvider).parseAssetAmountToSats(
+            amount: input.deliverAmount,
+            precision: deliverAsset.precision,
+            asset: deliverAsset,
+          );
+    }, [input.deliverAmount, deliverAsset.precision]);
+
+    final receiveAsset = useMemoized(() => input.receiveAsset);
+    final receiveDisplayUnit = ref.watch(displayUnitsProvider.select((p) =>
+        receiveAsset != null ? p.getForcedDisplayUnit(receiveAsset) : null));
+
+    final receiveAmountFormattedString = useMemoized(() {
+      if (receiveAsset != null && receiveDisplayUnit != null) {
+        final rawReceiveAmount = order.recvAmount;
+        final formattedAmountOnly = formatter.formatAssetAmount(
+          amount: rawReceiveAmount,
+          asset: receiveAsset,
+          displayUnitOverride: receiveDisplayUnit,
+        );
+        final ticker = receiveAsset.getDisplayTicker(receiveDisplayUnit);
+        return "$formattedAmountOnly $ticker";
       }
       return '-';
-    });
-    final displayUnit = ref.watch(
-        displayUnitsProvider.select((p) => p.getForcedDisplayUnit(asset)));
-    final cryptoAmountInSats = useMemoized(() {
-      return ref.read(formatterProvider).parseAssetAmountDirect(
-            amount: input.deliverAmount,
-            precision: asset.precision,
-          );
-    }, [input.deliverAmount]);
+    }, [order.recvAmount, receiveAsset, receiveDisplayUnit]);
 
     return BoxShadowCard(
       margin: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -53,19 +64,21 @@ class SwapReviewInfoCard extends HookConsumerWidget {
           children: [
             Row(
               children: [
-                //ANCHOR - Logo
-                AssetIcon(
-                  assetId: asset.isLBTC ? kLayer2BitcoinId : asset.id,
-                  assetLogoUrl: asset.logoUrl,
-                  size: 51.0,
-                ),
+                deliverAsset.isLBTC
+                    ? AquaAssetIcon.lightningBtcComposite(
+                        size: 51.0,
+                      )
+                    : AssetIcon(
+                        assetId: deliverAsset.id,
+                        assetLogoUrl: deliverAsset.logoUrl,
+                        size: 51.0,
+                      ),
                 const SizedBox(width: 19.0),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 2.0),
-                    //ANCHOR - Amount Title
                     Text(
                       context.loc.pegOrderReviewTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -73,23 +86,21 @@ class SwapReviewInfoCard extends HookConsumerWidget {
                           ),
                     ),
                     const SizedBox(height: 8.0),
-                    //ANCHOR - Amount
                     AssetCryptoAmount(
                       forceVisible: true,
-                      asset: asset,
-                      amount: cryptoAmountInSats.toString(),
+                      asset: deliverAsset,
+                      amount: deliverCryptoAmountInSats.toString(),
                       style: Theme.of(context).textTheme.headlineSmall,
-                      forceDisplayUnit: displayUnit,
+                      forceDisplayUnit: deliverDisplayUnit,
                     ),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 36.0),
-            //ANCHOR - Receive Amount
             LabelCopyableTextView(
               label: context.loc.youWillReceive,
-              value: receiveAmount,
+              value: receiveAmountFormattedString,
             ),
             //ANCHOR - Divider
             DashedDivider(

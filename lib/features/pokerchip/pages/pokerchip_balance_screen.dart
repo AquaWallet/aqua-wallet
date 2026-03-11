@@ -1,14 +1,17 @@
 import 'package:aqua/common/common.dart';
+import 'package:aqua/config/config.dart';
 import 'package:aqua/data/models/network_amount.dart';
 import 'package:aqua/features/pokerchip/pokerchip.dart';
-import 'package:aqua/features/qr_scan/models/qr_scan_arguments.dart';
-import 'package:aqua/features/qr_scan/pages/qr_scanner_screen.dart';
-import 'package:aqua/features/qr_scan/providers/qr_scan_provider.dart';
+import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
+
+final _logger = CustomLogger(FeatureFlag.pokerchip);
 
 //NOTE: This screen and the rest of the pokerchip views and logic can be abstracted to be re-used for all external private key sweeps
 class PokerchipBalanceScreen extends HookConsumerWidget {
@@ -41,48 +44,49 @@ class PokerchipBalanceScreen extends HookConsumerWidget {
     final navigateToQrScanner = useCallback(() async {
       ref.read(qrScanProvider.notifier).restartCamera();
 
-      if (asset == null || !context.mounted) {
-        throw ArgumentError(
-            'Invalid arguments: asset or externalPrivateKey is null.');
+      if (asset == null) {
+        _logger.error('Navigate to QR Scanner: Asset is null');
+        return;
       }
 
-      try {
-        final result = await context.push(
-          QrScannerScreen.routeName,
-          extra: QrScannerArguments(
-            asset: asset,
-            parseAction: QrScannerParseAction.attemptToParse,
-            onSuccessAction: QrOnSuccessNavAction.popBack,
-          ),
-        ) as SendAssetArguments;
+      final result = await context.push<QrScanState>(
+        QrScannerScreen.routeName,
+        extra: QrScannerArguments(
+          asset: asset,
+          parseAction: QrScannerParseAction.attemptToParse,
+        ),
+      );
 
-        if (result.externalPrivateKey == null) {
-          throw ArgumentError(
-              'Invalid arguments: asset or externalPrivateKey is null.');
-        }
-
-        final pokerChipState = ref.watch(pokerchipBalanceProvider(address));
-        final balance = pokerChipState.valueOrNull?.networkAmount.amount;
-
-        if (balance == null) {
-          throw ArgumentError('Invalid arguments: balance or asset is null.');
-        }
-
-        final args = SendAssetArguments.fromAsset(asset).copyWith(
-          externalPrivateKey: result.externalPrivateKey,
-          networkAmount: NetworkAmount(amount: balance, asset: asset),
-          transactionType: SendTransactionType.privateKeySweep,
-        );
-
-        navigateToSendFlow(args);
-      } catch (e) {
-        if (!context.mounted) {
-          return;
-        }
-        context
-            .showErrorSnackbar('An error occurred while scanning the QR code.');
+      if (result == null) {
+        _logger.error('Pokerchip QR Scanned: Result is null');
+        return;
       }
-    }, [asset, navigateToSendFlow]);
+
+      final sendArgs = result.whenOrNull(
+        sendAsset: (args) => args,
+      );
+
+      if (sendArgs == null || sendArgs.externalPrivateKey == null) {
+        _logger.error('Pokerchip QR Scanned: Send args is null');
+        return;
+      }
+
+      final pokerChipState = ref.read(pokerchipBalanceProvider(address));
+      final balance = pokerChipState.valueOrNull?.networkAmount.amount;
+
+      if (balance == null) {
+        _logger.error('Pokerchip QR Scanned: Balance is null');
+        return;
+      }
+
+      final finalArgs = SendAssetArguments.fromAsset(asset).copyWith(
+        externalPrivateKey: sendArgs.externalPrivateKey,
+        networkAmount: NetworkAmount(amount: balance, asset: asset),
+        transactionType: SendTransactionType.privateKeySweep,
+      );
+
+      navigateToSendFlow(finalArgs);
+    }, [asset, navigateToSendFlow, address, ref]);
 
     final sweepFunds = useCallback(() {
       final alertModel = CustomAlertDialogUiModel(
@@ -103,14 +107,20 @@ class PokerchipBalanceScreen extends HookConsumerWidget {
     }, [address, asset]);
 
     return Scaffold(
-      appBar: AquaAppBar(
-        showBackButton: true,
-        showActionButton: false,
+      appBar: AquaTopAppBar(
+        colors: context.aquaColors,
         title: context.loc.bitcoinChip,
+        actions: [
+          AquaIcon.close(
+            color: context.aquaColors.textSecondary,
+            size: 24,
+            onTap: () => context.popUntilPath(PokerchipScreen.routeName),
+          )
+        ],
       ),
       body: SafeArea(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               //ANCHOR - Pokerchip Info
@@ -121,30 +131,24 @@ class PokerchipBalanceScreen extends HookConsumerWidget {
               ),
               const Spacer(),
               //ANCHOR: Explore button
-              AquaElevatedButton(
+              AquaButton.primary(
                 onPressed: pokerchipBalance.whenOrNull(
                   data: (value) => () =>
                       ref.read(urlLauncherProvider).open(value.explorerLink),
                 ),
-                child: Text(
-                  context.loc.assetTransactionDetailsExplorerButton,
-                ),
+                text: context.loc.assetTransactionDetailsExplorerButton,
               ),
               const SizedBox(height: 36.0),
 
               //ANCHOR: Sweep button (EXPERIMENTAL - NEEDS DESIGN)
               if (pokerchipSweepEnabled && hasBalance)
-                AquaElevatedButton(
+                AquaButton.primary(
                   onPressed: sweepFunds,
-                  child: Text(context.loc.sweepFunds),
+                  text: context.loc.sweepFunds,
                 ),
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: navigateToQrScanner,
-        child: const Icon(Icons.qr_code_scanner),
       ),
     );
   }

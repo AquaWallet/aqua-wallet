@@ -131,8 +131,13 @@ SwapOrderCreationState createMockSwapOrderCreationState({
 class MockSwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
     with Mock
     implements SwapOrderStorageNotifier {
+  MockSwapOrderStorageNotifier({List<SwapOrderDbModel>? orders})
+      : _orders = orders;
+
+  final List<SwapOrderDbModel>? _orders;
+
   @override
-  FutureOr<List<SwapOrderDbModel>> build() async => [];
+  FutureOr<List<SwapOrderDbModel>> build() async => _orders ?? [];
 }
 
 // Helper to create a mock SwapOrderDbModel

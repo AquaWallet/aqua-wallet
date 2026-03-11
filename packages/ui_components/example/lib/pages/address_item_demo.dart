@@ -20,8 +20,7 @@ class AddressItemDemoPage extends HookConsumerWidget {
         context,
         isInfo: true,
         message: 'Copied to clipboard',
-        foregroundColor: theme.colors.textInverse,
-        backgroundColor: theme.colors.glassInverse,
+        colors: theme.colors,
       );
     });
 

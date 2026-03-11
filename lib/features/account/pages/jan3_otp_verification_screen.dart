@@ -67,135 +67,148 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
             ? UiAssets.svgs.dark.jan3Logo.svg()
             : UiAssets.svgs.light.jan3Logo.svg(),
         showActionButton: false,
+        shouldPopOnCustomBack: true,
+        onBackPressed: () {
+          ref.invalidate(jan3AuthProvider);
+        },
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            //ANCHOR - Title
-            Text(
-              context.loc.otpScreenTitle,
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                fontFamily: UiFontFamily.inter,
-              ),
-            ),
-            const SizedBox(height: 12),
-            //ANCHOR - Description
-            RichText(
-              text: TextSpan(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              //ANCHOR - Title
+              Text(
+                context.loc.otpScreenTitle,
                 style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.43,
-                  letterSpacing: 0.2,
-                  color: AquaColors.dimMarble,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                   fontFamily: UiFontFamily.inter,
                 ),
-                children: [
-                  TextSpan(
-                    text: '${context.loc.otpScreenDescription} ',
-                  ),
-                  TextSpan(
-                    text: email,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: context.colors.onBackground,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.4,
-                    ),
-                  ),
-                  const TextSpan(
-                    text: '.',
-                  ),
-                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            //ANCHOR - Change email button
-            _TappableTextSpan(
-              description: context.loc.otpScreenNotYourEmail,
-              tappableText: context.loc.otpScreenChangeEmail,
-              onTap: () {
-                ref.invalidate(jan3AuthProvider);
-                context.pop();
-              },
-            ),
-            const SizedBox(height: 16),
-            // ANCHOR - Pinput OTP input
-            Pinput(
-              length: otpDigitCount,
-              controller: pinController,
-              focusNode: pinFocusNode,
-              defaultPinTheme: defaultPinTheme,
-              focusedPinTheme: focusedPinTheme,
-              keyboardType: TextInputType.number,
-              isCursorAnimationEnabled: false,
-              pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-              onChanged: (value) {
-                otp.value = value;
-              },
-              onCompleted: (value) {
-                if (profileState.isLoading) {
-                  return;
-                }
-                ref.read(jan3AuthProvider.notifier).verifyOtp(
-                      email: email,
-                      otp: otp.value,
-                    );
-              },
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            ),
-            // ANCHOR - OTP form errors
-            if (!profileState.isLoading && profileState.error != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
+              const SizedBox(height: 12),
+              //ANCHOR - Description
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.43,
+                    letterSpacing: 0.2,
+                    color: AquaColors.dimMarble,
+                    fontFamily: UiFontFamily.inter,
+                  ),
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: AquaColors.portlandOrange,
-                      size: 16,
+                    TextSpan(
+                      text: '${context.loc.otpScreenDescription} ',
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      profileState.error is ExceptionLocalized
-                          ? (profileState.error as ExceptionLocalized)
-                              .toLocalizedString(context)
-                          : profileState.error.toString(),
-                      style: const TextStyle(
-                        color: AquaColors.portlandOrange,
+                    TextSpan(
+                      text: email,
+                      style: TextStyle(
                         fontSize: 14,
+                        color: context.colors.onBackground,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.4,
                       ),
+                    ),
+                    const TextSpan(
+                      text: '.',
                     ),
                   ],
                 ),
               ),
-            const SizedBox(height: 16),
-            // ANCHOR - Resend OTP
-            _TappableTextSpan(
-              description: context.loc.otpScreenResendCode,
-              tappableText: context.loc.otpScreenResendButton,
-              onTap: () => context.pop(),
-            ),
-            const Spacer(),
-            // ANCHOR - Verify OTP button
-            AquaElevatedButton(
-              onPressed: (profileState.isLoading || !isOtpValid)
-                  ? null
-                  : () => ref.read(jan3AuthProvider.notifier).verifyOtp(
+              const SizedBox(height: 8),
+              //ANCHOR - Change email button
+              _TappableTextSpan(
+                description: context.loc.otpScreenNotYourEmail,
+                tappableText: context.loc.otpScreenChangeEmail,
+                onTap: () {
+                  ref.invalidate(jan3AuthProvider);
+                  context.pop();
+                },
+              ),
+              const SizedBox(height: 16),
+              // ANCHOR - Pinput OTP input
+              Pinput(
+                length: otpDigitCount,
+                controller: pinController,
+                focusNode: pinFocusNode,
+                defaultPinTheme: defaultPinTheme,
+                focusedPinTheme: focusedPinTheme,
+                keyboardType: TextInputType.number,
+                isCursorAnimationEnabled: false,
+                pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+                onChanged: (value) {
+                  otp.value = value;
+                },
+                onCompleted: (value) {
+                  if (profileState.isLoading) {
+                    return;
+                  }
+                  ref.read(jan3AuthProvider.notifier).verifyOtp(
                         email: email,
                         otp: otp.value,
+                      );
+                },
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+              // ANCHOR - OTP form errors
+              if (!profileState.isLoading && profileState.error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: AquaColors.portlandOrange,
+                        size: 16,
                       ),
-              child: profileState.isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(context.loc.otpScreenVerifyButton),
-            ),
-            const SizedBox(height: 40),
-          ],
+                      const SizedBox(width: 4),
+                      Text(
+                        profileState.error is ExceptionLocalized
+                            ? (profileState.error as ExceptionLocalized)
+                                .toLocalizedString(context)
+                            : profileState.error.toString(),
+                        style: const TextStyle(
+                          color: AquaColors.portlandOrange,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+              // ANCHOR - Resend OTP
+              _TappableTextSpan(
+                description: context.loc.otpScreenResendCode,
+                tappableText: context.loc.otpScreenResendButton,
+                onTap: () {
+                  final language =
+                      ref.read(languageProvider(context)).currentLanguage;
+                  ref.read(jan3AuthProvider.notifier).sendOtp(
+                        email,
+                        language,
+                      );
+                },
+              ),
+              const Spacer(),
+              // ANCHOR - Verify OTP button
+              AquaElevatedButton(
+                onPressed: (profileState.isLoading || !isOtpValid)
+                    ? null
+                    : () => ref.read(jan3AuthProvider.notifier).verifyOtp(
+                          email: email,
+                          otp: otp.value,
+                        ),
+                child: profileState.isLoading
+                    ? const CircularProgressIndicator()
+                    : Text(context.loc.verify),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );

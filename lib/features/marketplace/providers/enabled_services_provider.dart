@@ -1,15 +1,16 @@
 import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
-import 'package:aqua/features/feature_flags/services/feature_flags_service.dart';
+import 'package:aqua/features/marketplace/api_services/marketplace_service.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-final enabledServicesTypesProvider = AsyncNotifierProvider<
+final enabledServicesTypesProvider = AsyncNotifierProvider.autoDispose<
     EnabledServicesTypesNotifier,
     List<MarketplaceServiceAvailability>>(EnabledServicesTypesNotifier.new);
 
 class EnabledServicesTypesNotifier
-    extends AsyncNotifier<List<MarketplaceServiceAvailability>> {
+    extends AutoDisposeAsyncNotifier<List<MarketplaceServiceAvailability>> {
   @override
   Future<List<MarketplaceServiceAvailability>> build() async {
     final isMockDataEnabled =
@@ -21,13 +22,16 @@ class EnabledServicesTypesNotifier
     }
 
     final packageInfo = await PackageInfo.fromPlatform();
-    final regionProvider = ref.read(regionsProvider);
-    final featureFlagService =
-        await ref.read(featureFlagsServiceProvider.future);
+    final featureFlagService = ref.read(marketplaceServiceProvider);
+    final String? os = switch (defaultTargetPlatform) {
+      TargetPlatform.android => 'android',
+      TargetPlatform.iOS => 'ios',
+      _ => null,
+    };
 
     final response = await featureFlagService.getMarketPlaceTiles(
-      region: regionProvider.currentRegion?.iso,
       buildNumber: packageInfo.buildNumber,
+      os: os,
     );
 
     if (response.statusCode != 200 || response.body == null) {

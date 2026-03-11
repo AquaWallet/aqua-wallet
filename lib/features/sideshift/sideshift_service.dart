@@ -1,20 +1,23 @@
 import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/data/models/database/swap_order_model.dart';
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/features/swaps/swaps.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:decimal/decimal.dart';
 
 final _logger = CustomLogger(FeatureFlag.sideshift);
 
-class SideshiftService implements SwapService {
+class SideshiftService extends SwapService {
   final SideshiftHttpProvider _httpProvider;
   final SwapOrderStorageNotifier _storageProvider;
-
   SideshiftService({
     required SideshiftHttpProvider httpProvider,
     required SwapOrderStorageNotifier storageProvider,
+    required super.formatter,
+    required super.fiatProvider,
+    required super.displayUnitsProvider,
   })  : _httpProvider = httpProvider,
         _storageProvider = storageProvider;
 
@@ -94,23 +97,28 @@ class SideshiftService implements SwapService {
         currency: SwapFeeCurrency.usd,
       );
 
+      final depositMin = orderResponse.depositMin;
+
+      // If sender pays fees, we need to adjust the deposit amount accordingly
+      final depositAmount = request.senderPaysFees
+          ? depositMin + (depositMin * serviceFee.value)
+          : depositMin;
+
       return SwapOrder(
-        createdAt: orderResponse.createdAt ?? DateTime.now(),
-        id: orderResponse.id ?? '',
+        createdAt: orderResponse.createdAt,
+        id: orderResponse.id,
         from: request.from,
         to: request.to,
-        depositAddress: orderResponse.depositAddress ?? '',
-        settleAddress: orderResponse.settleAddress ?? '',
-        depositAmount: Decimal.parse(orderResponse.depositMin ?? '0'),
+        depositAddress: orderResponse.depositAddress,
+        settleAddress: orderResponse.settleAddress,
+        depositAmount: depositAmount,
         settleAmount: Decimal.zero,
         serviceFee: serviceFee,
         depositCoinNetworkFee:
             Decimal.zero, // Not provided in variable response
-        settleCoinNetworkFee:
-            Decimal.parse(orderResponse.settleCoinNetworkFee ?? '0'),
+        settleCoinNetworkFee: orderResponse.settleCoinNetworkFee,
         expiresAt: orderResponse.expiresAt,
-        status: orderResponse.status?.toSwapOrderStatus() ??
-            SwapOrderStatus.waiting,
+        status: orderResponse.status.toSwapOrderStatus(),
         type: SwapOrderType.variable,
         serviceType: SwapServiceSource.sideshift,
       );
@@ -118,29 +126,35 @@ class SideshiftService implements SwapService {
       rethrow;
     } catch (e) {
       throw SwapServiceOrderCreationException(
-          SwapServiceSource.sideshift.displayName);
+          SwapServiceSource.sideshift.displayName, e.toString());
     }
+  }
+
+  Future<SwapQuote> _getQuote(SwapOrderRequest request) async {
+    // add buffer to prevent race condition, quote needs to be valid for 5 seconds more so order can be created.
+    const bufferDuration = Duration(seconds: 5);
+    if (request.quote != null &&
+        request.quote!.expiresAt.isAfter(DateTime.now().add(bufferDuration))) {
+      return request.quote!;
+    }
+    // Sender or Receiver pays fees?
+    if (request.senderPaysFees) {
+      return await requestQuote(
+        pair: SwapPair(from: request.from, to: request.to),
+        receiveAmount: request.amount,
+      );
+    }
+
+    return await requestQuote(
+      pair: SwapPair(from: request.from, to: request.to),
+      sendAmount: request.amount,
+    );
   }
 
   @override
   Future<SwapOrder> createSendOrder(SwapOrderRequest request) async {
     try {
-      SwapQuote quote;
-
-      // add buffer to prevent race condition, quote needs to be valid for 5 seconds more so order can be created.
-      const bufferDuration = Duration(seconds: 5);
-      if (request.quote != null &&
-          request.quote!.expiresAt
-              .isAfter(DateTime.now().add(bufferDuration))) {
-        quote = request.quote!;
-      } else {
-        quote = await requestQuote(
-          pair: SwapPair(from: request.from, to: request.to),
-          sendAmount: request.amount,
-        );
-      }
-      logger.debug(
-          "[SideShift] createSendOrder - request: $request - quoteId: ${quote.id}");
+      final quote = await _getQuote(request);
 
       // Create order
       final orderResponse = await _httpProvider.requestFixedOrder(
@@ -149,30 +163,27 @@ class SideshiftService implements SwapService {
         refundAddress: request.refundAddress,
       );
 
-      final flatFee = Decimal.parse(orderResponse.depositAmount ?? '0') -
-          Decimal.parse(orderResponse.settleAmount ?? '0');
       final serviceFee = SwapFee(
         type: SwapFeeType.flatFee,
-        value: flatFee,
+        value: orderResponse.depositAmount - orderResponse.settleAmount,
         currency: SwapFeeCurrency.usd,
       );
 
       //TODO: Throw on null, or make SideshiftOrder model non-null
       return SwapOrder(
-        createdAt: orderResponse.createdAt ?? DateTime.now(),
-        id: orderResponse.id ?? '',
+        createdAt: orderResponse.createdAt,
+        id: orderResponse.id,
         from: request.from,
         to: request.to,
-        depositAddress: orderResponse.depositAddress ?? '',
-        settleAddress: orderResponse.settleAddress ?? '',
-        depositAmount: Decimal.parse(orderResponse.depositAmount ?? '0'),
-        settleAmount: Decimal.parse(orderResponse.settleAmount ?? '0'),
+        depositAddress: orderResponse.depositAddress,
+        settleAddress: orderResponse.settleAddress,
+        depositAmount: orderResponse.depositAmount,
+        settleAmount: orderResponse.settleAmount,
         serviceFee: serviceFee,
         depositCoinNetworkFee: Decimal.zero, // Not provided in fixed response
         settleCoinNetworkFee: Decimal.zero, // Not provided in fixed response
         expiresAt: orderResponse.expiresAt,
-        status: orderResponse.status?.toSwapOrderStatus() ??
-            SwapOrderStatus.waiting,
+        status: orderResponse.status.toSwapOrderStatus(),
         type: SwapOrderType.fixed,
         serviceType: SwapServiceSource.sideshift,
       );
@@ -181,7 +192,9 @@ class SideshiftService implements SwapService {
     } catch (e) {
       logger.error("[SideShift] createSendOrder - error: ${e.toString()}");
       throw SwapServiceOrderCreationException(
-          SwapServiceSource.sideshift.displayName);
+        SwapServiceSource.sideshift.displayName,
+        e is OrderException ? e.message : e.toString(),
+      );
     }
   }
 
@@ -206,11 +219,12 @@ class SideshiftService implements SwapService {
   }
 
   @override
-  Future<void> cacheOrderToDatabase(String orderId, SwapOrder order) async {
+  Future<void> cacheOrderToDatabase(
+      String orderId, SwapOrder response, String walletId) async {
     try {
-      final model = SwapOrderDbModel.fromSwapOrder(order);
+      final model =
+          SwapOrderDbModel.fromSwapOrder(response, walletId: walletId);
       await _storageProvider.save(model);
-      _logger.debug('Order cached successfully: $orderId');
     } catch (e) {
       _logger.error(
           'Error caching order to database: $e', e, StackTrace.current);
@@ -230,7 +244,6 @@ class SideshiftService implements SwapService {
   Future<void> updateOrderTxId(String orderId, String txId) async {
     try {
       await _storageProvider.updateOrder(orderId: orderId, txHash: txId);
-      _logger.debug('Order txId updated successfully: $orderId');
     } catch (e) {
       _logger.error('Error updating order txId: $e', e, StackTrace.current);
     }
@@ -275,5 +288,37 @@ class SideshiftService implements SwapService {
           '[SideShift] Error requesting quote: $e', e, StackTrace.current);
       throw SwapServiceQuoteException(SwapServiceSource.sideshift.displayName);
     }
+  }
+
+  @override
+  Future<FeeStructure> calculateFees(SwapFeeCalculationParams params) async {
+    final p = params as SideshiftFeeCalculationParams;
+
+    // Sideshift: Fixed 0.9% service fee, network fee is the remainder
+    final serviceFee = p.depositAmount *
+        DecimalExt.fromDouble(kSideshiftServiceFee, precision: 3);
+    final totalFees = p.depositAmount - p.settleAmount;
+    final receiveNetworkFees = totalFees - serviceFee;
+
+    final estimatedSendNetworkFeeUsd = await getSendNetworkFeeInFiat(p);
+
+    final sendNetworkFeeDecimal =
+        DecimalExt.fromDouble(estimatedSendNetworkFeeUsd);
+
+    final calculatedTotalFees =
+        serviceFee + receiveNetworkFees + sendNetworkFeeDecimal;
+    final totalFeesCrypto = formatUsdtTotalFees(
+      amount: calculatedTotalFees,
+      currency: p.currency,
+    );
+
+    return FeeStructure.usdtSwap(
+      serviceFee: serviceFee.toDouble(),
+      serviceFeePercentage: kSideshiftServiceFee * 100,
+      receiveNetworkFee: receiveNetworkFees.toDouble(),
+      estimatedSendNetworkFee: estimatedSendNetworkFeeUsd,
+      totalFees: calculatedTotalFees.toDouble(),
+      totalFeesCrypto: totalFeesCrypto,
+    );
   }
 }

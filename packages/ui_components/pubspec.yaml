@@ -16,9 +16,8 @@ dependencies:
   moment_dart: ^4.0.1
   intl: any
   fl_chart: ^0.66.2
-  flutter_localizations:
-    sdk: flutter
   qr_flutter: ^4.1.0
+  skeletonizer: ^1.0.1
 
 dev_dependencies:
   build_runner: ^2.4.8
@@ -72,6 +71,8 @@ flutter_gen:
     outputs:
       class_name: AquaUiAssets
       package_parameter_enabled: true
+    inputs:
+      - assets/animations/
   fonts:
     enabled: true
     outputs:

@@ -35,7 +35,7 @@ class BoltzFees {
   }
 
   static int serviceFeeSubmarine(int amount) {
-    return (amount * kBoltzSubmarinePercentFee).ceil();
+    return (amount * kBoltzSubmarinePercentFee).round();
   }
 
   //ANCHOR: Reverse

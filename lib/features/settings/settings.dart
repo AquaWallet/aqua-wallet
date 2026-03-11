@@ -6,5 +6,6 @@ export 'help_support/help_support.dart';
 export 'language/language.dart';
 export 'manage_assets/manage_assets.dart';
 export 'region/region.dart';
-export 'remove_wallet/remove_wallet.dart';
 export 'shared/shared.dart';
+export 'wallet/wallet.dart';
+export 'watch_only/watch_only.dart';

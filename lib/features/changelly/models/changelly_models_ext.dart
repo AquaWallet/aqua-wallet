@@ -23,81 +23,92 @@ extension ChangellyPairExt on ChangellyPair {
 extension ChangellyQuoteResponseExt on ChangellyQuoteResponse {
   SwapRate toSwapRate() {
     return SwapRate(
-      rate: Decimal.parse(rate ?? '0'),
-      min: Decimal.parse(min ?? '0'),
-      max: Decimal.parse(max ?? '0'),
+      rate: Decimal.parse(rate),
+      min: Decimal.parse(min),
+      max: Decimal.parse(max),
     );
   }
 }
 
-extension ChangellyVariableOrderResponseExt on ChangellyVariableOrderResponse {
-  SwapOrderStatus get orderStatus => status == null
-      ? SwapOrderStatus.unknown
-      : switch (status!) {
-          ChangellyOrderStatus.unknown => SwapOrderStatus.unknown,
-          ChangellyOrderStatus.new_ => SwapOrderStatus.waiting,
-          ChangellyOrderStatus.waiting => SwapOrderStatus.waiting,
-          ChangellyOrderStatus.confirming => SwapOrderStatus.processing,
-          ChangellyOrderStatus.exchanging => SwapOrderStatus.processing,
-          ChangellyOrderStatus.sending => SwapOrderStatus.sending,
-          ChangellyOrderStatus.finished => SwapOrderStatus.completed,
-          ChangellyOrderStatus.failed => SwapOrderStatus.failed,
-          ChangellyOrderStatus.refunded => SwapOrderStatus.refunded,
-          ChangellyOrderStatus.hold => SwapOrderStatus.processing,
-          ChangellyOrderStatus.overdue => SwapOrderStatus.processing,
-          ChangellyOrderStatus.expired => SwapOrderStatus.expired,
-        };
+SwapOrderStatus changellyToSwapOrderStatus(ChangellyOrderStatus status) =>
+    switch (status) {
+      ChangellyOrderStatus.unknown => SwapOrderStatus.unknown,
+      ChangellyOrderStatus.new_ => SwapOrderStatus.waiting,
+      ChangellyOrderStatus.waiting => SwapOrderStatus.waiting,
+      ChangellyOrderStatus.confirming => SwapOrderStatus.processing,
+      ChangellyOrderStatus.exchanging => SwapOrderStatus.processing,
+      ChangellyOrderStatus.sending => SwapOrderStatus.sending,
+      ChangellyOrderStatus.finished => SwapOrderStatus.completed,
+      ChangellyOrderStatus.failed => SwapOrderStatus.failed,
+      ChangellyOrderStatus.refunded => SwapOrderStatus.refunded,
+      ChangellyOrderStatus.hold => SwapOrderStatus.processing,
+      ChangellyOrderStatus.overdue => SwapOrderStatus.processing,
+      ChangellyOrderStatus.expired => SwapOrderStatus.expired,
+    };
 
+DateTime getDateTimeFromMSSinceEpoch(int msSinceEpoch) {
+  try {
+    return DateTime.fromMicrosecondsSinceEpoch(msSinceEpoch);
+  } catch (e) {
+    throw FormatException('input: $msSinceEpoch; error: $e');
+  }
+}
+
+extension ChangellyFixedOrderResponseExt on ChangellyFixedOrderResponse {
   SwapOrder toSwapOrder() {
-    // Validate required fields first
-    if (id == null || id!.isEmpty) {
-      throw const FormatException('Order ID is required');
-    }
-    if (amountExpectedFrom == null || amountExpectedTo == null) {
-      throw const FormatException('Amount expected values are required');
-    }
-    if (payinAddress == null || payoutAddress == null) {
-      throw const FormatException('Payment addresses are required');
-    }
-    if (currencyFrom == null || currencyTo == null) {
-      throw const FormatException('Currency information is required');
-    }
-
-    DateTime getCreatedAtDateTime() {
-      if (createdAt == null) {
-        throw const FormatException('Created timestamp is required');
-      }
-      try {
-        return DateTime.fromMicrosecondsSinceEpoch(createdAt!);
-      } catch (e) {
-        throw FormatException('Invalid createdAt timestamp: $e');
-      }
-    }
-
     final orderFee =
-        Decimal.parse(amountExpectedFrom!) - Decimal.parse(amountExpectedTo!);
+        Decimal.parse(amountExpectedFrom) - Decimal.parse(amountExpectedTo);
 
     return SwapOrder(
-      createdAt: getCreatedAtDateTime(),
-      id: id!,
-      from: currencyFrom!.toSwapAsset(),
-      to: currencyTo!.toSwapAsset(),
-      depositAddress: payinAddress!,
+      createdAt: getDateTimeFromMSSinceEpoch(createdAt),
+      id: id,
+      from: currencyFrom.toSwapAsset(),
+      to: currencyTo.toSwapAsset(),
+      depositAddress: payinAddress,
       depositExtraId: null,
-      settleAddress: payoutAddress!,
+      settleAddress: payoutAddress,
       settleExtraId: null,
       depositCoinNetworkFee: null,
-      settleCoinNetworkFee:
-          networkFee != null ? Decimal.parse(networkFee!) : Decimal.zero,
+      settleCoinNetworkFee: Decimal.parse(networkFee),
       serviceFee: SwapFee(
         type: SwapFeeType.flatFee,
         value: orderFee,
         currency: SwapFeeCurrency.usd,
       ),
-      depositAmount: Decimal.parse(amountExpectedFrom!),
-      settleAmount: Decimal.parse(amountExpectedTo!),
+      depositAmount: Decimal.parse(amountExpectedFrom),
+      settleAmount: Decimal.parse(amountExpectedTo),
+      expiresAt: payTill,
+      status: changellyToSwapOrderStatus(status),
+      serviceType: SwapServiceSource.changelly,
+    );
+  }
+}
+
+extension ChangellyVariableOrderResponseExt on ChangellyVariableOrderResponse {
+  SwapOrder toSwapOrder() {
+    final orderFee =
+        Decimal.parse(amountExpectedFrom) - Decimal.parse(amountExpectedTo);
+
+    return SwapOrder(
+      createdAt: getDateTimeFromMSSinceEpoch(createdAt),
+      id: id,
+      from: currencyFrom.toSwapAsset(),
+      to: currencyTo.toSwapAsset(),
+      depositAddress: payinAddress,
+      depositExtraId: null,
+      settleAddress: payoutAddress,
+      settleExtraId: null,
+      depositCoinNetworkFee: null,
+      settleCoinNetworkFee: Decimal.parse(networkFee),
+      serviceFee: SwapFee(
+        type: SwapFeeType.flatFee,
+        value: orderFee,
+        currency: SwapFeeCurrency.usd,
+      ),
+      depositAmount: Decimal.parse(amountExpectedFrom),
+      settleAmount: Decimal.parse(amountExpectedTo),
       expiresAt: null, // float orders don't have an expiry
-      status: orderStatus,
+      status: changellyToSwapOrderStatus(status),
       serviceType: SwapServiceSource.changelly,
     );
   }

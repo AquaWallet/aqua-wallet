@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_flip_card/flutter_flip_card.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intl/intl.dart';
-import 'package:ui_components/shared/shared.dart';
+import 'package:ui_components/components/debit_card/debit_card_text.dart';
 import 'package:ui_components/ui_components.dart';
 
 class AquaDebitCard extends HookWidget {
@@ -16,6 +16,7 @@ class AquaDebitCard extends HookWidget {
     this.isRevealed = false,
     this.isReloadable = true,
     this.cardProduct = defaultName,
+    required this.text,
   });
 
   final DateTime expiration;
@@ -25,6 +26,7 @@ class AquaDebitCard extends HookWidget {
   final bool isRevealed;
   final String cardProduct;
   final bool isReloadable;
+  final DebitCardText text;
 
   static const keyCardBack = ValueKey('back');
   static const keyCardFront = ValueKey('front');
@@ -100,6 +102,7 @@ class AquaDebitCard extends HookWidget {
         cardExpiry: DateFormat('MM/yy').format(expiration),
         cardCvv: cvv,
         isReloadable: isReloadable,
+        text: text,
       ),
     );
     return FlipCard(
@@ -181,12 +184,14 @@ class _CardBack extends StatelessWidget {
     required this.cardExpiry,
     required this.cardCvv,
     required this.isReloadable,
+    required this.text,
   });
 
   final String fullCardNumber;
   final String? cardExpiry;
   final String? cardCvv;
   final bool isReloadable;
+  final DebitCardText text;
 
   @override
   Widget build(BuildContext context) {
@@ -195,8 +200,7 @@ class _CardBack extends StatelessWidget {
       children: [
         //ANCHOR - Card Styled Chip
         _LabelChip(
-          label:
-              isReloadable ? context.loc.reloadable : context.loc.nonReloadable,
+          label: isReloadable ? text.reloadable : text.nonReloadable,
         ),
         const Spacer(),
         Row(
@@ -230,7 +234,7 @@ class _CardBack extends StatelessWidget {
           children: [
             //ANCHOR - Expiry Date
             _CardInfoItem(
-              label: context.loc.expiryDate,
+              label: text.expiryDate,
               value: cardExpiry ?? '',
             ),
             const SizedBox(width: 32),
@@ -240,7 +244,7 @@ class _CardBack extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 _CardInfoItem(
-                  label: context.loc.cvv,
+                  label: text.cvv,
                   value: cardCvv ?? '',
                 ),
                 const SizedBox(width: 12),
@@ -310,8 +314,10 @@ class _CopyButton extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => Clipboard.setData(ClipboardData(text: content)),
+        onTap: () => WidgetsBinding.instance.addPostFrameCallback(
+            (_) => Clipboard.setData(ClipboardData(text: content))),
         borderRadius: BorderRadius.circular(4),
+        splashFactory: InkRipple.splashFactory,
         child: Ink(
           padding: const EdgeInsets.all(4),
           child: AquaIcon.copy(

@@ -1,7 +1,7 @@
+import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:aqua/config/config.dart';
 
 class AssetStatusIndicator extends ConsumerWidget {
   const AssetStatusIndicator({super.key});
@@ -11,7 +11,7 @@ class AssetStatusIndicator extends ConsumerWidget {
     final statusIndicatorEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.statusIndicator));
 
-    final status = ref.watch(connectionStatusProvider).asData?.value;
+    final status = ref.watch(syncStatusProvider).asData?.value;
 
     if (status == null) {
       return const SizedBox.shrink();

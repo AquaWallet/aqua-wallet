@@ -33,13 +33,19 @@ class _MnemonicStateNotifier extends StateNotifier<MnemonicWordInputState> {
     key.when(
       letter: (text) {
         final char = capsLockEnabled ? text.toUpperCase() : text;
-        state = state.copyWith(text: state.text + char);
+        // Always set isSuggestion to false when typing manually
+        state = state.copyWith(
+          text: state.text + char,
+          isSuggestion: false,
+        );
       },
       backspace: () {
+        // Always set isSuggestion to false when deleting manually
         state = state.copyWith(
           text: state.text.isNotEmpty
               ? state.text.substring(0, state.text.length - 1)
               : state.text,
+          isSuggestion: false,
         );
       },
       capsLock: () {

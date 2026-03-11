@@ -13,6 +13,7 @@ import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:dio/dio.dart';
+import 'package:lwk/lwk.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 final _logger = CustomLogger(FeatureFlag.send);
@@ -117,13 +118,15 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       if (ref.read(featureFlagsProvider).fakeBroadcastsEnabled) {
         state = AsyncValue.data(
           SendAssetTransactionState.complete(
-            args: SendAssetCompletionArguments(
+            args: TransactionSuccessArguments(
               txId: '12345',
               network: network,
               asset: input.asset,
               createdAt: createdAt.microsecondsSinceEpoch,
-              amountSats: input.amount,
-              amountFiat: input.amountConversionDisplay,
+              inputUnit: input.inputUnit,
+              totalAmountSent: input.adjustedAmountToSend ?? input.amount,
+              amountToReceive: input.amount,
+              amountFiat: input.displayConversionAmount,
               feeSats: transaction.txReply?.fee,
               feeAsset: input.feeAsset,
               serviceOrderId: input.serviceOrderId,
@@ -138,11 +141,27 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
           .broadcastTransaction(
             rawTx: signedRawTx!,
             network: network,
-            useAquaNode: input.feeAsset == FeeAsset.tetherUsdt,
           );
 
       // Save transaction to db until it is detected by GDK
-      await _saveTransactionData(input, txId, createdAt, transaction);
+      final (rate, currency, _) = await ref.read(fiatProvider).rateStream.first;
+      final feeAsset = input.isUsdtFeeAsset
+          ? Asset.usdtLiquid()
+          : input.asset.isBTC
+              ? Asset.btc()
+              : Asset.lbtc();
+      final ghostTxnFee =
+          input.isUsdtFeeAsset ? input.taxiFeeSats : transaction.txReply?.fee;
+      await _saveTransactionData(
+        input,
+        txId,
+        createdAt,
+        transaction,
+        rate.toDouble(),
+        currency,
+        feeAsset.id,
+        ghostTxnFee,
+      );
 
       // Mark any external metadata necessary
       await _markExternalMetadata(input, txId);
@@ -154,13 +173,15 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       }
 
       state = AsyncValue.data(SendAssetTransactionState.complete(
-        args: SendAssetCompletionArguments(
+        args: TransactionSuccessArguments(
           createdAt: createdAt.microsecondsSinceEpoch,
           txId: txId,
           network: network,
           asset: input.asset,
-          amountSats: input.amount,
-          amountFiat: input.amountConversionDisplay,
+          inputUnit: input.inputUnit,
+          totalAmountSent: input.adjustedAmountToSend ?? input.amount,
+          amountToReceive: input.amount,
+          amountFiat: input.displayConversionAmount,
           feeSats: input.isUsdtFeeAsset
               ? input.taxiFeeSats
               : transaction.txReply?.fee,
@@ -181,6 +202,9 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       if (e is DioException) {
         errorMessage = e.response?.data?.toString() ?? e.message;
       }
+      if (e is LwkError) {
+        errorMessage = e.msg;
+      }
       _logger.error('[Send] Error', errorMessage ?? e.toString(), stackTrace);
       state = AsyncValue.error(e, stackTrace);
     }
@@ -191,6 +215,10 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
     String txId,
     DateTime createdAt,
     SendAssetOnchainTx transaction,
+    double? exchangeRateAtExecution,
+    String? currencyAtExecution,
+    String? feeAssetId,
+    int? ghostTxnFee,
   ) async {
     TransactionDbModel transactionDbModel = TransactionDbModel(
       txhash: txId,
@@ -198,9 +226,15 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       type: input.transactionDbModelType,
       isGhost: arg.asset.isLightning || !arg.asset.isBTC,
       ghostTxnCreatedAt: createdAt,
-      ghostTxnAmount: input.amount,
-      ghostTxnFee: transaction.txReply?.fee,
+      ghostTxnAmount: input.adjustedAmountToSend ?? input.amount,
+      ghostTxnFee: ghostTxnFee,
+      estimatedFee: transaction.txReply?.fee,
       serviceOrderId: input.serviceOrderId,
+      exchangeRateAtExecution: exchangeRateAtExecution,
+      currencyAtExecution: currencyAtExecution,
+      receiveAddress: input.addressFieldText,
+      note: input.note,
+      feeAssetId: feeAssetId,
     );
 
     if (input.isTopUp) {
@@ -214,6 +248,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
         serviceAddress: cardNumber,
       );
     }
+
     await ref
         .read(transactionStorageProvider.notifier)
         .save(transactionDbModel);
@@ -226,12 +261,13 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       final input = ref.read(sendAssetInputStateProvider(arg)).value!;
       String? address;
       if (!input.asset.isAltUsdt) {
-        try {
-          final decoder = Bip21Decoder(input.addressFieldText ?? '');
-          address = decoder.address;
-        } catch (e) {
-          logger.error("[Taxi] Not a valid BIP21 address: $e");
+        final decoded = Bip21Decoder.decodeOrNull(input.addressFieldText);
+        if (decoded == null) {
+          logger.info(
+              "[Taxi] Not a valid BIP21 address: ${input.addressFieldText}");
           address = input.addressFieldText;
+        } else {
+          address = decoded['address'];
         }
       } else {
         final swapPair = SwapPair(
@@ -258,7 +294,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       final finalPset =
           await ref.read(sideswapTaxiProvider.notifier).createTaxiTransaction(
                 taxiAsset: usdtAsset,
-                amount: input.amount,
+                amount: input.adjustedAmountToSend ?? input.amount,
                 sendAddress: address,
                 sendAll: input.isSendAllFunds,
               );

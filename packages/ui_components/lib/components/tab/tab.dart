@@ -14,6 +14,7 @@ class AquaTabBar extends HookWidget {
   final double height;
   final double spacing;
   final BorderRadius? borderRadius;
+  final bool? isScrollable;
 
   AquaTabBar({
     super.key,
@@ -28,6 +29,7 @@ class AquaTabBar extends HookWidget {
     this.height = 40,
     this.spacing = 8,
     this.borderRadius,
+    this.isScrollable,
   }) : assert(tabs.isNotEmpty, 'tabs list cannot be empty');
 
   @override
@@ -63,7 +65,7 @@ class AquaTabBar extends HookWidget {
       padding: padding ?? const EdgeInsets.all(2),
       child: TabBar(
         controller: tabController,
-        isScrollable: true,
+        isScrollable: isScrollable ?? tabs.length > 2,
         splashFactory: NoSplash.splashFactory,
         physics: const BouncingScrollPhysics(),
         indicatorSize: TabBarIndicatorSize.tab,

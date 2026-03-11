@@ -1,6 +1,6 @@
-import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
+import 'package:aqua/features/home/pages/home_screen.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -85,7 +85,7 @@ class SwapReviewScreen extends HookConsumerWidget {
           success: (_) {
             isProcessing.value = false;
 
-            context.go(AuthWrapper.routeName);
+            context.go(HomeScreen.routeName);
             context.showSuccessSnackbar(
               context.loc.pegInProgress,
             );

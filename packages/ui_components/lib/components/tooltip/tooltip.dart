@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:ui_components/ui_components.dart';
@@ -7,6 +7,8 @@ const kDefaultTooltipDuration = Duration(seconds: 4);
 const kPermanentTooltipDuration = Duration(days: 1);
 const kDefaultPointerSize = 8.0;
 const kDefaultBorderRadius = 32.0;
+const kTooltipScreenPadding = 16.0;
+const kTooltipAnchorGap = 8.0;
 
 enum AquaTooltipVariant {
   normal,
@@ -34,9 +36,13 @@ class AquaTooltip extends StatelessWidget {
     this.trailingIcon,
     this.variant = AquaTooltipVariant.normal,
     this.pointerPosition = AquaTooltipPointerPosition.none,
-    this.pointerSize = kDefaultPointerSize,
+    this.pointerSize = kDefaultLabelPointerSize,
+    this.maxLines,
     required this.colors,
   });
+
+  // Static callback to dismiss the currently active tooltip
+  static VoidCallback? _dismissCurrentTooltip;
 
   const AquaTooltip.info({
     super.key,
@@ -49,7 +55,8 @@ class AquaTooltip extends StatelessWidget {
     this.trailingIcon,
     this.variant = AquaTooltipVariant.normal,
     this.pointerPosition = AquaTooltipPointerPosition.none,
-    this.pointerSize = kDefaultPointerSize,
+    this.pointerSize = kDefaultLabelPointerSize,
+    this.maxLines,
     required this.colors,
   }) : isInfo = true;
 
@@ -64,137 +71,51 @@ class AquaTooltip extends StatelessWidget {
   final AquaTooltipVariant variant;
   final AquaTooltipPointerPosition pointerPosition;
   final double pointerSize;
+  final int? maxLines;
   final AquaColors colors;
-
-  Color get _backgroundColor => switch (variant) {
-        AquaTooltipVariant.success => colors.accentSuccessTransparent,
-        AquaTooltipVariant.warning => colors.accentWarningTransparent,
-        AquaTooltipVariant.error => colors.accentDangerTransparent,
-        _ => colors.glassInverse.withOpacity(.8),
-      };
-
-  EdgeInsets get _contentPadding {
-    return EdgeInsets.only(
-      left: 16,
-      right: 16,
-      top: 8 +
-          (pointerPosition == AquaTooltipPointerPosition.top ? pointerSize : 0),
-      bottom: 8 +
-          (pointerPosition == AquaTooltipPointerPosition.bottom
-              ? pointerSize
-              : 0),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final chipLabelVariant = switch (variant) {
+      AquaTooltipVariant.normal => AquaChipLabelVariant.normal,
+      AquaTooltipVariant.success => AquaChipLabelVariant.success,
+      AquaTooltipVariant.warning => AquaChipLabelVariant.warning,
+      AquaTooltipVariant.error => AquaChipLabelVariant.error,
+    };
+
+    final chipLabelPointerPosition = switch (pointerPosition) {
+      AquaTooltipPointerPosition.none => AquaChipLabelPointerPosition.none,
+      AquaTooltipPointerPosition.top => AquaChipLabelPointerPosition.top,
+      AquaTooltipPointerPosition.bottom => AquaChipLabelPointerPosition.bottom,
+    };
+
+    return AquaChipLabel(
+      message: message,
+      onLeadingIconTap: onLeadingIconTap,
+      onTrailingIconTap: onTrailingIconTap,
+      isDismissible: isDismissible,
+      isInfo: isInfo,
+      leadingIcon: leadingIcon,
       margin: margin,
-      child: ClipPath(
-        clipper: _TooltipClipper(
-          ptrPos: pointerPosition,
-          ptrSize: pointerSize,
-          borderRadius: kDefaultBorderRadius,
-        ),
-        child: BackdropFilter(
-          filter: variant == AquaTooltipVariant.normal
-              ? ImageFilter.blur(sigmaX: 2, sigmaY: 2)
-              : ImageFilter.blur(),
-          child: Material(
-            elevation: 0,
-            color: _backgroundColor,
-            child: Container(
-              padding: _contentPadding,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isInfo) ...[
-                    IconButton(
-                      icon: leadingIcon ??
-                          Icon(
-                            Icons.info_outline,
-                            color: switch (variant) {
-                              AquaTooltipVariant.success =>
-                                colors.accentSuccess,
-                              AquaTooltipVariant.warning =>
-                                colors.accentWarning,
-                              AquaTooltipVariant.error => colors.accentDanger,
-                              AquaTooltipVariant.normal => colors.textInverse,
-                            },
-                          ),
-                      onPressed: onLeadingIconTap,
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
-                      splashRadius: 4,
-                      iconSize: 18,
-                      color: colors.textInverse,
-                      constraints: const BoxConstraints(
-                        minWidth: 18,
-                        minHeight: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Flexible(
-                    child: AquaText.body2Medium(
-                      text: message,
-                      color: switch (variant) {
-                        AquaTooltipVariant.success => colors.accentSuccess,
-                        AquaTooltipVariant.warning => colors.accentWarning,
-                        AquaTooltipVariant.error => colors.accentDanger,
-                        AquaTooltipVariant.normal => colors.textInverse,
-                      },
-                    ),
-                  ),
-                  if (isDismissible) ...[
-                    const SizedBox(width: 16),
-                    IconButton(
-                      icon: trailingIcon ??
-                          Icon(
-                            Icons.close,
-                            color: switch (variant) {
-                              AquaTooltipVariant.success =>
-                                colors.accentSuccess,
-                              AquaTooltipVariant.warning =>
-                                colors.accentWarning,
-                              AquaTooltipVariant.error => colors.accentDanger,
-                              AquaTooltipVariant.normal => colors.textTertiary,
-                            },
-                          ),
-                      onPressed: onTrailingIconTap,
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
-                      splashRadius: 4,
-                      iconSize: 18,
-                      color: switch (variant) {
-                        AquaTooltipVariant.success => colors.accentSuccess,
-                        AquaTooltipVariant.warning => colors.accentWarning,
-                        AquaTooltipVariant.error => colors.accentDanger,
-                        AquaTooltipVariant.normal => colors.textTertiary,
-                      },
-                      constraints: const BoxConstraints(
-                        minWidth: 18,
-                        minHeight: 18,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      trailingIcon: trailingIcon,
+      variant: chipLabelVariant,
+      pointerPosition: chipLabelPointerPosition,
+      pointerSize: pointerSize,
+      maxLines: maxLines,
+      colors: colors,
     );
   }
 
   static void show(
     BuildContext context, {
     Key? key,
+    GlobalKey? anchorKey,
     required String message,
     Widget? leadingIcon,
     Widget? trailingIcon,
     VoidCallback? onLeadingIconTap,
     VoidCallback? onTrailingIconTap,
+    VoidCallback? onToolTipTap,
     bool isDismissible = false,
     bool isInfo = false,
     Duration? duration,
@@ -202,51 +123,194 @@ class AquaTooltip extends StatelessWidget {
     AquaTooltipVariant variant = AquaTooltipVariant.normal,
     AquaTooltipPointerPosition pointerPosition =
         AquaTooltipPointerPosition.none,
-    double pointerSize = kDefaultPointerSize,
+    double pointerSize = kDefaultLabelPointerSize,
+    int? maxLines,
     required AquaColors colors,
   }) {
+    // Dismiss any existing tooltip before showing a new one
+    _dismissCurrentTooltip?.call();
+
     // Use Overlay instead of SnackBar to ensure the tooltip appears above everything
     final overlayState = Overlay.of(context, rootOverlay: true);
 
     final tooltipDuration = duration ??
         (isDismissible ? kPermanentTooltipDuration : kDefaultTooltipDuration);
 
+    final tooltipGlobalKey =
+        key is GlobalKey ? key : GlobalKey(debugLabel: 'AquaTooltipOverlayKey');
+
+    final positionNotifier = ValueNotifier<_TooltipPosition?>(null);
+    var isRemoved = false;
+
     late final OverlayEntry overlayEntry;
+
+    void removeTooltip() {
+      if (isRemoved) {
+        return;
+      }
+      isRemoved = true;
+      overlayEntry.remove();
+      positionNotifier.dispose();
+      // Clear the dismiss callback if this is the current tooltip
+      if (_dismissCurrentTooltip == removeTooltip) {
+        _dismissCurrentTooltip = null;
+      }
+    }
+
+    // Store the dismiss callback for this tooltip
+    _dismissCurrentTooltip = removeTooltip;
+
+    bool updatePosition() {
+      if (anchorKey == null) {
+        return false;
+      }
+
+      final anchorContext = anchorKey.currentContext;
+      final tooltipContext = tooltipGlobalKey.currentContext;
+      final overlayRenderObject =
+          overlayState.context.findRenderObject() as RenderBox?;
+
+      if (anchorContext == null ||
+          tooltipContext == null ||
+          overlayRenderObject == null) {
+        return false;
+      }
+
+      final anchorRenderObject = anchorContext.findRenderObject() as RenderBox?;
+      final tooltipRenderObject =
+          tooltipContext.findRenderObject() as RenderBox?;
+
+      if (anchorRenderObject == null || tooltipRenderObject == null) {
+        return false;
+      }
+
+      final anchorOffset = anchorRenderObject.localToGlobal(Offset.zero,
+          ancestor: overlayRenderObject);
+      final anchorSize = anchorRenderObject.size;
+      final tooltipSize = tooltipRenderObject.size;
+      final overlaySize = overlayRenderObject.size;
+
+      var left =
+          anchorOffset.dx + (anchorSize.width / 2) - (tooltipSize.width / 2);
+
+      left = math.max(
+        kTooltipScreenPadding,
+        math.min(
+          left,
+          overlaySize.width - tooltipSize.width - kTooltipScreenPadding,
+        ),
+      );
+
+      double top;
+      switch (pointerPosition) {
+        case AquaTooltipPointerPosition.top:
+          top = anchorOffset.dy + anchorSize.height + kTooltipAnchorGap;
+          break;
+        case AquaTooltipPointerPosition.bottom:
+          top = anchorOffset.dy - tooltipSize.height - kTooltipAnchorGap;
+          break;
+        case AquaTooltipPointerPosition.none:
+          top = anchorOffset.dy - tooltipSize.height - kTooltipAnchorGap;
+          break;
+      }
+
+      top = math.max(
+        kTooltipScreenPadding,
+        math.min(
+          top,
+          overlaySize.height - tooltipSize.height - kTooltipScreenPadding,
+        ),
+      );
+
+      positionNotifier.value = _TooltipPosition(left: left, top: top);
+      return true;
+    }
+
+    void schedulePositionUpdate() {
+      if (anchorKey == null) {
+        return;
+      }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (isRemoved || !overlayEntry.mounted) {
+          return;
+        }
+        final success = updatePosition();
+        if (!success) {
+          schedulePositionUpdate();
+        }
+      });
+    }
 
     overlayEntry = OverlayEntry(
       builder: (BuildContext context) {
-        return Positioned(
-          bottom: 16,
-          left: 0,
-          right: 0,
-          child: IgnorePointer(
-            ignoring: !isDismissible,
-            child: Material(
-              color: Colors.transparent,
-              child: Center(
-                child: IntrinsicWidth(
-                  child: AquaTooltip(
-                    key: key,
-                    message: message,
-                    leadingIcon: leadingIcon,
-                    trailingIcon: trailingIcon,
-                    onLeadingIconTap: onLeadingIconTap,
-                    onTrailingIconTap: () {
-                      overlayEntry.remove();
-                      onTrailingIconTap?.call();
-                    },
-                    isDismissible: isDismissible,
-                    isInfo: isInfo,
-                    margin: EdgeInsets.zero,
-                    variant: variant,
-                    pointerPosition: pointerPosition,
-                    pointerSize: pointerSize,
-                    colors: colors,
-                  ),
-                ),
+        return ValueListenableBuilder<_TooltipPosition?>(
+          valueListenable: positionNotifier,
+          builder: (context, position, _) {
+            Widget tooltipContent = GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: onToolTipTap,
+              child: AquaTooltip(
+                key: tooltipGlobalKey,
+                message: message,
+                leadingIcon: leadingIcon,
+                trailingIcon: trailingIcon,
+                onLeadingIconTap: onLeadingIconTap,
+                onTrailingIconTap: () {
+                  removeTooltip();
+                  onTrailingIconTap?.call();
+                },
+                isDismissible: isDismissible,
+                isInfo: isInfo,
+                margin: EdgeInsets.zero,
+                variant: variant,
+                pointerPosition: pointerPosition,
+                pointerSize: pointerSize,
+                maxLines: maxLines,
+                colors: colors,
               ),
-            ),
-          ),
+            );
+
+            if (key != null && !identical(key, tooltipGlobalKey)) {
+              tooltipContent = KeyedSubtree(
+                key: key,
+                child: tooltipContent,
+              );
+            }
+
+            Widget buildSurface({required bool centered}) {
+              final screenWidth = MediaQuery.of(context).size.width;
+              final maxTooltipWidth = screenWidth - kTooltipScreenPadding * 2;
+              Widget surface = ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxTooltipWidth),
+                  child: tooltipContent);
+              if (centered) {
+                surface = Center(child: surface);
+              }
+              return IgnorePointer(
+                ignoring: !isDismissible,
+                child: Material(
+                  color: Colors.transparent,
+                  child: surface,
+                ),
+              );
+            }
+
+            if (anchorKey != null && position != null) {
+              return Positioned(
+                left: position.left,
+                top: position.top,
+                child: buildSurface(centered: false),
+              );
+            }
+
+            return Positioned(
+              bottom: kTooltipScreenPadding,
+              left: 0,
+              right: 0,
+              child: buildSurface(centered: true),
+            );
+          },
         );
       },
     );
@@ -254,13 +318,24 @@ class AquaTooltip extends StatelessWidget {
     // Insert the overlay entry
     overlayState.insert(overlayEntry);
 
+    if (anchorKey != null) {
+      schedulePositionUpdate();
+    }
+
     // Remove the overlay entry after the specified duration if not dismissible
     if (!isDismissible) {
       Future.delayed(tooltipDuration, () {
-        overlayEntry.remove();
+        removeTooltip();
       });
     }
   }
+}
+
+class _TooltipPosition {
+  const _TooltipPosition({required this.left, required this.top});
+
+  final double left;
+  final double top;
 }
 
 class _TooltipClipper extends CustomClipper<Path> {

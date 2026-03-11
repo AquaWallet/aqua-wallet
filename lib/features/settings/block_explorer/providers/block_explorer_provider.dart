@@ -13,8 +13,9 @@ class BlockExplorerNotifier extends ChangeNotifier {
   BlockExplorerNotifier(this.prefs);
 
   BlockExplorer get currentBlockExplorer {
+    final explorer = prefs.blockExplorer;
     return BlockExplorer.availableBlockExplorers.firstWhere(
-      (e) => e.name.toLowerCase() == prefs.blockExplorer?.toLowerCase(),
+      (e) => e.name.toLowerCase() == explorer?.toLowerCase(),
       orElse: () => BlockExplorer.availableBlockExplorers.first,
     );
   }

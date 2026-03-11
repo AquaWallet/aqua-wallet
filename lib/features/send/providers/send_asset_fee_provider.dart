@@ -28,7 +28,7 @@ class SendAssetFeeNotifier extends AutoDisposeFamilyAsyncNotifier<
     final txn = txnState.mapOrNull(created: (tx) => tx.tx);
     final gdkTxn = txn?.mapOrNull(gdkTx: (tx) => tx.gdkTx);
 
-    if (asset.isLiquid || asset.isLightning) {
+    if (asset.isLiquid || asset.isLightning || asset.isAltUsdt) {
       return _getLiquidFees(txn, input);
     }
 
@@ -75,7 +75,7 @@ class SendAssetFeeNotifier extends AutoDisposeFamilyAsyncNotifier<
               );
       final taxiFeeEstimateFiat = Decimal.fromInt(taxiFeeEstimate) /
           Decimal.parse(pow(10, asset.precision).toString());
-      final fiatRates = await ref.watch(fiatRatesProvider.future);
+      final fiatRates = await ref.read(fiatRatesProvider.future);
       final currency = ref.read(prefsProvider).referenceCurrency;
       final usdRate =
           fiatRates.firstWhereOrNull((r) => r.code == currency)?.rate ?? 0;

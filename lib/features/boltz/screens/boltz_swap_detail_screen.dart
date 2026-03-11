@@ -1,246 +1,194 @@
 import 'dart:convert';
 
-import 'package:aqua/common/widgets/aqua_elevated_button.dart';
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:aqua/utils/extensions/date_time_ext.dart';
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:boltz/boltz.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class BoltzSwapDetailScreen extends HookConsumerWidget {
   static const routeName = '/boltzSwapDetailScreen';
 
-  const BoltzSwapDetailScreen({super.key, required this.swapData});
+  const BoltzSwapDetailScreen({super.key, required this.swap});
 
-  final BoltzSwapDbModel swapData;
+  final BoltzSwapDbModel swap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
+    final formattedAmount = swap.amountFromInvoice != null
+        ? ref.watch(currencyFormatProvider(0)).format(swap.amountFromInvoice!)
+        : null;
+    final amountWithUnit = formattedAmount != null
+        ? '$formattedAmount ${SupportedDisplayUnits.sats.value}'
+        : null;
+    final refundData = useFuture(
+      ref.read(boltzSubmarineSwapProvider.notifier).getRefundData(swap),
+    );
+
+    final onSwapRefund = useCallback(() {
+      final jsonString = jsonEncode(refundData.data?.toJson());
+      context.copyToClipboard(jsonString);
+    }, [refundData.data]);
+
+    return DesignRevampScaffold(
+      appBar: AquaTopAppBar(
+        title: context.loc.swapOrder,
+        showBackButton: true,
+        colors: context.aquaColors,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20.0),
-              Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  onPressed: () {
-                    context.maybePop();
-                  },
-                  icon: const Icon(Icons.close),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //ANCHOR - Status
+                if (swap.lastKnownStatus != null) ...[
+                  AquaListItem(
+                    title: context.loc.status,
+                    subtitleTrailing:
+                        swap.lastKnownStatus?.label(context) ?? '',
+                  ),
+                  AquaDivider(colors: context.aquaColors),
+                ],
+                //ANCHOR - Amount
+                if (swap.amountFromInvoice != null) ...[
+                  AquaListItem(
+                    title: context.loc.boltzInvoiceAmount,
+                    subtitleTrailing: amountWithUnit,
+                  ),
+                  AquaDivider(colors: context.aquaColors),
+                ],
+                //ANCHOR - Created
+                if (swap.createdAt != null) ...[
+                  AquaListItem(
+                    title: context.loc.created,
+                    subtitleTrailing: swap.createdAt?.mmMdyyyyHmma() ?? '',
+                  ),
+                  AquaDivider(colors: context.aquaColors),
+                ],
+                //ANCHOR - Timeout Block Height
+                AquaListItem(
+                  title: context.loc.boltzTimeoutBlockHeight,
+                  subtitleTrailing: swap.locktime.toString(),
                 ),
-              ),
-              _buildSwapDetails(swapData, ref, context),
-            ],
+                AquaDivider(colors: context.aquaColors),
+                //ANCHOR - Boltz ID
+                AquaListItem(
+                  title: context.loc.boltzId,
+                  contentWidget: Text(
+                    swap.boltzId,
+                    style: AquaAddressTypography.body2.copyWith(
+                      color: context.aquaColors.textPrimary,
+                    ),
+                  ),
+                  iconTrailing: AquaIcon.copy(
+                    size: 18,
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  onTap: () => context.copyToClipboard(swap.invoice),
+                ),
+                AquaDivider(colors: context.aquaColors),
+                //ANCHOR - Invoice
+                AquaListItem(
+                  title: context.loc.lightningInvoice,
+                  contentWidget: AquaColoredText(
+                    text: swap.invoice,
+                    maxLines: 2,
+                    style: AquaAddressTypography.body2.copyWith(
+                      color: context.aquaColors.textSecondary,
+                    ),
+                    colorType: ColoredTextEnum.coloredIntegers,
+                    shouldWrap: true,
+                  ),
+                  iconTrailing: AquaIcon.copy(
+                    size: 18,
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  onTap: () => context.copyToClipboard(swap.invoice),
+                ),
+                AquaDivider(colors: context.aquaColors),
+                //ANCHOR - Claim Transaction ID
+                if (swap.kind == SwapType.reverse) ...[
+                  AquaListItem(
+                    title: context.loc.boltzClaimTx,
+                    subtitle: swap.claimTxId ?? context.loc.notAvailable,
+                    iconTrailing: AquaIcon.copy(
+                      size: 18,
+                      color: context.aquaColors.textSecondary,
+                    ),
+                    onTap: swap.claimTxId != null
+                        ? () => context.copyToClipboard(swap.claimTxId!)
+                        : null,
+                  ),
+                  AquaDivider(colors: context.aquaColors),
+                ],
+                //ANCHOR - Refund Transaction ID
+                if (swap.kind == SwapType.submarine) ...[
+                  AquaListItem(
+                    title: context.loc.boltzRefundTx,
+                    subtitle: swap.refundTxId ?? context.loc.notAvailable,
+                    iconTrailing: AquaIcon.copy(
+                      size: 18,
+                      color: context.aquaColors.textSecondary,
+                    ),
+                    onTap: swap.refundTxId != null
+                        ? () => context.copyToClipboard(swap.refundTxId!)
+                        : null,
+                  ),
+                  AquaDivider(colors: context.aquaColors),
+                ],
+                //ANCHOR - Boltz Data Button
+                AquaListItem(
+                  title: context.loc.boltzCopySwapData,
+                  titleColor: context.aquaColors.accentBrand,
+                  iconTrailing: AquaIcon.copy(
+                    size: 18,
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  onTap: () =>
+                      context.copyToClipboard(swap.toJson().toString()),
+                ),
+                AquaDivider(colors: context.aquaColors),
+                //ANCHOR - Claim Swap Button
+                if (swap.kind == SwapType.reverse &&
+                    swap.claimTxId == null) ...[
+                  AquaListItem(
+                    title: context.loc.boltzClaimSwap,
+                    titleColor: context.aquaColors.accentBrand,
+                    iconTrailing: AquaIcon.chevronRight(
+                      size: 18,
+                      color: context.aquaColors.textSecondary,
+                    ),
+                    onTap: () => ref
+                        .read(boltzSwapSettlementServiceProvider)
+                        .claimBySwapId(swap.boltzId),
+                  ),
+                  AquaDivider(colors: context.aquaColors),
+                ],
+                //ANCHOR - Refund Swap Button
+                if (swap.kind == SwapType.submarine &&
+                    swap.refundTxId == null) ...[
+                  AquaListItem(
+                    title: context.loc.boltzCopyRefundData,
+                    titleColor: context.aquaColors.accentBrand,
+                    iconTrailing: AquaIcon.chevronRight(
+                      size: 18,
+                      color: context.aquaColors.textSecondary,
+                    ),
+                    onTap: refundData.data != null ? onSwapRefund : null,
+                  ),
+                  AquaDivider(colors: context.aquaColors),
+                ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSwapDetails(
-      BoltzSwapDbModel swapData, WidgetRef ref, BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(
-        top: 31.0,
-        left: 16.0,
-        right: 16.0,
-        bottom: 71.0,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ANCHOR - Order status
-          _BoltzDetailHeaderWidget(
-              status: swapData.lastKnownStatus ?? BoltzSwapStatus.created),
-          const SizedBox(height: 24.0),
-
-          _BoltzDetailWidget(
-              title: context.loc.createdAt,
-              subtitle: swapData.createdAt?.yMMMdHm() ?? '--'),
-          const SizedBox(height: 6.0),
-          _BoltzDetailWidget(
-              title: context.loc.boltzInvoiceAmount,
-              subtitle: '${swapData.amountFromInvoice}'),
-          const SizedBox(height: 6.0),
-          _BoltzDetailWidget(
-              title: context.loc.boltzTimeoutBlockHeight,
-              subtitle: '${swapData.locktime}'),
-
-          const SizedBox(height: 24.0),
-          DashedDivider(
-            color: Theme.of(context).colors.onBackground,
-          ),
-          const SizedBox(height: 40.0),
-
-          _CopyButton(data: swapData.toJson().toString()),
-          const SizedBox(height: 24.0),
-
-          if (swapData.kind == SwapType.submarine) ...{
-            FutureBuilder<BoltzRefundData?>(
-              future: ref
-                  .read(boltzSubmarineSwapProvider.notifier)
-                  .getRefundData(swapData),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return _RefundButton(refundData: snapshot.data);
-                }
-              },
-            ),
-            const SizedBox(height: 24)
-          },
-
-          if (swapData.kind == SwapType.reverse &&
-              swapData.claimTxId == null) ...{
-            _ClaimButton(swapDbModel: swapData),
-            const SizedBox(height: 24),
-          },
-
-          LabelCopyableTextView(
-              label: context.loc.boltzId, value: swapData.boltzId),
-          const SizedBox(height: 24.0),
-
-          LabelCopyableTextView(
-              label: context.loc.lightningInvoice, value: swapData.invoice),
-          const SizedBox(height: 24.0),
-
-          if (swapData.kind == SwapType.submarine) ...[
-            LabelCopyableTextView(
-                label: context.loc.boltzRefundTx,
-                value: swapData.refundTxId ?? 'N/A'),
-            const SizedBox(height: 24.0),
-          ],
-
-          if (swapData.kind == SwapType.reverse) ...[
-            LabelCopyableTextView(
-                label: context.loc.boltzClaimTx,
-                value: swapData.claimTxId ?? 'N/A'),
-            const SizedBox(height: 24.0),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _BoltzDetailHeaderWidget extends StatelessWidget {
-  const _BoltzDetailHeaderWidget({
-    required this.status,
-  });
-
-  final BoltzSwapStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ANCHOR - Swap status
-          Text("${context.loc.status}: ${status.value}",
-              style: Theme.of(context).textTheme.headlineMedium),
-        ],
-      ),
-    );
-  }
-}
-
-class _BoltzDetailWidget extends StatelessWidget {
-  const _BoltzDetailWidget({
-    required this.title,
-    required this.subtitle,
-  });
-
-  final String title;
-  final String? subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: Row(
-        children: [
-          Text(
-            title,
-          ),
-          Expanded(
-            child: Text(
-              subtitle ?? '-',
-              textAlign: TextAlign.end,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CopyButton extends StatelessWidget {
-  final String data;
-
-  const _CopyButton({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: AquaElevatedButton(
-        onPressed: () {
-          context.copyToClipboard(data);
-        },
-        child: Text(context.loc.boltzCopySwapData),
-      ),
-    );
-  }
-}
-
-class _RefundButton extends StatelessWidget {
-  final BoltzRefundData? refundData;
-
-  const _RefundButton({required this.refundData});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: AquaElevatedButton(
-        onPressed: () {
-          final jsonString = jsonEncode(refundData?.toJson());
-          context.copyToClipboard(jsonString);
-        },
-        child: Text(context.loc.boltzCopyRefundData),
-      ),
-    );
-  }
-}
-
-class _ClaimButton extends ConsumerWidget {
-  const _ClaimButton({required this.swapDbModel});
-
-  final BoltzSwapDbModel swapDbModel;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Center(
-      child: AquaElevatedButton(
-        onPressed: () async {
-          final swap = await ref
-              .read(boltzStorageProvider.notifier)
-              .getLbtcLnV2SwapById(swapDbModel.boltzId);
-
-          if (swap != null) {
-            ref.read(boltzSwapSettlementServiceProvider).claim(swap);
-          }
-        },
-        child: Text(context.loc.boltzClaimSwap),
       ),
     );
   }

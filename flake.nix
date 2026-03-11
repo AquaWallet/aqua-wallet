@@ -40,6 +40,7 @@
             "mips-android-sysimage-license"            ];
         };
         androidSdk = androidComposition.androidsdk;
+        isDarwin = pkgs.stdenv.isDarwin;
       in
       {
         devShell = with pkgs; mkShellNoCC rec {
@@ -58,6 +59,9 @@
             jdk17
 
             rustup
+          ] ++ pkgs.lib.optionals isDarwin [
+            ruby
+            cocoapods
           ];
           # emulator related: vulkan-loader and libGL shared libs are necessary for hardware decoding
           LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [vulkan-loader libGL]}";

@@ -1,5 +1,6 @@
 import 'package:aqua/features/sideshift/models/sideshift_order_status.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:decimal/decimal.dart';
 
 part 'sideshift_order.freezed.dart';
 part 'sideshift_order.g.dart';
@@ -12,27 +13,30 @@ enum SideshiftOrderType {
 }
 
 abstract class SideshiftOrder {
-  String? get id;
-  DateTime? get createdAt;
-  String? get depositCoin;
-  String? get settleCoin;
-  String? get depositNetwork;
-  String? get settleNetwork;
-  String? get depositAddress;
-  String? get settleAddress;
-  String? get depositMin;
-  String? get depositMax;
-  SideshiftOrderType? get orderType;
-  DateTime? get expiresAt;
+  String get id;
+  DateTime get createdAt;
+  String get depositCoin;
+  String get settleCoin;
+  String get depositNetwork;
+  String get settleNetwork;
+  String get depositAddress;
+  String get settleAddress;
+  Decimal get depositMin;
+  Decimal get depositMax;
+  SideshiftOrderType get type;
+  DateTime get expiresAt;
 }
 
 @freezed
 class SideshiftFixedOrderRequest with _$SideshiftFixedOrderRequest {
   factory SideshiftFixedOrderRequest({
-    String? settleAddress,
-    String? affiliateId,
-    String? quoteId,
+    required String settleAddress,
+    String? settleMemo,
+    required String affiliateId,
+    required String quoteId,
     String? refundAddress,
+    String? refundMemo,
+    String? externalId,
   }) = _SideshiftFixedOrderRequest;
 
   factory SideshiftFixedOrderRequest.fromJson(Map<String, dynamic> json) =>
@@ -44,25 +48,29 @@ class SideshiftFixedOrderResponse
     with _$SideshiftFixedOrderResponse
     implements SideshiftOrder {
   const factory SideshiftFixedOrderResponse({
-    String? id,
-    DateTime? createdAt,
-    String? depositCoin,
-    String? settleCoin,
-    String? depositNetwork,
-    String? settleNetwork,
-    String? depositAddress,
-    String? settleAddress,
-    String? depositMin,
-    String? depositMax,
-    SideshiftOrderType? orderType,
-    DateTime? expiresAt,
-    required String refundAddress,
-    String? quoteId,
-    String? depositAmount,
-    String? settleAmount,
-    SideshiftOrderStatus? status,
-    DateTime? updatedAt,
-    String? rate,
+    required String id,
+    required DateTime createdAt,
+    required String depositCoin,
+    required String settleCoin,
+    required String depositNetwork,
+    required String settleNetwork,
+    required String depositAddress,
+    String? depositMemo,
+    required String settleAddress,
+    String? settleMemo,
+    required Decimal depositMin,
+    required Decimal depositMax,
+    String? refundAddress,
+    String? refundMemo,
+    required SideshiftOrderType type,
+    required String quoteId,
+    required Decimal depositAmount,
+    required Decimal settleAmount,
+    required DateTime expiresAt,
+    required SideshiftOrderStatus status,
+    String? averageShiftSeconds,
+    String? externalId,
+    required String rate,
   }) = _SideshiftFixedOrderResponse;
 
   factory SideshiftFixedOrderResponse.fromJson(Map<String, dynamic> json) =>
@@ -72,14 +80,16 @@ class SideshiftFixedOrderResponse
 @freezed
 class SideshiftVariableOrderRequest with _$SideshiftVariableOrderRequest {
   factory SideshiftVariableOrderRequest({
-    String? settleAddress,
+    required String settleAddress,
+    String? settleMemo,
     String? refundAddress,
-    String? affiliateId,
-    String? depositCoin,
-    String? settleCoin,
+    String? refundMemo,
+    required String depositCoin,
+    required String settleCoin,
     String? depositNetwork,
-    dynamic settleNetwork,
-    String? commissionRate,
+    String? settleNetwork,
+    required String affiliateId,
+    String? externalId,
   }) = _SideshiftVariableOrderRequest;
 
   factory SideshiftVariableOrderRequest.fromJson(Map<String, dynamic> json) =>
@@ -91,20 +101,27 @@ class SideshiftVariableOrderResponse
     with _$SideshiftVariableOrderResponse
     implements SideshiftOrder {
   const factory SideshiftVariableOrderResponse({
-    String? id,
-    DateTime? createdAt,
-    String? depositCoin,
-    String? settleCoin,
-    String? depositNetwork,
-    String? settleNetwork,
-    String? depositAddress,
-    String? settleAddress,
-    String? depositMin,
-    String? depositMax,
-    SideshiftOrderType? orderType,
-    DateTime? expiresAt,
-    SideshiftOrderStatus? status,
-    String? settleCoinNetworkFee,
+    required String id,
+    required DateTime createdAt,
+    required String depositCoin,
+    required String settleCoin,
+    required String depositNetwork,
+    required String settleNetwork,
+    required String depositAddress,
+    String? depositMemo,
+    required String settleAddress,
+    String? settleMemo,
+    required Decimal depositMin,
+    required Decimal depositMax,
+    String? refundAddress,
+    String? refundMemo,
+    required SideshiftOrderType type,
+    required DateTime expiresAt,
+    required SideshiftOrderStatus status,
+    String? averageShiftSeconds,
+    String? externalId,
+    required Decimal settleCoinNetworkFee,
+    required String networkFeeUsd,
   }) = _SideshiftVariableOrderResponse;
 
   factory SideshiftVariableOrderResponse.fromJson(Map<String, dynamic> json) =>

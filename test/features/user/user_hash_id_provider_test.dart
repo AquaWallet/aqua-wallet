@@ -3,7 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/models/gdk_models.dart';
-import 'package:aqua/features/user/user_hash_id_provider.dart';
+import 'package:aqua/features/account/providers/user_hash_id_provider.dart';
 
 class MockBitcoinProvider extends Mock implements BitcoinProvider {}
 

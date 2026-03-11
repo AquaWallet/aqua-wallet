@@ -5,7 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/gen/assets.gen.dart';
 import 'package:ui_components/ui_components.dart';
 
-const kAppBarHeight = 52.0;
+const kAppBarHeight = 60.0;
 
 class AquaTopAppBar extends HookWidget implements PreferredSizeWidget {
   const AquaTopAppBar({
@@ -53,8 +53,9 @@ class AquaTopAppBar extends HookWidget implements PreferredSizeWidget {
           height: kAppBarHeight + padding.top,
           padding: EdgeInsets.only(
             top: padding.top + 16,
+            bottom: 12,
             left: 12,
-            right: actions.isEmpty ? 20 : 12,
+            right: 12,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,28 +100,49 @@ class AquaTopAppBar extends HookWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kAppBarHeight);
 }
 
-class AquaHeader extends StatelessWidget implements PreferredSizeWidget {
+class AquaHeader extends HookWidget implements PreferredSizeWidget {
   const AquaHeader({
     super.key,
     this.showNotifications = false,
+    this.refreshController,
+    this.onRefresh,
     this.paddingTop,
     this.onWalletPressed,
     this.onNotificationsPressed,
     this.walletName,
     this.walletBalance,
+    this.onBalanceVisibilityChanged,
+    required this.isBalanceVisible,
     required this.colors,
+    this.healthChecker,
   });
 
   final bool showNotifications;
   final double? paddingTop;
   final String? walletName;
   final String? walletBalance;
+  final bool isBalanceVisible;
+  final Function(bool visible)? onBalanceVisibilityChanged;
   final VoidCallback? onWalletPressed;
   final VoidCallback? onNotificationsPressed;
+  final Widget? healthChecker;
   final AquaColors colors;
+  final AquaRefreshController? refreshController;
+  final Future<void> Function()? onRefresh;
 
   @override
   Widget build(BuildContext context) {
+    useListenable(refreshController);
+
+    final shouldShowIndicator = refreshController?.isRefreshing ?? false;
+
+    useEffect(() {
+      if (onRefresh != null) {
+        refreshController?.setOnRefresh(onRefresh!);
+      }
+      return null;
+    }, [refreshController, onRefresh]);
+
     return ClipRRect(
       borderRadius: const BorderRadius.only(
         bottomLeft: Radius.circular(8),
@@ -132,7 +154,6 @@ class AquaHeader extends StatelessWidget implements PreferredSizeWidget {
           color: colors.glassBackground.withOpacity(0.8),
           padding: EdgeInsets.only(
             top: paddingTop ?? 16,
-            bottom: 16,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -148,8 +169,16 @@ class AquaHeader extends StatelessWidget implements PreferredSizeWidget {
                       BlendMode.srcIn,
                     ),
                   ),
+                  healthChecker ?? const SizedBox.shrink(),
+                  const Spacer(),
+                  AquaVisibilityToggleButton(
+                    size: 24,
+                    isBalanceVisible: isBalanceVisible,
+                    onBalanceVisibilityChanged: onBalanceVisibilityChanged,
+                    colors: colors,
+                  ),
+                  const SizedBox(width: 8),
                   if (showNotifications) ...{
-                    const Spacer(),
                     AquaIcon.notification(
                       size: 24,
                       padding: const EdgeInsets.all(4),
@@ -158,22 +187,39 @@ class AquaHeader extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     const SizedBox(width: 12),
                   } else ...{
-                    const SizedBox.square(dimension: 32),
+                    const SizedBox.square(dimension: 8),
                   },
                 ],
               ),
-              const SizedBox(height: 12),
               if (walletName != null) ...{
+                const SizedBox(height: 16),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   child: AquaWalletTile(
                     onWalletPressed: onWalletPressed,
-                    colors: colors,
                     walletName: walletName!,
+                    isBalanceVisible: isBalanceVisible,
                     walletBalance: walletBalance,
+                    colors: colors,
                   ),
                 ),
               },
+              AnimatedContainer(
+                height: AquaLinearProgressIndicator.kMinHeight,
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                child: AnimatedOpacity(
+                  opacity: shouldShowIndicator ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: shouldShowIndicator
+                      ? AquaLinearProgressFillIndicator(
+                          colors: colors,
+                          // If using controller, stop refresh when animation completes
+                          onComplete: () => refreshController?.stopRefresh(),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              )
             ],
           ),
         ),

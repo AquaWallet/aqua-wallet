@@ -143,6 +143,10 @@ abstract class WalletService {
   }
 
   Future<bool> disconnect() async {
+    if (session == null) {
+      return true;
+    }
+
     libGdk.destroySession(session: session!);
 
     session = null;
@@ -300,10 +304,14 @@ abstract class WalletService {
   Future<Result<GdkAuthHandlerStatus>> getBalance({
     required GdkGetBalance details,
   }) async {
+    if (session == null) {
+      return Result.error('Session is null - wallet may be disconnected');
+    }
+
     GdkGetBalance detailsWithSubaccount =
         details.copyWith(subaccount: getSubAccount());
     final status = await libGdk.getBalance(
-      session: session!,
+      session: session,
       details: detailsWithSubaccount,
     );
 
@@ -580,6 +588,10 @@ abstract class WalletService {
   }
 
   Future<Result<GdkCurrencyData?>> getAvailableCurrencies() async {
+    if (session == null) {
+      return Result.value(null);
+    }
+
     final result = await libGdk.getAvailableCurrencies(session: session!);
 
     if (isErrorResult(result)) {

@@ -8,14 +8,12 @@ class DialogManager {
 
   bool _isShowingDialog = false;
 
-  void showDialog(BuildContext context, CustomAlertDialogUiModel uiModel,
-      {bool isDarkMode = true}) {
+  void showDialog(BuildContext context, CustomAlertDialogUiModel uiModel) {
     if (!_isShowingDialog) {
       _isShowingDialog = true;
       showCustomAlertDialog(
         context: context,
         uiModel: uiModel,
-        isDarkMode: isDarkMode,
       ).then((_) => _isShowingDialog = false);
     }
   }

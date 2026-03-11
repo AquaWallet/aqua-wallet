@@ -5,7 +5,7 @@ import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/providers/transactions_storage_provider.dart';
 import 'package:aqua/logger.dart';
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:boltz/boltz.dart';
 
 final _logger = CustomLogger(FeatureFlag.boltz);
 
@@ -263,7 +263,7 @@ class BoltzSwapSettlementService {
 
       final refundBytes = await swap.refund(
         outAddress: address.address!,
-        absFee: kBoltzLiquidRefundTxFee,
+        minerFee: TxFee.absolute(BigInt.from(kBoltzLiquidRefundTxFee)),
         tryCooperate: tryCoop,
       );
 
@@ -305,7 +305,7 @@ class BoltzSwapSettlementService {
 
       final claimBytes = await swap.claim(
         outAddress: address.address!,
-        absFee: fee,
+        minerFee: TxFee.absolute(BigInt.from(fee)),
         tryCooperate: tryCoop,
       );
 
@@ -319,13 +319,13 @@ class BoltzSwapSettlementService {
             boltzId: swap.id,
             claimTxId: broadcastResponse,
             receiveAddress: address.address!,
-            outAmount: swap.outAmount,
+            outAmount: swap.outAmount.toInt(),
             fee: fee,
           );
 
       await _ref
           .read(transactionStorageProvider.notifier)
-          .markBoltzGhostTxn(swap.id, amount: swap.outAmount, fee: fee);
+          .markBoltzGhostTxn(swap.id, amount: swap.outAmount.toInt(), fee: fee);
 
       return broadcastResponse;
     } catch (e) {
@@ -341,9 +341,19 @@ class BoltzSwapSettlementService {
     }
   }
 
+  Future<String?> claimBySwapId(String swapId) async {
+    final swap = await _ref
+        .read(boltzStorageProvider.notifier)
+        .getLbtcLnV2SwapById(swapId);
+    if (swap != null) {
+      return await claim(swap);
+    }
+    return null;
+  }
+
   // TODO: There is an issue on boltz-rust to allow passing a fee rate. When implement we can greatly simply with just the single condition of lowball or no-lowball fee rate
   // - https://github.com/SatoshiPortal/boltz-rust/issues/56
-  int _calculateClaimFee(bool tryCoop, [ReverseFeesAndLimits? reverseFees]) {
+  int _calculateClaimFee(bool tryCoop) {
     if (tryCoop) {
       return kBoltzLiquidClaimTxFee;
     } else {

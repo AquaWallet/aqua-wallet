@@ -1,13 +1,15 @@
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:rxdart/rxdart.dart';
 
 final networkTransactionsProvider =
     StreamProvider.family<List<GdkTransaction>, Asset>((ref, asset) async* {
+  ref.watch(storedWalletsProvider.select((s) => s.valueOrNull?.currentWallet));
+
   final networkProvider = asset.isBTC ? bitcoinProvider : liquidProvider;
   final networkTxs = ref
-      .read(networkProvider)
+      .watch(networkProvider)
       .transactionEventSubject
       .startWith(null)
       .asyncMap((_) =>

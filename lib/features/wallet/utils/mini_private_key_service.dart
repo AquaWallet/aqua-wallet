@@ -104,4 +104,51 @@ class Base58 {
 
     return result;
   }
+
+  /// Decodes a Base58 string to bytes.
+  /// Returns null if the input contains invalid Base58 characters.
+  static Uint8List? decode(String base58String) {
+    if (base58String.isEmpty) {
+      return null;
+    }
+
+    BigInt num = BigInt.zero;
+    for (int i = 0; i < base58String.length; i++) {
+      final char = base58String[i];
+      final index = alphabet.indexOf(char);
+      if (index == -1) {
+        return null; // Invalid Base58 character
+      }
+      num = num * BigInt.from(58) + BigInt.from(index);
+    }
+
+    // Convert BigInt to bytes
+    final hexString = num.toRadixString(16);
+    // Pad with leading zero if odd length
+    final paddedHex = hexString.length.isOdd ? '0$hexString' : hexString;
+
+    final bytes = <int>[];
+    for (int i = 0; i < paddedHex.length; i += 2) {
+      bytes.add(int.parse(paddedHex.substring(i, i + 2), radix: 16));
+    }
+
+    // Count leading zeros in the original string
+    int leadingZeros = 0;
+    for (int i = 0;
+        i < base58String.length && base58String[i] == alphabet[0];
+        i++) {
+      leadingZeros++;
+    }
+
+    // Prepend leading zeros
+    final result = Uint8List(leadingZeros + bytes.length);
+    for (int i = 0; i < leadingZeros; i++) {
+      result[i] = 0;
+    }
+    for (int i = 0; i < bytes.length; i++) {
+      result[leadingZeros + i] = bytes[i];
+    }
+
+    return result;
+  }
 }

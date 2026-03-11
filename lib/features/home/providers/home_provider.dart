@@ -19,26 +19,13 @@ class _HomeProvider {
 
   final AutoDisposeProviderRef _ref;
 
-  Stream<bool> _contentVisibility() =>
-      Stream.value(true).delay(const Duration(milliseconds: 500));
-
   final BehaviorSubject<WalletTabs> _selectedBottomTabSubject =
       BehaviorSubject.seeded(WalletTabs.wallet);
+
   void selectTab(int index) {
     _selectedBottomTabSubject.add(WalletTabs.values.elementAt(index));
   }
 }
-
-//ANCHOR - Content Visibility
-
-final _homeContentVisibilityStreamProvider =
-    StreamProvider.autoDispose<bool>((ref) async* {
-  yield* ref.watch(homeProvider)._contentVisibility();
-});
-
-final homeContentVisibilityProvider = Provider.autoDispose<bool>((ref) {
-  return ref.watch(_homeContentVisibilityStreamProvider).asData?.value ?? false;
-});
 
 //ANCHOR - Tabs
 

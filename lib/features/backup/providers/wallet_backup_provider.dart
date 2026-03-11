@@ -7,10 +7,17 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
-final recoveryPhraseWordsProvider =
-    FutureProvider.autoDispose<List<String>>((ref) async {
-  final (mnemonic, err) =
-      await ref.read(secureStorageProvider).get(StorageKeys.mnemonic);
+final recoveryPhraseWordsProvider = FutureProvider.autoDispose
+    .family<List<String>, String?>((ref, walletId) async {
+  final (currentWalletId, _) =
+      await ref.read(secureStorageProvider).get(StorageKeys.currentWalletId);
+  final selectedWalletId = walletId ?? currentWalletId;
+  if (selectedWalletId == null) {
+    throw Exception('Falied to get current wallet ID');
+  }
+  final (mnemonic, err) = await ref
+      .read(secureStorageProvider)
+      .get(StorageKeys.mnemonic(selectedWalletId));
   if (err != null || mnemonic == null) {
     return [];
   }
@@ -30,7 +37,7 @@ final _selectedWordsInsertionIndicesProvider =
 final _confirmationWordsProvider =
     FutureProvider.autoDispose<List<String>?>((ref) async {
   final recoveryPhraseWords =
-      await ref.watch(recoveryPhraseWordsProvider.future);
+      await ref.watch(recoveryPhraseWordsProvider(null).future);
   final confirmationRandomWords =
       await ref.watch(liquidProvider).generateMnemonic12();
 

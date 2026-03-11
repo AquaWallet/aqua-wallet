@@ -1,14 +1,7 @@
 import 'package:aqua/config/constants/constants.dart' as constants;
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:aqua/config/config.dart';
-import 'package:flutter_svg/svg.dart';
-
-const _socials = {
-  constants.aquaWebsiteUrl: Svgs.website,
-  constants.aquaTwitterUrl: Svgs.twitter,
-  constants.aquaInstagramUrl: Svgs.instagram,
-  constants.aquaTelegramUrl: Svgs.telegram,
-};
+import 'package:ui_components/ui_components.dart';
 
 class SettingsSocialLinks extends StatelessWidget {
   const SettingsSocialLinks({
@@ -20,6 +13,25 @@ class SettingsSocialLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final socials = {
+      constants.aquaWebsiteUrl: AquaIcon.web(
+        size: 24,
+        color: context.aquaColors.textPrimary,
+      ),
+      constants.aquaTwitterUrl: AquaIcon.twitter(
+        size: 24,
+        color: context.aquaColors.textPrimary,
+      ),
+      constants.aquaInstagramUrl: AquaIcon.instagram(
+        size: 24,
+        color: context.aquaColors.textPrimary,
+      ),
+      constants.aquaTelegramUrl: AquaIcon.telegram(
+        size: 24,
+        color: context.aquaColors.textPrimary,
+      ),
+    };
+
     return Container(
       height: 50.0,
       alignment: Alignment.center,
@@ -30,20 +42,12 @@ class SettingsSocialLinks extends StatelessWidget {
         shrinkWrap: true,
         primary: false,
         padding: const EdgeInsets.only(right: 8.0),
-        itemCount: _socials.length,
+        itemCount: socials.length,
         separatorBuilder: (_, __) => const SizedBox(width: 30.0),
         itemBuilder: (context, index) => Center(
           child: InkWell(
-            onTap: () => onLinkClick(_socials.keys.elementAt(index)),
-            child: SvgPicture.asset(
-              _socials.values.elementAt(index),
-              width: 24.0,
-              height: 24.0,
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colors.onBackground,
-                BlendMode.srcIn,
-              ),
-            ),
+            onTap: () => onLinkClick(socials.keys.elementAt(index)),
+            child: socials.values.elementAt(index),
           ),
         ),
       ),

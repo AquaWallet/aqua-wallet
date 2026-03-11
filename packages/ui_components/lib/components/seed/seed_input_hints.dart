@@ -34,8 +34,9 @@ class AquaSeedInputHints extends StatelessWidget {
               for (final (index, hint) in hints.indexed) ...[
                 Expanded(
                   child: InkWell(
-                    onTap: () => onHintSelected(hint),
-                    splashFactory: NoSplash.splashFactory,
+                    onTap: () => WidgetsBinding.instance
+                        .addPostFrameCallback((_) => onHintSelected(hint)),
+                    splashFactory: InkRipple.splashFactory,
                     overlayColor: WidgetStateProperty.resolveWith((state) {
                       if (state.isHovered) {
                         return Colors.transparent;

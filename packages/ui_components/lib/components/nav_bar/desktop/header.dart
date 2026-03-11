@@ -6,6 +6,7 @@ class AquaNavHeader extends HookWidget {
   const AquaNavHeader({
     super.key,
     required this.title,
+    this.colors,
     this.onReceiveTap,
     this.onSendTap,
     this.onSwapTap,
@@ -13,7 +14,8 @@ class AquaNavHeader extends HookWidget {
     this.onRegionTap,
     this.onUserTap,
     this.onSettingsTap,
-    this.colors,
+    this.dropDownWidget,
+    this.isScreenTooSmall = false,
   });
 
   final String title;
@@ -24,18 +26,31 @@ class AquaNavHeader extends HookWidget {
   final VoidCallback? onRegionTap;
   final VoidCallback? onUserTap;
   final VoidCallback? onSettingsTap;
+  final Widget? dropDownWidget;
   final AquaColors? colors;
+  final bool isScreenTooSmall;
 
   @override
   Widget build(BuildContext context) {
     final isWideScreen = !context.isMobile && !context.isWideMobile;
+
     return SafeArea(
       child: Container(
         constraints: const BoxConstraints(maxHeight: 34),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            AquaText.h4SemiBold(text: title),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AquaText.h4SemiBold(text: title),
+                if (dropDownWidget != null) ...[
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  dropDownWidget!
+                ],
+              ],
+            ),
             const Spacer(),
             AquaButton.utility(
               onPressed: onReceiveTap,
@@ -43,7 +58,7 @@ class AquaNavHeader extends HookWidget {
                 size: 18,
                 color: colors?.textPrimary,
               ),
-              text: !isWideScreen ? '' : 'Receive',
+              text: !isWideScreen || isScreenTooSmall ? '' : 'Receive',
             ),
             const SizedBox(width: 16),
             AquaButton.utility(
@@ -52,7 +67,7 @@ class AquaNavHeader extends HookWidget {
                 size: 18,
                 color: colors?.textPrimary,
               ),
-              text: !isWideScreen ? '' : 'Send',
+              text: !isWideScreen || isScreenTooSmall ? '' : 'Send',
             ),
             const SizedBox(width: 16),
             AquaButton.utility(
@@ -61,7 +76,7 @@ class AquaNavHeader extends HookWidget {
                 size: 18,
                 color: colors?.textPrimary,
               ),
-              text: !isWideScreen ? '' : 'Swap',
+              text: !isWideScreen || isScreenTooSmall ? '' : 'Swap',
             ),
             const SizedBox(width: 16),
             AquaButton.utility(
@@ -70,7 +85,7 @@ class AquaNavHeader extends HookWidget {
                 size: 18,
                 color: colors?.textPrimary,
               ),
-              text: !isWideScreen ? '' : 'Marketplace',
+              text: !isWideScreen || isScreenTooSmall ? '' : 'Marketplace',
             ),
             const SizedBox(width: 8),
             VerticalDivider(
@@ -79,8 +94,11 @@ class AquaNavHeader extends HookWidget {
               thickness: 1,
             ),
             InkWell(
-              onTap: onRegionTap,
-              splashFactory: NoSplash.splashFactory,
+              onTap: onRegionTap != null
+                  ? () => WidgetsBinding.instance
+                      .addPostFrameCallback((_) => onRegionTap?.call())
+                  : null,
+              splashFactory: InkRipple.splashFactory,
               borderRadius: BorderRadius.circular(100),
               overlayColor: WidgetStateProperty.all(Colors.transparent),
               child: Container(

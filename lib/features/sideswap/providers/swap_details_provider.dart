@@ -1,8 +1,9 @@
-import 'package:aqua/data/provider/formatter_provider.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 
 final swapDetailsProvider = AutoDisposeNotifierProviderFamily<
     SwapDetailsNotifier,
@@ -14,43 +15,43 @@ class SwapDetailsNotifier
   @override
   SwapSuccessModel build(SwapStateSuccess arg) {
     final assets = ref.read(assetsProvider).asData?.value ?? [];
-
+    final displayUnit = ref.watch(displayUnitsProvider).currentDisplayUnit;
+    final formatter = ref.read(formatProvider);
     final delivered = (arg.swapOutgoingSatoshi as int).abs();
     final deliveredAsset =
         assets.firstWhere((asset) => asset.id == arg.swapOutgoingAssetId);
-    final formattedDelivered =
-        ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: delivered,
-              precision: deliveredAsset.precision,
-            );
+    final formattedDelivered = formatter.formatAssetAmount(
+      amount: delivered,
+      asset: deliveredAsset,
+    );
+    final deliveredTicker = deliveredAsset.getDisplayTicker(displayUnit);
 
     final feeAsset =
         assets.firstWhere((a) => deliveredAsset.isBTC ? a.isBTC : a.isLBTC);
 
-    final deliveredTicker = deliveredAsset.ticker;
-
     final received = arg.swapIncomingSatoshi as int;
     final receivedAsset =
         assets.firstWhere((asset) => asset.id == arg.swapIncomingAssetId);
-    final formattedReceived =
-        ref.read(formatterProvider).formatAssetAmountDirect(
-              amount: received,
-              precision: receivedAsset.precision,
-            );
-    final receivedTicker = receivedAsset.ticker;
+    final formattedReceived = formatter.formatAssetAmount(
+      amount: received,
+      asset: receivedAsset,
+    );
+    final receivedTicker = receivedAsset.getDisplayTicker(displayUnit);
 
     final transactionId = arg.txhash ?? '-';
 
     final fee = arg.fee;
-    final formattedFee = ref.read(formatterProvider).formatAssetAmountDirect(
-          amount: fee ?? 0,
-          precision: feeAsset.precision,
-        );
-    final feeText = '$formattedFee ${feeAsset.ticker}';
+    final formattedFee = formatter.formatAssetAmount(
+      amount: fee ?? 0,
+      asset: feeAsset,
+    );
+    final feeTicker = feeAsset.getDisplayTicker(displayUnit);
+    final feeText = '$formattedFee $feeTicker';
     final rate =
         deliveredAsset.isLBTC ? delivered / received : received / delivered;
     final currentRate = rate.toStringAsFixed(rate > 10000 ? 2 : 8);
-    final feeRate = '1 $deliveredTicker = $currentRate $receivedTicker';
+    final feeRate =
+        '1 ${deliveredAsset.ticker} = $currentRate ${receivedAsset.ticker}';
 
     final timestamp = arg.createdAtTs;
     final formattedDate = timestamp != null

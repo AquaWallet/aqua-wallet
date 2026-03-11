@@ -1,7 +1,7 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:ui_components/ui_components.dart';
 
 class CopyableTextView extends HookConsumerWidget {
   const CopyableTextView({
@@ -50,16 +50,9 @@ class CopyableTextView extends HookConsumerWidget {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => context.copyToClipboard(text),
-                child: InkWell(
-                  child: SvgPicture.asset(
-                    Svgs.copy,
-                    width: iconSize ?? 12.0,
-                    height: iconSize ?? 12.0,
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).colors.onBackground,
-                      BlendMode.srcIn,
-                    ),
-                  ),
+                child: AquaIcon.copy(
+                  size: 18,
+                  color: context.aquaColors.textPrimary,
                 ),
               ),
             ),

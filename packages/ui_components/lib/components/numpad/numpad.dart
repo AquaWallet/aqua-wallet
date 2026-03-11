@@ -2,30 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/ui_components.dart';
 
-final _keys = [
-  ...List.generate(
-    9,
-    (index) => MnemonicKeyboardKey.letter(text: '${index + 1}'),
-  ),
-  MnemonicKeyboardKey.letter(text: '.'),
-  MnemonicKeyboardKey.letter(text: '0'),
-  MnemonicKeyboardKey.backspace(),
-];
-
 class AquaNumpad extends HookWidget {
   const AquaNumpad({
     super.key,
     this.enabled = true,
+    this.decimalAllowed = true,
     this.onKeyPressed,
     required this.colors,
+    this.decimalSeparator = MnemonicKeyboardKey.kDecimalCharacter,
   });
 
   final bool enabled;
+  final bool decimalAllowed;
   final void Function(MnemonicKeyboardKey)? onKeyPressed;
   final AquaColors colors;
+  final String decimalSeparator;
 
   @override
   Widget build(BuildContext context) {
+    final keys = [
+      ...List.generate(9, (i) => MnemonicKeyboardKey.letter(text: '${i + 1}')),
+      MnemonicKeyboardKey.letter(text: decimalSeparator),
+      MnemonicKeyboardKey.letter(text: '0'),
+      MnemonicKeyboardKey.backspace(),
+    ];
+
+    final isDecimalKey = useCallback((MnemonicKeyboardKey key) {
+      return key is MnemonicKeyboardLetterKey && key.text == decimalSeparator;
+    }, [decimalSeparator]);
+
     return GridView.count(
       crossAxisCount: 3,
       shrinkWrap: true,
@@ -34,11 +39,11 @@ class AquaNumpad extends HookWidget {
       crossAxisSpacing: 8,
       padding: EdgeInsets.zero,
       childAspectRatio: 1.95,
-      children: _keys
+      children: keys
           .map((key) => _AquaNumpadKey(
                 key: ValueKey(key),
                 value: key,
-                enabled: enabled,
+                enabled: enabled && (!isDecimalKey(key) || decimalAllowed),
                 onPressed: onKeyPressed,
                 colors: colors,
               ))
@@ -66,13 +71,18 @@ class _AquaNumpadKey extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: enabled ? () => onPressed?.call(value) : null,
+        onTap: enabled && onPressed != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onPressed?.call(value))
+            : null,
+        splashFactory: InkRipple.splashFactory,
         child: Container(
           alignment: Alignment.center,
           child: AquaText.h4Medium(
             text: switch (value) {
               MnemonicKeyboardLetterKey(:final text) => text,
-              MnemonicKeyboardBackspaceKey() => '⌫',
+              MnemonicKeyboardBackspaceKey() =>
+                MnemonicKeyboardKey.kBackspaceCharacter,
             },
             color: enabled
                 ? colors.textPrimary

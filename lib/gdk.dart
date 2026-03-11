@@ -56,7 +56,8 @@ class LibGdkBindings {
   static LibGdkBindings? _instance;
 
   String get _libName {
-    if (Platform.isLinux || Platform.isAndroid) return 'libgreen_gdk_java.so';
+    if (Platform.isAndroid) return 'libgreen_gdk_java.so';
+    if (Platform.isLinux) return 'libgreen_gdk_java.so';
     if (Platform.isMacOS) return 'libgreen_gdk.dylib';
     // if (Platform.isWindows) return 'libgreen_gdk.dll';
     throw Exception('${Platform.operatingSystem} is not supported');
@@ -79,6 +80,15 @@ class LibGdkBindings {
     if (Platform.isIOS) {
       greenGdkLib = DynamicLibrary.process();
       dartHelperLib = DynamicLibrary.process();
+    } else if (Platform.isLinux) {
+      // WIP(petar): linux specific lib loading
+      // This is temp we can probably move this
+      final projectDir = Directory.current.path;
+
+      final libPath = "$projectDir/linux/lib/$_libName";
+      greenGdkLib = DynamicLibrary.open(libPath);
+      // dartHelperLib =
+      // DynamicLibrary.open(helperPath.isEmpty ? _libHelperName : helperPath);
     } else {
       greenGdkLib = DynamicLibrary.open(dllPath.isEmpty ? _libName : dllPath);
       dartHelperLib =
@@ -1315,6 +1325,18 @@ class LibGdk {
       networkName,
       json.asValue!.value,
     );
+
+    // Handle specific error codes for network registration
+    if (result != 0) {
+      logger.warning(
+          'Network registration failed with result: $result for network: $name');
+      // Result -1 often means the network is already registered or there's a conflict
+      // This is not necessarily a fatal error during wallet switching
+      if (result == -1) {
+        logger.debug('Network $name may already be registered, continuing...');
+        return Result.value(true); // Treat as success since network exists
+      }
+    }
 
     final checkResult = _checkResult(result: result);
     if (checkResult.isError) {

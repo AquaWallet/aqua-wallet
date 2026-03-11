@@ -7,7 +7,10 @@ Add the dependency to your `pubspec.yaml` file:
 ```yaml
 dependencies:
   ui_components:
-    path: packages/ui_components
+    git:
+      url: https://github.com/jan3dev/aqua-dev.git
+      path: packages/ui_components
+      ref: main
 ```
 
 ## Usage

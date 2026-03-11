@@ -4,17 +4,24 @@ import 'package:ui_components/ui_components.dart';
 class AquaMarketplaceTile extends StatelessWidget {
   const AquaMarketplaceTile({
     super.key,
-    required this.title,
-    required this.subtitle,
+    this.title,
+    this.subtitle,
+    this.titleWidget,
+    this.subtitleWidget,
     required this.icon,
     this.size = 164,
     this.isEnabled = true,
     this.colors,
     this.onTap,
-  });
+  })  : assert(title == null || titleWidget == null,
+            'Only one of title or titleWidget should be provided'),
+        assert(subtitle == null || subtitleWidget == null,
+            'Only one of subtitle or subtitleWidget should be provided');
 
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
+  final Widget? titleWidget;
+  final Widget? subtitleWidget;
   final double size;
   final Widget icon;
   final bool isEnabled;
@@ -28,11 +35,11 @@ class AquaMarketplaceTile extends StatelessWidget {
       height: size,
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: colors?.surfacePrimary,
         borderRadius: BorderRadius.circular(8),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0A000000),
+            color: AquaPrimitiveColors.shadow,
             blurRadius: 16,
             offset: Offset(0, 0),
             spreadRadius: 0,
@@ -45,9 +52,12 @@ class AquaMarketplaceTile extends StatelessWidget {
         shadowColor: null,
         type: MaterialType.canvas,
         child: InkWell(
-          onTap: isEnabled ? onTap : null,
+          onTap: isEnabled && onTap != null
+              ? () => WidgetsBinding.instance
+                  .addPostFrameCallback((_) => onTap?.call())
+              : null,
           borderRadius: BorderRadius.circular(8),
-          splashFactory: NoSplash.splashFactory,
+          splashFactory: InkRipple.splashFactory,
           overlayColor: WidgetStateProperty.resolveWith((state) {
             if (state.isHovered) {
               return Colors.transparent;
@@ -83,15 +93,19 @@ class AquaMarketplaceTile extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AquaText.body1SemiBold(
-                        text: title,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                      title != null
+                          ? AquaText.body1SemiBold(
+                              text: title!,
+                              color: colors?.textPrimary,
+                            )
+                          : titleWidget ?? const SizedBox.shrink(),
                       const SizedBox(height: 4),
-                      AquaText.caption1Medium(
-                        text: subtitle,
-                        color: colors?.textSecondary,
-                      ),
+                      subtitle != null
+                          ? AquaText.caption1Medium(
+                              text: subtitle!,
+                              color: colors?.textSecondary,
+                            )
+                          : subtitleWidget ?? const SizedBox.shrink(),
                     ],
                   ),
                 ],

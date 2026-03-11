@@ -27,7 +27,7 @@ class AquaFeeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Ink(
+    return Container(
       width: size,
       height: size,
       padding: EdgeInsets.zero,
@@ -44,7 +44,7 @@ class AquaFeeTile extends StatelessWidget {
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0A000000),
+            color: AquaPrimitiveColors.shadow,
             blurRadius: 16,
             offset: Offset(0, 0),
             spreadRadius: 0,
@@ -59,7 +59,7 @@ class AquaFeeTile extends StatelessWidget {
         child: InkWell(
           onTap: isEnabled ? onTap : null,
           borderRadius: BorderRadius.circular(8),
-          splashFactory: NoSplash.splashFactory,
+          splashFactory: InkRipple.splashFactory,
           overlayColor: const WidgetStatePropertyAll(Colors.transparent),
           child: Opacity(
             opacity: isEnabled ? 1 : 0.5,
@@ -88,6 +88,7 @@ class AquaFeeTile extends StatelessWidget {
                       AquaRadio.small(
                         groupValue: true,
                         value: isSelected,
+                        colors: colors,
                       )
                     ],
                   ),

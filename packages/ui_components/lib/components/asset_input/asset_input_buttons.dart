@@ -21,7 +21,10 @@ class AquaAssetInputClearButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(100),
       ),
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call())
+            : null,
         borderRadius: BorderRadius.circular(100),
         splashFactory: InkSparkle.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {

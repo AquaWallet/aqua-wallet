@@ -85,7 +85,9 @@ class SwapServiceAmountException extends SwapServiceException {
 }
 
 class SwapServiceOrderCreationException extends SwapServiceException {
-  SwapServiceOrderCreationException([super.swapType]);
+  SwapServiceOrderCreationException([super.swapType, this.message]);
+
+  final String? message;
 
   @override
   String toLocalizedString(BuildContext context) {

@@ -9,10 +9,7 @@ part 'qr_scan_state.freezed.dart';
 class QrScanState with _$QrScanState {
   const factory QrScanState.idle() = _Idle;
   const factory QrScanState.unknownQrCode(String? code) = _UnknownQrCode;
-  const factory QrScanState.pullSendAsset(SendAssetArguments args) =
-      _PullSendAsset;
-  const factory QrScanState.pushSendAsset(SendAssetArguments args) =
-      _PushSendAsset;
+  const factory QrScanState.sendAsset(SendAssetArguments args) = _SendAsset;
   const factory QrScanState.samRock(SamRockAppLink result) = _SamRock;
   const factory QrScanState.lnurlWithdraw(
       LNURLWithdrawParams? withdrawalParams) = _LnurlWithdraw;

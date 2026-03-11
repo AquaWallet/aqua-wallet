@@ -11,6 +11,9 @@ import 'package:aqua/features/shared/shared.dart';
 ///    field is still empty.
 /// 2. If the current field is the last one **or** the next field already
 ///    contains text, the current focus is simply cleared.
+/// 3. When a suggestion is explicitly selected, focus always moves to the next
+///    field (if valid), regardless of whether longer words exist. The user has
+///    made their choice by tapping the suggestion.
 ///
 /// Focus is NOT moved when typing a complete word - only when a suggestion
 /// is explicitly tapped. This allows users to continue typing or make
@@ -43,6 +46,18 @@ class FocusActionNotifier extends AutoDisposeNotifier<FocusAction?> {
     return null;
   }
 
+  void _handleValidWord(int index, String currentText, List<String> wordList) {
+    // When a suggestion is explicitly selected, always move to the next field
+    // if it's a valid complete word, regardless of whether longer words exist.
+    // The user has made their choice by tapping the suggestion.
+    if (index < kMnemonicLength - 1) {
+      final nextState = ref.read(mnemonicWordInputStateProvider(index + 1));
+      state = nextState.text.isEmpty ? FocusAction.next() : FocusAction.clear();
+    } else {
+      state = FocusAction.clear();
+    }
+  }
+
   void _onInputChanged({
     required int index,
     required MnemonicWordInputState? previous,
@@ -52,20 +67,12 @@ class FocusActionNotifier extends AutoDisposeNotifier<FocusAction?> {
     // Ignore if text hasn't changed or is empty.
     if (previous == current) return;
 
-    final text = current.text.toLowerCase();
+    // Only auto-focus when selecting a suggestion, not when typing manually
+    if (!current.isSuggestion) return;
 
-    // Only move focus when a suggestion is tapped, not when typing a complete word
-    if (current.isSuggestion && wordList.contains(text)) {
-      _handleValidWord(index);
-    }
-  }
-
-  void _handleValidWord(int index) {
-    if (index < kMnemonicLength - 1) {
-      final nextState = ref.read(mnemonicWordInputStateProvider(index + 1));
-      state = nextState.text.isEmpty ? FocusAction.next() : FocusAction.clear();
-    } else {
-      state = FocusAction.clear();
+    // Validate suggestion against word list before handling
+    if (wordList.contains(current.text.toLowerCase())) {
+      _handleValidWord(index, current.text, wordList);
     }
   }
 }

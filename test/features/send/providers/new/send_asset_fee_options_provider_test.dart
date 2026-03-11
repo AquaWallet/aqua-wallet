@@ -1,19 +1,21 @@
 import 'package:aqua/data/data.dart';
+import 'package:aqua/data/provider/lwk_provider.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../mocks/mocks.dart';
-import 'send_asset_input_provider_test.dart';
 
 void main() {
   const kTransactionVsize = 1000;
 
   setUpAll(() {
     registerFallbackValue(Asset.liquidTest());
+    registerFallbackValue(Decimal.zero);
   });
 
   group('Liquid', () {
@@ -23,6 +25,7 @@ void main() {
     final sendInput = SendAssetInputState(
       isSendAllFunds: false,
       asset: asset,
+      rate: kBtcUsdExchangeRate,
     );
     const kBtcFiatRate = BitcoinFiatRatesResponse(
       code: kLbtcFiatCurrency,
@@ -69,7 +72,7 @@ void main() {
         sendAssetTxnProvider.overrideWith(
           () => MockSendAssetTxnProvider(
             transaction: const SendAssetOnchainTx.gdkTx(
-              GdkNewTransactionReply(),
+              GdkNewTransactionReply(error: 'Cannot create fees'),
             ),
           ),
         ),
@@ -87,14 +90,16 @@ void main() {
       const kLbtcFeeFiat = 0.00001;
       const kLbtcFeeRate = 2.0;
 
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final mockBalanceProvider = MockBalanceProvider();
+      final mockFiatProvider = MockFiatProvider();
       final container = ProviderContainer(overrides: [
         prefsProvider.overrideWith((_) => mockPrefsProvider),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kLbtcFeeRate)),
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
+        fiatProvider.overrideWith((_) => mockFiatProvider),
         sendAssetInputStateProvider.overrideWith(
           () => MockSendAssetInputStateNotifier(input: sendInput),
         ),
@@ -113,6 +118,9 @@ void main() {
       mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
       mockManageAssetsProvider.mockIsUsdtEnabledCall(value: false);
       mockBalanceProvider.mockGetBalanceCall(value: kLbtcFeeSats + 1);
+      mockFiatProvider.mockFormatSatsToFiatWithRateDisplayCall(
+        returnValue: '\$0.00',
+      );
       final provider = sendAssetFeeOptionsProvider(args);
 
       final state = await container.read(provider.future);
@@ -128,9 +136,7 @@ void main() {
               isA<LbtcLiquidFeeModel>()
                   .having((s) => s.feeSats, 'sats', kLbtcFeeSats)
                   .having((s) => s.feeFiat, 'fiat', kLbtcFeeFiat)
-                  .having((s) => s.fiatCurrency, 'currency', kLbtcFiatCurrency)
-                  .having((s) => s.fiatFeeDisplay, 'fiatFeeDisp', '≈ USD 0.00')
-                  .having((s) => s.satsPerByte, 'satsPerByte', kLbtcFeeRate)
+                  .having((s) => s.fiatFeeDisplay, 'fiatFeeDisp', '≈ \$0.00')
                   .having((s) => s.feeAsset, 'feeAsset', FeeAsset.lbtc),
             )),
       );
@@ -143,15 +149,19 @@ void main() {
       const kLbtcFeeFiatCurrency = 'USD';
       final kTaxiAsset = Asset.usdtEth();
       final kDeliverAsset = Asset.usdtTrx();
+      final usdtArgs = SendAssetArguments.fromAsset(kDeliverAsset);
 
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final mockBalanceProvider = MockBalanceProvider();
+      final mockFiatProvider = MockFiatProvider();
       final container = ProviderContainer(overrides: [
         prefsProvider.overrideWith((_) => mockPrefsProvider),
+        lwkProvider.overrideWith((ref) => MockLwkNetworkFrontend(ref: ref)),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kTaxiFeeRate)),
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
+        fiatProvider.overrideWith((_) => mockFiatProvider),
         estimatedTaxiFeeUsdtProvider.overrideWith(
           (_, __) => Future.value(kTaxiFeeAmount),
         ),
@@ -179,7 +189,10 @@ void main() {
       mockManageAssetsProvider.mockIsUsdtEnabledCall(value: true);
       mockManageAssetsProvider.mockLiquidUsdtAssetCall(asset: kTaxiAsset);
       mockBalanceProvider.mockGetBalanceCall(value: kTaxiFeeAmount + 1);
-      final provider = sendAssetFeeOptionsProvider(args);
+      mockFiatProvider.mockFormatSatsToFiatWithRateDisplayCall(
+        returnValue: '\$0.00',
+      );
+      final provider = sendAssetFeeOptionsProvider(usdtArgs);
       final state = await container.read(provider.future);
 
       expect(
@@ -194,38 +207,37 @@ void main() {
                 isA<UsdtLiquidFeeModel>()
                     .having((s) => s.feeAmount, 'fee', kTaxiFeeAmount)
                     .having((s) => s.feeCurrency, 'currency', kTaxiAsset.ticker)
-                    .having((s) => s.feeDisplay, 'feeDisplay', '~0.00 USDt')
+                    .having((s) => s.feeDisplay, 'feeDisplay', '\$0.00')
                     .having((s) => s.feeAsset, 'feeAsset', FeeAsset.tetherUsdt),
               ),
         ),
       );
     });
-    test('USDT fee option is disabled if deliver asset is not USDT', () async {
+    test('USDT fee option is NOT available for L-BTC sends', () async {
       const kAmount = 1000;
       const kLbtcFeeSats = 100;
-      const kTaxiFeeSats = 200;
       const kTaxiFeeRate = 3.0;
       const kLbtcFeeFiatCurrency = 'USD';
       final kTaxiFeeAsset = Asset.usdtEth();
       final kDeliverAsset = Asset.liquidTest();
 
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final mockBalanceProvider = MockBalanceProvider();
+      final mockFiatProvider = MockFiatProvider();
       final container = ProviderContainer(overrides: [
         prefsProvider.overrideWith((_) => mockPrefsProvider),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kTaxiFeeRate)),
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
-        estimatedTaxiFeeUsdtProvider.overrideWith(
-          (_, __) => Future.value(kTaxiFeeSats),
-        ),
+        fiatProvider.overrideWith((_) => mockFiatProvider),
         sendAssetInputStateProvider.overrideWith(
           () => MockSendAssetInputStateNotifier(
             input: SendAssetInputState(
               amount: kAmount,
               isSendAllFunds: false,
               asset: kDeliverAsset,
+              rate: kBtcUsdExchangeRate,
             ),
           ),
         ),
@@ -244,17 +256,19 @@ void main() {
       mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
       mockManageAssetsProvider.mockIsUsdtEnabledCall(value: true);
       mockManageAssetsProvider.mockLiquidUsdtAssetCall(asset: kTaxiFeeAsset);
-      mockBalanceProvider.mockGetBalanceCall(value: kTaxiFeeSats + 1);
+      mockBalanceProvider.mockGetBalanceCall(value: kLbtcFeeSats + 1);
+      mockFiatProvider.mockFormatSatsToFiatWithRateDisplayCall(
+        returnValue: '\$0.00',
+      );
       final provider = sendAssetFeeOptionsProvider(args);
       final state = await container.read(provider.future);
 
+      expect(state.length, 1);
       expect(
         state,
         contains(
           isA<LiquidSendAssetFeeOptionModel>()
-              .having((s) => s.fee.isEnabled, 'isEnabled', false)
-              .having((s) => s.fee.availableForFeePayment, 'available', true)
-              .having((s) => s.fee, 'fee', isA<UsdtLiquidFeeModel>()),
+              .having((s) => s.fee, 'fee', isA<LbtcLiquidFeeModel>()),
         ),
       );
     });
@@ -266,18 +280,18 @@ void main() {
       const kLbtcFeeFiatCurrency = 'USD';
       final kTaxiFeeAsset = Asset.usdtEth();
       final kDeliverAsset = Asset.usdtTrx();
+      final usdtArgs = SendAssetArguments.fromAsset(kDeliverAsset);
 
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final mockBalanceProvider = MockBalanceProvider();
+      final mockFiatProvider = MockFiatProvider();
       final container = ProviderContainer(overrides: [
         prefsProvider.overrideWith((_) => mockPrefsProvider),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kTaxiFeeRate)),
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
-        sendAssetInputStateProvider.overrideWith(
-          () => MockSendAssetInputStateNotifier(input: sendInput),
-        ),
+        fiatProvider.overrideWith((_) => mockFiatProvider),
         estimatedTaxiFeeUsdtProvider.overrideWith(
           (_, __) => Future.value(kTaxiFeeSats),
         ),
@@ -287,6 +301,7 @@ void main() {
               amount: kAmount,
               isSendAllFunds: false,
               asset: kDeliverAsset,
+              rate: kBtcUsdExchangeRate,
             ),
           ),
         ),
@@ -306,7 +321,10 @@ void main() {
       mockManageAssetsProvider.mockIsUsdtEnabledCall(value: true);
       mockManageAssetsProvider.mockLiquidUsdtAssetCall(asset: kTaxiFeeAsset);
       mockBalanceProvider.mockGetBalanceCall(value: kTaxiFeeSats - 1);
-      final provider = sendAssetFeeOptionsProvider(args);
+      mockFiatProvider.mockFormatSatsToFiatWithRateDisplayCall(
+        returnValue: '\$0.00',
+      );
+      final provider = sendAssetFeeOptionsProvider(usdtArgs);
       final state = await container.read(provider.future);
 
       expect(
@@ -325,14 +343,16 @@ void main() {
       const kLbtcFeeRate = 3.0;
       const kLbtcFeeFiatCurrency = 'USD';
 
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final mockBalanceProvider = MockBalanceProvider();
+      final mockFiatProvider = MockFiatProvider();
       final container = ProviderContainer(overrides: [
         prefsProvider.overrideWith((_) => mockPrefsProvider),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kLbtcFeeRate)),
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
+        fiatProvider.overrideWith((_) => mockFiatProvider),
         sendAssetInputStateProvider.overrideWith(
           () => MockSendAssetInputStateNotifier(input: sendInput),
         ),
@@ -351,6 +371,9 @@ void main() {
       mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
       mockManageAssetsProvider.mockIsUsdtEnabledCall(value: false);
       mockBalanceProvider.mockGetBalanceCall(value: kLbtcFeeSats + 1);
+      mockFiatProvider.mockFormatSatsToFiatWithRateDisplayCall(
+        returnValue: '\$0.00',
+      );
       final provider = sendAssetFeeOptionsProvider(args);
       final state = await container.read(provider.future);
 
@@ -368,17 +391,19 @@ void main() {
       const kLbtcFeeRate = 3.0;
       const kLbtcFeeFiatCurrency = 'USD';
 
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final mockSideswapTaxiProvider = MockSideswapTaxiProvider(
         throwError: true,
       );
       final mockBalanceProvider = MockBalanceProvider();
+      final mockFiatProvider = MockFiatProvider();
       final container = ProviderContainer(overrides: [
         prefsProvider.overrideWith((_) => mockPrefsProvider),
         liquidFeeRateProvider.overrideWith((_) => Future.value(kLbtcFeeRate)),
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
+        fiatProvider.overrideWith((_) => mockFiatProvider),
         sendAssetInputStateProvider.overrideWith(
           () => MockSendAssetInputStateNotifier(input: sendInput),
         ),
@@ -398,6 +423,9 @@ void main() {
       mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
       mockManageAssetsProvider.mockIsUsdtEnabledCall(value: false);
       mockBalanceProvider.mockGetBalanceCall(value: kLbtcFeeSats + 1);
+      mockFiatProvider.mockFormatSatsToFiatWithRateDisplayCall(
+        returnValue: '\$0.00',
+      );
       final provider = sendAssetFeeOptionsProvider(args);
       final state = await container.read(provider.future);
 
@@ -406,6 +434,96 @@ void main() {
         state,
         contains(isA<LiquidSendAssetFeeOptionModel>()
             .having((s) => s.fee, 'fee', isA<LbtcLiquidFeeModel>())),
+      );
+    });
+    test('throws FeeOptionsNotFoundError if no fee options are available',
+        () async {
+      // Test the scenario where _getBitcoinFeeOptions returns an empty list
+      // This can happen if the fee rates provider returns an empty map
+      final btcAsset = Asset.btc();
+      final btcArgs = SendAssetArguments.fromAsset(btcAsset);
+      final btcInput = SendAssetInputState(
+        isSendAllFunds: false,
+        asset: btcAsset,
+        rate: kBtcUsdExchangeRate,
+      );
+
+      final mockPrefsProvider = MockUserPreferencesNotifier();
+      final container = ProviderContainer(overrides: [
+        prefsProvider.overrideWith((_) => mockPrefsProvider),
+        sendAssetInputStateProvider.overrideWith(
+          () => MockSendAssetInputStateNotifier(input: btcInput),
+        ),
+        sendAssetTxnProvider.overrideWith(
+          () => MockSendAssetTxnProvider(
+            transaction: const SendAssetOnchainTx.gdkTx(
+              GdkNewTransactionReply(
+                fee: 100,
+                transactionVsize: kTransactionVsize,
+              ),
+            ),
+          ),
+        ),
+        fiatRatesProvider.overrideWith(
+          () => MockFiatRatesNotifier(rates: [kBtcFiatRate]),
+        ),
+        onChainFeeProvider.overrideWith(
+          (_) =>
+              Future.value(<TransactionPriority, double>{}), // Empty fee rates
+        ),
+      ]);
+      mockPrefsProvider.mockGetReferenceCurrencyCall('USD');
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      final provider = sendAssetFeeOptionsProvider(btcArgs);
+
+      expect(
+        () async => container.read(provider.future),
+        throwsA(isA<FeeOptionsNotFoundError>()),
+      );
+    });
+    test(
+        'throws InsufficientBalanceError if user has insufficient balance for all fee options',
+        () async {
+      const kLbtcFeeSats = 100;
+      const kLbtcFeeRate = 2.0;
+
+      final mockPrefsProvider = MockUserPreferencesNotifier();
+      final mockManageAssetsProvider = MockManageAssetsProvider();
+      final mockBalanceProvider = MockBalanceProvider();
+      final mockFiatProvider = MockFiatProvider();
+      final container = ProviderContainer(overrides: [
+        prefsProvider.overrideWith((_) => mockPrefsProvider),
+        liquidFeeRateProvider.overrideWith((_) => Future.value(kLbtcFeeRate)),
+        manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
+        balanceProvider.overrideWith((_) => mockBalanceProvider),
+        fiatProvider.overrideWith((_) => mockFiatProvider),
+        sendAssetInputStateProvider.overrideWith(
+          () => MockSendAssetInputStateNotifier(input: sendInput),
+        ),
+        sendAssetTxnProvider.overrideWith(
+          () => MockSendAssetTxnProvider(
+            transaction: const SendAssetOnchainTx.gdkTx(
+              GdkNewTransactionReply(fee: kLbtcFeeSats),
+            ),
+          ),
+        ),
+        fiatRatesProvider.overrideWith(
+          () => MockFiatRatesNotifier(rates: [kBtcFiatRate]),
+        ),
+      ]);
+      mockPrefsProvider.mockGetReferenceCurrencyCall(kLbtcFiatCurrency);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      mockManageAssetsProvider.mockIsUsdtEnabledCall(value: false);
+      // Set balance to be less than the required fee
+      mockBalanceProvider.mockGetBalanceCall(value: kLbtcFeeSats - 1);
+      mockFiatProvider.mockFormatSatsToFiatWithRateDisplayCall(
+        returnValue: '\$0.00',
+      );
+      final provider = sendAssetFeeOptionsProvider(args);
+
+      expect(
+        () async => container.read(provider.future),
+        throwsA(isA<InsufficientBalanceError>()),
       );
     });
   });
@@ -417,6 +535,7 @@ void main() {
     final sendInput = SendAssetInputState(
       isSendAllFunds: false,
       asset: asset,
+      rate: kBtcUsdExchangeRate,
     );
     const kBtcFeeSats = 100;
     const kBtcFiatRate = BitcoinFiatRatesResponse(
@@ -482,11 +601,13 @@ void main() {
       const kBtcMinFeeSats = 1000;
       const kBtcMinFeeFiat = 0.0001;
 
-      final mockPrefsProvider = MockPrefsProvider();
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockBalanceProvider = MockBalanceProvider();
+      final mockExchangeRatesProvider = ReferenceExchangeRateProviderMock();
       final container = ProviderContainer(overrides: [
         prefsProvider.overrideWith((_) => mockPrefsProvider),
         balanceProvider.overrideWith((_) => mockBalanceProvider),
+        exchangeRatesProvider.overrideWith((_) => mockExchangeRatesProvider),
         sendAssetInputStateProvider.overrideWith(
           () => MockSendAssetInputStateNotifier(input: sendInput),
         ),
@@ -512,7 +633,13 @@ void main() {
       ]);
       mockPrefsProvider.mockGetReferenceCurrencyCall(kBtcFiatCurrency);
       mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
-      mockBalanceProvider.mockGetBalanceCall(value: kBtcFeeSats + 1);
+      // Set balance to be sufficient for the highest fee option (4.0 * 1000 = 4000 sats)
+      mockBalanceProvider.mockGetBalanceCall(value: 5000);
+      // Set up exchange rates mock
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcUsdExchangeRate);
+      mockExchangeRatesProvider
+          .mockGetAvailableCurrencies(value: [kBtcUsdExchangeRate]);
       final provider = sendAssetFeeOptionsProvider(args);
       final state = await container.read(provider.future);
 
@@ -552,6 +679,41 @@ void main() {
                 .having((s) => s.feeFiat, 'feeFiat', kBtcMinFeeFiat),
           )
         ]),
+      );
+    });
+    test('throws FeeOptionsNotFoundError if no BTC fee options are available',
+        () async {
+      final mockPrefsProvider = MockUserPreferencesNotifier();
+      final container = ProviderContainer(overrides: [
+        prefsProvider.overrideWith((_) => mockPrefsProvider),
+        sendAssetInputStateProvider.overrideWith(
+          () => MockSendAssetInputStateNotifier(input: sendInput),
+        ),
+        sendAssetTxnProvider.overrideWith(
+          () => MockSendAssetTxnProvider(
+            transaction: const SendAssetOnchainTx.gdkTx(
+              GdkNewTransactionReply(
+                fee: kBtcFeeSats,
+                transactionVsize: kTransactionVsize,
+              ),
+            ),
+          ),
+        ),
+        fiatRatesProvider.overrideWith(
+          () => MockFiatRatesNotifier(rates: [kBtcFiatRate]),
+        ),
+        onChainFeeProvider.overrideWith(
+          (_) =>
+              Future.value(<TransactionPriority, double>{}), // Empty fee rates
+        ),
+      ]);
+      mockPrefsProvider.mockGetReferenceCurrencyCall(kBtcFiatCurrency);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      final provider = sendAssetFeeOptionsProvider(args);
+
+      expect(
+        () async => container.read(provider.future),
+        throwsA(isA<FeeOptionsNotFoundError>()),
       );
     });
   });

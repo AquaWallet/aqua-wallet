@@ -2,6 +2,7 @@ import 'package:aqua/features/auth/models/auth_model.dart';
 import 'package:aqua/features/pin/pin_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:ui_components/shared/shared.dart';
 
 final authDepsProvider = Provider<AsyncValue<AuthDepsData>>((ref) {
   final pinAuthState = ref.watch(pinAuthProvider);
@@ -13,8 +14,11 @@ final authDepsProvider = Provider<AsyncValue<AuthDepsData>>((ref) {
 
   return AsyncValue.data(
     AuthDepsData(
-        pinState: pinAuthState.value!,
-        canAuthenticateWithBiometric:
-            canAuthenticateWithBiometric.value!.available),
+      pinState: pinAuthState.value!,
+
+      ///TODO: biometric for desktop needs to be implemented if possible
+      canAuthenticateWithBiometric:
+          isDesktop ? false : canAuthenticateWithBiometric.value!.available,
+    ),
   );
 });

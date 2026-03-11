@@ -1,4 +1,5 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -20,18 +21,34 @@ class PegReviewInfoCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asset = useMemoized(() => input.deliverAsset!);
-    final receiveAmountDisplay = useMemoized(() {
-      return ref.read(formatterProvider).formatAssetAmountDirect(
-            amount: data.receiveAmount,
-            precision: asset.precision,
-          );
-    });
+    final receiveAsset = useMemoized(() => input.receiveAsset!);
+    final receiveDisplayUnit = ref.watch(displayUnitsProvider
+        .select((p) => p.getForcedDisplayUnit(receiveAsset)));
+    final formatter = ref.read(formatProvider);
     final cryptoAmountInSats = useMemoized(() {
-      return ref.read(formatterProvider).parseAssetAmountDirect(
+      return ref.read(formatterProvider).parseAssetAmountToSats(
             amount: input.deliverAmount,
             precision: asset.precision,
+            asset: asset,
           );
-    }, [input.deliverAmount]);
+    }, [input.deliverAmount, asset]);
+
+    final formattedReceiveNumber = useMemoized(() {
+      return formatter.formatAssetAmount(
+        amount: data.receiveAmount,
+        asset: receiveAsset,
+        displayUnitOverride: receiveDisplayUnit,
+      );
+    }, [data.receiveAmount, receiveAsset, receiveDisplayUnit]);
+
+    final receiveTicker = useMemoized(() {
+      return ref.read(displayUnitsProvider).getAssetDisplayUnit(receiveAsset,
+          forcedDisplayUnit: receiveDisplayUnit);
+    }, [receiveAsset, receiveDisplayUnit]);
+
+    final receiveValueString = useMemoized(() {
+      return "$formattedReceiveNumber $receiveTicker";
+    }, [formattedReceiveNumber, receiveTicker]);
 
     return BoxShadowCard(
       margin: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -86,7 +103,7 @@ class PegReviewInfoCard extends HookConsumerWidget {
             //ANCHOR - Receive amount
             LabelCopyableTextView(
               label: context.loc.youWillReceive,
-              value: "$receiveAmountDisplay ${input.receiveAsset!.ticker}",
+              value: receiveValueString,
             ),
             //ANCHOR - Divider
             DashedDivider(

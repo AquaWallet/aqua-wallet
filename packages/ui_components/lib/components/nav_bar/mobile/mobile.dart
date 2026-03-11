@@ -31,6 +31,11 @@ class AquaNavBar extends HookWidget implements PreferredSizeWidget {
         child: Container(
           color: colors?.glassBackground.withOpacity(0.7),
           height: _kMobileNavBarHeight,
+          margin: context.isButtonSystemNavigationOn
+              ? EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewPadding.bottom,
+                )
+              : EdgeInsets.zero,
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -48,7 +53,9 @@ class AquaNavBar extends HookWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(_kMobileNavBarHeight);
+  Size get preferredSize {
+    return const Size.fromHeight(_kMobileNavBarHeight);
+  }
 }
 
 typedef AquaNavBarNavItemIcon = Function({
@@ -78,8 +85,11 @@ class AquaNavBarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSelectedState = (isSelected == null || isSelected == true);
     return InkWell(
-      onTap: onTap,
-      splashFactory: NoSplash.splashFactory,
+      onTap: onTap != null
+          ? () =>
+              WidgetsBinding.instance.addPostFrameCallback((_) => onTap?.call())
+          : null,
+      splashFactory: InkRipple.splashFactory,
       overlayColor: WidgetStateProperty.resolveWith((state) {
         if (isSelected == null && state.isPressed) {
           return null;
@@ -87,7 +97,9 @@ class AquaNavBarItem extends StatelessWidget {
         return Colors.transparent;
       }),
       child: Ink(
-        padding: EdgeInsets.only(bottom: 21),
+        padding: context.isButtonSystemNavigationOn
+            ? EdgeInsets.zero
+            : const EdgeInsets.only(bottom: 21),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

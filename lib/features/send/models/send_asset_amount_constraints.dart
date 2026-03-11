@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/swaps/models/swap_models.dart';
+import 'package:boltz/boltz.dart';
 
 final maxInt = double.maxFinite.toInt();
 
@@ -23,9 +23,17 @@ class SendAssetAmountConstraints {
     );
   }
 
-  factory SendAssetAmountConstraints.lightning(LNURLPayParams? p) {
-    final sendMin = p != null ? max(p.minSendableSats, boltzMin) : boltzMin;
-    final sendMax = p != null ? min(p.maxSendableSats, boltzMax) : boltzMax;
+  factory SendAssetAmountConstraints.lightning(
+      {required SubmarineFeesAndLimits submarineFees,
+      LNURLPayParams? lnurlPayParams}) {
+    final sendMin = lnurlPayParams != null
+        ? max(lnurlPayParams.minSendableSats,
+            submarineFees.lbtcLimits.minimal.toInt())
+        : submarineFees.lbtcLimits.minimal.toInt();
+    final sendMax = lnurlPayParams != null
+        ? min(lnurlPayParams.maxSendableSats,
+            submarineFees.lbtcLimits.maximal.toInt())
+        : submarineFees.lbtcLimits.maximal.toInt();
 
     return SendAssetAmountConstraints._(
       minSats: sendMin,

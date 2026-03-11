@@ -81,6 +81,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
     return AppBar(
       centerTitle: true,
+      elevation: elevated ? 8 : 0,
       toolbarHeight: kAppBarHeight,
       titleTextStyle: TextStyle(
         color: foregroundColor,

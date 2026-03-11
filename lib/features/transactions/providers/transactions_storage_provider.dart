@@ -2,26 +2,26 @@ import 'dart:async';
 
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/swaps/swaps.dart';
+import 'package:aqua/features/wallet/providers/providers.dart';
 import 'package:aqua/logger.dart';
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:boltz/boltz.dart';
 import 'package:isar/isar.dart';
 
 final _logger = CustomLogger(FeatureFlag.transactionStorage);
 
 const kTransactionBoxName = 'transactions';
 
-//ANCHOR - Address Cache
+/// Temporary cache for sideswap receive address.
+/// Needed because swap/peg operations are disjointed - the swap request is sent
+/// to sideswap and the rest of the flow is handled asynchronously upon websocket
+/// response, which does not include the receive address.
+final sideswapReceiveAddressCacheProvider =
+    StateNotifierProvider<SideswapAddressCacheNotifier, String>(
+        (_) => SideswapAddressCacheNotifier());
 
-final _sideswapReceiveAddressCacheProvider =
-    StateNotifierProvider<_AddressCacheNotifier, String>(
-        (_) => _AddressCacheNotifier());
-
-//NOTE - This intermediary cache is needed because swap and peg operations are
-//disjointed. The swap request is sent to sideswap and the rest of the flow is
-//handled asynchronously upon websocket response from sideswap, which does not
-//include the receive address.
-class _AddressCacheNotifier extends StateNotifier<String> {
-  _AddressCacheNotifier() : super('');
+class SideswapAddressCacheNotifier extends StateNotifier<String> {
+  SideswapAddressCacheNotifier() : super('');
 
   void clear() => state = '';
 
@@ -38,7 +38,6 @@ abstract class TransactionStorage {
   Future<void> save(TransactionDbModel model);
   Future<void> clear();
   Future<void> clearGhostTransactions();
-  void cacheSideswapReceiveAddress(String address);
   Future<void> updateTxHash({
     required String serviceOrderId,
     required String newTxHash,
@@ -65,6 +64,8 @@ abstract class TransactionStorage {
     required String txHash,
     required String note,
   });
+
+  Future<void> clearFromMemory();
 }
 
 class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
@@ -72,36 +73,84 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
   @override
   FutureOr<List<TransactionDbModel>> build() async {
     final storage = await ref.watch(storageProvider.future);
-    final transactions = await storage.transactionDbModels.all();
+
+    final currentWallet = ref.watch(
+      storedWalletsProvider.select((s) => s.valueOrNull?.currentWallet),
+    );
+    final walletId = currentWallet?.id;
+    if (walletId == null) {
+      return [];
+    }
+
+    final transactions = await storage.transactionDbModels
+        .filter()
+        .walletIdEqualTo(walletId)
+        .findAll();
+
     return transactions;
   }
 
-  @override
-  void cacheSideswapReceiveAddress(String address) {
-    _logger.debug('Caching address: $address');
-    ref.read(_sideswapReceiveAddressCacheProvider.notifier).set(address);
+  /// Helper method to reload transactions for the current wallet only
+  Future<void> _reloadCurrentWalletTransactions() async {
+    final storage = await ref.read(storageProvider.future);
+    final walletId =
+        await ref.read(storedWalletsProvider.notifier).getCurrentWalletId();
+
+    if (walletId != null) {
+      final updated = await storage.transactionDbModels
+          .filter()
+          .walletIdEqualTo(walletId)
+          .findAll();
+      state = AsyncValue.data(updated);
+    } else {
+      state = const AsyncValue.data([]);
+    }
   }
 
   @override
   Future<void> save(TransactionDbModel model) async {
     try {
-      final address = ref.read(_sideswapReceiveAddressCacheProvider);
-      if (model.isPeg && address.isEmpty) {
+      final storage = await ref.read(storageProvider.future);
+
+      final walletId =
+          await ref.read(storedWalletsProvider.notifier).getCurrentWalletId();
+      if (walletId == null) {
+        throw Exception('No active wallet');
+      }
+
+      TransactionDbModel item = !model.isPeg
+          ? model
+          : model.copyWith(
+              receiveAddress: ref.read(sideswapReceiveAddressCacheProvider));
+
+      if (model.isPeg == true && model.receiveAddress?.isEmpty == true) {
         throw Exception('Invalid receive address');
       }
 
-      final item = model.copyWith(receiveAddress: address);
+      if (item.isUSDtSwap &&
+          item.swapServiceSource == null &&
+          item.serviceOrderId != null) {
+        final swapOrder = await ref
+            .read(swapStorageProvider.notifier)
+            .getOrderById(item.serviceOrderId!);
+        if (swapOrder != null) {
+          item = item.copyWith(swapServiceSource: swapOrder.serviceType);
+        }
+      }
+
       _logger.debug('Saving transaction: $item');
 
-      final storage = await ref.read(storageProvider.future);
-      await storage.writeTxn(() => storage.transactionDbModels.put(item));
-      final updated = await storage.transactionDbModels.all();
-      state = AsyncValue.data(updated);
+      await storage.writeTxn(() => storage.transactionDbModels.put(
+            item.copyWith(walletId: walletId),
+          ));
+
+      // Reload current wallet's transactions
+      await _reloadCurrentWalletTransactions();
     } catch (e, st) {
       _logger.error('Error saving transaction', e, st);
       rethrow;
     } finally {
-      ref.read(_sideswapReceiveAddressCacheProvider.notifier).clear();
+      ref.read(sideswapReceiveAddressCacheProvider.notifier).clear();
     }
   }
 
@@ -109,7 +158,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
   Future<void> clear() async {
     final storage = await ref.read(storageProvider.future);
     await storage.writeTxn(() => storage.clear());
-    state = AsyncValue.data(await storage.transactionDbModels.all());
+    await _reloadCurrentWalletTransactions();
   }
 
   @override
@@ -144,8 +193,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
       }
     });
 
-    final updated = await storage.transactionDbModels.all();
-    state = AsyncValue.data(updated);
+    await _reloadCurrentWalletTransactions();
   }
 
   //ANCHOR: Boltz-related convenience methods
@@ -166,8 +214,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
       }
     });
 
-    final updated = await storage.transactionDbModels.all();
-    state = AsyncValue.data(updated);
+    await _reloadCurrentWalletTransactions();
   }
 
   @override
@@ -214,7 +261,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
       type: TransactionDbModelType.boltzRefund,
       isGhost: true,
       ghostTxnCreatedAt: DateTime.now(),
-      ghostTxnAmount: boltzSwap.outAmount,
+      ghostTxnAmount: boltzSwap.outAmount.toInt(),
       serviceOrderId: boltzSwap.id,
     );
     await ref
@@ -253,8 +300,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
       await storage.transactionDbModels.put(updated);
     });
 
-    final updated = await storage.transactionDbModels.all();
-    state = AsyncValue.data(updated);
+    await _reloadCurrentWalletTransactions();
   }
 
   @override
@@ -280,7 +326,33 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
       await storage.transactionDbModels.put(updated);
     });
 
-    final updated = await storage.transactionDbModels.all();
-    state = AsyncValue.data(updated);
+    await _reloadCurrentWalletTransactions();
+  }
+
+  //ANCHOR: Clear
+  @override
+  Future<void> clearFromMemory() async {
+    state = const AsyncValue.data([]);
+  }
+
+  Future<bool> addTransactionForCurrentWallet(
+      TransactionDbModel transaction) async {
+    try {
+      final storage = await ref.watch(storageProvider.future);
+      final walletId =
+          await ref.read(storedWalletsProvider.notifier).getCurrentWalletId();
+
+      if (walletId != null) {
+        // For multi-wallet, always set the wallet ID
+        transaction = transaction.copyWith(walletId: walletId);
+      }
+
+      await storage.transactionDbModels.put(transaction);
+      ref.invalidateSelf();
+      return true;
+    } catch (e, stack) {
+      _logger.error('Error adding transaction: $e\n$stack');
+      return false;
+    }
   }
 }

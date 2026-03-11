@@ -5,18 +5,9 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:ui_components/ui_components.dart';
 
 import '../../../mocks/mocks.dart';
-
-//TODO - Move all test constants in one place
-const kPointOneBtc = 0.1;
-const kPointOneBtcInSats = 10000000;
-const kOneBtc = 1;
-const kOneBtcInSats = 100000000;
-const kBtcUsdRate = 56690;
-const kOneHundredUsdInBtcSats = 176397;
-const kOneHundredUsdInBtc = 0.00176397;
-const kFakeLanguageCode = 'en_US';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -125,7 +116,7 @@ void main() {
     test('Initial state amount input is fiat', () async {
       final state = await container.read(topUpInputStateProvider.future);
 
-      expect(state.amountInputType, CryptoAmountInputType.fiat);
+      expect(state.amountInputType, AquaAssetInputType.fiat);
       expect(state.isFiatAmountInput, true);
     });
   });
@@ -134,7 +125,7 @@ void main() {
     final asset = Asset.btc(amount: kOneHundredUsdInBtcSats);
     final mockAssetsProvider = MockAssetsNotifier(assets: [asset]);
     final mockAnkaraSwitchesProvider = MockAnkaraSwitchesNotifier();
-    final mockPrefsProvider = MockPrefsProvider();
+    final mockPrefsProvider = MockUserPreferencesNotifier();
     final mockBalanceProvider = MockBalanceProvider();
     final mockBitcoinProvider = MockBitcoinProvider();
     final mockTopUpAmountInputMutationsProvider =
@@ -220,7 +211,7 @@ void main() {
 
         container
             .read(topUpInputStateProvider.notifier)
-            .setInputType(CryptoAmountInputType.crypto);
+            .setInputType(AquaAssetInputType.crypto);
         await container
             .read(topUpInputStateProvider.notifier)
             .setAmount(kPointOneBtc.toString());
@@ -239,7 +230,7 @@ void main() {
 
         container
             .read(topUpInputStateProvider.notifier)
-            .setInputType(CryptoAmountInputType.fiat);
+            .setInputType(AquaAssetInputType.fiat);
         await container.read(topUpInputStateProvider.notifier).setAmount('100');
 
         // Based on the mocked rate: 100 USD = 0.0017639795 BTC
@@ -255,7 +246,7 @@ void main() {
 
       container
           .read(topUpInputStateProvider.notifier)
-          .setInputType(CryptoAmountInputType.crypto);
+          .setInputType(AquaAssetInputType.crypto);
       await container
           .read(topUpInputStateProvider.notifier)
           .setAmount(kPointOneBtc.toString());
@@ -263,15 +254,15 @@ void main() {
 
       container
           .read(topUpInputStateProvider.notifier)
-          .setInputType(CryptoAmountInputType.fiat);
+          .setInputType(AquaAssetInputType.fiat);
 
       final state = await container.read(topUpInputStateProvider.future);
       expect(initialState.amount, kPointOneBtcInSats);
       expect(initialState.amountFieldText, kPointOneBtc.toString());
-      expect(initialState.amountInputType, CryptoAmountInputType.crypto);
+      expect(initialState.amountInputType, AquaAssetInputType.crypto);
       expect(state.amount, 0);
       expect(state.amountFieldText, null);
-      expect(state.amountInputType, CryptoAmountInputType.fiat);
+      expect(state.amountInputType, AquaAssetInputType.fiat);
     });
     test('When amount is zero, fiat amount is zero string', () async {
       mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
@@ -292,7 +283,7 @@ void main() {
 
       container
           .read(topUpInputStateProvider.notifier)
-          .setInputType(CryptoAmountInputType.crypto);
+          .setInputType(AquaAssetInputType.crypto);
 
       await container
           .read(topUpInputStateProvider.notifier)
@@ -309,7 +300,7 @@ void main() {
       final initialState = await container.read(topUpInputStateProvider.future);
       container
           .read(topUpInputStateProvider.notifier)
-          .setInputType(CryptoAmountInputType.fiat);
+          .setInputType(AquaAssetInputType.fiat);
       await container.read(topUpInputStateProvider.notifier).setAmount('100');
 
       final state = await container.read(topUpInputStateProvider.future);
@@ -326,6 +317,7 @@ void main() {
     final mockAssetsProvider =
         MockAssetsNotifier(assets: [usdtAsset, btcAsset]);
     final mockAnkaraSwitchesProvider = MockAnkaraSwitchesNotifier();
+    final mockSharedPreferencesProvider = MockSharedPreferences();
     final mockBalanceProvider = MockBalanceProvider();
     final mockBitcoinProvider = MockBitcoinProvider();
     final mockTopUpAmountInputMutationsProvider =
@@ -335,6 +327,8 @@ void main() {
       manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
       bitcoinProvider.overrideWith((_) => mockBitcoinProvider),
       balanceProvider.overrideWith((_) => mockBalanceProvider),
+      sharedPreferencesProvider
+          .overrideWith((ref) => mockSharedPreferencesProvider),
       ankaraSwitchesProvider.overrideWith(() => mockAnkaraSwitchesProvider),
       topUpAmountInputMutationsProvider
           .overrideWith((_) => mockTopUpAmountInputMutationsProvider),
@@ -412,7 +406,7 @@ void main() {
 
         container
             .read(topUpInputStateProvider.notifier)
-            .setInputType(CryptoAmountInputType.crypto);
+            .setInputType(AquaAssetInputType.crypto);
 
         await container.read(topUpInputStateProvider.notifier).setAmount('100');
 
@@ -434,7 +428,7 @@ void main() {
 
       container
           .read(topUpInputStateProvider.notifier)
-          .setInputType(CryptoAmountInputType.crypto);
+          .setInputType(AquaAssetInputType.crypto);
 
       await container.read(topUpInputStateProvider.notifier).setAmount('100');
 

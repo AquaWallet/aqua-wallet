@@ -1,13 +1,35 @@
 import 'package:aqua/common/common.dart';
-import 'package:aqua/config/config.dart';
+import 'package:aqua/config/constants/constants.dart' as constants;
 import 'package:aqua/features/qr_scan/qr_scan.dart';
-import 'package:aqua/features/text_scan/text_scan.dart';
 import 'package:aqua/features/scan/scan.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/text_scan/text_scan.dart';
+import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart' hide ResponsiveEx;
+
+final _logger = CustomLogger(FeatureFlag.send);
+
+typedef OnSendAddressSubmit = Function(
+  SendAssetArguments args,
+  String address,
+  String amount,
+);
+
+/// Calculates the minimum lines needed for an address based on its length
+int _calculateMinLinesForAddress(String address) {
+  if (address.isEmpty) return 1;
+
+  // Approximate characters per line in the text field
+  // This is based on typical address field width and font size
+  const int charsPerLine = 30; // Smallest address is tron with 35.
+
+  final lines = (address.length / charsPerLine).ceil();
+  return lines.clamp(1, 3); // Min 1 line, max 3 lines
+}
 
 class SendAssetAddressPage extends HookConsumerWidget {
   const SendAssetAddressPage({
@@ -16,8 +38,7 @@ class SendAssetAddressPage extends HookConsumerWidget {
     required this.arguments,
   });
 
-  final Function(SendAssetArguments args, String address, String amount)
-      onContinuePressed;
+  final OnSendAddressSubmit onContinuePressed;
   final SendAssetArguments arguments;
 
   @override
@@ -27,17 +48,12 @@ class SendAssetAddressPage extends HookConsumerWidget {
     final isLoading = ref.watch(provider).isLoading;
     final error = ref.watch(provider).error as ExceptionLocalized?;
 
+    //NOTE: The input state is null for a few milliseconds at the startup,
+    //because the input provider accesses the clipboard content asynchronously.
+    //This prevents us from being forced to use a nullable inputState variable
+    //and needlessly complicate the rest of the screen's state management.
     if (inputState == null) {
-      if (error != null) {
-        return Text(
-          error.toLocalizedString(context),
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: context.colorScheme.error,
-          ),
-        );
-      }
-
-      return const LoadingIndicator();
+      return const SizedBox.shrink();
     }
 
     final isContinueButtonEnabled = useMemoized(
@@ -45,21 +61,38 @@ class SendAssetAddressPage extends HookConsumerWidget {
       [isLoading, inputState, error],
     );
     final controller =
-        useTextEditingController(text: inputState.addressFieldText);
+        useColorCodedTextEditingController(text: inputState.addressFieldText);
+
+    final minLinesForAddress = useMemoized(
+      () => _calculateMinLinesForAddress(controller.text),
+      [controller],
+    );
+
+    useEffect(() {
+      if (inputState.isAddressFieldEmpty &&
+          !inputState.isClipboardEmpty &&
+          inputState.clipboardAddress != null) {
+        Future.microtask(() {
+          ref.read(provider.notifier).pasteClipboardContent();
+        });
+      }
+      return null;
+    }, []);
 
     final onScanPressed = useCallback(() async {
-      final result = await context.push<dynamic>(
+      ref.read(sendFlowStepProvider.notifier).reset();
+
+      final result = await context.push(
         ScanScreen.routeName,
         extra: ScanArguments(
           qrArguments: QrScannerArguments(
             asset: inputState.asset,
-            parseAction: QrScannerParseAction.attemptToParse,
-            onSuccessAction: QrOnSuccessNavAction.push,
+            parseAction: QrScannerParseAction.returnRawValue,
           ),
           textArguments: TextScannerArguments(
             asset: arguments.asset,
             parseAction: TextScannerParseAction.returnRawValue,
-            onSuccessAction: TextOnSuccessNavAction.push,
+            onSuccessAction: TextOnSuccessNavAction.popBack,
           ),
           initialType: ScannerType.qr,
         ),
@@ -69,146 +102,203 @@ class SendAssetAddressPage extends HookConsumerWidget {
       if (result is String) {
         ref.read(provider.notifier).pasteScannedText(result);
       }
-      // QR Scan
-      else if (result is SendAssetArguments) {
-        ref.read(provider.notifier).pasteScannedQrCode(result.input);
+      // QR Scan - handle QrScanState
+      else if (result is QrScanState) {
+        result.maybeWhen(
+          sendAsset: (args) {
+            ref.read(provider.notifier).pasteScannedQrCode(args.input);
+          },
+          unknownQrCode: (code) {
+            if (code != null) {
+              ref.read(provider.notifier).pasteScannedText(code);
+            }
+          },
+          orElse: () {},
+        );
       }
     });
 
-    ref.listen(provider, (_, next) {
-      controller.text = next.value?.addressFieldText ?? '';
-    });
+    ref
+      ..listen(provider, (_, next) {
+        if (next.isLoading) return;
+        final newText = next.value?.addressFieldText ?? '';
+        if (controller.text != newText) {
+          controller.text = newText;
+          AquaTooltip.show(
+            context,
+            anchorKey: SendKeys.sendContinueButton,
+            message: context.loc.pastedFromClipboard,
+            colors: context.aquaColors,
+          );
+        }
+      })
+      ..listen(lightningInvoiceToLbtcSwapProvider(arguments), (prev, next) {
+        final wasLightningInvoiceToLbtcSwap = prev?.valueOrNull ?? false;
+        final isLightningInvoiceToLbtcSwap = next.valueOrNull ?? false;
+        if (!wasLightningInvoiceToLbtcSwap && isLightningInvoiceToLbtcSwap) {
+          _logger.debug('Lightning invoice to LBTC swap detected');
+          AquaTooltip.show(
+            context,
+            anchorKey: SendKeys.sendContinueButton,
+            message:
+                '${context.loc.lightningSendTooltip} \n ${context.loc.learnMore}',
+            colors: context.aquaColors,
+            maxLines: 2,
+            variant: AquaTooltipVariant.normal,
+            onToolTipTap: () => ref
+                .read(launchUrlProvider.notifier)
+                .launchUrl(constants.jan3AquatoAquaTransactionsInfoUrl),
+          );
+        }
+      });
 
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        const SizedBox(height: 18.0),
-        //ANCHOR - Asset Info Header
-        _AssetInfoHeader(asset: inputState.asset),
-        const SizedBox(height: 32.0),
-        //ANCHOR - Main Content
-        Expanded(
-          child: BoxShadowContainer(
-            padding: const EdgeInsets.symmetric(horizontal: 28.0),
-            decoration: BoxDecoration(
-              color: context.colors.inverseSurfaceColor,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(30.0),
-                topRight: Radius.circular(30.0),
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
               ),
-              boxShadow: [Theme.of(context).shadow],
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 24.0),
-                //ANCHOR - Address Input
-                AddressInputView(
-                  hintText: context.loc.sendAssetScreenAddressInputHint,
-                  controller: controller,
-                  onScanPressed: onScanPressed,
-                  onChanged: ref.read(provider.notifier).updateAddressFieldText,
-                ),
-                //ANCHOR - Error
-                if (error != null) ...{
-                  const SizedBox(height: 8.0),
-                  Row(children: [
-                    Text(
-                      error.toLocalizedString(context),
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colorScheme.error,
-                      ),
-                    ),
-                  ])
-                },
-                const SizedBox(height: 20.0),
-                //ANCHOR - Paste from Clipboard
-                if (!inputState.isClipboardEmpty) ...[
-                  PasteFromClipboardView(
-                    text: inputState.clipboardAddress!,
-                    onPressed:
-                        ref.read(provider.notifier).pasteClipboardContent,
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: 16 + keyboardHeight,
                   ),
-                ],
-                const Spacer(),
-                //ANCHOR - Internal Send Menu
-                if (inputState.asset.isInternal) ...[
-                  InternalSendMenu(asset: inputState.asset),
-                  const SizedBox(height: 50.0),
-                ],
-                //ANCHOR - Continue Button
-                AquaElevatedButton(
-                  height: 52.0,
-                  onPressed: isContinueButtonEnabled
-                      ? () => onContinuePressed(
-                            SendAssetArguments.fromAsset(inputState.asset),
-                            inputState.addressFieldText ?? '',
-                            inputState.amountFieldText ?? '',
-                          )
-                      : null,
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : Text(context.loc.continueLabel),
+                  child: Column(
+                    children: [
+                      //ANCHOR - Address Input Field
+                      AquaTextField(
+                        key: SendKeys.sendAddressInput,
+                        controller: controller,
+                        label: arguments.asset.isLightning
+                            ? context.loc.lightningInvoice
+                            : context.loc.recipientAddress,
+                        showClearInputButton: true,
+                        textStyle: AquaAddressTypography.body2,
+                        minLines: minLinesForAddress,
+                        maxLines: 20,
+                        textInputAction: TextInputAction.done,
+                        error: controller.text.isNotEmpty && error != null,
+                        assistiveText: controller.text.isNotEmpty
+                            ? error?.toLocalizedString(context)
+                            : null,
+                        assistiveTextStyle:
+                            context.textTheme.bodyMedium?.copyWith(
+                          color: context.colorScheme.error,
+                        ),
+                        trailingIcon: AquaIcon.scan(
+                          size: 18,
+                          color: context.aquaColors.textPrimary,
+                        ),
+                        onTrailingTap: onScanPressed,
+                        onChanged: (value) {
+                          if (value.isEmpty) {
+                            ref.invalidate(provider);
+                            ref.read(sendFlowStepProvider.notifier).reset();
+                          } else {
+                            ref
+                                .read(provider.notifier)
+                                .updateAddressFieldText(value);
+                          }
+                        },
+                      ),
+                      const Spacer(),
+                      //ANCHOR - Continue Button
+                      AquaButton.primary(
+                        key: SendKeys.sendContinueButton,
+                        onPressed: isContinueButtonEnabled
+                            ? () {
+                                // Unfocus the keyboard if it's still pressed
+                                FocusScope.of(context).unfocus();
+                                onContinuePressed(
+                                  SendAssetArguments.fromAsset(
+                                      inputState.asset),
+                                  inputState.addressFieldText ?? '',
+                                  inputState.amountFieldText ?? '',
+                                );
+                              }
+                            : null,
+                        text: context.loc.next,
+                        isLoading: isLoading,
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          children: [
+                            //ANCHOR - Scan Button
+                            Expanded(
+                              child: _BottomActionButton(
+                                icon: AquaIcon.scan,
+                                label: context.loc.scan,
+                                onPressed: onScanPressed,
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            //ANCHOR - Paste Button
+                            Expanded(
+                              child: _BottomActionButton(
+                                icon: AquaIcon.paste,
+                                label: context.loc.paste,
+                                onPressed: ref
+                                    .read(provider.notifier)
+                                    .pasteClipboardContent,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 62.0),
-              ],
+              ),
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }
 
-class _AssetInfoHeader extends StatelessWidget {
-  const _AssetInfoHeader({
-    required this.asset,
+class _BottomActionButton extends StatelessWidget {
+  const _BottomActionButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
   });
 
-  final Asset asset;
+  final AquaIconBuilder icon;
+  final String label;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 33.0),
-      alignment: Alignment.centerLeft,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          //ANCHOR - Asset Logo
-          AssetIcon(
-            assetId: asset.isLBTC ? liquidId : asset.id,
-            assetLogoUrl: asset.isLBTC ? Svgs.liquidAsset : asset.logoUrl,
-            size: context.adaptiveDouble(smallMobile: 50, mobile: 72),
-          ),
-          const SizedBox(width: 17.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              //ANCHOR - Asset Name
-              Text(
-                asset.isLBTC ? context.loc.layer2Bitcoin : asset.name,
-                textAlign: TextAlign.left,
-                style: context.textTheme.headlineLarge?.copyWith(
-                  fontSize: context.adaptiveDouble(smallMobile: 22, mobile: 32),
-                  letterSpacing: 1,
-                ),
-              ),
-              //ANCHOR - Asset Symbol
-              Text(
-                asset.isLBTC
-                    ? context.loc.internalSendLbtcSubtitle
-                    : asset.displayName,
-                textAlign: TextAlign.left,
-                style: context.textTheme.titleSmall?.copyWith(
-                  fontSize: 16.0,
-                  letterSpacing: 1,
-                  color: context.colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ],
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(8),
+      splashFactory: InkRipple.splashFactory,
+      child: Ink(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            icon(
+              size: 24,
+              color: context.aquaColors.textPrimary,
+            ),
+            const SizedBox(height: 4),
+            AquaText.caption2SemiBold(
+              text: label,
+              color: context.aquaColors.textPrimary,
+            ),
+          ],
+        ),
       ),
     );
   }

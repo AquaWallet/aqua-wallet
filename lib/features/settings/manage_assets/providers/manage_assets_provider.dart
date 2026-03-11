@@ -1,29 +1,56 @@
 import 'dart:convert';
 
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/features/marketplace/api_services/marketplace_service.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/iterable_ext.dart';
 import 'package:async/async.dart';
+import 'package:chopper/chopper.dart';
 import 'package:flutter/services.dart';
 
-Future<Result<AssetsResponse>> fetchAssets(
+Future<Result<List<Asset>>> fetchAssets(
     AutoDisposeFutureProviderRef ref) async {
-  final assetsUrl =
-      ref.read(aquaServiceEnvConfigProvider.select((env) => env.apiUrl));
+  final env = ref.read(envProvider);
+  final marketPlaceService = ref.read(marketplaceServiceProvider);
+
+  Future<Response<AssetsResponse>> fetch() async {
+    return switch (env) {
+      Env.mainnet => marketPlaceService.fetchAssets(),
+      Env.testnet || Env.regtest => marketPlaceService.fetchTestNetAssets(),
+    };
+  }
 
   try {
-    final fetchedAssetsResponse = await ref.read(dioProvider).get(assetsUrl);
-    final assetsJson = fetchedAssetsResponse.data as Map<String, dynamic>;
-    final response = AssetsResponse.fromJson(assetsJson);
-    logger
-        .info('[ManageAssets] Fetched ${response.data?.assets.length} assets');
-
-    return Result.value(response);
+    final assetsResponse = await fetch();
+    logger.info(
+        '[ManageAssets] Fetched ${assetsResponse.body?.assets.length} assets');
+    return Result.value(assetsResponse.bodyOrThrow.assets);
   } catch (e) {
     logger.warning('[ManageAssets] Failed to fetch assets');
     return Result.error(e);
+  }
+}
+
+// This variable allows to override function call for testing.
+Future<List<Asset>> Function(AutoDisposeFutureProviderRef<List<Asset>>)
+    getStaticAssetFn = (ref) => getStaticAssets(ref);
+
+Future<List<Asset>> getStaticAssets(
+    AutoDisposeFutureProviderRef<List<Asset>> ref) async {
+  final env = ref.watch(envProvider);
+
+  final staticAssetsResource =
+      env == Env.mainnet ? 'assets/assets.json' : 'assets/assets-testnet.json';
+
+  final staticAssetsRaw = await rootBundle.loadString(staticAssetsResource);
+  final staticAssetsJson = await json.decode(staticAssetsRaw);
+  try {
+    return AssetsResponse.fromJson(staticAssetsJson).data?.assets ?? [];
+  } catch (e) {
+    throw Exception(
+        'An error occurred while trying to fetch static assets json $e');
   }
 }
 
@@ -36,20 +63,15 @@ final availableAssetsProvider =
   final response = fetchedAssetsJson.asValue?.value;
   final env = ref.watch(envProvider);
 
-  final AssetsResponse assetsResponse;
-  if (response != null) {
+  final List<Asset> assetsResponse;
+  if (response != null && response.isNotEmpty) {
     assetsResponse = response;
   } else {
-    final staticAssetsResource = env == Env.mainnet
-        ? 'assets/assets.json'
-        : 'assets/assets-testnet.json';
-    final staticAssetsRaw = await rootBundle.loadString(staticAssetsResource);
-    final staticAssetsJson = await json.decode(staticAssetsRaw);
-    assetsResponse = AssetsResponse.fromJson(staticAssetsJson);
+    assetsResponse = await getStaticAssetFn(ref);
   }
 
   final allAssets = [
-    ...?assetsResponse.data?.assets.map((asset) => asset.copyWith(
+    ...assetsResponse.map((asset) => asset.copyWith(
           isLiquid: true,
           isLBTC: ref.read(liquidProvider).policyAsset == asset.id,
           isUSDt: ref.read(liquidProvider).usdtId == asset.id,
@@ -64,14 +86,16 @@ final availableAssetsProvider =
         .forEach((asset) => ref.read(prefsProvider).addAsset(asset.id));
 
     // Add mexas if region mx
-    final region = ref.read(regionsProvider).currentRegion;
-    if (region == RegionsStatic.mx) {
-      ref.read(prefsProvider).addAsset(ref.read(liquidProvider).mexasId);
-    }
+    final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
+    if (region != null) {
+      if (region == RegionsStatic.mx) {
+        ref.read(prefsProvider).addAsset(ref.read(liquidProvider).mexasId);
+      }
 
-    // Add depix if region br
-    if (region == RegionsStatic.br) {
-      ref.read(prefsProvider).addAsset(ref.read(liquidProvider).depixId);
+      // Add depix if region br
+      if (region == RegionsStatic.br) {
+        ref.read(prefsProvider).addAsset(ref.read(liquidProvider).depixId);
+      }
     }
   }
 

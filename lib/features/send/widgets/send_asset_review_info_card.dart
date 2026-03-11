@@ -1,12 +1,15 @@
 import 'package:aqua/config/config.dart';
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/private_integrations/private_integrations.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/exchange_rate/models/exchange_rate.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/settings/shared/providers/providers.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:decimal/decimal.dart';
 
 class SendAssetReviewInfoCard extends HookConsumerWidget {
   const SendAssetReviewInfoCard({
@@ -54,6 +57,7 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
                 //ANCHOR - Amount Details
                 switch (transactionType) {
                   SendTransactionType.send => _SendTransactionAmountDetails(
+                      key: SendKeys.sendTransactionAmountDetails,
                       amount: amount,
                       asset: asset,
                       isSendAll: isSendAll,
@@ -77,6 +81,7 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
                   height: 33.0),
               //ANCHOR - Address
               LabelCopyableTextView(
+                key: SendKeys.sendToAddressValue,
                 label: context.loc.sendTo,
                 value: address,
               ),
@@ -104,6 +109,7 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
 
 class _SendTransactionAmountDetails extends HookConsumerWidget {
   const _SendTransactionAmountDetails({
+    super.key,
     required this.isSendAll,
     required this.amount,
     required this.asset,
@@ -117,7 +123,9 @@ class _SendTransactionAmountDetails extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final displayUnit = ref.watch(
         displayUnitsProvider.select((p) => p.getForcedDisplayUnit(asset)));
-    final title = isSendAll || asset.isLightning || asset.isAltUsdt
+
+    // For sendAll, show how much the "you will send". For basic sends and swaps, "the recipient will receive"
+    final title = isSendAll
         ? context.loc.sendAssetReviewScreenConfirmAmountTitleSend
         : context.loc.sendAssetReviewScreenConfirmAmountTitleReceive;
 
@@ -136,6 +144,7 @@ class _SendTransactionAmountDetails extends HookConsumerWidget {
         const SizedBox(height: 8.0),
         //ANCHOR - Amount & Symbol
         AssetCryptoAmount(
+          key: SendKeys.assetCryptoAmount,
           forceVisible: true,
           forceDisplayUnit: displayUnit,
           amount: amount,
@@ -161,10 +170,13 @@ class _TopUpTransactionAmountDetails extends HookConsumerWidget {
     final input = ref.watch(topUpInputStateProvider).value!;
     final displayUnit = ref.watch(
         displayUnitsProvider.select((p) => p.getForcedDisplayUnit(asset)));
-    final formattedAmount = '\$${input.amountInUsd}';
-    if (input.amountInUsd == null) {
-      return const CircularProgressIndicator();
-    }
+    final formatter = ref.read(formatProvider);
+    final formattedAmount = formatter.formatFiatAmount(
+      amount: Decimal.parse(input.amountInUsd ?? '0'),
+      specOverride: FiatCurrency.usd.format,
+      withSymbol: true,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,

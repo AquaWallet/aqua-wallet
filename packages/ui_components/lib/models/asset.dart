@@ -11,6 +11,9 @@ class AssetUiModel {
     required this.amount,
     this.amountFiat,
     this.iconUrl,
+    this.standard,
+    this.isUSDt = false,
+    this.isLBTC = false,
   });
 
   final String assetId;
@@ -19,6 +22,9 @@ class AssetUiModel {
   final String amount;
   final String? amountFiat;
   final String? iconUrl;
+  final String? standard;
+  final bool isUSDt;
+  final bool isLBTC;
 
   AssetUiModel copyWith({
     String? assetId,
@@ -27,6 +33,9 @@ class AssetUiModel {
     String? amount,
     String? amountFiat,
     String? iconUrl,
+    String? standard,
+    bool? isUSDt,
+    bool? isLBTC,
   }) =>
       AssetUiModel(
         assetId: assetId ?? this.assetId,
@@ -35,6 +44,9 @@ class AssetUiModel {
         amount: amount ?? this.amount,
         amountFiat: amountFiat ?? this.amountFiat,
         iconUrl: iconUrl ?? this.iconUrl,
+        standard: standard ?? this.standard,
+        isUSDt: isUSDt ?? this.isUSDt,
+        isLBTC: isLBTC ?? this.isLBTC,
       );
 }
 

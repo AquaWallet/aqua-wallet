@@ -1,10 +1,6 @@
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/swaps/swaps.dart';
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 //TODO - Ad-hoc solution, should revisit once more services are added
@@ -14,234 +10,109 @@ class SendAssetReviewPage extends HookConsumerWidget
     with GenericErrorPromptMixin {
   const SendAssetReviewPage({
     super.key,
+    required this.args,
     required this.onConfirmed,
-    required this.arguments,
+    this.onErrorButtonTap,
   });
 
+  final SendAssetArguments args;
   final VoidCallback onConfirmed;
-  final SendAssetArguments arguments;
+  final VoidCallback? onErrorButtonTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final setupInitialized =
-        ref.watch(sendAssetSetupProvider(arguments)).valueOrNull ?? false;
+        ref.watch(sendAssetSetupProvider(args)).valueOrNull ?? false;
 
     final createInitialTransaction = useCallback(() => ref
-        .read(sendAssetTxnProvider(arguments).notifier)
+        .read(sendAssetTxnProvider(args).notifier)
         .createFeeEstimateTransaction());
 
     final transactionType = ref.watch(
-      sendAssetInputStateProvider(arguments).select(
+      sendAssetInputStateProvider(args).select(
         (state) =>
             state.valueOrNull?.transactionType ?? SendTransactionType.send,
       ),
     );
 
+    final swapOrderReady = ref.watch(sendAssetSwapOrderReadyProvider(args));
+
     useEffect(() {
-      if (setupInitialized) {
+      if (setupInitialized && swapOrderReady) {
         createInitialTransaction();
       }
       return null;
-    }, [setupInitialized]);
+    }, [setupInitialized, swapOrderReady]);
 
-    ref.listen(sendAssetInputStateProvider(arguments), (prev, curr) {
-      if (curr.valueOrNull?.feeAsset != prev?.valueOrNull?.feeAsset &&
-          !curr.isLoading) {
-        createInitialTransaction();
-      }
-    });
+    ref
+      ..listen(sendAssetInputStateProvider(args), (prev, curr) {
+        if (curr.valueOrNull?.feeAsset != prev?.valueOrNull?.feeAsset &&
+            !curr.isLoading) {
+          final isReady = ref.read(sendAssetSwapOrderReadyProvider(args));
+          if (isReady) {
+            createInitialTransaction();
+          }
+        }
+      })
+      ..listen(sendAssetSetupProvider(args), (_, value) {
+        showGenericErrorPromptOnAsyncError(
+          context,
+          value,
+          onPrimaryButtonTap: onErrorButtonTap,
+        );
+      })
+      ..listen(sendAssetTxnProvider(args), (_, value) {
+        showGenericErrorPromptOnAsyncError(
+          context,
+          value,
+          onPrimaryButtonTap: onErrorButtonTap,
+        );
+      });
 
-    ref.listen(sendAssetSetupProvider(arguments), (_, value) {
-      showGenericErrorPromptOnAsyncError(context, value);
-    });
-
-    ref.listen(sendAssetTxnProvider(arguments), (_, value) {
-      showGenericErrorPromptOnAsyncError(context, value);
-    });
-
-    return _TransactionReviewContent(
-      args: arguments,
-      transactionType: transactionType,
-      onConfirmed: onConfirmed,
-    );
-  }
-}
-
-class _TransactionReviewContent extends StatelessWidget {
-  const _TransactionReviewContent({
-    required this.args,
-    required this.transactionType,
-    required this.onConfirmed,
-  });
-
-  final SendAssetArguments args;
-  final SendTransactionType transactionType;
-  final VoidCallback onConfirmed;
-
-  double _bottomPadding(BuildContext context) =>
-      MediaQuery.of(context).viewPadding.bottom + 28;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        //ANCHOR - Transaction Review Content
-        SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(
-            left: 28,
-            right: 28,
-            top: 32,
-            bottom: 140,
-          ),
-          child: switch (args.asset) {
-            _ when (args.asset.isBTC || args.asset.isLiquid) =>
-              _AquaTxnReviewContent(
-                args: args,
+    return SafeArea(
+      child: Stack(
+        children: [
+          LayoutBuilder(
+            builder: (context, viewportConstraints) => ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: viewportConstraints.maxHeight,
               ),
-            _ when (args.asset.isLightning) => LightningTxnReviewContent(args),
-            _ when (args.asset.isAltUsdt) => _UsdSwapTxnReviewContent(
-                args: args,
-                transactionType: transactionType,
+              child: IntrinsicHeight(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  physics: const BouncingScrollPhysics(),
+                  //ANCHOR - Transaction Review Content
+                  child: switch (args.asset) {
+                    _ when (args.asset.isBTC || args.asset.isLiquid) =>
+                      AquaTransactionReviewContent(args: args),
+                    _ when (args.asset.isLightning) =>
+                      LightningTransactionReviewContent(args),
+                    _ when (args.asset.isAltUsdt) =>
+                      UsdSwapTransactionReviewContent(
+                        args: args,
+                        transactionType: transactionType,
+                      ),
+                    _ => const SizedBox.shrink(),
+                  },
+                ),
               ),
-            _ => const SizedBox.shrink(),
-          },
-        ),
-        //ANCHOR - Bottom Fade Effect
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            width: double.infinity,
-            height: MediaQuery.sizeOf(context).height * .25,
-            decoration: BoxDecoration(
-              gradient: Theme.of(context).getFadeGradient(),
             ),
           ),
-        ),
-        //ANCHOR - Transaction Execution Slider
-        Container(
-          alignment: Alignment.bottomCenter,
-          margin: EdgeInsets.only(bottom: _bottomPadding(context)),
-          child: SendConfirmationSlider(
-            args: args,
-            onConfirmed: onConfirmed,
+          //ANCHOR - Transaction Execution Slider
+          Container(
+            alignment: Alignment.bottomCenter,
+            margin: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: 12,
+            ),
+            child: SendConfirmationSlider(
+              args: args,
+              onConfirmed: onConfirmed,
+            ),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AquaTxnReviewContent extends ConsumerWidget {
-  const _AquaTxnReviewContent({
-    required this.args,
-  });
-
-  final SendAssetArguments args;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final transaction = ref.watch(sendAssetTxnProvider(args)).value;
-    final input = ref.watch(sendAssetInputStateProvider(args)).valueOrNull;
-    final isNotesEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
-
-    if (input == null) {
-      return const SizedBox.shrink();
-    }
-
-    return Column(
-      children: [
-        //ANCHOR - Send Review Card
-        // TODO: Deduct fee from displayed receive amount when sending all
-        SendAssetReviewInfoCard(
-          asset: input.asset,
-          address: input.addressFieldText ?? '-',
-          amount: input.amount.toString(),
-          isSendAll: input.isSendAllFunds,
-          transactionType: input.transactionType,
-        ),
-        //ANCHOR - Fee Selection Card
-        if (transaction != null && args.asset.isUsdtLiquid) ...{
-          const SizedBox(height: 22),
-          LiquidFeeSelector(args: args)
-        } else ...{
-          ...?transaction?.whenOrNull(
-            created: (t) => [
-              const SizedBox(height: 22),
-              switch (args.asset) {
-                _ when (args.asset.isBTC) => BitcoinFeeSelector(args: args),
-                _ when (args.asset.isLiquid) => LiquidFeeSelector(args: args),
-                _ => const SizedBox.shrink(),
-              }
-            ],
-          ),
-        },
-        if (input.transactionType == SendTransactionType.topUp &&
-            input.asset.isUsdtLiquid) ...{
-          const SizedBox(height: 22),
-          const UsdtTopUpInfo(),
-        },
-        const SizedBox(height: 22),
-        //ANCHOR - Add Note
-        if (isNotesEnabled) ...{
-          const AddNoteButton(),
-        },
-      ],
-    );
-  }
-}
-
-class _UsdSwapTxnReviewContent extends ConsumerWidget {
-  const _UsdSwapTxnReviewContent({
-    required this.args,
-    required this.transactionType,
-  });
-
-  final SendAssetArguments args;
-  final SendTransactionType transactionType;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final input = ref.watch(sendAssetInputStateProvider(args)).value!;
-    final swapState = ref
-        .watch(swapOrderProvider(SwapArgs(pair: input.swapPair!)))
-        .valueOrNull;
-    final isNotesEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
-
-    return Column(
-      children: [
-        //ANCHOR - Send Review Card
-        Text(
-          context.loc.sendAssetReviewScreenGenericLabel(
-            input.asset.network,
-            input.asset.displayName,
-          ),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 20),
-        SendAssetReviewInfoCard(
-          asset: input.asset,
-          address: input.addressFieldText ?? '-',
-          amount: input.amount.toString(),
-          isSendAll: input.isSendAllFunds,
-          swapOrderId: swapState?.order?.id ?? '-',
-          transactionType: transactionType,
-        ),
-        const SizedBox(height: 22),
-        //ANCHOR - Fee Breakdown Card
-        TransactionFeeBreakdownCard(
-          args: FeeStructureArguments.usdtSwap(
-            sendAssetArgs: args,
-          ),
-        ),
-        const SizedBox(height: 22.0),
-        //ANCHOR - Add Note
-        if (isNotesEnabled) ...{
-          const AddNoteButton(),
-        },
-      ],
+        ],
+      ),
     );
   }
 }

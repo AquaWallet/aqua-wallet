@@ -2,16 +2,16 @@ import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/network_frontend.dart';
-import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/models/subaccount.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 
 class WatchOnlyNotifier extends AsyncNotifier<List<Subaccount>> {
   @override
   Future<List<Subaccount>> build() async {
-    final bitcoinSubaccounts =
-        await ref.read(bitcoinProvider.select((p) => p.getSubaccounts()));
-    final liquidSubaccounts =
-        await ref.read(liquidProvider.select((p) => p.getSubaccounts()));
+    ref.watch(
+        storedWalletsProvider.select((s) => s.valueOrNull?.currentWallet));
+
+    final bitcoinSubaccounts = await ref.read(bitcoinProvider).getSubaccounts();
+    final liquidSubaccounts = await ref.read(liquidProvider).getSubaccounts();
 
     // TODO: Fix for new subaccounts feature
     final filteredBitcoinSubaccounts = bitcoinSubaccounts

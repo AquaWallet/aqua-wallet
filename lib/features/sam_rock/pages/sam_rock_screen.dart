@@ -5,8 +5,9 @@ import 'package:aqua/features/sam_rock/models/sam_rock_exception.dart';
 import 'package:aqua/features/sam_rock/providers/sam_rock_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/providers/subaccounts_provider.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class SamRockScreen extends HookConsumerWidget {
   const SamRockScreen({
@@ -20,6 +21,41 @@ class SamRockScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(samRockStateProvider, (previous, next) {
+      next.maybeWhen(
+        requiresNewWalletConfirmation: (appLink) {
+          final currentSubaccounts = ref.read(subaccountsProvider).valueOrNull;
+          if (currentSubaccounts == null) {
+            return;
+          }
+          AquaModalSheet.show(
+            context,
+            copiedToClipboardText: context.loc.copiedToClipboard,
+            colors: context.aquaColors,
+            icon: AquaIcon.wallet(color: context.aquaColors.textInverse),
+            title: context.loc.samRockScreenCreateWalletTitle,
+            message: context.loc.samRockScreenCreateWalletMessage,
+            primaryButtonText: context.loc.createWallet,
+            secondaryButtonText:
+                context.loc.samRockScreenUseExistingWalletButton,
+            onSecondaryButtonTap: () {
+              Navigator.of(context).pop();
+              ref
+                  .read(samRockStateProvider.notifier)
+                  .cancelWalletCreation(appLink, currentSubaccounts);
+            },
+            onPrimaryButtonTap: () {
+              Navigator.of(context).pop();
+              ref
+                  .read(samRockStateProvider.notifier)
+                  .confirmWalletCreation(appLink);
+            },
+          );
+        },
+        orElse: () {},
+      );
+    });
+
     final state = ref.watch(samRockStateProvider);
     useEffect(() {
       ref.read(subaccountsProvider.notifier).loadSubaccounts();

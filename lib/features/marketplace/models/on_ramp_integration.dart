@@ -72,7 +72,7 @@ class OnRampIntegration with _$OnRampIntegration {
         refLinkTestnet: 'https://dev.beaverbitcoin.com',
         hasPriceApi: true,
         priceApi: 'https://api.prod.beaverbitcoin.com/bitcoin/price',
-        priceSymbol: FiatCurrency.cad.symbol,
+        priceSymbol: FiatCurrency.cad.format.symbol,
         priceCurrencyCode: FiatCurrency.cad.value,
       );
 
@@ -92,7 +92,7 @@ class OnRampIntegration with _$OnRampIntegration {
         hasPriceApi: true,
         priceApi:
             'https://api.kraken.com/0/public/Ticker?pair=XBTEUR', // they use kraken for price
-        priceSymbol: FiatCurrency.eur.symbol,
+        priceSymbol: FiatCurrency.eur.format.symbol,
         priceCurrencyCode: FiatCurrency.eur.value,
       );
 
@@ -117,7 +117,7 @@ class OnRampIntegration with _$OnRampIntegration {
         hasPriceApi: true,
         priceApi:
             null, // NOTE: Use BTCDirectApiService.getBTCPrice() as we need to be authed
-        priceSymbol: FiatCurrency.eur.symbol,
+        priceSymbol: FiatCurrency.eur.format.symbol,
         priceCurrencyCode: FiatCurrency.eur.value,
         showIncludesFeesTag: true,
       );

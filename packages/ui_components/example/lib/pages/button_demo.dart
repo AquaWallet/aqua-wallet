@@ -20,7 +20,7 @@ class ButtonDemoPage extends HookConsumerWidget {
         const _SectionHeader(title: 'Buttons'),
         _ButtonsSection(theme: theme),
         const _SectionHeader(title: 'Slider'),
-        const _SliderSection(),
+        _SliderSection(theme: theme),
         const SizedBox(height: 20),
         const _SectionHeader(title: 'Utility Button'),
         _UtilityButtonsSection(theme: theme),
@@ -30,7 +30,11 @@ class ButtonDemoPage extends HookConsumerWidget {
 }
 
 class _SliderSection extends HookWidget {
-  const _SliderSection();
+  const _SliderSection({
+    required this.theme,
+  });
+
+  final AppTheme theme;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +61,7 @@ class _SliderSection extends HookWidget {
                 });
               });
             },
+            colors: theme.colors,
           ),
           const SizedBox(height: 20),
           AquaSlider(
@@ -65,6 +70,7 @@ class _SliderSection extends HookWidget {
             text: 'Slide',
             enabled: false,
             onConfirm: () {},
+            colors: theme.colors,
           ),
         ],
       ),
@@ -178,7 +184,7 @@ class _ButtonsPanel extends StatelessWidget {
             text: 'Secondary',
             isLoading: isLoading,
             icon: AquaIcon.plus(
-              color: AquaColors.lightColors.textPrimary,
+              color: AquaColors.lightColors.accentBrand,
             ),
           ),
           const SizedBox(height: 11),
@@ -229,7 +235,7 @@ class _ButtonsPanel extends StatelessWidget {
             isLoading: isLoading,
             icon: AquaIcon.plus(
               size: 18,
-              color: AquaColors.lightColors.textPrimary,
+              color: AquaColors.lightColors.accentBrand,
             ),
           ),
           const SizedBox(height: 18),

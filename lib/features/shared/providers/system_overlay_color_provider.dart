@@ -1,8 +1,10 @@
-import 'package:aqua/config/config.dart';
+import 'package:aqua/config/config.dart' hide AquaColors;
 import 'package:aqua/data/provider/theme_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/services.dart';
+import 'package:ui_components/ui_components.dart' as ui_components;
+import 'package:ui_components/ui_components.dart';
 
 final systemOverlayColorProvider = Provider.autoDispose
     .family<SystemOverlayColor, BuildContext>(SystemOverlayColor.new);
@@ -17,14 +19,13 @@ class SystemOverlayColor {
     final darkMode =
         ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
 
-    final theme = darkMode
-        ? ref.read(darkThemeProvider(context))
-        : ref.read(lightThemeProvider(context));
+    // Note: Context.aquaColors here is delayed, we need to use this variable to get the proper theme.
+    final colors = darkMode ? AquaColors.darkColors : AquaColors.lightColors;
 
     _change(
       brightness: darkMode ? Brightness.light : Brightness.dark,
-      statusBarColor: theme.colors.appBarBackgroundColor,
-      navBarColor: theme.colorScheme.surface,
+      statusBarColor: colors.surfaceBackground,
+      navBarColor: colors.surfaceBackground,
     );
   }
 
@@ -49,9 +50,9 @@ class SystemOverlayColor {
   void aqua({bool aquaColorNav = false}) {
     _change(
       brightness: Brightness.light,
-      statusBarColor: AquaColors.backgroundGradientStartColor.withOpacity(.2),
+      statusBarColor: AquaColors.lightColors.accentBrand,
       navBarColor: aquaColorNav
-          ? AquaColors.backgroundGradientEndColor
+          ? AquaColors.lightColors.accentBrand
           : ref.read(lightThemeProvider(context)).colors.background,
     );
   }
@@ -64,11 +65,26 @@ class SystemOverlayColor {
     );
   }
 
-  void transparentWithKeyboard() {
+  void modalColor(ui_components.AquaColors aquaColors) {
+    final darkMode =
+        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
+
     _change(
-      brightness: Brightness.light,
-      statusBarColor: Colors.transparent,
-      navBarColor: Theme.of(context).colors.keyboardBackground,
+      brightness: darkMode ? Brightness.light : Brightness.dark,
+      statusBarColor: aquaColors.surfacePrimary,
+      navBarColor: aquaColors.surfacePrimary,
+    );
+  }
+
+  void custom({
+    required Color statusBarColor,
+    Color? navBarColor,
+    Brightness? brightness,
+  }) {
+    _change(
+      brightness: brightness ?? Brightness.light,
+      statusBarColor: statusBarColor,
+      navBarColor: navBarColor ?? statusBarColor,
     );
   }
 

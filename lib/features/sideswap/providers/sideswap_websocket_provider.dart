@@ -20,6 +20,9 @@ const sideswapWssAddressLive = 'wss://api.sideswap.io/json-rpc-ws';
 const sideswapWssAddressTestnet = 'wss://api-testnet.sideswap.io/json-rpc-ws';
 const sideswapWssAddressRegtest = 'wss://api-regtest.sideswap.io/json-rpc-ws';
 
+const pegInWalletBalanceKey = 'PegInWalletBalance';
+const pegOutWalletBalanceKey = 'PegOutWalletBalance';
+
 String getSideswapWssAddress(Env env) => switch (env) {
       Env.mainnet => sideswapWssAddressLive,
       Env.regtest => sideswapWssAddressRegtest,
@@ -41,8 +44,14 @@ class SideswapWebsocketProvider {
   final AutoDisposeProviderRef ref;
 
   SideswapWebsocketProvider(this.ref) {
-    ref.onDispose(() {
-      _channel.sink.close(status.goingAway);
+    ref.onDispose(() async {
+      try {
+        await unsubscribeFromValue(value: pegInWalletBalanceKey);
+        await unsubscribeFromValue(value: pegOutWalletBalanceKey);
+      } catch (e) {
+        logger.warning('[Sideswap] Error unsubscribing on dispose: $e');
+      }
+      _channel.sink.close(status.normalClosure);
     });
 
     connect();
@@ -129,8 +138,8 @@ class SideswapWebsocketProvider {
 
       await _sendRequest(_channel, 1, startPeg, request.toJson());
       ref
-          .read(transactionStorageProvider.notifier)
-          .cacheSideswapReceiveAddress(request.receiveAddress);
+          .read(sideswapReceiveAddressCacheProvider.notifier)
+          .set(request.receiveAddress);
     } else {
       throw Exception('Invalid receive address');
     }
@@ -149,6 +158,24 @@ class SideswapWebsocketProvider {
     await _sendRequest(_channel, 1, pegStatus, request.toJson());
   }
 
+  Future<void> subscribeToValue({required String value}) async {
+    await _sendRequest(
+      _channel,
+      1,
+      subscribeValue,
+      {'value': value},
+    );
+  }
+
+  Future<void> unsubscribeFromValue({required String value}) async {
+    await _sendRequest(
+      _channel,
+      1,
+      unsubscribeValue,
+      {'value': value},
+    );
+  }
+
   Future<void> connect() async {
     final env = ref.read(envProvider);
     final sideswapServerAddr = getSideswapWssAddress(env);
@@ -157,6 +184,8 @@ class SideswapWebsocketProvider {
     await addLoginClient();
     await getServerStatus();
     await getAssets();
+    await subscribeToValue(value: pegInWalletBalanceKey);
+    await subscribeToValue(value: pegOutWalletBalanceKey);
 
     /// Listen for all incoming data
     if (_channelSubscription != null) {
@@ -195,6 +224,9 @@ class SideswapWebsocketProvider {
       switch (method) {
         case serverStatus:
           final response = ServerStatusResponse.fromJson(json);
+          logger.info(
+            '[Sideswap] server_status - PegIn: ${response.result?.pegInWalletBalance}, PegOut: ${response.result?.pegOutWalletBalance}, full: $json',
+          );
           if (response.result != null) {
             ref.read(sideswapStatusStreamResultStateProvider.notifier).state =
                 response.result;
@@ -219,6 +251,42 @@ class SideswapWebsocketProvider {
           final response = UpdatePriceStreamResponse.fromJson(json);
           ref.read(sideswapPriceStreamResultStateProvider.notifier).state =
               response.params;
+          break;
+        case notificationSubscribedValue:
+          final notification = SubscribedValueNotification.fromJson(json);
+          logger.debug(
+            '[Sideswap] notificationSubscribedValue - raw: $json, parsed: $notification',
+          );
+          final pegInBalance =
+              notification.params?.value?.pegInWalletBalance?.available;
+          final pegOutBalance =
+              notification.params?.value?.pegOutWalletBalance?.available;
+          logger.debug(
+            '[Sideswap] notificationSubscribedValue - pegInBalance: $pegInBalance, pegOutBalance: $pegOutBalance',
+          );
+          if (pegInBalance != null || pegOutBalance != null) {
+            logger.info(
+              '[Sideswap] notificationSubscribedValue - UPDATING STATUS with pegInBalance: $pegInBalance, pegOutBalance: $pegOutBalance',
+            );
+            final currentStatus =
+                ref.read(sideswapStatusStreamResultStateProvider) ??
+                    const ServerStatusResult(
+                      pegInWalletBalance: null,
+                      pegOutWalletBalance: null,
+                    );
+            final updatedStatus = currentStatus.copyWith(
+              pegInWalletBalance:
+                  pegInBalance ?? currentStatus.pegInWalletBalance,
+              pegOutWalletBalance:
+                  pegOutBalance ?? currentStatus.pegOutWalletBalance,
+            );
+            ref.read(sideswapStatusStreamResultStateProvider.notifier).state =
+                updatedStatus;
+          } else {
+            logger.debug(
+              '[Sideswap] notificationSubscribedValue - Both balances are null, skipping update',
+            );
+          }
           break;
         case startSwapWeb:
           final response = SwapStartWebResponse.fromJson(json);

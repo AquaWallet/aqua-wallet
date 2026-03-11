@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+@Deprecated('Use ui_components instead')
 class AquaColors {
   static const Color blueGreen = Color(0xFF00A1CC);
 
@@ -98,4 +99,8 @@ class AquaColors {
   static const Color debitCardProgressGradientEndColor = Color(0xFFFFA800);
 
   static const Color warningOrange = Color(0xFFFFCC00);
+
+  static const Color amber600 = Color(0xFFE0A800);
+
+  static const Color vermillion500 = Color(0xFFFFC20A);
 }

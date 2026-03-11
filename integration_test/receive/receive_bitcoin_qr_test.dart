@@ -1,15 +1,13 @@
-import 'package:aqua/features/transactions/transactions.dart';
-import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
-import 'package:aqua/features/wallet/keys/wallet_keys.dart';
+import 'package:aqua/data/data.dart';
+import 'package:aqua/features/home/home.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:aqua/features/wallet/keys/wallet_keys.dart';
 import 'package:aqua/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:aqua/features/home/home.dart';
-import 'package:aqua/data/data.dart';
+
 import '../mocks/secure_storate_mocks.dart';
 
 void main() {
@@ -23,6 +21,7 @@ void main() {
   testWidgets('Receive bitcoin flow - set amount in sats', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final sp = await SharedPreferences.getInstance();
+
     // Load app widget.
     await tester.pumpWidget(ProviderScope(overrides: [
       sharedPreferencesProvider.overrideWithValue(sp),
@@ -43,7 +42,7 @@ void main() {
     await tester.tap(receiveButton);
     await tester.pumpAndSettle();
 
-    expect(find.byType(TransactionMenuScreen), findsOne);
+    expect(find.byType(ReceiveMenuScreen), findsOne);
 
     final receiveBitcoinButton = find.text('Bitcoin');
     expect(receiveBitcoinButton, findsOneWidget);

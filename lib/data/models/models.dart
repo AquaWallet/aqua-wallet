@@ -1,3 +1,4 @@
+export 'cache_entry.dart';
 export 'database/database.dart';
 export 'focus_action.dart';
 export 'gdk_models.dart';

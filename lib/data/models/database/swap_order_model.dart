@@ -1,8 +1,8 @@
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:decimal/decimal.dart';
-import 'package:isar/isar.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:isar/isar.dart';
 
 part 'swap_order_model.freezed.dart';
 part 'swap_order_model.g.dart';
@@ -18,6 +18,7 @@ class SwapOrderDbModel with _$SwapOrderDbModel {
     @JsonKey(required: true, disallowNullValue: true)
     @Index()
     required String orderId,
+    @Index() String? walletId,
     required DateTime createdAt,
     required String fromAsset,
     required String toAsset,
@@ -47,12 +48,16 @@ class SwapOrderDbModel with _$SwapOrderDbModel {
   factory SwapOrderDbModel.fromJson(Map<String, dynamic> json) =>
       _$SwapOrderDbModelFromJson(json);
 
-  factory SwapOrderDbModel.fromSwapOrder(SwapOrder order) {
+  factory SwapOrderDbModel.fromSwapOrder(
+    SwapOrder order, {
+    required String walletId,
+  }) {
     return SwapOrderDbModel(
       orderId: order.id,
+      walletId: walletId,
       createdAt: order.createdAt,
-      fromAsset: order.from.ticker,
-      toAsset: order.to.ticker,
+      fromAsset: order.from.id,
+      toAsset: order.to.id,
       depositAddress: order.depositAddress,
       depositExtraId: order.depositExtraId,
       settleAddress: order.settleAddress,
@@ -62,6 +67,8 @@ class SwapOrderDbModel with _$SwapOrderDbModel {
       serviceFeeType: order.serviceFee.type,
       serviceFeeValue: order.serviceFee.value.toString(),
       serviceFeeCurrency: order.serviceFee.currency,
+      depositCoinNetworkFee: order.depositCoinNetworkFee?.toString(),
+      settleCoinNetworkFee: order.settleCoinNetworkFee?.toString(),
       expiresAt: order.expiresAt,
       status: order.status,
       type: order.type,

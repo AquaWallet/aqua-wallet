@@ -1,7 +1,7 @@
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/models/bolt11_ext.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:boltz/boltz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
 
@@ -28,6 +28,7 @@ class BoltzSwapDbModel with _$BoltzSwapDbModel {
     @JsonKey(name: 'id', required: true, disallowNullValue: true)
     @Index()
     required String boltzId,
+    @Index() String? walletId,
     @Enumerated(EnumType.name) required SwapType kind,
     @Enumerated(EnumType.name) required Chain network,
     String? fundingAddrs,
@@ -60,13 +61,17 @@ class BoltzSwapDbModel with _$BoltzSwapDbModel {
   factory BoltzSwapDbModel.fromJson(Map<String, dynamic> json) =>
       _$BoltzSwapDbModelFromJson(json);
 
-  factory BoltzSwapDbModel.fromV2SwapResponse(LbtcLnSwap response) =>
+  factory BoltzSwapDbModel.fromV2SwapResponse(
+    LbtcLnSwap response, {
+    required String walletId,
+  }) =>
       BoltzSwapDbModel(
         boltzId: response.id,
+        walletId: walletId,
         kind: response.kind,
         network: response.network,
         invoice: response.invoice,
-        outAmount: response.outAmount,
+        outAmount: response.outAmount.toInt(),
         blindingKey: response.blindingKey,
         electrumUrl: response.electrumUrl,
         boltzUrl: response.boltzUrl,
@@ -148,7 +153,7 @@ extension BoltzSwapDbModelX on BoltzSwapDbModel {
       kind: kind,
       network: network,
       invoice: invoice,
-      outAmount: outAmount,
+      outAmount: BigInt.from(outAmount),
       blindingKey: blindingKey,
       electrumUrl: electrumUrl!,
       boltzUrl: boltzUrl!,
@@ -158,7 +163,7 @@ extension BoltzSwapDbModelX on BoltzSwapDbModel {
         secretKey: keyPair.secretKey,
         publicKey: keyPair.publicKey,
       ),
-      keyIndex: 0,
+      keyIndex: BigInt.zero,
       preimage: PreImage(
         value: preImage.value,
         sha256: preImage.sha256,
@@ -175,6 +180,18 @@ extension BoltzSwapDbModelX on BoltzSwapDbModel {
       ),
     );
   }
+
+  bool get isTerminal => switch (lastKnownStatus) {
+        BoltzSwapStatus.swapExpired ||
+        BoltzSwapStatus.swapRefunded ||
+        BoltzSwapStatus.invoiceFailedToPay ||
+        BoltzSwapStatus.invoiceExpired ||
+        BoltzSwapStatus.transactionLockupFailed ||
+        BoltzSwapStatus.transactionClaimed ||
+        BoltzSwapStatus.invoiceSettled =>
+          true,
+        _ => false,
+      };
 }
 
 extension BoltzSwapDbModelListX on List<BoltzSwapDbModel> {

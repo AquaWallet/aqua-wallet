@@ -144,6 +144,10 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
                   data.firstOnchainFeeAmount + data.secondOnchainFeeAmount,
               serviceOrderId: data.order.orderId,
               serviceAddress: data.order.pegAddress,
+              ghostTxnAmount: data.inputAmount,
+              ghostTxnCreatedAt: DateTime.now(),
+              ghostTxnFee:
+                  data.firstOnchainFeeAmount + data.secondOnchainFeeAmount,
             ));
 
         await _updateCachedPegOrder(data.order.orderId, transaction);
@@ -162,22 +166,34 @@ class PegNotifier extends AutoDisposeAsyncNotifier<PegState> {
   //ANCHOR: Caching
   Future<void> _cachePegOrder(SwapPegReviewModel data) async {
     final isPegIn = ref.read(sideswapInputStateProvider).isPegIn;
+    final walletId = await ref.read(currentWalletIdOrThrowProvider.future);
+    final receiveAddress = ref.read(sideswapReceiveAddressCacheProvider);
     final pegOrder = PegOrderDbModel.fromStatus(
+      walletId: walletId,
       orderId: data.order.orderId,
       isPegIn: isPegIn,
       amount: data.inputAmount,
       status: SwapPegStatusResult(
         orderId: data.order.orderId,
         pegIn: isPegIn,
-        addr: data.order.pegAddress,
+        depositAddress: data.order.pegAddress,
+        receiveAddress: receiveAddress,
         createdAt: DateTime.now().millisecondsSinceEpoch,
-        transactions: [],
+        // Initialize with detected state so isPendingSettlement returns true
+        transactions: [
+          PegStatusTxns(
+            createdAt: DateTime.now().millisecondsSinceEpoch,
+            txState: PegTxState.detected,
+          ),
+        ],
       ),
       createdAt: DateTime.now(),
     );
     await ref.read(pegStorageProvider.notifier).save(pegOrder);
-    logger.debug(
-        '[Sideswap]Cached initial peg order: ${pegOrder.orderId}, Amount: ${pegOrder.amount}, IsPegIn: ${pegOrder.isPegIn}');
+    logger.debug('[Sideswap] Cached initial peg order: ${pegOrder.orderId}, '
+        'Amount: ${pegOrder.amount}, '
+        'IsPegIn: ${pegOrder.isPegIn}, '
+        'ReceiveAddress: $receiveAddress');
   }
 
   Future<void> _updateCachedPegOrder(

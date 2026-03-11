@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 export 'extensions/extensions.dart';
 export 'fake_data.dart';
+export 'regex.dart';
 export 'responsive_utils.dart';
 export 'zendesk.dart';
 

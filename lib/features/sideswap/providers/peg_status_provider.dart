@@ -20,7 +20,7 @@ class _Notifier extends AutoDisposeNotifier<PegStatusState> {
 
   @override
   PegStatusState build() {
-    Timer.periodic(kStatusCheckInterval, (_) {
+    final timer = Timer.periodic(kStatusCheckInterval, (_) {
       if (params != null) {
         requestPegStatus(
           orderId: params!.orderId,
@@ -28,6 +28,7 @@ class _Notifier extends AutoDisposeNotifier<PegStatusState> {
         );
       }
     });
+    ref.onDispose(timer.cancel);
     return const PegStatusState();
   }
 
@@ -79,12 +80,18 @@ class _Notifier extends AutoDisposeNotifier<PegStatusState> {
       final existingOrder =
           await ref.read(pegStorageProvider.notifier).getOrderById(orderId);
       if (existingOrder != null) {
-        final updatedOrder = existingOrder.copyWithStatus(result);
+        final updatedOrder = existingOrder.copyWithStatus(result).copyWith(
+              amount: result.transactions.firstOrNull?.amount ?? 0,
+              txhash: result.transactions.firstOrNull?.txHash,
+              receiveAddress: result.receiveAddress,
+            );
         await ref.read(pegStorageProvider.notifier).save(updatedOrder);
         logger.debug(
             '[Sideswap][PegStatus] Updated cached status for order: $orderId, status: ${_getStatusString(result)}');
       } else {
+        final walletId = await ref.read(currentWalletIdOrThrowProvider.future);
         final newOrder = PegOrderDbModel.fromStatus(
+          walletId: walletId,
           orderId: orderId,
           isPegIn: result.pegIn ?? false,
           amount: result.transactions.firstOrNull?.amount ?? 0,

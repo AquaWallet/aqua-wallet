@@ -1,10 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ui_components/ui_components.dart';
 
 enum SettingsListItemPosition { top, middle, bottom }
 
@@ -39,8 +38,11 @@ class SettingsSelectionList extends HookWidget {
     super.key,
     this.label,
     this.showSearch = false,
+    this.includeAppBarPadding = true,
     required this.items,
     required this.itemBuilder,
+    this.padding,
+    this.filter,
   });
 
   final String? label;
@@ -48,150 +50,129 @@ class SettingsSelectionList extends HookWidget {
   final List<SettingsItem> items;
   final SettingsListSelectionItem? Function(BuildContext, SettingsItem)
       itemBuilder;
+  final EdgeInsets? padding;
+
+  /// Returns null to exclude, or an int priority (lower = first).
+  /// If not provided, uses default startsWith filter with priority 0.
+  final int? Function(SettingsItem item, String query)? filter;
+  final bool includeAppBarPadding;
 
   @override
   Widget build(BuildContext context) {
     final controller = useTextEditingController();
     final query = useState('');
-    final listItems = useMemoized(
-      () => items
-          .where((item) =>
-              item.name.toLowerCase().startsWith(query.value.toLowerCase()))
-          .toList(),
-      [query.value, items],
-    );
-    final clearSearchInput = useCallback(() {
-      controller.clear();
-      query.value = '';
-    });
+
+    final listItems = useMemoized(() {
+      if (query.value.isEmpty) return items;
+      final filterFn = filter ??
+          (SettingsItem item, String q) =>
+              item.name.toLowerCase().startsWith(q.toLowerCase()) ? 0 : null;
+      final scored = <(SettingsItem, int)>[];
+      for (final item in items) {
+        final priority = filterFn(item, query.value);
+        if (priority != null) scored.add((item, priority));
+      }
+      scored.sort((a, b) {
+        final cmp = a.$2.compareTo(b.$2);
+        if (cmp != 0) return cmp;
+        return a.$1.name.compareTo(b.$1.name);
+      });
+      return scored.map((e) => e.$1).toList();
+    }, [query.value, items, filter]);
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
+      padding: padding ?? const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (includeAppBarPadding) ...{
+            //ANCHOR - Padding to account for the app bar
+            const AppBarPadding(),
+          },
           //ANCHOR - Label
           if (label != null) SettingsListSelectionHeader(title: label ?? ''),
-          const SizedBox(height: 22),
+          //ANCHOR - Search bar
+          if (showSearch) ...{
+            AquaSearchField(
+              controller: controller,
+              hint: context.loc.searchTitle,
+              onChanged: (value) => query.value = value,
+            ),
+            const SizedBox(height: 16),
+          },
           //ANCHOR - Content
-          BoxShadowContainer(
-            padding: EdgeInsets.zero,
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            child: Column(children: [
-              //ANCHOR - Search bar
-              if (showSearch) ...{
-                TextField(
-                  controller: controller,
-                  onChanged: (value) => query.value = value,
-                  decoration: InputDecoration(
-                    hintText: context.loc.regionSettingsScreenSearchHint,
-                    hintStyle: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colors.onBackground,
-                    ),
-                    prefixIcon: Container(
-                      margin: const EdgeInsets.only(left: 18, right: 12),
-                      child: SvgPicture.asset(
-                        Svgs.search,
-                        width: 16,
-                        height: 16,
-                        colorFilter: ColorFilter.mode(
-                            Theme.of(context).colors.onBackground,
-                            BlendMode.srcIn),
-                      ),
-                    ),
-                    suffixIcon: Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 15, 20, 15),
-                        child: controller.text.isNotEmpty
-                            ? ClearInputButton(onTap: clearSearchInput)
-                            : null),
-                    border: InputBorder.none,
-                  ),
-                ),
-              },
-              //ANCHOR - List items
-              ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    12), // Match container's border radius
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: listItems.length,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) =>
-                      itemBuilder.call(context, listItems[index]),
+          Column(children: [
+            //ANCHOR - List items
+            ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(8), // Match container's border radius
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: listItems.length,
+                padding: EdgeInsets.zero,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) =>
+                    itemBuilder.call(context, listItems[index]),
+                separatorBuilder: (context, index) => AquaDivider(
+                  colors: context.aquaColors,
                 ),
               ),
-            ]),
-          ),
+            ),
+          ]),
         ],
       ),
     );
   }
 }
 
-class SettingsListSelectionItem extends StatelessWidget {
+class SettingsListSelectionItem<T> extends StatelessWidget {
   const SettingsListSelectionItem({
     super.key,
-    required this.content,
+    this.content,
     this.icon,
-    this.position,
     this.collapsed = true,
     this.elevation = 0,
     this.onPressed,
+    this.title,
+    this.isRadioButton = false,
+    this.radioValue,
+    this.radioGroupValue,
+    this.iconTrailing,
+    this.subTitle,
   });
 
   final Widget? icon;
-  final Widget content;
+  final Widget? iconTrailing;
+  final Widget? content;
+  final String? title;
+  final String? subTitle;
   final double elevation;
   final bool collapsed;
-  final SettingsListItemPosition? position;
   final VoidCallback? onPressed;
+  final bool isRadioButton;
+  final T? radioValue;
+  final T? radioGroupValue;
 
   @override
   Widget build(BuildContext context) {
-    const radius = Radius.circular(12);
-    final tapRadius = switch (position) {
-      SettingsListItemPosition.top =>
-        const BorderRadius.only(topLeft: radius, topRight: radius),
-      SettingsListItemPosition.middle => BorderRadius.zero,
-      SettingsListItemPosition.bottom =>
-        const BorderRadius.only(bottomLeft: radius, bottomRight: radius),
-      _ => BorderRadius.circular(12),
-    };
-
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: tapRadius,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: tapRadius,
-        child: Ink(
-          height: 52,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                icon!,
-                const SizedBox(width: 16),
-              ],
-              Expanded(child: content),
-              SizedBox.square(
-                dimension: 15,
-                child: Transform.rotate(
-                  angle: !collapsed ? -90 * math.pi / 180 : 0,
-                  child: Icon(
-                    Icons.arrow_forward_ios_sharp,
-                    size: 15,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    if (isRadioButton && iconTrailing != null) {
+      throw Exception(
+          'If isRadioButton is true, there shouldn"t be iconTrailing');
+    }
+    return AquaListItem(
+      onTap: onPressed,
+      iconLeading: icon,
+      contentWidget: content,
+      title: title ?? '',
+      subtitle: subTitle ?? '',
+      iconTrailing: isRadioButton
+          ? AquaRadio<T?>.small(
+              value: radioValue,
+              groupValue: radioGroupValue,
+              colors: context.aquaColors,
+            )
+          : iconTrailing,
     );
   }
 }

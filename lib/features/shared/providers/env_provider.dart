@@ -113,24 +113,3 @@ final sideswapEnvConfigProvider = Provider<EnvConfig>((ref) {
       throw UnimplementedError('Unknown environment');
   }
 });
-
-// ANCHOR - Aqua Service
-
-final aquaServiceEnvConfigProvider = Provider<EnvConfig>((ref) {
-  final env = ref.watch(envProvider);
-
-  switch (env) {
-    case Env.mainnet:
-      return const EnvConfig(
-        apiUrl: mainNetAssetsUrl,
-        apiKey: '',
-      );
-    case Env.testnet || Env.regtest:
-      return const EnvConfig(
-        apiUrl: testNetAssetsUrl,
-        apiKey: '',
-      );
-    default:
-      throw UnimplementedError('Unknown environment');
-  }
-});

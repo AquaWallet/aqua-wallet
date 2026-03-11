@@ -1,12 +1,11 @@
-import 'package:aqua/common/common.dart';
 import 'package:aqua/features/send/send.dart';
-import 'package:aqua/features/settings/exchange_rate/providers/providers.dart';
-import 'package:aqua/features/settings/shared/providers/providers.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
-class BitcoinFeeSelector extends HookConsumerWidget {
+class BitcoinFeeSelector extends HookConsumerWidget
+    with FeeOptionsErrorHandlerMixin {
   const BitcoinFeeSelector({
     super.key,
     required this.args,
@@ -16,9 +15,6 @@ class BitcoinFeeSelector extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final darkMode =
-        ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
-    final isExpanded = useState<bool>(true);
     final inputProvider = useMemoized(
       () => sendAssetInputStateProvider(args),
     );
@@ -52,7 +48,8 @@ class BitcoinFeeSelector extends HookConsumerWidget {
     );
 
     useEffect(() {
-      if (feeOptions.isNotEmpty && selectedFeeOption == null) {
+      if (feeOptions.isNotEmpty && selectedFeeOption == null ||
+          !feeOptions.contains(selectedFeeOption)) {
         // Select the first fee option by default
         WidgetsBinding.instance.addPostFrameCallback((_) => ref
             .read(inputProvider.notifier)
@@ -61,83 +58,51 @@ class BitcoinFeeSelector extends HookConsumerWidget {
       return null;
     }, [feeOptions.length]);
 
-    return BoxShadowCard(
-      color: context.colors.altScreenSurface,
-      borderRadius: BorderRadius.circular(12),
-      bordered: !darkMode,
-      borderColor: context.colors.cardOutlineColor,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ExpandablePanelHeader(
-            isExpanded: isExpanded,
-            state: feeOptionsAsync,
-            title: context.loc.sendAssetReviewScreenConfirmPriorityTitle,
+    setupFeeOptionsErrorHandler(context, ref, feeOptionsProvider);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
           ),
-          feeOptionsAsync.maybeWhen(
-            error: (error, _) => Container(
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 12),
-              child: ErrorLabel(
-                text: error is ExceptionLocalized
-                    ? error.toLocalizedString(context)
-                    : context.loc.errorWhilePreparingFeeOptions,
-              ),
-            ),
-            orElse: () => const SizedBox.shrink(),
+          padding: EdgeInsets.zero,
+          itemCount: feeOptions.length,
+          itemBuilder: (_, index) {
+            final feeItem = feeOptions[index];
+            return _SelectionItem(
+              item: feeItem,
+              isSelected: selectedFeeOption == feeItem,
+              onPressed: (fee) => ref
+                  .read(inputProvider.notifier)
+                  .updateFeeAsset(fee.toFeeOptionModel()),
+            );
+          },
+        ),
+        if (!feeOptionsAsync.hasError) ...[
+          const SizedBox(height: 16),
+          //ANCHOR - Custom Fee
+          CustomBitcoinFeeInput(
+            arguments: args,
+            minFeeRateOption: minFeeRateOption,
           ),
-          if (isExpanded.value) ...[
-            Container(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-              decoration: BoxDecoration(
-                color: context.colors.altScreenSurface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 12),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 1.5,
-                    ),
-                    padding: EdgeInsets.zero,
-                    itemCount: feeOptions.length,
-                    itemBuilder: (_, index) {
-                      final feeItem = feeOptions[index];
-                      return _SelectionItem(
-                        item: feeItem,
-                        isSelected: selectedFeeOption == feeItem,
-                        onPressed: (fee) => ref
-                            .read(inputProvider.notifier)
-                            .updateFeeAsset(fee.toFeeOptionModel()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  //ANCHOR - Custom Fee
-                  CustomBitcoinFeeInput(
-                    arguments: args,
-                    minFeeRateOption: minFeeRateOption,
-                  )
-                ],
-              ),
-            ),
-          ]
         ],
-      ),
+      ],
     );
   }
 }
 
 class _SelectionItem extends ConsumerWidget {
-  const _SelectionItem(
-      {required this.item, required this.isSelected, required this.onPressed});
+  const _SelectionItem({
+    required this.item,
+    required this.isSelected,
+    required this.onPressed,
+  });
 
   final BitcoinFeeModel item;
   final bool isSelected;
@@ -145,80 +110,16 @@ class _SelectionItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final exchangeRate =
-        ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
-
-    final symbol = exchangeRate.currency.symbol;
-    return Material(
-      color: isSelected
-          ? context.colors.selectedFeeCard
-          : context.colors.unselectedFeeCard,
-      borderRadius: BorderRadius.circular(6),
-      child: InkWell(
+    return AquaCard.surface(
+      elevation: 0,
+      borderRadius: BorderRadius.circular(8),
+      child: AquaFeeTile(
+        title: item.label(context),
+        amountCrypto: context.loc.satsPerVByte(item.feeRateDisplay),
+        amountFiat: item.feeFiatDisplay,
+        colors: context.aquaColors,
+        isSelected: isSelected,
         onTap: () => onPressed(item),
-        borderRadius: BorderRadius.circular(6),
-        child: Ink(
-          padding: const EdgeInsets.only(
-            top: 8,
-            bottom: 14,
-            left: 10,
-            right: 10,
-          ),
-          decoration: isSelected
-              ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    width: 2,
-                    color: context.colors.sendAssetPrioritySelectedBorder,
-                  ),
-                )
-              : BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    width: 2,
-                    color: context.colors.sendAssetPriorityUnselectedBorder,
-                  ),
-                ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ANCHOR - Fee Priority
-              Text(
-                item.label(context),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: isSelected
-                      ? context.colors.sendAssetPrioritySelectedText
-                      : context.colors.onBackground,
-                ),
-              ),
-              const Spacer(),
-              //ANCHOR - Fiat Fee
-              Text(
-                '$symbol ${item.feeFiat.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? context.colors.sendAssetPrioritySelectedText
-                      : context.colors.onBackground,
-                ),
-              ),
-              //ANCHOR - Fee Rate
-              Text(
-                context.loc.satsPerVbyte(item.feeRate.toInt()),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  color: isSelected
-                      ? context.colors.sendAssetPrioritySelectedText
-                      : context.colors.onBackground,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

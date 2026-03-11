@@ -28,7 +28,11 @@ final storageProvider = FutureProvider<Isar>((ref) async {
         directory: dir.path,
       );
 
-  final migrationManager = IsarMigrationManager(isar, prefs);
+  final migrationManager = IsarMigrationManager(
+    isar,
+    prefs,
+  );
+
   await migrationManager.performMigrationIfNeeded();
 
   ref.onDispose(isar.close);

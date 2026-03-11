@@ -19,4 +19,8 @@ extension ReceiveAssetExtensions on Asset {
   bool get shouldAllowFiatToggleOnReceive {
     return isBTC || isLBTC || isLightning;
   }
+
+  bool get shouldShowRegenerateAddressOnReceive {
+    return isBTC || isLiquid;
+  }
 }

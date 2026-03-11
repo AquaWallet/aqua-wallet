@@ -1,6 +1,5 @@
 import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
-import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
@@ -9,10 +8,7 @@ final _logger = CustomLogger(FeatureFlag.export);
 
 mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
   void listenToExportTransactionHistoryEvents(
-    BuildContext context,
-    WidgetRef ref, {
-    bool removeWallet = false,
-  }) {
+      BuildContext context, WidgetRef ref) {
     ref.listen(
       exportTransactionDatabaseProvider,
       (_, value) => value.whenOrNull(
@@ -28,13 +24,6 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
             cancelButtonLabel: context.loc.exportTxnHistorySheetCancelButton,
             onConfirm:
                 ref.read(exportTransactionDatabaseProvider.notifier).export,
-            onCancel: () {
-              if (removeWallet) {
-                ref
-                    .read(walletRemoveRequestProvider.notifier)
-                    .requestWalletRemove();
-              }
-            },
           ),
           permissionRequired: () => showGenericAlertSheet(
             context: context,
@@ -73,13 +62,7 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
             title: context.loc.exportTxnHistorySuccessSheetTitle,
             message: context.loc.exportTxnHistorySuccessSheetMessage,
             confirmButtonLabel: context.loc.continueLabel,
-            onConfirm: () {
-              if (removeWallet) {
-                ref
-                    .read(walletRemoveRequestProvider.notifier)
-                    .requestWalletRemove();
-              }
-            },
+            onConfirm: () {},
           ),
         ),
         error: (error, stackTrace) {

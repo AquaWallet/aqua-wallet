@@ -36,6 +36,10 @@ Verify that GDK has been patched by the `make patch-ios-sim` command (this folde
 
 You can open emulator through Xcode, or from command-line: `make run-ios-emulator-mac`
 
+## Local development (VSCode)
+
+For non-nixos environment you'll need to provide correct path to `flutter/bin` folder by updating `flutterSdkPath` in the `.vscode/settings.json` as the current default is set to match nixos env. 
+
 # Troubleshooting
 
 - Always run commands from `Makefile` unless a dedicated command is not available there.

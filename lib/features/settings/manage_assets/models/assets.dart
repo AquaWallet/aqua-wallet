@@ -2,8 +2,10 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:ui_components/ui_components.dart';
 
 part 'assets.freezed.dart';
 part 'assets.g.dart';
@@ -17,6 +19,13 @@ class AssetIds {
   static const usdtSol = 'sol-usdt';
   static const usdtPol = 'pol-usdt';
   static const usdtTon = 'ton-usdt';
+
+  static const Map<String, String> tokenStandards = {
+    usdtEth: 'ERC-20',
+    usdtTrx: 'TRC-20',
+    usdtBep: 'BEP-20',
+    usdtSol: 'SPL',
+  };
 
   static String getAssetId(AssetType type, LiquidNetworkEnumType networkType) {
     switch (type) {
@@ -72,6 +81,10 @@ class AssetsResponse with _$AssetsResponse {
       _$AssetsResponseFromJson(json);
 }
 
+extension AssetsResponseExt on AssetsResponse {
+  List<Asset> get assets => data?.assets ?? [];
+}
+
 @freezed
 class AssetsResponseItem with _$AssetsResponseItem {
   factory AssetsResponseItem({
@@ -100,7 +113,7 @@ class Asset with _$Asset {
     @Default(false) bool isLiquid,
     @Default(false) bool isLBTC,
     @Default(false) bool isUSDt,
-    @Default('') String displayUnitPrefix,
+    String? tokenStandard,
   }) = _Asset;
 
   factory Asset.usdtLiquid({int amount = 0}) => Asset(
@@ -122,7 +135,6 @@ class Asset with _$Asset {
         isLiquid: true,
         isLBTC: true,
         amount: amount,
-        displayUnitPrefix: 'L-',
       );
 
   factory Asset.btc({int amount = 0}) => Asset(
@@ -138,7 +150,7 @@ class Asset with _$Asset {
       );
 
   factory Asset.usdtEth({int amount = 0}) => Asset(
-        name: 'Tether USDt',
+        name: 'Ethereum USDt',
         id: AssetIds.usdtEth,
         ticker: 'USDt',
         logoUrl: Svgs.ethUsdtAsset,
@@ -147,10 +159,11 @@ class Asset with _$Asset {
         isLBTC: false,
         isUSDt: true,
         amount: amount,
+        tokenStandard: AssetIds.tokenStandards[AssetIds.usdtEth],
       );
 
   factory Asset.usdtTrx({int amount = 0}) => Asset(
-        name: 'Tether USDt',
+        name: 'Tron USDt',
         id: AssetIds.usdtTrx,
         ticker: 'USDt',
         logoUrl: Svgs.tronUsdtAsset,
@@ -159,10 +172,11 @@ class Asset with _$Asset {
         isLBTC: false,
         isUSDt: true,
         amount: amount,
+        tokenStandard: AssetIds.tokenStandards[AssetIds.usdtTrx],
       );
 
   factory Asset.usdtBep({int amount = 0}) => Asset(
-        name: 'Tether USDt',
+        name: 'Binance USDt',
         id: AssetIds.usdtBep,
         ticker: 'USDt',
         logoUrl: Svgs.bepUsdtAsset,
@@ -171,10 +185,11 @@ class Asset with _$Asset {
         isLBTC: false,
         isUSDt: true,
         amount: amount,
+        tokenStandard: AssetIds.tokenStandards[AssetIds.usdtBep],
       );
 
   factory Asset.usdtSol({int amount = 0}) => Asset(
-        name: 'Tether USDt',
+        name: 'Solana USDt',
         id: AssetIds.usdtSol,
         ticker: 'USDt',
         logoUrl: Svgs.solUsdtAsset,
@@ -183,10 +198,11 @@ class Asset with _$Asset {
         isLBTC: false,
         isUSDt: true,
         amount: amount,
+        tokenStandard: AssetIds.tokenStandards[AssetIds.usdtSol],
       );
 
   factory Asset.usdtPol({int amount = 0}) => Asset(
-        name: 'Tether USDt',
+        name: 'Polygon USDt',
         id: AssetIds.usdtPol,
         ticker: 'USDt',
         logoUrl: Svgs.polUsdtAsset,
@@ -198,7 +214,7 @@ class Asset with _$Asset {
       );
 
   factory Asset.usdtTon({int amount = 0}) => Asset(
-        name: 'Tether USDt',
+        name: 'Ton USDt',
         id: AssetIds.usdtTon,
         ticker: 'USDt',
         logoUrl: Svgs.tonUsdtAsset,
@@ -212,7 +228,7 @@ class Asset with _$Asset {
   factory Asset.lightning({int amount = 0}) => Asset(
         name: 'Lightning',
         id: AssetIds.lightning,
-        ticker: 'Sats',
+        ticker: 'BTC',
         logoUrl: Svgs.lightningAsset,
         isDefaultAsset: true,
         isLiquid: false,
@@ -250,9 +266,16 @@ extension AssetExt on Asset {
   static String get lBtcMainnetTicker => 'L-BTC';
   static String get lBtcTestnetTicker => 'tL-BTC';
 
+  String get nameWithStandard {
+    if (tokenStandard != null && tokenStandard!.isNotEmpty) {
+      return '$name ($tokenStandard)';
+    }
+    return name;
+  }
+
   bool get isBTC => id == AssetIds.btc;
   bool get isLBTC => ticker == lBtcMainnetTicker || ticker == lBtcTestnetTicker;
-  bool get isLightning => this == Asset.lightning();
+  bool get isLightning => id == AssetIds.lightning;
 
   bool get isSwappable => isBTC || isLBTC;
   bool get isInternal => isSwappable || isUsdtLiquid;
@@ -262,6 +285,9 @@ extension AssetExt on Asset {
 
   /// any asset not denominated in sats
   bool get isNonSatsAsset => !isBTC && !isLBTC && !isLightning;
+
+  /// any asset denominated in sats
+  bool get isSatsAsset => isBTC || isLBTC || isLightning;
 
   bool get isUnknown => logoUrl == Svgs.unknownAsset;
   bool get selectable => !isBTC && !isLBTC && !isUSDt;
@@ -290,7 +316,7 @@ extension AssetExt on Asset {
   String get displayName {
     if (isBTC) return 'BTC';
     if (isLBTC) return 'L-BTC';
-    if (isLightning) return 'Sats';
+    if (isLightning) return 'L-Sats';
     if (isUSDt) return 'USDt';
     return ticker;
   }
@@ -339,7 +365,7 @@ extension AssetUsdtExt on Asset {
 
   // should show use all funds button
   bool get shouldShowUseAllFundsButton {
-    return !isLightning;
+    return !isLightning && !isAltUsdt;
   }
 
   // fee currency symbol
@@ -358,6 +384,36 @@ extension AssetUsdtExt on Asset {
       return 'Shift';
     }
     return '';
+  }
+
+  AssetUiModel toUiModel({
+    String? name,
+    String? displayUnit,
+    String? iconUrl,
+    String? amountCrypto,
+    String? amountFiat,
+  }) =>
+      AssetUiModel(
+        assetId: id,
+        name: name ?? this.name,
+        subtitle: displayUnit ?? ticker,
+        amount: amountCrypto ?? amount.toString(),
+        iconUrl: iconUrl ?? logoUrl,
+        amountFiat: amountFiat,
+        isUSDt: isUSDt,
+        isLBTC: isLBTC,
+      );
+
+  static Asset fromAssetId(String assetId) {
+    return switch (assetId) {
+      AssetIds.usdtEth => Asset.usdtEth(),
+      AssetIds.usdtTrx => Asset.usdtTrx(),
+      AssetIds.usdtBep => Asset.usdtBep(),
+      AssetIds.usdtSol => Asset.usdtSol(),
+      AssetIds.usdtPol => Asset.usdtPol(),
+      AssetIds.usdtTon => Asset.usdtTon(),
+      _ => Asset.usdtLiquid(),
+    };
   }
 }
 
@@ -391,4 +447,24 @@ extension CompatibleExt on Asset {
   }
 
   bool get hasCompatibleAssets => isLayerTwo || isAnyUsdt;
+}
+
+extension AssetDisplayTickerExt on Asset {
+  String get displayUnitPrefix {
+    if (isLBTC) return 'L-';
+    return '';
+  }
+
+  String getDisplayTicker(SupportedDisplayUnits displayUnit) {
+    if (!isSatsAsset) return ticker;
+    return '$displayUnitPrefix${displayUnit.value}';
+  }
+}
+
+extension AssetRedirectExt on Asset {
+  Asset get redirectAsset => switch (this) {
+        _ when isLightning => Asset.lbtc(),
+        _ when isAnyUsdt => Asset.usdtLiquid(),
+        _ => this
+      };
 }

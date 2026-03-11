@@ -70,6 +70,38 @@ class GdkSettingsNotifier extends AsyncNotifier<GdkSettingsEvent> {
   @override
   FutureOr<GdkSettingsEvent> build() async {
     final settings = await ref.read(liquidProvider).getSettings();
+    final userReferenceCurrency = ref.read(prefsProvider).referenceCurrency;
+    final userPriceSource = ref.read(prefsProvider).priceSource;
+
+    // If user has a saved currency preference, ensure GDK uses it
+    if (userReferenceCurrency != null &&
+        (settings.pricing?.currency?.toLowerCase() !=
+                userReferenceCurrency.toLowerCase() ||
+            settings.pricing?.exchange?.toLowerCase() !=
+                userPriceSource?.toLowerCase())) {
+      // Get the exchange rate from lookup (includes default source for the currency)
+      final currencyEnum = FiatCurrency.values.firstWhereOrNull(
+        (c) => c.value.toLowerCase() == userReferenceCurrency.toLowerCase(),
+      );
+      final exchangeRate =
+          currencyEnum != null ? currencyModelLookup[currencyEnum] : null;
+
+      if (exchangeRate != null) {
+        // Apply user's saved preference to GDK
+        final newGdkSettings = GdkSettingsEvent(
+          pricing: GdkPricing(
+            currency: exchangeRate.currency.value,
+            exchange: userPriceSource ?? exchangeRate.source.value,
+          ),
+        );
+        await ref.read(bitcoinProvider).changeSettings(newGdkSettings);
+        await ref.read(liquidProvider).changeSettings(newGdkSettings);
+
+        // Return the updated settings
+        return await ref.read(liquidProvider).getSettings();
+      }
+    }
+
     if (ref.read(prefsProvider).referenceCurrency == null &&
         settings.pricing?.currency != null) {
       // keep configured currency in pref state, if not already available
@@ -105,7 +137,10 @@ class GdkCurrenciesNotifier extends AsyncNotifier<GdkCurrencyData?> {
 }
 
 final exchangeRatesProvider = Provider<ReferenceExchangeRateProvider>((ref) {
-  final prefs = ref.watch(prefsProvider);
+  // Only watch the specific preferences that affect exchange rates
+  ref.watch(prefsProvider.select((p) => p.referenceCurrency));
+  ref.watch(prefsProvider.select((p) => p.priceSource));
+  final prefs = ref.read(prefsProvider);
   final availableCurrencies = ref.watch(gdkCurrenciesProvider).asData?.value;
   ref.watch(gdkSettingsProvider);
   return ReferenceExchangeRateProvider(ref, prefs, availableCurrencies);
@@ -121,7 +156,7 @@ class ReferenceExchangeRateProvider extends ChangeNotifier {
 
   List<ExchangeRate> get availableCurrencies {
     if (gdkAvailableCurrencies == null || gdkAvailableCurrencies!.all == null) {
-      return [currencyModelLookup[FiatCurrency.usd]!];
+      return [];
     }
 
     return currencyModelLookup.values
@@ -134,12 +169,34 @@ class ReferenceExchangeRateProvider extends ChangeNotifier {
   }
 
   ExchangeRate get currentCurrency {
-    return availableCurrencies.firstWhere(
-      (e) =>
-          e.currency.value.toLowerCase() ==
-          prefs.referenceCurrency?.toLowerCase(),
-      orElse: () => currencyModelLookup[FiatCurrency.usd]!,
-    );
+    final localCurrency = prefs.referenceCurrency?.toLowerCase();
+    final localSource = prefs.priceSource?.toLowerCase();
+
+    if (gdkAvailableCurrencies == null ||
+        gdkAvailableCurrencies?.perExchange == null ||
+        gdkAvailableCurrencies!.perExchange!.isEmpty) {
+      return usdCurrency;
+    }
+
+    for (final entry in gdkAvailableCurrencies!.perExchange!.entries) {
+      final source = entry.key.toLowerCase();
+      final currencies = (entry.value).map((c) => c.toLowerCase());
+
+      if (source == localSource && currencies.contains(localCurrency)) {
+        final currencyEnum = FiatCurrency.values.firstWhere(
+          (c) => c.value.toLowerCase() == localCurrency,
+          orElse: () => FiatCurrency.usd,
+        );
+        final sourceEnum = ExchangeRateSource.values.firstWhere(
+          (s) => s.value.toLowerCase() == localSource,
+          orElse: () => ExchangeRateSource.bitstamp,
+        );
+
+        return ExchangeRate(currencyEnum, sourceEnum);
+      }
+    }
+
+    return currencyModelLookup[FiatCurrency.usd]!;
   }
 
   ExchangeRate get usdCurrency {
@@ -149,26 +206,41 @@ class ReferenceExchangeRateProvider extends ChangeNotifier {
     );
   }
 
-  List<ExchangeRateSource> get sourcesForCurrentCurrency {
+  List<ExchangeRateSource> sourcesForCurrentCurrency(String referenceCurrency) {
+    if (gdkAvailableCurrencies == null ||
+        gdkAvailableCurrencies!.perExchange == null) {
+      return [];
+    }
+
+    final perExchange = gdkAvailableCurrencies!.perExchange!;
     return [
       ExchangeRateSource.bitfinex,
       ExchangeRateSource.bitstamp,
       ExchangeRateSource.bullbitcoin,
       ExchangeRateSource.coingecko,
       ExchangeRateSource.kraken
-    ]
-        .where((source) =>
-            gdkAvailableCurrencies!.perExchange!.containsKey(source.value) &&
-            gdkAvailableCurrencies!.perExchange![source.value]!
-                .contains(prefs.referenceCurrency))
-        .toList();
+    ].where(
+      (source) {
+        return perExchange.containsKey(source.value) &&
+            perExchange[source.value]?.contains(
+                  referenceCurrency.toUpperCase(),
+                ) ==
+                true;
+      },
+    ).toList();
   }
 
   Future<void> setReferenceCurrency(ExchangeRate er) async {
-    await ref.read(gdkSettingsProvider.notifier).change(GdkSettingsEvent(
-        pricing: GdkPricing(
-            currency: er.currency.value, exchange: er.source.value)));
+    await ref.read(gdkSettingsProvider.notifier).change(
+          GdkSettingsEvent(
+            pricing: GdkPricing(
+              currency: er.currency.value,
+              exchange: er.source.value,
+            ),
+          ),
+        );
     prefs.setReferenceCurrency(er.currency.value);
+    prefs.setPriceSource(er.source.value);
     notifyListeners();
   }
 }

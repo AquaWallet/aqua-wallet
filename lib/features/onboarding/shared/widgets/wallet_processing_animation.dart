@@ -1,13 +1,14 @@
-import 'package:aqua/config/constants/animations.dart' as animation;
+import 'dart:async';
+
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:lottie/lottie.dart';
-import 'package:aqua/config/config.dart';
+import 'package:ui_components/ui_components.dart';
 
 enum WalletProcessType {
   create,
-  restore,
+  switchWallet,
+  deleteWallet,
 }
 
 class WalletProcessingAnimation extends HookConsumerWidget {
@@ -21,39 +22,76 @@ class WalletProcessingAnimation extends HookConsumerWidget {
       Future.microtask(() {
         ref.read(systemOverlayColorProvider(context)).forceLight();
       });
-      return null;
+      return () {
+        Future.microtask(() {
+          ref.read(systemOverlayColorProvider(context)).themeBased();
+        });
+      };
+    }, []);
+
+    final animationTitle =
+        useMemoized(() => _getAnimationTitle(context, type), [type]);
+
+    final dots = useState('.');
+
+    useEffect(() {
+      final timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+        dots.value = dots.value == '...' ? '.' : '${dots.value}.';
+      });
+      return timer.cancel;
     }, []);
 
     return PopScope(
       canPop: false,
       child: Scaffold(
+        backgroundColor: AquaPrimitiveColors.aquaBlue300,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Lottie.asset(
-                animation.walletProcessing,
-                repeat: true,
-                width: 132.0,
-                height: 132.0,
-                frameRate: const FrameRate(120),
-                fit: BoxFit.contain,
+              //ANCHOR - Logo
+              AquaIcon.aquaLogo(
+                size: 32,
+                color: AquaPrimitiveColors.palatinateBlue750,
               ),
-              const SizedBox(height: 26.0),
-              Text(
-                type == WalletProcessType.create
-                    ? context.loc.walletCreateAnimationTitle
-                    : context.loc.walletRestoreAnimationTitle,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 20.0,
-                      color: Theme.of(context).colors.onBackground,
+              const SizedBox(height: 24.0),
+              //ANCHOR - Just a moment
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AquaText.h3SemiBold(
+                      text: context.loc.commonJustAMoment,
+                      color: AquaPrimitiveColors.palatinateBlue750),
+                  SizedBox(
+                    width: 30,
+                    child: AquaText.h3SemiBold(
+                      text: dots.value,
+                      color: AquaPrimitiveColors.palatinateBlue750,
                     ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 8.0),
+              AquaText.body1Medium(
+                  color: AquaPrimitiveColors.palatinateBlue750,
+                  text: animationTitle,
+                  textAlign: TextAlign.center),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String _getAnimationTitle(BuildContext context, WalletProcessType type) {
+    switch (type) {
+      case WalletProcessType.create:
+        return context.loc.walletProcessingCreateMessage;
+      case WalletProcessType.switchWallet:
+        return context.loc.walletSwitchAnimationTitle;
+      case WalletProcessType.deleteWallet:
+        return context.loc.walletDeleteAnimationTitle;
+    }
   }
 }

@@ -14,6 +14,7 @@ import 'mocks/mocks.dart';
 
 const kTestFilePath = 'mock_file_path';
 const _kTestEncryptedData = 'encrypted_data';
+const kTestWalletId = 'test-wallet-id';
 
 final originalMap = {
   DataTransferService.keyTransactions:
@@ -198,8 +199,11 @@ void main() {
 
       test('import with different account should throw error', () async {
         // Export mock data
-        when(() => mockSecureStorageProvider.get(StorageKeys.mnemonic))
-            .thenAnswer((_) async => Future.value((kFakeMnemonic, null)));
+        when(() => mockSecureStorageProvider.get(StorageKeys.currentWalletId))
+            .thenAnswer((_) async => (kTestWalletId, null));
+        when(() => mockSecureStorageProvider
+                .get(StorageKeys.mnemonic(kTestWalletId)))
+            .thenAnswer((_) async => (kFakeMnemonic, null));
         when(() => mockIoProvider.writeToDocuments(
               any(),
               fileName: any(named: 'fileName'),
@@ -223,8 +227,11 @@ void main() {
             .thenAnswer((_) => Future.value(kTestFilePath));
         when(() => mockIoProvider.readFromDocuments(filePath: kTestFilePath))
             .thenAnswer((_) => Future.value(encrypted));
-        when(() => mockSecureStorageProvider.get(StorageKeys.mnemonic))
-            .thenAnswer((_) async => Future.value(('diff-mnemonic', null)));
+        when(() => mockSecureStorageProvider.get(StorageKeys.currentWalletId))
+            .thenAnswer((_) async => (kTestWalletId, null));
+        when(() => mockSecureStorageProvider
+                .get(StorageKeys.mnemonic(kTestWalletId)))
+            .thenAnswer((_) async => ('diff-mnemonic', null));
         container.invalidate(encryptionProvider);
 
         expect(

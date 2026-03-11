@@ -6,6 +6,7 @@ class SettingsScreenKeys {
   static const settingsLanguageButton = Key("language-button");
   static const settingsReferenceRateButton = Key("reference-rate-button");
   static const settingsRegionButton = Key("region-button");
+  static const settingsWalletButton = Key("wallet-button");
 
   static const settingsHideBalancesButton = Key("hide-balances-button");
   static const settingsDisplayUnitButton = Key("display-unit-button");
@@ -15,6 +16,7 @@ class SettingsScreenKeys {
   static const settingsBlockExplorerButton = Key("block-explorer-button");
   static const settingsElectrumServerButton = Key("electrum-server-button");
 
+  static const settingsWalletDetailsButton = Key("wallet-details-button");
   static const settingsManageAssetsButton = Key("manage-assets-button");
   static const settingsViewSeedPhraseButton = Key("view-seed-phrase-button");
   static const settingsWatchOnlyButton = Key("watch-only-button");

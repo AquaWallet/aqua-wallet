@@ -1,3 +1,4 @@
+import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/data/provider/formatter_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -10,13 +11,18 @@ final sideswapInputStateProvider = AutoDisposeStateNotifierProvider<
   final receiveAsset = ref.read(manageAssetsProvider).isUsdtEnabled
       ? assets.firstWhereOrNull((e) => e.isUSDt)
       : assets.firstWhereOrNull((e) => e.isBTC);
+  final formatter = ref.read(formatProvider);
   final deliverAssetBalance = deliverAsset != null
-      ? ref.read(formatterProvider).convertAssetAmountToDisplayUnit(
-          amount: deliverAsset.amount, precision: deliverAsset.precision)
+      ? formatter.formatAssetAmount(
+          amount: deliverAsset.amount,
+          asset: deliverAsset,
+        )
       : '';
   final receiveAssetBalance = receiveAsset != null
-      ? ref.read(formatterProvider).convertAssetAmountToDisplayUnit(
-          amount: receiveAsset.amount, precision: receiveAsset.precision)
+      ? formatter.formatAssetAmount(
+          amount: receiveAsset.amount,
+          asset: receiveAsset,
+        )
       : '';
 
   final initialState = SideswapInputState(
@@ -39,22 +45,25 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
   final AutoDisposeRef ref;
 
   void setDeliverAsset(Asset asset) {
+    final balance = ref.read(formatProvider).formatAssetAmount(
+          amount: asset.amount,
+          asset: asset,
+        );
+
     final swappableAssets = ref.read(swapAssetsProvider).swappableAssets(asset);
+
     if (state.receiveAsset != null &&
         !swappableAssets.contains(state.receiveAsset)) {
       setReceiveAsset(swappableAssets.first);
     }
 
     state = state.copyWith(
+      deliverAsset: asset,
       deliverAmount: '',
-      deliverAmountSatoshi: 0,
       receiveAmount: '',
       receiveAmountSatoshi: 0,
-      deliverAsset: asset,
-      deliverAssetBalance: ref
-          .watch(formatterProvider)
-          .convertAssetAmountToDisplayUnit(
-              amount: asset.amount, precision: asset.precision),
+      deliverAmountSatoshi: 0,
+      deliverAssetBalance: balance,
     );
   }
 
@@ -66,17 +75,17 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
       receiveAmountSatoshi: 0,
       receiveAsset: asset,
       receiveAssetBalance: ref
-          .watch(formatterProvider)
-          .convertAssetAmountToDisplayUnit(
-              amount: asset.amount, precision: asset.precision),
+          .read(formatProvider)
+          .formatAssetAmount(amount: asset.amount, asset: asset),
     );
   }
 
   void setDeliverAmount(String? value) {
     if (state.deliverAsset != null) {
-      final satoshi = ref.read(formatterProvider).parseAssetAmountDirect(
+      final satoshi = ref.read(formatterProvider).parseAssetAmountToSats(
             amount: value?.isNotEmpty ?? false ? value! : 0.toString(),
             precision: state.deliverAsset!.precision,
+            asset: state.deliverAsset!,
           );
 
       state = state.copyWith(
@@ -88,9 +97,10 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
 
   void setReceiveAmount(String? value) {
     if (state.receiveAsset != null) {
-      final satoshi = ref.read(formatterProvider).parseAssetAmountDirect(
+      final satoshi = ref.read(formatterProvider).parseAssetAmountToSats(
             amount: value?.isNotEmpty ?? false ? value! : 0.toString(),
             precision: state.receiveAsset!.precision,
+            asset: state.receiveAsset!,
           );
 
       state = state.copyWith(
@@ -107,13 +117,23 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
   }
 
   void setMaxDeliverAmount() {
-    if (state.deliverAsset != null) {
-      setDeliverAmount(state.deliverAssetBalance);
+    final asset = state.deliverAsset;
+    if (asset != null) {
+      final formatter = ref.read(formatterProvider);
+      final displayAmount = formatter.convertAssetAmountToDisplayUnit(
+        amount: asset.amount,
+        asset: asset,
+      );
+      state = state.copyWith(
+        deliverAmount: displayAmount,
+        deliverAmountSatoshi: asset.amount,
+      );
     }
   }
 
   // NOTE: Only used for testing
   void setMinDeliverAmount() {
+    final formatter = ref.read(formatProvider);
     final asset = state.deliverAsset;
     if (asset != null) {
       final status = ref.read(sideswapStatusStreamResultStateProvider);
@@ -125,10 +145,10 @@ class SideswapInputStateNotifier extends StateNotifier<SideswapInputState> {
           : ref.read(minPegOutAmountWithFeeProvider);
       final feeAmount = (minPegAmount * (serviceFee * 2) / 100).ceil();
       final minPegAmountWithFee = minPegAmount + feeAmount;
-      final amount = ref.read(formatterProvider).formatAssetAmountDirect(
-            amount: minPegAmountWithFee,
-            precision: asset.precision,
-          );
+      final amount = formatter.formatAssetAmount(
+        amount: minPegAmountWithFee,
+        asset: asset,
+      );
       setDeliverAmount(amount);
     }
   }

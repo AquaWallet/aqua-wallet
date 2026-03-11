@@ -3,13 +3,20 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:moment_dart/moment_dart.dart';
 import 'package:ui_components/ui_components.dart';
 
+enum AquaNotificationType {
+  info,
+  success,
+  warning,
+  danger,
+}
+
 class AquaNotificationItem extends HookWidget {
   const AquaNotificationItem({
     super.key,
     required this.title,
     required this.subtitle,
     required this.timestamp,
-    this.icon,
+    this.type = AquaNotificationType.info,
     this.onTap,
     this.colors,
     this.isRead = false,
@@ -17,22 +24,57 @@ class AquaNotificationItem extends HookWidget {
 
   final String title;
   final String subtitle;
-  final Widget? icon;
   final DateTime timestamp;
   final VoidCallback? onTap;
   final AquaColors? colors;
   final bool isRead;
+  final AquaNotificationType type;
 
   @override
   Widget build(BuildContext context) {
+    Widget? icon;
+    Color? backgroundIconColor;
+    switch (type) {
+      case AquaNotificationType.info:
+        icon = AquaIcon.pending(
+          size: 18,
+          color: colors?.textTertiary,
+        );
+        backgroundIconColor = colors?.surfaceSecondary;
+        break;
+      case AquaNotificationType.success:
+        icon = AquaIcon.checkCircle(
+          size: 18,
+          color: colors?.surfacePrimary,
+        );
+        backgroundIconColor = colors?.accentBrand;
+        break;
+      case AquaNotificationType.warning:
+        icon = AquaIcon.warning(
+          size: 18,
+          color: colors?.surfacePrimary,
+        );
+        backgroundIconColor = colors?.accentWarning;
+        break;
+      case AquaNotificationType.danger:
+        icon = AquaIcon.danger(
+          size: 18,
+          color: colors?.surfacePrimary,
+        );
+        backgroundIconColor = colors?.accentDanger;
+        break;
+    }
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
       color: Theme.of(context).colorScheme.surface,
       shape: const ContinuousRectangleBorder(),
       child: InkWell(
-        onTap: onTap,
-        splashFactory: NoSplash.splashFactory,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call())
+            : null,
+        splashFactory: InkRipple.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {
           if (state.isHovered) {
             return Colors.transparent;
@@ -48,22 +90,15 @@ class AquaNotificationItem extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (icon != null) ...{
-                    Container(
-                      padding: const EdgeInsets.all(11),
-                      decoration: BoxDecoration(
-                        color: colors?.surfaceSecondary,
-                        border: Border.all(
-                          color: colors?.surfaceBorderSecondary ??
-                              Colors.transparent,
-                          width: 1,
-                        ),
-                        shape: BoxShape.circle,
-                      ),
-                      child: icon!,
+                  Container(
+                    padding: const EdgeInsets.all(11),
+                    decoration: BoxDecoration(
+                      color: backgroundIconColor,
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(width: 16),
-                  },
+                    child: icon,
+                  ),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

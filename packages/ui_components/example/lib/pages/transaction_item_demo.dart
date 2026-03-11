@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ui_components/components/transaction/transaction_item_text.dart';
 import 'package:ui_components/ui_components.dart';
 import 'package:ui_components_playground/models/models.dart';
 import 'package:ui_components_playground/shared/shared.dart';
@@ -134,9 +135,9 @@ class _AssetTransactionsDemoSection extends StatelessWidget {
                 ),
                 const SizedBox(width: 20),
                 _SingleTransactionSection(
-                  title: 'Refund',
+                  title: 'Redeposit',
                   assetTicker: assetTicker,
-                  isRefund: true,
+                  isRedeposit: true,
                   theme: theme,
                 ),
                 const SizedBox(width: 20),
@@ -190,6 +191,7 @@ class _TransactionItemDemoSection extends StatelessWidget {
             amountCrypto: '0.04738384',
             amountFiat: '\$4,558.51',
             onTap: () => debugPrint('Transaction item tapped'),
+            text: _getTransactionItemTexts(context),
           ),
           const SizedBox(height: 20),
           AquaTransactionItem.send(
@@ -200,6 +202,7 @@ class _TransactionItemDemoSection extends StatelessWidget {
             amountCrypto: '-0.04738384',
             amountFiat: '-\$4,558.51',
             onTap: () => debugPrint('Transaction item tapped'),
+            text: _getTransactionItemTexts(context),
           ),
           const SizedBox(height: 20),
           AquaTransactionItem.swap(
@@ -212,6 +215,7 @@ class _TransactionItemDemoSection extends StatelessWidget {
             amountCrypto: '-0.04738384',
             amountFiat: '-\$4,558.51',
             onTap: () => debugPrint('Transaction item tapped'),
+            text: _getTransactionItemTexts(context),
           ),
           const SizedBox(height: 20),
           AquaTransactionItem.swap(
@@ -224,6 +228,7 @@ class _TransactionItemDemoSection extends StatelessWidget {
             amountCrypto: '-0.04738384',
             amountFiat: '-\$4,558.51',
             onTap: () => debugPrint('Transaction item tapped'),
+            text: _getTransactionItemTexts(context),
           ),
           if (includeUsdt) ...[
             const SizedBox(height: 20),
@@ -237,6 +242,7 @@ class _TransactionItemDemoSection extends StatelessWidget {
               amountCrypto: '-0.04738384',
               amountFiat: '-\$4,558.51',
               onTap: () => debugPrint('Transaction item tapped'),
+              text: _getTransactionItemTexts(context),
             ),
             const SizedBox(height: 20),
             AquaTransactionItem.swap(
@@ -249,12 +255,13 @@ class _TransactionItemDemoSection extends StatelessWidget {
               amountCrypto: '-0.04738384',
               amountFiat: '-\$4,558.51',
               onTap: () => debugPrint('Transaction item tapped'),
+              text: _getTransactionItemTexts(context),
             ),
           ],
           if (assetId != null) ...[
             const SizedBox(height: 20),
             AquaTransactionItem.receive(
-              assetId: assetId,
+              iconAssetId: assetId,
               isPending: isPending,
               isFailed: isFailed,
               colors: theme.colors,
@@ -262,10 +269,11 @@ class _TransactionItemDemoSection extends StatelessWidget {
               amountCrypto: '-0.04738384',
               amountFiat: '-\$4,558.51',
               onTap: () => debugPrint('Transaction item tapped'),
+              text: _getTransactionItemTexts(context),
             ),
             const SizedBox(height: 20),
             AquaTransactionItem.send(
-              assetId: assetId,
+              iconAssetId: assetId,
               isPending: isPending,
               isFailed: isFailed,
               colors: theme.colors,
@@ -273,6 +281,7 @@ class _TransactionItemDemoSection extends StatelessWidget {
               amountCrypto: '-0.04738384',
               amountFiat: '-\$4,558.51',
               onTap: () => debugPrint('Transaction item tapped'),
+              text: _getTransactionItemTexts(context),
             ),
           ]
         ],
@@ -286,13 +295,13 @@ class _SingleTransactionSection extends StatelessWidget {
     required this.theme,
     required this.title,
     required this.assetTicker,
-    this.isRefund = false,
+    this.isRedeposit = false,
   });
 
   final AppTheme theme;
   final String title;
   final String assetTicker;
-  final bool isRefund;
+  final bool isRedeposit;
 
   @override
   Widget build(BuildContext context) {
@@ -301,16 +310,17 @@ class _SingleTransactionSection extends StatelessWidget {
       child: Column(
         children: [
           AquaText.body1SemiBold(
-            text: isRefund ? 'Refund' : 'Insufficient Funds',
+            text: isRedeposit ? 'Redeposit' : 'Insufficient Funds',
           ),
           const SizedBox(height: 20),
-          if (isRefund) ...{
-            AquaTransactionItem.refund(
+          if (isRedeposit) ...{
+            AquaTransactionItem.redeposit(
               colors: theme.colors,
               timestamp: kDate,
               amountCrypto: '0.04738384',
               amountFiat: '\$4,558.51',
               onTap: () => debugPrint('Transaction item tapped'),
+              text: _getTransactionItemTexts(context),
             ),
           } else ...{
             AquaTransactionItem.insufficientFunds(
@@ -319,10 +329,28 @@ class _SingleTransactionSection extends StatelessWidget {
               amountCrypto: '0.04738384',
               amountFiat: '\$4,558.51',
               onTap: () => debugPrint('Transaction item tapped'),
+              text: _getTransactionItemTexts(context),
             ),
           }
         ],
       ),
     );
   }
+}
+
+TransactionItemText _getTransactionItemTexts(BuildContext context) {
+  return const TransactionItemText(
+    failed: 'Failed',
+    insufficientFunds: 'Insufficient Funds',
+    addFunds: 'Add Funds',
+    redeposited: 'Redeposited',
+    refund: 'Refund',
+    toppingUp: 'Topping Up',
+    sending: 'Sending',
+    sent: 'Sent',
+    receiving: 'Receiving',
+    received: 'Received',
+    swapping: 'Swapping',
+    swapped: 'Swapped',
+  );
 }

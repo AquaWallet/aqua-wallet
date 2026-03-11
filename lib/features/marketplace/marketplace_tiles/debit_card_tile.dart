@@ -1,9 +1,9 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
-import 'package:aqua/features/marketplace/widgets/marketplace_button.dart';
+import 'package:aqua/features/marketplace/widgets/marketplace_tile.dart';
 import 'package:aqua/features/private_integrations/debit_card/debit_card.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:ui_components/ui_components.dart';
 
 class DebitCardTile extends ConsumerWidget {
   const DebitCardTile({super.key});
@@ -43,12 +43,16 @@ class _DebitCardMarketplaceTile extends StatelessWidget {
   final VoidCallback? onPressed;
 
   @override
-  Widget build(BuildContext context) => MarketplaceButton(
+  Widget build(BuildContext context) => MarketplaceTile(
         title: context.loc.marketplaceScreenDolphinCardButton,
         subtitle: subtitle ??
             context.loc.marketplaceScreenDolphinCardButtonDescription,
-        icon: Svgs.marketplaceBankings,
+        iconBuilder: ({color, required size}) => AquaIcon.creditCard(
+          color: color,
+          size: size,
+        ),
         onPressed: onPressed,
+        isAuthRequired: true,
         isDisabled: isDisabled,
       );
 }

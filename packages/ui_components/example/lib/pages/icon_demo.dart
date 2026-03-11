@@ -103,6 +103,11 @@ class _GeneralIconDemoSection extends StatelessWidget {
     AquaIcon.trendUp,
     AquaIcon.sidebarVisibilityLeft,
     AquaIcon.sidebarVisibilityRight,
+    AquaIcon.selectAll,
+    AquaIcon.copyMultiple,
+    AquaIcon.btcpay,
+    AquaIcon.telegram,
+    AquaIcon.note,
   ];
 
   @override
@@ -140,6 +145,7 @@ class _LargeCurrencyIconDemoSection extends StatelessWidget {
     AquaAssetIcon.usdtBinance,
     AquaAssetIcon.usdtSolana,
     AquaAssetIcon.usdtTon,
+    AquaAssetIcon.mexas,
     AquaAssetIcon.unknown,
   ];
 
@@ -173,6 +179,7 @@ class _SmallCurrencyIconDemoSection extends StatelessWidget {
     AquaAssetIcon.tron,
     AquaAssetIcon.solana,
     AquaAssetIcon.ton,
+    AquaAssetIcon.mexas,
   ];
 
   @override

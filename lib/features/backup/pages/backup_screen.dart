@@ -29,7 +29,7 @@ class WalletBackupScreen extends HookConsumerWidget {
         if (action != null) {
           context.pushReplacement(
             WalletRecoveryPhraseScreen.routeName,
-            extra: RecoveryPhraseScreenArguments(
+            extra: const RecoveryPhraseScreenArguments(
               isOnboarding: true,
             ),
           );

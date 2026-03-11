@@ -1,9 +1,9 @@
 import 'package:aqua/features/changelly/changelly_service.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SwapOrderNotifier
     extends AutoDisposeFamilyAsyncNotifier<SwapOrderCreationState, SwapArgs> {
@@ -107,7 +107,8 @@ class SwapOrderNotifier
     _logger.debug('Creating send order with request: $request');
     try {
       final order = await _service.createSendOrder(request);
-      await _service.cacheOrderToDatabase(order.id, order);
+      final walletId = await ref.read(currentWalletIdOrThrowProvider.future);
+      await _service.cacheOrderToDatabase(order.id, order, walletId);
       state = AsyncValue.data(state.value!.copyWith(order: order));
       _logger.debug('Send order created successfully: ${order.id}');
     } catch (e, stackTrace) {
@@ -121,7 +122,8 @@ class SwapOrderNotifier
     _logger.debug('Creating receive order with request: $request');
     try {
       final order = await _service.createReceiveOrder(request);
-      await _service.cacheOrderToDatabase(order.id, order);
+      final walletId = await ref.read(currentWalletIdOrThrowProvider.future);
+      await _service.cacheOrderToDatabase(order.id, order, walletId);
       state = AsyncValue.data(state.value!.copyWith(order: order));
       _logger.debug('Receive order created successfully: ${order.id}');
     } catch (e, stackTrace) {

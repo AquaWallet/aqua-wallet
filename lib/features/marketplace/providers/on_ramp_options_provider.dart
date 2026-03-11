@@ -27,7 +27,7 @@ class OnRampOptionsNotifier
   }
 
   void _init() {
-    final region = ref.watch(regionsProvider).currentRegion;
+    final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
 
     if (region == null) {
       assert(false);

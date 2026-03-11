@@ -27,7 +27,7 @@ extension DateTimeEx on DateTime {
   String formatFullDate() => DateFormat('MMMM d, yyyy').format(localDate);
 
   String get formatFullDateTime =>
-      DateFormat('MMMM d, yyyy hh:mm a').format(localDate);
+      DateFormat('MMM d, yyyy HH:mm').format(localDate);
 
   String formatShortDayOfWeek() => DateFormat('EEE').format(localDate);
 
@@ -70,6 +70,8 @@ extension DateTimeEx on DateTime {
   String yMMMd() => DateFormat('yMMMd').format(localDate);
 
   String yMMMdHm() => DateFormat('yMMMd HH:mm').format(localDate);
+
+  String mmMdyyyyHmma() => DateFormat('MMM d, yyyy h:mm a').format(localDate);
 
   String HHmma() => DateFormat('HH:mm a').format(localDate);
 

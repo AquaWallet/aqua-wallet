@@ -392,6 +392,95 @@ void main() {
         expect(latestFocusAction(container), isNull);
         container.dispose();
       });
+
+      test(
+          'should emit FocusAction.next when shorter word is selected even if longer word exists',
+          () async {
+        final container = makeContainer();
+
+        // Wait for the word list to be ready
+        await container.read(walletHintWordListProvider.future);
+
+        // Ensure the FocusActionNotifier is built by reading it first
+        container.read(focusActionProvider);
+
+        // Add words to test the specific bug: "bus" and "business"
+        // Note: We need to override the word list for this specific test
+        final containerWithBus = ProviderContainer(overrides: [
+          walletHintWordListProvider
+              .overrideWith((_) => Future.value(['bus', 'business', 'cat'])),
+        ]);
+
+        await containerWithBus.read(walletHintWordListProvider.future);
+        containerWithBus.read(focusActionProvider);
+
+        // Select "bus" as a suggestion, even though "business" exists
+        containerWithBus
+            .read(mnemonicWordInputStateProvider(0).notifier)
+            .update(
+              text: 'bus',
+              isSuggestion: true,
+            );
+
+        // Should emit FocusActionNext because user explicitly selected "bus"
+        expect(
+          containerWithBus.read(focusActionProvider),
+          isA<FocusActionNext>(),
+        );
+        containerWithBus.dispose();
+      });
+
+      test(
+          'should NOT emit action when typing manually after selecting a suggestion',
+          () async {
+        final container = makeContainer();
+
+        // Wait for the word list to be ready
+        await container.read(walletHintWordListProvider.future);
+
+        // Ensure the FocusActionNotifier is built by reading it first
+        container.read(focusActionProvider);
+
+        // First, select "cactus" as a suggestion (this moves focus)
+        container.read(mnemonicWordInputStateProvider(0).notifier).update(
+              text: 'cactus',
+              isSuggestion: true,
+            );
+
+        // Clear the focus action
+        container.read(focusActionProvider.notifier).state = null;
+
+        // Now simulate the user coming back to the field and deleting back to "ca"
+        // then typing "t" to make "cat"
+        // This should NOT trigger focus movement because isSuggestion should be false
+        // Delete "tus" from "cactus" to get "ca"
+        container.read(mnemonicWordInputStateProvider(0).notifier).onKeyPressed(
+              MnemonicKeyboardKey.backspace(),
+            ); // "cactu"
+        container.read(mnemonicWordInputStateProvider(0).notifier).onKeyPressed(
+              MnemonicKeyboardKey.backspace(),
+            ); // "cact"
+        container.read(mnemonicWordInputStateProvider(0).notifier).onKeyPressed(
+              MnemonicKeyboardKey.backspace(),
+            ); // "cac"
+        container.read(mnemonicWordInputStateProvider(0).notifier).onKeyPressed(
+              MnemonicKeyboardKey.backspace(),
+            ); // "ca"
+        // Now type "t" to make "cat"
+        container.read(mnemonicWordInputStateProvider(0).notifier).onKeyPressed(
+              const MnemonicKeyboardKey.letter(text: 't'),
+            );
+
+        // Should NOT emit action because typing manually sets isSuggestion to false
+        expect(latestFocusAction(container), isNull);
+
+        // Verify the state has isSuggestion: false
+        final state = container.read(mnemonicWordInputStateProvider(0));
+        expect(state.text, 'cat');
+        expect(state.isSuggestion, isFalse);
+
+        container.dispose();
+      });
     });
   });
 }

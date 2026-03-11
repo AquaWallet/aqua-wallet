@@ -1,3 +1,4 @@
+import 'package:aqua/features/settings/region/models/region.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -5,49 +6,333 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'exchange_rate.freezed.dart';
 part 'exchange_rate.g.dart';
 
-enum FiatCurrency {
-  usd('USD', '\$'),
-  eur('EUR', '€'),
-  cad('CAD', '\$'),
-  gbp('GBP', '£'),
-  mxn('MXN', '\$'),
-  aud('AUD', '\$'),
-  brl('BRL', 'R\$'),
-  chf('CHF', 'CHF'),
-  clp('CLP', '\$'),
-  cny('CNY', '¥'),
-  czk('CZK', 'Kč'),
-  dkk('DKK', 'kr.'),
-  hkd('HKD', '\$'),
-  huf('HUF', 'Ft'),
-  inr('INR', '₹'),
-  isk('ISK', 'kr'),
-  jpy('JPY', '¥'),
-  krw('KRW', '₩'),
-  nzd('NZD', '\$'),
-  pln('PLN', 'zł'),
-  ron('RON', 'L'),
-  rub('RUB', '₽'),
-  sek('SEK', 'kr'),
-  sgd('SGD', '\$'),
-  thb('THB', '฿'),
-  turkishLira('TRY', '₺'),
-  twd('TWD', 'NT\$'),
-  ils('ILS', '₪'),
-  ars('ARS', '\$'),
-  ngn('NGN', '₦'),
-  lbp('LBP', 'ل.ل'),
-  myr('MYR', 'RM'),
-  vnd('VND', '₫'),
-  zar('ZAR', 'R'),
-  nok('NOK', 'kr');
+class CurrencyFormatSpec {
+  final String symbol;
+  final bool isSymbolLeading;
+  final String thousandsSeparator;
+  final String decimalSeparator;
+  final int decimalPlaces;
+  final String currencyCountryCode;
 
-  const FiatCurrency(this.value, [this.symbol = '']);
+  const CurrencyFormatSpec({
+    this.symbol = '',
+    this.isSymbolLeading = true,
+    this.thousandsSeparator = ',',
+    this.decimalSeparator = '.',
+    this.decimalPlaces = 2,
+    this.currencyCountryCode = 'US',
+  });
+
+  String get flagSvg => FlagHelper.getFlagPath(currencyCountryCode);
+}
+
+enum FiatCurrency {
+  usd(
+    'USD',
+    CurrencyFormatSpec(
+      symbol: '\$',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'US',
+    ),
+  ),
+  eur(
+    'EUR',
+    CurrencyFormatSpec(
+      symbol: '€',
+      isSymbolLeading: true,
+      thousandsSeparator: '.',
+      decimalSeparator: ',',
+      decimalPlaces: 2,
+      currencyCountryCode: 'EU',
+    ),
+  ),
+  cad(
+    'CAD',
+    CurrencyFormatSpec(
+      symbol: '\$',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'CA',
+    ),
+  ),
+  gbp(
+    'GBP',
+    CurrencyFormatSpec(
+      symbol: '£',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'GB',
+    ),
+  ),
+  chf(
+    'CHF',
+    CurrencyFormatSpec(
+      symbol: 'CHF ',
+      isSymbolLeading: true,
+      thousandsSeparator: '\'',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'CH',
+    ),
+  ),
+  aud(
+    'AUD',
+    CurrencyFormatSpec(
+      symbol: '\$',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'AU',
+    ),
+  ),
+  brl(
+    'BRL',
+    CurrencyFormatSpec(
+      symbol: 'R\$ ',
+      isSymbolLeading: true,
+      thousandsSeparator: '.',
+      decimalSeparator: ',',
+      decimalPlaces: 2,
+      currencyCountryCode: 'BR',
+    ),
+  ),
+  cny(
+    'CNY',
+    CurrencyFormatSpec(
+      symbol: '¥',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'CN',
+    ),
+  ),
+  czk(
+    'CZK',
+    CurrencyFormatSpec(
+      symbol: 'Kč',
+      isSymbolLeading: false,
+      thousandsSeparator: '\u2009\u2009',
+      decimalSeparator: ',',
+      decimalPlaces: 2,
+      currencyCountryCode: 'CZ',
+    ),
+  ),
+  dkk(
+    'DKK',
+    CurrencyFormatSpec(
+      symbol: 'kr',
+      isSymbolLeading: false,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'DK',
+    ),
+  ),
+  hkd(
+    'HKD',
+    CurrencyFormatSpec(
+      symbol: 'HK\$ ',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'HK',
+    ),
+  ),
+  ils(
+    'ILS',
+    CurrencyFormatSpec(
+      symbol: '₪',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'IL',
+    ),
+  ),
+  inr(
+    'INR',
+    CurrencyFormatSpec(
+      symbol: '₹',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'IN',
+    ),
+  ),
+  jpy(
+    'JPY',
+    CurrencyFormatSpec(
+      symbol: '¥',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'JP',
+    ),
+  ),
+  mxn(
+    'MXN',
+    CurrencyFormatSpec(
+      symbol: '\$',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'MX',
+    ),
+  ),
+  myr(
+    'MYR',
+    CurrencyFormatSpec(
+      symbol: 'RM',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'MY',
+    ),
+  ),
+  ngn(
+    'NGN',
+    CurrencyFormatSpec(
+      symbol: '₦',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'NG',
+    ),
+  ),
+  nok(
+    'NOK',
+    CurrencyFormatSpec(
+      symbol: 'kr ',
+      isSymbolLeading: true,
+      thousandsSeparator: '\u2009\u2009',
+      decimalSeparator: ',',
+      decimalPlaces: 2,
+      currencyCountryCode: 'NO',
+    ),
+  ),
+  nzd(
+    'NZD',
+    CurrencyFormatSpec(
+      symbol: 'NZ\$ ',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'NZ',
+    ),
+  ),
+  pln(
+    'PLN',
+    CurrencyFormatSpec(
+      symbol: 'zł',
+      isSymbolLeading: false,
+      thousandsSeparator: '\u2009\u2009',
+      decimalSeparator: ',',
+      decimalPlaces: 2,
+      currencyCountryCode: 'PL',
+    ),
+  ),
+  rub(
+    'RUB',
+    CurrencyFormatSpec(
+      symbol: '₽',
+      isSymbolLeading: false,
+      thousandsSeparator: '\u2009\u2009',
+      decimalSeparator: ',',
+      decimalPlaces: 2,
+      currencyCountryCode: 'RU',
+    ),
+  ),
+  sek(
+    'SEK',
+    CurrencyFormatSpec(
+      symbol: 'kr',
+      isSymbolLeading: false,
+      thousandsSeparator: '\u2009\u2009',
+      decimalSeparator: ',',
+      decimalPlaces: 2,
+      currencyCountryCode: 'SE',
+    ),
+  ),
+  sgd(
+    'SGD',
+    CurrencyFormatSpec(
+      symbol: 'S\$',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'SG',
+    ),
+  ),
+  thb(
+    'THB',
+    CurrencyFormatSpec(
+      symbol: '฿',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'TH',
+    ),
+  ),
+  turkishLira(
+    'TRY',
+    CurrencyFormatSpec(
+      symbol: '₺',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'TR',
+    ),
+  ),
+  vnd(
+    'VND',
+    CurrencyFormatSpec(
+      symbol: '₫',
+      isSymbolLeading: true,
+      thousandsSeparator: '.',
+      decimalSeparator: ',',
+      decimalPlaces: 2,
+      currencyCountryCode: 'VN',
+    ),
+  ),
+  zar(
+    'ZAR',
+    CurrencyFormatSpec(
+      symbol: 'R',
+      isSymbolLeading: true,
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 2,
+      currencyCountryCode: 'ZA',
+    ),
+  );
 
   final String value;
-  final String symbol;
+  final CurrencyFormatSpec format;
 
-  String toStringWithSymbol() => '$value ($symbol)';
+  const FiatCurrency(this.value, this.format);
+
+  String toStringWithSymbol() => '$value (${format.symbol})';
+
+  bool get isUsd => value == 'USD';
 }
 
 String currencyLabelLookup(FiatCurrency currency, BuildContext context) {
@@ -79,37 +364,49 @@ String currencyLabelLookup(FiatCurrency currency, BuildContext context) {
     FiatCurrency.turkishLira => context.loc.settingsScreenCurrencyLabelTRY,
     FiatCurrency.vnd => context.loc.settingsScreenCurrencyLabelVND,
     FiatCurrency.zar => context.loc.settingsScreenCurrencyLabelZAR,
-    _ => currency.symbol
   };
 
   return label;
 }
 
 enum ExchangeRateSource {
-  bitfinex('BITFINEX'),
-  bitstamp('BITSTAMP'),
-  kraken('KRAKEN'),
-  coingecko('COINGECKO'),
-  bullbitcoin('BULLBITCOIN');
+  bitfinex('BITFINEX', 'Bitfinex'),
+  bitstamp('BITSTAMP', 'Bitstamp'),
+  kraken('KRAKEN', 'Kraken'),
+  coingecko('COINGECKO', 'Coingecko'),
+  bullbitcoin('BULLBITCOIN', 'Bullbitcoin');
 
-  const ExchangeRateSource(this.value);
+  const ExchangeRateSource(this.value, this.displayName);
 
   final String value;
+  final String displayName;
 }
 
-class ExchangeRate {
-  final FiatCurrency currency;
-  final ExchangeRateSource source;
+@freezed
+class ExchangeRate with _$ExchangeRate {
+  const ExchangeRate._();
+
+  const factory ExchangeRate(
+    FiatCurrency currency,
+    ExchangeRateSource source,
+  ) = _ExchangeRate;
 
   String displayName(BuildContext context) {
     final label = currencyLabelLookup(currency, context);
-    final signAndCode = currency.symbol != currency.value
-        ? '(${currency.symbol} ${currency.value})'
-        : '(${currency.symbol})';
+    final signAndCode = currency.format.symbol != currency.value
+        ? '(${currency.format.symbol} ${currency.value})'
+        : '(${currency.format.symbol})';
     return '$label $signAndCode';
   }
 
-  const ExchangeRate(this.currency, this.source);
+  String shortName(BuildContext context) {
+    final signAndCode = currency.format.symbol != currency.value
+        ? currency.value
+        : currency.format.symbol;
+    return signAndCode;
+  }
+
+  String get svgPath => currency.format.flagSvg;
 }
 
 @freezed
@@ -124,4 +421,8 @@ class BitcoinFiatRatesResponse with _$BitcoinFiatRatesResponse {
 
   factory BitcoinFiatRatesResponse.fromJson(Map<String, dynamic> json) =>
       _$BitcoinFiatRatesResponseFromJson(json);
+}
+
+extension BitcoinFiatRatesResponseX on BitcoinFiatRatesResponse {
+  bool get isUsd => code == 'USD';
 }

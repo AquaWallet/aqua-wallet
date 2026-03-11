@@ -7,39 +7,23 @@ import 'package:dio/dio.dart';
 
 final _logger = CustomLogger(FeatureFlag.electrs);
 
-enum ElectrsServer { aqua, blockstream }
-
-String getElectrsUrl(NetworkType network, Env env,
-    {ElectrsServer server = ElectrsServer.blockstream}) {
-  switch (server) {
-    case ElectrsServer.blockstream:
-      String baseUrl = blockstreamInfoBaseUrl;
-      String envPath = env == Env.testnet ? '/testnet' : '';
-      switch (network) {
-        case NetworkType.bitcoin:
-          return '$baseUrl$envPath/api';
-        case NetworkType.liquid:
-          return env == Env.testnet
-              ? '$baseUrl/liquidtestnet/api'
-              : '$baseUrl/liquid/api';
-        case NetworkType.liquidTestnet:
-          return '$baseUrl/liquidtestnet/api';
-        default:
-          throw Exception('Unsupported network type');
-      }
-    case ElectrsServer.aqua:
-      switch (network) {
-        case NetworkType.liquid:
-          String baseUrl = aquaEsploraBaseUrl;
-          if (env == Env.testnet) {
-            throw Exception('Testnet not yet supported on aqua esplora');
-          }
-          return '$baseUrl/api/liquid';
-        case NetworkType.bitcoin:
-          throw Exception('Bitcoin not supported on aqua esplora');
-        default:
-          throw Exception('Unsupported network type');
-      }
+String getElectrsUrl(
+  NetworkType network,
+  Env env,
+) {
+  String baseUrl = blockstreamInfoBaseUrl;
+  String envPath = env == Env.testnet ? '/testnet' : '';
+  switch (network) {
+    case NetworkType.bitcoin:
+      return '$baseUrl$envPath/api';
+    case NetworkType.liquid:
+      return env == Env.testnet
+          ? '$baseUrl/liquidtestnet/api'
+          : '$baseUrl/liquid/api';
+    case NetworkType.liquidTestnet:
+      return '$baseUrl/liquidtestnet/api';
+    default:
+      throw Exception('Unsupported network type');
   }
 }
 
@@ -67,30 +51,22 @@ class ElectrsClient {
   }
 
   /// Returns transaction ID if broadcasted successfully
-  Future<String> broadcast(
-    String rawTx,
-    NetworkType network, {
-    bool useAquaNode = false,
-  }) async {
+  Future<String> broadcast(String rawTx, NetworkType network) async {
     final client = ref.read(dioProvider);
     try {
-      final electrumServerUrl = useAquaNode
-          ? getElectrsUrl(network, env, server: ElectrsServer.aqua)
-          : getElectrsUrl(network, env, server: ElectrsServer.blockstream);
-      final broadcastUrl = useAquaNode
-          ? '$electrumServerUrl/broadcast'
-          : '$electrumServerUrl/tx';
-      final payload = useAquaNode ? {'txhex': rawTx} : rawTx;
+      final electrumServerUrl = getElectrsUrl(network, env);
+      final broadcastUrl = '$electrumServerUrl/tx';
+      final payload = rawTx;
       final response = await client.post(broadcastUrl, data: payload);
       return response.data as String;
     } on DioException catch (e) {
-      throw _handleBroadcastError(e, ElectrsServer.blockstream);
+      throw _handleBroadcastError(e);
     }
   }
 
-  Exception _handleBroadcastError(DioException e, ElectrsServer source) {
+  Exception _handleBroadcastError(DioException e) {
     _logger.error(
-        "$source broadcast error: ${e.response?.statusCode}, ${e.response?.data}");
+        "broadcast error: ${e.response?.statusCode}, ${e.response?.data}");
 
     // Check if response data is a string (error message)
     if (e.response?.data is String) {
@@ -107,10 +83,6 @@ class ElectrsClient {
       if (errorData['error'] == 'txn-mempool-conflict') {
         return MempoolConflictTxBroadcastException();
       }
-    }
-
-    if (source == ElectrsServer.aqua) {
-      return AquaTxBroadcastException();
     }
 
     return e;
@@ -163,7 +135,6 @@ final fetchBlockHeightProvider =
 });
 
 //ANCHOR: Exceptions
-class AquaTxBroadcastException implements Exception {}
 
 class BlockstreamTxBroadcastException implements Exception {}
 

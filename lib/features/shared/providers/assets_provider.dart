@@ -4,33 +4,59 @@ import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
 import 'package:async/async.dart';
 
 final assetsProvider =
     AsyncNotifierProvider<AssetsNotifier, List<Asset>>(AssetsNotifier.new);
 
 class AssetsNotifier extends AsyncNotifier<List<Asset>> {
-  final _reloadAssetsController = StreamController<void>();
+  StreamController<void>? _reloadAssetsController;
+  StreamSubscription<List<Asset>>? _assetsSubscription;
 
   @override
-  FutureOr<List<Asset>> build() async {
+  FutureOr<List<Asset>> build() {
+    _initializeStreams();
+
+    // Register cleanup when the provider is disposed
+    ref.onDispose(() {
+      _cleanupStreams();
+    });
+
     state = const AsyncValue.loading();
-    await for (final assets in stream) {
-      if (assets.isEmpty) continue;
-      state = AsyncValue.data(assets);
-    }
     return [];
   }
 
-  Future<void> reloadAssets() async {
-    //NOTE - Fake delay to give impression of loading
-    await Future.delayed(const Duration(seconds: 1));
-    _reloadAssetsController.add(null);
+  void _initializeStreams() {
+    _cleanupStreams();
+    _reloadAssetsController = StreamController<void>();
+
+    // Set up the subscription to the assets stream
+    _assetsSubscription = _createAssetsStream().listen((assets) {
+      if (assets.isNotEmpty) {
+        state = AsyncValue.data(assets);
+      }
+    }, onError: (error, stackTrace) {
+      logger.error('Error in assets stream: $error');
+      state = AsyncValue.error(error, stackTrace);
+    });
   }
 
-  Stream<List<Asset>> get stream => StreamGroup.merge<void>([
+  Future<void> reloadAssets() async {
+    logger.debug('[AssetsProvider] Reloading assets...');
+
+    // If the controller was closed (e.g., during wallet switch), reinitialize
+    if (_reloadAssetsController == null || _reloadAssetsController!.isClosed) {
+      _initializeStreams();
+    }
+
+    // Trigger a reload
+    _reloadAssetsController?.add(null);
+  }
+
+  Stream<List<Asset>> _createAssetsStream() => StreamGroup.merge<void>([
         Stream.periodic(const Duration(seconds: 5)),
-        _reloadAssetsController.stream,
+        _reloadAssetsController!.stream,
       ]).asyncMap((_) async {
         final balances =
             await ref.read(bitcoinProvider).getBalance(requiresRefresh: true);
@@ -39,6 +65,8 @@ class AssetsNotifier extends AsyncNotifier<List<Asset>> {
         final balances =
             await ref.read(liquidProvider).getBalance(requiresRefresh: true) ??
                 {};
+        logger.debug('[AssetsProvider] Liquid balances: $balances');
+
         final assets = ref
             .read(manageAssetsProvider.select((p) => p.userAssets))
             .map((asset) => balances.containsKey(asset.id)
@@ -56,4 +84,11 @@ class AssetsNotifier extends AsyncNotifier<List<Asset>> {
             return current[index].id == previous[index].id &&
                 current[index].amount == previous[index].amount;
           }));
+
+  void _cleanupStreams() {
+    _assetsSubscription?.cancel();
+    _assetsSubscription = null;
+    _reloadAssetsController?.close();
+    _reloadAssetsController = null;
+  }
 }

@@ -1,61 +1,38 @@
 import 'package:aqua/features/receive/keys/receive_screen_keys.dart';
+import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:ui_components/ui_components.dart';
 
 const kPlaceholderQrUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-const kAssetIconSize =
-    50.0; // Reduced icon size for less interference with QR code
+
+// Reduced icon size for less interference with QR code
+const kAssetIconSize = 50.0;
 
 class ReceiveAssetQrCode extends StatelessWidget {
   const ReceiveAssetQrCode({
     super.key,
     required this.assetAddress,
-    required this.assetId,
-    required this.assetIconUrl,
+    required this.asset,
   });
 
   final String assetAddress;
-  final String assetId;
-  final String assetIconUrl;
+  final Asset asset;
 
   @override
   Widget build(BuildContext context) {
     final isPlaceholder = assetAddress.isEmpty;
-    return Container(
+    return ClipRRect(
       key: ReceiveAssetKeys.receiveAssetQrCodeContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 12.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: SizedBox.square(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Opacity(
-              opacity: isPlaceholder ? 0.3 : 1,
-              child: QrImageView(
-                key: ReceiveAssetKeys.receiveAssetQrCode,
-                data: isPlaceholder ? kPlaceholderQrUrl : assetAddress,
-                version: QrVersions.auto,
-                errorCorrectionLevel: QrErrorCorrectLevel
-                    .M, // Medium error correction for better scanning
-                embeddedImage: null,
-                embeddedImageStyle: const QrEmbeddedImageStyle(
-                  size: Size.square(kAssetIconSize),
-                ),
-              ),
-            ),
-            if (isPlaceholder) ...{
-              const CircularProgressIndicator()
-            } else ...{
-              QrAssetIcon(
-                assetId: assetId,
-                assetLogoUrl: assetIconUrl,
-                size: kAssetIconSize,
-              ),
-            },
-          ],
+      borderRadius: BorderRadius.circular(6),
+      child: Opacity(
+        opacity: isPlaceholder ? 0.3 : 1,
+        child: AquaAssetQRCode(
+          key: ReceiveAssetKeys.receiveAssetQrCode,
+          assetId: asset.id,
+          iconUrl: asset.toUiModel().isRemoteIcon ? asset.logoUrl : null,
+          content: isPlaceholder ? kPlaceholderQrUrl : assetAddress,
+          size: 244,
+          iconSize: kAssetIconSize,
         ),
       ),
     );

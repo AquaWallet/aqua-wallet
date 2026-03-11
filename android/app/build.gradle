@@ -77,7 +77,26 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            minifyEnabled false
+            shrinkResources false
+            crunchPngs false
+        }
+    }
+    
+    // Add specific R8 configuration for XmlPullParser issue
+    packagingOptions {
+        exclude 'META-INF/xmlpull/**'
+        exclude 'META-INF/services/org.xmlpull.v1.XmlPullParserFactory'
+    }
+
+    // Enable R8 full mode for better optimization
+    buildFeatures {
+        buildConfig true
     }
 
     externalNativeBuild {
@@ -95,4 +114,5 @@ dependencies {
     implementation "androidx.biometric:biometric:1.1.0"
     implementation "io.reactivex.rxjava2:rxjava:2.2.9"
     implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+    implementation "androidx.core:core-splashscreen:1.0.1"
 }

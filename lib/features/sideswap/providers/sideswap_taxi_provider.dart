@@ -2,13 +2,17 @@ import 'dart:async';
 
 import 'package:aqua/common/price/btc_price.dart';
 import 'package:aqua/data/data.dart';
-import 'package:aqua/elements.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/settings/manage_assets/providers/manage_assets_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/logger.dart';
-import 'package:dio/dio.dart';
+import 'package:aqua/data/provider/lwk_provider.dart';
+import 'package:convert/convert.dart';
+import 'package:lwk/lwk.dart';
+
+const bool useLowBallForElementsFallback = false;
+const Duration kTaxiPayjoinTimeout = Duration(seconds: 20);
 
 final sideswapTaxiProvider =
     AutoDisposeAsyncNotifierProvider<TaxiNotifier, TaxiState>(TaxiNotifier.new);
@@ -19,80 +23,66 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
   @override
   FutureOr<TaxiState> build() => const TaxiState.empty();
 
-  // TODO: For Taxi txs we have moved to sending non-lowball, DiscountCT txs. However, for fee estimation we are still usin lowball rates. Need to fully convert over to DiscountCT calculations at some point.
-  Future<String> createTaxiTransaction(
-      {required Asset taxiAsset,
-      required int amount,
-      required String sendAddress,
-      bool isLowball = true,
-      bool sendAll = false}) async {
+  Future<String> createTaxiTransaction({
+    required Asset taxiAsset,
+    required int amount,
+    required String sendAddress,
+    bool sendAll = false,
+  }) async {
     state = const AsyncLoading();
 
-    try {
-      final selectedClientUtxos =
-          await _selectClientUtxos(sendAmount: amount, sendAll: sendAll);
-
-      final partiallySignedTaxiPset = await _createTaxiPset(
-          asset: taxiAsset,
-          amount: amount,
-          sendAddress: sendAddress,
-          selectedUtxos: selectedClientUtxos,
-          isLowball: isLowball,
-          sendAll: sendAll);
-      state = AsyncData(
-          TaxiState.createPset(partiallySignedPset: partiallySignedTaxiPset));
-
-      final clientSignedPset = await _signPset(
-          pset: partiallySignedTaxiPset, utxos: selectedClientUtxos);
-      state = AsyncData(
-          TaxiState.clientSignedPset(fullySignedPset: clientSignedPset));
-
-      final finalPset = await _createFinalPset(
-          clientSignedPset: clientSignedPset.psbt!,
-          serverSignedPset: partiallySignedTaxiPset);
-
-      return finalPset;
-    } on DioException catch (e) {
-      logger.error(
-          "[Taxi] Create pset dio error: ${e.response?.statusCode}, ${e.response?.data}");
-      state = AsyncError(NetworkException(e.message), StackTrace.current);
-      rethrow;
-    } catch (e) {
-      logger.error("[Taxi] Create pset error: $e");
-      state = AsyncError(e, StackTrace.current);
-      throw Exception(e);
-    }
+    final pset = await _createTaxiPsetWithLwk(
+      asset: taxiAsset,
+      amount: amount,
+      sendAddress: sendAddress,
+      sendAll: sendAll,
+    );
+    state = AsyncData(TaxiState.clientSignedPset(
+      fullySignedPset: GdkNewTransactionReply(psbt: pset),
+    ));
+    return pset;
   }
 
-  Future<String> _createTaxiPset(
-      {required Asset asset,
-      required int amount,
-      required String sendAddress,
-      required List<GdkUnspentOutputs> selectedUtxos,
-      bool isLowball = true,
-      required bool sendAll}) async {
+  Future<String> _createTaxiPsetWithLwk({
+    required Asset asset,
+    required int amount,
+    required String sendAddress,
+    required bool sendAll,
+  }) async {
     try {
-      final changeAddress = await ref.read(liquidProvider).getReceiveAddress();
-      assert(changeAddress != null && changeAddress.address != null);
+      logger.debug('[Taxi] Creating payjoin transaction with LWK');
 
-      final txResult = await Future.value(Elements.createTaxiTransaction(
-        amount,
-        sendAddress,
-        changeAddress!.address!,
-        selectedUtxos,
-        kSideswapUserAgent,
-        kSideswapApiKey,
-        sendAll,
-        isLowball,
-        ref.read(envProvider) == Env.testnet,
-      ));
+      // Create payjoin transaction using LWK
+      final payjoinTx = await ref
+          .read(lwkProvider)
+          .createPayjoin(
+            usdtSats: amount,
+            outAddress: sendAddress,
+            asset: asset.id,
+          )
+          .timeout(
+            kTaxiPayjoinTimeout,
+            onTimeout: () => throw const SideswapPayjoinTimeoutException(),
+          );
 
-      if (txResult.errorMessage != null || txResult.tx == null) {
-        throw Exception(txResult.errorMessage);
-      }
+      logger.debug('[Taxi] LWK payjoin transaction created successfully');
 
-      return Future.value(txResult.tx);
+      final signedPset =
+          await ref.read(lwkProvider).signPsetWithExtraDetails(payjoinTx.pset);
+      final txBytes = await extractTxBytes(pset: signedPset);
+      return hex.encode(txBytes);
     } catch (e) {
+      if (e is LwkError) {
+        logger.error('[Taxi] LWK payjoin creation failed: ${e.msg}');
+        if (e.msg.contains('insufficient funds')) {
+          final balances = await ref.read(lwkProvider).getBalances();
+          logger.info(
+              '[Taxi] Insufficient funds. Wallet Balance: ${balances.map((balance) => '${balance.assetId}: ${balance.value}').join(', ')}');
+          ref.read(lwkProvider).syncWallet();
+        }
+        rethrow;
+      }
+      logger.error('[Taxi] LWK payjoin creation failed: $e');
       rethrow;
     }
   }
@@ -107,10 +97,10 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
   /// 3. Create lbtc fee output from server lbtc input, adding an optional lbtc change output if needed
   /// 4. Create usdt outputs from user usdt inputs.
   ///    There will be 3 usdt outputs: Main send output, change output, and sideswap fee output
-  Future<List<GdkUnspentOutputs>> _selectClientUtxos(
-      {required int sendAmount,
-      bool sendAll = false,
-      bool isLowball = true}) async {
+  Future<List<GdkUnspentOutputs>> _selectClientUtxos({
+    required int sendAmount,
+    bool sendAll = false,
+  }) async {
     if (_clientUtxosCache.containsKey(sendAmount)) {
       return _clientUtxosCache[sendAmount]!;
     }
@@ -146,8 +136,10 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
         2; // usually will be 1, but won't know until we place the order, so over-estimate to send enough utxos
     int uxtoInputs = selectedUsdtUtxos.length + serverInputs;
     int initialNetworkFee = await _expectedNetworkFeeUsdt(
-        uxtoInputs, defaultMultisigInputs, defaultOutputs,
-        isLowball: isLowball);
+      uxtoInputs,
+      defaultMultisigInputs,
+      defaultOutputs,
+    );
 
     // add more UTXOs if needed to cover network fee
     int requiredAmount = sendAmount + initialNetworkFee + kSideswapTaxiFee;
@@ -169,8 +161,10 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
 
       uxtoInputs = selectedUsdtUtxos.length + serverInputs;
       initialNetworkFee = await _expectedNetworkFeeUsdt(
-          uxtoInputs, defaultMultisigInputs, defaultOutputs,
-          isLowball: isLowball);
+        uxtoInputs,
+        defaultMultisigInputs,
+        defaultOutputs,
+      );
 
       requiredAmount = sendAmount + initialNetworkFee + kSideswapTaxiFee;
     }
@@ -178,43 +172,6 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
     _clientUtxosCache[sendAmount] = selectedUsdtUtxos;
 
     return selectedUsdtUtxos;
-  }
-
-  Future<GdkNewTransactionReply> _signPset(
-      {required String pset, required List<GdkUnspentOutputs> utxos}) async {
-    try {
-      final utxosList = utxos.map((utxo) => utxo.toJson()).toList();
-      final psetDetails = GdkSignPsbtDetails(psbt: pset, utxos: utxosList);
-      final signedPset = await ref.read(liquidProvider).signPsbt(psetDetails);
-
-      if (signedPset == null) {
-        throw TaxiSignPsetException;
-      }
-
-      return signedPset;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<String> _createFinalPset(
-      {required String clientSignedPset,
-      required String serverSignedPset}) async {
-    try {
-      final finalPset = await Future.value(Elements.createFinalTaxiPset(
-        clientSignedPset,
-        serverSignedPset,
-      ));
-
-      if (finalPset.errorMessage != null || finalPset.tx == null) {
-        logger.error("[Taxi] Error finalizing pset: ${finalPset.errorMessage}");
-        throw TaxiFinalizePsetException;
-      }
-
-      return Future.value(finalPset.tx);
-    } catch (e) {
-      rethrow;
-    }
   }
 
   // an estimate from actual txs to fallback to
@@ -229,30 +186,35 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
   static const int weightFee = 178;
 
   Future<int> _expectedNetworkFeeSats(
-      int singleSigInputs, int multiSigInputs, int blindedOutputs,
-      {bool isLowball = true}) async {
+    int singleSigInputs,
+    int multiSigInputs,
+    int blindedOutputs,
+  ) async {
     int weight = weightFixed +
         weightVinSingleSig * singleSigInputs +
         weightVinMultiSig * multiSigInputs +
         weightVout * blindedOutputs +
         weightFee;
 
-    double feeRateVb =
-        ref.read(feeEstimateProvider).getLiquidFeeRate(isLowball: isLowball);
-
-    int vsize = (weight + 3) ~/ 4;
+    final feeRateVb =
+        ref.read(feeEstimateProvider).getLiquidFeeRate(isLiquidTaxi: true);
+    final vsize = (weight + 3) ~/ 4;
     return (vsize * feeRateVb).ceil();
   }
 
   Future<int> _expectedNetworkFeeUsdt(
-      int singleSigInputs, int multiSigInputs, int blindedOutputs,
-      {bool isLowball = true}) async {
+    int singleSigInputs,
+    int multiSigInputs,
+    int blindedOutputs,
+  ) async {
     try {
       final btcPriceUsd =
           await BitcoinUSDPrice(ref.read(dioProvider)).fetchPrice();
       final feeSats = await _expectedNetworkFeeSats(
-          singleSigInputs, multiSigInputs, blindedOutputs,
-          isLowball: isLowball);
+        singleSigInputs,
+        multiSigInputs,
+        blindedOutputs,
+      );
       final feeUsdt = (btcPriceUsd * feeSats).ceil();
       return Future.value(feeUsdt);
     } catch (e) {
@@ -264,23 +226,29 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
   // This should be an accurate estimate because we are calculating actual client utxos.
   // However, there is a small chance more than one server utxo will need to be used.
   // Can't know until we place the order
-  Future<int> estimatedTaxiFeeUsdt(int sendAmount, bool sendAll,
-      {bool isLowball = true}) async {
+  Future<int> estimatedTaxiFeeUsdt(
+    int sendAmount,
+    bool sendAll,
+  ) async {
     final clientUtxos = await _selectClientUtxos(
-        sendAmount: sendAmount, sendAll: sendAll, isLowball: isLowball);
+      sendAmount: sendAmount,
+      sendAll: sendAll,
+    );
     final inputUtxosCount = clientUtxos.length + 1; // +1 for server utxo
     final networkFeeUsdt = await _expectedNetworkFeeUsdt(
-        inputUtxosCount, 0, defaultOutputs,
-        isLowball: isLowball);
+      inputUtxosCount,
+      0,
+      defaultOutputs,
+    );
     return kSideswapTaxiFee + networkFeeUsdt;
   }
 }
 
 final estimatedTaxiFeeUsdtProvider =
-    FutureProvider.family<int, (int, bool, bool)>((ref, arguments) async {
+    FutureProvider.family<int, (int, bool)>((ref, arguments) async {
   return await ref
       .read(sideswapTaxiProvider.notifier)
-      .estimatedTaxiFeeUsdt(arguments.$1, arguments.$2, isLowball: true);
+      .estimatedTaxiFeeUsdt(arguments.$1, arguments.$2);
 });
 
 class TaxiInvalidAmountException implements Exception {}

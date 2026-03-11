@@ -17,12 +17,14 @@ void main() {
     asset: asset,
     amount: 10000,
     amountFieldText: '10000',
+    rate: kBtcUsdExchangeRate,
   );
   setUpAll(() {
     registerFallbackValue(asset);
     registerFallbackValue(inputState);
     registerFallbackValue(const GdkNewTransactionReply());
     registerFallbackValue(NetworkType.bitcoin);
+    registerFallbackValue(const GdkConvertData());
   });
 
   group('BTC fee estimation transaction', () {
@@ -35,6 +37,7 @@ void main() {
         asset: asset,
         amount: 10000,
         amountFieldText: '10000',
+        rate: kBtcUsdExchangeRate,
       );
       final provider = sendAssetTxnProvider(args);
       final mockSendGdkTransactor = MockSendGdkTransactor();
@@ -88,9 +91,15 @@ void main() {
         asset: asset,
         amount: mockAmount,
         amountFieldText: mockAmount.toString(),
+        rate: kBtcUsdExchangeRate,
       );
       final mockFeatureFlagsProvider = MockFeatureFlagsProvider();
       final mockTransactionStorageProvider = MockTransactionStorageProvider();
+      final mockBitcoinProvider = MockBitcoinProvider();
+      final mockExchangeRatesProvider = ReferenceExchangeRateProviderMock();
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+        value: kBtcUsdExchangeRate,
+      );
 
       final provider = sendAssetTxnProvider(args);
       final mockSendGdkTransactor = MockSendGdkTransactor();
@@ -104,11 +113,15 @@ void main() {
         featureFlagsProvider.overrideWith((_) => mockFeatureFlagsProvider),
         transactionStorageProvider
             .overrideWith(() => mockTransactionStorageProvider),
+        bitcoinProvider.overrideWith((_) => mockBitcoinProvider),
+        exchangeRatesProvider.overrideWith((_) => mockExchangeRatesProvider),
       ]);
       mockSendGdkTransactor.mockCreateTransaction(mockTxn);
       mockSendGdkTransactor.mockSignTransaction(mockTxnReply);
       mockSendGdkTransactor.mockBroadcastTransaction(mockTxnHash);
       mockFeatureFlagsProvider.mockFakeBroadcastsEnabled(false);
+      when(() => mockBitcoinProvider.convertAmount(any()))
+          .thenAnswer((_) async => const GdkAmountData(fiatRate: '1.0'));
 
       await container.read(provider.notifier).executeGdkSendTransaction();
 

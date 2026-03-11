@@ -1,6 +1,7 @@
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/utils/utils.dart';
+import 'package:aqua/utils/utils.dart' hide ResponsiveEx;
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class WalletMnemonicSuggestions extends HookConsumerWidget {
   const WalletMnemonicSuggestions({
@@ -16,8 +17,8 @@ class WalletMnemonicSuggestions extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useScrollController();
     return Container(
-      height: context.adaptiveDouble(mobile: 43.0, smallMobile: 38.0),
-      color: Theme.of(context).colorScheme.primary,
+      height: context.adaptiveDouble(mobile: 50.0, smallMobile: 45.0),
+      color: context.aquaColors.surfacePrimary,
       child: suggestions.isEmpty
           ? const SizedBox.shrink()
           //ANCHOR - Suggestions
@@ -25,29 +26,20 @@ class WalletMnemonicSuggestions extends HookConsumerWidget {
               controller: controller,
               scrollDirection: Axis.horizontal,
               itemCount: suggestions.length,
-              separatorBuilder: (_, __) => VerticalDivider(
-                width: 16.0,
-                indent: 8.0,
-                endIndent: 8.0,
-                thickness: 1.0,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final text = suggestions[index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 8.0,
-                    vertical: 4.0,
+                //ANCHOR - Theme to change the button text color to the text primary color
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: Theme.of(context).colorScheme.copyWith(
+                          onSurface: context.aquaColors.textPrimary,
+                        ),
                   ),
-                  child: TextButton(
+                  child: AquaButton.tertiary(
                     onPressed: () => onSuggestionSelected(text),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                    ),
-                    child: Text(text.toUpperCase()),
+                    text: text.toLowerCase(),
+                    size: AquaButtonSize.small,
                   ),
                 );
               },

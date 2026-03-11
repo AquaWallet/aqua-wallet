@@ -5,7 +5,7 @@ import 'package:aqua/data/provider/app_links/app_link.dart';
 import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/logger.dart';
 
 final qrCodeStateProvider = AutoDisposeAsyncNotifierProviderFamily<
@@ -29,27 +29,20 @@ class QrScannerNotifier
       }
 
       if (arg.asset == null) {
-        if (arg.onSuccessAction == QrOnSuccessNavAction.popBack) {
-          state = AsyncValue.data(QrScanState.unknownQrCode(input));
-          logger.debug('[QR][Process] '
-              '- address: $input '
-              '- parseAddress: ${arg.parseAction} '
-              '- onSuccessAction: ${arg.onSuccessAction}');
-        } else {
-          throw QrScannerInvalidQrParametersException();
-        }
+        state = AsyncValue.data(QrScanState.unknownQrCode(input));
+        logger.debug('[QR][Process] '
+            '- address: $input '
+            '- parseAddress: ${arg.parseAction}');
+        return;
       }
 
       final sendArgs =
           SendAssetArguments.fromAsset(arg.asset!).copyWith(input: input);
-      state = arg.onSuccessAction == QrOnSuccessNavAction.popBack
-          ? AsyncValue.data(QrScanState.pullSendAsset(sendArgs))
-          : AsyncValue.data(QrScanState.pushSendAsset(sendArgs));
+      state = AsyncValue.data(QrScanState.sendAsset(sendArgs));
     } else {
       logger.debug('[QR][Process] attemp'
           '- address: $input '
-          '- parseAddress: ${arg.parseAction} '
-          '- onSuccessAction: ${arg.onSuccessAction}');
+          '- parseAddress: ${arg.parseAction}');
       state = await AsyncValue.guard(() async {
         final result = await ref
             .read(qrScannerProvider(arg))
@@ -71,10 +64,17 @@ class QrScannerNotifier
               throw QrScannerIncompatibleAssetIdException();
             }
 
+            final userEnteredAmount = parsedAddress.amountInSats != null &&
+                    parsedAddress.asset != null
+                ? ref.read(displayUnitsProvider).convertSatsToUnit(
+                      sats: parsedAddress.amountInSats!,
+                      asset: parsedAddress.asset!,
+                    )
+                : null;
             final sendArgs =
                 SendAssetArguments.fromAsset(parsedAddress.asset!).copyWith(
               input: parsedAddress.address,
-              userEnteredAmount: parsedAddress.amount,
+              userEnteredAmount: userEnteredAmount,
               lnurlParseResult: parsedAddress.lnurlParseResult,
               externalPrivateKey: parsedAddress.extPrivateKey,
             );
@@ -83,9 +83,7 @@ class QrScannerNotifier
             await ref.read(sendAssetAmountValidationProvider(sendArgs).future);
 
             // ✅ all good, return result
-            return arg.onSuccessAction == QrOnSuccessNavAction.popBack
-                ? QrScanState.pullSendAsset(sendArgs)
-                : QrScanState.pushSendAsset(sendArgs);
+            return QrScanState.sendAsset(sendArgs);
           },
           samRock: (setupChains, otp, uploadUrl) {
             return QrScanState.samRock(SamRockAppLink(

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aqua/features/boltz/providers/boltz_fees_provider.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -23,7 +24,11 @@ class SendAssetAmountConstraintsNotifier extends AutoDisposeFamilyAsyncNotifier<
 
     if (asset.isLightning) {
       final params = input.lnurlData?.payParams;
-      return SendAssetAmountConstraints.lightning(params);
+      final submarineFees = await ref
+          .read(boltzFeesProvider.future)
+          .then((value) => value.submarine());
+      return SendAssetAmountConstraints.lightning(
+          submarineFees: submarineFees, lnurlPayParams: params);
     }
 
     if (asset.isAltUsdt) {

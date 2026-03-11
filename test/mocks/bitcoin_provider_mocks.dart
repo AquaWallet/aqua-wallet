@@ -1,13 +1,13 @@
 import 'package:aqua/data/data.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../features/send/providers/new/send_asset_input_provider_test.dart';
+import '../mocks/mocks.dart';
 
 class MockBitcoinProvider extends Mock implements BitcoinProvider {}
 
 extension MockBitcoinProviderX on MockBitcoinProvider {
   void mockBitcoinRateCall({
-    required int rate,
+    required double rate,
     String currency = kUsdCurrency,
   }) {
     const requestData = GdkConvertData(satoshi: 1);

@@ -1,7 +1,9 @@
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 class ExchangeRateSettingsScreen extends HookConsumerWidget {
   static const routeName = '/exchangeRateSettingsScreen';
@@ -14,84 +16,151 @@ class ExchangeRateSettingsScreen extends HookConsumerWidget {
         ref.watch(exchangeRatesProvider.select((p) => p.availableCurrencies));
     final currentRate =
         ref.watch(exchangeRatesProvider.select((p) => p.currentCurrency));
-    final availableSources = ref.watch(
-        exchangeRatesProvider.select((p) => p.sourcesForCurrentCurrency));
-    final currentSource = ref.watch(gdkSettingsProvider);
+    final displayUnits =
+        ref.watch(displayUnitsProvider.select((p) => p.supportedDisplayUnits));
+    final currentDisplayUnit =
+        ref.watch(displayUnitsProvider.select((p) => p.currentDisplayUnit));
+    final isDisplayUnitsEnabled = ref.watch(
+      featureFlagsProvider.select((p) => p.displayUnitsEnabled),
+    );
+    final currencyFilter = useMemoized(
+      () => (SettingsItem item, String query) {
+        if (query.isEmpty) return 0;
+        final exchangeRate = item.object as ExchangeRate;
+        final currencyName = item.name.toLowerCase();
+        final currencyCode = exchangeRate.currency.value.toLowerCase();
+        final queryLower = query.toLowerCase();
+        final startsWith = currencyName.startsWith(queryLower) ||
+            currencyCode.startsWith(queryLower);
+        final contains = currencyName.contains(queryLower) ||
+            currencyCode.contains(queryLower);
+        if (startsWith) return 0;
+        if (contains) return 1;
+        return null;
+      },
+      [],
+    );
 
-    return Scaffold(
-      appBar: AquaAppBar(
+    return DesignRevampScaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AquaTopAppBar(
         showBackButton: true,
-        showActionButton: false,
-        title: context.loc.refExRateSettingsScreenTitle,
-        backgroundColor: Theme.of(context).colors.appBarBackgroundColor,
+        colors: context.aquaColors,
+        title: context.loc.unitAndCurrencySettingsTitle,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 20,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //ANCHOR - Padding to account for the app bar
+            const AppBarPadding(),
+            if (isDisplayUnitsEnabled) ...[
+              AquaText.body1SemiBold(
+                text: context.loc.displayUnits,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Text(
-                  context.loc.refExRateSettingsScreenSourceLabel(
-                      currentRate.currency.value),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
+              const SizedBox(height: 16),
               SettingsSelectionList(
-                showSearch: false,
-                label: currentSource.asData?.value.pricing?.exchange,
-                items: availableSources
-                    .mapIndexed((index, item) => SettingsItem.create(item,
-                        name: item.value, index: index, length: items.length))
+                padding: EdgeInsets.zero,
+                includeAppBarPadding: false,
+                items: displayUnits
+                    .mapIndexed(
+                      (index, item) => SettingsItem.create(
+                        item,
+                        name: item.value,
+                        index: index,
+                        length: displayUnits.length,
+                      ),
+                    )
                     .toList(),
                 itemBuilder: (context, item) {
-                  final source = item.object as ExchangeRateSource;
                   return SettingsListSelectionItem(
-                    content: Text(source.value),
-                    position: item.position,
+                    title: item.name,
+                    isRadioButton: true,
+                    radioValue: item.name,
+                    radioGroupValue: currentDisplayUnit.value,
                     onPressed: () => ref
-                        .read(exchangeRatesProvider)
-                        .setReferenceCurrency(
-                            ExchangeRate(currentRate.currency, source)),
+                        .read(displayUnitsProvider)
+                        .setCurrentDisplayUnit(item.name),
                   );
                 },
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Text(
-                  context.loc.refExRateSettingsScreenCurrencyLabel,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+              const SizedBox(height: 28),
+            ],
+            AquaText.body1SemiBold(
+              text: context.loc.referenceCurrency,
+            ),
+            const SizedBox(height: 16),
+            if (items.isEmpty) ...[
+              const SizedBox(height: 16),
+              Center(
+                child: AquaText.body1(
+                  text: context.loc.failedToFetchReferenceRates,
+                  maxLines: 3,
+                  textAlign: TextAlign.center,
                 ),
               ),
+            ] else ...[
               SettingsSelectionList(
-                showSearch: false,
-                label: currentRate.displayName(context),
+                showSearch: true,
+                includeAppBarPadding: false,
+                padding: EdgeInsets.zero,
                 items: items
-                    .mapIndexed((index, item) => SettingsItem.create(item,
+                    .mapIndexed(
+                      (index, item) => SettingsItem.create(
+                        item,
                         name: currencyLabelLookup(item.currency, context),
                         index: index,
-                        length: items.length))
+                        length: items.length,
+                      ),
+                    )
                     .toList(),
+                filter: currencyFilter,
                 itemBuilder: (context, item) {
-                  final currency = item.object as ExchangeRate;
-                  return SettingsListSelectionItem(
-                    content: Text(currency.displayName(context)),
-                    position: item.position,
-                    onPressed: () => ref
-                        .read(exchangeRatesProvider)
-                        .setReferenceCurrency(currency),
+                  final exchangeRate = item.object as ExchangeRate;
+                  final availableSources = ref.read(
+                    exchangeRatesProvider.select(
+                      (p) => p.sourcesForCurrentCurrency(
+                        exchangeRate.currency.name,
+                      ),
+                    ),
+                  );
+                  return SettingsListSelectionItem<ExchangeRate>(
+                    title: exchangeRate.displayName(context),
+                    subTitle: availableSources.length > 1
+                        ? context.loc.choosePriceSource
+                        : exchangeRate.source.displayName,
+                    isRadioButton: !(availableSources.length > 1),
+                    radioValue: exchangeRate,
+                    radioGroupValue: currentRate,
+                    icon: CountryFlag(
+                      svgAsset: exchangeRate.currency.format.flagSvg,
+                      width: 20,
+                      height: 20,
+                    ),
+                    iconTrailing: availableSources.length > 1
+                        ? AquaIcon.chevronRight(
+                            size: 18,
+                            color: context.aquaColors.textSecondary,
+                          )
+                        : null,
+                    onPressed: () {
+                      if (availableSources.length > 1) {
+                        context.push(
+                          PriceSourceScreen.routeName,
+                          extra: exchangeRate,
+                        );
+                      } else {
+                        ref
+                            .read(exchangeRatesProvider)
+                            .setReferenceCurrency(exchangeRate);
+                      }
+                    },
                   );
                 },
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

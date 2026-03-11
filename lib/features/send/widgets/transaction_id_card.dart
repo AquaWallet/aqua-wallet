@@ -11,7 +11,7 @@ class TransactionIdCard extends HookConsumerWidget {
     required this.arguments,
   });
 
-  final SendAssetCompletionArguments arguments;
+  final TransactionSuccessArguments arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

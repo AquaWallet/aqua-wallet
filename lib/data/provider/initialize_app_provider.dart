@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/settings/migration/multi_wallet_migration_provider.dart';
 import 'package:aqua/gdk.dart';
 import 'package:aqua/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +31,9 @@ class InitAppProvider extends AsyncNotifier<void> {
       await ref.read(liquidProvider).init();
 
       await ref.read(bitcoinProvider).init();
+
+      // Migrate legacy wallet if needed
+      await ref.read(multiWalletMigrationProvider.future);
 
       /**
       * App is initialized.

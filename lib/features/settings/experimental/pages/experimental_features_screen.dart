@@ -1,13 +1,14 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/account/providers/jan3_auth_provider.dart';
 import 'package:aqua/features/logger_table/logger_table.dart';
+import 'package:aqua/features/marketplace/providers/providers.dart';
+import 'package:aqua/features/recovery/pages/seed_qr_screen.dart';
 import 'package:aqua/features/settings/debug/debug_database_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
-import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
-import 'package:aqua/features/settings/watch_only/watch_only.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/features/wallet/wallet.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -45,18 +46,20 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         featureFlagsProvider.select((p) => p.changellyForUSDtSwapsEnabled));
     final isBtcDirectEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.btcDirectEnabled));
-    final isSeedQrEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.seedQrEnabled));
     final isCustomElectrumUrlEnabled = ref
         .watch(featureFlagsProvider.select((p) => p.customElectrumUrlEnabled));
-    final displayUnit =
-        ref.watch(displayUnitsProvider.select((p) => p.currentDisplayUnit));
     final isMarketplaceTilesMockDataEnabled = ref.watch(
         featureFlagsProvider.select((p) => p.marketplaceTilesMockDataEnabled));
     final isDebitCardStagingEnabled = ref.watch(
       featureFlagsProvider.select((p) => p.debitCardStagingEnabled),
     );
-
+    final isDisplayUnitsEnabled = ref.watch(
+      featureFlagsProvider.select((p) => p.displayUnitsEnabled),
+    );
+    final isEnableAllTranslations = ref.watch(
+      featureFlagsProvider.select((p) => p.enableAllTranslations),
+    );
+    final prefs = ref.watch(prefsProvider);
     final showAlertDialog = useCallback(({
       required String message,
       required VoidCallback onAccept,
@@ -104,8 +107,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
       appBar: AquaAppBar(
         showBackButton: true,
         showActionButton: false,
-        title: AppLocalizations.of(context)!
-            .settingsScreenItemExperimentalFeatures,
+        title: context.loc.settingsScreenItemExperimentalFeatures,
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
@@ -165,31 +167,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           ),
           const SizedBox(height: 16.0),
 
-          //ANCHOR: Seed QR
-          MenuItemWidget.switchItem(
-            context: context,
-            title: context.loc.expFeaturesScreenItemsSeedQr,
-            assetName: Svgs.qr,
-            value: isSeedQrEnabled,
-            onPressed: () =>
-                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                      key: PrefKeys.seedQrEnabled,
-                      currentValue: isSeedQrEnabled,
-                    ),
-          ),
-          const SizedBox(height: 16.0),
-
-          //ANCHOR - Display Unit
-          MenuItemWidget.labeledArrow(
-            key: SettingsScreenKeys.settingsDisplayUnitButton,
-            context: context,
-            assetName: Svgs.displayUnits,
-            title: context.loc.displayUnits,
-            label: displayUnit.value,
-            onPressed: () => context.push(DisplayUnitsSettingsScreen.routeName),
-          ),
-          const SizedBox(height: 16.0),
-
           //ANCHOR: Changelly USDt Swaps
           MenuItemWidget.switchItem(
             context: context,
@@ -217,6 +194,21 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                     ),
           ),
 
+          //ANCHOR: Lendasat Mock Data
+          MenuItemWidget.switchItem(
+            context: context,
+            title: 'Lendasat Mock Data',
+            assetName: Svgs.history,
+            value: ref.watch(
+                featureFlagsProvider.select((p) => p.lendASatMockDataEnabled)),
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.lendASatMockDataEnabled,
+                      currentValue: ref
+                          .read(featureFlagsProvider)
+                          .lendASatMockDataEnabled,
+                    ),
+          ),
           const SizedBox(height: 16.0),
 
           //ANCHOR: Marketplace Tiles Mock Data
@@ -225,11 +217,41 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             title: context.loc.expFeaturesScreenItemsMarketplaceTilesMockData,
             assetName: Svgs.marketplaceBankings,
             value: isMarketplaceTilesMockDataEnabled,
-            onPressed: () =>
-                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                      key: PrefKeys.marketplaceTilesMockDataEnabled,
-                      currentValue: isMarketplaceTilesMockDataEnabled,
-                    ),
+            onPressed: () {
+              ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                    key: PrefKeys.marketplaceTilesMockDataEnabled,
+                    currentValue: isMarketplaceTilesMockDataEnabled,
+                  );
+              ref.invalidate(enabledServicesTypesProvider);
+            },
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: Enable All Translations
+          MenuItemWidget.switchItem(
+            context: context,
+            title: 'Enable All Translations',
+            assetName: Svgs.language,
+            value: isEnableAllTranslations,
+            onPressed: () => prefs.switchHiddenLanguages(),
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: Display Units
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.displayUnits,
+            assetName: Svgs.displayUnits,
+            value: isDisplayUnitsEnabled,
+            onPressed: () async {
+              await ref
+                  .read(displayUnitsProvider)
+                  .setCurrentDisplayUnit(SupportedDisplayUnits.btc.value);
+              ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                    key: PrefKeys.displayUnitsEnabled,
+                    currentValue: isDisplayUnitsEnabled,
+                  );
+            },
           ),
           const SizedBox(height: 16.0),
 
@@ -239,7 +261,19 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             title: context.loc.watchOnlyScreenTitle,
             assetName: Svgs.tabWallet,
             color: context.colors.onBackground,
-            onPressed: () => context.push(WatchOnlyListScreen.routeName),
+            onPressed: () => context.push(
+              WatchOnlyListScreen.routeName,
+            ),
+          ),
+          const SizedBox(height: 16.0),
+
+          //ANCHOR: Seed QR Code
+          MenuItemWidget.arrow(
+            context: context,
+            title: context.loc.settingsScreenItemViewSeedQR,
+            assetName: Svgs.qr,
+            color: context.colors.onBackground,
+            onPressed: () => context.push(WalletRecoveryQRScreen.routeName),
           ),
           const SizedBox(height: 16.0),
 
@@ -485,6 +519,19 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                       currentValue: isCustomElectrumUrlEnabled,
                     );
               },
+            ),
+            const SizedBox(height: 16.0),
+            //ANCHOR - Go to Splash Screen Preview
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: Svgs.eyeIcon,
+              color: context.colors.onBackground,
+              title: 'Checkout Splash Screen',
+              onPressed: () => context.push(SplashScreenPreview.routeName).then(
+                    (_) => ref
+                        .read(systemOverlayColorProvider(context))
+                        .themeBased(),
+                  ),
             ),
             const SizedBox(height: 16.0),
           ],

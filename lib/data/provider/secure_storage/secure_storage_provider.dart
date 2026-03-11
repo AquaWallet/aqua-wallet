@@ -1,4 +1,5 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/providers.dart';
 import 'package:aqua/logger.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -118,10 +119,19 @@ class SecureStorage implements IStorage {
 }
 
 class StorageKeys {
-  static const mnemonic = 'mnemonic';
-  static const pin = 'pin';
-  static const pinFailedAttempts = 'pin_failed_attempts';
-  static const pinLockedAt = 'pin_locked_at';
+  @Deprecated(
+      "Used before when only single wallet was supported. Left only for migration purpose.")
+  static const legacyMnemonic = 'mnemonic';
+  static String pin = 'pin';
+  static String pinLockedAt = 'pin_locked_at';
+  static String pinFailedAttempts = 'pin_failed_attempts';
+  static String biometricsEnabled = 'biometrics_enabled';
+
+  static String mnemonic(String walletId) =>
+      '$kStoredWalletMnemonicPrefix$walletId';
+
+  static const salt = 'salt';
+  static const currentWalletId = 'current_wallet_id';
 }
 
 final secureStorageProvider = Provider<IStorage>((_) => SecureStorage());

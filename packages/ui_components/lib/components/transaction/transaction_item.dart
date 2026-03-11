@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:ui_components/shared/shared.dart';
+import 'package:ui_components/components/transaction/transaction_item_text.dart';
 import 'package:ui_components/ui_components.dart';
 
 enum AquaTransactionType {
@@ -15,15 +15,20 @@ class AquaTransactionItem extends HookWidget {
     required this.timestamp,
     required this.amountCrypto,
     required this.amountFiat,
+    String? dcFundedAddress,
     this.isPending = false,
     this.isFailed = false,
     this.isAutoSwap = false,
-    this.assetId,
+    this.isTopUp = false,
+    this.iconAssetId,
     this.onTap,
     this.colors,
-  })  : _title = null,
-        _isRefund = false,
+    required this.text,
+  })  : _title = dcFundedAddress,
+        isRefund = false,
+        _isRedeposit = false,
         _isInsufficientFunds = false,
+        _isFee = false,
         _type = AquaTransactionType.send,
         _icon = AquaTransactionIcon.send(
           colors: colors,
@@ -37,13 +42,17 @@ class AquaTransactionItem extends HookWidget {
     required this.amountFiat,
     this.isPending = false,
     this.isFailed = false,
+    this.isRefund = false,
     this.isAutoSwap = false,
-    this.assetId,
+    this.iconAssetId,
     this.onTap,
     this.colors,
+    required this.text,
   })  : _title = null,
-        _isRefund = false,
+        isTopUp = false,
+        _isRedeposit = false,
         _isInsufficientFunds = false,
+        _isFee = false,
         _type = AquaTransactionType.receive,
         _icon = AquaTransactionIcon.receive(
           colors: colors,
@@ -60,32 +69,40 @@ class AquaTransactionItem extends HookWidget {
     this.isPending = false,
     this.isFailed = false,
     this.isAutoSwap = false,
-    this.assetId,
+    this.iconAssetId,
     this.onTap,
     this.colors,
+    required this.text,
   })  : _title = '$fromAssetTicker → $toAssetTicker',
-        _isRefund = false,
+        isTopUp = false,
+        isRefund = false,
+        _isRedeposit = false,
         _isInsufficientFunds = false,
+        _isFee = false,
         _type = AquaTransactionType.swap,
         _icon = AquaTransactionIcon.swap(
           colors: colors,
           isFailed: isFailed,
         );
 
-  AquaTransactionItem.refund({
+  AquaTransactionItem.redeposit({
     super.key,
     required this.timestamp,
     required this.amountCrypto,
     required this.amountFiat,
-    this.assetId,
+    this.iconAssetId,
     this.onTap,
     this.colors,
+    required this.text,
   })  : _title = null,
         isFailed = false,
+        isRefund = false,
         isPending = false,
         isAutoSwap = false,
-        _isRefund = true,
+        isTopUp = false,
+        _isRedeposit = true,
         _isInsufficientFunds = false,
+        _isFee = false,
         _type = AquaTransactionType.receive,
         _icon = AquaTransactionIcon.receive(
           colors: colors,
@@ -96,35 +113,68 @@ class AquaTransactionItem extends HookWidget {
     required this.timestamp,
     required this.amountCrypto,
     required this.amountFiat,
-    this.assetId,
+    this.iconAssetId,
     this.onTap,
     this.colors,
+    required this.text,
   })  : _title = null,
+        isRefund = false,
         isFailed = false,
         isPending = false,
         isAutoSwap = false,
-        _isRefund = false,
+        isTopUp = false,
+        _isRedeposit = false,
         _isInsufficientFunds = true,
+        _isFee = false,
         _type = AquaTransactionType.receive,
         _icon = AquaTransactionIcon.receive(
           colors: colors,
           isFailed: true,
         );
 
-  final String? assetId;
+  AquaTransactionItem.fee({
+    super.key,
+    required this.timestamp,
+    required this.amountCrypto,
+    required this.amountFiat,
+    required String feeLabel,
+    this.isPending = false,
+    this.isFailed = false,
+    this.isAutoSwap = false,
+    this.iconAssetId,
+    this.onTap,
+    this.colors,
+    required this.text,
+  })  : _title = feeLabel,
+        isRefund = false,
+        isTopUp = false,
+        _isRedeposit = false,
+        _isInsufficientFunds = false,
+        _isFee = true,
+        _type = AquaTransactionType.send,
+        _icon = AquaTransactionIcon.send(
+          colors: colors,
+          isFailed: isFailed,
+        );
+
+  final String? iconAssetId;
   final DateTime timestamp;
   final String amountCrypto;
   final String amountFiat;
   final bool isAutoSwap;
   final bool isPending;
   final bool isFailed;
+  final bool isRefund;
+  final bool isTopUp;
   final VoidCallback? onTap;
   final AquaColors? colors;
+  final TransactionItemText text;
   final Widget _icon;
   final String? _title;
   final AquaTransactionType _type;
-  final bool _isRefund;
+  final bool _isRedeposit;
   final bool _isInsufficientFunds;
+  final bool _isFee;
 
   @override
   Widget build(BuildContext context) {
@@ -135,14 +185,17 @@ class AquaTransactionItem extends HookWidget {
       borderOnForeground: false,
       color: Theme.of(context).colorScheme.surfaceContainer,
       child: InkWell(
-        splashFactory: NoSplash.splashFactory,
+        splashFactory: InkRipple.splashFactory,
         overlayColor: WidgetStateProperty.resolveWith((state) {
           if (state.isHovered) {
             return Colors.transparent;
           }
           return null;
         }),
-        onTap: onTap,
+        onTap: onTap != null
+            ? () => WidgetsBinding.instance
+                .addPostFrameCallback((_) => onTap?.call())
+            : null,
         child: Ink(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -159,25 +212,34 @@ class AquaTransactionItem extends HookWidget {
                         _TransactionTitle(
                           title: _title,
                           type: _type,
-                          isRefund: _isRefund,
+                          isRefund: isRefund,
+                          isRedeposit: _isRedeposit,
+                          isFee: _isFee,
                           isPending: isPending,
                           isFailed: isFailed,
+                          isTopUp: isTopUp,
                           colors: colors,
+                          text: text,
                         ),
                         const SizedBox(width: 8),
-                        switch (assetId) {
+                        switch (iconAssetId) {
                           AssetIds.btc => AquaAssetIcon.bitcoin(size: 18),
-                          _ when (AssetIds.lbtc.contains(assetId)) =>
+                          _ when (AssetIds.lbtc.contains(iconAssetId)) =>
                             AquaAssetIcon.liquidBitcoin(size: 18),
                           AssetIds.lightning =>
                             AquaAssetIcon.lightningBtc(size: 18),
                           AssetIds.usdtEth =>
+                            AquaAssetIcon.usdtEthereum(size: 18),
+                          AssetIds.usdtTether =>
                             AquaAssetIcon.usdtTether(size: 18),
-                          _ when (AssetIds.usdtliquid.contains(assetId)) =>
+                          _ when (AssetIds.mexas.contains(iconAssetId)) =>
+                            AquaAssetIcon.mexas(size: 18),
+                          _ when (AssetIds.usdtliquid.contains(iconAssetId)) =>
                             AquaAssetIcon.liquidBitcoin(size: 18),
                           AssetIds.usdtTrx => AquaAssetIcon.tron(size: 18),
                           AssetIds.usdtBep => AquaAssetIcon.binance(size: 18),
                           AssetIds.usdtSol => AquaAssetIcon.solana(size: 18),
+                          AssetIds.usdtPol => AquaAssetIcon.polygon(size: 18),
                           AssetIds.usdtTon => AquaAssetIcon.ton(size: 18),
                           AssetIds.layer2 => AquaAssetIcon.l2Bitcoin(size: 18),
                           _ => const SizedBox.shrink(),
@@ -188,14 +250,18 @@ class AquaTransactionItem extends HookWidget {
                     isPending
                         ? SizedBox(
                             width: 72,
-                            child: AquaLinearProgressIndicator(colors: colors),
+                            child: AquaLinearProgressIndicator(
+                              colors: colors,
+                              barDuration: const Duration(seconds: 2),
+                              intervalDuration: const Duration(seconds: 0),
+                            ),
                           )
                         : AquaText.body2Medium(
                             text: switch (null) {
                               _ when isPending => '',
-                              _ when isFailed => context.loc.failed,
+                              _ when isFailed => text.failed,
                               _ when _isInsufficientFunds =>
-                                context.loc.insufficientFunds,
+                                text.insufficientFunds,
                               _ => timestamp.format()
                             },
                             color: isFailed || _isInsufficientFunds
@@ -210,7 +276,10 @@ class AquaTransactionItem extends HookWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   if (_isInsufficientFunds) ...{
-                    _InsufficientFundsButton(colors: colors)
+                    _InsufficientFundsButton(
+                      colors: colors,
+                      text: text,
+                    )
                   } else ...{
                     AquaText.body1SemiBold(
                       text: amountCrypto,
@@ -238,9 +307,11 @@ class AquaTransactionItem extends HookWidget {
 class _InsufficientFundsButton extends StatelessWidget {
   const _InsufficientFundsButton({
     required this.colors,
+    required this.text,
   });
 
   final AquaColors? colors;
+  final TransactionItemText text;
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +324,7 @@ class _InsufficientFundsButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: AquaText.body2SemiBold(
-        text: context.loc.addFunds,
+        text: text.addFunds,
         color: colors?.textPrimary,
       ),
     );
@@ -265,24 +336,32 @@ class _TransactionTitle extends StatelessWidget {
     required this.title,
     required this.type,
     required this.isRefund,
+    required this.isRedeposit,
     required this.isPending,
     required this.isFailed,
     required this.colors,
+    required this.isFee,
+    required this.isTopUp,
+    required this.text,
   });
 
   final String? title;
   final AquaTransactionType type;
   final bool isRefund;
+  final bool isRedeposit;
   final bool isPending;
   final bool isFailed;
+  final bool isFee;
+  final bool isTopUp;
   final AquaColors? colors;
+  final TransactionItemText text;
 
   @override
   Widget build(BuildContext context) {
     final split = title?.split('→');
     if (type == AquaTransactionType.swap && split != null && split.length > 1) {
-      final from = split.first;
-      final to = split.last;
+      final from = split.first.trim();
+      final to = split.last.trim();
       return Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -305,16 +384,19 @@ class _TransactionTitle extends StatelessWidget {
     return AquaText.body1SemiBold(
       text: title ??
           switch (type) {
-            _ when isRefund => context.loc.refund,
-            AquaTransactionType.send when (isPending || isFailed) =>
-              context.loc.sending,
-            AquaTransactionType.send => context.loc.sent,
-            AquaTransactionType.receive when (isPending || isFailed) =>
-              context.loc.receiving,
-            AquaTransactionType.receive => context.loc.received,
-            AquaTransactionType.swap when (isPending || isFailed) =>
-              context.loc.swapping,
-            AquaTransactionType.swap => context.loc.swapped,
+            _ when isRedeposit => text.redeposited,
+            _ when isRefund => text.refund,
+            AquaTransactionType.send when (isPending && isTopUp) =>
+              text.toppingUp,
+            AquaTransactionType.send when (isPending && !isFailed) =>
+              text.sending,
+            AquaTransactionType.send => text.sent,
+            AquaTransactionType.receive when (isPending && !isFailed) =>
+              text.receiving,
+            AquaTransactionType.receive => text.received,
+            AquaTransactionType.swap when (isPending && !isFailed) =>
+              text.swapping,
+            AquaTransactionType.swap => text.swapped,
           },
       color: colors?.textPrimary,
     );

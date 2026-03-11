@@ -1,15 +1,14 @@
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:aqua/data/provider/app_links/app_link.dart';
+import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/sam_rock/models/sam_rock_exception.dart';
-import 'package:aqua/features/shared/providers/dio_provider.dart';
-import 'package:aqua/features/wallet/models/subaccounts.dart';
-import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
+import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/wallet.dart';
 import 'package:dio/dio.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 part 'sam_rock_provider.freezed.dart';
 
@@ -36,45 +35,79 @@ class SamRockStateNotifier extends StateNotifier<SamRockState> {
   final Dio dio;
   final Ref ref;
 
-  Future<List<String>> _fetchUniqueLiquidAddresses(Ref ref, int count) async {
-    final liquidAddresses = <String>[];
-    for (int i = 0; i < count; i++) {
-      final receiveAddressDetails =
-          await ref.read(liquidProvider).getReceiveAddress();
-      if (receiveAddressDetails?.address != null &&
-          !liquidAddresses.contains(receiveAddressDetails!.address)) {
-        liquidAddresses.add(receiveAddressDetails.address!);
-      } else {
-        if (i > 0 && liquidAddresses.length < i + 1) {
-          // Avoid infinite loop if GDK keeps returning same/null addresses
-          throw SamRockException(SamRockExceptionType.generic,
-              customMessage:
-                  "Could not generate $count unique Liquid addresses.");
-        }
-        i--;
-      }
-      if (liquidAddresses.length == count) break;
-    }
-
-    if (liquidAddresses.length < count) {
-      throw SamRockException(SamRockExceptionType.generic,
-          customMessage: "Failed to retrieve $count unique Liquid addresses.");
-    }
-    return liquidAddresses;
-  }
-
   Future<void> startSetup(
     SamRockAppLink samRockAppLink,
     Subaccounts subaccounts,
   ) async {
     try {
-      await _performUpload(samRockAppLink, subaccounts);
+      final currentWallet =
+          ref.read(storedWalletsProvider).value?.currentWallet;
+      if (currentWallet == null) {
+        throw SamRockException(SamRockExceptionType.missingWalletData);
+      }
+
+      final btcTxs = await ref.read(bitcoinProvider).getTransactions();
+      final liquidTxs = await ref.read(liquidProvider).getTransactions();
+
+      final bool hasTransactions = (btcTxs != null && btcTxs.isNotEmpty) ||
+          (liquidTxs != null && liquidTxs.isNotEmpty);
+
+      if (hasTransactions) {
+        state = SamRockState.requiresNewWalletConfirmation(samRockAppLink);
+        return;
+      } else {
+        await _performUpload(samRockAppLink, subaccounts);
+      }
     } on SamRockException catch (e) {
       state = SamRockState.error(e);
     } catch (e) {
       state = SamRockState.error(SamRockException(SamRockExceptionType.generic,
           customMessage: e.toString()));
     }
+  }
+
+  Future<void> confirmWalletCreation(SamRockAppLink appLink) async {
+    try {
+      state = const SamRockState.loading();
+
+      // Trigger wallet registration
+      await ref.read(storedWalletsProvider.notifier).addWallet(
+            name: kSamRockWalletDefaultName,
+            samRockAppLink: appLink,
+            operationType: WalletOperationType.create,
+          );
+
+      // Allow time for wallet creation and state updates (simplistic approach)
+      await Future.delayed(const Duration(seconds: 1));
+
+      final newWalletState = ref.read(storedWalletsProvider).value;
+      final newWalletId = newWalletState?.currentWallet?.id;
+
+      if (newWalletId == null) {
+        // It's possible the wallet wasn't created/switched in time
+        throw SamRockException(SamRockExceptionType.failedToGetNewWalletState);
+      }
+
+      // Invalidate subaccounts provider to load for the new wallet
+      ref.invalidate(subaccountsProvider);
+      // Wait for subaccounts to load
+      final newSubaccounts = await ref.watch(subaccountsProvider.future);
+
+      await _performUpload(appLink, newSubaccounts);
+    } on SamRockException catch (e) {
+      state = SamRockState.error(e);
+    } catch (e) {
+      state = SamRockState.error(SamRockException(SamRockExceptionType.generic,
+          customMessage:
+              "Failed during wallet creation process: ${e.toString()}"));
+    }
+  }
+
+  Future<void> cancelWalletCreation(
+    SamRockAppLink appLink,
+    Subaccounts currentSubaccounts,
+  ) async {
+    await _performUpload(appLink, currentSubaccounts);
   }
 
   Future<void> _performUpload(
@@ -89,12 +122,10 @@ class SamRockStateNotifier extends StateNotifier<SamRockState> {
     }
 
     try {
-      //TODO: Temp getting fingerprint from leagcy mnemonic. Resolve with using storedWalletsProvider when multiwallet is merged
-      final (mnemonic, err) =
-          await ref.read(secureStorageProvider).get(StorageKeys.mnemonic);
-      if (err != null || mnemonic == null) {
-        throw SamRockException(SamRockExceptionType.missingWalletData,
-            customMessage: 'Failed to retrieve mnemonic: $err');
+      final walletFingerprint =
+          ref.read(storedWalletsProvider).value?.currentWallet?.id;
+      if (walletFingerprint == null) {
+        throw SamRockException(SamRockExceptionType.missingWalletData);
       }
 
       if (subaccounts.subaccounts.length < 3) {

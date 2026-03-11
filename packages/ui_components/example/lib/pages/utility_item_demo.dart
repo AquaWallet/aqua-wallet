@@ -45,7 +45,7 @@ class UtilityItemDemoPage extends HookConsumerWidget {
   }
 }
 
-class _RadioDemo extends StatelessWidget {
+class _RadioDemo extends HookConsumerWidget {
   const _RadioDemo({
     required this.icon,
     required this.iconSmall,
@@ -55,7 +55,8 @@ class _RadioDemo extends StatelessWidget {
   final Widget iconSmall;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = ref.watch(prefsProvider).selectedTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -75,18 +76,20 @@ class _RadioDemo extends StatelessWidget {
               _ControlSamples(
                 icon: icon,
                 iconSmall: iconSmall,
-                control: const AquaRadio<bool>.small(
+                control: AquaRadio<bool>.small(
                   value: true,
                   groupValue: false,
+                  colors: theme.colors,
                 ),
               ),
               const SizedBox(width: 20),
               _ControlSamples(
                 icon: icon,
                 iconSmall: iconSmall,
-                control: const AquaRadio<bool>.small(
+                control: AquaRadio<bool>.small(
                   value: true,
                   groupValue: true,
+                  colors: theme.colors,
                 ),
               ),
             ],
@@ -197,13 +200,15 @@ class _ToggleDemo extends StatelessWidget {
   }
 }
 
-class _RadioControlStates extends HookWidget {
+class _RadioControlStates extends HookConsumerWidget {
   const _RadioControlStates();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndexLarge = useState(1);
     final selectedIndexSmall = useState(1);
+
+    final theme = ref.watch(prefsProvider).selectedTheme;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -215,12 +220,14 @@ class _RadioControlStates extends HookWidget {
                 value: 0,
                 groupValue: selectedIndexLarge.value,
                 onChanged: (value) => selectedIndexLarge.value = value,
+                colors: theme.colors,
               ),
               const SizedBox(height: 20),
               AquaRadio<int>.small(
                 value: 0,
                 groupValue: selectedIndexSmall.value,
                 onChanged: (value) => selectedIndexSmall.value = value,
+                colors: theme.colors,
               ),
             ],
           ),
@@ -231,44 +238,50 @@ class _RadioControlStates extends HookWidget {
                 value: 1,
                 groupValue: selectedIndexLarge.value,
                 onChanged: (value) => selectedIndexLarge.value = value,
+                colors: theme.colors,
               ),
               const SizedBox(height: 20),
               AquaRadio<int>.small(
                 value: 1,
                 groupValue: selectedIndexSmall.value,
                 onChanged: (value) => selectedIndexSmall.value = value,
+                colors: theme.colors,
               ),
             ],
           ),
           const SizedBox(width: 20),
-          const Column(
+          Column(
             children: [
               AquaRadio<int>(
                 value: 0,
                 groupValue: 1,
                 enabled: false,
+                colors: theme.colors,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               AquaRadio<int>.small(
                 value: 0,
                 groupValue: 1,
                 enabled: false,
+                colors: theme.colors,
               ),
             ],
           ),
           const SizedBox(width: 20),
-          const Column(
+          Column(
             children: [
               AquaRadio<int>(
                 value: 1,
                 groupValue: 1,
                 enabled: false,
+                colors: theme.colors,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               AquaRadio<int>.small(
                 value: 1,
                 groupValue: 1,
                 enabled: false,
+                colors: theme.colors,
               ),
             ],
           ),
@@ -414,7 +427,9 @@ class _ControlSamples extends StatelessWidget {
       child: Column(
         children: [
           AquaListItem(
-            title: 'Primary',
+            title:
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            titleMaxLines: 3,
             iconLeading: icon,
             iconTrailing: control,
             onTap: () {},

@@ -1,6 +1,7 @@
 import 'package:aqua/features/pokerchip/pokerchip.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:ui_components/ui_components.dart';
 
 class PokerchipBalanceCard extends HookConsumerWidget {
   const PokerchipBalanceCard({
@@ -13,38 +14,42 @@ class PokerchipBalanceCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return BoxShadowCard(
-      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(12.0),
       child: Column(
         children: [
-          //ANCHOR: Balance Title
-          const SizedBox(height: 31.0),
-          Text(
-            context.loc.pokerChipBalanceLabel,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: 26.0,
-                  fontWeight: FontWeight.w400,
-                ),
-          ),
-          const SizedBox(height: 24.0),
           //ANCHOR - Asset Icon
           PokerchipAssetIcon(data.asset),
           const SizedBox(height: 26.0),
           //ANCHOR: Balance value
-          CopyableTextView(
-            text: data.balance.toUpperCase(),
-            iconSize: 14.0,
-            textAlign: TextAlign.center,
-            textStyle: Theme.of(context).textTheme.titleLarge,
-            margin: const EdgeInsetsDirectional.symmetric(horizontal: 40.0),
+          AquaCard(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      AquaAssetIcon.fromAssetId(
+                        assetId: data.asset.id,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 8.0),
+                      AquaText.body1SemiBold(
+                        text: context.loc.balance,
+                      ),
+                      const Spacer(),
+                      AquaText.body1SemiBold(text: data.balance.toUpperCase())
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  CopyableAddressView(
+                    address: data.address.toLowerCase(),
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 24.0),
-          //ANCHOR - Address
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: CopyableAddressView(address: data.address.toLowerCase()),
-          ),
-          const SizedBox(height: 21.0),
         ],
       ),
     );

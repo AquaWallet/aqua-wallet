@@ -68,7 +68,6 @@ class LoginRequest with _$LoginRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory LoginRequest({
     required String email,
-    @JsonKey(name: 'captcha_token') required String captchaToken,
     @JsonKey(includeIfNull: false) AnkaraLanguages? language,
   }) = _LoginRequest;
 

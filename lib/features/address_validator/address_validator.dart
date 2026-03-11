@@ -2,16 +2,18 @@ import 'package:aqua/common/data_conversion/bip21_encoder.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/elements.dart';
 import 'package:aqua/features/address_validator/money_badger_validator.dart';
+import 'package:aqua/features/address_validator/utils/base58_address_validator.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
+import 'package:aqua/features/wallet/utils/mini_private_key_service.dart';
 import 'package:aqua/logger.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
+import 'package:boltz/boltz.dart';
 import 'package:decimal/decimal.dart';
-import 'package:aqua/features/boltz/providers/boltz_to_boltz_provider.dart';
-import 'package:aqua/features/wallet/utils/mini_private_key_service.dart';
 
 import 'models/address_validator_models.dart';
 
@@ -115,15 +117,16 @@ class AddressParser {
   }
 
   /// Attempt to parse an Asset from an input
-  Future<Asset?> parseAsset({required String address, Asset? asset}) async {
+  Future<List<Asset>> parseAsset(
+      {required String address, Asset? asset}) async {
     if (await ref.read(bitcoinProvider).isValidAddress(address)) {
-      return Asset.btc();
+      return [Asset.btc()];
     } else if (isLightning(address)) {
-      return Asset.lightning();
+      return [Asset.lightning()];
     }
 
     final usdtAsset = _parseAltUsdtAsset(address, asset);
-    if (usdtAsset != null) {
+    if (usdtAsset.isNotEmpty) {
       return usdtAsset;
     }
 
@@ -135,12 +138,12 @@ class AddressParser {
               orElse: () => throw AddressParsingException(
                   AddressParsingExceptionType.assetNotInManagedAssets),
             );
-        return asset;
+        return [asset];
       } else {
-        return ref.read(manageAssetsProvider).lbtcAsset;
+        return [ref.read(manageAssetsProvider).lbtcAsset];
       }
     }
-    return null;
+    return [];
   }
 
   /// Parse an `input` into a `ParsedAddress` (address + amount).
@@ -155,9 +158,10 @@ class AddressParser {
     }
 
     // replace asset with parsed asset if compatible, otherwise if asset is null set as parsedAsset
-    final parsedAsset = await parseAsset(address: input, asset: asset);
-    final switchedAsset =
-        _switchedAsset(asset, parsedAsset, accountForCompatibleAssets);
+    final parsedAssets = await parseAsset(address: input, asset: asset);
+
+    final switchedAsset = _switchedAsset(
+        asset, parsedAssets.firstOrNull, accountForCompatibleAssets);
     if (switchedAsset != null) {
       asset = switchedAsset;
     }
@@ -175,6 +179,7 @@ class AddressParser {
         return ParsedAddress(
             address: '',
             extPrivateKey: wifPrivateKey,
+            ambiguousAssets: parsedAssets,
             asset:
                 asset); // leave send address empty for now, will be set in send flow
       }
@@ -188,7 +193,9 @@ class AddressParser {
 
       // verify if layer2 and try to parse lightning invoice or lightning address if layerTwo
       if (asset.isLayerTwo) {
-        if (parsedAsset != null && !parsedAsset.isLayerTwo) {
+        // If asset is layer two then parsedAssets will either have one asset or be empty
+        final detectedAsset = parsedAssets.firstOrNull;
+        if (detectedAsset != null && !detectedAsset.isLayerTwo) {
           throw AddressParsingException(
               AddressParsingExceptionType.nonMatchingAssetId);
         } else if (isValidLightningAddressFormat(input)) {
@@ -202,7 +209,10 @@ class AddressParser {
             return await _parseLightningAddress(lightningAddress);
           }
         } else if (isLightningInvoice(input: input)) {
-          return await _parseLightningInvoice(input, asset);
+          final submarineFees = await ref
+              .read(boltzFeesProvider.future)
+              .then((value) => value.submarine());
+          return await _parseLightningInvoice(input, asset, submarineFees);
         }
       }
 
@@ -213,10 +223,14 @@ class AddressParser {
           accountForCompatibleAssets: accountForCompatibleAssets)) {
         logger.debug(
             '[AddressParser] valid address: $input - asset: ${asset.name} - assetId: ${asset.id}');
-        return ParsedAddress(address: input, asset: asset, assetId: asset.id);
+        return ParsedAddress(
+            address: input,
+            asset: asset,
+            assetId: asset.id,
+            ambiguousAssets: parsedAssets);
       } else {
         // throw if not valid address for asset
-        if (parsedAsset != null) {
+        if (parsedAssets.isNotEmpty) {
           throw AddressParsingException(
               AddressParsingExceptionType.nonMatchingAssetId);
         } else {
@@ -267,14 +281,14 @@ class AddressParser {
 
       // If it's a fixed amount LNURL-pay, set the amount in sats
       final amount = result.isLnurlPayFixedAmount
-          ? Decimal.fromInt(result.payParams!.minSendableSats)
+          ? result.payParams!.minSendableSats
           : null;
 
       final parsedLightningAddress = ParsedAddress(
         address: input,
         asset: Asset.lightning(),
         lnurlParseResult: result,
-        amount: amount,
+        amountInSats: amount,
       );
 
       return parsedLightningAddress;
@@ -305,10 +319,10 @@ class AddressParser {
       }
 
       final fixedAmount = result.isLnurlPayFixedAmount
-          ? Decimal.fromInt(result.payParams!.minSendableSats)
+          ? result.payParams!.minSendableSats
           : null;
       return ParsedAddress(
-        amount: fixedAmount,
+        amountInSats: fixedAmount,
         address: input,
         asset: Asset.lightning(),
         lnurlParseResult: result,
@@ -324,7 +338,7 @@ class AddressParser {
 
   /// Parse Lightning Invoice
   Future<ParsedAddress?> _parseLightningInvoice(
-      String input, Asset asset) async {
+      String input, Asset asset, SubmarineFeesAndLimits submarineFees) async {
     try {
       String processedInput = input.toLowerCase();
       if (processedInput.startsWith('lightning:')) {
@@ -350,15 +364,33 @@ class AddressParser {
       }
 
       // validate minimum and maximum amounts
-      final minSats = SendAssetAmountConstraints.lightning(null).minSats;
+      final minSats = SendAssetAmountConstraints.lightning(
+        submarineFees: submarineFees,
+      ).minSats;
       if (amount < Decimal.fromInt(minSats)) {
+        final formatter = ref.read(formatProvider);
+        final unitsProvider = ref.read(displayUnitsProvider);
+        final currentUnit = unitsProvider.currentDisplayUnit;
+        final minAmountFormatted = formatter.formatAssetAmount(
+          amount: minSats,
+          asset: Asset.btc(),
+          displayUnitOverride: currentUnit,
+        );
+
+        final displayUnitTicker =
+            unitsProvider.getAssetDisplayUnit(Asset.lightning());
+
         throw AddressParsingException(
-            AddressParsingExceptionType.lessThanMinAmountInInvoice,
-            amountInSats: minSats.toString());
+          AddressParsingExceptionType.lessThanMinAmountInInvoice,
+          amount: minAmountFormatted,
+          unit: displayUnitTicker,
+        );
       }
 
       if (amount >
-          Decimal.fromInt(SendAssetAmountConstraints.lightning(null).maxSats)) {
+          Decimal.fromInt(
+              SendAssetAmountConstraints.lightning(submarineFees: submarineFees)
+                  .maxSats)) {
         throw AddressParsingException(
             AddressParsingExceptionType.greaterThanMaxAmountInInvoice);
       }
@@ -381,7 +413,7 @@ class AddressParser {
 
       return ParsedAddress(
           address: processedInput,
-          amount: amount,
+          amountInSats: amount.toBigInt().toInt(),
           asset: Asset.lightning()); // change asset to lightning
     } on AddressParsingException {
       rethrow;
@@ -403,6 +435,11 @@ class AddressParser {
     try {
       final decoder = Bip21Decoder(input);
 
+      if (decoder.assetId != null && decoder.assetId != asset.id) {
+        throw AddressParsingException(
+            AddressParsingExceptionType.nonMatchingAssetId);
+      }
+
       // throw if not valid address for asset
       final inputToValidate = asset.isLightning || asset.isLBTC
           ? decoder.lightning
@@ -421,19 +458,27 @@ class AddressParser {
       final lbtcBalance = await ref.read(balanceProvider).getLBTCBalance();
       if (decoder.lightning != null && lbtcBalance > 0) {
         try {
-          parsedLNInvoice =
-              await _parseLightningInvoice(decoder.lightning!, asset);
+          final submarineFees = await ref
+              .read(boltzFeesProvider.future)
+              .then((value) => value.submarine());
+          parsedLNInvoice = await _parseLightningInvoice(
+              decoder.lightning!, asset, submarineFees);
         } catch (e, _) {
           // if lightning invoice was included but something went wrong such as an expired invoice, don't rethrow as we want to fallback to btc
         }
       }
 
       final parseAsLightning = parsedLNInvoice != null && lbtcBalance > 0;
+      final parsedAsset = parseAsLightning ? Asset.lightning() : asset;
+      final amountInSats = decoder.amount != null
+          ? decodeBip21AmountToSats(
+              bip21Amount: decoder.amount!, asset: parsedAsset)
+          : null;
       final parsedAddress = parsedLNInvoice ??
           ParsedAddress(
               address: decoder.address,
-              amount: decoder.amount,
-              asset: parseAsLightning ? Asset.lightning() : asset,
+              amountInSats: amountInSats,
+              asset: parsedAsset,
               assetId: decoder.assetId,
               message: decoder.message,
               label: decoder.label,
@@ -442,6 +487,10 @@ class AddressParser {
     } on AddressParsingExceptionType catch (_) {
       rethrow;
     } catch (e) {
+      if (e is AddressParsingException &&
+          e.type == AddressParsingExceptionType.nonMatchingAssetId) {
+        rethrow;
+      }
       return null;
     }
   }
@@ -476,7 +525,7 @@ class AddressParser {
         final bip21 = reverseSwapBip21AsyncValue.bip21;
         final lbtcAsset = ref.read(manageAssetsProvider).lbtcAsset;
         final parseBip21 = await parseBIP21(bip21, lbtcAsset, false);
-        if (parseBip21 == null || parseBip21.amount == null) {
+        if (parseBip21 == null || parseBip21.amountInSats == null) {
           return null;
         }
 
@@ -489,9 +538,13 @@ class AddressParser {
         }
 
         logger.debug(
-            "[Boltz] routing hint - invoice amount: ${bolt11.amount} - bip21 amount: ${parseBip21.amount}");
+            "[Boltz] routing hint - invoice amount: ${bolt11.amount} - bip21 amount: ${parseBip21.amountInSats}");
 
-        return parseBip21.copyWith(isBoltzToBoltzSwap: true);
+        return parseBip21.copyWith(
+            isBoltzToBoltzSwap: true,
+            amountInSats: (bolt11.amount * Decimal.fromInt(satsPerBtc))
+                .toBigInt()
+                .toInt()); // set the amount to the amount in the invoice without boltz fees
       }
       return null;
     } on AddressParsingException catch (e) {
@@ -601,41 +654,40 @@ extension AddressParserExt on AddressParser {
   }
 
   //ANCHOR - USDT Addresses
-  Asset? _parseAltUsdtAsset(String address, Asset? asset) {
+  List<Asset> _parseAltUsdtAsset(String address, Asset? asset) {
     final activeUsdts = ref.read(activeAltUSDtsProvider);
 
-    // First check the specific asset if provided
+    // Special case: Ethereum, Binance, and Polygon share the same address format (0x...)
+    // Return all compatible assets so user can select the network
+    if (isEthAddress(address)) {
+      final validAssets = [Asset.usdtEth(), Asset.usdtBep(), Asset.usdtPol()];
+      return validAssets.where((asset) => activeUsdts.contains(asset)).toList();
+    }
+
+    // If a specific asset is provided, check if address matches that asset
     if (asset != null && asset.isAltUsdt) {
-      if ((asset.isEth && isEthAddress(address)) ||
-          (asset.isTrx && isTronAddress(address)) ||
-          (asset.isBep && isBepAddress(address)) ||
+      if ((asset.isTrx && isTronAddress(address)) ||
           (asset.isSol && isSolAddress(address)) ||
+          (asset.isEth && isEthAddress(address)) ||
+          (asset.isBep && isBepAddress(address)) ||
           (asset.isPol && isPolAddress(address)) ||
           (asset.isTon && isTonAddress(address))) {
-        return asset;
+        return [asset];
       }
     }
 
-    // If no match with specific asset or no asset provided, check other compatible USDTs
-    if (isEthAddress(address) && activeUsdts.contains(Asset.usdtEth())) {
-      return Asset.usdtEth();
-    }
+    // Auto-detect chain when no specific asset is provided
     if (isTronAddress(address) && activeUsdts.contains(Asset.usdtTrx())) {
-      return Asset.usdtTrx();
-    }
-    if (isBepAddress(address) && activeUsdts.contains(Asset.usdtBep())) {
-      return Asset.usdtBep();
+      return [Asset.usdtTrx()];
     }
     if (isSolAddress(address) && activeUsdts.contains(Asset.usdtSol())) {
-      return Asset.usdtSol();
-    }
-    if (isPolAddress(address) && activeUsdts.contains(Asset.usdtPol())) {
-      return Asset.usdtPol();
+      return [Asset.usdtSol()];
     }
     if (isTonAddress(address) && activeUsdts.contains(Asset.usdtTon())) {
-      return Asset.usdtTon();
+      return [Asset.usdtTon()];
     }
-    return null;
+
+    return [];
   }
 
   /// Basic check if this is a liquid, eth, tron, bep, sol, pol, or ton address
@@ -661,8 +713,14 @@ extension AddressParserExt on AddressParser {
   }
 
   /// Basic check for tron address
+  /// Uses regex for fast pre-check, then Base58Check validation for accuracy
   bool isTronAddress(String address) {
-    return RegExp(altUsdtValidatorMap[Asset.usdtTrx().id]!).hasMatch(address);
+    // Fast regex pre-check
+    if (!RegExp(altUsdtValidatorMap[Asset.usdtTrx().id]!).hasMatch(address)) {
+      return false;
+    }
+    // Accurate Base58Check validation with checksum verification
+    return isValidTronAddressWithChecksum(address);
   }
 
   /// Basic check for Binance Smart Chain address
@@ -671,8 +729,14 @@ extension AddressParserExt on AddressParser {
   }
 
   /// Basic check for Solana address
+  /// Uses regex for fast pre-check, then Base58 decode validation for accuracy
   bool isSolAddress(String address) {
-    return RegExp(altUsdtValidatorMap[Asset.usdtSol().id]!).hasMatch(address);
+    // Fast regex pre-check
+    if (!RegExp(altUsdtValidatorMap[Asset.usdtSol().id]!).hasMatch(address)) {
+      return false;
+    }
+    // Accurate Base58 decode validation (must decode to exactly 32 bytes)
+    return isValidSolanaAddressWithDecode(address);
   }
 
   /// Basic check for Polygon address

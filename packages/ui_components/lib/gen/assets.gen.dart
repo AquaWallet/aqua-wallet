@@ -106,6 +106,9 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/account.svg
   SvgGenImage get account => const SvgGenImage('assets/svgs/account.svg');
 
+  /// File path: assets/svgs/apple_pay.svg
+  SvgGenImage get applePay => const SvgGenImage('assets/svgs/apple_pay.svg');
+
   /// File path: assets/svgs/aqua_icon.svg
   SvgGenImage get aquaIcon => const SvgGenImage('assets/svgs/aqua_icon.svg');
 
@@ -154,8 +157,17 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/box.svg
   SvgGenImage get box => const SvgGenImage('assets/svgs/box.svg');
 
+  /// File path: assets/svgs/btc_direct.svg
+  SvgGenImage get btcDirect => const SvgGenImage('assets/svgs/btc_direct.svg');
+
+  /// File path: assets/svgs/btcpay.svg
+  SvgGenImage get btcpay => const SvgGenImage('assets/svgs/btcpay.svg');
+
   /// File path: assets/svgs/caret.svg
   SvgGenImage get caret => const SvgGenImage('assets/svgs/caret.svg');
+
+  /// File path: assets/svgs/changelly.svg
+  SvgGenImage get changelly => const SvgGenImage('assets/svgs/changelly.svg');
 
   /// File path: assets/svgs/chart.svg
   SvgGenImage get chart => const SvgGenImage('assets/svgs/chart.svg');
@@ -201,12 +213,19 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/close.svg
   SvgGenImage get close => const SvgGenImage('assets/svgs/close.svg');
 
+  /// File path: assets/svgs/coinbits.svg
+  SvgGenImage get coinbits => const SvgGenImage('assets/svgs/coinbits.svg');
+
   /// File path: assets/svgs/contextual_icon.svg
   SvgGenImage get contextualIcon =>
       const SvgGenImage('assets/svgs/contextual_icon.svg');
 
   /// File path: assets/svgs/copy.svg
   SvgGenImage get copy => const SvgGenImage('assets/svgs/copy.svg');
+
+  /// File path: assets/svgs/copy_multiple.svg
+  SvgGenImage get copyMultiple =>
+      const SvgGenImage('assets/svgs/copy_multiple.svg');
 
   /// File path: assets/svgs/credit_card.svg
   SvgGenImage get creditCard =>
@@ -247,6 +266,9 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/globe.svg
   SvgGenImage get globe => const SvgGenImage('assets/svgs/globe.svg');
 
+  /// File path: assets/svgs/google_pay.svg
+  SvgGenImage get googlePay => const SvgGenImage('assets/svgs/google_pay.svg');
+
   /// File path: assets/svgs/grab.svg
   SvgGenImage get grab => const SvgGenImage('assets/svgs/grab.svg');
 
@@ -277,6 +299,16 @@ class $AssetsSvgsGen {
   SvgGenImage get infoCircle =>
       const SvgGenImage('assets/svgs/info_circle.svg');
 
+  /// File path: assets/svgs/instagram.svg
+  SvgGenImage get instagram => const SvgGenImage('assets/svgs/instagram.svg');
+
+  /// File path: assets/svgs/jan3_logo.svg
+  SvgGenImage get jan3Logo => const SvgGenImage('assets/svgs/jan3_logo.svg');
+
+  /// File path: assets/svgs/jan3_mini_logo_dark.svg
+  SvgGenImage get jan3MiniLogoDark =>
+      const SvgGenImage('assets/svgs/jan3_mini_logo_dark.svg');
+
   /// File path: assets/svgs/key.svg
   SvgGenImage get key => const SvgGenImage('assets/svgs/key.svg');
 
@@ -299,11 +331,17 @@ class $AssetsSvgsGen {
   SvgGenImage get marketplace =>
       const SvgGenImage('assets/svgs/marketplace.svg');
 
+  /// File path: assets/svgs/mastercard.svg
+  SvgGenImage get mastercard => const SvgGenImage('assets/svgs/mastercard.svg');
+
   /// File path: assets/svgs/minus.svg
   SvgGenImage get minus => const SvgGenImage('assets/svgs/minus.svg');
 
   /// File path: assets/svgs/more.svg
   SvgGenImage get more => const SvgGenImage('assets/svgs/more.svg');
+
+  /// File path: assets/svgs/note.svg
+  SvgGenImage get note => const SvgGenImage('assets/svgs/note.svg');
 
   /// File path: assets/svgs/notification.svg
   SvgGenImage get notification =>
@@ -372,6 +410,12 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/search.svg
   SvgGenImage get search => const SvgGenImage('assets/svgs/search.svg');
 
+  /// File path: assets/svgs/select_all.svg
+  SvgGenImage get selectAll => const SvgGenImage('assets/svgs/select_all.svg');
+
+  /// File path: assets/svgs/sepa.svg
+  SvgGenImage get sepa => const SvgGenImage('assets/svgs/sepa.svg');
+
   /// File path: assets/svgs/settings.svg
   SvgGenImage get settings => const SvgGenImage('assets/svgs/settings.svg');
 
@@ -426,6 +470,9 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/switching.svg
   SvgGenImage get switching => const SvgGenImage('assets/svgs/switching.svg');
 
+  /// File path: assets/svgs/telegram.svg
+  SvgGenImage get telegram => const SvgGenImage('assets/svgs/telegram.svg');
+
   /// File path: assets/svgs/theme.svg
   SvgGenImage get theme => const SvgGenImage('assets/svgs/theme.svg');
 
@@ -438,11 +485,20 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/trend_up.svg
   SvgGenImage get trendUp => const SvgGenImage('assets/svgs/trend_up.svg');
 
+  /// File path: assets/svgs/twitter.svg
+  SvgGenImage get twitter => const SvgGenImage('assets/svgs/twitter.svg');
+
+  /// File path: assets/svgs/upload.svg
+  SvgGenImage get upload => const SvgGenImage('assets/svgs/upload.svg');
+
   /// File path: assets/svgs/user.svg
   SvgGenImage get user => const SvgGenImage('assets/svgs/user.svg');
 
   /// File path: assets/svgs/visa.svg
   SvgGenImage get visa => const SvgGenImage('assets/svgs/visa.svg');
+
+  /// File path: assets/svgs/visa_color.svg
+  SvgGenImage get visaColor => const SvgGenImage('assets/svgs/visa_color.svg');
 
   /// File path: assets/svgs/wallet.svg
   SvgGenImage get wallet => const SvgGenImage('assets/svgs/wallet.svg');
@@ -450,9 +506,13 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/warning.svg
   SvgGenImage get warning => const SvgGenImage('assets/svgs/warning.svg');
 
+  /// File path: assets/svgs/web.svg
+  SvgGenImage get web => const SvgGenImage('assets/svgs/web.svg');
+
   /// List of all assets
   List<SvgGenImage> get values => [
         account,
+        applePay,
         aquaIcon,
         aquaLogo,
         arrow,
@@ -467,7 +527,10 @@ class $AssetsSvgsGen {
         assets,
         biometricFingerprint,
         box,
+        btcDirect,
+        btcpay,
         caret,
+        changelly,
         chart,
         check,
         checkCircle,
@@ -480,8 +543,10 @@ class $AssetsSvgsGen {
         chevronUp,
         circularProgress,
         close,
+        coinbits,
         contextualIcon,
         copy,
+        copyMultiple,
         creditCard,
         danger,
         edit,
@@ -493,6 +558,7 @@ class $AssetsSvgsGen {
         fees,
         filter,
         globe,
+        googlePay,
         grab,
         hamburger,
         hardwareWallet,
@@ -502,6 +568,9 @@ class $AssetsSvgsGen {
         image,
         images,
         infoCircle,
+        instagram,
+        jan3Logo,
+        jan3MiniLogoDark,
         key,
         language,
         lightbulb,
@@ -509,8 +578,10 @@ class $AssetsSvgsGen {
         logout,
         map,
         marketplace,
+        mastercard,
         minus,
         more,
+        note,
         notification,
         notificationIndicator,
         passcode,
@@ -531,6 +602,8 @@ class $AssetsSvgsGen {
         rotate,
         scan,
         search,
+        selectAll,
+        sepa,
         settings,
         share,
         shield,
@@ -546,14 +619,19 @@ class $AssetsSvgsGen {
         swap,
         swapVertical,
         switching,
+        telegram,
         theme,
         tool,
         trash,
         trendUp,
+        twitter,
+        upload,
         user,
         visa,
+        visaColor,
         wallet,
-        warning
+        warning,
+        web
       ];
 }
 
@@ -627,6 +705,9 @@ class $AssetsSvgsCurrencyGen {
   SvgGenImage get liquidBitcoin =>
       const SvgGenImage('assets/svgs/currency/liquid_bitcoin.svg');
 
+  /// File path: assets/svgs/currency/mexas.svg
+  SvgGenImage get mexas => const SvgGenImage('assets/svgs/currency/mexas.svg');
+
   /// File path: assets/svgs/currency/polygon.svg
   SvgGenImage get polygon =>
       const SvgGenImage('assets/svgs/currency/polygon.svg');
@@ -682,6 +763,7 @@ class $AssetsSvgsCurrencyGen {
         l2Bitcoin,
         lightningBtc,
         liquidBitcoin,
+        mexas,
         polygon,
         solana,
         ton,

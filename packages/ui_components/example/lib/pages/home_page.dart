@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ui_components/ui_components.dart';
+import 'package:ui_components_playground/pages/toast_demo.dart';
 import 'package:ui_components_playground/shared/shared.dart';
 
 import '../pages/pages.dart';
@@ -18,6 +19,7 @@ class HomeScreen extends HookConsumerWidget {
     final theme = ref.watch(prefsProvider).selectedTheme;
     final selectedIndex = useState(0);
     final demoItems = {
+      'Drop Down Menu': const DropDownMenuDemoPage(),
       _keyNavBarDemo: Center(
         child: AquaButton.utility(
           text: 'Open Nav Bar Demo',
@@ -26,6 +28,8 @@ class HomeScreen extends HookConsumerWidget {
           },
         ),
       ),
+      'Service Options': const ServiceOptionsDemoPage(),
+      'Payment Rail': const PaymentRailDemoPage(),
       'Transaction Summaries': const TransactionSummaryDemoPage(),
       'Header': const TopAppbarDemoPage(),
       'Numpad': const NumpadDemoPage(),
@@ -34,6 +38,7 @@ class HomeScreen extends HookConsumerWidget {
       'Debit Card': const DebitCardDemoPage(),
       'Wallet Price & Balance': const WalletPriceBalanceDemoPage(),
       'Quick Actions': const QuickActionsDemoPage(),
+      'Toast': const ToastDemoPage(),
       'Seed Phrase': const SeedPhraseDemoPage(),
       'Asset Selector': const AssetSelectorDemoPage(),
       'List Item': const ListItemDemoPage(),

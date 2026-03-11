@@ -48,16 +48,23 @@ class FeatureFlagsNotifier extends ChangeNotifier {
   bool get btcDirectEnabled =>
       _prefs.getBool(PrefKeys.btcDirectEnabled) ?? true;
 
-  bool get seedQrEnabled => _prefs.getBool(PrefKeys.seedQrEnabled) ?? false;
-
   bool get customElectrumUrlEnabled =>
       _prefs.getBool(PrefKeys.customElectrumUrlEnabled) ?? false;
 
   bool get debitCardStagingEnabled =>
       _prefs.getBool(PrefKeys.debitCardStagingEnabled) ?? false;
 
+  bool get lendASatMockDataEnabled =>
+      _prefs.getBool(PrefKeys.lendASatMockDataEnabled) ?? false;
+
   bool get marketplaceTilesMockDataEnabled =>
       _prefs.getBool(PrefKeys.marketplaceTilesMockDataEnabled) ?? false;
+
+  bool get displayUnitsEnabled =>
+      _prefs.getBool(PrefKeys.displayUnitsEnabled) ?? false;
+
+  bool get enableAllTranslations =>
+      _prefs.getBool(PrefKeys.hiddenLanguages) ?? false;
 
   void toggleFeatureFlag({
     required String key,
