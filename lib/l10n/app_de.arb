@@ -365,7 +365,7 @@
   "scanQrCodeTitle": "QR Scanner",
   "scanQrCodeUnsupportedAssetAlertSubtitle": "Asset ID nicht unterstützt",
   "scanQrCodeValidationAlertTitle": "Ungültiger QR-Code",
-  "scanTextDefaultError": "Ungültige oder nicht unterstützte Adresse",
+  "scanTextDefaultError": "Ungültige oder nicht unterstützte Adresse.",
   "scanTextTitle": "Textscanner",
   "buttonScanText": "Text scannen",
   "cameraIsNotAvailable": "Die Kamera ist nicht verfügbar",
