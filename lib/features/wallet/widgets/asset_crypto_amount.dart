@@ -70,6 +70,7 @@ class AssetCryptoAmount extends HookConsumerWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.end,
+        textDirection: TextDirection.ltr,
         style: defaultStyle,
       );
     }
@@ -100,6 +101,7 @@ class AssetCryptoAmount extends HookConsumerWidget {
     // Build the rich text display with unit if needed
     return Text.rich(
       textAlign: TextAlign.end,
+      textDirection: TextDirection.ltr,
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
       TextSpan(

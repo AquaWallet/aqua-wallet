@@ -37,6 +37,7 @@ final transactionStorageProvider =
 abstract class TransactionStorage {
   Future<void> save(TransactionDbModel model);
   Future<void> clear();
+  Future<void> clearByWalletId(String walletId);
   Future<void> clearGhostTransactions();
   Future<void> updateTxHash({
     required String serviceOrderId,
@@ -74,10 +75,8 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
   FutureOr<List<TransactionDbModel>> build() async {
     final storage = await ref.watch(storageProvider.future);
 
-    final currentWallet = ref.watch(
-      storedWalletsProvider.select((s) => s.valueOrNull?.currentWallet),
-    );
-    final walletId = currentWallet?.id;
+    // Use the storage-backed provider to avoid circular dependency with storedWalletsProvider
+    final walletId = await ref.watch(currentWalletIdProvider.future);
     if (walletId == null) {
       return [];
     }
@@ -157,7 +156,20 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
   @override
   Future<void> clear() async {
     final storage = await ref.read(storageProvider.future);
-    await storage.writeTxn(() => storage.clear());
+    await storage.writeTxn(() => storage.transactionDbModels.clear());
+    await _reloadCurrentWalletTransactions();
+  }
+
+  @override
+  Future<void> clearByWalletId(String walletId) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      final count = await storage.transactionDbModels
+          .filter()
+          .walletIdEqualTo(walletId)
+          .deleteAll();
+      _logger.debug('Removed $count transactions for wallet $walletId');
+    });
     await _reloadCurrentWalletTransactions();
   }
 

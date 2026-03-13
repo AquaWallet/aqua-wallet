@@ -1,28 +1,41 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_svg/svg.dart';
 
 class CountryFlag extends StatelessWidget {
   const CountryFlag({
     super.key,
-    this.width,
-    this.height,
-    this.borderRadius,
     required this.svgAsset,
+    required this.size,
+    this.borderRadius,
   });
 
   final String svgAsset;
-  final double? width;
-  final double? height;
+  final double size;
   final double? borderRadius;
+
+  static const _borderWidth = 1.0;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius ?? 2.0),
+    final radius = borderRadius ?? 2.0;
+
+    return Container(
+      width: size,
+      height: size,
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: context.aquaColors.surfaceBorderSecondary,
+          width: _borderWidth,
+        ),
+      ),
       child: SvgPicture.asset(
         svgAsset,
-        width: width ?? 16.0,
-        height: height ?? 16.0,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
       ),
     );
   }

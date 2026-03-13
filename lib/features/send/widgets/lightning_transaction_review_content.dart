@@ -129,7 +129,6 @@ class _RecipientAndFeeCard extends ConsumerWidget {
                     text: _fakeLightningInvoice,
                     maxLines: 2,
                     style: AquaAddressTypography.body2,
-                    colorType: ColoredTextEnum.coloredIntegers,
                   ),
                   child: AquaColoredText(
                     text: address,
@@ -137,7 +136,6 @@ class _RecipientAndFeeCard extends ConsumerWidget {
                     style: AquaAddressTypography.body2.copyWith(
                       color: context.aquaColors.textSecondary,
                     ),
-                    colorType: ColoredTextEnum.coloredIntegers,
                     shouldWrap: true,
                   ),
                 ),
@@ -222,7 +220,7 @@ class _OrderIdCard extends ConsumerWidget {
                 AquaListItem(
                   onTap: () => ref.read(urlLauncherProvider).open(boltzWebsite),
                   title: context.loc.provider,
-                  subtitleTrailing: 'Boltz.Exchange',
+                  subtitleTrailing: 'Boltz',
                   subtitleTrailingColor: context.aquaColors.accentBrand,
                   iconTrailing: Skeleton.unite(
                     child: AquaIcon.externalLink(

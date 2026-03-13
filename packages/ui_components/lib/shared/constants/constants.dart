@@ -1,3 +1,5 @@
+export 'keys.dart';
+
 // NOTE: Copied from lib/features/settings/manage_assets/models/assets.dart
 
 import 'dart:io';

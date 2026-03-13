@@ -23,16 +23,6 @@ final usdtAsset = Asset(
   isLiquid: true,
 );
 
-final jpysAsset = Asset(
-  id: '3438ecb49fc45c08e687de4749ed628c511e326460ea4336794e1cf02741329e',
-  name: 'JPY Stablecoin',
-  ticker: 'JPYS',
-  logoUrl: 'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/JPYS.svg',
-  isDefaultAsset: false,
-  isRemovable: true,
-  isLiquid: true,
-);
-
 final eurxAsset = Asset(
   id: '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec',
   name: 'PEGx EURx',

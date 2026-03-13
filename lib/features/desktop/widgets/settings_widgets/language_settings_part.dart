@@ -35,8 +35,7 @@ class LanguageSettings extends HookConsumerWidget {
             ///TODO: pull flags from somewhere for langages
             // iconLeading: CountryFlag(
             //   svgAsset: region.flagSvg,
-            //   height: 24,
-            //   width: 24,
+            //   size: 24,
             // ),
             ///TODO: language names need to be pulled from somwhere
             title: language.languageCode,

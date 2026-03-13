@@ -33,6 +33,8 @@ class MarketplaceContent extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
+
     return LayoutBuilder(builder: (context, constraints) {
       double screenWidth = constraints.maxWidth;
       double screenHeight = constraints.maxHeight;
@@ -46,6 +48,9 @@ class MarketplaceContent extends HookConsumerWidget {
           showBackButton: false,
           title: context.loc.marketplaceTitle,
           colors: context.aquaColors,
+          actions: [
+            if (region != null) _RegionFlagAction(region: region),
+          ],
         ),
         body: SafeArea(
           child: SizedBox(
@@ -58,6 +63,23 @@ class MarketplaceContent extends HookConsumerWidget {
         ),
       );
     });
+  }
+}
+
+class _RegionFlagAction extends StatelessWidget {
+  const _RegionFlagAction({required this.region});
+
+  final Region region;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () => context.push(
+        RegionSettingsScreen.routeName,
+        extra: true,
+      ),
+      icon: CountryFlag(svgAsset: region.flagSvg, size: 20),
+    );
   }
 }
 

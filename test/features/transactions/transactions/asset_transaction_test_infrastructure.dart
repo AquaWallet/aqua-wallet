@@ -554,6 +554,7 @@ class TransactionTestResult {
             that: predicate<Asset>((a) => a.id == asset.id),
           ),
           decimalPlacesOverride: precision == 2 ? 2 : null,
+          removeTrailingZeros: any(named: 'removeTrailingZeros'),
         )).called(greaterThan(0));
   }
 
@@ -564,6 +565,7 @@ class TransactionTestResult {
           amount: any(named: 'amount'),
           asset: any(named: 'asset'),
           decimalPlacesOverride: any(named: 'decimalPlacesOverride'),
+          removeTrailingZeros: any(named: 'removeTrailingZeros'),
         )).called(greaterThan(0));
   }
 

@@ -113,7 +113,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                   ),
                   subtitleTrailing: useSubTitle ? '' : currentWalletName ?? '',
                   subtitle: useSubTitle ? currentWalletName ?? '' : '',
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -133,7 +133,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                     size: 24,
                     color: context.aquaColors.textSecondary,
                   ),
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -147,7 +147,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                     size: 24,
                     color: context.aquaColors.textSecondary,
                   ),
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -165,7 +165,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                         : AquaIcon.jan3Logo(
                             size: 24,
                           ),
-                    iconTrailing: AquaIcon.chevronRight(
+                    iconTrailing: AquaIcon.chevronForward(
                       size: 18,
                       color: context.aquaColors.textSecondary,
                     ),
@@ -202,7 +202,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                           ? region.name
                           : ''
                       : null,
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -223,7 +223,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                   subtitleTrailing:
                       useSubtitle ? null : languageCode.toUpperCase(),
                   subtitle: useSubtitle ? languageCode.toUpperCase() : null,
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -244,7 +244,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                   subtitle: useSubtitle
                       ? '${currentDisplayUnit.value}/${currentRate.currency.value.toUpperCase()}'
                       : null,
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -262,7 +262,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                   ),
                   subtitleTrailing: useSubtitle ? null : currentThemeLabel,
                   subtitle: useSubtitle ? currentThemeLabel : null,
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -280,7 +280,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                   subtitleTrailing:
                       useSubtitle ? null : currentBlockExplorer.name,
                   subtitle: useSubtitle ? currentBlockExplorer.name : null,
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -295,7 +295,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                     size: 24,
                     color: context.aquaColors.textSecondary,
                   ),
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -315,7 +315,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                   size: 24,
                   color: context.aquaColors.textSecondary,
                 ),
-                iconTrailing: AquaIcon.chevronRight(
+                iconTrailing: AquaIcon.chevronForward(
                   size: 18,
                   color: context.aquaColors.textSecondary,
                 ),

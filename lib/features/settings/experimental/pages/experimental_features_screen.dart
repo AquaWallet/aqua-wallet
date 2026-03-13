@@ -8,7 +8,6 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/features/wallet/wallet.dart';
-import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -277,6 +276,16 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           ),
           const SizedBox(height: 16.0),
 
+          //ANCHOR - Legacy Wallet
+          MenuItemWidget.arrow(
+            context: context,
+            color: context.colors.onBackground,
+            assetName: Svgs.tabWallet,
+            title: context.loc.settingsScreenItemLegacyWallet,
+            onPressed: () => context.push(LegacyWalletScreen.routeName),
+          ),
+          const SizedBox(height: 16.0),
+
           //ANCHOR - Logs
           MenuItemWidget.arrow(
               context: context,
@@ -533,7 +542,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                         .themeBased(),
                   ),
             ),
-            const SizedBox(height: 16.0),
           ],
         ],
       ),

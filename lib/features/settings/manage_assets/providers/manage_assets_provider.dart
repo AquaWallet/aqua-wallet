@@ -96,6 +96,11 @@ final availableAssetsProvider =
       if (region == RegionsStatic.br) {
         ref.read(prefsProvider).addAsset(ref.read(liquidProvider).depixId);
       }
+
+      // Add eurx if euro region
+      if (region.usesEuro) {
+        ref.read(prefsProvider).addAsset(ref.read(liquidProvider).eurXId);
+      }
     }
   }
 

@@ -79,7 +79,7 @@ class AquaWalletTile extends StatelessWidget {
                     ),
                   ),
             const SizedBox(width: 8),
-            AquaIcon.chevronRight(
+            AquaIcon.chevronForward(
               size: 18,
               color: isSolid ? colors.textTertiary : colors.textInverse,
             ),

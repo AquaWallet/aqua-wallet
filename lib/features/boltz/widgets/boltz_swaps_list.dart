@@ -1,4 +1,6 @@
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
+import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
@@ -68,11 +70,11 @@ class _SwapListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final formattedAmount = swap.amountFromInvoice != null
-        ? ref.watch(currencyFormatProvider(0)).format(swap.amountFromInvoice!)
-        : null;
-    final amountWithUnit = formattedAmount != null
-        ? '$formattedAmount ${SupportedDisplayUnits.sats.value}'
+    final formatter = ref.watch(formatProvider);
+    final displayUnits = ref.watch(displayUnitsProvider);
+    final lbtc = Asset.lbtc();
+    final amountWithUnit = swap.amountFromInvoice != null
+        ? '${formatter.formatAssetAmount(amount: swap.amountFromInvoice!, asset: lbtc)} ${displayUnits.getAssetDisplayUnit(lbtc)}'
         : null;
 
     return AquaListItem(
@@ -80,7 +82,7 @@ class _SwapListItem extends ConsumerWidget {
       subtitle: context.loc.timeout(swap.locktime),
       titleTrailing: amountWithUnit,
       subtitleTrailing: swap.lastKnownStatus?.label(context) ?? '',
-      iconTrailing: AquaIcon.chevronRight(
+      iconTrailing: AquaIcon.chevronForward(
         size: 18,
         color: context.aquaColors.textSecondary,
       ),

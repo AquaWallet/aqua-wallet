@@ -1,12 +1,28 @@
 import 'dart:async';
 
+/// A structured error with a localized label and an optional numeric amount,
+/// kept separate so each part can be rendered with the correct text direction.
+class AquaInputError {
+  const AquaInputError({required this.label, this.amount});
+
+  final String label;
+  final String? amount;
+
+  @override
+  bool operator ==(Object other) =>
+      other is AquaInputError && other.label == label && other.amount == amount;
+
+  @override
+  int get hashCode => Object.hash(label, amount);
+}
+
 /// Controller to manage error state for AquaAssetInputField
 class AquaInputErrorController {
   AquaInputErrorController([
-    String? error,
+    AquaInputError? error,
     this.debounceDuration = kDebounceDuration,
   ]) {
-    _errorController = StreamController<String?>.broadcast();
+    _errorController = StreamController<AquaInputError?>.broadcast();
     _visibilityController = StreamController<bool>.broadcast();
     if (error != null) {
       _lastError = error;
@@ -16,31 +32,41 @@ class AquaInputErrorController {
     }
   }
 
+  /// Convenience factory for a simple label + optional amount, without needing
+  /// to reference [AquaInputError] directly at the call site.
+  factory AquaInputErrorController.fromString(String label, [String? amount]) =>
+      AquaInputErrorController(AquaInputError(label: label, amount: amount));
+
   static const kVisibilityDuration = Duration(seconds: 2);
   static const kDebounceDuration = Duration(milliseconds: 300);
   final Duration debounceDuration;
 
-  late final StreamController<String?> _errorController;
+  late final StreamController<AquaInputError?> _errorController;
   late final StreamController<bool> _visibilityController;
-  String? _lastError;
+  AquaInputError? _lastError;
   bool _isVisible = false;
   Timer? _visibilityTimer;
   Timer? _debounceTimer;
 
   /// Stream of error messages
-  Stream<String?> get errors => _errorController.stream;
+  Stream<AquaInputError?> get errors => _errorController.stream;
 
   /// Stream of error visibility state
   Stream<bool> get visibility => _visibilityController.stream;
 
   /// Current error value
-  String? get currentError => _lastError;
+  AquaInputError? get currentError => _lastError;
 
   /// Current visibility state
   bool get isVisible => _isVisible;
 
-  /// Add an error message with debouncing
-  void addError(String error) {
+  /// Convenience method — wraps plain strings into an [AquaInputError] and adds it.
+  void addStringError(String label, [String? amount]) {
+    addError(AquaInputError(label: label, amount: amount));
+  }
+
+  /// Add a structured error with debouncing
+  void addError(AquaInputError error) {
     // Cancel any existing timers
     _visibilityTimer?.cancel();
     _debounceTimer?.cancel();

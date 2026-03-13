@@ -29,7 +29,7 @@ class PokerchipScreen extends HookConsumerWidget {
                   color: context.aquaColors.textSecondary,
                   size: 24,
                 ),
-                iconTrailing: AquaIcon.chevronRight(
+                iconTrailing: AquaIcon.chevronForward(
                   color: context.aquaColors.textSecondary,
                   size: 18,
                 ),
@@ -44,7 +44,7 @@ class PokerchipScreen extends HookConsumerWidget {
               //     color: context.aquaColors.textSecondary,
               //     size: 24,
               //   ),
-              //   iconTrailing: AquaIcon.chevronRight(
+              //   iconTrailing: AquaIcon.chevronForward(
               //     color: context.aquaColors.textSecondary,
               //     size: 18,
               //   ),

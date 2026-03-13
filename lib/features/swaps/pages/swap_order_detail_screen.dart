@@ -26,6 +26,9 @@ class SwapOrderDetailScreen extends HookConsumerWidget {
     final createdAtStr = order.createdAt.mmMdyyyyHmma();
     final expiresAtStr = order.expiresAt?.mmMdyyyyHmma() ?? '-';
 
+    final fromAssetName = SwapAssetExt.fromId(order.fromAsset).name;
+    final toAssetName = SwapAssetExt.fromId(order.toAsset).name;
+
     return DesignRevampScaffold(
       appBar: AquaTopAppBar(
         title: context.loc.swapOrder,
@@ -71,13 +74,13 @@ class SwapOrderDetailScreen extends HookConsumerWidget {
               //ANCHOR - From Asset
               AquaListItem(
                 title: context.loc.from,
-                subtitleTrailing: order.fromAsset,
+                subtitleTrailing: fromAssetName,
               ),
               AquaDivider(colors: context.aquaColors),
               //ANCHOR - To Asset
               AquaListItem(
                 title: context.loc.to,
-                subtitleTrailing: order.toAsset,
+                subtitleTrailing: toAssetName,
               ),
               AquaDivider(colors: context.aquaColors),
               //ANCHOR - Deposit Amount

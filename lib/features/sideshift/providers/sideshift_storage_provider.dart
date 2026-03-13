@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/sideshift.dart';
 import 'package:aqua/logger.dart';
 import 'package:isar/isar.dart';
-import 'package:aqua/features/sideshift/sideshift.dart';
 
 final _logger = CustomLogger(FeatureFlag.sideshiftOrderStorage);
 
@@ -102,8 +102,7 @@ class SideshiftOrderStorageNotifier
   @override
   Future<void> clear() async {
     final storage = await ref.read(storageProvider.future);
-    await storage.writeTxn(() => storage.clear());
-
+    await storage.writeTxn(() => storage.sideshiftOrderDbModels.clear());
     final updated = await storage.sideshiftOrderDbModels.all().sortByCreated();
     state = AsyncValue.data(updated);
   }

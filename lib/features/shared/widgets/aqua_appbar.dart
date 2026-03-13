@@ -143,8 +143,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
                               iconBackgroundColor ?? defaultIconBackgroundColor,
                           child: CountryFlag(
                             svgAsset: actionButtonAsset!,
-                            width: 20.0,
-                            height: 20.0,
+                            size: 20,
                             borderRadius: 5.0,
                           ),
                         ),

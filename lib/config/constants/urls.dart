@@ -16,7 +16,7 @@ const aquaZendeskMoonUrl =
 const aquaDirectPegInUrl =
     'https://jan3.zendesk.com/hc/en-us/articles/28007940902043-What-s-Direct-Peg-in-and-how-does-It-work';
 const usdtFeeTransactionInfoUrl =
-    'https://jan3.zendesk.com/hc/en-us/articles/43523682051739-Understanding-USDt-Fee-Transactions-in-Your-L-BTC-History';
+    'https://jan3.zendesk.com/hc/en-us/articles/46013181316379';
 const aquaPegInLiquidityWarningUrl =
     "https://jan3.zendesk.com/hc/en-us/articles/42481648973851-Why-is-my-Peg-in-or-Peg-out-taking-longer-than-usual";
 

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/app_links/app_link.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/data/provider/network_frontend.dart';
 import 'package:aqua/features/sam_rock/models/sam_rock_exception.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
@@ -90,8 +92,11 @@ class SamRockStateNotifier extends StateNotifier<SamRockState> {
 
       // Invalidate subaccounts provider to load for the new wallet
       ref.invalidate(subaccountsProvider);
-      // Wait for subaccounts to load
-      final newSubaccounts = await ref.watch(subaccountsProvider.future);
+      await ref.read(subaccountsProvider.notifier).loadSubaccounts();
+      final newSubaccounts = ref.read(subaccountsProvider).valueOrNull;
+      if (newSubaccounts == null) {
+        throw SamRockException(SamRockExceptionType.notEnoughSubaccounts);
+      }
 
       await _performUpload(appLink, newSubaccounts);
     } on SamRockException catch (e) {
@@ -128,13 +133,21 @@ class SamRockStateNotifier extends StateNotifier<SamRockState> {
         throw SamRockException(SamRockExceptionType.missingWalletData);
       }
 
-      if (subaccounts.subaccounts.length < 3) {
+      state = const SamRockState.loading();
+      final bitcoinSubaccounts = subaccounts.subaccounts
+          .where((s) => s.networkType == NetworkType.bitcoin)
+          .toList();
+      final liquidSubaccounts = subaccounts.subaccounts
+          .where((s) => s.networkType == NetworkType.liquid)
+          .toList();
+      if (bitcoinSubaccounts.isEmpty || liquidSubaccounts.isEmpty) {
         throw SamRockException(SamRockExceptionType.notEnoughSubaccounts);
       }
-
-      state = const SamRockState.loading();
-      final bitcoinSubaccount = subaccounts.subaccounts[1];
-      final liquidSubaccount = subaccounts.subaccounts[2];
+      final bitcoinSubaccount = bitcoinSubaccounts.firstWhere(
+        (s) => s.subaccount.type == GdkSubaccountTypeEnum.type_p2wpkh,
+        orElse: () => bitcoinSubaccounts.first,
+      );
+      final liquidSubaccount = liquidSubaccounts.first;
 
       // Get the core descriptors for the Liquid subaccount
       final liquidCoreDescriptors = liquidSubaccount.subaccount.coreDescriptors;

@@ -130,7 +130,7 @@ class AssetSwapTransactionDetails extends HookConsumerWidget {
                       title: context.loc.contactSwapServiceSupport(
                         model.swapServiceName.split('.').first,
                       ),
-                      iconTrailing: AquaIcon.chevronRight(
+                      iconTrailing: AquaIcon.chevronForward(
                         size: 18,
                         color: context.colorScheme.onPrimaryContainer,
                       ),

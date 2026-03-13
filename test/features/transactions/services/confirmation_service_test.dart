@@ -46,15 +46,15 @@ void main() {
             )).called(1);
       });
 
-      test('handles zero confirmations', () async {
+      test('returns 0 for unconfirmed transactions (blockHeight 0)', () async {
         when(() => mockAquaProvider.getConfirmationCount(
               asset: any(named: 'asset'),
-              transactionBlockHeight: any(named: 'transactionBlockHeight'),
+              transactionBlockHeight: 0,
             )).thenAnswer((_) => Stream.value(0));
 
         final result = await confirmationService.getConfirmationCount(
           Asset.btc(),
-          800005,
+          0,
         );
 
         expect(result, equals(0));
@@ -115,13 +115,13 @@ void main() {
     });
 
     group('isTransactionPending', () {
-      test('returns true when confirmations below threshold', () async {
+      test('returns true for unconfirmed transactions', () async {
         when(() => mockAquaProvider.getConfirmationCount(
               asset: any(named: 'asset'),
-              transactionBlockHeight: any(named: 'transactionBlockHeight'),
+              transactionBlockHeight: 0,
             )).thenAnswer((_) => Stream.value(0));
 
-        final transaction = _createMockTransaction(blockHeight: 800000);
+        final transaction = _createMockTransaction(blockHeight: null);
 
         final result = await confirmationService.isTransactionPending(
           transaction: transaction,

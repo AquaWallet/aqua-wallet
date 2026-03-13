@@ -1,4 +1,3 @@
-import 'package:aqua/constants.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -64,7 +63,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
       return formatter.signedFormatAssetAmount(
         amount: amount,
         asset: args.asset,
-        decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+        removeTrailingZeros: true,
       );
     }
 
@@ -73,7 +72,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
       return formatter.signedFormatAssetAmount(
         amount: networkTxn.satoshi?[args.asset.id] as int,
         asset: args.asset,
-        decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+        removeTrailingZeros: true,
       );
     }
 
@@ -93,7 +92,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
     return formatter.signedFormatAssetAmount(
       amount: amount,
       asset: args.asset,
-      decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: true,
     );
   }
 

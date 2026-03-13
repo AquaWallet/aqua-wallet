@@ -67,7 +67,7 @@ final class _$Jan3ApiService extends Jan3ApiService {
 
   @override
   Future<Response<ExchangeRateResponse>> getExchangeRates() {
-    final Uri $url = Uri.parse('/api/v1/exrates/');
+    final Uri $url = Uri.parse('/api/v1/prices/exrates/');
     final Request $request = Request(
       'GET',
       $url,
@@ -78,7 +78,7 @@ final class _$Jan3ApiService extends Jan3ApiService {
 
   @override
   Future<Response<DailyPriceResponse>> getDailyPrice({String? currency}) {
-    final Uri $url = Uri.parse('/api/v1/daily-price/');
+    final Uri $url = Uri.parse('/api/v1/prices/daily/');
     final Map<String, dynamic> $params = <String, dynamic>{
       'currency': currency
     };

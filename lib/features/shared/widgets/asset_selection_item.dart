@@ -5,6 +5,7 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:ui_components/ui_components.dart';
 
 const usdteName = '(USDT.e)';
 
@@ -24,15 +25,18 @@ class AssetSelectionDropDownItem extends HookConsumerWidget {
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12.0)),
       ),
-      padding: const EdgeInsets.only(left: 19.0, right: 18.0),
+      padding: const EdgeInsetsDirectional.only(start: 19.0, end: 18.0),
       child: Row(
         children: [
           // Icon
-          AssetIcon(
-            assetId: asset.isLBTC ? kLayer2BitcoinId : asset.id,
-            assetLogoUrl: asset.logoUrl,
-            size: 42.0,
-          ),
+          if (asset.isLBTC)
+            AquaAssetIcon.l2Bitcoin(size: 42.0)
+          else
+            AssetIcon(
+              assetId: asset.id,
+              assetLogoUrl: asset.logoUrl,
+              size: 42.0,
+            ),
 
           const SizedBox(width: 17.0),
           Expanded(
@@ -73,6 +77,7 @@ class AssetSelectionDropDownItem extends HookConsumerWidget {
                   amount: asset.amount,
                   asset: asset,
                 ),
+                textDirection: TextDirection.ltr,
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Theme.of(context)
                           .colors
@@ -89,6 +94,7 @@ class AssetSelectionDropDownItem extends HookConsumerWidget {
 
                   return Text(
                     conversion ?? '',
+                    textDirection: TextDirection.ltr,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontSize: 14.0,
                           color: Theme.of(context).colorScheme.onSurface,

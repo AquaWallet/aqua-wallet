@@ -342,15 +342,20 @@ class _AquaProvider extends AquaProvider {
   @override
   Stream<int> getConfirmationCount(
       {required Asset asset, required int transactionBlockHeight}) {
+    if (transactionBlockHeight == 0) return Stream.value(0);
+
     return Stream.value(asset).switchMap((asset) {
       return ref
           .read(asset.isBTC ? bitcoinProvider : liquidProvider)
           .blockHeightEventSubject;
     }).map((currentBlockHeight) {
-      return ([currentBlockHeight, transactionBlockHeight].contains(0) ||
-              currentBlockHeight < transactionBlockHeight)
-          ? 0
-          : currentBlockHeight - transactionBlockHeight + 1;
+      if (currentBlockHeight == 0 ||
+          currentBlockHeight < transactionBlockHeight) {
+        // Mined (blockHeight > 0) but the block-height stream hasn't caught
+        // up yet — report at least 1 so the tx isn't stuck as "pending".
+        return 1;
+      }
+      return currentBlockHeight - transactionBlockHeight + 1;
     });
   }
 

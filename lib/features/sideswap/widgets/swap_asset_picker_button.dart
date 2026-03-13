@@ -70,7 +70,7 @@ class SwapAssetPickerButton extends HookConsumerWidget {
                   Skeleton.ignore(
                     ignore: isLoading,
                     child: selectedAsset!.isLBTC
-                        ? AquaAssetIcon.lightningBtcComposite(
+                        ? AquaAssetIcon.l2Bitcoin(
                             size: 24.0,
                           )
                         : AssetIcon(

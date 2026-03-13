@@ -92,7 +92,7 @@ class ReceiveSwapInformation extends HookConsumerWidget {
           //ANCHOR - Provider Processing Fee
           AquaListItem(
             title: context.loc
-                .providerProcessingFee(_getProviderTitle(order, swapPair)),
+                .providerProcessingFee(getProviderTitle(order, swapPair)),
             subtitleTrailing: networkFee,
           ),
           const SizedBox(height: 1),
@@ -100,7 +100,7 @@ class ReceiveSwapInformation extends HookConsumerWidget {
           if ((order?.id ?? '').isNotEmpty) ...[
             AquaListItem(
               onTap: () => context.copyToClipboard(order?.id ?? ''),
-              title: context.loc.providerId(_getProviderTitle(order, swapPair)),
+              title: context.loc.providerId,
               contentWidget: Text(
                 order?.id ?? '',
                 style: AquaAddressTypography.body2.copyWith(
@@ -118,7 +118,8 @@ class ReceiveSwapInformation extends HookConsumerWidget {
     );
   }
 
-  String _getProviderTitle(SwapOrder? order, SwapPair swapPair) {
+  @visibleForTesting
+  static String getProviderTitle(SwapOrder? order, SwapPair swapPair) {
     if (order == null) return '';
 
     final deliverAsset = swapPair.from.toAsset();

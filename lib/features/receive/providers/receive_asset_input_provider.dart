@@ -4,6 +4,7 @@
  */
 
 import 'dart:async';
+
 import 'package:aqua/common/data_conversion/bip21_encoder.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/receive/receive.dart';
@@ -84,12 +85,11 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         decimalSeparatorChanged &&
         currentState.amountFieldText != null &&
         currentState.amountFieldText!.isNotEmpty) {
-      // If decimal separator changed and we have crypto input with text, re-parse the amount
-      // First clean the text using the OLD currency format, then parse with new format
-      final cleanedText = ref.read(formatterProvider).cleanAmountString(
-            currentState.amountFieldText!,
-            currentState.rate.currency.format, // Use OLD format for cleaning
-          );
+      // For crypto input, amountFieldText is in BTC format (always uses '.' as decimal).
+      // Don't apply fiat currency format cleaning - just remove spaces and parse directly.
+      final cleanedText = currentState.amountFieldText!
+          .replaceAll(' ', '')
+          .replaceAll(FormatService.kBitcoinFractionalSeparator, '');
 
       // Use the cleaned text for re-parsing with the new rate
       final newState = _onInputVariableUpdate(

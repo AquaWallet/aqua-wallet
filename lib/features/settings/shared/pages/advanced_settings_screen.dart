@@ -93,7 +93,7 @@ class AdvancedSettingsScreen extends HookConsumerWidget
                   size: 24,
                   color: context.aquaColors.textSecondary,
                 ),
-                iconTrailing: AquaIcon.chevronRight(
+                iconTrailing: AquaIcon.chevronForward(
                   size: 18,
                   color: context.aquaColors.textSecondary,
                 ),
@@ -106,7 +106,7 @@ class AdvancedSettingsScreen extends HookConsumerWidget
               // AquaListItem(
               //   title: context.loc.btcPayServer,
               //   iconLeading: AquaIcon.btcpay(),
-              //   iconTrailing: AquaIcon.chevronRight(
+              //   iconTrailing: AquaIcon.chevronForward(
               //     size: 18,
               //     color: context.aquaColors.textSecondary,
               //   ),
@@ -120,7 +120,7 @@ class AdvancedSettingsScreen extends HookConsumerWidget
                   size: 24,
                   color: context.aquaColors.textSecondary,
                 ),
-                iconTrailing: AquaIcon.chevronRight(
+                iconTrailing: AquaIcon.chevronForward(
                   size: 18,
                   color: context.aquaColors.textSecondary,
                 ),
@@ -139,7 +139,7 @@ class AdvancedSettingsScreen extends HookConsumerWidget
                     size: 24,
                     color: context.aquaColors.textSecondary,
                   ),
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),

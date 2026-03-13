@@ -44,7 +44,7 @@ class ReceiveAssetBottomNav extends HookConsumerWidget {
                       context.pop();
                     }
                   },
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     color: context.aquaColors.textSecondary,
                     size: 18,
                   ),
@@ -71,7 +71,7 @@ class ReceiveAssetBottomNav extends HookConsumerWidget {
                     }
                   }
                 },
-                iconTrailing: AquaIcon.chevronRight(
+                iconTrailing: AquaIcon.chevronForward(
                   color: context.aquaColors.textSecondary,
                   size: 18,
                 ),

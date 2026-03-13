@@ -94,6 +94,13 @@ class RegionsProvider extends ChangeNotifier {
         newRegion != RegionsStatic.br) {
       await removeAssetIfZeroBalance(liquid.depixId);
     }
+
+    // Handle euro region assets
+    if (newRegion.usesEuro && !(previousRegion?.usesEuro ?? false)) {
+      prefs.addAsset(liquid.eurXId);
+    } else if ((previousRegion?.usesEuro ?? false) && !newRegion.usesEuro) {
+      await removeAssetIfZeroBalance(liquid.eurXId);
+    }
   }
 
   Future<void> removeAssetIfZeroBalance(String assetId) async {

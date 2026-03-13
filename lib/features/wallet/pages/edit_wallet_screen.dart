@@ -2,6 +2,7 @@ import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/ui_components.dart';
 
@@ -93,6 +94,9 @@ class EditWalletScreen extends HookConsumerWidget with AuthGuardMixin {
                       assistiveText:
                           errorMessage ?? context.loc.max23Characters,
                       textInputAction: TextInputAction.done,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(AquaRegex.newlines),
+                      ],
                     ),
                     if (wallet?.samRockAppLink != null) ...[
                       const SizedBox(height: 24),

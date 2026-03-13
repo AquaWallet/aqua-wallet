@@ -42,10 +42,10 @@ abstract class Jan3ApiService extends ChopperService {
   Future<Response<ProfileResponse>> getUser();
 
   // Exchange Rates
-  @Get(path: 'v1/exrates/')
+  @Get(path: 'v1/prices/exrates/')
   Future<Response<ExchangeRateResponse>> getExchangeRates();
 
-  @Get(path: 'v1/daily-price/')
+  @Get(path: 'v1/prices/daily/')
   Future<Response<DailyPriceResponse>> getDailyPrice({
     @Query('currency') String? currency,
   });

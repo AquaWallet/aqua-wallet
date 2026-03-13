@@ -62,7 +62,7 @@ class AquaTopAppBar extends HookWidget implements PreferredSizeWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (showBackButton)
-                AquaIcon.chevronLeft(
+                AquaIcon.chevronBack(
                   size: 24,
                   color: transparent ? colors.textInverse : colors.textPrimary,
                   onTap: () {

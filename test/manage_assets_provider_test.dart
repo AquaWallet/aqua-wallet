@@ -70,14 +70,6 @@ void main() {
       "IsRemovable": true,
     }),
     Asset.fromJson({
-      "Name": "JPY Stablecoin",
-      "Id": "3438ecb49fc45c08e687de4749ed628c511e326460ea4336794e1cf02741329e",
-      "Ticker": "JPYS",
-      "Logo": "https://aqua-asset-logos.s3.us-west-2.amazonaws.com/JPYS.svg",
-      "Default": false,
-      "IsRemovable": true,
-    }),
-    Asset.fromJson({
       "Name": "PEGx EURx",
       "Id": "18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec",
       "Ticker": "EURx",
@@ -164,21 +156,6 @@ void main() {
           isLiquid: true,
           isLBTC: false,
           isUSDt: true,
-        ),
-        Asset(
-          id: '3438ecb49fc45c08e687de4749ed628c511e326460ea4336794e1cf02741329e',
-          name: 'JPY Stablecoin',
-          ticker: 'JPYS',
-          logoUrl:
-              'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/JPYS.svg',
-          isDefaultAsset: false,
-          isRemovable: true,
-          domain: null,
-          amount: 0,
-          precision: 8,
-          isLiquid: true,
-          isLBTC: false,
-          isUSDt: false,
         ),
         Asset(
           id: '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec',

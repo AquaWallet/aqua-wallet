@@ -121,75 +121,80 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: _duration),
-      curve: Curves.ease,
-      height: widget.height,
-      width: widget.width,
-      decoration: BoxDecoration(
-        borderRadius: widget.backgroundShape ??
-            BorderRadius.all(Radius.circular(widget.height)),
-        color: widget.enabled
-            ? widget.backgroundColor
-            : widget.disabledBackgroundColor,
-        boxShadow: [
-          if (widget.enabled && widget.shadow != null) widget.shadow!,
-        ],
-        border: Border.all(
-          color: context.colors.cardOutlineColor,
-          width: 1,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: _duration),
+        curve: Curves.ease,
+        height: widget.height,
+        width: widget.width,
+        decoration: BoxDecoration(
+          borderRadius: widget.backgroundShape ??
+              BorderRadius.all(Radius.circular(widget.height)),
+          color: widget.enabled
+              ? widget.backgroundColor
+              : widget.disabledBackgroundColor,
+          boxShadow: [
+            if (widget.enabled && widget.shadow != null) widget.shadow!,
+          ],
+          border: Border.all(
+            color: context.colors.cardOutlineColor,
+            width: 1,
+          ),
         ),
-      ),
-      child: Stack(
-        children: <Widget>[
-          Center(
-            child: Opacity(
-              opacity: textOpacity,
-              child: Text(
-                widget.text,
-                style: widget.textStyle ??
-                    const TextStyle(
-                      color: Colors.black26,
-                      fontWeight: FontWeight.bold,
-                    ),
+        child: Stack(
+          children: <Widget>[
+            Center(
+              child: Opacity(
+                opacity: textOpacity,
+                child: Text(
+                  widget.text,
+                  style: widget.textStyle ??
+                      const TextStyle(
+                        color: Colors.black26,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
               ),
             ),
-          ),
-          AnimatedContainer(
-            duration: Duration(milliseconds: _duration),
-            curve: Curves.bounceOut,
-            width: calculateBackgroundWidth(),
-            height: widget.height,
-            child: widget.backgroundEndContent,
-          ),
-          AnimatedPositioned(
-            duration: Duration(milliseconds: _duration),
-            curve: Curves.bounceOut,
-            left: getPosition(),
-            top: 0,
-            child: GestureDetector(
-              onTapDown: widget.enabled
-                  ? (_) => widget.onTapDown != null ? widget.onTapDown!() : null
-                  : null,
-              onTapUp: widget.enabled
-                  ? (_) => widget.onTapUp != null ? widget.onTapUp!() : null
-                  : null,
-              onPanUpdate:
-                  widget.enabled ? (details) => updatePosition(details) : null,
-              onPanEnd: widget.enabled
-                  ? (details) {
-                      if (widget.onTapUp != null) widget.onTapUp!();
-                      sliderReleased(details);
-                    }
-                  : null,
-              child: SizedBox(
-                width: widget.sliderWidth,
-                height: widget.sliderHeight,
-                child: widget.sliderButtonContent,
+            AnimatedContainer(
+              duration: Duration(milliseconds: _duration),
+              curve: Curves.bounceOut,
+              width: calculateBackgroundWidth(),
+              height: widget.height,
+              child: widget.backgroundEndContent,
+            ),
+            AnimatedPositioned(
+              duration: Duration(milliseconds: _duration),
+              curve: Curves.bounceOut,
+              left: getPosition(),
+              top: 0,
+              child: GestureDetector(
+                onTapDown: widget.enabled
+                    ? (_) =>
+                        widget.onTapDown != null ? widget.onTapDown!() : null
+                    : null,
+                onTapUp: widget.enabled
+                    ? (_) => widget.onTapUp != null ? widget.onTapUp!() : null
+                    : null,
+                onPanUpdate: widget.enabled
+                    ? (details) => updatePosition(details)
+                    : null,
+                onPanEnd: widget.enabled
+                    ? (details) {
+                        if (widget.onTapUp != null) widget.onTapUp!();
+                        sliderReleased(details);
+                      }
+                    : null,
+                child: SizedBox(
+                  width: widget.sliderWidth,
+                  height: widget.sliderHeight,
+                  child: widget.sliderButtonContent,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

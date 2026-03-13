@@ -14,7 +14,6 @@ class MockLiquidProvider extends Mock implements LiquidProvider {}
 final mockSwapAssets = [
   SideSwapAsset(assetId: lbtcAsset.id),
   SideSwapAsset(assetId: usdtAsset.id),
-  SideSwapAsset(assetId: jpysAsset.id),
   SideSwapAsset(assetId: eurxAsset.id),
   SideSwapAsset(assetId: mexAsset.id),
   SideSwapAsset(assetId: depixAsset.id),
@@ -38,7 +37,6 @@ void main() {
       btcAsset,
       lbtcAsset,
       usdtAsset,
-      jpysAsset,
       eurxAsset,
       mexAsset,
       depixAsset,

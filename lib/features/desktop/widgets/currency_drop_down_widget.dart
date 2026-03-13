@@ -41,8 +41,7 @@ class CurrencyDropDownWidget extends HookWidget {
                         AquaListItem(
                           iconLeading: CountryFlag(
                             svgAsset: UiAssets.flags.unitedStatesOfAmerica.path,
-                            height: 24,
-                            width: 24,
+                            size: 24,
                           ),
                           title: 'United States Dollar (\$ USD)',
                           colors: aquaColors,
@@ -58,8 +57,7 @@ class CurrencyDropDownWidget extends HookWidget {
                         AquaListItem(
                             iconLeading: CountryFlag(
                               svgAsset: UiAssets.flags.europeanUnion.path,
-                              height: 24,
-                              width: 24,
+                              size: 24,
                             ),
                             title: 'Euro (€ EUR)',
                             colors: aquaColors,
@@ -74,8 +72,7 @@ class CurrencyDropDownWidget extends HookWidget {
                         AquaListItem(
                             iconLeading: CountryFlag(
                               svgAsset: UiAssets.flags.canada.path,
-                              height: 24,
-                              width: 24,
+                              size: 24,
                             ),
                             title: 'Canadian Dollar (\$ CAD)',
                             colors: aquaColors,
@@ -90,8 +87,7 @@ class CurrencyDropDownWidget extends HookWidget {
                         AquaListItem(
                             iconLeading: CountryFlag(
                               svgAsset: UiAssets.flags.england.path,
-                              height: 24,
-                              width: 24,
+                              size: 24,
                             ),
                             title: 'British Pound Sterling (£ GBP)',
                             colors: aquaColors,
@@ -106,8 +102,7 @@ class CurrencyDropDownWidget extends HookWidget {
                         AquaListItem(
                             iconLeading: CountryFlag(
                               svgAsset: UiAssets.flags.switzerland.path,
-                              height: 24,
-                              width: 24,
+                              size: 24,
                             ),
                             title: 'Swiss Franc (CHF)',
                             colors: aquaColors,

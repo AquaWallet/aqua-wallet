@@ -24,8 +24,9 @@ class AppbarButton extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final buttonSize = context.adaptiveDouble(smallMobile: 36, mobile: 40);
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     final content = useMemoized(() {
-      return SvgPicture.asset(
+      final svg = SvgPicture.asset(
         svgAssetName,
         width: buttonSize,
         height: buttonSize,
@@ -35,7 +36,8 @@ class AppbarButton extends HookWidget {
           BlendMode.srcIn,
         ),
       );
-    }, [svgAssetName, foreground]);
+      return isRtl ? Transform.scale(scaleX: -1, child: svg) : svg;
+    }, [svgAssetName, foreground, isRtl]);
 
     return SizedBox.square(
       dimension: buttonSize,

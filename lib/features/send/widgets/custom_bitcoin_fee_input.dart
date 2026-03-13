@@ -92,7 +92,7 @@ class _CustomFeeCard extends StatelessWidget {
         ),
         title: context.loc.sendAssetReviewScreenConfirmCustomFeeButton,
         titleTrailing: context.loc.satsPerVByte(selectedFee.feeRate),
-        iconTrailing: AquaIcon.chevronRight(
+        iconTrailing: AquaIcon.chevronForward(
           size: 18,
           color: context.aquaColors.textPrimary,
         ),

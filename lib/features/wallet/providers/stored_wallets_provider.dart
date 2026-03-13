@@ -7,7 +7,11 @@ import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/secure_storage/secure_storage_provider.dart';
 import 'package:aqua/features/account/account.dart';
+import 'package:aqua/features/boltz/storage/boltz_storage_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/sideshift/providers/sideshift_storage_provider.dart';
+import 'package:aqua/features/sideswap/providers/peg_storage_provider.dart';
+import 'package:aqua/features/swaps/providers/swap_storage_provider.dart';
 import 'package:aqua/features/transactions/providers/transactions_storage_provider.dart';
 import 'package:aqua/features/wallet/utils/bip32_utils.dart';
 import 'package:aqua/features/wallet/wallet.dart';
@@ -191,6 +195,16 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
     return mnemonicList.join(' ');
   }
 
+  /// Clears all database records associated with a wallet (transactions, swaps, etc.)
+  Future<void> _clearWalletDatabaseRecords(String walletId) async {
+    await ref
+        .read(transactionStorageProvider.notifier)
+        .clearByWalletId(walletId);
+    await ref.read(swapStorageProvider.notifier).clearByWalletId(walletId);
+    await ref.read(boltzStorageProvider.notifier).clearByWalletId(walletId);
+    await ref.read(pegStorageProvider.notifier).clearByWalletId(walletId);
+  }
+
   // Delete a wallet from the list
   Future<void> deleteWallet(String walletId) async {
     state = const AsyncValue.loading();
@@ -247,6 +261,10 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
       if (actualStoredWallets.isEmpty) {
         await ref.read(sharedPreferencesProvider).clear();
         await ref.read(transactionStorageProvider.notifier).clear();
+        await ref.read(swapStorageProvider.notifier).clear();
+        await ref.read(boltzStorageProvider.notifier).clear();
+        await ref.read(pegStorageProvider.notifier).clear();
+        await ref.read(sideshiftStorageProvider.notifier).clear();
 
         // Clear the current wallet ID from storage
         await storage.delete(StorageKeys.currentWalletId);
@@ -268,8 +286,10 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
         return;
       }
 
-      final firstWalletId = actualStoredWallets.first.id;
+      // Clear all database records associated with the wallet
+      await _clearWalletDatabaseRecords(walletId);
 
+      final firstWalletId = actualStoredWallets.first.id;
       _logger.info('Wallet deleted. Switching to first wallet: $firstWalletId');
       await _performWalletSwitch(firstWalletId);
       ref.read(walletOperationProvider.notifier).state =

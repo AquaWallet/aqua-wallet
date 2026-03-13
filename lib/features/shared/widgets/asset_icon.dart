@@ -3,6 +3,7 @@ import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class AssetIcon extends ConsumerWidget {
   const AssetIcon({
@@ -77,11 +78,18 @@ class AssetIcon extends ConsumerWidget {
         height: size ?? 40.0,
       );
     } else {
-      return SvgPicture.network(
-        assetLogoUrl,
+      return VectorGraphic(
+        loader: SvgNetworkLoader(assetLogoUrl),
         fit: fit ?? BoxFit.fitWidth,
         width: size ?? 40.0,
         height: size ?? 40.0,
+        placeholderBuilder: (_) => const SizedBox.shrink(),
+        errorBuilder: (_, __, ___) => SvgPicture.asset(
+          Svgs.unknownAsset,
+          fit: fit ?? BoxFit.fitWidth,
+          width: size ?? 40.0,
+          height: size ?? 40.0,
+        ),
       );
     }
   }

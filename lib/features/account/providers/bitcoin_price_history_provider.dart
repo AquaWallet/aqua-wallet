@@ -49,9 +49,12 @@ class BitcoinPriceHistoryNotifier
 
     final api = await ref.read(jan3ApiServiceProvider.future);
     final currency = ref.watch(exchangeRatesProvider).currentCurrency.currency;
-    final lastDayResponse = await api.getLastDayPrices(currency: currency.name);
+    final lastDayResponse =
+        await api.getLastDayPrices(currency: currency.value.toLowerCase());
     final prices = lastDayResponse.isSuccessful ? lastDayResponse.body : null;
+
     final formatter = ref.read(formatProvider);
+
     if (prices == null || prices.isEmpty) {
       return;
     }
@@ -94,14 +97,15 @@ class BitcoinPriceHistoryNotifier
     // If the found price is not close enough (e.g. >1h diff), fallback to daily price API
     if ((latest.timestamp.difference(price24hAgo.timestamp).inHours < 23) &&
         (price24hAgo.timestamp.difference(target24hAgo).inMinutes.abs() > 60)) {
-      final dailyPriceRes = await api.getDailyPrice(currency: currency.name);
+      final dailyPriceRes =
+          await api.getDailyPrice(currency: currency.value.toLowerCase());
       if (dailyPriceRes.isSuccessful && dailyPriceRes.body != null) {
         price24hAgo = dailyPriceRes.body!;
       }
     }
 
-    final latestPrice = double.tryParse(latest.price) ?? 0;
-    final price24h = double.tryParse(price24hAgo.price) ?? 0;
+    final latestPrice = (double.tryParse(latest.price) ?? 0);
+    final price24h = (double.tryParse(price24hAgo.price) ?? 0);
 
     // Convert BTC price difference to fiat
     final diffFiat = latestPrice - price24h;

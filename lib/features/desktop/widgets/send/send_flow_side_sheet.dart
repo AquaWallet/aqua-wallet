@@ -215,7 +215,7 @@ class SendFlowSideSheet extends HookWidget {
               unit: AquaAssetInputUnit.crypto,
               colors: aquaColors,
               balance: '1.94839493',
-              balanceValueText: loc.balanceValue('1.94839493'),
+              balanceLabel: loc.balanceLabel,
               conversionAmount: '0.00',
               showFiatRate: true,
               disabled: false,

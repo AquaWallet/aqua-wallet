@@ -2,6 +2,7 @@ import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/features/address_validator/models/amount_parsing_exception.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_components/ui_components.dart';
 
 /// Decorator for exception messages that are displayed in the input field
 class InputFieldExceptionDecorator implements ExceptionLocalized {
@@ -12,27 +13,34 @@ class InputFieldExceptionDecorator implements ExceptionLocalized {
 
   @override
   String toLocalizedString(BuildContext context) {
+    final e = toAquaInputError(context);
+    return e.amount != null ? '${e.label} ${e.amount}' : e.label;
+  }
+
+  AquaInputError toAquaInputError(BuildContext context) {
     if (_originalException is AmountParsingException) {
       final amountException = _originalException;
+      final displayValue = amountException.amount ?? value;
 
       switch (amountException.type) {
         case AmountParsingExceptionType.belowLbtcMin:
         case AmountParsingExceptionType.belowMin:
         case AmountParsingExceptionType.belowSendMin:
-          final displayValue = amountException.amount ?? value;
-          return context.loc.minValue(displayValue);
+          return AquaInputError(
+              label: context.loc.minLabel, amount: displayValue);
         case AmountParsingExceptionType.aboveSendMax:
-          final displayValue = amountException.amount ?? value;
-          return context.loc.maxValue(displayValue);
+          return AquaInputError(
+              label: context.loc.maxLabel, amount: displayValue);
         case AmountParsingExceptionType.notEnoughFunds:
         case AmountParsingExceptionType.notEnoughFundsForFee:
-          final displayValue = amountException.amount ?? value;
-          return context.loc.balanceValue(displayValue);
+          return AquaInputError(
+              label: context.loc.balanceLabel, amount: displayValue);
         default:
-          return _originalException.toLocalizedString(context);
+          return AquaInputError(
+              label: _originalException.toLocalizedString(context));
       }
     }
 
-    return _originalException.toLocalizedString(context);
+    return AquaInputError(label: _originalException.toLocalizedString(context));
   }
 }

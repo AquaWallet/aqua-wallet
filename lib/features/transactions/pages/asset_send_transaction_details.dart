@@ -264,7 +264,7 @@ class _AquaTransactionDetailsContent extends ConsumerWidget {
             ],
           ),
         ),
-        if (model.feeForAsset == null && model.feeAmount != null) ...[
+        if (!model.isFeeTransaction && model.feeAmount != null) ...[
           const SizedBox(height: 16),
           AquaCard(
             elevation: 8,
@@ -394,7 +394,6 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                     style: AquaAddressTypography.body2.copyWith(
                       color: context.aquaColors.textPrimary,
                     ),
-                    colorType: ColoredTextEnum.coloredIntegers,
                     shouldWrap: true,
                   ),
                   iconTrailing: AquaIcon.copy(
@@ -478,7 +477,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                 title: context.loc.contactSwapServiceSupport(
                   model.dbTransaction?.swapServiceName?.split('.').first ?? '',
                 ),
-                iconTrailing: AquaIcon.chevronRight(
+                iconTrailing: AquaIcon.chevronForward(
                   size: 18,
                   color: context.aquaColors.textSecondary,
                 ),

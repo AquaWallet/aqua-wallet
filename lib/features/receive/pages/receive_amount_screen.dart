@@ -82,7 +82,7 @@ class ReceiveAmountScreen extends HookConsumerWidget {
           ))
         : null;
     final inputFieldError = validationState.hasError
-        ? ref.watch(assetValidationErrorProvider(
+        ? ref.watch(assetInputFieldErrorProvider(
             AssetValidationErrorParams(
               exception: validationState.error as ExceptionLocalized?,
               context: context,
@@ -195,12 +195,12 @@ class ReceiveAmountScreen extends HookConsumerWidget {
                     controller: amountController,
                     errorController: errorController,
                     assetId: args.asset.id,
+                    assetIconUrl: args.asset.logoUrl,
                     ticker: args.asset.ticker,
                     type: input.inputType,
                     unit: input.inputUnit,
                     balance: input.balanceDisplay,
-                    balanceValueText:
-                        context.loc.balanceValue(input.balanceDisplay),
+                    balanceLabel: context.loc.balanceLabel,
                     conversionAmount: input.displayConversionAmount,
                     fiatSymbol: input.rate.currency.format.symbol,
                     showCaret: false,
@@ -245,6 +245,7 @@ class ReceiveAmountScreen extends HookConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: AquaButton.primary(
+                    key: ReceiveAssetKeys.receiveAssetConfirmButton,
                     onPressed: isContinueButtonEnabled
                         ? () {
                             ref.read(inputNotifier.notifier).submitAmount();

@@ -90,17 +90,6 @@ class Svgs {
   static const lightningBolt = 'assets/lightning_bolt.svg';
   static const whatsappLogo = 'assets/asset_icons/whatsapp_logo.svg';
   static const zendeskLogo = 'assets/asset_icons/zendesk_logo.svg';
-  static const qrIconBitcoin = 'assets/asset_icons/qr_icon_btc.svg';
-  static const qrIconLiquidBitcoin =
-      'assets/asset_icons/qr_icon_liquid_btc.svg';
-  static const qrIconTetherUsdt = 'assets/asset_icons/qr_icon_liquid_usdt.svg';
-  static const qrIconLightning = 'assets/asset_icons/qr_icon_lightning_btc.svg';
-  static const qrIconEthUsdt = 'assets/asset_icons/qr_icon_ethereum_usdt.svg';
-  static const qrIconTronUsdt = 'assets/asset_icons/qr_icon_tron_usdt.svg';
-  static const qrIconBepUsdt = 'assets/asset_icons/qr_icon_binance_usdt.svg';
-  static const qrIconSolUsdt = 'assets/asset_icons/qr_icon_solana_usdt.svg';
-  static const qrIconPolUsdt = 'assets/asset_icons/qr_icon_polygon_usdt.svg';
-  static const qrIconTonUsdt = 'assets/asset_icons/qr_icon_ton_usdt.svg';
   static const backspace = 'assets/backspace.svg';
   static const noHistoryIconAddressHistory =
       'assets/address_history_screen_no_history_logo.svg';

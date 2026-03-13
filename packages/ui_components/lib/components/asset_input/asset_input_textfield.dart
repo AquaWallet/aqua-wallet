@@ -30,6 +30,7 @@ class AquaAmountInputTextField extends HookWidget {
     final focusNode = useFocusNode();
     final isFocused = useState(false);
     final isFiat = type == AquaAssetInputType.fiat;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     useEffect(() {
       void onFocusChange() {
@@ -44,6 +45,8 @@ class AquaAmountInputTextField extends HookWidget {
       controller: controller,
       focusNode: focusNode,
       onChanged: onChanged,
+      textDirection: TextDirection.ltr,
+      textAlign: isRtl ? TextAlign.right : TextAlign.left,
       keyboardType: allowSystemKeyboard
           ? const TextInputType.numberWithOptions(
               decimal: true,

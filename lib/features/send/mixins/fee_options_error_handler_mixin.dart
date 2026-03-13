@@ -26,6 +26,7 @@ mixin FeeOptionsErrorHandlerMixin {
           message: error is ExceptionLocalized
               ? error.toLocalizedString(context)
               : context.loc.errorWhilePreparingFeeOptions,
+          messageMaxLines: 10,
           primaryButtonText: context.loc.tryAgain,
           onPrimaryButtonTap: () {
             context.pop(); // Close the modal

@@ -42,6 +42,7 @@ class ReceiveAddressContent extends HookConsumerWidget {
                 //ANCHOR - Amount Input Button
                 if (asset.shouldShowAmountInputOnReceive) ...[
                   AquaListItem(
+                    key: ReceiveAssetKeys.receiveAssetSetAmountButton,
                     onTap: () => context.push(
                       ReceiveAmountScreen.routeName,
                       extra: ReceiveAmountArguments(asset: asset),
@@ -51,7 +52,7 @@ class ReceiveAddressContent extends HookConsumerWidget {
                     iconLeading: AquaIcon.edit(
                       color: context.aquaColors.textSecondary,
                     ),
-                    iconTrailing: AquaIcon.chevronRight(
+                    iconTrailing: AquaIcon.chevronForward(
                       size: 18,
                       color: context.aquaColors.textSecondary,
                     ),
@@ -68,7 +69,7 @@ class ReceiveAddressContent extends HookConsumerWidget {
                     iconLeading: AquaIcon.pegIn(
                       color: context.aquaColors.textSecondary,
                     ),
-                    iconTrailing: AquaIcon.chevronRight(
+                    iconTrailing: AquaIcon.chevronForward(
                       size: 18,
                       color: context.aquaColors.textSecondary,
                     ),
@@ -81,6 +82,7 @@ class ReceiveAddressContent extends HookConsumerWidget {
                     AquaDivider(colors: context.aquaColors),
                   ],
                   AquaListItem(
+                    key: ReceiveAssetKeys.receiveAssetRegenerateAddressButton,
                     onTap: () => ref
                         .read(receiveAssetAddressProvider((asset, amount))
                             .notifier)
