@@ -79,7 +79,7 @@ class _SwapOrderListItem extends ConsumerWidget {
       subtitle: order.serviceType.displayName,
       titleTrailing: settleAmount,
       subtitleTrailing: orderStatusStr,
-      iconTrailing: AquaIcon.chevronRight(
+      iconTrailing: AquaIcon.chevronForward(
         size: 18,
         color: context.aquaColors.textSecondary,
       ),

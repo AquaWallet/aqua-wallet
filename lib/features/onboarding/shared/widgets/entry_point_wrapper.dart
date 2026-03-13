@@ -68,31 +68,29 @@ class EntryPointWrapper extends HookConsumerWidget {
                       key: ValueKey(_EntryScreenKey.home.name),
                     ),
               error: (_, __) => HomeScreen(
-                key: ValueKey(_EntryScreenKey.welcome.name),
+                key: ValueKey(_EntryScreenKey.home.name),
               ),
               loading: () => SplashScreen(
                 key: ValueKey(_EntryScreenKey.splash.name),
-                description: selectedTagline,
+                tagline: selectedTagline,
               ),
             );
           }
           return WelcomeScreen(
             key: ValueKey(_EntryScreenKey.welcome.name),
-            description: selectedTagline,
           );
         },
         loading: () => SplashScreen(
           key: ValueKey(_EntryScreenKey.splash.name),
-          description: selectedTagline,
+          tagline: selectedTagline,
         ),
         error: (_, __) => WelcomeScreen(
           key: ValueKey(_EntryScreenKey.welcome.name),
-          description: selectedTagline,
         ),
       ),
       orElse: () => SplashScreen(
         key: ValueKey(_EntryScreenKey.splash.name),
-        description: selectedTagline,
+        tagline: selectedTagline,
       ),
     );
 

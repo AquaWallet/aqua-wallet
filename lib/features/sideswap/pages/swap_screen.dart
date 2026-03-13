@@ -113,9 +113,10 @@ class SwapForm extends HookConsumerWidget {
                   //ANCHOR - Balance
                   SwapAssetBalance(
                     isReceive: false,
-                    textColor: validationError?.message != null
-                        ? AquaColors.vermillion
-                        : null,
+                    textColor:
+                        validationError is SideswapInsufficientFundsException
+                            ? AquaColors.vermillion
+                            : null,
                   ),
                 ],
               ),

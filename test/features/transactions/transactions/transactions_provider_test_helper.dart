@@ -41,6 +41,7 @@ class TransactionsTestSetup {
           amount: any(named: 'amount'),
           asset: any(named: 'asset'),
           decimalPlacesOverride: any(named: 'decimalPlacesOverride'),
+          removeTrailingZeros: any(named: 'removeTrailingZeros'),
         )).thenAnswer((invocation) {
       final amount = invocation.namedArguments[#amount] as int;
       final asset = invocation.namedArguments[#asset] as Asset;

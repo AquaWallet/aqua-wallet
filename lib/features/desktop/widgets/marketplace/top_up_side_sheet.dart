@@ -211,7 +211,7 @@ class TopUpAmountSideSheet extends HookWidget {
           showFiatRate: true,
           disabled: false,
           errorController: AquaInputErrorController(),
-          balanceValueText: loc.balanceValue('1.94839493'),
+          balanceLabel: loc.balanceLabel,
           onChanged: (valueInCrypto) {
             // Update the current amount when the input field changes
             final amount = double.tryParse(valueInCrypto) ?? 0.0;

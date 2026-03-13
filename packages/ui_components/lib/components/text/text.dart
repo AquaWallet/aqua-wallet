@@ -18,6 +18,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h1;
 
   const AquaText.h2({
@@ -32,6 +33,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h2;
 
   const AquaText.h3({
@@ -46,6 +48,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h3;
 
   const AquaText.h4({
@@ -60,6 +63,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h4;
 
   const AquaText.h5({
@@ -74,6 +78,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h5;
 
   const AquaText.subtitle({
@@ -88,6 +93,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.subtitle;
 
   const AquaText.body1({
@@ -102,6 +108,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.body1;
 
   const AquaText.body2({
@@ -116,6 +123,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.body2;
 
   const AquaText.caption1({
@@ -130,6 +138,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.caption1;
 
   const AquaText.caption2({
@@ -144,6 +153,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.caption2;
 
   const AquaText.h1Medium({
@@ -158,6 +168,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h1Medium;
 
   const AquaText.h2Medium({
@@ -172,6 +183,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h2Medium;
 
   const AquaText.h3Medium({
@@ -186,6 +198,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h3Medium;
 
   const AquaText.h4Medium({
@@ -200,6 +213,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h4Medium;
 
   const AquaText.h5Medium({
@@ -214,6 +228,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h5Medium;
 
   const AquaText.subtitleMedium({
@@ -228,6 +243,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.subtitleMedium;
 
   const AquaText.body1Medium({
@@ -242,6 +258,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.body1Medium;
 
   const AquaText.body2Medium({
@@ -256,6 +273,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.body2Medium;
 
   const AquaText.caption1Medium({
@@ -270,6 +288,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.caption1Medium;
 
   const AquaText.caption2Medium({
@@ -284,6 +303,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.caption2Medium;
 
   const AquaText.h1SemiBold({
@@ -298,6 +318,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h1SemiBold;
 
   const AquaText.h2SemiBold({
@@ -312,6 +333,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h2SemiBold;
 
   const AquaText.h3SemiBold({
@@ -326,6 +348,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h3SemiBold;
 
   const AquaText.h4SemiBold({
@@ -340,6 +363,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h4SemiBold;
 
   const AquaText.h5SemiBold({
@@ -354,6 +378,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.h5SemiBold;
 
   const AquaText.subtitleSemiBold({
@@ -368,6 +393,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.subtitleSemiBold;
 
   const AquaText.body1SemiBold({
@@ -382,6 +408,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.body1SemiBold;
 
   const AquaText.body2SemiBold({
@@ -396,6 +423,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.body2SemiBold;
 
   const AquaText.caption1SemiBold({
@@ -410,6 +438,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.caption1SemiBold;
 
   const AquaText.caption2SemiBold({
@@ -424,6 +453,7 @@ class AquaText extends StatelessWidget {
     this.overflow,
     this.softWrap,
     this.useTabularFigures,
+    this.textDirection,
   }) : style = AquaTypography.caption2SemiBold;
 
   final String text;
@@ -440,6 +470,10 @@ class AquaText extends StatelessWidget {
   final bool? softWrap;
   final bool? useTabularFigures;
 
+  /// Text direction - when null and text contains numbers, defaults to LTR
+  /// to prevent number reversal in RTL languages like Arabic
+  final TextDirection? textDirection;
+
   bool _containsNumbers(String text) {
     return RegExp(r'\d').hasMatch(text);
   }
@@ -447,15 +481,21 @@ class AquaText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Default for numbers is to use tabular figures if not explicitly set
-    final shouldApplyTabular = useTabularFigures == true ||
-        (useTabularFigures == null && _containsNumbers(text));
+    final hasNumbers = _containsNumbers(text);
+    final shouldApplyTabular =
+        useTabularFigures == true || (useTabularFigures == null && hasNumbers);
     final fontFeatures =
         shouldApplyTabular ? [FontFeature.tabularFigures()] : null;
+
+    // Auto-apply LTR direction for numeric text to prevent reversal in RTL languages
+    final effectiveTextDirection =
+        textDirection ?? (hasNumbers ? TextDirection.ltr : null);
 
     final textWidget = Text(
       text,
       maxLines: maxLines,
       textAlign: textAlign,
+      textDirection: effectiveTextDirection,
       softWrap: softWrap,
       overflow: overflow ?? TextOverflow.ellipsis,
       style: style.copyWith(

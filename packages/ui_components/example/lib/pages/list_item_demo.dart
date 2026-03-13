@@ -18,7 +18,7 @@ class ListItemDemoPage extends HookConsumerWidget {
       );
     }, [theme]);
     final iconTrailing = useMemoized(() {
-      return AquaIcon.chevronRight(
+      return AquaIcon.chevronForward(
         color: theme.colors.textPrimary,
         size: 18,
       );

@@ -84,8 +84,7 @@ class UnitCurrencySettings extends HookConsumerWidget {
                 ///TODO: add flag icon when its avaliable from provider
                 // iconLeading: CountryFlag(
                 //               svgAsset: flagSvg,
-                //               height: 24,
-                //               width: 24,
+                //               size: 24,
                 //             ),
                 colors: aquaColors,
                 title: 'Name of Currency',

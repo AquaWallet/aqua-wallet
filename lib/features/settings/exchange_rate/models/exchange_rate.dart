@@ -170,17 +170,6 @@ enum FiatCurrency {
       currencyCountryCode: 'IN',
     ),
   ),
-  jpy(
-    'JPY',
-    CurrencyFormatSpec(
-      symbol: '¥',
-      isSymbolLeading: true,
-      thousandsSeparator: ',',
-      decimalSeparator: '.',
-      decimalPlaces: 2,
-      currencyCountryCode: 'JP',
-    ),
-  ),
   mxn(
     'MXN',
     CurrencyFormatSpec(
@@ -350,7 +339,6 @@ String currencyLabelLookup(FiatCurrency currency, BuildContext context) {
     FiatCurrency.hkd => context.loc.settingsScreenCurrencyLabelHKD,
     FiatCurrency.ils => context.loc.settingsScreenCurrencyLabelILS,
     FiatCurrency.inr => context.loc.settingsScreenCurrencyLabelINR,
-    FiatCurrency.jpy => context.loc.settingsScreenCurrencyLabelJPY,
     FiatCurrency.mxn => context.loc.settingsScreenCurrencyLabelMXN,
     FiatCurrency.myr => context.loc.settingsScreenCurrencyLabelMYR,
     FiatCurrency.ngn => context.loc.settingsScreenCurrencyLabelNGN,

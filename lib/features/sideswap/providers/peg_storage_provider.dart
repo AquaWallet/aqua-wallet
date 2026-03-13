@@ -28,6 +28,7 @@ abstract class PegOrderStorage {
     required SwapPegStatusResult status,
   });
   Future<void> clear();
+  Future<void> clearByWalletId(String walletId);
   Future<List<PegOrderDbModel>> getPegInOrders();
   Future<List<PegOrderDbModel>> getPegOutOrders();
   Future<List<PegOrderDbModel>> getAllPegOrders();
@@ -133,6 +134,19 @@ class PegOrderStorageNotifier extends AsyncNotifier<List<PegOrderDbModel>>
   Future<void> clear() async {
     final storage = await ref.read(storageProvider.future);
     await storage.writeTxn(() => storage.pegOrderDbModels.clear());
+    await _reloadCurrentWalletOrders();
+  }
+
+  @override
+  Future<void> clearByWalletId(String walletId) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      final orders = await storage.pegOrderDbModels
+          .filter()
+          .walletIdEqualTo(walletId)
+          .deleteAll();
+      _logger.debug('Removing peg orders for wallet $walletId: $orders');
+    });
     await _reloadCurrentWalletOrders();
   }
 

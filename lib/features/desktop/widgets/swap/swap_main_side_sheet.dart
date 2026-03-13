@@ -160,12 +160,13 @@ class SwapMainSideSheet extends HookWidget {
                             unit: AquaAssetInputUnit.crypto,
                             colors: aquaColors,
                             balance: '1.94839493',
-                            balanceValueText: loc.balanceValue('1.94839493'),
+                            balanceLabel: loc.balanceLabel,
                             conversionAmount: '0.00',
                             showFiatRate: true,
                             disabled: false,
-                            errorController:
-                                AquaInputErrorController('Bal: 1.94839493'),
+                            errorController: AquaInputErrorController(
+                                const AquaInputError(
+                                    label: 'Bal:', amount: '1.94839493')),
                             onChanged: (valueInCrypto) {
                               // Update the current amount when the input field changes
                               final amount =
@@ -182,7 +183,7 @@ class SwapMainSideSheet extends HookWidget {
                             controller: amountTextController,
                             ticker: 'L-BTC',
                             assetId: AssetIds.lbtc.first,
-                            balanceValueText: loc.balanceValue('1.94839493'),
+                            balanceLabel: loc.balanceLabel,
                             isSwapable: false,
                             unit: AquaAssetInputUnit.crypto,
                             colors: aquaColors,

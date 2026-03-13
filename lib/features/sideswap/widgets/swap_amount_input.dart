@@ -63,7 +63,7 @@ class SwapAmountInput extends HookConsumerWidget {
               ignore: readOnly,
               child: Container(
                 height: 62.0,
-                padding: const EdgeInsets.only(right: 24.0),
+                padding: const EdgeInsetsDirectional.only(end: 24.0),
                 child: Center(
                   child: AmountTextField(
                     key: globalKey,

@@ -151,7 +151,9 @@ class ReceiveAssetAddressQrCard extends HookWidget {
             padding: const EdgeInsets.symmetric(horizontal: 38),
             child: AquaColoredText(
               text: address,
-              colorType: ColoredTextEnum.coloredIntegers,
+              colorType: asset.isLightning
+                  ? ColoredTextEnum.defaultColor
+                  : ColoredTextEnum.coloredIntegers,
               textAlign: TextAlign.center,
               style: AquaAddressTypography.body2.copyWith(
                 color: context.colors.onBackground,

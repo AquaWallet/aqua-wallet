@@ -64,8 +64,7 @@ class RegionSettings extends HookConsumerWidget {
                             colors: aquaColors,
                             iconLeading: CountryFlag(
                               svgAsset: region.flagSvg,
-                              height: 24,
-                              width: 24,
+                              size: 24,
                             ),
                             title: region.name,
                             titleColor: aquaColors.textPrimary,

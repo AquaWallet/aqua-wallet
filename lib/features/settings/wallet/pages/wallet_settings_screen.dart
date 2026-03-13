@@ -104,7 +104,7 @@ class WalletSettingsScreen extends HookConsumerWidget with AuthGuardMixin {
                     size: 24,
                     color: context.aquaColors.textSecondary,
                   ),
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -122,7 +122,7 @@ class WalletSettingsScreen extends HookConsumerWidget with AuthGuardMixin {
                     size: 24,
                     color: context.aquaColors.textSecondary,
                   ),
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
@@ -140,7 +140,7 @@ class WalletSettingsScreen extends HookConsumerWidget with AuthGuardMixin {
                       size: 24,
                       color: context.aquaColors.textSecondary,
                     ),
-                    iconTrailing: AquaIcon.chevronRight(
+                    iconTrailing: AquaIcon.chevronForward(
                       size: 18,
                       color: context.aquaColors.textSecondary,
                     ),
@@ -156,7 +156,7 @@ class WalletSettingsScreen extends HookConsumerWidget with AuthGuardMixin {
                     size: 24,
                     color: context.aquaColors.accentDanger,
                   ),
-                  iconTrailing: AquaIcon.chevronRight(
+                  iconTrailing: AquaIcon.chevronForward(
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),

@@ -23,13 +23,35 @@ class AssetAmountLimitsDisplay extends HookConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          AquaText.body2Medium(
-            text: context.loc.minValueVariant(minLimit ?? ''),
-            color: context.aquaColors.textSecondary,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AquaText.body2Medium(
+                text: context.loc.minLabel,
+                color: context.aquaColors.textSecondary,
+              ),
+              const SizedBox(width: 4),
+              AquaText.body2Medium(
+                text: minLimit ?? '',
+                color: context.aquaColors.textSecondary,
+                textDirection: TextDirection.ltr,
+              ),
+            ],
           ),
-          AquaText.body2Medium(
-            text: context.loc.maxValueVariant(maxLimit ?? ''),
-            color: context.aquaColors.textSecondary,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AquaText.body2Medium(
+                text: context.loc.maxLabel,
+                color: context.aquaColors.textSecondary,
+              ),
+              const SizedBox(width: 4),
+              AquaText.body2Medium(
+                text: maxLimit ?? '',
+                color: context.aquaColors.textSecondary,
+                textDirection: TextDirection.ltr,
+              ),
+            ],
           ),
         ],
       ),

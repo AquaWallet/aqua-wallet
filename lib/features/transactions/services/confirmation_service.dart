@@ -26,14 +26,12 @@ class ConfirmationService {
   final AquaProvider aquaProvider;
   final PegOrderStorageNotifier pegStorage;
 
-  Future<int> getConfirmationCount(Asset asset, int blockHeight) async {
-    return await aquaProvider
-        .getConfirmationCount(
-          asset: asset,
-          transactionBlockHeight: blockHeight,
-        )
-        .first;
-  }
+  Future<int> getConfirmationCount(Asset asset, int blockHeight) => aquaProvider
+      .getConfirmationCount(
+        asset: asset,
+        transactionBlockHeight: blockHeight,
+      )
+      .first;
 
   int getRequiredConfirmationCount(Asset asset) {
     return asset.isBTC
@@ -54,8 +52,8 @@ class ConfirmationService {
       asset,
       transaction.blockHeight ?? 0,
     );
-    final isEnoughConfirmations =
-        confirmationCount >= getRequiredConfirmationCount(asset);
+    final requiredCount = getRequiredConfirmationCount(asset);
+    final isEnoughConfirmations = confirmationCount >= requiredCount;
 
     // For peg transactions, also check peg status - they should remain pending until status is 'done'
     final isPegOrder = dbTransaction?.isPeg == true;

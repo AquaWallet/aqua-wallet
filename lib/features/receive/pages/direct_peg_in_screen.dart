@@ -4,6 +4,7 @@ import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/gestures.dart';
@@ -30,7 +31,8 @@ class DirectPegInScreen extends HookConsumerWidget {
       }
       return formatter.formatAssetAmount(
         amount: amount,
-        asset: Asset.btc(), // Peg-in amounts are in BTC
+        asset: Asset.btc(),
+        displayUnitOverride: SupportedDisplayUnits.btc,
       );
     }, [sideswapStatus]);
 

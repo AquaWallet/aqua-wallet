@@ -66,7 +66,9 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       return formatter.signedFormatAssetAmount(
         amount: amount,
         asset: args.asset,
-        decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+        decimalPlacesOverride:
+            args.asset.isNonSatsAsset ? kUsdtDisplayPrecision : null,
+        removeTrailingZeros: false,
       );
     }
     return null;
@@ -84,7 +86,9 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     return formatter.signedFormatAssetAmount(
       amount: amount,
       asset: args.asset,
-      decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+      decimalPlacesOverride:
+          args.asset.isNonSatsAsset ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: false,
     );
   }
 
@@ -213,9 +217,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final amount = formatter.formatAssetAmount(
       amount: -amountSats,
       asset: args.asset,
-      decimalPlacesOverride:
-          args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
-      removeTrailingZeros: args.asset.isNonSatsAsset,
+      removeTrailingZeros: false,
     );
 
     final feesSats =
@@ -224,7 +226,6 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final feeAmount = formatter.formatAssetAmountOrElseNull(
       amount: feesSats,
       asset: feeAsset,
-      decimalPlacesOverride: feeAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
     );
 
     final amountFiat = convertToFiat(args.asset, -amountSats);
@@ -307,9 +308,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       return formatter.formatAssetAmount(
         amount: -amountSats,
         asset: args.asset,
-        removeTrailingZeros: args.asset.isNonSatsAsset,
-        decimalPlacesOverride:
-            args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+        removeTrailingZeros: false,
       );
     }
 
@@ -322,9 +321,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     return formatter.formatAssetAmount(
       amount: amount,
       asset: args.asset,
-      removeTrailingZeros: args.asset.isNonSatsAsset,
-      decimalPlacesOverride:
-          args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: false,
     );
   }
 
@@ -347,9 +344,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final amount = formatter.formatAssetAmount(
       amount: amountSats,
       asset: args.asset,
-      decimalPlacesOverride:
-          args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
-      removeTrailingZeros: args.asset.isNonSatsAsset,
+      removeTrailingZeros: false,
     );
 
     final amountFiat = convertToFiat(args.asset, amountSats);
@@ -397,9 +392,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
         ? formatter.formatAssetAmount(
             amount: amountSats,
             asset: args.asset,
-            removeTrailingZeros: args.asset.isNonSatsAsset,
-            decimalPlacesOverride:
-                args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+            removeTrailingZeros: false,
           )
         : null;
 
@@ -408,9 +401,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final feeAmount = formatter.formatAssetAmount(
       amount: networkTxn.fee as int,
       asset: args.asset,
-      removeTrailingZeros: args.asset.isNonSatsAsset,
-      decimalPlacesOverride:
-          args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: false,
     );
 
     return AssetTransactionDetailsUiModel.redeposit(
@@ -444,15 +435,13 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final deliveredAmount = formatter.signedFormatAssetAmount(
       amount: isNegative ? -dbTxn.ghostTxnAmount! : dbTxn.ghostTxnAmount!,
       asset: args.asset,
-      decimalPlacesOverride:
-          args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: false,
     );
 
     final amountSats = dbTxn.ghostTxnAmount ?? 0;
     final feeAmount = formatter.formatAssetAmount(
       amount: dbTxn.ghostTxnFee ?? 0,
       asset: feeAsset,
-      decimalPlacesOverride: feeAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
     );
 
     final amountFiat =
@@ -469,9 +458,9 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final recipientGetsAmount = dbTxn.ghostTxnAmount != null
         ? formatter.formatAssetAmount(
             amount: amountSats,
-            asset: feeAsset,
+            asset: args.asset,
             decimalPlacesOverride:
-                feeAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+                args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
           )
         : null;
 
@@ -521,9 +510,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       final amount = formatter.formatAssetAmount(
         amount: sats,
         asset: args.asset,
-        decimalPlacesOverride:
-            args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
-        removeTrailingZeros: args.asset.isNonSatsAsset,
+        removeTrailingZeros: false,
       );
       final amountFiat = convertToFiat(args.asset, sats);
 
@@ -544,8 +531,6 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final receivedAmount = formatter.formatAssetAmount(
       amount: amountSats,
       asset: args.asset,
-      decimalPlacesOverride:
-          args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
     );
 
     final amountFiat = convertToFiat(args.asset, amountSats);

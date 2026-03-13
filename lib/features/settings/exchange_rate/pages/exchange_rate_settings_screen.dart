@@ -135,11 +135,10 @@ class ExchangeRateSettingsScreen extends HookConsumerWidget {
                     radioGroupValue: currentRate,
                     icon: CountryFlag(
                       svgAsset: exchangeRate.currency.format.flagSvg,
-                      width: 20,
-                      height: 20,
+                      size: 20,
                     ),
                     iconTrailing: availableSources.length > 1
-                        ? AquaIcon.chevronRight(
+                        ? AquaIcon.chevronForward(
                             size: 18,
                             color: context.aquaColors.textSecondary,
                           )

@@ -370,7 +370,7 @@ class _TransactionTitle extends StatelessWidget {
             text: from,
             color: colors?.textPrimary,
           ),
-          AquaIcon.arrowRight(
+          AquaIcon.arrowForward(
             size: 16,
             color: colors?.textSecondary,
           ),

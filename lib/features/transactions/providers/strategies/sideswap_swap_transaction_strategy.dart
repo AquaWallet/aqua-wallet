@@ -90,6 +90,7 @@ class SideswapSwapTransactionUiModelCreator extends TransactionUiModelCreator {
           amount: -swapDeliveredAmount,
           asset: args.asset,
           decimalPlacesOverride: decimalOverride,
+          removeTrailingZeros: false,
         );
       }
 
@@ -98,6 +99,7 @@ class SideswapSwapTransactionUiModelCreator extends TransactionUiModelCreator {
         amount: dbTxn.ghostTxnAmount!,
         asset: args.asset,
         decimalPlacesOverride: decimalOverride,
+        removeTrailingZeros: false,
       );
     }
 
@@ -106,7 +108,9 @@ class SideswapSwapTransactionUiModelCreator extends TransactionUiModelCreator {
       return formatter.signedFormatAssetAmount(
         amount: networkTxn.satoshi?[args.asset.id] as int,
         asset: args.asset,
-        decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+        decimalPlacesOverride:
+            args.asset.isNonSatsAsset ? kUsdtDisplayPrecision : null,
+        removeTrailingZeros: false,
       );
     }
 
@@ -125,7 +129,9 @@ class SideswapSwapTransactionUiModelCreator extends TransactionUiModelCreator {
     return formatter.signedFormatAssetAmount(
       amount: amount,
       asset: args.asset,
-      decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+      decimalPlacesOverride:
+          args.asset.isNonSatsAsset ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: false,
     );
   }
 
@@ -283,25 +289,20 @@ class SideswapSwapTransactionUiModelCreator extends TransactionUiModelCreator {
     final deliveredAmount = formatter.formatAssetAmount(
       amount: deliveredAmountSats.abs(),
       asset: deliveredAsset,
-      removeTrailingZeros: deliveredAsset.isNonSatsAsset,
-      decimalPlacesOverride:
-          deliveredAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: !deliveredAsset.isNonSatsAsset,
     );
 
     final receivedAmount = formatter.formatAssetAmount(
       amount: receivedAmountSats.abs(),
       asset: receivedAsset,
-      removeTrailingZeros: receivedAsset.isNonSatsAsset,
-      decimalPlacesOverride:
-          receivedAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: !receivedAsset.isNonSatsAsset,
     );
 
     final feeAmountSats = dbTxn.ghostTxnFee ?? 0;
     final feeAmount = formatter.formatAssetAmount(
       amount: feeAmountSats,
       asset: feeAsset,
-      removeTrailingZeros: deliveredAsset.isNonSatsAsset,
-      decimalPlacesOverride: feeAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: !feeAsset.isNonSatsAsset,
     );
 
     final feeAmountFiat = convertToFiat(feeAsset, feeAmountSats);
@@ -362,26 +363,21 @@ class SideswapSwapTransactionUiModelCreator extends TransactionUiModelCreator {
     final deliveredAmount = formatter.formatAssetAmount(
       amount: deliveredAmountSats.abs(),
       asset: deliveredAsset,
-      removeTrailingZeros: deliveredAsset.isNonSatsAsset,
-      decimalPlacesOverride:
-          deliveredAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: !deliveredAsset.isNonSatsAsset,
     );
 
     final receivedAmountSats = networkTxn.swapIncomingSatoshi as int;
     final receivedAmount = formatter.formatAssetAmount(
       amount: receivedAmountSats,
       asset: receivedAsset,
-      removeTrailingZeros: receivedAsset.isNonSatsAsset,
-      decimalPlacesOverride:
-          receivedAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: !receivedAsset.isNonSatsAsset,
     );
 
     final feeAmountSats = networkTxn.fee ?? 0;
     final feeAmount = formatter.formatAssetAmount(
       amount: feeAmountSats,
       asset: feeAsset,
-      removeTrailingZeros: feeAsset.isNonSatsAsset,
-      decimalPlacesOverride: feeAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: !feeAsset.isNonSatsAsset,
     );
 
     final feeAmountFiat = convertToFiat(feeAsset, feeAmountSats);

@@ -24,6 +24,7 @@ abstract class BoltzSwapStorage {
   Future<void> save(BoltzSwapDbModel model);
   Future<void> delete(String boltzId);
   Future<void> clear();
+  Future<void> clearByWalletId(String walletId);
   Future<void> saveBoltzSwapResponse({
     required TransactionDbModel txnDbModel,
     required BoltzSwapDbModel swapDbModel,
@@ -149,7 +150,43 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
   @override
   Future<void> clear() async {
     final storage = await ref.read(storageProvider.future);
+    final secureStorage = ref.read(secureStorageProvider);
+
+    final swaps = await storage.boltzSwapDbModels.where().findAll();
+
     await storage.writeTxn(() => storage.boltzSwapDbModels.clear());
+
+    // Delete after DB transaction succeeds - orphaned keys are harmless,
+    // but missing keys with existing DB records would corrupt wallet state
+    for (final swap in swaps) {
+      await secureStorage.delete(swap.privateKeyStorageKey);
+      await secureStorage.delete(swap.preImageStorageKey);
+    }
+
+    await _reloadCurrentWalletSwaps();
+  }
+
+  @override
+  Future<void> clearByWalletId(String walletId) async {
+    final storage = await ref.read(storageProvider.future);
+    final secureStorage = ref.read(secureStorageProvider);
+
+    final swaps = await storage.boltzSwapDbModels
+        .filter()
+        .walletIdEqualTo(walletId)
+        .findAll();
+
+    _logger.debug('Removing boltz swaps for wallet $walletId: ${swaps.length}');
+
+    await storage.writeTxn(() async {
+      await Future.wait(
+          swaps.map((s) => storage.boltzSwapDbModels.delete(s.id)));
+    });
+
+    for (final swap in swaps) {
+      await secureStorage.delete(swap.privateKeyStorageKey);
+      await secureStorage.delete(swap.preImageStorageKey);
+    }
 
     await _reloadCurrentWalletSwaps();
   }

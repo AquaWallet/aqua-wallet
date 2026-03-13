@@ -228,39 +228,38 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       return;
     }
 
-    final balanceFiat = asset.isUSDt
-        ? ref.read(amountInputServiceProvider).formatUsdtAmount(
-              amountInSats: balanceInSats,
-              asset: asset,
-              targetCurrency: state.value!.rate.currency,
-              currencyFormat: state.value!.rate.currency.format,
-              withSymbol: false,
-            )
-        : await ref
-            .read(fiatProvider)
-            .getSatsToFiatDisplay(balanceInSats, false);
+    // Switch to crypto mode when enabling send max
+    if (enable && state.value!.isFiatAmountInput) {
+      setType(AquaAssetInputType.crypto);
+    }
 
-    final isFiatInput = state.value!.isFiatAmountInput;
-    final textFieldAmount =
-        isFiatInput ? balanceFiat : state.value!.balanceDisplay;
-    final amountSats = enable ? balanceInSats : state.value!.amount;
+    final currentState = state.value!;
+    final amountSats = enable ? balanceInSats : currentState.amount;
 
-    final amount =
+    final service = ref.read(amountInputServiceProvider);
+    final textFieldAmount = enable
+        ? service.getBalanceDisplay(
+            balanceInSats: balanceInSats,
+            type: currentState.inputType,
+            unit: currentState.inputUnit,
+            rate: currentState.rate,
+            asset: currentState.asset)
+        : currentState.amountFieldText;
+
+    final fiatAmount =
         await ref.read(amountInputMutationsProvider).getConvertedAmount(
               amountSats: amountSats,
               asset: asset,
-              isFiatAmountInput: isFiatInput,
+              isFiatAmountInput: false,
             );
 
-    final newState = state.value!.copyWith(
+    state = AsyncValue.data(currentState.copyWith(
       isSendAllFunds: enable,
       amount: amountSats,
-      amountFieldText: enable ? textFieldAmount : state.value!.amountFieldText,
-      displayConversionAmount: amount,
+      amountFieldText: textFieldAmount,
+      displayConversionAmount: fiatAmount,
       usdtCryptoAmount: null,
-    );
-
-    state = AsyncValue.data(newState);
+    ));
   }
 
   String setType(AquaAssetInputType type) {
@@ -277,7 +276,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final balanceDisplay = service.getBalanceDisplay(
       balanceInSats: currentState.balanceInSats,
       type: type,
-      unit: isCrypto ? currentState.inputUnit : AquaAssetInputUnit.crypto,
+      unit: currentState.inputUnit,
       rate: currentState.rate,
       asset: currentState.asset,
     );
@@ -295,8 +294,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
 
       state = AsyncValue.data(currentState.copyWith(
         inputType: type,
-        inputUnit:
-            isCrypto ? currentState.inputUnit : AquaAssetInputUnit.crypto,
+        inputUnit: currentState.inputUnit,
         amountFieldText: null,
         displayConversionAmount:
             currentState.asset.isNonSatsAsset ? null : conversionAmount,
@@ -352,7 +350,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     );
     state = AsyncValue.data(newState.copyWith(
       inputType: type,
-      inputUnit: isCrypto ? currentState.inputUnit : AquaAssetInputUnit.crypto,
+      inputUnit: currentState.inputUnit,
       balanceDisplay: balanceDisplay,
     ));
     return convertedText ?? '';
@@ -432,9 +430,14 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final currentState = state.value;
     if (currentState == null) return;
 
-    // Remove thousands separators from the text to prevent parsing issues
-    final rawText = text.replaceAll(
-        currentState.rate.currency.format.thousandsSeparator, '');
+    final spec = currentState.rate.currency.format;
+    // Strip thousands separators before cleaning — the text comes from the
+    // locale-formatted UI display, any currency with '.' (thousandsSep) must not be
+    // mistaken for a standard decimal point by cleanAmountString.
+    final strippedText = text.replaceAll(spec.thousandsSeparator, '');
+    final rawText = strippedText.isEmpty
+        ? strippedText
+        : ref.read(formatterProvider).cleanAmountString(strippedText, spec);
 
     //NOTE - Enforce precision limit at provider level as a safeguard in case the UI is not doing it
     var trimmedText = trimToPrecision(rawText, currentState.precision);
@@ -444,8 +447,14 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
 
     // Compare against raw text (without separators) to detect actual changes
     // If the text hasn't actually changed, don't update anything
-    final currentRawText = currentState.amountFieldText
-        ?.replaceAll(currentState.rate.currency.format.thousandsSeparator, '');
+    final currentRawText = currentState.amountFieldText != null
+        ? ref.read(formatterProvider).cleanAmountString(
+              currentState.amountFieldText!
+                  .replaceAll(spec.thousandsSeparator, ''),
+              spec,
+            )
+        : null;
+
     if (trimmedText == currentRawText) {
       return;
     }

@@ -63,8 +63,7 @@ class LanguageSettingsScreen extends HookConsumerWidget {
           return SettingsListSelectionItem<String>(
             icon: CountryFlag(
               svgAsset: language.region.flagSvg,
-              width: 18,
-              height: 18,
+              size: 20,
             ),
             title: language.originalLanguageName,
             subTitle: language.translatedLanguageName,

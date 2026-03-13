@@ -1,5 +1,4 @@
 import 'package:aqua/features/onboarding/shared/widgets/widgets.dart';
-import 'package:aqua/features/onboarding/welcome/widgets/widgets.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -7,16 +6,13 @@ import 'package:ui_components/ui_components.dart';
 
 class SplashScreen extends HookConsumerWidget {
   static const routeName = '/splash';
-  static const double _bottomSpacingHeight = 56 + 20 + 56;
 
-  const SplashScreen({super.key, required this.description});
+  const SplashScreen({super.key, required this.tagline});
 
-  final String description;
+  final String tagline;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String selectedTagline = description;
-
     final botevMode = ref.watch(prefsProvider.select((p) => p.isBotevMode));
 
     useEffect(() {
@@ -45,36 +41,31 @@ class SplashScreen extends HookConsumerWidget {
       );
     }
 
-    return Material(
-      color: AquaPrimitiveColors.aquaBlue300,
-      child: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                const SizedBox(height: 48),
-                AquaIcon.aquaLogo(
-                  size: 40,
-                  color: AquaPrimitiveColors.palatinateBlue750,
+    return Theme(
+      data: AquaLightTheme().themeData,
+      child: Scaffold(
+        backgroundColor: AquaPrimitiveColors.aquaBlue300,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const Spacer(flex: 5),
+              AquaIcon.aquaLogo(
+                size: 40,
+                color: AquaPrimitiveColors.palatinateBlue750,
+              ),
+              const Spacer(flex: 33),
+              Flexible(
+                flex: 31,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: SplashTaglineText(text: tagline),
+                  ),
                 ),
-                // const Expanded(flex: 2, child: SizedBox.shrink()),
-                const Spacer(),
-                Center(
-                  child: SplashTaglineText(text: selectedTagline),
-                ),
-                const Spacer(),
-                const SizedBox(height: _bottomSpacingHeight),
-                const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 32.0),
-                    child: WelcomeToSDisclaimer(
-                      textColor: AquaPrimitiveColors.aquaBlue300,
-                      canLaunch: false,
-                    )),
-                // const Expanded(flex: 5, child: SizedBox.shrink()),
-              ],
-            ),
+              ),
+              const Spacer(flex: 31)
+            ],
           ),
         ),
       ),

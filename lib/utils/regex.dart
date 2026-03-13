@@ -9,4 +9,11 @@ class AquaRegex {
 
   /// Matches receive-only derivation path `/0/*`
   static final receiveOnlyDerivationPath = RegExp(r'/0/\*');
+
+  /// Matches newline characters
+  static final newlines = RegExp(r'\n');
+
+  /// Combines multiple patterns into a single RegExp using alternation
+  static RegExp combine(List<RegExp> patterns) =>
+      RegExp(patterns.map((p) => p.pattern).join('|'));
 }

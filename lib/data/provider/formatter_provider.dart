@@ -88,11 +88,12 @@ class FormatterProvider {
               FormatService.kBitcoinFractionalSeparator, '') // thin space
           .replaceAll('\u00A0', '') // non-breaking space
           .replaceAll('\u200B', ''); // zero-width space
-      return unitsProvider.convertUnitToSats(
+      final sats = unitsProvider.convertUnitToSats(
         amount: Decimal.parse(decimalString),
         asset: asset!,
         displayUnitOverride: displayUnit,
       );
+      return sats;
     }
 
     // For non-BTC assets, also remove all types of spaces for parsing
@@ -104,41 +105,34 @@ class FormatterProvider {
     return parseAssetAmountDirect(amount: decimalString, precision: precision);
   }
 
-  /// Cleans amount string using currency format specification
+  /// Cleans amount string using currency format specification.
+  ///
+  /// Handles both locale-formatted input (e.g. "1.000,50" for EUR) and
+  /// standard-format input (e.g. "0.0008" with '.' as decimal). When the
+  /// locale uses '.' as thousands separator (like EUR), we detect the format
+  /// by checking for the locale decimal separator: if present, the input is
+  /// locale-formatted; otherwise, '.' is treated as a standard decimal point.
   String cleanAmountString(String amount, CurrencyFormatSpec spec) {
     var cleaned = amount
         .replaceAll(' ', '')
-        .replaceAll(FormatService.kBitcoinFractionalSeparator, '');
+        .replaceAll(FormatService.kBitcoinFractionalSeparator, '')
+        .replaceAll('\u00A0', '')
+        .replaceAll('\u200B', '');
 
     if (cleaned.isEmpty) return '0';
 
-    // Get separators from currency spec
-    final specDecimal = spec.decimalSeparator;
-    final oppositeDecimal = specDecimal == '.' ? ',' : '.';
-
-    // Handle cross-currency decimal separator detection
-    // This fixes EUR/USD currency switch where users type "0,0001" with USD active
-    if (cleaned.contains(specDecimal)) {
-      // Input uses expected decimal separator - remove thousands separators
-      cleaned = cleaned.replaceAll(spec.thousandsSeparator, '');
-    } else if (cleaned.contains(oppositeDecimal)) {
-      // Cross-currency case: check if opposite separator looks like decimal
-      final parts = cleaned.split(oppositeDecimal);
-      if (parts.length == 2 && parts[1].length <= 8 && parts[1].isNotEmpty) {
-        // Short fractional part suggests decimal separator - convert to standard
-        cleaned = cleaned.replaceAll(oppositeDecimal, '.');
-      } else {
-        // Long or multiple parts suggest thousands separator - remove
-        cleaned = cleaned.replaceAll(oppositeDecimal, '');
+    if (spec.decimalSeparator != '.') {
+      if (cleaned.contains(spec.decimalSeparator)) {
+        // Input is locale-formatted: strip thousands separator, normalize decimal
+        cleaned = cleaned.replaceAll(spec.thousandsSeparator, '');
+        cleaned = cleaned.replaceAll(spec.decimalSeparator, '.');
       }
+      // else: input uses '.' as standard decimal — don't strip it
+    } else {
+      cleaned = cleaned.replaceAll(spec.thousandsSeparator, '');
     }
 
-    // Normalize to dot decimal separator for parsing
-    if (specDecimal != '.') {
-      cleaned = cleaned.replaceAll(specDecimal, '.');
-    }
-
-    return cleaned.isEmpty ? '0' : cleaned;
+    return cleaned;
   }
 }
 

@@ -64,6 +64,7 @@ class UnitCurrencyChip extends StatelessWidget {
                 children: [
                   CountryFlag(
                     svgAsset: rate.currency.format.flagSvg,
+                    size: 16,
                   ),
                   const SizedBox(width: 4),
                   AquaText.body2SemiBold(

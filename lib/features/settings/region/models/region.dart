@@ -110,6 +110,35 @@ class FlagHelper {
   }
 }
 
+extension RegionEuroExt on Region {
+  bool get usesEuro {
+    const euroIsos = {
+      'AT',
+      'BE',
+      'BG',
+      'HR',
+      'EE',
+      'FI',
+      'FR',
+      'DE',
+      'GR',
+      'IT',
+      'LV',
+      'LT',
+      'LU',
+      'NL',
+      'PT',
+      'SK',
+      'SI',
+      'ES',
+      'AD',
+      'SM',
+      'ME',
+    };
+    return euroIsos.contains(iso);
+  }
+}
+
 extension RegionsStatic on Region {
   static final Region us = Region(name: 'United States of America', iso: 'US');
   static final Region ca = Region(name: 'Canada', iso: 'CA');
@@ -121,6 +150,7 @@ extension RegionsStatic on Region {
   static final Region at = Region(name: 'Austria', iso: 'AT');
   static final Region be = Region(name: 'Belgium', iso: 'BE');
   static final Region bg = Region(name: 'Bulgaria', iso: 'BG');
+  static final Region cn = Region(name: 'China', iso: 'CN');
   static final Region hr = Region(name: 'Croatia', iso: 'HR');
   static final Region cz = Region(name: 'Czech Republic', iso: 'CZ');
   static final Region dk = Region(name: 'Denmark', iso: 'DK');
@@ -147,6 +177,7 @@ extension RegionsStatic on Region {
   static final Region ro = Region(name: 'Romania', iso: 'RO');
   static final Region sm = Region(name: 'San Marino', iso: 'SM');
   static final Region rs = Region(name: 'Serbia', iso: 'RS');
+  static final Region sa = Region(name: 'Saudi Arabia', iso: 'SA');
   static final Region sk = Region(name: 'Slovakia', iso: 'SK');
   static final Region si = Region(name: 'Slovenia', iso: 'SI');
   static final Region es = Region(name: 'Spain', iso: 'ES');

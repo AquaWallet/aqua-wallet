@@ -37,9 +37,6 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
   final TransactionStrategyFactory strategyFactory;
   final List<BoltzSwapDbModel> boltzSwaps;
 
-  // Grace period for terminal Boltz orders to ensure we don't hide recently completed transactions
-  static const _gracePeriod = Duration(days: 1);
-
   @override
   Future<List<TransactionUiModel>> build(TransactionBuilderArgs args) async {
     final pendingDbTxns = await _collectPendingTransactions(
@@ -131,25 +128,19 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
       final networkTxn =
           networkTxns.firstWhereOrNull((t) => t.txhash == ghostTxn.txhash);
 
-      // If NOT in network yet, check if it should be included (lightning-specific logic)
-      if (networkTxn == null) {
-        final shouldInclude = _shouldIncludeLightningGhostTransactionAsPending(
+      if (networkTxn == null && networkTxns.isNotEmpty) {
+        final shouldIgnore = _shouldIgnoreGhost(
           ghostTxn: ghostTxn,
+          lastNetworkTxn: networkTxns.last,
         );
-        if (!shouldInclude) {
-          continue; // Skip - determined it shouldn't be pending
+        if (shouldIgnore) {
+          continue;
         }
-        // Include as pending
-        pendingTxns.add(ghostTxn);
-        seenTxHashes.add(ghostTxn.txhash);
-        continue;
       }
-
-      // If in network, check if it has enough confirmations
-      // networkTxn is guaranteed to be non-null here (we're past the null check)
+      // If not ignored, check if it has enough confirmations
       final confirmationCount = await confirmationService.getConfirmationCount(
         asset,
-        networkTxn.blockHeight ?? 0,
+        networkTxn?.blockHeight ?? 0,
       );
       final confirmationThreshold =
           confirmationService.getRequiredConfirmationCount(asset);
@@ -184,6 +175,16 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
         final isBoltzSwapTerminal = order?.isTerminal ?? false;
 
         if (order != null && isBoltzSwapTerminal) {
+          continue;
+        }
+      }
+      // Check if the Boltz transaction is older than the last network transaction
+      if (networkTxns.isNotEmpty) {
+        final shouldIgnore = _shouldIgnoreGhost(
+          ghostTxn: boltzTxn,
+          lastNetworkTxn: networkTxns.last,
+        );
+        if (shouldIgnore) {
           continue;
         }
       }
@@ -360,35 +361,17 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
     return uiModels;
   }
 
-  // Determines if a lightning ghost transaction should be included in the pending list
-  // Returns false if the transaction should be skipped (e.g., it's completed but not in network list)
-  // Returns true if it should be included as pending
-  bool _shouldIncludeLightningGhostTransactionAsPending({
+  bool _shouldIgnoreGhost({
     required TransactionDbModel ghostTxn,
+    required GdkTransaction lastNetworkTxn,
   }) {
-    // For lightning ghost transactions not in network list, check Boltz order status
-    final orderId = ghostTxn.serviceOrderId;
-    if (orderId == null || orderId.isEmpty) {
-      return true; // Include if no order ID
+    // ignore weird db transactions
+    if (lastNetworkTxn.createdAtTs == null ||
+        ghostTxn.ghostTxnCreatedAt == null) {
+      return true;
     }
-
-    final boltzOrder = boltzSwaps.firstWhereOrNull(
-      (o) => o.boltzId == orderId,
-    );
-
-    // If Boltz order is terminal AND transaction is older than grace period,
-    // it's likely confirmed but beyond the transaction limit
-    // Grace period ensures we don't hide recently completed transactions
-    if (boltzOrder != null && boltzOrder.isTerminal) {
-      final now = DateTime.now();
-      final ghostAge = ghostTxn.ghostTxnCreatedAt != null
-          ? now.difference(ghostTxn.ghostTxnCreatedAt!)
-          : null;
-      if (ghostAge != null && ghostAge > _gracePeriod) {
-        return false; // Skip - it's completed and old, just not in network list
-      }
-    }
-
-    return true; // Include as pending
+    // If ghost transaction is older than last network transaction, it's likely confirmed and should be ignored
+    return (ghostTxn.ghostTxnCreatedAt!.microsecondsSinceEpoch <
+        lastNetworkTxn.createdAtTs!);
   }
 }

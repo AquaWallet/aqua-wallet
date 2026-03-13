@@ -1,10 +1,11 @@
 // ignore_for_file: unused_element
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ui_components/components/icon/lightning_btc_composite_icon.dart';
 import 'package:ui_components/gen/assets.gen.dart';
 import 'package:ui_components/shared/shared.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 export 'contextual_glass_icon.dart';
 export 'lightning_btc_composite_icon.dart';
@@ -19,13 +20,18 @@ typedef AquaIconBuilder = AquaIcon Function({
   double size,
 });
 
+enum _DirectionalType { none, forward, back }
+
 class AquaIcon extends StatelessWidget {
   const AquaIcon._({
     required this.asset,
     this.color,
     this.onTap,
     this.padding,
-  }) : size = _defaultSize;
+  })  : size = _defaultSize,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
 
   AquaIcon.arrowLeft({
     super.key,
@@ -33,119 +39,170 @@ class AquaIcon extends StatelessWidget {
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.arrowLeft;
+  })  : asset = AquaUiAssets.svgs.arrowLeft,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.arrowUp({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.arrowUp;
+  })  : asset = AquaUiAssets.svgs.arrowUp,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.arrowRight({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.arrowRight;
+  })  : asset = AquaUiAssets.svgs.arrowRight,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.arrowDown({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.arrowDown;
+  })  : asset = AquaUiAssets.svgs.arrowDown,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.arrowDownRight({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.arrowDownRight;
+  })  : asset = AquaUiAssets.svgs.arrowDownRight,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.arrowDownLeft({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.arrowDownLeft;
+  })  : asset = AquaUiAssets.svgs.arrowDownLeft,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.arrowUpLeft({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.arrowUpLeft;
+  })  : asset = AquaUiAssets.svgs.arrowUpLeft,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.arrowUpRight({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.arrowUpRight;
+  })  : asset = AquaUiAssets.svgs.arrowUpRight,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.chevronDown({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.chevronDown;
+  })  : asset = AquaUiAssets.svgs.chevronDown,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.chevronLeft({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.chevronLeft;
+  })  : asset = AquaUiAssets.svgs.chevronLeft,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.chevronUp({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.chevronUp;
+  })  : asset = AquaUiAssets.svgs.chevronUp,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.chevronRight({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.chevronRight;
+  })  : asset = AquaUiAssets.svgs.chevronRight,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.star({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.star;
+  })  : asset = AquaUiAssets.svgs.star,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.starFilled({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.starFilled;
+  })  : asset = AquaUiAssets.svgs.starFilled,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.caret({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.caret;
+  })  : asset = AquaUiAssets.svgs.caret,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.check({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.check;
+  })  : asset = AquaUiAssets.svgs.check,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.pending({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.pending;
+  })  : asset = AquaUiAssets.svgs.pending,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
 
   AquaIcon.notification({
     super.key,
@@ -153,518 +210,740 @@ class AquaIcon extends StatelessWidget {
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.notification;
+  })  : asset = AquaUiAssets.svgs.notification,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.notificationIndicator({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.notificationIndicator;
+  })  : asset = AquaUiAssets.svgs.notificationIndicator,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.eyeOpen({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.eyeOpen;
+  })  : asset = AquaUiAssets.svgs.eyeOpen,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.eyeClose({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.eyeClose;
+  })  : asset = AquaUiAssets.svgs.eyeClose,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.swap({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.swap;
+  })  : asset = AquaUiAssets.svgs.swap,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.swapVertical({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.swapVertical;
+  })  : asset = AquaUiAssets.svgs.swapVertical,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.scan({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.scan;
+  })  : asset = AquaUiAssets.svgs.scan,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.filter({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.filter;
+  })  : asset = AquaUiAssets.svgs.filter,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.paste({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.paste;
+  })  : asset = AquaUiAssets.svgs.paste,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.danger({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.danger;
+  })  : asset = AquaUiAssets.svgs.danger,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.wallet({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.wallet;
+  })  : asset = AquaUiAssets.svgs.wallet,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.hardwareWallet({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.hardwareWallet;
+  })  : asset = AquaUiAssets.svgs.hardwareWallet,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.aquaIcon({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.aquaIcon;
+  })  : asset = AquaUiAssets.svgs.aquaIcon,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.aquaLogo({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.aquaLogo;
+  })  : asset = AquaUiAssets.svgs.aquaLogo,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.refresh({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.refresh;
+  })  : asset = AquaUiAssets.svgs.refresh,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.warning({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.warning;
+  })  : asset = AquaUiAssets.svgs.warning,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.marketplace({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.marketplace;
+  })  : asset = AquaUiAssets.svgs.marketplace,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.export({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.export;
+  })  : asset = AquaUiAssets.svgs.export,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.remove({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.remove;
+  })  : asset = AquaUiAssets.svgs.remove,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.images({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.images;
+  })  : asset = AquaUiAssets.svgs.images,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.settings({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.settings;
+  })  : asset = AquaUiAssets.svgs.settings,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.edit({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.edit;
+  })  : asset = AquaUiAssets.svgs.edit,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.externalLink({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.externalLink;
+  })  : asset = AquaUiAssets.svgs.externalLink,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.image({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.image;
+  })  : asset = AquaUiAssets.svgs.image,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.account({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.account;
+  })  : asset = AquaUiAssets.svgs.account,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.fees({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.fees;
+  })  : asset = AquaUiAssets.svgs.fees,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.lightbulb({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.lightbulb;
+  })  : asset = AquaUiAssets.svgs.lightbulb,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.plus({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.plus;
+  })  : asset = AquaUiAssets.svgs.plus,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.close({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.close;
+  })  : asset = AquaUiAssets.svgs.close,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.checkCircle({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.checkCircle;
+  })  : asset = AquaUiAssets.svgs.checkCircle,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.logout({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.logout;
+  })  : asset = AquaUiAssets.svgs.logout,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.minus({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.minus;
+  })  : asset = AquaUiAssets.svgs.minus,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.infoCircle({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.infoCircle;
+  })  : asset = AquaUiAssets.svgs.infoCircle,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.more({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.more;
+  })  : asset = AquaUiAssets.svgs.more,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.language({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.language;
+  })  : asset = AquaUiAssets.svgs.language,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.history({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.history;
+  })  : asset = AquaUiAssets.svgs.history,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.share({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.share;
+  })  : asset = AquaUiAssets.svgs.share,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.rotate({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.rotate;
+  })  : asset = AquaUiAssets.svgs.rotate,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.referenceRate({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.referenceRate;
+  })  : asset = AquaUiAssets.svgs.referenceRate,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.spinnerLoading({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.spinnerLoading;
+  })  : asset = AquaUiAssets.svgs.spinnerLoading,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.box({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.box;
+  })  : asset = AquaUiAssets.svgs.box,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.map({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.map;
+  })  : asset = AquaUiAssets.svgs.map,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.theme({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.theme;
+  })  : asset = AquaUiAssets.svgs.theme,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.copy({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.copy;
+  })  : asset = AquaUiAssets.svgs.copy,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.key({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.key;
+  })  : asset = AquaUiAssets.svgs.key,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.globe({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.globe;
+  })  : asset = AquaUiAssets.svgs.globe,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.biometricFingerprint({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.biometricFingerprint;
+  })  : asset = AquaUiAssets.svgs.biometricFingerprint,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.pokerchip({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.pokerchip;
+  })  : asset = AquaUiAssets.svgs.pokerchip,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.assets({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.assets;
+  })  : asset = AquaUiAssets.svgs.assets,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.pegIn({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.pegIn;
+  })  : asset = AquaUiAssets.svgs.pegIn,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.passcode({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.passcode;
+  })  : asset = AquaUiAssets.svgs.passcode,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.qrIcon({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.qrIcon;
+  })  : asset = AquaUiAssets.svgs.qrIcon,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.experimental({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.experimental;
+  })  : asset = AquaUiAssets.svgs.experimental,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.switching({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.switching;
+  })  : asset = AquaUiAssets.svgs.switching,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.shield({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.shield;
+  })  : asset = AquaUiAssets.svgs.shield,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.helpSupport({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.helpSupport;
+  })  : asset = AquaUiAssets.svgs.helpSupport,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.redo({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.redo;
+  })  : asset = AquaUiAssets.svgs.redo,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.home({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.home;
+  })  : asset = AquaUiAssets.svgs.home,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.chart({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.chart;
+  })  : asset = AquaUiAssets.svgs.chart,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.tool({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.tool;
+  })  : asset = AquaUiAssets.svgs.tool,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.upload({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.upload;
+  })  : asset = AquaUiAssets.svgs.upload,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.user({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.user;
+  })  : asset = AquaUiAssets.svgs.user,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.search({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.search;
+  })  : asset = AquaUiAssets.svgs.search,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.sidebarVisibilityLeft({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.sidebarVisibilityLeft;
+  })  : asset = AquaUiAssets.svgs.sidebarVisibilityLeft,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.sidebarVisibilityRight({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.sidebarVisibilityRight;
+  })  : asset = AquaUiAssets.svgs.sidebarVisibilityRight,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.creditCard({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.creditCard;
+  })  : asset = AquaUiAssets.svgs.creditCard,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.hamburger({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.hamburger;
+  })  : asset = AquaUiAssets.svgs.hamburger,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.grab({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.grab;
+  })  : asset = AquaUiAssets.svgs.grab,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.trendUp({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.trendUp;
+  })  : asset = AquaUiAssets.svgs.trendUp,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.statusSuccess({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.statusSuccess;
+  })  : asset = AquaUiAssets.svgs.statusSuccess,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.statusWarning({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.statusWarning;
+  })  : asset = AquaUiAssets.svgs.statusWarning,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.statusDanger({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.statusDanger;
+  })  : asset = AquaUiAssets.svgs.statusDanger,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.statusNeutral({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.statusNeutral;
+  })  : asset = AquaUiAssets.svgs.statusNeutral,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.contextualIcon({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.contextualIcon;
+  })  : asset = AquaUiAssets.svgs.contextualIcon,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.visa({
     super.key,
     this.color,
@@ -672,149 +951,267 @@ class AquaIcon extends StatelessWidget {
     this.padding,
     bool colored = false,
     this.size = _defaultSize,
-  }) : asset = colored ? AquaUiAssets.svgs.visaColor : AquaUiAssets.svgs.visa;
+  })  : asset = colored ? AquaUiAssets.svgs.visaColor : AquaUiAssets.svgs.visa,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.lock({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.lock;
+  })  : asset = AquaUiAssets.svgs.lock,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.trash({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.trash;
+  })  : asset = AquaUiAssets.svgs.trash,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.mastercard({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.mastercard;
+  })  : asset = AquaUiAssets.svgs.mastercard,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.googlePay({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.googlePay;
+  })  : asset = AquaUiAssets.svgs.googlePay,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.applePay({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.applePay;
+  })  : asset = AquaUiAssets.svgs.applePay,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.sepa({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.sepa;
+  })  : asset = AquaUiAssets.svgs.sepa,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.btcDirect({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.btcDirect;
+  })  : asset = AquaUiAssets.svgs.btcDirect,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.changelly({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.changelly;
+  })  : asset = AquaUiAssets.svgs.changelly,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.coinbits({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.coinbits;
+  })  : asset = AquaUiAssets.svgs.coinbits,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.selectAll({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.selectAll;
+  })  : asset = AquaUiAssets.svgs.selectAll,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.copyMultiple({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.copyMultiple;
+  })  : asset = AquaUiAssets.svgs.copyMultiple,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.btcpay({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.btcpay;
+  })  : asset = AquaUiAssets.svgs.btcpay,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.telegram({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.telegram;
+  })  : asset = AquaUiAssets.svgs.telegram,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.note({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.note;
+  })  : asset = AquaUiAssets.svgs.note,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.web({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.web;
+  })  : asset = AquaUiAssets.svgs.web,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.twitter({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.twitter;
+  })  : asset = AquaUiAssets.svgs.twitter,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.instagram({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.instagram;
+  })  : asset = AquaUiAssets.svgs.instagram,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.jan3Logo({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.jan3Logo;
+  })  : asset = AquaUiAssets.svgs.jan3Logo,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
   AquaIcon.jan3LogoDark({
     super.key,
     this.color,
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : asset = AquaUiAssets.svgs.jan3MiniLogoDark;
+  })  : asset = AquaUiAssets.svgs.jan3MiniLogoDark,
+        _directionalType = _DirectionalType.none,
+        _forwardAsset = null,
+        _backAsset = null;
+
+  // RTL-aware directional icons
+  // These flip automatically based on text direction (LTR vs RTL)
+  AquaIcon.chevronForward({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  })  : asset = AquaUiAssets.svgs.chevronRight,
+        _directionalType = _DirectionalType.forward,
+        _forwardAsset = AquaUiAssets.svgs.chevronRight,
+        _backAsset = AquaUiAssets.svgs.chevronLeft;
+  AquaIcon.chevronBack({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  })  : asset = AquaUiAssets.svgs.chevronLeft,
+        _directionalType = _DirectionalType.back,
+        _forwardAsset = AquaUiAssets.svgs.chevronRight,
+        _backAsset = AquaUiAssets.svgs.chevronLeft;
+  AquaIcon.arrowForward({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  })  : asset = AquaUiAssets.svgs.arrowRight,
+        _directionalType = _DirectionalType.forward,
+        _forwardAsset = AquaUiAssets.svgs.arrowRight,
+        _backAsset = AquaUiAssets.svgs.arrowLeft;
+  AquaIcon.arrowBack({
+    super.key,
+    this.color,
+    this.onTap,
+    this.padding,
+    this.size = _defaultSize,
+  })  : asset = AquaUiAssets.svgs.arrowLeft,
+        _directionalType = _DirectionalType.back,
+        _forwardAsset = AquaUiAssets.svgs.arrowRight,
+        _backAsset = AquaUiAssets.svgs.arrowLeft;
 
   final SvgGenImage asset;
   final double size;
   final Color? color;
   final EdgeInsets? padding;
   final VoidCallback? onTap;
+  final _DirectionalType _directionalType;
+  final SvgGenImage? _forwardAsset;
+  final SvgGenImage? _backAsset;
 
   @override
   Widget build(BuildContext context) {
+    // Determine the correct asset based on text direction for RTL-aware icons
+    final effectiveAsset = switch (_directionalType) {
+      _DirectionalType.forward =>
+        Directionality.of(context) == TextDirection.rtl
+            ? _backAsset!
+            : _forwardAsset!,
+      _DirectionalType.back => Directionality.of(context) == TextDirection.rtl
+          ? _forwardAsset!
+          : _backAsset!,
+      _DirectionalType.none => asset,
+    };
+
     return Container(
       alignment: Alignment.center,
       child: InkWell(
@@ -834,7 +1231,7 @@ class AquaIcon extends StatelessWidget {
         child: Ink(
           padding: padding ??
               (onTap != null ? const EdgeInsets.all(4) : EdgeInsets.zero),
-          child: asset.svg(
+          child: effectiveAsset.svg(
             width: size.toDouble(),
             height: size.toDouble(),
             colorFilter: color != null
@@ -843,6 +1240,26 @@ class AquaIcon extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Loads an SVG from [url] using [VectorGraphic] so that [errorBuilder] is
+/// available. [SvgPicture.network] does not expose [errorBuilder]; the
+/// underlying [VectorGraphic] widget does.
+class _NetworkSvgFallback extends StatelessWidget {
+  const _NetworkSvgFallback({required this.url, required this.fallback});
+
+  final String url;
+  final Widget fallback;
+
+  @override
+  Widget build(BuildContext context) {
+    return VectorGraphic(
+      loader: SvgNetworkLoader(url),
+      fit: BoxFit.contain,
+      placeholderBuilder: (_) => const SizedBox.shrink(),
+      errorBuilder: (_, __, ___) => fallback,
     );
   }
 }
@@ -1106,7 +1523,10 @@ class AquaAssetIcon extends StatelessWidget {
     this.onTap,
     this.padding,
     this.size = _defaultSize,
-  }) : icon = SvgPicture.network(url);
+  }) : icon = _NetworkSvgFallback(
+          url: url,
+          fallback: AquaUiAssets.svgs.currency.assetUnknown.svg(),
+        );
 
   final Widget icon;
   final double size;

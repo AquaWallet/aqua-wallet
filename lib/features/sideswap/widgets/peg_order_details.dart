@@ -30,25 +30,31 @@ class PegOrderDetails extends HookConsumerWidget {
             input: input,
           ),
           const SizedBox(height: 12.0),
-          const TransactionFeeBreakdownCard(
-            args: FeeStructureArguments.sideswap(),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: const TransactionFeeBreakdownCard(
+              args: FeeStructureArguments.sideswap(),
+            ),
           ),
           const SizedBox(height: 20.0),
           if (liquidityWarning != null && showToast.value) ...[
-            AquaToast(
-              title: context.loc.swapLiquidityWarningTitle,
-              description: context.loc.swapLiquidityWarningSubtitle,
-              variant: AquaToastVariant.normal,
-              aquaColors: context.aquaColors,
-              onClose: () => showToast.value = false,
-              actions: [
-                AquaToastAction(
-                  title: context.loc.learnMore,
-                  onPressed: () => ref
-                      .read(urlLauncherProvider)
-                      .open(aquaPegInLiquidityWarningUrl),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: AquaToast(
+                title: context.loc.swapLiquidityWarningTitle,
+                description: context.loc.swapLiquidityWarningSubtitle,
+                variant: AquaToastVariant.normal,
+                aquaColors: context.aquaColors,
+                onClose: () => showToast.value = false,
+                actions: [
+                  AquaToastAction(
+                    title: context.loc.learnMore,
+                    onPressed: () => ref
+                        .read(urlLauncherProvider)
+                        .open(aquaPegInLiquidityWarningUrl),
+                  ),
+                ],
+              ),
             )
           ],
           SwapSlider(

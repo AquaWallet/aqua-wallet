@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components/components/wallet_header/wallet_header_text.dart';
 import 'package:ui_components/ui_components.dart';
+import 'package:ui_components/shared/constants/keys.dart';
 
 export 'desktop_btc_price_tile.dart';
 export 'desktop_wallet_tile.dart';
@@ -89,6 +90,7 @@ class AquaWalletHeader extends HookWidget {
             AquaQuickActionsGroup(
               items: [
                 AquaQuickActionItem.icon(
+                  key: AquaWalletHeaderKeys.homeScreenReceiveButton,
                   label: text.receive,
                   icon: AquaIcon.arrowDownLeft(
                     color: colors?.textPrimary,

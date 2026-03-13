@@ -155,8 +155,7 @@ class UnitCurrencySelectionScreen extends HookConsumerWidget {
                         radioGroupValue: currentRate.value,
                         icon: CountryFlag(
                           svgAsset: exchangeRate.currency.format.flagSvg,
-                          width: 20,
-                          height: 20,
+                          size: 20,
                         ),
                         onPressed: () async {
                           currentRate.value = exchangeRate;

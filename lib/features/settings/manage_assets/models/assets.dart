@@ -380,8 +380,6 @@ extension AssetUsdtExt on Asset {
   String get providerName {
     if (isLightning) {
       return 'Boltz';
-    } else if (isAltUsdt) {
-      return 'Shift';
     }
     return '';
   }

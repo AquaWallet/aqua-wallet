@@ -62,11 +62,11 @@ class AssetInputDemoPage extends HookConsumerWidget {
         return;
       }
       if (amount == null) {
-        errorController.addError('Invalid amount');
+        errorController.addStringError('Invalid amount');
       } else if (amount > _kBalance) {
-        errorController.addError('Insufficient Funds');
+        errorController.addStringError('Insufficient Funds');
       } else if (amount > _kMaxAmount) {
-        errorController.addError('Max: $_kMaxAmount');
+        errorController.addStringError('Max:', '$_kMaxAmount');
       } else {
         errorController.clearError();
       }
@@ -167,8 +167,6 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final balanceValueText =
-        useCallback((String balance) => 'Bal: $balance', []);
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 343),
       child: Column(
@@ -180,7 +178,7 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             unit: AquaAssetInputUnit.crypto,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
@@ -196,7 +194,7 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             unit: AquaAssetInputUnit.crypto,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
@@ -211,14 +209,14 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             ticker: ticker,
             assetId: assetId,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             unit: AquaAssetInputUnit.crypto,
             colors: theme.colors,
             disabled: disabled,
             fiatSymbol: currencySymbol,
             onAssetSelected: onAssetSelected,
-            errorController: AquaInputErrorController('Insufficient Funds'),
+            errorController: AquaInputErrorController.fromString('Insufficient Funds'),
           ),
           const SizedBox(height: 29),
           AquaAssetInputField(
@@ -228,13 +226,13 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             unit: AquaAssetInputUnit.crypto,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
             onAssetSelected: onAssetSelected,
             isSwapable: false,
-            errorController: AquaInputErrorController('Insufficient Funds'),
+            errorController: AquaInputErrorController.fromString('Insufficient Funds'),
           ),
           const SizedBox(height: 49),
           AquaAssetInputField(
@@ -244,12 +242,12 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             unit: AquaAssetInputUnit.crypto,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
             onAssetSelected: onAssetSelected,
-            errorController: AquaInputErrorController('Max: 0.004738'),
+            errorController: AquaInputErrorController.fromString('Max:', '0.004738'),
           ),
           const SizedBox(height: 29),
           AquaAssetInputField(
@@ -264,8 +262,8 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             fiatSymbol: currencySymbol,
             onAssetSelected: onAssetSelected,
             isSwapable: false,
-            errorController: AquaInputErrorController('Max: 0.004738'),
-            balanceValueText: balanceValueText('1.94839493'),
+            errorController: AquaInputErrorController.fromString('Max:', '0.004738'),
+            balanceLabel: 'Bal:',
           ),
           const SizedBox(height: 80),
           AquaAssetInputField(
@@ -276,7 +274,7 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             type: AquaAssetInputType.fiat,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
@@ -291,7 +289,7 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             type: AquaAssetInputType.fiat,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
@@ -307,12 +305,12 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             type: AquaAssetInputType.fiat,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
             onAssetSelected: onAssetSelected,
-            errorController: AquaInputErrorController('Insufficient Funds'),
+            errorController: AquaInputErrorController.fromString('Insufficient Funds'),
           ),
           const SizedBox(height: 29),
           AquaAssetInputField(
@@ -323,13 +321,13 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             type: AquaAssetInputType.fiat,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
             onAssetSelected: onAssetSelected,
             isSwapable: false,
-            errorController: AquaInputErrorController('Insufficient Funds'),
+            errorController: AquaInputErrorController.fromString('Insufficient Funds'),
           ),
           const SizedBox(height: 49),
           AquaAssetInputField(
@@ -340,12 +338,12 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             type: AquaAssetInputType.fiat,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
             onAssetSelected: onAssetSelected,
-            errorController: AquaInputErrorController('Max: 0.004738'),
+            errorController: AquaInputErrorController.fromString('Max:', '0.004738'),
           ),
           const SizedBox(height: 29),
           AquaAssetInputField(
@@ -356,13 +354,13 @@ class _AssetInputFieldDemoSection extends StatelessWidget {
             type: AquaAssetInputType.fiat,
             colors: theme.colors,
             balance: '1.94839493',
-            balanceValueText: balanceValueText('1.94839493'),
+            balanceLabel: 'Bal:',
             conversionAmount: '204558.51',
             disabled: disabled,
             fiatSymbol: currencySymbol,
             onAssetSelected: onAssetSelected,
             isSwapable: false,
-            errorController: AquaInputErrorController('Max: 0.004738'),
+            errorController: AquaInputErrorController.fromString('Max:', '0.004738'),
           ),
         ],
       ),

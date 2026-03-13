@@ -134,8 +134,7 @@ List<RouteBase> get routes {
     ),
     GoRoute(
       path: SplashScreen.routeName,
-      builder: (context, state) =>
-          SplashScreen(description: state.extra as String),
+      builder: (context, state) => SplashScreen(tagline: state.extra as String),
     ),
     GoRoute(
       path: SplashScreenPreview.routeName,
@@ -381,6 +380,10 @@ List<RouteBase> get routes {
     GoRoute(
       path: ExperimentalFeaturesScreen.routeName,
       builder: (context, state) => const ExperimentalFeaturesScreen(),
+    ),
+    GoRoute(
+      path: LegacyWalletScreen.routeName,
+      builder: (context, state) => const LegacyWalletScreen(),
     ),
     GoRoute(
       path: DirectPegInScreen.routeName,

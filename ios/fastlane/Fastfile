@@ -3,8 +3,9 @@ default_platform(:ios)
 platform :ios do
   before_all do
     ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
-    # Set the specific Xcode version to use
-    xcode_select("/Applications/Xcode_16.4.app")
+    # Only override when FASTLANE_XCODE_PATH is set; otherwise CI's setup-xcode selection is used
+    xcode_path = ENV["FASTLANE_XCODE_PATH"]
+    xcode_select(xcode_path) if xcode_path && File.directory?(xcode_path)
   end
 
   app_store_connect_api_key(

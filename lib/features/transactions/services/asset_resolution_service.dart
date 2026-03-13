@@ -58,13 +58,6 @@ class AssetResolutionService {
     return (fromAsset: resolved.fromAsset, toAsset: resolved.toAsset);
   }
 
-  // Private Helper Methods
-
-  Asset? _findAssetById(String? assetId, List<Asset> availableAssets) {
-    if (assetId == null) return null;
-    return availableAssets.firstWhereOrNull((a) => a.id == assetId);
-  }
-
   // Resolves swap assets from either network transaction or database
   SwapAssets _resolveSwapAssetsFromData({
     required TransactionDbModel dbTxn,

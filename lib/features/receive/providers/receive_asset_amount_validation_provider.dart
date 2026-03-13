@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/models/amount_parsing_exception.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
 
@@ -69,16 +71,31 @@ class ReceiveAssetAmountValidationNotifier
 
   Future<void> validateLightning(int amount, Asset asset) async {
     final reverseFees = await ref.read(boltzReverseFeesProvider.future);
-    if (amount < reverseFees.lbtcLimits.minimal.toInt()) {
+    final minSats = reverseFees.lbtcLimits.minimal.toInt();
+    final maxSats = reverseFees.lbtcLimits.maximal.toInt();
+    if (amount < minSats) {
       throw AmountParsingException(AmountParsingExceptionType.belowMin,
-          amount: reverseFees.lbtcLimits.minimal.toInt().toString(),
+          amount: _formatLimitWithUnits(minSats, asset),
           displayUnitTicker: asset.ticker);
     }
-    if (amount > reverseFees.lbtcLimits.maximal.toInt()) {
+    if (amount > maxSats) {
       throw AmountParsingException(AmountParsingExceptionType.aboveSendMax,
-          amount: reverseFees.lbtcLimits.maximal.toInt().toString(),
+          amount: _formatLimitWithUnits(maxSats, asset),
           displayUnitTicker: asset.ticker);
     }
+  }
+
+  String _formatLimitWithUnits(int sats, Asset asset) {
+    final formatter = ref.read(formatProvider);
+    final units = ref.read(displayUnitsProvider);
+    final displayUnit = units.currentDisplayUnit;
+    final formatted = formatter.formatAssetAmount(
+      amount: sats,
+      asset: asset,
+      displayUnitOverride: displayUnit,
+      removeTrailingZeros: false,
+    );
+    return '$formatted ${displayUnit.value}';
   }
 }
 

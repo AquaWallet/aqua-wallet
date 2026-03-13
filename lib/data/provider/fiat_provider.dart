@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:aqua/data/data.dart';
@@ -28,6 +29,8 @@ final fiatProvider = Provider.autoDispose<FiatProvider>((ref) {
 });
 
 class FiatProvider {
+  static const _rateTimeout = Duration(seconds: 5);
+
   final AutoDisposeProviderRef ref;
   final Stream<(Decimal, String, String)>? _forcedRateStream;
 
@@ -56,6 +59,16 @@ class FiatProvider {
                 );
               }).onErrorResumeNext(const Stream.empty()))
           .shareReplay(maxSize: 1);
+
+  Future<(Decimal, String, String)> _getRate() async {
+    try {
+      return await rateStream.first.timeout(_rateTimeout);
+    } on StateError {
+      throw FiatProviderNullFiatRateException();
+    } on TimeoutException {
+      throw FiatProviderTimeoutException(_rateTimeout);
+    }
+  }
 
   //ANCHOR: - Satoshi to Fiat
   Decimal satoshiToFiat(Asset asset, int satoshi, Decimal rate) {
@@ -110,7 +123,7 @@ class FiatProvider {
 
   //ANCHOR: - Fiat to Satoshi
   Future<Decimal> fiatToSatoshi(Asset asset, Decimal amount) async {
-    final rate = await rateStream.first;
+    final rate = await _getRate();
     final assetPrecision =
         asset.isLightning ? Asset.btc().precision : asset.precision;
     final precisionRate =
@@ -138,18 +151,15 @@ class FiatProvider {
 
   /// Convenience method to get the fiat value of a satoshi amount to display
   Future<String> getSatsToFiatDisplay(int satoshi, bool withSymbol) async {
-    final (rate, symbol, _) = await rateStream.first;
+    final (rate, symbol, _) = await _getRate();
     final fiatValue = satoshiToFiat(Asset.btc(amount: satoshi), satoshi, rate);
-    final formattedValue =
-        formatFiat(fiatValue, symbol, withSymbol: withSymbol);
-    return formattedValue;
+    return formatFiat(fiatValue, symbol, withSymbol: withSymbol);
   }
 
   /// Convenience method to get the fiat value of a satoshi amount
   Future<Decimal> getSatsToFiat(int satoshi) async {
-    final (rate, _, _) = await rateStream.first;
-    final fiatValue = satoshiToFiat(Asset.btc(amount: satoshi), satoshi, rate);
-    return fiatValue;
+    final (rate, _, _) = await _getRate();
+    return satoshiToFiat(Asset.btc(amount: satoshi), satoshi, rate);
   }
 }
 
@@ -169,5 +179,13 @@ final fiatToSatsAsIntProvider =
 });
 
 class FiatProviderNullFiatRateException implements Exception {}
+
+class FiatProviderTimeoutException implements Exception {
+  final Duration timeout;
+  FiatProviderTimeoutException(this.timeout);
+
+  @override
+  String toString() => 'Fiat rate stream timed out after ${timeout.inSeconds}s';
+}
 
 class FiatProviderParseAssetAmountException implements Exception {}

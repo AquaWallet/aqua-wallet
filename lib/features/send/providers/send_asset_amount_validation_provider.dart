@@ -115,10 +115,14 @@ class SendAssetAmountValidationNotifier
           );
     }
 
-    // For other assets, use standard crypto formatting
-    return formatter.formatAssetAmount(
+    final units = ref.read(displayUnitsProvider);
+    final displayUnit = units.currentDisplayUnit;
+    final formatted = formatter.formatAssetAmount(
       amount: amount,
       asset: asset,
+      displayUnitOverride: displayUnit,
+      removeTrailingZeros: false,
     );
+    return '$formatted ${displayUnit.value}';
   }
 }

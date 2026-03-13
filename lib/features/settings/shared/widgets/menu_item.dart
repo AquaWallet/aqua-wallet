@@ -48,6 +48,7 @@ class MenuItemWidget extends StatelessWidget {
                               ? Center(
                                   child: CountryFlag(
                                     svgAsset: assetName,
+                                    size: 20,
                                   ),
                                 )
                               : SvgPicture.asset(assetName,

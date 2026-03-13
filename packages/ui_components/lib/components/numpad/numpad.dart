@@ -31,23 +31,26 @@ class AquaNumpad extends HookWidget {
       return key is MnemonicKeyboardLetterKey && key.text == decimalSeparator;
     }, [decimalSeparator]);
 
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      padding: EdgeInsets.zero,
-      childAspectRatio: 1.95,
-      children: keys
-          .map((key) => _AquaNumpadKey(
-                key: ValueKey(key),
-                value: key,
-                enabled: enabled && (!isDecimalKey(key) || decimalAllowed),
-                onPressed: onKeyPressed,
-                colors: colors,
-              ))
-          .toList(),
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: GridView.count(
+        crossAxisCount: 3,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+        padding: EdgeInsets.zero,
+        childAspectRatio: 1.95,
+        children: keys
+            .map((key) => _AquaNumpadKey(
+                  key: ValueKey(key),
+                  value: key,
+                  enabled: enabled && (!isDecimalKey(key) || decimalAllowed),
+                  onPressed: onKeyPressed,
+                  colors: colors,
+                ))
+            .toList(),
+      ),
     );
   }
 }

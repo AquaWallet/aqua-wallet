@@ -45,6 +45,7 @@ class SwapAssetBalance extends HookConsumerWidget {
               Text(
                 '${context.loc.balance}: ',
                 style: textStyle,
+                textDirection: Directionality.of(context),
               ),
               AssetCryptoAmount(
                 forceVisible: true,

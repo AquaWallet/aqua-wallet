@@ -69,13 +69,15 @@ class AmountTextField extends StatelessWidget {
       composing: TextRange.empty,
     );
 
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     return TextField(
       controller: internalController,
       focusNode: focusNode,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       onEditingComplete: onEditingComplete,
-      textAlign: textAlign,
+      textDirection: TextDirection.ltr,
+      textAlign: isRtl ? TextAlign.right : textAlign,
       cursorColor: cursorColor,
       autofocus: autofocus,
       readOnly: readOnly,

@@ -8,19 +8,25 @@ final networkTransactionsProvider =
   ref.watch(storedWalletsProvider.select((s) => s.valueOrNull?.currentWallet));
 
   final networkProvider = asset.isBTC ? bitcoinProvider : liquidProvider;
-  final networkTxs = ref
-      .watch(networkProvider)
-      .transactionEventSubject
+  final network = ref.watch(networkProvider);
+
+  // Refresh transaction list on both transaction events AND block events.
+  // Block events update transaction blockHeight (confirmations) which is
+  // needed to transition pending transactions to confirmed state.
+  final transactionStream = Rx.merge([
+    network.transactionEventSubject.cast<void>(),
+    network.blockHeightEventSubject.cast<void>(),
+  ])
       .startWith(null)
       .asyncMap((_) =>
           ref.read(networkProvider).getTransactions(requiresRefresh: true))
       .map((transactions) => transactions ?? []);
 
   if (!asset.isBTC) {
-    yield* networkTxs.map((transactions) => transactions
+    yield* transactionStream.map((transactions) => transactions
         .where((transaction) => transaction.satoshi?[asset.id] != null)
         .toList());
   }
 
-  yield* networkTxs;
+  yield* transactionStream;
 });

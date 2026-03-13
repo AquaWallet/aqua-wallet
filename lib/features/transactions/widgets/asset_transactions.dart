@@ -44,6 +44,8 @@ class AssetTransactions extends HookConsumerWidget {
     final displayUnit = ref.watch(
         displayUnitsProvider.select((p) => p.getAssetDisplayUnit(asset)));
 
+    final isBalanceHidden =
+        ref.watch(prefsProvider.select((p) => p.isBalanceHidden));
     final conversion = useMemoized(
       () => balanceAsset != null
           ? ref
@@ -137,7 +139,7 @@ class AssetTransactions extends HookConsumerWidget {
                     //ANCHOR - Header
                     AquaAccountBalance(
                       asset: asset.toUiModel(
-                        amountFiat: conversion,
+                        amountFiat: isBalanceHidden ? null : conversion,
                         displayUnit: displayUnit,
                       ),
                       amountWidget: AssetCryptoAmount(
@@ -195,6 +197,8 @@ class _HeaderWrappedContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final displayUnit = ref.watch(
         displayUnitsProvider.select((p) => p.getAssetDisplayUnit(asset)));
+    final isBalanceHidden =
+        ref.watch(prefsProvider.select((p) => p.isBalanceHidden));
 
     return Column(
       children: [
@@ -203,7 +207,7 @@ class _HeaderWrappedContent extends ConsumerWidget {
           margin: const EdgeInsets.only(top: 24, bottom: 20),
           child: AquaAccountBalance(
             asset: asset.toUiModel(
-              amountFiat: conversion,
+              amountFiat: isBalanceHidden ? null : conversion,
               displayUnit: displayUnit,
             ),
             amountWidget: AssetCryptoAmount(

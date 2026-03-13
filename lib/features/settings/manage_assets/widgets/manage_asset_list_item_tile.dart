@@ -1,9 +1,11 @@
+import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/settings/manage_assets/keys/manage_assets_screen_keys.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:aqua/config/config.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class ManageAssetListItemTile extends StatelessWidget {
   const ManageAssetListItemTile({
@@ -44,10 +46,17 @@ class ManageAssetListItemTile extends StatelessWidget {
                     height: 52.0,
                   ),
                 if (!asset.isLBTC)
-                  SvgPicture.network(
-                    asset.logoUrl,
+                  VectorGraphic(
+                    loader: SvgNetworkLoader(asset.logoUrl),
                     width: 52.0,
                     height: 52.0,
+                    placeholderBuilder: (_) =>
+                        const SizedBox.square(dimension: 52.0),
+                    errorBuilder: (_, __, ___) => SvgPicture.asset(
+                      Svgs.unknownAsset,
+                      width: 52.0,
+                      height: 52.0,
+                    ),
                   ),
 
                 const SizedBox(width: 14.0),

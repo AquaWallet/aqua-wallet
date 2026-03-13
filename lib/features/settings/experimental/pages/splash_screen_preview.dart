@@ -31,6 +31,6 @@ class SplashScreenPreview extends HookConsumerWidget {
       return timer.cancel;
     }, [tagLines.length]);
 
-    return SplashScreen(description: tagLines[currentIndex.value]);
+    return SplashScreen(tagline: tagLines[currentIndex.value]);
   }
 }

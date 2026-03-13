@@ -2,24 +2,36 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 
+// System languages that are supported by the app.
 enum SupportedLanguageCodes {
   albanian('sq', 'Shqip'),
-  bulgarian('bg', 'Български'),
+  arabic('ar', 'العربية'),
   catalan('ca', 'Català'),
-  czech('cs', 'Čeština'),
-  german('de', 'Deutsch'),
+  chinese('zh', '中文简体'),
   english('en', 'English'),
-  spanish('es', 'Español'),
   french('fr', 'Français'),
-  hungarian('hu', 'Magyar'),
+  german('de', 'Deutsch'),
   italian('it', 'Italiano'),
-  dutch('nl', 'Nederlands'),
   polish('pl', 'Polski'),
   portuguese('pt', 'Português'),
   serbian('sr', 'Srpski'),
-  thai('th', 'ไทย');
+  spanish('es', 'Español');
 
   const SupportedLanguageCodes(this.value, this.displayName);
+
+  final String value;
+  final String displayName;
+}
+
+// System languages that are hidden behind the [isHiddenLanguagesEnabled] flag.
+enum HiddenLanguageCodes {
+  bulgarian('bg', 'Български'),
+  czech('cs', 'Čeština'),
+  dutch('nl', 'Nederlands'),
+  hungarian('hu', 'Magyar'),
+  thai('th', 'ไทย');
+
+  const HiddenLanguageCodes(this.value, this.displayName);
 
   final String value;
   final String displayName;
@@ -64,22 +76,34 @@ class LanguageProvider extends ChangeNotifier {
           RegionsStatic.sq,
         ),
         Language(
+          SupportedLanguageCodes.arabic.value,
+          context.loc.languageSettingsArabic,
+          SupportedLanguageCodes.arabic.displayName,
+          RegionsStatic.sa,
+        ),
+        Language(
           SupportedLanguageCodes.catalan.value,
           context.loc.languageSettingsCatalan,
           SupportedLanguageCodes.catalan.displayName,
           RegionsStatic.catalonia,
         ),
         Language(
-          SupportedLanguageCodes.german.value,
-          context.loc.languageSettingsGerman,
-          SupportedLanguageCodes.german.displayName,
-          RegionsStatic.de,
+          SupportedLanguageCodes.chinese.value,
+          context.loc.languageSettingsChineseSimplified,
+          SupportedLanguageCodes.chinese.displayName,
+          RegionsStatic.cn,
         ),
         Language(
           SupportedLanguageCodes.french.value,
           context.loc.languageSettingsFrench,
           SupportedLanguageCodes.french.displayName,
           RegionsStatic.fr,
+        ),
+        Language(
+          SupportedLanguageCodes.german.value,
+          context.loc.languageSettingsGerman,
+          SupportedLanguageCodes.german.displayName,
+          RegionsStatic.de,
         ),
         Language(
           SupportedLanguageCodes.italian.value,
@@ -101,36 +125,36 @@ class LanguageProvider extends ChangeNotifier {
         ),
         if (prefs.isHiddenLanguagesEnabled) ...[
           Language(
-            SupportedLanguageCodes.bulgarian.value,
+            HiddenLanguageCodes.bulgarian.value,
             context.loc.languageSettingsBulgarian,
-            SupportedLanguageCodes.bulgarian.displayName,
+            HiddenLanguageCodes.bulgarian.displayName,
             RegionsStatic.bg,
           ),
           Language(
-            SupportedLanguageCodes.czech.value,
+            HiddenLanguageCodes.czech.value,
             context.loc.languageSettingsCzech,
-            SupportedLanguageCodes.czech.displayName,
+            HiddenLanguageCodes.czech.displayName,
             RegionsStatic.cz,
           ),
           Language(
-            SupportedLanguageCodes.dutch.value,
+            HiddenLanguageCodes.dutch.value,
             context.loc.languageSettingsNederlands,
-            SupportedLanguageCodes.dutch.displayName,
+            HiddenLanguageCodes.dutch.displayName,
             RegionsStatic.nl,
           ),
           Language(
-            SupportedLanguageCodes.hungarian.value,
+            HiddenLanguageCodes.hungarian.value,
             context.loc.languageSettingsHungarian,
-            SupportedLanguageCodes.hungarian.displayName,
+            HiddenLanguageCodes.hungarian.displayName,
             RegionsStatic.hu,
           ),
           Language(
-            SupportedLanguageCodes.thai.value,
+            HiddenLanguageCodes.thai.value,
             context.loc.languageSettingsThai,
-            SupportedLanguageCodes.thai.displayName,
+            HiddenLanguageCodes.thai.displayName,
             RegionsStatic.th,
           ),
-        ]
+        ],
       ];
 
   Language get currentLanguage {

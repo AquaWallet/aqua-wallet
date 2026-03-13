@@ -198,7 +198,7 @@ class AquaDropDown {
         itemBuilder: (context, index) => AquaListItem(
           title: items[index],
           iconTrailing: showArrow
-              ? AquaIcon.chevronRight(
+              ? AquaIcon.chevronForward(
                   size: 18,
                   color: Theme.of(context).colorScheme.onSurface,
                 )

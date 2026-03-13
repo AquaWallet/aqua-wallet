@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/ui_components.dart';
 
@@ -35,6 +36,7 @@ class AquaTextField extends HookWidget {
     this.counterTextColor,
     this.onChanged,
     this.debounceTime = kDefaultDebounceDuration,
+    this.inputFormatters,
   });
 
   final String? label;
@@ -64,6 +66,7 @@ class AquaTextField extends HookWidget {
   final Color? counterTextColor;
   final ValueChanged<String>? onChanged;
   final Duration debounceTime;
+  final List<TextInputFormatter>? inputFormatters;
 
   static const kLabelAnimationDuration = Duration(milliseconds: 200);
   static const kLineHeight = 24.0;
@@ -251,6 +254,7 @@ class AquaTextField extends HookWidget {
                             (isMultiline ? TextInputType.multiline : null),
                         textInputAction: textInputAction,
                         enabled: enabled,
+                        inputFormatters: inputFormatters,
                         minLines: null,
                         maxLines: null,
                         expands: false,

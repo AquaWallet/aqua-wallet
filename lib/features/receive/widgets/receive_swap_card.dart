@@ -286,7 +286,7 @@ class _LoadingContent extends HookConsumerWidget {
                   const SizedBox(height: 32),
                   //ANCHOR - Swap ID with copy button
                   _LoadingStateInfoItem(
-                    context.loc.providerId(serviceName),
+                    context.loc.providerId,
                   ),
                 ],
               ),

@@ -43,6 +43,7 @@ abstract class SwapOrderStorage {
   });
 
   Future<void> clear();
+  Future<void> clearByWalletId(String walletId);
 }
 
 class SwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
@@ -178,8 +179,20 @@ class SwapOrderStorageNotifier extends AsyncNotifier<List<SwapOrderDbModel>>
   @override
   Future<void> clear() async {
     final storage = await ref.read(storageProvider.future);
-    await storage.writeTxn(() => storage.clear());
+    await storage.writeTxn(() => storage.swapOrderDbModels.clear());
+    await _reloadCurrentWalletOrders();
+  }
 
+  @override
+  Future<void> clearByWalletId(String walletId) async {
+    final storage = await ref.read(storageProvider.future);
+    await storage.writeTxn(() async {
+      final count = await storage.swapOrderDbModels
+          .filter()
+          .walletIdEqualTo(walletId)
+          .deleteAll();
+      _logger.debug('Removed $count swap orders for wallet $walletId');
+    });
     await _reloadCurrentWalletOrders();
   }
 

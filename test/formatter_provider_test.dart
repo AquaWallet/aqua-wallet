@@ -530,4 +530,253 @@ void main() {
       });
     });
   });
+
+  group('cleanAmountString', () {
+    // USD: thousandsSeparator=',', decimalSeparator='.'
+    const usdSpec = CurrencyFormatSpec(
+      symbol: '\$',
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      currencyCountryCode: 'US',
+    );
+
+    // EUR: thousandsSeparator='.', decimalSeparator=','
+    const eurSpec = CurrencyFormatSpec(
+      symbol: '€',
+      thousandsSeparator: '.',
+      decimalSeparator: ',',
+      currencyCountryCode: 'EU',
+    );
+
+    // VND: thousandsSeparator='.', decimalSeparator=','
+    const vndSpec = CurrencyFormatSpec(
+      symbol: '₫',
+      thousandsSeparator: '.',
+      decimalSeparator: ',',
+      currencyCountryCode: 'VN',
+    );
+
+    group('USD format (dot decimal, comma thousands)', () {
+      test('simple decimal amount', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('0.0008', usdSpec),
+          '0.0008',
+        );
+      });
+
+      test('amount with thousands separator', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('1,000.50', usdSpec),
+          '1000.50',
+        );
+      });
+
+      test('integer amount', () {
+        expect(
+          container.read(formatterProvider).cleanAmountString('80000', usdSpec),
+          '80000',
+        );
+      });
+
+      test('amount with spaces', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString(' 1 000 ', usdSpec),
+          '1000',
+        );
+      });
+
+      test('empty string returns 0', () {
+        expect(
+          container.read(formatterProvider).cleanAmountString('', usdSpec),
+          '0',
+        );
+      });
+    });
+
+    group('EUR format (comma decimal, dot thousands)', () {
+      test('locale-formatted decimal amount', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('0,0008', eurSpec),
+          '0.0008',
+        );
+      });
+
+      test('locale-formatted with thousands separator', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('1.000,50', eurSpec),
+          '1000.50',
+        );
+      });
+
+      test('standard-format decimal (from Decimal.toString()) is preserved',
+          () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('0.0008', eurSpec),
+          '0.0008',
+        );
+      });
+
+      test('standard-format BTC amount is not corrupted', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('0.00080000', eurSpec),
+          '0.00080000',
+        );
+      });
+
+      test('integer amount', () {
+        expect(
+          container.read(formatterProvider).cleanAmountString('80000', eurSpec),
+          '80000',
+        );
+      });
+
+      test('large locale-formatted amount', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('1.234.567,89', eurSpec),
+          '1234567.89',
+        );
+      });
+
+      test('empty string returns 0', () {
+        expect(
+          container.read(formatterProvider).cleanAmountString('', eurSpec),
+          '0',
+        );
+      });
+
+      test('amount with bitcoin fractional separator', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('0.00\u2009080\u2009000', eurSpec),
+          '0.00080000',
+        );
+      });
+    });
+
+    group('VND format (comma decimal, dot thousands)', () {
+      test('locale-formatted decimal amount', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('0,0008', vndSpec),
+          '0.0008',
+        );
+      });
+
+      test('standard-format decimal is preserved', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('0.0008', vndSpec),
+          '0.0008',
+        );
+      });
+
+      test('locale-formatted with thousands separator', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('1.000,50', vndSpec),
+          '1000.50',
+        );
+      });
+
+      test('integer amount', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('1000000', vndSpec),
+          '1000000',
+        );
+      });
+    });
+
+    group('CHF format (apostrophe thousands, dot decimal)', () {
+      const chfSpec = CurrencyFormatSpec(
+        symbol: 'CHF ',
+        thousandsSeparator: '\'',
+        decimalSeparator: '.',
+        currencyCountryCode: 'CH',
+      );
+
+      test('simple decimal amount', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString('0.0008', chfSpec),
+          '0.0008',
+        );
+      });
+
+      test('amount with apostrophe thousands separator', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString("1'000.50", chfSpec),
+          '1000.50',
+        );
+      });
+
+      test('large amount with multiple apostrophes', () {
+        expect(
+          container
+              .read(formatterProvider)
+              .cleanAmountString("1'234'567.89", chfSpec),
+          '1234567.89',
+        );
+      });
+
+      test('integer amount', () {
+        expect(
+          container.read(formatterProvider).cleanAmountString('80000', chfSpec),
+          '80000',
+        );
+      });
+
+      test('empty string returns 0', () {
+        expect(
+          container.read(formatterProvider).cleanAmountString('', chfSpec),
+          '0',
+        );
+      });
+    });
+
+    group('Cross-currency: same input, different specs', () {
+      test('"0.0008" is preserved for both USD and EUR', () {
+        final formatter = container.read(formatterProvider);
+        expect(formatter.cleanAmountString('0.0008', usdSpec), '0.0008');
+        expect(formatter.cleanAmountString('0.0008', eurSpec), '0.0008');
+        expect(formatter.cleanAmountString('0.0008', vndSpec), '0.0008');
+      });
+
+      test('"1,000" strips thousands for USD, normalizes decimal for EUR', () {
+        final formatter = container.read(formatterProvider);
+        expect(formatter.cleanAmountString('1,000', usdSpec), '1000');
+        expect(formatter.cleanAmountString('1,000', eurSpec), '1.000');
+      });
+
+      test('"1.000" strips thousands for EUR, is decimal for USD', () {
+        final formatter = container.read(formatterProvider);
+        expect(formatter.cleanAmountString('1.000', usdSpec), '1.000');
+        expect(formatter.cleanAmountString('1.000', eurSpec), '1.000');
+      });
+    });
+  });
 }

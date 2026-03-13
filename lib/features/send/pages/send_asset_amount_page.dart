@@ -69,7 +69,7 @@ class SendAssetAmountPage extends HookConsumerWidget {
           ))
         : null;
     final inputFieldError = validationState.hasError
-        ? ref.watch(assetValidationErrorProvider(
+        ? ref.watch(assetInputFieldErrorProvider(
             AssetValidationErrorParams(
               exception: validationState.error as ExceptionLocalized?,
               context: context,
@@ -222,8 +222,7 @@ class SendAssetAmountPage extends HookConsumerWidget {
                 type: input.inputType,
                 unit: input.inputUnit,
                 balance: input.balanceDisplay,
-                balanceValueText:
-                    context.loc.balanceValue(input.balanceDisplay),
+                balanceLabel: context.loc.balanceLabel,
                 conversionAmount: input.displayConversionAmount ?? '',
                 usdtCryptoAmount: input.usdtCryptoAmount,
                 fiatSymbol: input.rate.currency.format.symbol,

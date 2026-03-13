@@ -95,7 +95,7 @@ class NetworkSelectionPage extends HookConsumerWidget {
               assets: flatAssets,
               colors: context.aquaColors,
               type: AquaAssetSelectorType.send,
-              trailingWidget: AquaIcon.chevronRight(
+              trailingWidget: AquaIcon.chevronForward(
                 color: context.aquaColors.textSecondary,
                 size: 16,
               ),

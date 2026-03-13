@@ -82,7 +82,7 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
       return formatter.signedFormatAssetAmount(
         amount: isReceivingSide ? amount : -amount,
         asset: args.asset,
-        decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+        decimalPlacesOverride: kUsdtDisplayPrecision,
       );
     }
 
@@ -91,7 +91,7 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
       return formatter.signedFormatAssetAmount(
         amount: amount,
         asset: args.asset,
-        decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+        decimalPlacesOverride: kUsdtDisplayPrecision,
       );
     }
 
@@ -110,7 +110,7 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
     return formatter.signedFormatAssetAmount(
       amount: amount,
       asset: args.asset,
-      decimalPlacesOverride: args.asset.isUSDt ? kUsdtDisplayPrecision : null,
+      decimalPlacesOverride: kUsdtDisplayPrecision,
     );
   }
 
@@ -230,9 +230,6 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
     final amount = formatter.formatAssetAmount(
       amount: -amountSats,
       asset: args.asset,
-      decimalPlacesOverride:
-          args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
-      removeTrailingZeros: args.asset.isNonSatsAsset,
     );
     final amountFiat = convertToFiat(args.asset, -amountSats);
 
@@ -241,11 +238,8 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
       feeAsset: feeAsset,
       networkTxn: args.networkTransaction,
     );
-    if (usdtSwapFee == null) {
-      throw AssetTransactionNotFoundException();
-    }
 
-    final feeAmount = usdtSwapFee.mapOrNull(
+    final feeAmount = usdtSwapFee?.mapOrNull(
           usdtSwap: (fee) => fee.totalFeesCrypto,
         ) ??
         '';
@@ -308,9 +302,6 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
     final amount = formatter.formatAssetAmount(
       amount: -amountSats,
       asset: args.asset,
-      decimalPlacesOverride:
-          args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
-      removeTrailingZeros: args.asset.isNonSatsAsset,
     );
 
     final usdtSwapFee = await _calculateFeesFromDbOrder(
@@ -318,11 +309,8 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
       feeAsset: feeAsset,
       networkTxn: networkTxn,
     );
-    if (usdtSwapFee == null) {
-      throw AssetTransactionNotFoundException();
-    }
 
-    final feeAmount = usdtSwapFee.mapOrNull(
+    final feeAmount = usdtSwapFee?.mapOrNull(
           usdtSwap: (fee) => fee.totalFeesCrypto,
         ) ??
         '';

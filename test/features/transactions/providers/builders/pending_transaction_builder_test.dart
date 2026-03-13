@@ -46,6 +46,15 @@ void main() {
         .thenAnswer((_) async => []);
     when(() => mockPegStorage.getAllPegOrders())
         .thenAnswer((_) async => <PegOrderDbModel>[]);
+    when(() => mockConfirmationService.getConfirmationCount(any(), any()))
+        .thenAnswer((_) async => 0);
+    when(() => mockConfirmationService.getRequiredConfirmationCount(any()))
+        .thenReturn(1);
+    when(() => mockConfirmationService.isTransactionPending(
+          asset: any(named: 'asset'),
+          transaction: any(named: 'transaction'),
+          dbTransaction: any(named: 'dbTransaction'),
+        )).thenAnswer((_) async => false);
   });
 
   group('PendingTransactionBuilder - collectPendingTransactions', () {
@@ -186,6 +195,7 @@ void main() {
       final ghostTxn = _createMockDbTransaction(
         txhash: 'ghost_1',
         isGhost: true,
+        ghostTxnCreatedAt: DateTime.now(),
       );
 
       final mockStrategy = MockTransactionTypeStrategy();
@@ -300,20 +310,9 @@ void main() {
         ghostTxnCreatedAt: null, // Missing timestamp
       );
 
-      final mockStrategy = MockTransactionTypeStrategy();
-      when(() => mockStrategyFactory.create(
-            dbTransaction: any(named: 'dbTransaction'),
-            networkTransaction: any(named: 'networkTransaction'),
-            asset: any(named: 'asset'),
-          )).thenReturn(mockStrategy);
-      when(() => mockStrategy.shouldShowTransactionForAsset(any()))
-          .thenReturn(true);
-      when(() => mockStrategy.createPendingListItems(any())).thenReturn(
-          null); // Strategy returns null because getCreatedAt returns null
-
       final args = TransactionBuilderArgs(
         asset: Asset.btc(),
-        networkTxns: [],
+        networkTxns: [_bgNetworkTxn],
         localDbTxns: [ghostSendTxn],
         availableAssets: [Asset.btc()],
       );
@@ -321,7 +320,7 @@ void main() {
       final result = await builder.build(args);
 
       // EXPECTED: Transaction doesn't show because ghostTxnCreatedAt is null
-      // This means ghost transactions MUST have ghostTxnCreatedAt set when created
+      // _shouldIgnoreGhost returns true when ghostTxnCreatedAt is null
       expect(result, isEmpty);
     });
 
@@ -348,7 +347,7 @@ void main() {
 
       final args = TransactionBuilderArgs(
         asset: Asset.btc(),
-        networkTxns: [], // Not on network yet
+        networkTxns: [],
         localDbTxns: [ghostSendTxn],
         availableAssets: [Asset.btc()],
       );
@@ -391,7 +390,7 @@ void main() {
 
       final args = TransactionBuilderArgs(
         asset: Asset.btc(),
-        networkTxns: [], // Not on network yet
+        networkTxns: [],
         localDbTxns: [ghostReceiveTxn],
         availableAssets: [Asset.btc()],
       );
@@ -689,10 +688,12 @@ void main() {
         txhash: 'boltz_tx_hash_2',
         isBoltz: true,
         serviceOrderId: 'boltz_order_2',
+        ghostTxnCreatedAt: DateTime.now(),
       );
       final networkTxn = _createMockNetworkTransaction(
         txhash: 'boltz_tx_hash_2',
         blockHeight: 800000,
+        createdAtTs: DateTime(2024).microsecondsSinceEpoch,
       );
 
       when(() => mockConfirmationService.getConfirmationCount(
@@ -804,6 +805,7 @@ void main() {
       final terminalBoltzSwap = _createMockBoltzSwapDbModel(
         boltzId: 'boltz_order_terminal',
         lastKnownStatus: BoltzSwapStatus.swapExpired, // Terminal state
+        createdAt: DateTime.now(),
       );
 
       final builderWithTerminalSwap = PendingTransactionUiModelsBuilder(
@@ -844,6 +846,7 @@ void main() {
       final claimedBoltzSwap = _createMockBoltzSwapDbModel(
         boltzId: 'boltz_order_claimed',
         lastKnownStatus: BoltzSwapStatus.transactionClaimed,
+        createdAt: DateTime.now(),
       );
 
       final builderWithClaimedSwap = PendingTransactionUiModelsBuilder(
@@ -957,6 +960,7 @@ void main() {
       final pendingBoltzSwap = _createMockBoltzSwapDbModel(
         boltzId: 'boltz_order_pending',
         lastKnownStatus: BoltzSwapStatus.transactionMempool, // Pending state
+        createdAt: DateTime.now(),
       );
 
       final builderWithPendingSwap = PendingTransactionUiModelsBuilder(
@@ -997,10 +1001,12 @@ void main() {
         txhash: 'boltz_mempool_tx',
         isBoltz: true,
         serviceOrderId: 'boltz_order_mempool',
+        ghostTxnCreatedAt: DateTime.now(),
       );
       final networkTxn = _createMockNetworkTransaction(
         txhash: 'boltz_mempool_tx',
         blockHeight: null, // In mempool, not confirmed
+        createdAtTs: DateTime(2024).microsecondsSinceEpoch,
       );
 
       when(() => mockConfirmationService.getConfirmationCount(
@@ -1034,15 +1040,295 @@ void main() {
       expect(result, hasLength(1));
     });
   });
+
+  group('PendingTransactionBuilder - _shouldIgnoreGhost', () {
+    test('ignores ghost txn with null ghostTxnCreatedAt', () async {
+      final ghostTxn = _createMockDbTransaction(
+        txhash: 'ghost_null_date',
+        isGhost: true,
+        ghostTxnCreatedAt: null,
+      );
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.btc(),
+        networkTxns: [_bgNetworkTxn],
+        localDbTxns: [ghostTxn],
+        availableAssets: [Asset.btc()],
+      );
+
+      final result = await builder.build(args);
+
+      // Ghost with null ghostTxnCreatedAt is ignored
+      expect(result, isEmpty);
+    });
+
+    test('ignores ghost txn when lastNetworkTxn has null createdAtTs',
+        () async {
+      final ghostTxn = _createMockDbTransaction(
+        txhash: 'ghost_with_date',
+        isGhost: true,
+        ghostTxnCreatedAt: DateTime.now(),
+      );
+      final bgNetworkTxn = _createMockNetworkTransaction(
+        txhash: 'bg_tx',
+        blockHeight: 700000,
+        createdAtTs: null, // null createdAtTs
+      );
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.btc(),
+        networkTxns: [bgNetworkTxn],
+        localDbTxns: [ghostTxn],
+        availableAssets: [Asset.btc()],
+      );
+
+      final result = await builder.build(args);
+
+      // Ghost is ignored when lastNetworkTxn has null createdAtTs
+      expect(result, isEmpty);
+    });
+
+    test('ignores ghost txn older than last network txn', () async {
+      final now = DateTime.now();
+      final ghostTxn = _createMockDbTransaction(
+        txhash: 'ghost_old',
+        isGhost: true,
+        ghostTxnCreatedAt: now.subtract(const Duration(hours: 2)),
+      );
+      final bgNetworkTxn = _createMockNetworkTransaction(
+        txhash: 'bg_tx',
+        blockHeight: 700000,
+        createdAtTs:
+            now.subtract(const Duration(hours: 1)).microsecondsSinceEpoch,
+      );
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.btc(),
+        networkTxns: [bgNetworkTxn],
+        localDbTxns: [ghostTxn],
+        availableAssets: [Asset.btc()],
+      );
+
+      final result = await builder.build(args);
+
+      // Ghost older than last network txn is ignored
+      expect(result, isEmpty);
+    });
+
+    test('includes ghost txn newer than last network txn', () async {
+      final ghostTxn = _createMockDbTransaction(
+        txhash: 'ghost_new',
+        isGhost: true,
+        ghostTxnCreatedAt: DateTime.now(),
+      );
+
+      final mockStrategy = MockTransactionTypeStrategy();
+      when(() => mockStrategyFactory.create(
+            dbTransaction: any(named: 'dbTransaction'),
+            networkTransaction: any(named: 'networkTransaction'),
+            asset: any(named: 'asset'),
+          )).thenReturn(mockStrategy);
+      when(() => mockStrategy.shouldShowTransactionForAsset(any()))
+          .thenReturn(true);
+      when(() => mockStrategy.createPendingListItems(any()))
+          .thenReturn(_createMockPendingUiModel());
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.btc(),
+        networkTxns: [],
+        localDbTxns: [ghostTxn],
+        availableAssets: [Asset.btc()],
+      );
+
+      final result = await builder.build(args);
+
+      // Ghost newer than last network txn is included
+      expect(result, hasLength(1));
+    });
+
+    test('includes ghost txn at exact same time as last network txn', () async {
+      final now = DateTime.now();
+      final exactTs = now.microsecondsSinceEpoch;
+      final ghostTxn = _createMockDbTransaction(
+        txhash: 'ghost_same_time',
+        isGhost: true,
+        ghostTxnCreatedAt: now,
+      );
+      final bgNetworkTxn = _createMockNetworkTransaction(
+        txhash: 'bg_tx',
+        blockHeight: 700000,
+        createdAtTs: exactTs,
+      );
+
+      final mockStrategy = MockTransactionTypeStrategy();
+      when(() => mockStrategyFactory.create(
+            dbTransaction: any(named: 'dbTransaction'),
+            networkTransaction: any(named: 'networkTransaction'),
+            asset: any(named: 'asset'),
+          )).thenReturn(mockStrategy);
+      when(() => mockStrategy.shouldShowTransactionForAsset(any()))
+          .thenReturn(true);
+      when(() => mockStrategy.createPendingListItems(any()))
+          .thenReturn(_createMockPendingUiModel());
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.btc(),
+        networkTxns: [bgNetworkTxn],
+        localDbTxns: [ghostTxn],
+        availableAssets: [Asset.btc()],
+      );
+
+      final result = await builder.build(args);
+
+      // Equal timestamp means ghost is NOT older (uses < not <=), so it's included
+      expect(result, hasLength(1));
+    });
+
+    test('applies to non-Boltz ghost txns as well', () async {
+      final now = DateTime.now();
+      // A regular ghost send (not Boltz) with old timestamp
+      final ghostTxn = _createMockDbTransaction(
+        txhash: 'ghost_regular_old',
+        isGhost: true,
+        type: TransactionDbModelType.aquaSend,
+        ghostTxnCreatedAt: now.subtract(const Duration(hours: 2)),
+      );
+      final bgNetworkTxn = _createMockNetworkTransaction(
+        txhash: 'bg_tx',
+        blockHeight: 700000,
+        createdAtTs:
+            now.subtract(const Duration(hours: 1)).microsecondsSinceEpoch,
+      );
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.btc(),
+        networkTxns: [bgNetworkTxn],
+        localDbTxns: [ghostTxn],
+        availableAssets: [Asset.btc()],
+      );
+
+      final result = await builder.build(args);
+
+      // Non-Boltz ghost txn is also subject to _shouldIgnoreGhost
+      expect(result, isEmpty);
+    });
+
+    test('does not crash when networkTxns is empty (ghost txn)', () async {
+      final ghostTxn = _createMockDbTransaction(
+        txhash: 'ghost_empty_network',
+        isGhost: true,
+        ghostTxnCreatedAt: DateTime.now(),
+      );
+
+      final mockStrategy = MockTransactionTypeStrategy();
+      when(() => mockStrategyFactory.create(
+            dbTransaction: any(named: 'dbTransaction'),
+            networkTransaction: any(named: 'networkTransaction'),
+            asset: any(named: 'asset'),
+          )).thenReturn(mockStrategy);
+      when(() => mockStrategy.shouldShowTransactionForAsset(any()))
+          .thenReturn(true);
+      when(() => mockStrategy.createPendingListItems(any()))
+          .thenReturn(_createMockPendingUiModel());
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.btc(),
+        networkTxns: [], // Empty network transactions
+        localDbTxns: [ghostTxn],
+        availableAssets: [Asset.btc()],
+      );
+
+      // Should not throw StateError from calling .last on empty list
+      final result = await builder.build(args);
+
+      // Ghost txn is kept as pending since we can't compare timestamps
+      expect(result, hasLength(1));
+    });
+
+    test('does not crash when networkTxns is empty (Boltz txn)', () async {
+      final boltzTxn = _createMockDbTransaction(
+        txhash: 'boltz_empty_network',
+        isBoltz: true,
+        serviceOrderId: 'boltz_empty_network_order',
+      );
+
+      final mockStrategy = MockTransactionTypeStrategy();
+      when(() => mockStrategyFactory.create(
+            dbTransaction: any(named: 'dbTransaction'),
+            networkTransaction: any(named: 'networkTransaction'),
+            asset: any(named: 'asset'),
+          )).thenReturn(mockStrategy);
+      when(() => mockStrategy.shouldShowTransactionForAsset(any()))
+          .thenReturn(true);
+      when(() => mockStrategy.createPendingListItems(any()))
+          .thenReturn(_createMockPendingUiModel());
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.lbtc(),
+        networkTxns: [], // Empty network transactions
+        localDbTxns: [boltzTxn],
+        availableAssets: [Asset.lbtc()],
+      );
+
+      // Should not throw StateError from calling .last on empty list
+      final result = await builder.build(args);
+
+      // Boltz txn is kept as pending since we can't compare timestamps
+      expect(result, hasLength(1));
+    });
+
+    test('uses last network txn for comparison, not first', () async {
+      final now = DateTime.now();
+      final ghostTxn = _createMockDbTransaction(
+        txhash: 'ghost_middle',
+        isGhost: true,
+        ghostTxnCreatedAt: now.subtract(const Duration(minutes: 30)),
+      );
+      // First network txn is old, last one is recent
+      final oldNetworkTxn = _createMockNetworkTransaction(
+        txhash: 'old_tx',
+        blockHeight: 600000,
+        createdAtTs:
+            now.subtract(const Duration(hours: 2)).microsecondsSinceEpoch,
+      );
+      final recentNetworkTxn = _createMockNetworkTransaction(
+        txhash: 'recent_tx',
+        blockHeight: 700000,
+        createdAtTs: now.microsecondsSinceEpoch,
+      );
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.btc(),
+        networkTxns: [oldNetworkTxn, recentNetworkTxn],
+        localDbTxns: [ghostTxn],
+        availableAssets: [Asset.btc()],
+      );
+
+      final result = await builder.build(args);
+
+      // Ghost is older than the LAST network txn (recentNetworkTxn), so it's ignored
+      expect(result, isEmpty);
+    });
+  });
 }
+
+/// Background confirmed network transaction used for tests that need
+/// a non-empty networkTxns list for ghost transaction comparison.
+final _bgNetworkTxn = _createMockNetworkTransaction(
+  txhash: 'bg_confirmed_tx',
+  blockHeight: 700000,
+  createdAtTs: DateTime(2024).microsecondsSinceEpoch,
+);
 
 GdkTransaction _createMockNetworkTransaction({
   String? txhash,
   int? blockHeight,
+  int? createdAtTs,
 }) {
   return GdkTransaction(
     txhash: txhash ?? 'mock_tx',
     blockHeight: blockHeight,
+    createdAtTs: createdAtTs,
     type: GdkTransactionTypeEnum.incoming,
     satoshi: {},
   );
@@ -1130,6 +1416,7 @@ TransactionStrategyArgs _createMockStrategyArgs() {
 BoltzSwapDbModel _createMockBoltzSwapDbModel({
   required String boltzId,
   BoltzSwapStatus? lastKnownStatus,
+  DateTime? createdAt,
 }) {
   return BoltzSwapDbModel(
     boltzId: boltzId,
@@ -1144,6 +1431,6 @@ BoltzSwapDbModel _createMockBoltzSwapDbModel({
     locktime: 144,
     scriptAddress: 'mock_script_address',
     lastKnownStatus: lastKnownStatus,
-    createdAt: DateTime.now(),
+    createdAt: createdAt,
   );
 }

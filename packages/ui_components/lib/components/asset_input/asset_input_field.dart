@@ -11,7 +11,7 @@ class AquaAssetInputField extends HookWidget {
     required this.unit,
     this.assets = const [],
     required this.balance,
-    required this.balanceValueText,
+    required this.balanceLabel,
     required this.conversionAmount,
     this.usdtCryptoAmount,
     this.type = AquaAssetInputType.crypto,
@@ -39,7 +39,7 @@ class AquaAssetInputField extends HookWidget {
   final String? assetIconUrl;
   final String ticker;
   final String balance;
-  final String balanceValueText;
+  final String balanceLabel;
   final String conversionAmount;
   final AquaAssetInputType type;
   final AquaAssetInputUnit unit;
@@ -76,15 +76,13 @@ class AquaAssetInputField extends HookWidget {
 
     // Create or use provided error controller
     final errorController = useMemoized(
-      () => this.errorController ?? AquaInputErrorController(''),
+      () => this.errorController ?? AquaInputErrorController(),
     );
 
     // State to hold current error and visibility
-    final currentError = useState<String?>(errorController.currentError);
+    final currentError =
+        useState<AquaInputError?>(errorController.currentError);
     final isErrorVisible = useState<bool>(errorController.isVisible);
-
-    // Simple error display logic - text should already be decorated at source
-    final getErrorText = useMemoized(() => (String errorText) => errorText, []);
 
     // Subscribe to error and visibility streams
     useEffect(() {
@@ -271,7 +269,7 @@ class AquaAssetInputField extends HookWidget {
                       child: AnimatedSwitcher(
                         duration: kFadeDuration,
                         layoutBuilder: (currChild, prevChildren) => Stack(
-                          alignment: Alignment.centerRight,
+                          alignment: AlignmentDirectional.centerEnd,
                           children: [
                             ...prevChildren,
                             if (currChild != null) currChild,
@@ -283,27 +281,27 @@ class AquaAssetInputField extends HookWidget {
                             axisAlignment: -1,
                             sizeFactor: animation,
                             child: Align(
-                              alignment: Alignment.centerRight,
+                              alignment: AlignmentDirectional.centerEnd,
                               child: child,
                             ),
                           ),
                         ),
-                        child: isErrorVisible.value &&
-                                (currentError.value?.isNotEmpty ?? false)
-                            ? AquaText.body2Medium(
-                                key: ValueKey(currentError.value),
-                                text: getErrorText(currentError.value!),
-                                maxLines: 1,
-                                color: colors?.accentDanger,
-                              )
-                            : isShowBalance
-                                ? AquaText.body2Medium(
-                                    key: const ValueKey('balance'),
-                                    text: balanceValueText,
-                                    maxLines: 1,
-                                    color: colors?.textSecondary,
+                        child:
+                            isErrorVisible.value && currentError.value != null
+                                ? _BalanceText(
+                                    key: ValueKey(currentError.value),
+                                    label: currentError.value!.label,
+                                    amount: currentError.value!.amount,
+                                    color: colors?.accentDanger,
                                   )
-                                : const SizedBox.shrink(),
+                                : isShowBalance
+                                    ? _BalanceText(
+                                        key: const ValueKey('balance'),
+                                        label: balanceLabel,
+                                        amount: balance,
+                                        color: colors?.textSecondary,
+                                      )
+                                    : const SizedBox.shrink(),
                       ),
                     ),
                   ],
@@ -313,6 +311,53 @@ class AquaAssetInputField extends HookWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// Renders an optional label (in locale text direction) alongside an optional
+// numeric amount (always LTR) as separate widgets, preventing BiDi reversal
+// when Arabic labels are mixed with numbers.
+class _BalanceText extends StatelessWidget {
+  const _BalanceText({
+    super.key,
+    this.label,
+    this.amount,
+    this.color,
+  });
+
+  final String? label;
+  final String? amount;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLabel = label != null && label!.isNotEmpty;
+    final hasAmount = amount != null && amount!.isNotEmpty;
+
+    if (!hasLabel && !hasAmount) return const SizedBox.shrink();
+
+    if (!hasLabel || !hasAmount) {
+      return AquaText.body2Medium(
+        text: hasAmount ? amount! : label!,
+        maxLines: 1,
+        color: color,
+        textDirection: hasAmount ? TextDirection.ltr : null,
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AquaText.body2Medium(text: label!, maxLines: 1, color: color),
+        const SizedBox(width: 4),
+        AquaText.body2Medium(
+          text: amount!,
+          maxLines: 1,
+          color: color,
+          textDirection: TextDirection.ltr,
+        ),
+      ],
     );
   }
 }

@@ -94,8 +94,7 @@ class RegionSettingsScreen extends HookConsumerWidget {
             return SettingsListSelectionItem(
               icon: CountryFlag(
                 svgAsset: region.flagSvg,
-                width: 20,
-                height: 20,
+                size: 20,
               ),
               title: region.name,
               isRadioButton: true,

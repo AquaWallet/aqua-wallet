@@ -4,21 +4,33 @@ import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ui_components/ui_components.dart';
 
-/// Provider that handles validation error formatting for send asset amounts
+/// Provider that formats a validation exception as a plain string (e.g. tooltip)
 final assetValidationErrorProvider =
     Provider.family<String?, AssetValidationErrorParams>(
   (ref, params) {
-    if (params.exception == null) {
-      return null;
-    }
-
+    if (params.exception == null) return null;
     final decorator = _createDecorator(
       params.decoratorType,
       params.exception!,
       params.balanceDisplay,
     );
     return decorator.toLocalizedString(params.context);
+  },
+);
+
+/// Provider that formats a validation exception as a structured [AquaInputError]
+/// for display inside the input field, keeping label and amount separate.
+final assetInputFieldErrorProvider =
+    Provider.family<AquaInputError?, AssetValidationErrorParams>(
+  (ref, params) {
+    if (params.exception == null) return null;
+    final decorator = InputFieldExceptionDecorator(
+      params.exception!,
+      params.balanceDisplay,
+    );
+    return decorator.toAquaInputError(params.context);
   },
 );
 
@@ -56,7 +68,7 @@ class DebouncedErrors {
   });
 
   final String? tooltipError;
-  final String? inputFieldError;
+  final AquaInputError? inputFieldError;
 }
 
 final debouncedValidationErrorsProvider = StateNotifierProvider.autoDispose
@@ -74,7 +86,7 @@ class DebouncedErrorsNotifier extends StateNotifier<DebouncedErrors> {
   final Ref ref;
   Timer? _debounceTimer;
 
-  void updateErrors(String? tooltipError, String? inputFieldError) {
+  void updateErrors(String? tooltipError, AquaInputError? inputFieldError) {
     _debounceTimer?.cancel();
 
     if (tooltipError == null && inputFieldError == null) {

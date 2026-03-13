@@ -1310,7 +1310,8 @@ void main() {
       expect(state.inputType, AquaAssetInputType.crypto);
       expect(state.displayConversionAmount, kBtcUsdRateStr);
     });
-    test('When send all fiat, entire balance is used for amount', () async {
+    test('When send all from fiat mode, switches to crypto and uses balance',
+        () async {
       mockBalanceProvider.mockGetBalanceCall(value: kOneHundredUsdInBtcSats);
       final provider = sendAssetInputStateProvider(args);
       final initialState = await container.read(provider.future);
@@ -1325,8 +1326,8 @@ void main() {
       expect(initialState.inputType, AquaAssetInputType.crypto);
       expect(state.isSendAllFunds, true);
       expect(state.amount, kOneHundredUsdInBtcSats);
-      expect(state.amountFieldText, '100.00');
-      expect(state.inputType, AquaAssetInputType.fiat);
+      expect(state.amountFieldText, kOneHundredUsdInBtcDisplay);
+      expect(state.inputType, AquaAssetInputType.crypto);
     });
     test('When balance is zero, setSendMaxAmount should do nothing', () async {
       // First set up provider with non-zero balance to initialize
@@ -2858,6 +2859,8 @@ void main() {
       await container.read(provider.future);
 
       // Test EUR currency with comma separator
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcEurExchangeRate);
       container.read(provider.notifier).setRate(kBtcEurExchangeRate);
       container.read(provider.notifier).updateAmountFieldText('0,0001');
       final eurState = await container.read(provider.future);
@@ -2867,6 +2870,8 @@ void main() {
       expect(eurState.rate.currency, FiatCurrency.eur);
 
       // Switch to USD currency - this resets the amount due to new behavior
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcUsdExchangeRate);
       container.read(provider.notifier).setRate(kBtcUsdExchangeRate);
       final afterCurrencyChange = await container.read(provider.future);
 
@@ -2904,6 +2909,8 @@ void main() {
       await container.read(provider.future);
 
       // Test 1: USD with dot separator
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcUsdExchangeRate);
       container.read(provider.notifier).setRate(kBtcUsdExchangeRate);
       container.read(provider.notifier).updateAmountFieldText('0.0001');
       final usdState = await container.read(provider.future);
@@ -2914,6 +2921,8 @@ void main() {
       expect(usdState.rate.currency, FiatCurrency.usd);
 
       // Switch to EUR - amount resets
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcEurExchangeRate);
       container.read(provider.notifier).setRate(kBtcEurExchangeRate);
       final afterEurSwitch = await container.read(provider.future);
 
@@ -2931,6 +2940,8 @@ void main() {
       expect(eurState.rate.currency, FiatCurrency.eur);
 
       // Switch back to USD - amount resets again
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcUsdExchangeRate);
       container.read(provider.notifier).setRate(kBtcUsdExchangeRate);
       final afterUsdSwitch = await container.read(provider.future);
 
@@ -2961,6 +2972,8 @@ void main() {
       await container.read(provider.future);
 
       // Start with EUR - amount resets to 0
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcEurExchangeRate);
       container.read(provider.notifier).setRate(kBtcEurExchangeRate);
       final afterEurSwitch = await container.read(provider.future);
 
@@ -2968,6 +2981,8 @@ void main() {
       expect(afterEurSwitch.amountFieldText, isNull);
 
       // Switch to USD - amount stays reset
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcUsdExchangeRate);
       container.read(provider.notifier).setRate(kBtcUsdExchangeRate);
       final afterUsdSwitch = await container.read(provider.future);
 
@@ -3154,7 +3169,8 @@ void main() {
     });
 
     test('should parse EUR comma decimal correctly', () {
-      // Test EUR comma decimal parsing directly
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcEurExchangeRate);
       final formatter = container.read(formatterProvider);
 
       final result = formatter.parseAssetAmountToSats(
@@ -3493,6 +3509,53 @@ void main() {
       container.read(provider.notifier).updateAmountFieldText('');
       final state = await container.read(provider.future);
       expect(state.amountFieldText, anyOf(isNull, isEmpty));
+    });
+  });
+
+  group('EUR locale: locale-formatted amounts (regression)', () {
+    test(
+        'updateAmountFieldText with locale-formatted "0,0008" in EUR locale should still work',
+        () async {
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      final provider = sendAssetInputStateProvider(args);
+      await container.read(provider.future);
+
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcEurExchangeRate);
+      container.read(provider.notifier).setRate(kBtcEurExchangeRate);
+      await container.read(provider.future);
+
+      // User types "0,0008" through EUR numpad
+      container.read(provider.notifier).updateAmountFieldText('0,0008');
+      final state = await container.read(provider.future);
+
+      expect(state.amount, 80000,
+          reason: 'EUR-formatted "0,0008" should be 80000 sats');
+    });
+
+    test(
+        'updateAmountFieldText with EUR thousands "1.000,50" in EUR locale should parse correctly',
+        () async {
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      final provider = sendAssetInputStateProvider(args);
+      await container.read(provider.future);
+
+      // Switch to fiat mode for EUR
+      mockExchangeRatesProvider.mockGetCurrentCurrency(
+          value: kBtcEurExchangeRate);
+      container.read(provider.notifier)
+        ..setRate(kBtcEurExchangeRate)
+        ..setType(AquaAssetInputType.fiat);
+      await container.read(provider.future);
+
+      container.read(provider.notifier).updateAmountFieldText('1.000,50');
+      final state = await container.read(provider.future);
+
+      // 1000.50 EUR should be converted to sats using EUR rate
+      expect(state.amount, greaterThan(0),
+          reason: 'EUR "1.000,50" should parse as 1000.50 EUR');
     });
   });
 }

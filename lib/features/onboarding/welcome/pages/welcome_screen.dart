@@ -18,12 +18,7 @@ class WelcomeScreen extends HookConsumerWidget {
 
   const WelcomeScreen({
     super.key,
-    this.description,
-    this.onSwitchTagline,
   });
-
-  final String? description;
-  final VoidCallback? onSwitchTagline;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,10 +37,6 @@ class WelcomeScreen extends HookConsumerWidget {
     //ANCHOR - Fade animation
     final fadeAnimationController =
         useAnimationController(duration: _fadeAnimationDuration);
-    final fadeAnimation = useAnimation(CurvedAnimation(
-      parent: fadeAnimationController,
-      curve: Curves.easeOut,
-    ));
 
     useEffect(() {
       Future.delayed(
@@ -128,63 +119,46 @@ class WelcomeScreen extends HookConsumerWidget {
     }, [context]);
 
     return Theme(
-      data: ref.watch(newLightThemeProvider(context)),
+      data: AquaLightTheme().themeData,
       child: Scaffold(
         backgroundColor: AquaPrimitiveColors.aquaBlue300,
+        //ANCHOR - Wallet Menu
         body: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 48),
-              //ANCHOR - Logo
-              AquaIcon.aquaLogo(
-                size: 40,
-                color: AquaPrimitiveColors.palatinateBlue750,
-              ),
-              const Spacer(),
-              //ANCHOR - Main Title
-              SplashTaglineText(
-                  text: description ?? context.loc.welcomeScreenDesc3),
-              const Spacer(),
-              //ANCHOR - Wallet Menu
-              AnimatedOpacity(
-                opacity: fadeAnimation,
-                duration: const Duration(milliseconds: 500),
-                child: Material(
-                    color: Colors.transparent,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          //ANCHOR - Create Button
-                          AquaButton.primary(
-                            key: OnboardingScreenKeys.welcomeCreateButton,
-                            onPressed: () => onCreateWallet(),
-                            text: context.loc.createWallet,
-                            isInverted: true,
-                          ),
-                          const SizedBox(height: 20.0),
-                          //ANCHOR - Restore Button
-                          AquaButton.tertiary(
-                            key: OnboardingScreenKeys.welcomeRestoreButton,
-                            isInverted: true,
-                            text: context.loc.restoreWallet,
-                            onPressed: () => context
-                              ..popUntilPath(AuthWrapper.routeName)
-                              ..push(WalletRestoreScreen.routeName),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 32.0),
-                            child: WelcomeToSDisclaimer(),
-                          ),
-                        ],
-                      ),
-                    )),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                const SizedBox(height: 68),
+                AquaIcon.aquaLogo(
+                  size: 40,
+                  color: AquaPrimitiveColors.palatinateBlue750,
+                ),
+                const Spacer(),
+                //ANCHOR - Create Button
+                AquaButton.primary(
+                  key: OnboardingScreenKeys.welcomeCreateButton,
+                  onPressed: () => onCreateWallet(),
+                  text: context.loc.createWallet,
+                  isInverted: true,
+                ),
+                const SizedBox(height: 20.0),
+                //ANCHOR - Restore Button
+                AquaButton.tertiary(
+                  key: OnboardingScreenKeys.welcomeRestoreButton,
+                  isInverted: true,
+                  text: context.loc.restoreWallet,
+                  onPressed: () => context
+                    ..popUntilPath(AuthWrapper.routeName)
+                    ..push(WalletRestoreScreen.routeName),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 32.0),
+                  child: WelcomeToSDisclaimer(),
+                ),
+              ],
+            ),
           ),
         ),
       ),

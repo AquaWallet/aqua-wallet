@@ -87,64 +87,12 @@ class $AssetsAssetIconsGen {
   /// File path: assets/asset_icons/l2.svg
   SvgGenImage get l2 => const SvgGenImage('assets/asset_icons/l2.svg');
 
-  /// File path: assets/asset_icons/l2_disabled.svg
-  SvgGenImage get l2Disabled =>
-      const SvgGenImage('assets/asset_icons/l2_disabled.svg');
-
   /// File path: assets/asset_icons/layer_two_single.svg
   SvgGenImage get layerTwoSingle =>
       const SvgGenImage('assets/asset_icons/layer_two_single.svg');
 
-  /// File path: assets/asset_icons/qr_icon_binance_usdt.svg
-  SvgGenImage get qrIconBinanceUsdt =>
-      const SvgGenImage('assets/asset_icons/qr_icon_binance_usdt.svg');
-
-  /// File path: assets/asset_icons/qr_icon_btc.svg
-  SvgGenImage get qrIconBtc =>
-      const SvgGenImage('assets/asset_icons/qr_icon_btc.svg');
-
-  /// File path: assets/asset_icons/qr_icon_ethereum_usdt.svg
-  SvgGenImage get qrIconEthereumUsdt =>
-      const SvgGenImage('assets/asset_icons/qr_icon_ethereum_usdt.svg');
-
-  /// File path: assets/asset_icons/qr_icon_lightning_btc.svg
-  SvgGenImage get qrIconLightningBtc =>
-      const SvgGenImage('assets/asset_icons/qr_icon_lightning_btc.svg');
-
-  /// File path: assets/asset_icons/qr_icon_liquid_btc.svg
-  SvgGenImage get qrIconLiquidBtc =>
-      const SvgGenImage('assets/asset_icons/qr_icon_liquid_btc.svg');
-
-  /// File path: assets/asset_icons/qr_icon_liquid_usdt.svg
-  SvgGenImage get qrIconLiquidUsdt =>
-      const SvgGenImage('assets/asset_icons/qr_icon_liquid_usdt.svg');
-
-  /// File path: assets/asset_icons/qr_icon_polygon_usdt.svg
-  SvgGenImage get qrIconPolygonUsdt =>
-      const SvgGenImage('assets/asset_icons/qr_icon_polygon_usdt.svg');
-
-  /// File path: assets/asset_icons/qr_icon_solana_usdt.svg
-  SvgGenImage get qrIconSolanaUsdt =>
-      const SvgGenImage('assets/asset_icons/qr_icon_solana_usdt.svg');
-
-  /// File path: assets/asset_icons/qr_icon_ton_usdt.svg
-  SvgGenImage get qrIconTonUsdt =>
-      const SvgGenImage('assets/asset_icons/qr_icon_ton_usdt.svg');
-
-  /// File path: assets/asset_icons/qr_icon_tron_usdt.svg
-  SvgGenImage get qrIconTronUsdt =>
-      const SvgGenImage('assets/asset_icons/qr_icon_tron_usdt.svg');
-
   /// File path: assets/asset_icons/usdt.svg
   SvgGenImage get usdt => const SvgGenImage('assets/asset_icons/usdt.svg');
-
-  /// File path: assets/asset_icons/usdt_disabled.svg
-  SvgGenImage get usdtDisabled =>
-      const SvgGenImage('assets/asset_icons/usdt_disabled.svg');
-
-  /// File path: assets/asset_icons/whatsapp_logo.svg
-  SvgGenImage get whatsappLogo =>
-      const SvgGenImage('assets/asset_icons/whatsapp_logo.svg');
 
   /// File path: assets/asset_icons/zendesk_logo.svg
   SvgGenImage get zendeskLogo =>
@@ -165,21 +113,8 @@ class $AssetsAssetIconsGen {
         tronusdt,
         assetUnknown,
         l2,
-        l2Disabled,
         layerTwoSingle,
-        qrIconBinanceUsdt,
-        qrIconBtc,
-        qrIconEthereumUsdt,
-        qrIconLightningBtc,
-        qrIconLiquidBtc,
-        qrIconLiquidUsdt,
-        qrIconPolygonUsdt,
-        qrIconSolanaUsdt,
-        qrIconTonUsdt,
-        qrIconTronUsdt,
         usdt,
-        usdtDisabled,
-        whatsappLogo,
         zendeskLogo
       ];
 }
@@ -1588,13 +1523,6 @@ class $AssetsMarketplaceGen {
   /// File path: assets/marketplace/btse.png
   AssetGenImage get btse => const AssetGenImage('assets/marketplace/btse.png');
 
-  /// File path: assets/marketplace/buy.svg
-  SvgGenImage get buy => const SvgGenImage('assets/marketplace/buy.svg');
-
-  /// File path: assets/marketplace/exchange.svg
-  SvgGenImage get exchange =>
-      const SvgGenImage('assets/marketplace/exchange.svg');
-
   /// File path: assets/marketplace/meld_black.svg
   SvgGenImage get meldBlack =>
       const SvgGenImage('assets/marketplace/meld_black.svg');
@@ -1623,10 +1551,6 @@ class $AssetsMarketplaceGen {
   SvgGenImage get pocketWhite =>
       const SvgGenImage('assets/marketplace/pocket_white.svg');
 
-  /// File path: assets/marketplace/remittance.svg
-  SvgGenImage get remittance =>
-      const SvgGenImage('assets/marketplace/remittance.svg');
-
   /// List of all assets
   List<dynamic> get values => [
         bankings,
@@ -1636,16 +1560,13 @@ class $AssetsMarketplaceGen {
         btcDirectBlack,
         btcDirectWhite,
         btse,
-        buy,
-        exchange,
         meldBlack,
         meldWhite,
         paymentBank,
         paymentCard,
         paymentCash,
         pocketBlack,
-        pocketWhite,
-        remittance
+        pocketWhite
       ];
 }
 
@@ -1690,10 +1611,6 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/copy.svg
   SvgGenImage get copy => const SvgGenImage('assets/svgs/copy.svg');
 
-  /// File path: assets/svgs/credit_card.svg
-  SvgGenImage get creditCard =>
-      const SvgGenImage('assets/svgs/credit_card.svg');
-
   /// Directory path: assets/svgs/dark
   $AssetsSvgsDarkGen get dark => const $AssetsSvgsDarkGen();
 
@@ -1722,9 +1639,6 @@ class $AssetsSvgsGen {
   /// Directory path: assets/svgs/success_illustrations
   $AssetsSvgsSuccessIllustrationsGen get successIllustrations =>
       const $AssetsSvgsSuccessIllustrationsGen();
-
-  /// File path: assets/svgs/sun.svg
-  SvgGenImage get sun => const SvgGenImage('assets/svgs/sun.svg');
 
   /// File path: assets/svgs/visa.svg
   SvgGenImage get visa => const SvgGenImage('assets/svgs/visa.svg');
@@ -1766,14 +1680,12 @@ class $AssetsSvgsGen {
         cardChip,
         chevronDown,
         copy,
-        creditCard,
         debitCardCharacteristicsCheck,
         eye,
         eyeHidden,
         faq,
         profile,
         refund,
-        sun,
         visa,
         walletFooterMarketplace,
         walletFooterSettings,
@@ -1955,21 +1867,8 @@ class UiAssets {
   UiAssets._();
 
   static const SvgGenImage addNote = SvgGenImage('assets/add_note.svg');
-  static const SvgGenImage addressCopy = SvgGenImage('assets/address_copy.svg');
-  static const SvgGenImage addressHistoryScreenNoHistoryLogo =
-      SvgGenImage('assets/address_history_screen_no_history_logo.svg');
-  static const SvgGenImage album = SvgGenImage('assets/album.svg');
   static const $AssetsAnimationsGen animations = $AssetsAnimationsGen();
-  static const SvgGenImage aquaLogoColor =
-      SvgGenImage('assets/aqua_logo_color.svg');
-  static const SvgGenImage aquaLogoWhite =
-      SvgGenImage('assets/aqua_logo_white.svg');
   static const SvgGenImage arrowBackup = SvgGenImage('assets/arrow_backup.svg');
-  static const SvgGenImage arrowClockwise =
-      SvgGenImage('assets/arrow_clockwise.svg');
-  static const SvgGenImage arrowForward =
-      SvgGenImage('assets/arrow_forward.svg');
-  static const SvgGenImage asset = SvgGenImage('assets/asset.svg');
   static const $AssetsAssetIconsGen assetIcons = $AssetsAssetIconsGen();
   static const String assetsTestnet = 'assets/assets-testnet.json';
   static const String assets = 'assets/assets.json';
@@ -1993,40 +1892,24 @@ class UiAssets {
   static const SvgGenImage createWallet =
       SvgGenImage('assets/create_wallet.svg');
   static const SvgGenImage cross = SvgGenImage('assets/cross.svg');
-  static const SvgGenImage darkMode = SvgGenImage('assets/dark_mode.svg');
-  static const SvgGenImage directPegIn =
-      SvgGenImage('assets/direct_peg_in.svg');
   static const SvgGenImage displayUnits =
       SvgGenImage('assets/display_units.svg');
-  static const SvgGenImage emptyAddressHistory =
-      SvgGenImage('assets/empty_address_history.svg');
-  static const SvgGenImage exchange = SvgGenImage('assets/exchange.svg');
-  static const SvgGenImage exchangeRate =
-      SvgGenImage('assets/exchange_rate.svg');
   static const SvgGenImage exchangeSwap =
       SvgGenImage('assets/exchange_swap.svg');
   static const SvgGenImage externalLink =
       SvgGenImage('assets/external_link.svg');
   static const SvgGenImage eye = SvgGenImage('assets/eye.svg');
   static const SvgGenImage eyeSlash = SvgGenImage('assets/eye_slash.svg');
-  static const SvgGenImage faceId = SvgGenImage('assets/face_id.svg');
   static const SvgGenImage failure = SvgGenImage('assets/failure.svg');
   static const $AssetsFlagsGen flags = $AssetsFlagsGen();
-  static const SvgGenImage flask = SvgGenImage('assets/flask.svg');
   static const $AssetsFontsGen fonts = $AssetsFontsGen();
   static const SvgGenImage history = SvgGenImage('assets/history.svg');
-  static const SvgGenImage house = SvgGenImage('assets/house.svg');
   static const $AssetsIconGen icon = $AssetsIconGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
   static const SvgGenImage incoming = SvgGenImage('assets/incoming.svg');
   static const SvgGenImage info = SvgGenImage('assets/info.svg');
-  static const SvgGenImage instagram = SvgGenImage('assets/instagram.svg');
   static const SvgGenImage insufficientBalance =
       SvgGenImage('assets/insufficient_balance.svg');
-  static const SvgGenImage internalSendArrow =
-      SvgGenImage('assets/internal_send_arrow.svg');
-  static const SvgGenImage internalSendArrowLight =
-      SvgGenImage('assets/internal_send_arrow_light.svg');
   static const SvgGenImage jan3LogoWithAquaDark =
       SvgGenImage('assets/jan3_logo_with_aqua_dark.svg');
   static const SvgGenImage jan3LogoWithAquaLight =
@@ -2035,8 +1918,6 @@ class UiAssets {
   static const SvgGenImage lightningBolt =
       SvgGenImage('assets/lightning_bolt.svg');
   static const $AssetsMarketplaceGen marketplace = $AssetsMarketplaceGen();
-  static const SvgGenImage marketplaceSvg =
-      SvgGenImage('assets/marketplace.svg');
   static const SvgGenImage marketplaceBuy =
       SvgGenImage('assets/marketplace_buy.svg');
   static const SvgGenImage marketplaceExchange =
@@ -2044,9 +1925,7 @@ class UiAssets {
   static const SvgGenImage marketplaceSwap =
       SvgGenImage('assets/marketplace_swap.svg');
   static const SvgGenImage outgoing = SvgGenImage('assets/outgoing.svg');
-  static const SvgGenImage passcode = SvgGenImage('assets/passcode.svg');
   static const SvgGenImage pending = SvgGenImage('assets/pending.svg');
-  static const SvgGenImage pokerchip = SvgGenImage('assets/pokerchip.svg');
   static const SvgGenImage pokerchipFrameDark =
       SvgGenImage('assets/pokerchip_frame_dark.svg');
   static const SvgGenImage pokerchipFrameLight =
@@ -2063,10 +1942,6 @@ class UiAssets {
       SvgGenImage('assets/profile_terms.svg');
   static const SvgGenImage qr = SvgGenImage('assets/qr.svg');
   static const $AssetsRawGen raw = $AssetsRawGen();
-  static const SvgGenImage recovery = SvgGenImage('assets/recovery.svg');
-  static const SvgGenImage recoveryPhrase =
-      SvgGenImage('assets/recovery_phrase.svg');
-  static const SvgGenImage region = SvgGenImage('assets/region.svg');
   static const String regions = 'assets/regions.json';
   static const SvgGenImage removeWallet =
       SvgGenImage('assets/remove_wallet.svg');
@@ -2076,11 +1951,8 @@ class UiAssets {
   static const SvgGenImage sendPaste = SvgGenImage('assets/send_paste.svg');
   static const SvgGenImage sendScan = SvgGenImage('assets/send_scan.svg');
   static const SvgGenImage sendSummary = SvgGenImage('assets/send_summary.svg');
-  static const SvgGenImage setAmount = SvgGenImage('assets/set_amount.svg');
   static const SvgGenImage settingsBack =
       SvgGenImage('assets/settings_back.svg');
-  static const SvgGenImage share = SvgGenImage('assets/share.svg');
-  static const SvgGenImage shareAlt = SvgGenImage('assets/share_alt.svg');
   static const SvgGenImage shieldCheck = SvgGenImage('assets/shield_check.svg');
   static const SvgGenImage sideshiftFull =
       SvgGenImage('assets/sideshift_full.svg');
@@ -2090,49 +1962,26 @@ class UiAssets {
   static const SvgGenImage supportWhite =
       SvgGenImage('assets/support_white.svg');
   static const $AssetsSvgsGen svgs = $AssetsSvgsGen();
-  static const SvgGenImage swap = SvgGenImage('assets/swap.svg');
   static const SvgGenImage swapBackground =
       SvgGenImage('assets/swap_background.svg');
   static const SvgGenImage swapLogo = SvgGenImage('assets/swap_logo.svg');
   static const SvgGenImage tabExchange = SvgGenImage('assets/tab_exchange.svg');
   static const SvgGenImage tabProfile = SvgGenImage('assets/tab_profile.svg');
-  static const SvgGenImage tabSettings = SvgGenImage('assets/tab_settings.svg');
   static const SvgGenImage tabWallet = SvgGenImage('assets/tab_wallet.svg');
-  static const SvgGenImage touch = SvgGenImage('assets/touch.svg');
-  static const SvgGenImage twitter = SvgGenImage('assets/twitter.svg');
-  static const SvgGenImage walletAdd = SvgGenImage('assets/wallet_add.svg');
   static const SvgGenImage walletExchange =
       SvgGenImage('assets/wallet_exchange.svg');
   static const SvgGenImage walletImport =
       SvgGenImage('assets/wallet_import.svg');
-  static const SvgGenImage walletNotifications =
-      SvgGenImage('assets/wallet_notifications.svg');
-  static const SvgGenImage walletReceive =
-      SvgGenImage('assets/wallet_receive.svg');
   static const SvgGenImage walletSafety =
       SvgGenImage('assets/wallet_safety.svg');
   static const SvgGenImage walletScan = SvgGenImage('assets/wallet_scan.svg');
   static const SvgGenImage walletSend = SvgGenImage('assets/wallet_send.svg');
-  static const SvgGenImage warning = SvgGenImage('assets/warning.svg');
-  static const SvgGenImage watchOnly = SvgGenImage('assets/watch_only.svg');
-  static const SvgGenImage website = SvgGenImage('assets/website.svg');
-  static const SvgGenImage welcomeBg = SvgGenImage('assets/welcome_bg.svg');
-  static const SvgGenImage welcomeWallet =
-      SvgGenImage('assets/welcome_wallet.svg');
   static const String wordlist = 'assets/wordlist.txt';
 
   /// List of all assets
   static List<dynamic> get values => [
         addNote,
-        addressCopy,
-        addressHistoryScreenNoHistoryLogo,
-        album,
-        aquaLogoColor,
-        aquaLogoWhite,
         arrowBackup,
-        arrowClockwise,
-        arrowForward,
-        asset,
         assetsTestnet,
         assets,
         backspace,
@@ -2149,39 +1998,25 @@ class UiAssets {
         copy,
         createWallet,
         cross,
-        darkMode,
-        directPegIn,
         displayUnits,
-        emptyAddressHistory,
-        exchange,
-        exchangeRate,
         exchangeSwap,
         externalLink,
         eye,
         eyeSlash,
-        faceId,
         failure,
-        flask,
         history,
-        house,
         incoming,
         info,
-        instagram,
         insufficientBalance,
-        internalSendArrow,
-        internalSendArrowLight,
         jan3LogoWithAquaDark,
         jan3LogoWithAquaLight,
         language,
         lightningBolt,
-        marketplaceSvg,
         marketplaceBuy,
         marketplaceExchange,
         marketplaceSwap,
         outgoing,
-        passcode,
         pending,
-        pokerchip,
         pokerchipFrameDark,
         pokerchipFrameLight,
         profileAbout,
@@ -2190,9 +2025,6 @@ class UiAssets {
         profileSupport,
         profileTerms,
         qr,
-        recovery,
-        recoveryPhrase,
-        region,
         regions,
         removeWallet,
         restoreWallet,
@@ -2200,37 +2032,22 @@ class UiAssets {
         sendPaste,
         sendScan,
         sendSummary,
-        setAmount,
         settingsBack,
-        share,
-        shareAlt,
         shieldCheck,
         sideshiftFull,
         slideConfirmArrow,
         support,
         supportWhite,
-        swap,
         swapBackground,
         swapLogo,
         tabExchange,
         tabProfile,
-        tabSettings,
         tabWallet,
-        touch,
-        twitter,
-        walletAdd,
         walletExchange,
         walletImport,
-        walletNotifications,
-        walletReceive,
         walletSafety,
         walletScan,
         walletSend,
-        warning,
-        watchOnly,
-        website,
-        welcomeBg,
-        welcomeWallet,
         wordlist
       ];
 }

@@ -144,7 +144,7 @@ class _RecipientAndNoteCard extends HookConsumerWidget {
               iconLeading: AquaIcon.edit(
                 color: context.aquaColors.textPrimary,
               ),
-              iconTrailing: AquaIcon.chevronRight(
+              iconTrailing: AquaIcon.chevronForward(
                 size: 18,
                 color: context.aquaColors.textSecondary,
               ),

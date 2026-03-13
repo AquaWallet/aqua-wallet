@@ -206,7 +206,6 @@ class PegTransactionUiModelCreator extends TransactionUiModelCreator {
       amount: grossSendAmount,
       asset: deliverAsset,
       decimalPlacesOverride: null,
-      removeTrailingZeros: deliverAsset.isNonSatsAsset,
     );
 
     final receiveAmount = formatter.formatAssetAmount(
@@ -218,7 +217,6 @@ class PegTransactionUiModelCreator extends TransactionUiModelCreator {
     final feeAmount = formatter.formatAssetAmount(
       amount: totalFee,
       asset: feeAsset,
-      removeTrailingZeros: feeAsset.isNonSatsAsset,
     );
 
     final feeAmountFiat = convertToFiat(feeAsset, totalFee);
@@ -313,7 +311,6 @@ class PegTransactionUiModelCreator extends TransactionUiModelCreator {
       amount: grossSendAmount,
       asset: deliverAsset,
       decimalPlacesOverride: null,
-      removeTrailingZeros: deliverAsset.isNonSatsAsset,
     );
 
     final receiveAmount = formatter.formatAssetAmount(
@@ -325,7 +322,6 @@ class PegTransactionUiModelCreator extends TransactionUiModelCreator {
     final feeAmount = formatter.formatAssetAmount(
       amount: totalFee,
       asset: feeAsset,
-      removeTrailingZeros: feeAsset.isNonSatsAsset,
     );
 
     final feeAmountFiat = convertToFiat(feeAsset, totalFee);
