@@ -306,6 +306,37 @@ class UserPreferencesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  //ANCHOR Discovered Assets
+  String get _discoveredAssetsKey {
+    switch (_env) {
+      case Env.mainnet:
+        return PrefKeys.discoveredAssets;
+      case Env.testnet:
+        return PrefKeys.discoveredTestnetAssets;
+      case Env.regtest:
+        return PrefKeys.discoveredRegtestAssets;
+      default:
+        return PrefKeys.discoveredAssets;
+    }
+  }
+
+  List<String> get discoveredAssetIds =>
+      _prefs.getStringList(_discoveredAssetsKey) ?? [];
+
+  Future<void> addDiscoveredAsset(String assetId) async {
+    if (!discoveredAssetIds.contains(assetId)) {
+      final updated = [...discoveredAssetIds, assetId];
+      await _prefs.setStringList(_discoveredAssetsKey, updated);
+      notifyListeners();
+    }
+  }
+
+  Future<void> removeDiscoveredAsset(String assetId) async {
+    final updated = discoveredAssetIds.where((id) => id != assetId).toList();
+    await _prefs.setStringList(_discoveredAssetsKey, updated);
+    notifyListeners();
+  }
+
   //ANCHOR - Direct Peg In
 
   bool get isDirectPegInEnabled =>

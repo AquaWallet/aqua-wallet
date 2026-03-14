@@ -251,6 +251,7 @@
   "loginScreenTitle": "Sign Up / Log In",
   "low": "Low Priority",
   "manageAssets": "Manage Assets",
+  "manageAssetsOtherAssets": "Other Assets",
   "manageAssetsScreenError": "Failed to load assets list. Please try again later.",
   "marketplaceScreenBtcMapButton": "BTC Map",
   "marketplaceScreenBtcMapButtonDescription": "Find merchants that accept Bitcoin\n",
