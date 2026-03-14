@@ -67,12 +67,17 @@ class AssetsNotifier extends AsyncNotifier<List<Asset>> {
                 {};
         logger.debug('[AssetsProvider] Liquid balances: $balances');
 
-        final assets = ref
+        final userAssets = ref
             .read(manageAssetsProvider.select((p) => p.userAssets))
             .map((asset) => balances.containsKey(asset.id)
                 ? asset.copyWith(amount: balances[asset.id] as int)
                 : asset);
-        return [btcAsset, ...assets];
+        final discovered = ref
+            .read(manageAssetsProvider.select((p) => p.enabledDiscoveredAssets))
+            .map((asset) => balances.containsKey(asset.id)
+                ? asset.copyWith(amount: balances[asset.id] as int)
+                : asset);
+        return [btcAsset, ...userAssets, ...discovered];
       }).distinct((previous, current) =>
           // Only let the event pass if:
           // - the list of assets is the same length
