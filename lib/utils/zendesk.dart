@@ -40,3 +40,15 @@ String getAquaMoonZendeskUrl(
     },
   );
 }
+
+String getAquaBoltzZendeskUrl(
+    String subject, String swapId, String aquaVersion) {
+  return buildUrlWithParams(
+    aquaZendeskBoltzUrl,
+    queryParams: {
+      'tf_$zendeskFormFieldBoltzSwapId': swapId,
+      'tf_$zendeskFormFieldAquaVersion': aquaVersion,
+      'tf_subject': subject,
+    },
+  );
+}

@@ -14,7 +14,7 @@ class BalanceVisibilityToggle extends ConsumerWidget {
     return GestureDetector(
       onTap: () => ref.read(prefsProvider).switchBalanceHidden(),
       child: SvgPicture.asset(
-        isBalanceHidden ? Svgs.eyeSlashIcon : Svgs.eyeIcon,
+        isBalanceHidden ? UiAssets.eyeSlash.path : UiAssets.eye.path,
         fit: BoxFit.scaleDown,
         colorFilter: ColorFilter.mode(
           Theme.of(context).colors.headerUsdContainerTextColor,

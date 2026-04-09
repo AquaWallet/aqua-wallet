@@ -1,8 +1,6 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/desktop/utils/utils.dart';
 import 'package:aqua/features/desktop/widgets/widgets.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ui_components/ui_components.dart';
 
 class ContactSupportSideSheet extends StatelessWidget {
@@ -29,8 +27,7 @@ class ContactSupportSideSheet extends StatelessWidget {
               child: AquaMarketplaceTile(
                 title: 'Zendesk',
                 subtitle: 'Contact Contact\nSupport for assistance',
-                icon: SvgPicture.asset(
-                  Svgs.zendeskLogo,
+                icon: UiAssets.assetIcons.zendeskLogo.svg(
                   height: 16,
                   width: 16,
                   colorFilter: ColorFilter.mode(

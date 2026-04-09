@@ -172,6 +172,11 @@ class AssetPegTransactionDetails extends HookConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 1.5),
+                    TransactionNoteListItem(
+                      txHash: model.transactionId,
+                      note: model.notes,
+                    ),
+                    const SizedBox(height: 1.5),
                     AquaListItem(
                       onTap: () => onExplorerTap(
                         model.transactionId,

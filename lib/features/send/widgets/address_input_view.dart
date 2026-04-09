@@ -2,7 +2,6 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:aqua/features/address_validator/address_utils.dart';
-import 'package:flutter_svg/svg.dart';
 
 const visibleCharsLength = 12;
 const lengthOfEllipsis = 3;
@@ -113,8 +112,7 @@ class AddressInputView extends HookConsumerWidget {
                               onTap: disabled ? null : onScanPressed,
                               child: Padding(
                                 padding: const EdgeInsets.all(0.0),
-                                child: SvgPicture.asset(
-                                  Svgs.walletScan,
+                                child: UiAssets.walletScan.svg(
                                   width: 20,
                                   height: 20,
                                   colorFilter: ColorFilter.mode(

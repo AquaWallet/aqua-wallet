@@ -31,6 +31,7 @@ mixin GenericErrorPromptMixin on Widget {
       final error = value.error;
       if (context.mounted) {
         final copyableContent = switch (error) {
+          SwapServiceQuoteException e => e.message,
           SwapServiceOrderCreationException e => e.message,
           ExceptionLocalized _ => null,
           BoltzError e => e.message,

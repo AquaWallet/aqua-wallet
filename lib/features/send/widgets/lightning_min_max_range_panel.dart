@@ -24,7 +24,7 @@ class LightningMinMaxRangePanel extends HookConsumerWidget {
     final isFiatInput = input?.isFiatAmountInput ?? false;
 
     final formatCryptoAmount = useCallback((int value) {
-      final unit = input?.inputUnit ?? AquaAssetInputUnit.crypto;
+      final unit = input?.cryptoUnit ?? AquaAssetInputUnit.crypto;
       final displayUnit = SupportedDisplayUnits.fromAssetInputUnit(unit);
       final amount = ref.read(formatProvider).formatAssetAmount(
             amount: value,

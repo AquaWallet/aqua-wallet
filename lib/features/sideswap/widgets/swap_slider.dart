@@ -48,7 +48,7 @@ class SwapSlider extends ConsumerWidget {
             borderRadius: const BorderRadius.all(Radius.circular(12.0)),
           ),
           child: SvgPicture.asset(
-            Svgs.slideConfirmArrow,
+            UiAssets.slideConfirmArrow.path,
             width: 15.0,
             height: 15.0,
             fit: BoxFit.scaleDown,

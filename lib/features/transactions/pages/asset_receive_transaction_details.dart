@@ -130,6 +130,13 @@ class _AquaTransactionDetailsContent extends ConsumerWidget {
               AquaDivider(
                 colors: context.aquaColors,
               ),
+              TransactionNoteListItem(
+                txHash: model.transactionId,
+                note: model.notes,
+              ),
+              AquaDivider(
+                colors: context.aquaColors,
+              ),
               if (dbTransaction != null &&
                   dbTransaction.exchangeRateAtExecution != null &&
                   dbTransaction.currencyAtExecution != null) ...[
@@ -199,6 +206,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
     final receivedDisplayUnit =
         unitsProvider.getAssetDisplayUnit(model.receivedAsset);
     final dbTransaction = model.dbTransaction;
+    final aquaVersion = ref.watch(versionProvider).valueOrNull ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -244,6 +252,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                   style: AquaAddressTypography.body2.copyWith(
                     color: context.aquaColors.textPrimary,
                   ),
+                  colorType: ColoredTextEnum.coloredIntegers,
                 ),
                 iconTrailing: AquaIcon.copy(
                   size: 18,
@@ -305,11 +314,16 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                 colors: context.aquaColors,
               ),
               AquaListItem(
-                onTap: () =>
-                    onOpenUrl(model.dbTransaction?.swapServiceUrl ?? ''),
-                title: context.loc.contactSwapServiceSupport(
-                  model.dbTransaction?.swapServiceName?.split('.').first ?? '',
-                ),
+                onTap: () {
+                  final swapId = model.dbTransaction?.serviceOrderId ?? '';
+                  onOpenUrl(getAquaBoltzZendeskUrl(
+                    context
+                        .loc.boltzSwapSupportZendeskSubjectCriticalDoNotChange,
+                    swapId,
+                    aquaVersion,
+                  ));
+                },
+                title: context.loc.commonContactSupport,
                 iconTrailing: AquaIcon.chevronForward(
                   size: 18,
                   color: context.aquaColors.textSecondary,
@@ -341,6 +355,13 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                   size: 18,
                   color: context.aquaColors.textSecondary,
                 ),
+              ),
+              AquaDivider(
+                colors: context.aquaColors,
+              ),
+              TransactionNoteListItem(
+                txHash: model.transactionId,
+                note: model.notes,
               ),
               AquaDivider(
                 colors: context.aquaColors,

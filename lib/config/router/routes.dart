@@ -6,6 +6,7 @@ import 'package:aqua/features/address_list/address_list_screen.dart';
 import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/bip329/bip329_settings_screen.dart';
+import 'package:aqua/features/settings/debug/debug_database_screen.dart';
 import 'package:aqua/features/boltz/models/db_models.dart';
 import 'package:aqua/features/boltz/screens/boltz_swap_detail_screen.dart';
 import 'package:aqua/features/boltz/screens/boltz_swaps_screen.dart';
@@ -33,7 +34,9 @@ import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/sam_rock/pages/sam_rock_screen.dart';
 import 'package:aqua/features/scan/scan.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/debug/debug_wallet_auth_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/settings/notifications/pages/notifications_settings_screen.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/swaps.dart';
@@ -309,6 +312,10 @@ List<RouteBase> get routes {
       builder: (context, state) => const SecuritySettingsScreen(),
     ),
     GoRoute(
+      path: NotificationsSettingsScreen.routeName,
+      builder: (context, state) => const NotificationsSettingsScreen(),
+    ),
+    GoRoute(
       path: AdvancedSettingsScreen.routeName,
       builder: (context, state) => const AdvancedSettingsScreen(),
     ),
@@ -382,6 +389,10 @@ List<RouteBase> get routes {
       builder: (context, state) => const ExperimentalFeaturesScreen(),
     ),
     GoRoute(
+      path: DebugDatabaseScreen.routeName,
+      builder: (context, state) => const DebugDatabaseScreen(),
+    ),
+    GoRoute(
       path: LegacyWalletScreen.routeName,
       builder: (context, state) => const LegacyWalletScreen(),
     ),
@@ -429,6 +440,10 @@ List<RouteBase> get routes {
     GoRoute(
       path: SubaccountsDebugScreen.routeName,
       builder: (context, state) => const SubaccountsDebugScreen(),
+    ),
+    GoRoute(
+      path: DebugWalletAuthScreen.routeName,
+      builder: (context, state) => const DebugWalletAuthScreen(),
     ),
     GoRoute(
       path: Jan3LoginScreen.routeName,

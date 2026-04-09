@@ -16,6 +16,10 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsAnimationsGen {
   const $AssetsAnimationsGen();
 
+  /// File path: assets/animations/lightning_combined.json
+  LottieGenImage get lightningCombined =>
+      const LottieGenImage('assets/animations/lightning_combined.json');
+
   /// File path: assets/animations/tick.json
   LottieGenImage get tick =>
       const LottieGenImage('assets/animations/tick.json');
@@ -32,9 +36,44 @@ class $AssetsAnimationsGen {
   LottieGenImage get walletProcessing =>
       const LottieGenImage('assets/animations/wallet_processing.json');
 
+  /// File path: assets/animations/wave_depix.json
+  LottieGenImage get waveDepix =>
+      const LottieGenImage('assets/animations/wave_depix.json');
+
+  /// File path: assets/animations/wave_eurx.json
+  LottieGenImage get waveEurx =>
+      const LottieGenImage('assets/animations/wave_eurx.json');
+
+  /// File path: assets/animations/wave_l2_bitcoin.json
+  LottieGenImage get waveL2Bitcoin =>
+      const LottieGenImage('assets/animations/wave_l2_bitcoin.json');
+
+  /// File path: assets/animations/wave_liquid_usdt.json
+  LottieGenImage get waveLiquidUsdt =>
+      const LottieGenImage('assets/animations/wave_liquid_usdt.json');
+
+  /// File path: assets/animations/wave_mexas.json
+  LottieGenImage get waveMexas =>
+      const LottieGenImage('assets/animations/wave_mexas.json');
+
+  /// File path: assets/animations/wave_unknown.json
+  LottieGenImage get waveUnknown =>
+      const LottieGenImage('assets/animations/wave_unknown.json');
+
   /// List of all assets
-  List<LottieGenImage> get values =>
-      [tick, tickBotev, transactionProcessing, walletProcessing];
+  List<LottieGenImage> get values => [
+        lightningCombined,
+        tick,
+        tickBotev,
+        transactionProcessing,
+        walletProcessing,
+        waveDepix,
+        waveEurx,
+        waveL2Bitcoin,
+        waveLiquidUsdt,
+        waveMexas,
+        waveUnknown
+      ];
 }
 
 class $AssetsAssetIconsGen {
@@ -1523,6 +1562,10 @@ class $AssetsMarketplaceGen {
   /// File path: assets/marketplace/btse.png
   AssetGenImage get btse => const AssetGenImage('assets/marketplace/btse.png');
 
+  /// File path: assets/marketplace/chapsmart.svg
+  SvgGenImage get chapsmart =>
+      const SvgGenImage('assets/marketplace/chapsmart.svg');
+
   /// File path: assets/marketplace/meld_black.svg
   SvgGenImage get meldBlack =>
       const SvgGenImage('assets/marketplace/meld_black.svg');
@@ -1530,6 +1573,10 @@ class $AssetsMarketplaceGen {
   /// File path: assets/marketplace/meld_white.svg
   SvgGenImage get meldWhite =>
       const SvgGenImage('assets/marketplace/meld_white.svg');
+
+  /// File path: assets/marketplace/moneybadger.svg
+  SvgGenImage get moneybadger =>
+      const SvgGenImage('assets/marketplace/moneybadger.svg');
 
   /// File path: assets/marketplace/payment_bank.svg
   SvgGenImage get paymentBank =>
@@ -1560,8 +1607,10 @@ class $AssetsMarketplaceGen {
         btcDirectBlack,
         btcDirectWhite,
         btse,
+        chapsmart,
         meldBlack,
         meldWhite,
+        moneybadger,
         paymentBank,
         paymentCard,
         paymentCash,
@@ -1847,6 +1896,14 @@ class $AssetsSvgsSuccessIllustrationsGen {
   SvgGenImage get btc =>
       const SvgGenImage('assets/svgs/success_illustrations/btc.svg');
 
+  /// File path: assets/svgs/success_illustrations/depix.svg
+  SvgGenImage get depix =>
+      const SvgGenImage('assets/svgs/success_illustrations/depix.svg');
+
+  /// File path: assets/svgs/success_illustrations/eurx.svg
+  SvgGenImage get eurx =>
+      const SvgGenImage('assets/svgs/success_illustrations/eurx.svg');
+
   /// File path: assets/svgs/success_illustrations/lbtc.svg
   SvgGenImage get lbtc =>
       const SvgGenImage('assets/svgs/success_illustrations/lbtc.svg');
@@ -1855,12 +1912,17 @@ class $AssetsSvgsSuccessIllustrationsGen {
   SvgGenImage get lightning =>
       const SvgGenImage('assets/svgs/success_illustrations/lightning.svg');
 
+  /// File path: assets/svgs/success_illustrations/mexas.svg
+  SvgGenImage get mexas =>
+      const SvgGenImage('assets/svgs/success_illustrations/mexas.svg');
+
   /// File path: assets/svgs/success_illustrations/usdt.svg
   SvgGenImage get usdt =>
       const SvgGenImage('assets/svgs/success_illustrations/usdt.svg');
 
   /// List of all assets
-  List<SvgGenImage> get values => [btc, lbtc, lightning, usdt];
+  List<SvgGenImage> get values =>
+      [btc, depix, eurx, lbtc, lightning, mexas, usdt];
 }
 
 class UiAssets {

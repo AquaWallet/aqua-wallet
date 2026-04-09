@@ -115,7 +115,7 @@ class PokerchipBalanceNotifier
             id: assetId,
             name: assetId,
             ticker: gdkAsset?.ticker ?? '',
-            logoUrl: Svgs.unknownAsset,
+            logoUrl: UiAssets.assetIcons.assetUnknown.path,
             isLBTC: false,
             isUSDt: false,
           ),

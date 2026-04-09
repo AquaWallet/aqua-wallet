@@ -10,5 +10,4 @@ export 'send_asset_swap_order_ready_provider.dart';
 export 'send_asset_transaction_provider.dart';
 export 'send_asset_used_utxo_provider.dart';
 export 'send_asset_validation_error_provider.dart';
-export 'send_flow_step_provider.dart';
 export 'send_transaction_executor_provider.dart';

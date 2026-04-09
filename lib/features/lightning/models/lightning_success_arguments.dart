@@ -22,7 +22,7 @@ extension LightningSuccessArgumentsExtension on LightningSuccessArguments {
       network: NetworkType.bitcoin,
       asset: Asset.lightning(),
       createdAt: DateTime.now().millisecondsSinceEpoch,
-      inputUnit: AquaAssetInputUnit.sats,
+      cryptoUnit: AquaAssetInputUnit.sats,
       amountToReceive: satoshiAmount,
       transactionType: SendTransactionType.send,
       isReceive: true,

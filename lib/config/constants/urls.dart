@@ -13,6 +13,8 @@ const aquaZendeskUrl =
     "https://jan3.zendesk.com/hc/en-us/requests/new?ticket_form_id=16924244244763";
 const aquaZendeskMoonUrl =
     "https://jan3.zendesk.com/hc/en-us/requests/new?ticket_form_id=40190398487067";
+const aquaZendeskBoltzUrl =
+    "https://jan3.zendesk.com/hc/en-us/requests/new?ticket_form_id=47962378070811";
 const aquaDirectPegInUrl =
     'https://jan3.zendesk.com/hc/en-us/articles/28007940902043-What-s-Direct-Peg-in-and-how-does-It-work';
 const usdtFeeTransactionInfoUrl =
@@ -27,6 +29,7 @@ const aquaZendeskFaqUrl = "http://jan3.zendesk.com/";
 
 const zendeskFormFieldCardFieldId = "40744642792347";
 const zendeskFormFieldAquaVersion = "35450967121051";
+const zendeskFormFieldBoltzSwapId = "47962289026459";
 
 // BLOCKSTREAM.INFO
 const blockstreamInfoBaseUrl = 'https://blockstream.info';
@@ -38,7 +41,6 @@ const meldSandboxUrl = 'https://sb.meldcrypto.com/';
 
 // BOLTZ
 const boltzWebsite = 'https://boltz.exchange';
-const boltzSupportEmail = 'hi@bol.tz';
 const boltzV2MainnetUrl = 'https://api.boltz.exchange/v2';
 const boltzV2TestnetUrl = 'https://api.testnet.boltz.exchange/v2';
 const boltzMainnetRefundUrl = 'https://boltz.exchange/refund';
@@ -51,9 +53,11 @@ const sideswapTestnetUrl = "https://api-testnet.sideswap.io/";
 //SIDESHIFT
 const sideshiftWebsite = 'https://sideshift.ai';
 const sideshiftUrl = 'https://sideshift.ai/api/v2/';
+const sideshiftOrderTrackingUrl = 'https://sideshift.ai/orders/';
 
 //CHANGELLY
 const changellyUrl = 'https://ankara.aquabtc.com/api/v1/changelly';
+const changellyOrderTrackingUrl = 'https://changelly.com/track/';
 
 //MEMPOOL.SPACE
 const mempoolSpaceBitcoinUrl = 'https://mempool.space';
@@ -80,6 +84,7 @@ const jan3AquatoAquaTransactionsInfoUrl =
 
 // Marketplace Services
 const btcMapUrl = 'https://btcmap.org/map';
+const chapsmartUrl = 'https://chapsmart.com/';
 
 // Proof of Payment
 const proofOfPaymentBaseUrl = 'https://validate-payment.com/';

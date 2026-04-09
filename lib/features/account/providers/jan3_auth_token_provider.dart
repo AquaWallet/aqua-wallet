@@ -8,10 +8,13 @@ import 'package:aqua/logger.dart';
 import 'package:chopper/chopper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final jan3AuthTokenManagerProvider = Provider<Jan3AuthTokenManager>((ref) {
-  final tokenRefreshNotifier = ref.watch(tokenRefreshNotifierProvider.notifier);
+final jan3AuthTokenManagerProvider =
+    Provider.family<Jan3AuthTokenManager, String>((ref, walletId) {
+  final tokenRefreshNotifier =
+      ref.watch(tokenRefreshNotifierProvider(walletId).notifier);
   final storage = ref.read(secureStorageProvider);
   return Jan3AuthTokenManager(
+    walletId: walletId,
     tokenRefreshNotifier: tokenRefreshNotifier,
     storage: storage,
   );
@@ -19,14 +22,27 @@ final jan3AuthTokenManagerProvider = Provider<Jan3AuthTokenManager>((ref) {
 
 class Jan3AuthTokenManager {
   Jan3AuthTokenManager({
+    required this.walletId,
     required this.tokenRefreshNotifier,
     required this.storage,
   });
 
+  final String walletId;
   final TokenRefreshNotifier tokenRefreshNotifier;
   final IStorage storage;
   final _logger = CustomLogger(FeatureFlag.jan3AuthToken);
-  static const tokenKey = 'jan3_auth_token';
+
+  /// Per-wallet storage key.
+  String get tokenKey => tokenKeyForWallet(walletId);
+
+  /// Computes the storage key for any wallet ID.
+  static String tokenKeyForWallet(String walletId) =>
+      'jan3_auth_token_$walletId';
+
+  /// Legacy key used before per-wallet tokens were introduced.
+  @Deprecated(
+      'Used before when only single wallet was supported. Left only for migration purpose.')
+  static const legacyTokenKey = 'jan3_auth_token';
 
   Future<void> refreshToken() async {
     return await tokenRefreshNotifier.refreshToken();

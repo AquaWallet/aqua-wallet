@@ -18,7 +18,6 @@ class AddNoteForm extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final controller = useTextEditingController(text: note);
-    final input = useValueListenable(controller);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -51,15 +50,13 @@ class AddNoteForm extends HookWidget {
           const SizedBox(height: 24),
           //ANCHOR - Save Button
           AquaButton.primary(
-            onPressed: input.text.isNotEmpty
-                ? () {
-                    FocusScope.of(context).unfocus();
-                    Future.delayed(
-                      const Duration(milliseconds: 200),
-                      () => context.pop(controller.text),
-                    );
-                  }
-                : null,
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              Future.delayed(
+                const Duration(milliseconds: 200),
+                () => context.pop(controller.text),
+              );
+            },
             text: context.loc.save,
           ),
           const SizedBox(height: 16),

@@ -151,6 +151,28 @@ void main() {
     expect(find.byType(MarketplaceTile), findsNWidgets(2));
   });
 
+  testWidgets('shows MoneyBadger tile when moneybadger service is enabled',
+      (tester) async {
+    await tester.pumpWidget(
+      buildTestableWidget(
+        overrides: [
+          enabledServicesTypesProvider
+              .overrideWith(() => FakeEnabledServicesNotifier(services: [
+                    const MarketplaceServiceAvailability(
+                      type: MarketplaceServiceType.moneybadger,
+                      isEnabled: true,
+                    ),
+                  ])),
+          ...defaultOverrides()
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(MarketplaceTile), findsOneWidget);
+    expect(find.text('MoneyBadger'), findsOneWidget);
+    expect(find.text('Pay with Bitcoin across South Africa'), findsOneWidget);
+  });
+
   testWidgets('Takes into account if they are enabled', (tester) async {
     await tester.pumpWidget(buildTestableWidget(
       overrides: [

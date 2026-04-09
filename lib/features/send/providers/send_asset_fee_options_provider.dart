@@ -50,7 +50,7 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
 
       final liquidFeeOption = await _getLiquidFeeOption(
         gdkTransaction,
-        unit: input.inputUnit,
+        unit: input.cryptoUnit,
         currency: input.rate.currency,
         isTaxiAvailable: !isTaxiDisabled,
       );

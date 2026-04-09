@@ -1,5 +1,4 @@
 import 'package:aqua/common/common.dart';
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
@@ -17,7 +16,7 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
             context: context,
             height: 440.0,
             isDismissible: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.exportTxnHistorySheetTitle,
             message: context.loc.exportTxnHistorySheetMessage,
             confirmButtonLabel: context.loc.exportTxnHistorySheetConfirmButton,
@@ -29,7 +28,7 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
             context: context,
             height: 380.0,
             isDismissible: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.exportTxnHistorySheetTitle,
             message: context.loc.exportPermissionRequired,
             confirmButtonLabel: context.loc.requestPermission,
@@ -43,7 +42,7 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
             context: context,
             height: 380.0,
             isDismissible: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.permissionDenied,
             message: context.loc.exportTxnHistoryPermissionDeniedSheetMessage,
             confirmButtonLabel: context.loc.requestPermission,
@@ -58,7 +57,7 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
             height: 320.0,
             isDismissible: false,
             showCancelButton: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.exportTxnHistorySuccessSheetTitle,
             message: context.loc.exportTxnHistorySuccessSheetMessage,
             confirmButtonLabel: context.loc.continueLabel,
@@ -72,7 +71,7 @@ mixin ExportTransactionMixin<T extends Widget> on HookConsumerWidget {
             height: 320.0,
             isDismissible: false,
             showCancelButton: false,
-            svgPath: Svgs.failure,
+            svgPath: UiAssets.failure.path,
             title: context.loc.exportTxnHistoryErrorSheetTitle,
             message: error is ExceptionLocalized
                 ? error.toLocalizedString(context)

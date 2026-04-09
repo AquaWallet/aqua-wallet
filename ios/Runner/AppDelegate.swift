@@ -78,6 +78,10 @@ public func dummyMethodToEnforceBundling() {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    }
+
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     
     utilsChannel = FlutterMethodChannel(name: "com.example.aqua/utils", binaryMessenger: controller.binaryMessenger)

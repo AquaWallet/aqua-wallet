@@ -83,6 +83,11 @@ class AssetRedepositTransactionDetails extends HookConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 1.5),
+                  TransactionNoteListItem(
+                    txHash: model.transactionId,
+                    note: model.notes,
+                  ),
+                  const SizedBox(height: 1.5),
                   //TODO - Implement feature to receive value at time
                   // AquaListItem(
                   //   title: context.loc.valueAtTime,

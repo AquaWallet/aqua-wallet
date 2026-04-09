@@ -1,7 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:ui_components/ui_components.dart';
 
 class PokerchipAssetIcon extends StatelessWidget {
@@ -17,8 +16,7 @@ class PokerchipAssetIcon extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           //ANCHOR: Pokerchip frame
-          SvgPicture.asset(
-            Svgs.pokerchipFrameLight,
+          UiAssets.pokerchipFrameLight.svg(
             width: 160.0,
             height: 160.0,
             colorFilter: ColorFilter.mode(

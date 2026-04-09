@@ -1,5 +1,6 @@
 import 'package:aqua/common/widgets/middle_ellipsis_text.dart';
 import 'package:aqua/config/config.dart';
+import 'package:aqua/gen/assets.gen.dart';
 import 'package:aqua/utils/extensions/extensions.dart';
 import 'package:flutter/material.dart';
 
@@ -50,7 +51,7 @@ class LabelCopyableTextView extends StatelessWidget {
                   onTap: () => context.copyToClipboard(value),
                   child: InkWell(
                     child: SvgPicture.asset(
-                      Svgs.copy,
+                      UiAssets.copy.path,
                       width: 16.0,
                       height: 16.0,
                       colorFilter: ColorFilter.mode(

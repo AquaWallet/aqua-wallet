@@ -51,6 +51,7 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
         ref.watch(storedWalletsProvider).valueOrNull?.currentWallet;
     final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
     final modalState = ref.watch(walletSuccessModalProvider);
+    final languageCode = ref.watch(prefsProvider.select((p) => p.languageCode));
 
     final availableServices = ref.watch(enabledServicesTypesProvider);
     final isSwapEnabled = useMemoized(
@@ -173,7 +174,7 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
       };
 
       return walletSuccessModalLookup;
-    });
+    }, [languageCode]);
 
     final showWalletSuccessModal = useCallback(() {
       final notifier = ref.read(walletSuccessModalProvider.notifier);

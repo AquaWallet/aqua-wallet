@@ -10,84 +10,108 @@ import 'package:flutter/foundation.dart';
 
 final _logger = CustomLogger(FeatureFlag.jan3Account);
 
-final jan3AuthProvider = AsyncNotifierProvider<Jan3AuthNotifier, Jan3AuthState>(
-    Jan3AuthNotifier.new);
+final jan3AuthProvider =
+    AsyncNotifierProvider.family<Jan3AuthNotifier, Jan3AuthState, String>(
+        Jan3AuthNotifier.new);
 
-class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
+class Jan3AuthNotifier extends FamilyAsyncNotifier<Jan3AuthState, String> {
   @override
-  Future<Jan3AuthState> build() async {
-    final tokenManager = ref.watch(jan3AuthTokenManagerProvider);
+  Future<Jan3AuthState> build(String arg) async {
+    final walletId = arg;
+    // Avoid calls to the build method with empty wallet ID.
+    if (walletId.isEmpty) return const Jan3AuthState.unauthenticated();
+
+    final tokenManager = ref.watch(jan3AuthTokenManagerProvider(walletId));
     final token = await tokenManager.getAccessToken();
     if (token != null) {
       final api = await ref.read(jan3ApiServiceProvider.future);
       final response = await api.getUser();
 
-      // If authenticated, store user profile in the current wallet
+      // If authenticated, store user profile in the wallet
       if (response.isSuccessful && response.body != null) {
-        await _storeProfileInCurrentWallet(response.body!);
+        await _storeProfileInWallet(response.body!);
         return Jan3AuthState.authenticated(profile: response.body!);
       }
     }
 
-    // Check if the current wallet has a stored profile
-    final walletState = await ref.read(storedWalletsProvider.future);
-    if (walletState.currentWallet?.profileResponse != null) {
-      // If the wallet has a stored profile but we don't have a token, restore the auth state
-      await _restoreAuthFromWallet(walletState.currentWallet!);
+    // Check if this wallet has a stored profile
+    final wallet = await _getCurrentWallet();
+    if (wallet?.profileResponse != null) {
+      // Wallet has a stored profile but no token — restore auth state
+      final restored = await _restoreAuthFromWallet(wallet!);
+      if (restored != null) return restored;
     }
 
     return const Jan3AuthState.unauthenticated();
   }
 
-  // Store the profile in the current wallet
-  Future<void> _storeProfileInCurrentWallet(ProfileResponse profile) async {
+  Future<StoredWallet?> _getCurrentWallet() async {
     final walletState = await ref.read(storedWalletsProvider.future);
-    final currentWallet = walletState.currentWallet;
-    if (currentWallet != null) {
+    return walletState.getWalletById(arg);
+  }
+
+  Future<void> _onVerified({required bool pendingCardCreation}) async {
+    await _refreshProfileData(pendingCardCreation: pendingCardCreation);
+    await _refreshFeatureFlags();
+  }
+
+  /// Store the profile in the specific wallet this notifier belongs to.
+  Future<void> _storeProfileInWallet(ProfileResponse profile) async {
+    final wallet = await _getCurrentWallet();
+    if (wallet != null) {
       // Only update if the profile is different
-      if (currentWallet.profileResponse?.id != profile.id) {
-        // Get the current token to store with the profile
-        final tokenManager = ref.watch(jan3AuthTokenManagerProvider);
+      if (wallet.profileResponse != profile) {
+        final tokenManager = ref.watch(jan3AuthTokenManagerProvider(arg));
         final token = await tokenManager.readTokenWithoutRefresh();
 
-        final updatedWallet = currentWallet.copyWith(
-          profileResponse: profile,
-          authToken: token,
-        );
-
-        // Get the wallets notifier and update the wallet
         await ref
             .read(storedWalletsProvider.notifier)
-            .updateWalletWithProfile(updatedWallet.id, profile, token);
+            .updateWalletWithProfile(wallet.id, profile, token);
       }
     }
   }
 
-  // Restore auth state from wallet's stored profile
-  Future<void> _restoreAuthFromWallet(StoredWallet wallet) async {
+  /// Signs out any other wallet that already has the same Jan3 user ID logged in.
+  /// Called after a successful login to prevent duplicate sessions.
+  Future<void> _signOutConflictingWallets(String userId) async {
+    final walletState = await ref.read(storedWalletsProvider.future);
+    final conflicting = walletState.wallets
+        .where((w) => w.id != arg && w.profileResponse?.id == userId)
+        .toList();
+    await Future.wait(
+      conflicting.map((w) async {
+        // Clear token from secure storage and profile from the stored wallet
+        // invalidate the auth provider so its next build() sees the cleared
+        await ref.read(jan3AuthTokenManagerProvider(w.id)).deleteToken();
+        await ref
+            .read(storedWalletsProvider.notifier)
+            .updateWalletWithProfile(w.id, null, null);
+        ref.invalidate(jan3AuthProvider(w.id));
+      }),
+    );
+  }
+
+  /// Restore auth state from the wallet's stored profile and token.
+  Future<Jan3AuthState?> _restoreAuthFromWallet(StoredWallet wallet) async {
     if (wallet.profileResponse != null && wallet.authToken != null) {
       _logger.debug(
           '[Jan3Account] Found stored profile and token in wallet, restoring auth state');
 
       // Save the token from the wallet to secure storage
-      // We need to save the token directly to storage since we have AuthTokenResponse, not Response<AuthTokenResponse>
-      final tokenManager = ref.read(jan3AuthTokenManagerProvider);
-      await tokenManager.storage.delete(Jan3AuthTokenManager.tokenKey);
+      final tokenManager = ref.read(jan3AuthTokenManagerProvider(arg));
+      await tokenManager.storage.delete(tokenManager.tokenKey);
       await tokenManager.storage.save(
-        key: Jan3AuthTokenManager.tokenKey,
+        key: tokenManager.tokenKey,
         value: jsonEncode(wallet.authToken!.toJson()),
       );
 
-      // Return authenticated state with the stored profile
-      state = AsyncValue.data(
-        Jan3AuthState.authenticated(profile: wallet.profileResponse!),
-      );
-
       _logger.debug('[Jan3Account] Successfully restored auth state');
+      return Jan3AuthState.authenticated(profile: wallet.profileResponse!);
     } else if (wallet.profileResponse != null) {
       _logger.debug(
           '[Jan3Account] Found stored profile in wallet, but no valid token');
     }
+    return null;
   }
 
   Future<void> sendOtp(String email, Language currentLang) async {
@@ -118,10 +142,11 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
       otpCode: otp,
     ));
     if (tokenResponse.isSuccessful && tokenResponse.body != null) {
-      await ref.read(jan3AuthTokenManagerProvider).saveToken(tokenResponse);
+      await ref
+          .read(jan3AuthTokenManagerProvider(arg))
+          .saveToken(tokenResponse);
       final cards = await ref.read(moonCardsProvider.future);
-      await _refreshProfileData(pendingCardCreation: cards.isEmpty);
-      await _refreshFeatureFlags();
+      await _onVerified(pendingCardCreation: cards.isEmpty);
     } else {
       state = AsyncValue.error(ProfileAuthErrorException(), StackTrace.current);
     }
@@ -137,8 +162,9 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
     if (profile.isSuccessful && profile.body != null) {
       _logger.debug('[Jan3Account] Successfully refreshed profile data');
 
-      // Store the profile in the current wallet
-      await _storeProfileInCurrentWallet(profile.body!);
+      // Store the profile in the wallet
+      await _storeProfileInWallet(profile.body!);
+      await _signOutConflictingWallets(profile.body!.id);
 
       state = AsyncValue.data(
         Jan3AuthState.authenticated(
@@ -157,15 +183,14 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
 
   Future<void> signOut() async {
     state = const AsyncValue.loading();
-    await ref.read(jan3AuthTokenManagerProvider).deleteToken();
+    await ref.read(jan3AuthTokenManagerProvider(arg)).deleteToken();
 
-    // Remove the profile and auth token from the current wallet
-    final walletState = await ref.read(storedWalletsProvider.future);
-    final currentWallet = walletState.currentWallet;
-    if (currentWallet != null && currentWallet.profileResponse != null) {
+    // Remove the profile and auth token from the wallet
+    final wallet = await _getCurrentWallet();
+    if (wallet != null && wallet.profileResponse != null) {
       await ref
           .read(storedWalletsProvider.notifier)
-          .updateWalletWithProfile(currentWallet.id, null, null);
+          .updateWalletWithProfile(arg, null, null);
     }
 
     state = const AsyncValue.data(Jan3AuthState.unauthenticated());
@@ -173,7 +198,7 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
 
   //NOTE - ONLY FOR DEV USAGE
   Future<void> resetAccount() async {
-    final tokenManager = ref.read(jan3AuthTokenManagerProvider);
+    final tokenManager = ref.read(jan3AuthTokenManagerProvider(arg));
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final token = await tokenManager.getAccessToken();
@@ -193,7 +218,7 @@ class Jan3AuthNotifier extends AsyncNotifier<Jan3AuthState> {
   }
 
   Future<void> onUnauthorized() async {
-    final tokenProvider = ref.read(jan3AuthTokenManagerProvider);
+    final tokenProvider = ref.read(jan3AuthTokenManagerProvider(arg));
     try {
       final token = await tokenProvider.getAccessToken();
 

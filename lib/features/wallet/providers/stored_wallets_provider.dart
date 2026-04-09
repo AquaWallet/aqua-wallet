@@ -23,7 +23,29 @@ const kStoredWalletsListKey = 'stored_wallets_list';
 // Prefix for individual wallet mnemonic keys
 const kStoredWalletMnemonicPrefix = 'wallet_mnemonic_';
 
+const _kMaxWalletNameLength = 23;
+
 final _logger = CustomLogger(FeatureFlag.multiWallet);
+
+String _uniqueWalletName(String name, List<StoredWallet> existingWallets) {
+  final existingLower =
+      existingWallets.map((w) => w.name.toLowerCase()).toSet();
+  String candidate = name.trim();
+  if (candidate.isEmpty) candidate = 'Wallet';
+  if (!existingLower.contains(candidate.toLowerCase())) {
+    return candidate.length > _kMaxWalletNameLength
+        ? candidate.substring(0, _kMaxWalletNameLength)
+        : candidate;
+  }
+  for (var n = 2; n <= kMaxWallets; n++) {
+    final suffix = ' ($n)';
+    final next = candidate.length + suffix.length <= _kMaxWalletNameLength
+        ? '$candidate$suffix'
+        : '${candidate.substring(0, _kMaxWalletNameLength - suffix.length)}$suffix';
+    if (!existingLower.contains(next.toLowerCase())) return next;
+  }
+  return '$candidate (${existingWallets.length + 1})';
+}
 
 // Provider for accessing and managing stored wallets
 final storedWalletsProvider =
@@ -51,9 +73,8 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
           .get(StorageKeys.currentWalletId);
 
       if (currentWalletId != null) {
-        final currentWallet = wallets.firstWhereOrNull(
-          (wallet) => wallet.id == currentWalletId,
-        );
+        final currentWallet =
+            wallets.firstWhereOrNull((w) => w.id == currentWalletId);
 
         if (currentWallet != null) {
           return WalletState(
@@ -158,7 +179,9 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
         return;
       }
 
-      final updatedWallets = [...currentWallets, newWallet];
+      final uniqueName = _uniqueWalletName(name, currentWallets);
+      final newWalletWithName = newWallet.copyWith(name: uniqueName);
+      final updatedWallets = [...currentWallets, newWalletWithName];
       _logger
           .debug('Adding new wallet. Total wallets: ${updatedWallets.length}');
 
@@ -171,7 +194,7 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
 
       state = AsyncValue.data(WalletState(
         wallets: updatedWallets,
-        currentWallet: newWallet,
+        currentWallet: newWalletWithName,
         lastOperationType: operationType,
       ));
 
@@ -179,7 +202,8 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
       // since we're already in a wallet creation flow
       await _performWalletSwitch(walletId);
 
-      _logger.info('Wallet "$name" added successfully with ID: $walletId');
+      _logger
+          .info('Wallet "$uniqueName" added successfully with ID: $walletId');
     } catch (e, stack) {
       _logger.error('Error adding wallet: $e\n$stack');
       state = AsyncValue.error(e, stack);
@@ -224,12 +248,14 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
 
       _logger.info('Starting deletion of wallet "${wallet.name}"...');
 
-      // Sign out from Jan3 if the user is authenticated
-      if (currentState.currentWallet?.profileResponse != null) {
+      // Delete the Jan3 token for this wallet if one exists
+      if (wallet.profileResponse != null) {
         try {
-          await ref.read(jan3AuthProvider.notifier).signOut();
+          final storage = ref.read(secureStorageProvider);
+          await storage
+              .delete(Jan3AuthTokenManager.tokenKeyForWallet(walletId));
         } catch (e) {
-          _logger.warning('Error signing out from Jan3: $e');
+          _logger.warning('Error deleting Jan3 token for wallet: $e');
         }
       }
 
@@ -345,12 +371,9 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
       // 8. Invalidate transaction storage to reload transactions for new wallet
       ref.invalidate(transactionStorageProvider);
 
-      // 9. If the wallet has a stored profile, restore the Jan3 auth state
-      if (wallet.profileResponse != null) {
-        _logger.debug('Wallet has a stored Jan3 profile, restoring auth state');
-        // We need to invalidate the Jan3 provider to force it to rebuild with the new wallet's profile
-        ref.invalidate(jan3AuthProvider);
-      }
+      // 9. Invalidate Jan3 auth provider to force fresh token check and profile
+      // fetch for the new wallet (handles cached state from previous visits)
+      ref.invalidate(jan3AuthProvider(walletId));
 
       _logger.info('Wallet switch completed successfully');
     } catch (e, stack) {
@@ -366,7 +389,6 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
         WalletOperationState.switching;
 
     try {
-      ref.read(jan3AuthProvider.notifier).signOut();
       await _performWalletSwitch(walletId);
 
       // Set operation state to idle on success
@@ -510,5 +532,11 @@ class StoredWalletsNotifier extends AsyncNotifier<WalletState> {
       state = AsyncValue.error(e, stack);
       rethrow;
     }
+  }
+}
+
+extension WalletStateExt on WalletState {
+  StoredWallet? getWalletById(String walletId) {
+    return wallets.firstWhereOrNull((w) => w.id == walletId);
   }
 }

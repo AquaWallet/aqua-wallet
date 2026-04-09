@@ -14,8 +14,10 @@ part 'jan3_api_service.chopper.dart';
 
 final jan3ApiServiceProvider =
     FutureProvider.autoDispose<Jan3ApiService>((ref) async {
-  final onUnauthorized = ref.read(jan3AuthProvider.notifier).onUnauthorized;
-  final tokenManager = ref.watch(jan3AuthTokenManagerProvider);
+  final walletId = ref.watch(currentWalletIdSyncProvider);
+  final tokenManager = ref.watch(jan3AuthTokenManagerProvider(walletId));
+  final onUnauthorized =
+      ref.read(jan3AuthProvider(walletId).notifier).onUnauthorized;
   final debitCardStagingEnabled =
       ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
   return Jan3ApiService.create(
@@ -117,6 +119,12 @@ abstract class Jan3ApiService extends ChopperService {
   @Get(path: 'v1/public/')
   Future<Response<MessageResponse>> getPublicMessage();
 
+  // MoneyBadger decode
+  @Post(path: 'v1/moneybadger/decode/')
+  Future<Response<MoneybadgerDecodeResponse>> decodeMoneybadger(
+    @Body() MoneybadgerDecodeRequest request,
+  );
+
   static Jan3ApiService create(
     Jan3AuthTokenManager tokenManager,
     VoidCallback onUnauthorized,
@@ -153,6 +161,7 @@ abstract class Jan3ApiService extends ChopperService {
         CardCreationRequest: CardCreationRequest.fromJson,
         TopupResponse: TopupResponse.fromJson,
         MoonRatesResponse: MoonRatesResponse.fromJson,
+        MoneybadgerDecodeResponse: MoneybadgerDecodeResponse.fromJson,
       }),
     );
     return _$Jan3ApiService(client);

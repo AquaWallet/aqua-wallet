@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:aqua/config/config.dart' hide AquaColors;
 import 'package:aqua/features/shared/shared.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:ui_components/ui_components.dart';
 
@@ -23,6 +24,14 @@ extension ThemeContextExt on BuildContext {
 }
 
 extension ContextExt on BuildContext {
+  /// Returns a [Rect] from this context's render box, suitable for
+  /// `sharePositionOrigin` on iOS (required for the share sheet popover).
+  Rect? get sharePositionOrigin {
+    final box = findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return null;
+    return box.localToGlobal(Offset.zero) & box.size;
+  }
+
   Future<void> copyToClipboard(
     String value, {
     String? successMessage,

@@ -489,3 +489,27 @@ class MoonRatesResponse with _$MoonRatesResponse {
   factory MoonRatesResponse.fromJson(Map<String, dynamic> json) =>
       _$MoonRatesResponseFromJson(json);
 }
+
+// MoneyBadger decode (Ankara api/v1/moneybadger/decode/)
+@freezed
+class MoneybadgerDecodeRequest with _$MoneybadgerDecodeRequest {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory MoneybadgerDecodeRequest({
+    required String qrData,
+    bool? isTestnet,
+  }) = _MoneybadgerDecodeRequest;
+
+  factory MoneybadgerDecodeRequest.fromJson(Map<String, dynamic> json) =>
+      _$MoneybadgerDecodeRequestFromJson(json);
+}
+
+@freezed
+class MoneybadgerDecodeResponse with _$MoneybadgerDecodeResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory MoneybadgerDecodeResponse({
+    required String lightningAddress,
+  }) = _MoneybadgerDecodeResponse;
+
+  factory MoneybadgerDecodeResponse.fromJson(Map<String, dynamic> json) =>
+      _$MoneybadgerDecodeResponseFromJson(json);
+}

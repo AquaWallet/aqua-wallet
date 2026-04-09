@@ -17,10 +17,9 @@ class AquaContextualGlassIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(100),
-      child: Ink(
+      child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(

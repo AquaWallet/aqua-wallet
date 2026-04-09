@@ -12,9 +12,11 @@ class AquaTransactionReviewContent extends HookConsumerWidget {
   const AquaTransactionReviewContent({
     super.key,
     required this.args,
+    this.onFeeError,
   });
 
   final SendAssetArguments args;
+  final VoidCallback? onFeeError;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +33,7 @@ class AquaTransactionReviewContent extends HookConsumerWidget {
       asset: input.asset,
       amount: input.amount,
       displayUnitOverride:
-          SupportedDisplayUnits.fromAssetInputUnit(input.inputUnit),
+          SupportedDisplayUnits.fromAssetInputUnit(input.cryptoUnit),
       removeTrailingZeros: isNonSatsAsset,
     );
 
@@ -50,7 +52,7 @@ class AquaTransactionReviewContent extends HookConsumerWidget {
           assetId: input.asset.id,
           assetIconUrl: input.asset.logoUrl,
           assetTicker: input.asset.getDisplayTicker(
-            SupportedDisplayUnits.fromAssetInputUnit(input.inputUnit),
+            SupportedDisplayUnits.fromAssetInputUnit(input.cryptoUnit),
           ),
           amountCrypto: input.isFiatAmountInput
               ? input.displayConversionAmount != null
@@ -66,12 +68,14 @@ class AquaTransactionReviewContent extends HookConsumerWidget {
         const SizedBox(height: 16),
         // ANCHOR - Fee Selection Card
         if (transaction != null && args.asset.isUsdtLiquid) ...{
-          LiquidFeeSelector(args: args),
+          LiquidFeeSelector(args: args, onFeeError: onFeeError),
         } else ...{
           transaction?.whenOrNull(
                 created: (t) => switch (args.asset) {
-                  _ when (args.asset.isBTC) => BitcoinFeeSelector(args: args),
-                  _ when (args.asset.isLiquid) => LiquidFeeSelector(args: args),
+                  _ when (args.asset.isBTC) =>
+                    BitcoinFeeSelector(args: args, onFeeError: onFeeError),
+                  _ when (args.asset.isLiquid) =>
+                    LiquidFeeSelector(args: args, onFeeError: onFeeError),
                   _ => const SizedBox.shrink(),
                 },
               ) ??
@@ -91,8 +95,6 @@ class _RecipientAndNoteCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isNotesEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
     final provider = sendAssetInputStateProvider(args);
     final input = ref.watch(provider).valueOrNull!;
 
@@ -128,28 +130,16 @@ class _RecipientAndNoteCard extends HookConsumerWidget {
               color: context.aquaColors.textSecondary,
             ),
           ),
-          if (isNotesEnabled) ...[
-            Divider(
-              height: 4,
-              thickness: 1,
-              color: context.aquaColors.surfaceSecondary,
-            ),
-            //ANCHOR - Add Note
-            AquaListItem(
-              onTap: onNoteTap,
-              title: note?.isNotEmpty ?? false
-                  ? context.loc.note
-                  : context.loc.addNote,
-              subtitle: note,
-              iconLeading: AquaIcon.edit(
-                color: context.aquaColors.textPrimary,
-              ),
-              iconTrailing: AquaIcon.chevronForward(
-                size: 18,
-                color: context.aquaColors.textSecondary,
-              ),
-            ),
-          ],
+          Divider(
+            height: 4,
+            thickness: 1,
+            color: context.aquaColors.surfaceSecondary,
+          ),
+          //ANCHOR - Add Note
+          NoteListItem(
+            note: note,
+            onTap: onNoteTap,
+          ),
         ],
       ),
     );

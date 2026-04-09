@@ -9,12 +9,13 @@ part 'feature_flags_service.chopper.dart';
 
 final featureFlagsServiceProvider =
     FutureProvider<FeatureFlagsService>((ref) async {
-  final tokenManager = ref.read(jan3AuthTokenManagerProvider);
+  final walletId = ref.watch(currentWalletIdSyncProvider);
+  final tokenManager = ref.watch(jan3AuthTokenManagerProvider(walletId));
   final debitCardStagingEnabled =
       ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
   return FeatureFlagsService.create(
     tokenManager,
-    ref.read(jan3AuthProvider.notifier).onUnauthorized,
+    ref.read(jan3AuthProvider(walletId).notifier).onUnauthorized,
     debitCardStagingEnabled,
   );
 });

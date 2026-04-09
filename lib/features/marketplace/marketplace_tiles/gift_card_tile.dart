@@ -1,4 +1,3 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/marketplace/widgets/marketplace_tile.dart';
 import 'package:aqua/features/shared/shared.dart';
 
@@ -10,7 +9,7 @@ class GiftCardTile extends StatelessWidget {
     return MarketplaceTile(
       title: 'context.loc.marketplaceScreenGiftCards',
       subtitle: 'context.loc.marketplaceScreenGiftCardsDescription',
-      icon: Svgs.tabWallet,
+      icon: UiAssets.tabWallet.path,
       onPressed: () => context.push('GiftCardScreen.routeName'),
     );
   }

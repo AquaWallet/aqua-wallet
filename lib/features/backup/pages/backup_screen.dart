@@ -6,7 +6,6 @@ import 'package:aqua/features/recovery/recovery.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletBackupScreen extends HookConsumerWidget {
   const WalletBackupScreen({super.key});
@@ -43,7 +42,7 @@ class WalletBackupScreen extends HookConsumerWidget {
         showActionButton: true,
         iconBackgroundColor: Theme.of(context).colors.background,
         iconForegroundColor: Theme.of(context).colors.onBackground,
-        actionButtonAsset: Svgs.close,
+        actionButtonAsset: UiAssets.cross.path,
         actionButtonIconSize: 13.0,
         onActionButtonPressed: () => context.pop(),
       ),
@@ -54,11 +53,7 @@ class WalletBackupScreen extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 4.0),
-              SvgPicture.asset(
-                Svgs.backupWallet,
-                width: 55.0,
-                height: 61.0,
-              ),
+              UiAssets.backupWallet.svg(width: 55.0, height: 61.0),
               const SizedBox(height: 43.0),
               Text(
                 context.loc.backupInviteTitle,

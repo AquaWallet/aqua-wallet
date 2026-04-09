@@ -191,8 +191,8 @@ void main() {
         expect(result.explorerAsset.id, Asset.btc().id);
       });
 
-      test('txn with null txhash is treated as missing', () {
-        const sendTxn = GdkTransaction(txhash: null);
+      test('null txn is treated as missing', () {
+        const GdkTransaction? sendTxn = null;
         final receiveTxn = createTxn('receive_hash');
 
         final result = getPegExplorerInfo(

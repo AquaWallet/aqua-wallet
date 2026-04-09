@@ -35,6 +35,7 @@ enum FeatureFlag {
   textScan('TextScan'),
   electrs('Electrs'),
   network('Network'),
+  notifications('Notifications'),
   tx('TX'),
   user('User'),
   unifiedBalance('UnifiedBalance'),

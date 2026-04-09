@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:aqua/data/models/models.dart';
 import 'package:aqua/data/provider/isar_database_provider.dart';
+import 'package:aqua/data/provider/isar_export_provider.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 final databaseContentsProvider =
     FutureProvider.autoDispose<Map<String, List<dynamic>>>((ref) async {
@@ -31,6 +36,18 @@ class DebugDatabaseScreen extends HookConsumerWidget {
         title: 'Debug Database View',
         showBackButton: true,
         showActionButton: false,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final service = ref.read(isarExportServiceProvider);
+          await service?.exportNow();
+          final dir = await getApplicationDocumentsDirectory();
+          final file = File('${dir.path}/aqua_db_export.json');
+          if (await file.exists()) {
+            await Share.shareXFiles([XFile(file.path)]);
+          }
+        },
+        child: const Icon(Icons.download),
       ),
       body: databaseContents.when(
         data: (contents) => ListView(

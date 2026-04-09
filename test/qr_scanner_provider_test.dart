@@ -2,6 +2,9 @@ import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/qr_scanner/qr_scanner_pop_result.dart';
 import 'package:aqua/data/provider/qr_scanner/qr_scanner_provider.dart';
+import 'package:aqua/features/account/account.dart';
+import 'package:aqua/features/address_validator/models/address_parsing_exception.dart';
+import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,9 +12,12 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mocks/mocks.dart';
 
-class MockBalanceService extends Mock implements BalanceService {}
-
 void main() {
+  setUpAll(() {
+    registerFallbackValue(
+        const MoneybadgerDecodeRequest(qrData: '', isTestnet: false));
+  });
+
   late MockLiquidProvider mockLiquidProvider;
   late MockBitcoinProvider mockBitcoinProvider;
   late MockBalanceService mockBalanceService;
@@ -45,12 +51,16 @@ void main() {
   });
 
   group('parseQrAddressScan', () {
-    test('parses MoneyBadger QR code successfully', () async {
-      // Arrange - Remove the @ prefix as it's not part of the valid Zapper QR format
+    test(
+        'calls backend for MoneyBadger QR and throws when backend returns error',
+        () async {
+      // Moneybadger decoding is now handled by the Ankara backend.
+      // When the backend returns an error, parsing fails with AddressParsingException.
       const zapperQrCode =
           'http://2.zap.pe?t=6&i=40895:49955:7[34|29.99|11,33n|REF12345|10:10[39|ZAR,38|DillonDev';
-      const expectedAddress =
-          'http%3A%2F%2F2.zap.pe%3Ft%3D6%26i%3D40895%3A49955%3A7%5B34%7C29.99%7C11%2C33n%7CREF12345%7C10%3A10%5B39%7CZAR%2C38%7CDillonDev@cryptoqr.net';
+
+      final mockJan3 = MockJan3ApiService();
+      mockJan3.mockDecodeMoneybadgerError();
 
       container = ProviderContainer(overrides: [
         liquidProvider.overrideWithValue(mockLiquidProvider),
@@ -59,21 +69,56 @@ void main() {
         prefsProvider.overrideWith((_) => mockPrefsProvider),
         sharedPreferencesProvider.overrideWith((_) => mockSharedPreferences),
         assetsProvider.overrideWith(() => MockAssetsNotifier(assets: [])),
+        jan3ApiServiceProvider.overrideWith((_) async => mockJan3),
       ]);
 
       final provider = container.read(qrScannerProvider(null));
 
-      // Act
-      final result = await provider.parseQrAddressScan(zapperQrCode);
+      // No asset is passed, mirroring the real-world scanner flow.
+      // The backend is tried as a last resort for unrecognised QR codes;
+      // when it returns an error, parsing throws AddressParsingException.
+      await expectLater(
+        () => provider.parseQrAddressScan(zapperQrCode),
+        throwsA(isA<AddressParsingException>()),
+      );
+      verify(() => mockJan3.decodeMoneybadger(any())).called(1);
+    });
 
-      // Assert
-      expect(result, isNotNull);
-      expect(result, isA<QrScannerPopSendResult>());
+    test(
+        'pre-encoded QR (with @cryptoqr.net) is handled as a lightning address, not via the backend',
+        () async {
+      // The URL-encoded form ends with @cryptoqr.net, so it matches the
+      // lightning address format (user@domain) and goes directly through
+      // _parseLightningAddress — the Moneybadger backend is never called.
+      const encodedQrCode =
+          'http%3A%2F%2F2.zap.pe%3Ft%3D6%26i%3D40895%3A49955%3A7%5B34%7C29.99%7C11%2C33n%7CREF12345%7C10%3A10%5B39%7CZAR%2C38%7CDillonDev@cryptoqr.net';
 
-      final sendResult = result as QrScannerPopSendResult;
-      expect(sendResult.parsedAddress.asset, equals(Asset.lightning()));
-      // The address should be the URL-encoded version with @cryptoqr.net domain
-      expect(sendResult.parsedAddress.address, equals(expectedAddress));
+      final mockJan3 = MockJan3ApiService();
+      final mockLnurlService = MockLnurlService();
+      when(() => mockLnurlService.isValidLightningAddressFormat(any()))
+          .thenReturn(true);
+      when(() => mockLnurlService.convertLnAddressToWellKnown(any()))
+          .thenThrow(Exception('unreachable server'));
+
+      container = ProviderContainer(overrides: [
+        liquidProvider.overrideWithValue(mockLiquidProvider),
+        bitcoinProvider.overrideWithValue(mockBitcoinProvider),
+        balanceProvider.overrideWithValue(mockBalanceService),
+        prefsProvider.overrideWith((_) => mockPrefsProvider),
+        sharedPreferencesProvider.overrideWith((_) => mockSharedPreferences),
+        assetsProvider.overrideWith(() => MockAssetsNotifier(assets: [])),
+        jan3ApiServiceProvider.overrideWith((_) async => mockJan3),
+        lnurlProvider.overrideWithValue(mockLnurlService),
+      ]);
+
+      final provider = container.read(qrScannerProvider(null));
+
+      await expectLater(
+        () => provider.parseQrAddressScan(encodedQrCode),
+        throwsA(isA<AddressParsingException>()),
+      );
+
+      verifyNever(() => mockJan3.decodeMoneybadger(any()));
     });
 
     test('returns null when value is null', () async {

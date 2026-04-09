@@ -33,6 +33,13 @@ class MockTransactionStorageProvider
 
   @override
   Future<void> save(TransactionDbModel model) async => Future.value(null);
+
+  @override
+  Future<void> updateNoteByServiceOrderId({
+    required String serviceOrderId,
+    required String note,
+  }) async =>
+      Future.value(null);
 }
 
 class MockSideshiftStorageProvider

@@ -69,7 +69,9 @@ class MenuItemWidget extends StatelessWidget {
                       child: Text(
                         title,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: assetName == Svgs.support ? null : color),
+                            color: assetName == UiAssets.support.path
+                                ? null
+                                : color),
                       ),
                     ),
                   ),

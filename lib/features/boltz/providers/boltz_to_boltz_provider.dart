@@ -62,6 +62,6 @@ final fetchReverseSwapBip21Provider =
   } on DioException catch (e) {
     _logger.error(
         "fetchReverseSwapBip21 error: ${e.response?.statusCode}, ${e.response?.data}");
-    throw Exception(e);
+    throw Exception(e.message);
   }
 });

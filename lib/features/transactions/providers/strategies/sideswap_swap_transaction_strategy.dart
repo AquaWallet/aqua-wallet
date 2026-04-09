@@ -383,11 +383,11 @@ class SideswapSwapTransactionUiModelCreator extends TransactionUiModelCreator {
     final feeAmountFiat = convertToFiat(feeAsset, feeAmountSats);
 
     return AssetTransactionDetailsUiModel.swap(
-      transactionId: networkTxn.txhash ?? '',
+      transactionId: networkTxn.txhash,
       date: formatDate(networkTxn.createdAtTs),
       confirmationCount: confirmationCount,
       isPending: isPending,
-      notes: networkTxn.memo,
+      notes: args.dbTransaction?.note ?? networkTxn.memo,
       deliverAsset: deliveredAsset,
       receiveAsset: receivedAsset,
       deliverAmount: deliveredAmount,

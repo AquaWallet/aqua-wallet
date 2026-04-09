@@ -2,6 +2,7 @@ import 'package:aqua/common/common.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
+import 'package:aqua/features/note/note.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -24,7 +25,7 @@ class LightningTransactionReviewContent extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final input = ref.read(sendAssetInputStateProvider(args)).value!;
 
-    final unit = SupportedDisplayUnits.fromAssetInputUnit(input.inputUnit);
+    final unit = SupportedDisplayUnits.fromAssetInputUnit(input.cryptoUnit);
     final ticker = input.asset.getDisplayTicker(unit);
     final formatAmountForDisplay = ref.read(formatProvider).formatAssetAmount(
           asset: input.asset,
@@ -83,15 +84,26 @@ class LightningTransactionReviewContent extends HookConsumerWidget {
   }
 }
 
-class _RecipientAndFeeCard extends ConsumerWidget {
+class _RecipientAndFeeCard extends HookConsumerWidget {
   const _RecipientAndFeeCard({required this.args});
 
   final SendAssetArguments args;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final provider = sendAssetInputStateProvider(args);
     final asset = Asset.lbtc();
-    final input = ref.watch(sendAssetInputStateProvider(args)).value!;
+    final input = ref.watch(provider).value!;
+    final note = input.note;
+
+    final onNoteTap = useCallback(() async {
+      final text = await AquaBottomSheet.show(
+        context,
+        content: AddNoteForm(note: note),
+        colors: context.aquaColors,
+      );
+      ref.read(provider.notifier).updateNote(text);
+    }, [note]);
     final feesModel =
         ref.watch(transactionFeeStructureProvider(args.toFeeStructureArgs()));
     final fees = feesModel.valueOrNull?.mapOrNull(boltzSend: (f) => f);
@@ -100,7 +112,7 @@ class _RecipientAndFeeCard extends ConsumerWidget {
     final feeSats = fees?.estimatedOnchainFee ?? 0;
     final feeFiat =
         ref.watch(satsToFiatDisplayWithSymbolProvider(feeSats)).value;
-    final unit = SupportedDisplayUnits.fromAssetInputUnit(input.inputUnit);
+    final unit = SupportedDisplayUnits.fromAssetInputUnit(input.cryptoUnit);
     final feeCrypto = ref.watch(formatProvider).formatAssetAmount(
           amount: feeSats,
           asset: asset,
@@ -177,6 +189,16 @@ class _RecipientAndFeeCard extends ConsumerWidget {
             AquaListItem(
               title: context.loc.currentLiquidRate,
               subtitleTrailing: context.loc.satsPerVByte(feeRate),
+            ),
+            Divider(
+              height: 4,
+              thickness: 1,
+              color: context.aquaColors.surfaceSecondary,
+            ),
+            //ANCHOR - Note
+            NoteListItem(
+              note: note,
+              onTap: onNoteTap,
             ),
           ],
         ),

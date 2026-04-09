@@ -1,11 +1,9 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:aqua/utils/responsive_utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:ui_components/components/icon/icon.dart';
 import 'package:ui_components/components/surface/surface.dart';
 import 'package:ui_components/components/text/text.dart';
 
@@ -15,7 +13,7 @@ class MarketplaceTile extends HookConsumerWidget {
   final VoidCallback? onPressed;
   final VoidCallback? onDisabledPressed;
   final String? icon;
-  final AquaIcon Function({Color? color, required double size})? iconBuilder;
+  final Widget Function({Color? color, required double size})? iconBuilder;
   final bool isAuthRequired;
   final bool isDisabled;
 
@@ -31,7 +29,7 @@ class MarketplaceTile extends HookConsumerWidget {
     this.isDisabled = false,
   }) : assert(
           (icon != null) != (iconBuilder != null),
-          'Provide either icon or iconBuilder, not both or neither.',
+          'Provide exactly one of: icon or iconBuilder.',
         );
 
   @override
@@ -54,7 +52,6 @@ class MarketplaceTile extends HookConsumerWidget {
             : context.aquaColors.textSecondary,
         [isDisabled, darkMode]);
 
-    // Sets icon based on the iconBuilder function or the icon String.
     final Widget iconWidget = iconBuilder != null
         ? iconBuilder!(color: iconColor, size: iconSize)
         : SvgPicture.asset(
@@ -103,8 +100,8 @@ class MarketplaceTile extends HookConsumerWidget {
                   if (isAuthRequired) ...[
                     SvgPicture.asset(
                       darkMode
-                          ? Svgs.jan3MiniLogoWithAquaDark
-                          : Svgs.jan3MiniLogoWithAquaLight,
+                          ? UiAssets.svgs.dark.jan3MiniLogo.path
+                          : UiAssets.svgs.light.jan3MiniLogo.path,
                       height: 24,
                       width: 24,
                     ),

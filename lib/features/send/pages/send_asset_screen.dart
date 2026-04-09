@@ -2,6 +2,7 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/swaps.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -20,24 +21,25 @@ class SendAssetScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final args = useState(arguments);
     final input = ref.watch(sendAssetInputStateProvider(args.value));
-    final currentStep = ref.watch(sendFlowStepProvider);
+    final currentStep = useState<SendFlowStep?>(null);
 
     useEffect(() {
       final initialStep = input.value?.initialStep;
-      if (currentStep == null && input.hasValue && initialStep != null) {
+      if (currentStep.value == null && input.hasValue && initialStep != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(sendFlowStepProvider.notifier).setStep(initialStep);
+          currentStep.value = initialStep;
         });
       }
       return null;
-    }, [input, currentStep]);
+    }, [input, currentStep.value]);
 
     final goToStep = useCallback((SendFlowStep step) {
-      ref.read(sendFlowStepProvider.notifier).setStep(step);
+      currentStep.value = step;
     }, []);
 
     final onAmountSubmit = useCallback(() {
       ref.invalidate(sendAssetFeeOptionsProvider(args.value));
+      ref.invalidate(sendAssetSetupProvider(args.value));
       goToStep(SendFlowStep.review);
     }, [args.value, goToStep]);
 
@@ -45,6 +47,7 @@ class SendAssetScreen extends HookConsumerWidget {
       () => [
         SendAssetAddressPage(
           arguments: args.value,
+          onStepReset: () => currentStep.value = SendFlowStep.address,
           onContinuePressed: (arguments, address, amount) async {
             final inputState =
                 ref.read(sendAssetInputStateProvider(args.value)).valueOrNull;
@@ -90,7 +93,7 @@ class SendAssetScreen extends HookConsumerWidget {
             }
           },
         ),
-        NetworkSelectionPage(args: args),
+        NetworkSelectionPage(args: args, goToStep: goToStep),
         SendAssetAmountPage(
           args: args.value,
           onContinuePressed: onAmountSubmit,
@@ -100,19 +103,14 @@ class SendAssetScreen extends HookConsumerWidget {
           onConfirmed: () => ref
               .read(sendAssetTxnProvider(args.value).notifier)
               .executeGdkSendTransaction(),
-          onErrorButtonTap: () => ref
-              .read(sendFlowStepProvider.notifier)
-              .goBack(to: SendFlowStep.amount),
+          onErrorButtonTap: () => currentStep.value = SendFlowStep.amount,
         ),
       ],
       [args.value, goToStep, onAmountSubmit],
     );
 
     final onAppBarBackPressed = useCallback(() {
-      final previousStep = ref.read(sendFlowStepProvider.notifier).goBack();
-      if (previousStep == null) {
-        context.pop();
-      }
+      context.pop();
     }, []);
 
     // swap providers
@@ -134,17 +132,33 @@ class SendAssetScreen extends HookConsumerWidget {
         _logger.debug("Taxi state: ${next.value}");
       })
       ..listen(sendAssetTxnProvider(args.value), (_, value) {
-        value.asData?.value.whenOrNull(complete: (args) {
-          _logger.debug("${args.network.name} txn complete: ${args.txId}");
+        value.asData?.value.whenOrNull(complete: (completionArgs) {
+          _logger.debug(
+              "${completionArgs.network.name} txn complete: ${completionArgs.txId}");
+
+          final note = ref
+              .read(sendAssetInputStateProvider(args.value))
+              .valueOrNull
+              ?.note;
+          final serviceOrderId = completionArgs.serviceOrderId;
+          if (note != null && serviceOrderId != null) {
+            ref
+                .read(transactionStorageProvider.notifier)
+                .updateNoteByServiceOrderId(
+                  serviceOrderId: serviceOrderId,
+                  note: note,
+                );
+          }
+
           context.push(
             AssetTransactionSuccessScreen.routeName,
-            extra: args,
+            extra: completionArgs,
           );
         });
       });
 
     return PopScope(
-      canPop: currentStep == SendFlowStep.address,
+      canPop: currentStep.value == SendFlowStep.address,
       onPopInvoked: (didPop) {
         if (!didPop) {
           onAppBarBackPressed();
@@ -153,7 +167,7 @@ class SendAssetScreen extends HookConsumerWidget {
       child: DesignRevampScaffold(
         appBar: AquaTopAppBar(
           showBackButton: true,
-          title: switch (currentStep) {
+          title: switch (currentStep.value) {
             SendFlowStep.review => context.loc.confirmSend,
             SendFlowStep.network => context.loc.selectNetwork,
             _ => context.loc.send,
@@ -163,6 +177,7 @@ class SendAssetScreen extends HookConsumerWidget {
         ),
         body: SafeArea(
           child: SendFlowPageView(
+            currentStep: currentStep.value,
             children: stepPages,
           ),
         ),

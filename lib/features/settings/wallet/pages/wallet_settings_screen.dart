@@ -29,7 +29,8 @@ class WalletSettingsScreen extends HookConsumerWidget with AuthGuardMixin {
     final showWatchOnly = currentWallet?.id ==
         walletId; // watch only is only available for the current wallet
     final wallets = ref.watch(storedWalletsProvider).valueOrNull?.wallets ?? [];
-    final wallet = wallets.firstWhereOrNull((wallet) => wallet.id == walletId);
+    final wallet =
+        ref.watch(storedWalletsProvider).valueOrNull?.getWalletById(walletId);
 
     final onDeleteWallet = useCallback((StoredWallet wallet) {
       AquaModalSheet.show(

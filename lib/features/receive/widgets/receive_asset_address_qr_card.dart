@@ -88,7 +88,8 @@ shareWidgetAsImage(GlobalKey widgetKey) async {
   await file.writeAsBytes(bytes);
 
   // Share the file
-  await Share.shareXFiles([XFile(file.path)]);
+  final origin = boundary.localToGlobal(Offset.zero) & boundary.size;
+  await Share.shareXFiles([XFile(file.path)], sharePositionOrigin: origin);
 }
 
 class ReceiveAssetAddressQrCard extends HookWidget {

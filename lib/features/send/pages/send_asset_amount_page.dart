@@ -26,9 +26,6 @@ class SendAssetAmountPage extends HookConsumerWidget {
     final provider = useMemoized(() => sendAssetInputStateProvider(args));
     final notifier = useMemoized(() => ref.read(provider.notifier));
     final input = ref.watch(provider).valueOrNull;
-    final isDisplayUnitsEnabled = ref.watch(
-      featureFlagsProvider.select((p) => p.displayUnitsEnabled),
-    );
 
     //NOTE: The input state is null for a few milliseconds at the startup,
     // This check avoids a crash. Circular progress indicator is almost not shown.
@@ -65,6 +62,7 @@ class SendAssetAmountPage extends HookConsumerWidget {
               context: context,
               decoratorType: TooltipExceptionDecorator,
               balanceDisplay: input.balanceDisplay,
+              sendInput: input,
             ),
           ))
         : null;
@@ -75,6 +73,7 @@ class SendAssetAmountPage extends HookConsumerWidget {
               context: context,
               decoratorType: InputFieldExceptionDecorator,
               balanceDisplay: input.balanceDisplay,
+              sendInput: input,
             ),
           ))
         : null;
@@ -179,29 +178,14 @@ class SendAssetAmountPage extends HookConsumerWidget {
                   const SizedBox.shrink()
                 },
                 //ANCHOR - Fiat Currency Picker
-                if (isSatsAsset && isDisplayUnitsEnabled) ...[
+                if (isSatsAsset) ...[
                   UnitCurrencyChip(
                     key: currencyChipKey,
                     asset: args.asset,
                     rate: input.rate,
-                    unit: input.inputUnit,
-                    showUnit: true,
-                    onTap: () async {
-                      final result = await context.push(
-                        UnitCurrencySelectionScreen.routeName,
-                        extra: UnitCurrencySelectionArguments(
-                          asset: args.asset,
-                          allowUnitSelection: true,
-                          currentRate: input.rate,
-                          currentUnit: input.inputUnit,
-                        ),
-                      );
-                      if (result is UnitCurrencySelectionArguments) {
-                        ref.read(provider.notifier)
-                          ..setRate(result.currentRate)
-                          ..setUnit(result.currentUnit);
-                      }
-                    },
+                    unit: input.cryptoUnit,
+                    showUnit:
+                        args.asset.hasFiatRate && input.isCryptoAmountInput,
                   ),
                 ]
               ],
@@ -220,7 +204,7 @@ class SendAssetAmountPage extends HookConsumerWidget {
                     !args.asset.isInternal ? args.asset.logoUrl : null,
                 ticker: args.asset.ticker,
                 type: input.inputType,
-                unit: input.inputUnit,
+                unit: input.cryptoUnit,
                 balance: input.balanceDisplay,
                 balanceLabel: context.loc.balanceLabel,
                 conversionAmount: input.displayConversionAmount ?? '',
@@ -274,7 +258,7 @@ class SendAssetAmountPage extends HookConsumerWidget {
             ],
             //ANCHOR - Numpad
             AquaNumpad(
-              decimalAllowed: !input.isSatsUnit,
+              decimalAllowed: input.isFiatAmountInput || !input.isSatsUnit,
               decimalSeparator: decimalSeparator,
               onKeyPressed: (key) => controller.addKey(
                 key,

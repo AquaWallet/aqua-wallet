@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aqua/features/account/models/models.dart';
 import 'package:aqua/features/wallet/models/wallet_state.dart';
 import 'package:aqua/features/wallet/providers/stored_wallets_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,4 +26,11 @@ class MockStoredWalletsNotifier extends AsyncNotifier<WalletState>
     dynamic samRockAppLink,
     WalletOperationType? operationType,
   }) async {}
+
+  @override
+  Future<void> updateWalletWithProfile(
+    String walletId,
+    ProfileResponse? profile,
+    AuthTokenResponse? authToken,
+  ) async {}
 }

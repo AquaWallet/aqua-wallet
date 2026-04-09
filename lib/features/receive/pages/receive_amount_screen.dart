@@ -16,6 +16,8 @@ class ReceiveAmountArguments {
     this.swapPair,
     this.minLimit,
     this.maxLimit,
+    this.minLimitSats,
+    this.maxLimitSats,
     this.onContinuePressed,
     this.isAmountCompulsory = false,
   });
@@ -24,6 +26,8 @@ class ReceiveAmountArguments {
   final SwapPair? swapPair;
   final String? minLimit;
   final String? maxLimit;
+  final int? minLimitSats;
+  final int? maxLimitSats;
   final VoidCallback? onContinuePressed;
   final bool isAmountCompulsory;
 }
@@ -58,9 +62,6 @@ class ReceiveAmountScreen extends HookConsumerWidget {
       text: input?.amountFieldText,
     );
     final isStableCoin = args.asset.isNonSatsAsset;
-    final isDisplayUnitsEnabled = ref.watch(
-      featureFlagsProvider.select((p) => p.displayUnitsEnabled),
-    );
 
     if (input == null) {
       return const SizedBox.shrink();
@@ -149,39 +150,15 @@ class ReceiveAmountScreen extends HookConsumerWidget {
               children: [
                 const SizedBox(height: 22),
                 //ANCHOR - Fiat Currency Picker
-                if (!isStableCoin && isDisplayUnitsEnabled) ...[
+                if (!isStableCoin) ...[
                   Align(
                     alignment: Alignment.centerRight,
                     child: UnitCurrencyChip(
                       key: currencyChipKey,
                       asset: args.asset,
                       rate: input.rate,
-                      unit: input.inputUnit,
-                      showUnit: args.asset.hasFiatRate,
-                      onTap: () async {
-                        final result = await context.push(
-                          UnitCurrencySelectionScreen.routeName,
-                          extra: UnitCurrencySelectionArguments(
-                            asset: args.asset,
-                            allowUnitSelection: args.asset.hasFiatRate,
-                            currentRate: input.rate,
-                            currentUnit: input.inputUnit,
-                          ),
-                        );
-                        if (result is UnitCurrencySelectionArguments) {
-                          if (input.rate.currency.value !=
-                              result.currentRate.currency.value) {
-                            ref
-                                .read(inputNotifier.notifier)
-                                .setRate(result.currentRate);
-                          }
-                          if (input.inputUnit != result.currentUnit) {
-                            ref
-                                .read(inputNotifier.notifier)
-                                .setUnit(result.currentUnit);
-                          }
-                        }
-                      },
+                      unit: input.cryptoUnit,
+                      showUnit: args.asset.hasFiatRate && input.isCryptoInput,
                     ),
                   ),
                 ],
@@ -198,7 +175,7 @@ class ReceiveAmountScreen extends HookConsumerWidget {
                     assetIconUrl: args.asset.logoUrl,
                     ticker: args.asset.ticker,
                     type: input.inputType,
-                    unit: input.inputUnit,
+                    unit: input.cryptoUnit,
                     balance: input.balanceDisplay,
                     balanceLabel: context.loc.balanceLabel,
                     conversionAmount: input.displayConversionAmount,
@@ -215,11 +192,16 @@ class ReceiveAmountScreen extends HookConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (args.minLimit != null && args.maxLimit != null)
+                if (args.minLimitSats != null && args.maxLimitSats != null)
                   AssetAmountLimitsDisplay(
-                    asset: args.asset,
-                    minLimit: args.minLimit,
-                    maxLimit: args.maxLimit,
+                    args: args,
+                    minLimitSats: args.minLimitSats!,
+                    maxLimitSats: args.maxLimitSats!,
+                  )
+                else if (args.minLimit != null && args.maxLimit != null)
+                  AssetAmountLimitsDisplay.static(
+                    minLimit: args.minLimit!,
+                    maxLimit: args.maxLimit!,
                   ),
                 const Spacer(),
                 if (tooltipError?.isNotEmpty == true) ...[
@@ -232,7 +214,7 @@ class ReceiveAmountScreen extends HookConsumerWidget {
                 ],
                 //ANCHOR - Numpad
                 AquaNumpad(
-                  decimalAllowed: !input.isSatsUnit,
+                  decimalAllowed: input.isFiatInput || !input.isSatsUnit,
                   onKeyPressed: (key) => amountController.addKey(
                     key,
                     decimalSeparator: decimalSeparator,

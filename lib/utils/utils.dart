@@ -45,3 +45,21 @@ class Throttler {
     _timer?.cancel();
   }
 }
+
+Future<T?> retryAsync<T>(
+  Future<T?> Function() operation,
+  bool Function(T?) successCondition,
+  int maxRetries,
+  Duration delay,
+) async {
+  for (int i = 0; i <= maxRetries; i++) {
+    final result = await operation();
+    if (successCondition(result)) {
+      return result;
+    }
+    if (i < maxRetries) {
+      await Future.delayed(delay);
+    }
+  }
+  return null; // Indicate failure after max retries
+}

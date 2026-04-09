@@ -21,7 +21,7 @@ class WalletRecoveryQRScreen extends HookConsumerWidget {
         showActionButton: true,
         iconBackgroundColor: Theme.of(context).colors.background,
         iconForegroundColor: Theme.of(context).colors.onBackground,
-        actionButtonAsset: Svgs.close,
+        actionButtonAsset: UiAssets.cross.path,
         actionButtonIconSize: 13.0,
         onActionButtonPressed: () => context.pop(),
       ),

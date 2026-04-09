@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
+import 'package:aqua/features/transactions/exceptions/transaction_exceptions.dart';
 import 'package:aqua/features/wallet/providers/providers.dart';
 import 'package:aqua/logger.dart';
 import 'package:boltz/boltz.dart';
@@ -61,9 +62,21 @@ abstract class TransactionStorage {
     required int fee,
   });
 
+  /// Throws [TransactionNotFoundException] if transaction not found
   Future<void> updateTransactionNote({
     required String txHash,
     required String note,
+  });
+
+  Future<void> updateNoteByServiceOrderId({
+    required String serviceOrderId,
+    required String note,
+  });
+
+  /// Finds existing transaction by txHash or creates minimal one
+  /// Returns the transaction (existing or newly created)
+  Future<TransactionDbModel> findOrCreateTransaction({
+    required String txHash,
   });
 
   Future<void> clearFromMemory();
@@ -75,8 +88,9 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
   FutureOr<List<TransactionDbModel>> build() async {
     final storage = await ref.watch(storageProvider.future);
 
-    // Use the storage-backed provider to avoid circular dependency with storedWalletsProvider
-    final walletId = await ref.watch(currentWalletIdProvider.future);
+    final secureStorage = ref.read(secureStorageProvider);
+    final (walletId, _) = await secureStorage.get(StorageKeys.currentWalletId);
+
     if (walletId == null) {
       return [];
     }
@@ -316,22 +330,41 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
   }
 
   @override
-  Future<void> updateTransactionNote({
-    required String txHash,
+  Future<void> updateNoteByServiceOrderId({
+    required String serviceOrderId,
     required String note,
   }) async {
     final storage = await ref.read(storageProvider.future);
     await storage.writeTxn(() async {
       final transaction = await storage.transactionDbModels
           .filter()
+          .serviceOrderIdEqualTo(serviceOrderId)
+          .findFirst();
+      if (transaction != null) {
+        await storage.transactionDbModels.put(transaction.copyWith(note: note));
+      }
+    });
+
+    await _reloadCurrentWalletTransactions();
+  }
+
+  @override
+  Future<void> updateTransactionNote({
+    required String txHash,
+    required String note,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+    final walletId =
+        await ref.read(storedWalletsProvider.notifier).getCurrentWalletId();
+    await storage.writeTxn(() async {
+      final transaction = await storage.transactionDbModels
+          .filter()
+          .walletIdEqualTo(walletId)
           .txhashEqualTo(txHash)
           .findFirst();
 
       if (transaction == null) {
-        logger.warning(
-            '[Transactions] No DB transaction found for TX ID: $txHash. Creating one.');
-        final transaction = TransactionDbModel(txhash: txHash, note: note);
-        return await storage.transactionDbModels.put(transaction);
+        throw TransactionNotFoundException(txHash, walletId: walletId);
       }
 
       final updated = transaction.copyWith(note: note);
@@ -339,6 +372,34 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
     });
 
     await _reloadCurrentWalletTransactions();
+  }
+
+  @override
+  Future<TransactionDbModel> findOrCreateTransaction({
+    required String txHash,
+  }) async {
+    final storage = await ref.read(storageProvider.future);
+    final walletId =
+        await ref.read(storedWalletsProvider.notifier).getCurrentWalletId();
+
+    return await storage.writeTxn(() async {
+      final existing = await storage.transactionDbModels
+          .filter()
+          .walletIdEqualTo(walletId)
+          .txhashEqualTo(txHash)
+          .findFirst();
+
+      if (existing != null) {
+        return existing;
+      }
+
+      final newTransaction = TransactionDbModel(
+        txhash: txHash,
+        walletId: walletId,
+      );
+      await storage.transactionDbModels.put(newTransaction);
+      return newTransaction;
+    });
   }
 
   //ANCHOR: Clear

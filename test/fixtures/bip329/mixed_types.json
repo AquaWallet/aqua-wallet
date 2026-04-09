@@ -1,0 +1,3 @@
+{"type":"tx","ref":"txhash1","label":"Tx Note"}
+{"type":"address","ref":"addr1","label":"Address Note"}
+{"type":"pubkey","ref":"pubkey1","label":"Pubkey Note"}

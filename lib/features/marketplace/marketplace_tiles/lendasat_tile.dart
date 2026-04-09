@@ -1,4 +1,3 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/lending/pages/loans_listings_screen.dart';
 import 'package:aqua/features/marketplace/widgets/marketplace_tile.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -12,7 +11,7 @@ class LendasatTile extends StatelessWidget {
     return MarketplaceTile(
       title: context.loc.marketplaceScreenLendasatButton,
       subtitle: context.loc.marketplaceScreenLendasatButtonDescription,
-      icon: Svgs.walletSend,
+      icon: UiAssets.walletSend.path,
       onPressed: () => context.push(
         LoansListingsScreen.routeName,
       ),

@@ -1,6 +1,25 @@
+import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
 import 'package:aqua/features/settings/region/models/region.dart';
 
 class RegionsIntegrations {
+  /// Returns the list of supported regions for a given service type,
+  /// or null if the service has no region restriction.
+  static List<Region>? supportedRegions(MarketplaceServiceType type) {
+    return switch (type) {
+      MarketplaceServiceType.chapsmart => chapsmartRegions,
+      MarketplaceServiceType.moneybadger => moneybadgerRegions,
+      _ => null,
+    };
+  }
+
+  // Chapsmart supports only Tanzania for now but it should grow to all countries that use M-PESA.
+  static List<Region> get chapsmartRegions => [
+        Region(name: 'Tanzania', iso: 'TZ'),
+      ];
+  static List<Region> get moneybadgerRegions => [
+        Region(name: 'South Africa', iso: 'ZA'),
+      ];
+
   // Pocket excludes these regions: Albania, Kosovo, Belarus, Bosnia and Herzegovina, Cyprus, United Kingdom, Ireland, Isle of Man, Malta, Monaco, Turkey and Ukraine
   static List<Region> get pocketBitcoinRegions => [
         Region(name: 'Andorra', iso: 'AD'),

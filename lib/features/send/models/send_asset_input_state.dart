@@ -30,7 +30,7 @@ class SendAssetInputState with _$SendAssetInputState {
     String? displayConversionAmount,
     String? usdtCryptoAmount,
     required ExchangeRate rate,
-    @Default(AquaAssetInputUnit.crypto) AquaAssetInputUnit inputUnit,
+    @Default(AquaAssetInputUnit.crypto) AquaAssetInputUnit cryptoUnit,
     @Default(AquaAssetInputType.crypto) AquaAssetInputType inputType,
     @Default(false) bool isSendAllFunds,
     LNURLParseResult? lnurlData,
@@ -54,7 +54,7 @@ extension SendAssetInputStateX on SendAssetInputState {
   int get precision {
     if (inputType == AquaAssetInputType.crypto) {
       if (asset.isBTC || asset.isLBTC || asset.isLightning) {
-        return SupportedDisplayUnits.fromAssetInputUnit(inputUnit)
+        return SupportedDisplayUnits.fromAssetInputUnit(cryptoUnit)
             .getDisplayPrecision(asset);
       }
       return asset.precision;
@@ -113,7 +113,7 @@ extension SendAssetInputStateX on SendAssetInputState {
 
   bool get isUsdtFeeAsset => feeAsset == FeeAsset.tetherUsdt;
 
-  bool get isSatsUnit => inputUnit == AquaAssetInputUnit.sats;
+  bool get isSatsUnit => cryptoUnit == AquaAssetInputUnit.sats;
 
   SendFlowStep get initialStep {
     // externalSweepPrivKey

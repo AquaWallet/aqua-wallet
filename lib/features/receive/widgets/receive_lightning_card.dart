@@ -1,10 +1,8 @@
-import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/models/lightning_success_arguments.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:aqua/features/wallet/providers/display_units_provider.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:decimal/decimal.dart';
@@ -21,25 +19,8 @@ class ReceiveLightningCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final boltzUiState = ref.watch(boltzReverseSwapProvider);
     final reverseFees = ref.watch(boltzReverseFeesProvider).valueOrNull;
-    final formatter = ref.read(formatProvider);
-    final unitsProvider = ref.read(displayUnitsProvider);
-    final currentUnit = unitsProvider.currentDisplayUnit;
-    final currencyUnit = currentUnit.value.toLowerCase();
-
-    final minAmountFormatted = formatter.formatAssetAmount(
-      amount: reverseFees?.lbtcLimits.minimal.toInt() ?? 0,
-      asset: args.asset,
-      displayUnitOverride: currentUnit,
-    );
-    final maxAmountFormatted = formatter.formatAssetAmount(
-      amount: reverseFees?.lbtcLimits.maximal.toInt() ?? 0,
-      asset: args.asset,
-      displayUnitOverride: currentUnit,
-    );
-    final minLimit =
-        reverseFees != null ? '$minAmountFormatted $currencyUnit' : null;
-    final maxLimit =
-        reverseFees != null ? '$maxAmountFormatted $currencyUnit' : null;
+    final minLimitSats = reverseFees?.lbtcLimits.minimal.toInt();
+    final maxLimitSats = reverseFees?.lbtcLimits.maximal.toInt();
     final boltzOrder = useMemoized(
       () => boltzUiState.mapOrNull(qrCode: (s) => s.swap),
       [boltzUiState],
@@ -90,8 +71,8 @@ class ReceiveLightningCard extends HookConsumerWidget {
             ReceiveAmountScreen.routeName,
             extra: ReceiveAmountArguments(
               asset: args.asset,
-              minLimit: minLimit,
-              maxLimit: maxLimit,
+              minLimitSats: minLimitSats,
+              maxLimitSats: maxLimitSats,
               onContinuePressed: () {
                 final amount = ref.read(receiveAssetAmountProvider);
                 ref

@@ -130,11 +130,7 @@ class WelcomeScreen extends HookConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.max,
               children: [
-                const SizedBox(height: 68),
-                AquaIcon.aquaLogo(
-                  size: 40,
-                  color: AquaPrimitiveColors.palatinateBlue750,
-                ),
+                const ScreenLogoHeader(),
                 const Spacer(),
                 //ANCHOR - Create Button
                 AquaButton.primary(

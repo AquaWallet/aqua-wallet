@@ -40,7 +40,7 @@ class ConfirmedTransactionUiModelsBuilder implements TransactionUiModelBuilder {
       // Check if this transaction matches a direct peg-in order
       if (dbTxn == null && pegOrders != null) {
         final pegOrder = pegOrders.findMatchingOrder(
-          transactionId: txn.txhash!,
+          transactionId: txn.txhash,
           asset: args.asset,
           outputs: txn.outputs,
         );

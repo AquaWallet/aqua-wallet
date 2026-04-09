@@ -1,7 +1,6 @@
 import 'package:aqua/common/data_conversion/bip21_encoder.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/elements.dart';
-import 'package:aqua/features/address_validator/money_badger_validator.dart';
 import 'package:aqua/features/address_validator/utils/base58_address_validator.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
@@ -16,6 +15,7 @@ import 'package:boltz/boltz.dart';
 import 'package:decimal/decimal.dart';
 
 import 'models/address_validator_models.dart';
+import 'moneybadger_decode_provider.dart';
 
 final altUsdtValidatorMap = {
   /// Basic Eth validation.
@@ -142,8 +142,19 @@ class AddressParser {
       } else {
         return [ref.read(manageAssetsProvider).lbtcAsset];
       }
-    }
+    } // We only call moneybadger/decode if we didn't find a matching asset
+    final parsed = await _decodeMoneybadger(address);
+    if (parsed != null) return [Asset.lightning()];
     return [];
+  }
+
+  Future<ParsedAddress?> _decodeMoneybadger(String input) async {
+    final decoded =
+        await ref.read(moneybadgerDecodeProvider.notifier).decode(input);
+    if (decoded != null && decoded.isNotEmpty) {
+      return await _parseLightningAddress(decoded);
+    }
+    return null;
   }
 
   /// Parse an `input` into a `ParsedAddress` (address + amount).
@@ -198,17 +209,20 @@ class AddressParser {
         if (detectedAsset != null && !detectedAsset.isLayerTwo) {
           throw AddressParsingException(
               AddressParsingExceptionType.nonMatchingAssetId);
-        } else if (isValidLightningAddressFormat(input)) {
+        }
+
+        if (isValidLightningAddressFormat(input)) {
           return await _parseLightningAddress(input);
-        } else if (isValidLNURL(input)) {
+        }
+
+        if (isValidLNURL(input)) {
           return await _parseLNURL(input);
-        } else if (isMoneyBadgerLightningAddress(input)) {
-          final lightningAddress =
-              convertMoneyBadgerQRToLightningAddress(input);
-          if (lightningAddress != null) {
-            return await _parseLightningAddress(lightningAddress);
-          }
-        } else if (isLightningInvoice(input: input)) {
+        }
+
+        final parsed = await _decodeMoneybadger(input);
+        if (parsed != null) return parsed;
+
+        if (isLightningInvoice(input: input)) {
           final submarineFees = await ref
               .read(boltzFeesProvider.future)
               .then((value) => value.submarine());
@@ -590,8 +604,7 @@ extension AddressParserExt on AddressParser {
     return isBip21WithInvoice(input: input) ||
         isLightningInvoice(input: input) ||
         isValidLightningAddressFormat(input) ||
-        isValidLNURL(input) ||
-        isSpecialLightningAddressFormat(input);
+        isValidLNURL(input);
   }
 
   /// Initial check is valid standard lightning address format. However, since a lightning address `user@jan3.com` is really just in an email format,
@@ -599,17 +612,6 @@ extension AddressParserExt on AddressParser {
   /// The real test of a lightning address is to try to convert it to a well-known lnurlp address, in `convertLnAddressToWellKnown` and make a request to it.
   bool isValidLightningAddressFormat(String input) {
     return ref.read(lnurlProvider).isValidLightningAddressFormat(input);
-  }
-
-  /// Checks if the input matches any special lightning address format
-  /// Currently supports:
-  /// - MoneyBadger QR codes
-  ///
-  /// This method serves as an extension point for future special lightning
-  /// address formats that may require custom parsing logic
-  bool isSpecialLightningAddressFormat(String input) {
-    return isMoneyBadgerLightningAddress(input);
-    // Add other special lightning address formats here in the future
   }
 
   /// Check is valid LNURL
@@ -747,19 +749,5 @@ extension AddressParserExt on AddressParser {
   /// Basic check for TON address
   bool isTonAddress(String address) {
     return RegExp(altUsdtValidatorMap[Asset.usdtTon().id]!).hasMatch(address);
-  }
-}
-
-extension MoneyBadgerValidatorExt on AddressParser {
-  bool isMoneyBadgerLightningAddress(String input) {
-    return MoneyBadgerValidator.isValidRetailerQR(input);
-  }
-
-  /// Convert MoneyBadger QR to Lightning address if valid
-  String? convertMoneyBadgerQRToLightningAddress(String input) {
-    final env = ref.read(envProvider);
-    final isTestnet = env != Env.mainnet;
-    return MoneyBadgerValidator.convertToLightningAddress(input,
-        isTestnet: isTestnet);
   }
 }

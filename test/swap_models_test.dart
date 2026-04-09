@@ -1,8 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
-import 'package:aqua/config/constants/svgs.dart';
+import 'package:aqua/features/swaps/swaps.dart';
+import 'package:aqua/gen/assets.gen.dart';
 import 'package:decimal/decimal.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('SwapAssetExt', () {
@@ -14,7 +14,7 @@ void main() {
       expect(asset.id, equals(AssetIds.btc));
       expect(asset.name, equals('Bitcoin'));
       expect(asset.ticker, equals('BTC'));
-      expect(asset.logoUrl, equals(Svgs.btcAsset));
+      expect(asset.logoUrl, equals(UiAssets.assetIcons.btc.path));
       expect(asset.isDefaultAsset, isFalse);
       expect(asset.isLiquid, isFalse);
       expect(asset.isLBTC, isFalse);
@@ -34,15 +34,24 @@ void main() {
     });
 
     test('getLogoUrl returns correct logo for various assets', () {
-      expect(SwapAssetExt.btc.getLogoUrl(), equals(Svgs.btcAsset));
-      expect(SwapAssetExt.usdtEth.getLogoUrl(), equals(Svgs.ethUsdtAsset));
-      expect(SwapAssetExt.usdtTrx.getLogoUrl(), equals(Svgs.tronUsdtAsset));
-      expect(SwapAssetExt.usdtBep.getLogoUrl(), equals(Svgs.bepUsdtAsset));
-      expect(SwapAssetExt.usdtSol.getLogoUrl(), equals(Svgs.solUsdtAsset));
-      expect(SwapAssetExt.usdtPol.getLogoUrl(), equals(Svgs.polUsdtAsset));
-      expect(SwapAssetExt.usdtTon.getLogoUrl(), equals(Svgs.tonUsdtAsset));
-      expect(SwapAssetExt.usdtLiquid.getLogoUrl(), equals(Svgs.usdtAsset));
-      expect(SwapAssetExt.lbtc.getLogoUrl(), equals(Svgs.unknownAsset));
+      expect(
+          SwapAssetExt.btc.getLogoUrl(), equals(UiAssets.assetIcons.btc.path));
+      expect(SwapAssetExt.usdtEth.getLogoUrl(),
+          equals(UiAssets.assetIcons.ethusdt.path));
+      expect(SwapAssetExt.usdtTrx.getLogoUrl(),
+          equals(UiAssets.assetIcons.tronusdt.path));
+      expect(SwapAssetExt.usdtBep.getLogoUrl(),
+          equals(UiAssets.assetIcons.bepusdt.path));
+      expect(SwapAssetExt.usdtSol.getLogoUrl(),
+          equals(UiAssets.assetIcons.solusdt.path));
+      expect(SwapAssetExt.usdtPol.getLogoUrl(),
+          equals(UiAssets.assetIcons.polusdt.path));
+      expect(SwapAssetExt.usdtTon.getLogoUrl(),
+          equals(UiAssets.assetIcons.tonusdt.path));
+      expect(SwapAssetExt.usdtLiquid.getLogoUrl(),
+          equals(UiAssets.assetIcons.usdt.path));
+      expect(SwapAssetExt.lbtc.getLogoUrl(),
+          equals(UiAssets.assetIcons.assetUnknown.path));
     });
 
     test('fromAsset creates SwapAsset correctly', () {
@@ -50,7 +59,7 @@ void main() {
         id: AssetIds.btc,
         name: 'Bitcoin',
         ticker: 'BTC',
-        logoUrl: Svgs.btcAsset,
+        logoUrl: UiAssets.assetIcons.btc.path,
         isDefaultAsset: false,
         isLiquid: false,
         isLBTC: false,

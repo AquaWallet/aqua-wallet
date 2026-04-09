@@ -2,8 +2,10 @@ import 'dart:ui' as ui;
 
 import 'package:aqua/config/router/go_router.dart';
 import 'package:aqua/constants.dart';
+import 'package:aqua/data/provider/isar_export_provider.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/theme_provider.dart';
+import 'package:aqua/features/notifications/notifications_service.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/settings/shared/providers/auto_lock_provider.dart';
@@ -130,13 +132,18 @@ class AquaApp extends HookConsumerWidget {
       return null;
     }, [theme]);
 
-    // Defer secure storage check to after initial rendering
+    // Defer secure storage check and initialize notifications service after initial rendering
     useEffect(
       () {
         // Schedule this operation with a lower priority
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Future.microtask(() {
+          Future.microtask(() async {
             ref.read(aquaProvider).clearSecureStorageOnReinstall();
+
+            // Initialize notifications service
+            final notificationService = ref.read(notificationsServiceProvider);
+            await notificationService.initialize();
+            await notificationService.createAllNotificationChannels();
           });
         });
         return null;
@@ -144,6 +151,7 @@ class AquaApp extends HookConsumerWidget {
       [],
     );
 
+    ref.watch(isarExportServiceProvider);
     return CustomPaint(
       painter: PreloadBackgroundPainter(
         isBotevMode: botevMode,

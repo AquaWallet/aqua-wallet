@@ -21,6 +21,7 @@ export 'generic_error_widget.dart';
 export 'label_copyable_text_view.dart';
 export 'outlined_buttons.dart';
 export 'rounded_icon_button.dart';
+export 'screen_logo_header.dart';
 export 'themed_scaffold.dart';
 export 'tight_expand_icon.dart';
 export 'transaction_processing_animation.dart';

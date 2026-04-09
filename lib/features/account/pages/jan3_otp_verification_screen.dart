@@ -24,7 +24,8 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
     final pinFocusNode = useFocusNode();
     final isDark =
         ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
-    final profileState = ref.watch(jan3AuthProvider);
+    final walletId = ref.watch(currentWalletIdSyncProvider);
+    final profileState = ref.watch(jan3AuthProvider(walletId));
 
     final isOtpValid = useMemoized(() {
       return otp.value.length == otpDigitCount;
@@ -69,7 +70,7 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
         showActionButton: false,
         shouldPopOnCustomBack: true,
         onBackPressed: () {
-          ref.invalidate(jan3AuthProvider);
+          ref.invalidate(jan3AuthProvider(walletId));
         },
       ),
       body: SafeArea(
@@ -124,7 +125,7 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
                 description: context.loc.otpScreenNotYourEmail,
                 tappableText: context.loc.otpScreenChangeEmail,
                 onTap: () {
-                  ref.invalidate(jan3AuthProvider);
+                  ref.invalidate(jan3AuthProvider(walletId));
                   context.pop();
                 },
               ),
@@ -146,7 +147,7 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
                   if (profileState.isLoading) {
                     return;
                   }
-                  ref.read(jan3AuthProvider.notifier).verifyOtp(
+                  ref.read(jan3AuthProvider(walletId).notifier).verifyOtp(
                         email: email,
                         otp: otp.value,
                       );
@@ -187,7 +188,7 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
                 onTap: () {
                   final language =
                       ref.read(languageProvider(context)).currentLanguage;
-                  ref.read(jan3AuthProvider.notifier).sendOtp(
+                  ref.read(jan3AuthProvider(walletId).notifier).sendOtp(
                         email,
                         language,
                       );
@@ -198,10 +199,11 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
               AquaElevatedButton(
                 onPressed: (profileState.isLoading || !isOtpValid)
                     ? null
-                    : () => ref.read(jan3AuthProvider.notifier).verifyOtp(
-                          email: email,
-                          otp: otp.value,
-                        ),
+                    : () =>
+                        ref.read(jan3AuthProvider(walletId).notifier).verifyOtp(
+                              email: email,
+                              otp: otp.value,
+                            ),
                 child: profileState.isLoading
                     ? const CircularProgressIndicator()
                     : Text(context.loc.verify),

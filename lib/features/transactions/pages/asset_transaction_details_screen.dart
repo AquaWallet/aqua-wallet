@@ -1,3 +1,4 @@
+import 'package:aqua/features/notifications/notifications_service.dart';
 import 'package:aqua/features/rbf/rbf.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -84,6 +85,17 @@ class AssetTransactionDetailsScreen extends HookConsumerWidget {
         .watch(transactionStorageProvider)
         .valueOrNull
         ?.firstWhereOrNull((tx) => tx.txhash == args.transactionId);
+
+    final txHash = args.transactionId;
+
+    useEffect(() {
+      final txNotificationId = txHash.hashCode;
+      ref
+          .read(notificationsServiceProvider)
+          .cancelNotification(txNotificationId);
+
+      return null;
+    }, [txHash]);
 
     return uiModel.map(
       send: (model) => AssetSendTransactionDetails(

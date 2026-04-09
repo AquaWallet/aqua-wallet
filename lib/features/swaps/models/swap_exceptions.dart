@@ -65,7 +65,9 @@ class SwapServicePairsFetchException extends SwapServiceException {
 }
 
 class SwapServiceQuoteException extends SwapServiceException {
-  SwapServiceQuoteException([super.swapType]);
+  SwapServiceQuoteException([super.swapType, this.message]);
+
+  final String? message;
 
   @override
   String toLocalizedString(BuildContext context) {

@@ -43,7 +43,7 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AquaAppBar(
         showBackButton: false,
-        actionButtonAsset: Svgs.close,
+        actionButtonAsset: UiAssets.cross.path,
         actionButtonIconSize: 13,
         onBackPressed: onDone,
         onActionButtonPressed: onDone,

@@ -9,9 +9,11 @@ class BitcoinFeeSelector extends HookConsumerWidget
   const BitcoinFeeSelector({
     super.key,
     required this.args,
+    this.onFeeError,
   });
 
   final SendAssetArguments args;
+  final VoidCallback? onFeeError;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,7 +60,8 @@ class BitcoinFeeSelector extends HookConsumerWidget
       return null;
     }, [feeOptions.length]);
 
-    setupFeeOptionsErrorHandler(context, ref, feeOptionsProvider);
+    setupFeeOptionsErrorHandler(context, ref, feeOptionsProvider,
+        onRetry: onFeeError);
 
     return Column(
       mainAxisSize: MainAxisSize.min,

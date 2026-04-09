@@ -15,8 +15,6 @@ class FeatureFlagsNotifier extends ChangeNotifier {
 
   bool get multipleOnramps => _prefs.getBool(PrefKeys.multipleOnramps) ?? false;
 
-  bool get addNoteEnabled => _prefs.getBool(PrefKeys.addNoteEnabled) ?? false;
-
   bool get statusIndicator => _prefs.getBool(PrefKeys.statusIndicator) ?? false;
 
   bool get lnurlWithdrawEnabled =>
@@ -39,6 +37,9 @@ class FeatureFlagsNotifier extends ChangeNotifier {
 
   bool get dbExportEnabled => _prefs.getBool(PrefKeys.dbExportEnabled) ?? false;
 
+  bool get dbJsonExportEnabled =>
+      _prefs.getBool(PrefKeys.dbJsonExportEnabled) ?? false;
+
   bool get forceAquaNodeNotSyncedEnabled =>
       _prefs.getBool(PrefKeys.forceAquaNodeNotSyncedEnabled) ?? false;
 
@@ -60,11 +61,11 @@ class FeatureFlagsNotifier extends ChangeNotifier {
   bool get marketplaceTilesMockDataEnabled =>
       _prefs.getBool(PrefKeys.marketplaceTilesMockDataEnabled) ?? false;
 
-  bool get displayUnitsEnabled =>
-      _prefs.getBool(PrefKeys.displayUnitsEnabled) ?? false;
-
   bool get enableAllTranslations =>
       _prefs.getBool(PrefKeys.hiddenLanguages) ?? false;
+
+  bool get notificationsEnabled =>
+      _prefs.getBool(PrefKeys.notificationsEnabled) ?? false;
 
   void toggleFeatureFlag({
     required String key,

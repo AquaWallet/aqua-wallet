@@ -1,10 +1,8 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/desktop/utils/utils.dart';
 import 'package:aqua/features/desktop/widgets/widgets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ui_components/ui_components.dart';
 
 class ScanBitcoinChipSideSheetWidget extends StatelessWidget {
@@ -146,8 +144,7 @@ class BitcoinChipSideSheetWidget extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              SvgPicture.asset(
-                Svgs.pokerchipFrameLight,
+              UiAssets.pokerchipFrameLight.svg(
                 width: 160.0,
                 height: 160.0,
                 colorFilter: ColorFilter.mode(

@@ -1,8 +1,7 @@
+import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/gen/fonts.gen.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/config/colors.dart';
-
-import 'package:aqua/gen/fonts.gen.dart';
-import 'package:aqua/features/shared/shared.dart';
 
 class SplashTaglineText extends HookWidget {
   const SplashTaglineText({super.key, required this.text});
@@ -15,7 +14,7 @@ class SplashTaglineText extends HookWidget {
       () => const TextStyle(
         fontFamily: UiFontFamily.inter,
         fontWeight: FontWeight.w700,
-        fontSize: 47,
+        fontSize: 50,
         height: 1.3,
         letterSpacing: -0.47,
         color: AquaPrimitiveColors.palatinateBlue750,

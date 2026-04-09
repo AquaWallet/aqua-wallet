@@ -14,10 +14,12 @@ class UsdSwapTransactionReviewContent extends ConsumerWidget {
     super.key,
     required this.args,
     required this.transactionType,
+    this.onFeeError,
   });
 
   final SendAssetArguments args;
   final SendTransactionType transactionType;
+  final VoidCallback? onFeeError;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,7 +38,7 @@ class UsdSwapTransactionReviewContent extends ConsumerWidget {
       asset: input.asset,
       amount: input.amount,
       displayUnitOverride:
-          SupportedDisplayUnits.fromAssetInputUnit(input.inputUnit),
+          SupportedDisplayUnits.fromAssetInputUnit(input.cryptoUnit),
       removeTrailingZeros: input.asset.isNonSatsAsset,
     );
 
@@ -65,7 +67,7 @@ class UsdSwapTransactionReviewContent extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         //ANCHOR - Fee Selection Card
-        LiquidFeeSelector(args: args),
+        LiquidFeeSelector(args: args, onFeeError: onFeeError),
         const SizedBox(height: kBottomNavigationBarHeight),
         const SizedBox(height: 24),
       ],

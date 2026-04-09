@@ -20,9 +20,7 @@ class ExchangeRateSettingsScreen extends HookConsumerWidget {
         ref.watch(displayUnitsProvider.select((p) => p.supportedDisplayUnits));
     final currentDisplayUnit =
         ref.watch(displayUnitsProvider.select((p) => p.currentDisplayUnit));
-    final isDisplayUnitsEnabled = ref.watch(
-      featureFlagsProvider.select((p) => p.displayUnitsEnabled),
-    );
+
     final currencyFilter = useMemoized(
       () => (SettingsItem item, String query) {
         if (query.isEmpty) return 0;
@@ -55,38 +53,36 @@ class ExchangeRateSettingsScreen extends HookConsumerWidget {
           children: [
             //ANCHOR - Padding to account for the app bar
             const AppBarPadding(),
-            if (isDisplayUnitsEnabled) ...[
-              AquaText.body1SemiBold(
-                text: context.loc.displayUnits,
-              ),
-              const SizedBox(height: 16),
-              SettingsSelectionList(
-                padding: EdgeInsets.zero,
-                includeAppBarPadding: false,
-                items: displayUnits
-                    .mapIndexed(
-                      (index, item) => SettingsItem.create(
-                        item,
-                        name: item.value,
-                        index: index,
-                        length: displayUnits.length,
-                      ),
-                    )
-                    .toList(),
-                itemBuilder: (context, item) {
-                  return SettingsListSelectionItem(
-                    title: item.name,
-                    isRadioButton: true,
-                    radioValue: item.name,
-                    radioGroupValue: currentDisplayUnit.value,
-                    onPressed: () => ref
-                        .read(displayUnitsProvider)
-                        .setCurrentDisplayUnit(item.name),
-                  );
-                },
-              ),
-              const SizedBox(height: 28),
-            ],
+            AquaText.body1SemiBold(
+              text: context.loc.displayUnits,
+            ),
+            const SizedBox(height: 16),
+            SettingsSelectionList(
+              padding: EdgeInsets.zero,
+              includeAppBarPadding: false,
+              items: displayUnits
+                  .mapIndexed(
+                    (index, item) => SettingsItem.create(
+                      item,
+                      name: item.value,
+                      index: index,
+                      length: displayUnits.length,
+                    ),
+                  )
+                  .toList(),
+              itemBuilder: (context, item) {
+                return SettingsListSelectionItem(
+                  title: item.name,
+                  isRadioButton: true,
+                  radioValue: item.name,
+                  radioGroupValue: currentDisplayUnit.value,
+                  onPressed: () => ref
+                      .read(displayUnitsProvider)
+                      .setCurrentDisplayUnit(item.name),
+                );
+              },
+            ),
+            const SizedBox(height: 28),
             AquaText.body1SemiBold(
               text: context.loc.referenceCurrency,
             ),

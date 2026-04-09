@@ -39,17 +39,11 @@ class PinScreenWidget extends ConsumerWidget {
         backgroundColor: AquaPrimitiveColors.aquaBlue300,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const SizedBox(height: 24),
-                //ANCHOR - Aqua Logo
-                AquaIcon.aquaLogo(
-                  size: 40,
-                  color: AquaPrimitiveColors.palatinateBlue750,
-                ),
-                // const SizedBox(height: 64),
+                const ScreenLogoHeader(),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

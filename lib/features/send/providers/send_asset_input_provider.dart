@@ -116,7 +116,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         externalSweepPrivKey: externalPrivateKey,
         transactionType: transactionType,
         rate: currentRate,
-        inputUnit: initialInputUnit,
+        cryptoUnit: initialInputUnit,
         inputType: initialInputType,
         ambiguousAssets: ambiguousAssets,
       );
@@ -138,7 +138,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       externalSweepPrivKey: externalPrivateKey,
       transactionType: transactionType,
       rate: currentRate,
-      inputUnit: initialInputUnit,
+      cryptoUnit: initialInputUnit,
       inputType: initialInputType,
       ambiguousAssets: ambiguousAssets,
     );
@@ -209,11 +209,25 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     await _processAddress(text);
   }
 
-  Future<void> updateAddressFieldText(String text) async {
+  Future<void> updateAddressFieldText(String text,
+      {bool resetAmount = false}) async {
     // First update the address field text
     state = AsyncValue.data(state.value!.copyWith(
       addressFieldText: text,
     ));
+
+    if (resetAmount) {
+      state = AsyncValue.data(state.value!.copyWith(
+        amount: 0,
+        amountFieldText: null,
+        displayConversionAmount: null,
+        usdtCryptoAmount: null,
+        isSendAllFunds: false,
+        adjustedAmountToSend: null,
+        inputType: AquaAssetInputType.crypto,
+        lnurlData: null,
+      ));
+    }
 
     // Then process the address
     await _processAddress(text);
@@ -241,7 +255,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         ? service.getBalanceDisplay(
             balanceInSats: balanceInSats,
             type: currentState.inputType,
-            unit: currentState.inputUnit,
+            unit: currentState.cryptoUnit,
             rate: currentState.rate,
             asset: currentState.asset)
         : currentState.amountFieldText;
@@ -276,7 +290,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final balanceDisplay = service.getBalanceDisplay(
       balanceInSats: currentState.balanceInSats,
       type: type,
-      unit: currentState.inputUnit,
+      unit: currentState.cryptoUnit,
       rate: currentState.rate,
       asset: currentState.asset,
     );
@@ -287,14 +301,13 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
           : service.getBalanceDisplay(
               balanceInSats: 0,
               type: AquaAssetInputType.crypto,
-              unit: currentState.inputUnit,
+              unit: currentState.cryptoUnit,
               rate: currentState.rate,
               asset: currentState.asset,
             );
 
       state = AsyncValue.data(currentState.copyWith(
         inputType: type,
-        inputUnit: currentState.inputUnit,
         amountFieldText: null,
         displayConversionAmount:
             currentState.asset.isNonSatsAsset ? null : conversionAmount,
@@ -307,7 +320,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     String? convertedText;
     if (isCrypto) {
       final displayUnit =
-          SupportedDisplayUnits.fromAssetInputUnit(currentState.inputUnit);
+          SupportedDisplayUnits.fromAssetInputUnit(currentState.cryptoUnit);
       convertedText = ref.read(formatProvider).formatAssetAmount(
             amount: currentState.amount,
             asset: currentState.asset,
@@ -347,10 +360,10 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final newState = _onInputVariableUpdate(
       type: type,
       text: convertedText,
+      unit: currentState.cryptoUnit,
     );
     state = AsyncValue.data(newState.copyWith(
       inputType: type,
-      inputUnit: currentState.inputUnit,
       balanceDisplay: balanceDisplay,
     ));
     return convertedText ?? '';
@@ -368,7 +381,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
             : service.getBalanceDisplay(
                 balanceInSats: 0,
                 type: AquaAssetInputType.crypto,
-                unit: currentState.inputUnit,
+                unit: currentState.cryptoUnit,
                 rate: rate,
                 asset: currentState.asset,
               ));
@@ -411,7 +424,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
               ));
 
     state = AsyncValue.data(currentState.copyWith(
-      inputUnit: unit,
+      cryptoUnit: unit,
       amountFieldText: null,
       amount: 0,
       balanceDisplay: balanceDisplay,
@@ -499,9 +512,10 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
   }
 
   Future<void> _processAddress(String content) async {
+    final previousState = state.value!;
     state = const AsyncValue.loading();
     try {
-      final isValid = await _validateAddress(state.value!.asset, content);
+      final isValid = await _validateAddress(previousState.asset, content);
 
       if (!isValid) {
         state = AsyncValue.error(
@@ -511,7 +525,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         return;
       }
 
-      final asset = state.value!.asset;
+      final asset = previousState.asset;
       final parsedInput = await ref
           .read(addressParserProvider)
           .parseInput(input: content, asset: asset);
@@ -520,12 +534,12 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       final parsedAddress = parsedInput?.address;
       final parsedAsset = parsedInput?.asset;
       final parsedAmountInSats =
-          parsedInput?.amountInSats ?? state.valueOrNull?.amount ?? 0;
+          parsedInput?.amountInSats ?? previousState.amount;
       final ambiguousAssets = parsedInput?.ambiguousAssets;
       final isBoltzToBoltzSwap = parsedInput?.isBoltzToBoltzSwap ?? false;
 
       if (isLnurl) {
-        state = AsyncValue.data(state.valueOrNull!.copyWith(
+        state = AsyncValue.data(previousState.copyWith(
           asset: parsedInput?.asset ?? asset,
           lnurlData: parsedInput?.lnurlParseResult,
           addressFieldText: parsedAddress,
@@ -564,14 +578,14 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
           await ref.read(amountInputMutationsProvider).getConvertedAmount(
                 amountSats: parsedAmountInSats,
                 asset: asset,
-                isFiatAmountInput: state.value!.isFiatAmountInput,
+                isFiatAmountInput: previousState.isFiatAmountInput,
               );
       final amountinDisplayUnit =
           ref.read(displayUnitsProvider).convertSatsToUnit(
                 sats: parsedAmountInSats,
                 asset: asset,
               );
-      state = AsyncValue.data(state.valueOrNull!.copyWith(
+      state = AsyncValue.data(previousState.copyWith(
         asset: newAsset,
         swapPair: getSwapPair(newAsset),
         amount: parsedAmountInSats,
@@ -691,7 +705,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         : service.getBalanceDisplay(
             balanceInSats: 0,
             type: AquaAssetInputType.crypto,
-            unit: currentState.inputUnit,
+            unit: currentState.cryptoUnit,
             rate: currentState.rate,
             asset: currentState.asset,
           );
@@ -717,7 +731,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     text ??= state.value!.amountFieldText;
     type ??= state.value!.inputType;
     rate ??= state.value!.rate;
-    unit ??= state.value!.inputUnit;
+    unit ??= state.value!.cryptoUnit;
 
     final service = ref.read(amountInputServiceProvider);
 
@@ -794,6 +808,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     return state.value!.copyWith(
       amountFieldText: result.formattedAmountText,
       amount: result.amountInSats,
+      adjustedAmountToSend: null,
       balanceInSats: balanceInSats,
       balanceDisplay: result.balanceDisplay,
       displayConversionAmount: fallbackConversionAmount,

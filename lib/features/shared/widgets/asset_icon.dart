@@ -1,4 +1,3 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -27,44 +26,44 @@ class AssetIcon extends ConsumerWidget {
     // local hardcoded cases
     switch (assetId) {
       case kLayer2BitcoinId:
-        localAsset = Svgs.layerTwoSingle;
+        localAsset = UiAssets.assetIcons.layerTwoSingle.path;
         break;
       case 'btc':
-        localAsset = Svgs.btcAsset;
+        localAsset = UiAssets.assetIcons.btc.path;
         break;
       case 'lightning':
-        localAsset = Svgs.lightningAsset;
+        localAsset = UiAssets.assetIcons.l2.path;
         break;
       case 'LiquidBitcoin':
-        localAsset = Svgs.liquidAsset;
+        localAsset = UiAssets.assetIcons.liquid.path;
       case 'trx-usdt':
-        localAsset = Svgs.tronUsdtAsset;
+        localAsset = UiAssets.assetIcons.tronusdt.path;
         break;
       case 'eth-usdt':
-        localAsset = Svgs.ethUsdtAsset;
+        localAsset = UiAssets.assetIcons.ethusdt.path;
         break;
       case 'bep-usdt':
-        localAsset = Svgs.bepUsdtAsset;
+        localAsset = UiAssets.assetIcons.bepusdt.path;
         break;
       case 'sol-usdt':
-        localAsset = Svgs.solUsdtAsset;
+        localAsset = UiAssets.assetIcons.solusdt.path;
         break;
       case 'pol-usdt':
-        localAsset = Svgs.polUsdtAsset;
+        localAsset = UiAssets.assetIcons.polusdt.path;
         break;
       case 'ton-usdt':
-        localAsset = Svgs.tonUsdtAsset;
+        localAsset = UiAssets.assetIcons.tonusdt.path;
         break;
       default:
         // liquid assetIds
         if (assetId == liquidProviderRef.usdtId) {
-          localAsset = Svgs.usdtAsset;
+          localAsset = UiAssets.assetIcons.usdt.path;
         } else if (assetId == liquidProviderRef.lbtcId) {
-          localAsset = Svgs.liquidAsset;
+          localAsset = UiAssets.assetIcons.liquid.path;
         } else if (assetId == liquidProviderRef.mexasId) {
-          localAsset = Svgs.mexasAsset;
+          localAsset = UiAssets.assetIcons.mex.path;
         } else if (assetId == liquidProviderRef.depixId) {
-          localAsset = Svgs.depixAsset;
+          localAsset = UiAssets.assetIcons.dePix.path;
         }
         break;
     }
@@ -85,7 +84,7 @@ class AssetIcon extends ConsumerWidget {
         height: size ?? 40.0,
         placeholderBuilder: (_) => const SizedBox.shrink(),
         errorBuilder: (_, __, ___) => SvgPicture.asset(
-          Svgs.unknownAsset,
+          UiAssets.assetIcons.assetUnknown.path,
           fit: fit ?? BoxFit.fitWidth,
           width: size ?? 40.0,
           height: size ?? 40.0,

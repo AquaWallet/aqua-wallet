@@ -11,7 +11,7 @@ final mapThemeToIcon = {
   AppTheme.light.name: 'U+1F31E', // U+1F31E
   AppTheme.dark.name: 'U+1F31A', // U+1F31A
   // TODO: Uncomment when Botev theme is implemented
-  // AppTheme.botev.name: [Svgs.botev, Svgs.botevDark],
+  // AppTheme.botev.name: [UiAssets.svgs.light.botev.path, UiAssets.svgs.light.botev.pathDark],
 };
 
 class ThemesSettingsScreen extends HookConsumerWidget {

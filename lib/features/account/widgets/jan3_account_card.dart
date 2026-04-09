@@ -21,14 +21,14 @@ class Jan3AccountCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accountState = ref.watch(jan3AuthProvider).valueOrNull;
+    final accountState = ref.watch(currentWalletAuthProvider);
     final darkMode =
         ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
-    final isLoggedIn = accountState?.isAuthenticated ?? false;
+    final isLoggedIn = accountState.isAuthenticated;
 
     final shareInvite = useCallback(() {
       final message = context.loc.jan3InviteMessage(aquaDownloadUrl);
-      Share.share(message);
+      Share.share(message, sharePositionOrigin: context.sharePositionOrigin);
     }, [context]);
 
     // Card content widget
@@ -59,7 +59,7 @@ class Jan3AccountCard extends HookConsumerWidget {
                       text: context.loc.jan3AccountTitle,
                     ),
                     AquaText.body2Medium(
-                      text: accountState?.mapOrNull(
+                      text: accountState.mapOrNull(
                             authenticated: (state) => state.profile.email,
                           ) ??
                           context.loc.unlockMoreFeatures,
@@ -124,7 +124,7 @@ class Jan3AccountCard extends HookConsumerWidget {
                   borderRadius:
                       const BorderRadius.only(bottomRight: Radius.circular(8)),
                   onTap: () {
-                    ref.read(jan3AuthProvider.notifier).signOut();
+                    ref.read(currentWalletAuthProvider.notifier).signOut();
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15),

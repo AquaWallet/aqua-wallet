@@ -2,7 +2,6 @@ import 'package:aqua/common/widgets/aqua_elevated_button.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter_svg/svg.dart';
 
 class ScreenshotWarningSheet extends ConsumerWidget {
   const ScreenshotWarningSheet({super.key});
@@ -17,8 +16,7 @@ class ScreenshotWarningSheet extends ConsumerWidget {
         children: <Widget>[
           const SizedBox(height: 46.0),
           //ANCHOR - Icon
-          SvgPicture.asset(
-            Svgs.failure,
+          UiAssets.failure.svg(
             width: 60.0,
             height: 60.0,
           ),

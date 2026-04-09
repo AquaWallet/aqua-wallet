@@ -12,6 +12,58 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../mocks/mocks.dart';
 
+/// Sets up default stubs on a [MockConfirmationService] that mirror the real
+/// [ConfirmationService] behavior, including ghost/boltz transaction pending
+/// logic and the staleness check against network transactions.
+///
+/// Individual tests can still override `getConfirmationCount` or
+/// `getRequiredConfirmationCount` to control whether transactions appear
+/// confirmed. The `isGhostTransactionPending` stub delegates to those methods
+/// automatically.
+void setupConfirmationServiceDefaults(MockConfirmationService mock) {
+  when(() => mock.getConfirmationCount(any(), any()))
+      .thenAnswer((_) async => 0);
+  when(() => mock.getRequiredConfirmationCount(any())).thenReturn(1);
+  when(() => mock.isTransactionPending(
+        asset: any(named: 'asset'),
+        transaction: any(named: 'transaction'),
+        dbTransaction: any(named: 'dbTransaction'),
+      )).thenAnswer((_) async => false);
+  when(() => mock.isGhostTransactionPending(
+        ghostTxn: any(named: 'ghostTxn'),
+        asset: any(named: 'asset'),
+        networkTxns: any(named: 'networkTxns'),
+      )).thenAnswer((invocation) async {
+    final ghostTxn = invocation.namedArguments[#ghostTxn] as TransactionDbModel;
+    final asset = invocation.namedArguments[#asset] as Asset;
+    final networkTxns =
+        invocation.namedArguments[#networkTxns] as List<GdkTransaction>;
+
+    final matchingNetworkTxn = networkTxns
+        .cast<GdkTransaction?>()
+        .firstWhere((t) => t!.txhash == ghostTxn.txhash, orElse: () => null);
+
+    if (matchingNetworkTxn == null && networkTxns.isNotEmpty) {
+      final ghostCreatedAt = ghostTxn.ghostTxnCreatedAt?.microsecondsSinceEpoch;
+      final lastNetworkCreatedAt = networkTxns.last.createdAtTs;
+      if (lastNetworkCreatedAt == null || ghostCreatedAt == null) {
+        return false;
+      }
+      if (ghostCreatedAt < lastNetworkCreatedAt) {
+        return false;
+      }
+    }
+
+    final confirmationCount = await mock.getConfirmationCount(
+      asset,
+      matchingNetworkTxn?.blockHeight ?? 0,
+    );
+    final requiredConfirmations = mock.getRequiredConfirmationCount(asset);
+
+    return confirmationCount < requiredConfirmations;
+  });
+}
+
 /// A test harness for simulating realistic transaction scenarios
 ///
 /// Usage:
@@ -884,7 +936,10 @@ class ScenarioEnvironment {
     final mockBitcoinProvider = MockBitcoinProvider();
     final mockLiquidProvider = MockLiquidProvider();
 
-    // Setup confirmation service
+    // Setup confirmation service with smart defaults
+    setupConfirmationServiceDefaults(mockConfirmationService);
+
+    // Override getConfirmationCount to use scenario-aware block heights
     when(() => mockConfirmationService.getConfirmationCount(any(), any()))
         .thenAnswer((invocation) async {
       final asset = invocation.positionalArguments[0] as Asset;
@@ -899,6 +954,8 @@ class ScenarioEnvironment {
           ? onchainConfirmationBlockCount
           : liquidConfirmationBlockCount;
     });
+
+    // Override isTransactionPending to handle peg transactions
     when(() => mockConfirmationService.isTransactionPending(
           transaction: any(named: 'transaction'),
           asset: any(named: 'asset'),
@@ -910,6 +967,10 @@ class ScenarioEnvironment {
       final dbTransaction =
           invocation.namedArguments[#dbTransaction] as TransactionDbModel?;
 
+      if (dbTransaction != null && dbTransaction.isPeg) {
+        return true;
+      }
+
       final confirmationCount =
           await mockConfirmationService.getConfirmationCount(
         asset,
@@ -919,27 +980,7 @@ class ScenarioEnvironment {
           ? onchainConfirmationBlockCount
           : liquidConfirmationBlockCount;
 
-      // Check if enough confirmations
-      final isEnoughConfirmations = confirmationCount >= requiredConfirmations;
-
-      // For peg transactions, also check peg status
-      final isPegOrder = dbTransaction?.isPeg == true;
-      final pegOrderId = dbTransaction?.serviceOrderId;
-      if (isPegOrder && pegOrderId != null) {
-        // Find the peg order and check if it's done
-        final pegOrders = getPegOrders();
-        final pegOrder =
-            pegOrders.where((o) => o.orderId == pegOrderId).firstOrNull;
-        if (pegOrder != null) {
-          final consolidatedStatus = pegOrder.status.getConsolidatedStatus();
-          final status = PegStatusState(consolidatedStatus: consolidatedStatus);
-          // Transaction is pending if confirmations are insufficient OR peg is not done
-          return !isEnoughConfirmations || status.isPending;
-        }
-        return !isEnoughConfirmations;
-      }
-
-      return !isEnoughConfirmations;
+      return confirmationCount < requiredConfirmations;
     });
 
     // Setup bitcoin and liquid providers to return empty transaction lists
