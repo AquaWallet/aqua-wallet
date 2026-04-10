@@ -460,8 +460,10 @@ abstract class NetworkFrontend {
 
   Future<Map<String, GdkAssetInformation>?> getAssets() async {
     final userAssetIds = ref.read(prefsProvider).userAssetIds;
+    final balanceKeys = _allBalances?.keys.cast<String>().toList() ?? [];
+    final allIds = {...userAssetIds, ...balanceKeys}.toList();
     GdkGetAssetsParameters params =
-        GdkGetAssetsParameters(assetsId: userAssetIds);
+        GdkGetAssetsParameters(assetsId: allIds);
 
     final result = await session.getAssets(params: params);
     if (result.asValue != null && result.asValue?.value != null) {

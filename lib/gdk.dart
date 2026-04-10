@@ -1083,6 +1083,13 @@ class LibGdk {
       outputMap[key] = GdkAssetInformation.fromJson(asset);
     }
 
+    final iconsMap = jsonMap['icons'] as Map<String, dynamic>;
+    for (var key in outputMap.keys) {
+      if (iconsMap.containsKey(key)) {
+        outputMap[key] = outputMap[key]!.copyWith(icon: iconsMap[key] as String?);
+      }
+    }
+
     return Result.value(outputMap);
   }
 
