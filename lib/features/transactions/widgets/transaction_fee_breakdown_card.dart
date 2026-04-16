@@ -644,7 +644,7 @@ class _RefreshButton extends ConsumerWidget {
             child: Transform.rotate(
               angle: pi / 2,
               child: SvgPicture.asset(
-                Svgs.walletExchange,
+                UiAssets.walletExchange.path,
                 fit: BoxFit.scaleDown,
                 width: 14.0,
                 height: 14.0,

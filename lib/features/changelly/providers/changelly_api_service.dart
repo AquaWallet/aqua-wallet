@@ -69,8 +69,15 @@ class ChangellyApiService {
 
       final apiResponse = ChangellyFixedQuoteResponse.fromJson(response.data);
       return apiResponse;
+    } on DioException catch (e) {
+      logger.error(
+          '[Changelly] Fixed Quote Error: ${e.message}', e, StackTrace.current);
+      throw SwapServiceQuoteException(
+          SwapServiceSource.changelly.displayName, e.message);
     } catch (e) {
-      throw SwapServiceQuoteException('Unexpected error');
+      logger.error('[Changelly] Unexpected error: $e');
+      throw SwapServiceQuoteException(
+          SwapServiceSource.changelly.displayName, e.toString());
     }
   }
 
@@ -85,17 +92,20 @@ class ChangellyApiService {
 
       final apiResponse = ChangellyQuoteListResponse.fromJson(response.data);
       if (apiResponse.quotes.isEmpty) {
-        throw SwapServiceQuoteException('No quotes available');
+        throw SwapServiceQuoteException(
+            SwapServiceSource.changelly.displayName, 'No quotes available');
       }
 
       return apiResponse.quotes.first;
     } on DioException catch (e) {
       logger.error(
           '[Changelly] Order Quote Error: ${e.message}', e, StackTrace.current);
-      throw SwapServiceQuoteException('${payload.from} to ${payload.to} swap');
+      throw SwapServiceQuoteException(
+          SwapServiceSource.changelly.displayName, e.message);
     } catch (e) {
       logger.error('[Changelly] Unexpected error: $e');
-      throw SwapServiceQuoteException('Unexpected error');
+      throw SwapServiceQuoteException(
+          SwapServiceSource.changelly.displayName, e.toString());
     }
   }
 
@@ -115,7 +125,7 @@ class ChangellyApiService {
       logger.error('[Changelly] Variable Order Error: ${e.message}', e,
           StackTrace.current);
       throw SwapServiceOrderCreationException(
-          '${payload.from} to ${payload.to} swap', e.toString());
+          '${payload.from} to ${payload.to} swap', e.message);
     } catch (e) {
       logger.error('[Changelly] Unexpected error: $e');
       throw SwapServiceOrderCreationException('Unexpected error', e.toString());
@@ -138,7 +148,7 @@ class ChangellyApiService {
       logger.error(
           '[Changelly] Fixed Order Error: ${e.message}', e, StackTrace.current);
       throw SwapServiceOrderCreationException(
-          '${payload.from} to ${payload.to} swap', e.toString());
+          '${payload.from} to ${payload.to} swap', e.message);
     } catch (e) {
       logger.error('[Changelly] Unexpected error: $e');
       throw SwapServiceOrderCreationException('Unexpected error', e.toString());

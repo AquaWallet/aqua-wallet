@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:aqua/features/pin/pin_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -42,7 +43,17 @@ class BiometricAuthNotifier extends AsyncNotifier<BiometricAuthState> {
     final canAuthenticateWithBiometric = isDeviceSupported &&
         biometrics.any((type) => kStrongBiometricTypes.contains(type));
 
-    // If biometric auth is enabled but not available, disable it
+    BiometricType? primaryBiometricType;
+    if (biometrics.contains(BiometricType.face)) {
+      primaryBiometricType = BiometricType.face;
+    } else if (biometrics.contains(BiometricType.fingerprint)) {
+      primaryBiometricType = BiometricType.fingerprint;
+    } else if (Platform.isAndroid &&
+        (biometrics.contains(BiometricType.strong) ||
+            biometrics.contains(BiometricType.weak))) {
+      primaryBiometricType = BiometricType.fingerprint;
+    }
+
     if (biometricEnabled && !canAuthenticateWithBiometric) {
       _logger.debug('Biometric auth enabled but not available');
       await ref.read(prefsProvider).switchBiometricAuth();
@@ -52,6 +63,7 @@ class BiometricAuthNotifier extends AsyncNotifier<BiometricAuthState> {
       isDeviceSupported: isDeviceSupported,
       available: canAuthenticateWithBiometric,
       enabled: biometricEnabled,
+      primaryBiometricType: primaryBiometricType,
     );
   }
 

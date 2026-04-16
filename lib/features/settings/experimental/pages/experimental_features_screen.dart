@@ -1,9 +1,10 @@
 import 'package:aqua/config/config.dart';
-import 'package:aqua/features/account/providers/jan3_auth_provider.dart';
+import 'package:aqua/features/account/providers/current_wallet_auth_provider.dart';
 import 'package:aqua/features/logger_table/logger_table.dart';
 import 'package:aqua/features/marketplace/providers/providers.dart';
 import 'package:aqua/features/recovery/pages/seed_qr_screen.dart';
 import 'package:aqua/features/settings/debug/debug_database_screen.dart';
+import 'package:aqua/features/settings/debug/debug_wallet_auth_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -31,8 +32,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         featureFlagsProvider.select((p) => p.throwAquaBroadcastErrorEnabled));
     final forceAquaNodeNotSyncedEnabled = ref.watch(
         featureFlagsProvider.select((p) => p.forceAquaNodeNotSyncedEnabled));
-    final isNotesEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
     final isStatusIndicatorEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.statusIndicator));
     final isLnurlWithdrawEnabled =
@@ -41,6 +40,8 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         ref.watch(featureFlagsProvider.select((p) => p.pokerChipSweepEnabled));
     final isDatabaseExportEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.dbExportEnabled));
+    final isDatabaseJsonExportEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.dbJsonExportEnabled));
     final useChangellyForUSDtSwapsEnabled = ref.watch(
         featureFlagsProvider.select((p) => p.changellyForUSDtSwapsEnabled));
     final isBtcDirectEnabled =
@@ -52,8 +53,8 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
     final isDebitCardStagingEnabled = ref.watch(
       featureFlagsProvider.select((p) => p.debitCardStagingEnabled),
     );
-    final isDisplayUnitsEnabled = ref.watch(
-      featureFlagsProvider.select((p) => p.displayUnitsEnabled),
+    final isNotificationsEnabled = ref.watch(
+      featureFlagsProvider.select((p) => p.notificationsEnabled),
     );
     final isEnableAllTranslations = ref.watch(
       featureFlagsProvider.select((p) => p.enableAllTranslations),
@@ -111,25 +112,11 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
         children: [
-          //ANCHOR: Notes
-          MenuItemWidget.switchItem(
-            context: context,
-            title: context.loc.expFeaturesScreenItemsNotes,
-            assetName: Svgs.addNote,
-            value: isNotesEnabled,
-            onPressed: () =>
-                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                      key: PrefKeys.addNoteEnabled,
-                      currentValue: isNotesEnabled,
-                    ),
-          ),
-          const SizedBox(height: 16.0),
-
           //ANCHOR: Status Indicator
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsStatusIndicator,
-            assetName: Svgs.info,
+            assetName: UiAssets.info.path,
             value: isStatusIndicatorEnabled,
             onPressed: () =>
                 ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -142,7 +129,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.lnUrlWithdraw,
-            assetName: Svgs.marketplaceBankings,
+            assetName: UiAssets.marketplace.bankings.path,
             value: isLnurlWithdrawEnabled,
             onPressed: () =>
                 ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -156,7 +143,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.pokerchipSweep,
-            assetName: Svgs.pokerchipFrameDark,
+            assetName: UiAssets.pokerchipFrameDark.path,
             value: pokerChipSweepEnabled,
             onPressed: () =>
                 ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -170,7 +157,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsChangellyUSDtSwaps,
-            assetName: Svgs.walletSend,
+            assetName: UiAssets.walletSend.path,
             value: useChangellyForUSDtSwapsEnabled,
             onPressed: () =>
                 ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -184,7 +171,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsBtcDirect,
-            assetName: Svgs.walletSend,
+            assetName: UiAssets.walletSend.path,
             value: isBtcDirectEnabled,
             onPressed: () =>
                 ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -197,7 +184,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: 'Lendasat Mock Data',
-            assetName: Svgs.history,
+            assetName: UiAssets.history.path,
             value: ref.watch(
                 featureFlagsProvider.select((p) => p.lendASatMockDataEnabled)),
             onPressed: () =>
@@ -214,7 +201,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsMarketplaceTilesMockData,
-            assetName: Svgs.marketplaceBankings,
+            assetName: UiAssets.marketplace.bankings.path,
             value: isMarketplaceTilesMockDataEnabled,
             onPressed: () {
               ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -226,39 +213,49 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           ),
           const SizedBox(height: 16.0),
 
+          //ANCHOR: Notifications
+          MenuItemWidget.switchItem(
+            context: context,
+            title: context.loc.notificationsSettingsScreenTitle,
+            assetName: UiAssets.svgs.walletHeaderNotification.path,
+            value: isNotificationsEnabled,
+            onPressed: () =>
+                ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
+                      key: PrefKeys.notificationsEnabled,
+                      currentValue: isNotificationsEnabled,
+                    ),
+          ),
+          const SizedBox(height: 16.0),
+
           //ANCHOR: Enable All Translations
           MenuItemWidget.switchItem(
             context: context,
             title: 'Enable All Translations',
-            assetName: Svgs.language,
+            assetName: UiAssets.language.path,
             value: isEnableAllTranslations,
             onPressed: () => prefs.switchHiddenLanguages(),
           ),
           const SizedBox(height: 16.0),
 
-          //ANCHOR: Display Units
+          //ANCHOR: Database JSON export
           MenuItemWidget.switchItem(
             context: context,
-            title: context.loc.displayUnits,
-            assetName: Svgs.displayUnits,
-            value: isDisplayUnitsEnabled,
-            onPressed: () async {
-              await ref
-                  .read(displayUnitsProvider)
-                  .setCurrentDisplayUnit(SupportedDisplayUnits.btc.value);
+            title: context.loc.expFeaturesScreenItemsDbJsonExport,
+            assetName: UiAssets.history.path,
+            value: isDatabaseJsonExportEnabled,
+            onPressed: () {
               ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                    key: PrefKeys.displayUnitsEnabled,
-                    currentValue: isDisplayUnitsEnabled,
+                    key: PrefKeys.dbJsonExportEnabled,
+                    currentValue: isDatabaseJsonExportEnabled,
                   );
             },
           ),
           const SizedBox(height: 16.0),
-
           //ANCHOR: Watch Only Export
           MenuItemWidget.arrow(
             context: context,
             title: context.loc.watchOnlyScreenTitle,
-            assetName: Svgs.tabWallet,
+            assetName: UiAssets.tabWallet.path,
             color: context.colors.onBackground,
             onPressed: () => context.push(
               WatchOnlyListScreen.routeName,
@@ -270,7 +267,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.arrow(
             context: context,
             title: context.loc.settingsScreenItemViewSeedQR,
-            assetName: Svgs.qr,
+            assetName: UiAssets.qr.path,
             color: context.colors.onBackground,
             onPressed: () => context.push(WalletRecoveryQRScreen.routeName),
           ),
@@ -280,7 +277,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.arrow(
             context: context,
             color: context.colors.onBackground,
-            assetName: Svgs.tabWallet,
+            assetName: UiAssets.tabWallet.path,
             title: context.loc.settingsScreenItemLegacyWallet,
             onPressed: () => context.push(LegacyWalletScreen.routeName),
           ),
@@ -289,7 +286,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           //ANCHOR - Logs
           MenuItemWidget.arrow(
               context: context,
-              assetName: Svgs.history,
+              assetName: UiAssets.history.path,
               title: context.loc.settingsScreenItemLogs,
               onPressed: () => context.push(LoggerScreen.routeName)),
           const SizedBox(height: 4.0),
@@ -312,7 +309,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.arrow(
             context: context,
             title: '${context.loc.subaccountsScreenTitle} (Debug Screen)',
-            assetName: Svgs.tabWallet,
+            assetName: UiAssets.tabWallet.path,
             color: Theme.of(context).colorScheme.error,
             onPressed: () => context.push(SubaccountsDebugScreen.routeName),
           ),
@@ -321,7 +318,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsSubaccounts,
-            assetName: Svgs.blockExplorer,
+            assetName: UiAssets.block.path,
             value: isTestEnv,
             onPressed: () => showAlertDialog(
               message: 'Warning: Should only be used with Testnet',
@@ -352,10 +349,10 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsDebitCardStaging,
-            assetName: Svgs.marketplaceBankings,
+            assetName: UiAssets.marketplace.bankings.path,
             value: isDebitCardStagingEnabled,
             onPressed: () {
-              ref.read(jan3AuthProvider.notifier).signOut();
+              ref.read(currentWalletAuthProvider.notifier).signOutAll();
               ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
                     key: PrefKeys.debitCardStagingEnabled,
                     currentValue: isDebitCardStagingEnabled,
@@ -368,7 +365,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsTestnetEnv,
-            assetName: Svgs.blockExplorer,
+            assetName: UiAssets.block.path,
             value: isTestEnv,
             onPressed: () => showAlertDialog(
               message: context.loc.expFeaturesScreenMessageTestnetEnv,
@@ -383,7 +380,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsForceBoltzFailedNormalSwap,
-            assetName: Svgs.lightningBolt,
+            assetName: UiAssets.lightningBolt.path,
             value: forceBoltzFailEnabled,
             onPressed: () {
               if (!forceBoltzFailEnabled) {
@@ -403,7 +400,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.testSettingsScreenItemFakeBroadcast,
-            assetName: Svgs.walletSend,
+            assetName: UiAssets.walletSend.path,
             value: fakeBroadcastsEnabled,
             onPressed: () {
               ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -418,7 +415,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.testSettingsScreenItemThrowAquaBroadcastError,
-            assetName: Svgs.walletSend,
+            assetName: UiAssets.walletSend.path,
             value: throwAquaBroadcastErrorEnabled,
             onPressed: () {
               ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -433,7 +430,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.testSettingsScreenItemForceAquaNodeNotSynced,
-            assetName: Svgs.walletSend,
+            assetName: UiAssets.walletSend.path,
             value: forceAquaNodeNotSyncedEnabled,
             onPressed: () {
               ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -461,18 +458,28 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             //ANCHOR - Databse export and import
             MenuItemWidget.arrow(
               context: context,
-              assetName: Svgs.history,
+              assetName: UiAssets.history.path,
               color: context.colors.onBackground,
               title: context.loc.testSettingsScreenDebugDatabaseView,
               isEnabled: true,
               onPressed: () => context.push(DebugDatabaseScreen.routeName),
             ),
             const SizedBox(height: 16.0),
+            //ANCHOR - Wallet auth debug
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: UiAssets.tabWallet.path,
+              color: context.colors.onBackground,
+              title: context.loc.walletAuthDebug,
+              isEnabled: true,
+              onPressed: () => context.push(DebugWalletAuthScreen.routeName),
+            ),
+            const SizedBox(height: 16.0),
             //ANCHOR - Database export and import
             MenuItemWidget.switchItem(
               context: context,
               title: context.loc.testSettingsScreenItemDatabaseExport,
-              assetName: Svgs.history,
+              assetName: UiAssets.history.path,
               value: isDatabaseExportEnabled,
               onPressed: () {
                 ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -485,7 +492,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             //ANCHOR - Initiate export txn db flow
             MenuItemWidget.arrow(
               context: context,
-              assetName: Svgs.outgoing,
+              assetName: UiAssets.outgoing.path,
               color: context.colors.onBackground,
               title: context.loc.testTransactionDatabaseExport,
               isEnabled: isDatabaseExportEnabled,
@@ -497,7 +504,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             //ANCHOR - Initiate import txn db flow
             MenuItemWidget.arrow(
               context: context,
-              assetName: Svgs.incoming,
+              assetName: UiAssets.incoming.path,
               color: context.colors.onBackground,
               title: context.loc.testTransactionDatabaseImport,
               isEnabled: isDatabaseExportEnabled,
@@ -510,7 +517,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             MenuItemWidget(
               title: context.loc.expFeaturesScreenItemsClearGhostTxns,
               color: Theme.of(context).colors.onBackground,
-              assetName: Svgs.removeWallet,
+              assetName: UiAssets.removeWallet.path,
               onPressed: ref
                   .read(transactionStorageProvider.notifier)
                   .clearGhostTransactions,
@@ -520,7 +527,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             MenuItemWidget.switchItem(
               context: context,
               title: context.loc.expFeaturesScreenItemsEnableElectrumServer,
-              assetName: Svgs.blockExplorer,
+              assetName: UiAssets.block.path,
               value: isCustomElectrumUrlEnabled,
               onPressed: () {
                 ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
@@ -533,7 +540,7 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
             //ANCHOR - Go to Splash Screen Preview
             MenuItemWidget.arrow(
               context: context,
-              assetName: Svgs.eyeIcon,
+              assetName: UiAssets.eye.path,
               color: context.colors.onBackground,
               title: 'Checkout Splash Screen',
               onPressed: () => context.push(SplashScreenPreview.routeName).then(

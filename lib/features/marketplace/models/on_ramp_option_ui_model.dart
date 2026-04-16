@@ -1,22 +1,27 @@
-import 'package:aqua/config/config.dart';
+import 'package:aqua/gen/assets.gen.dart';
 
 enum PaymentOption {
-  cash(SvgsMarketplace.paymentOptionCash),
-  bankTransfer(SvgsMarketplace.paymentOptionBank),
-  creditCard(SvgsMarketplace.paymentOptionCard);
+  cash,
+  bankTransfer,
+  creditCard;
 
-  final String icon;
-
-  const PaymentOption(this.icon);
+  String get icon => switch (this) {
+        cash => UiAssets.marketplace.paymentCash.path,
+        bankTransfer => UiAssets.marketplace.paymentBank.path,
+        creditCard => UiAssets.marketplace.paymentCard.path,
+      };
 }
 
 enum DeliveryOption {
-  btc(Svgs.btcAsset),
-  lbtc(Svgs.liquidAsset),
-  lightning(Svgs.lightningAsset),
-  usdt(Svgs.usdtAsset);
+  btc,
+  lbtc,
+  lightning,
+  usdt;
 
-  final String logo;
-
-  const DeliveryOption(this.logo);
+  String get logo => switch (this) {
+        btc => UiAssets.assetIcons.btc.path,
+        lbtc => UiAssets.assetIcons.liquid.path,
+        lightning => UiAssets.assetIcons.l2.path,
+        usdt => UiAssets.assetIcons.usdt.path,
+      };
 }

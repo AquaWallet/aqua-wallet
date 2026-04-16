@@ -1048,5 +1048,101 @@ void main() {
         );
       });
     });
+
+    group('Notes', () {
+      test('pending transaction includes note from dbTransaction', () async {
+        final dbTxn = createMockDbTransaction(
+          txhash: 'pending_ln_send',
+          assetId: Asset.lbtc().id,
+          type: TransactionDbModelType.boltzSwap,
+          isGhost: true,
+          ghostTxnAmount: 10000,
+          ghostTxnCreatedAt: DateTime.now(),
+          note: 'paying for coffee',
+        );
+
+        final strategy = await getStrategy();
+        final result = await strategy.createPendingDetails(
+          TransactionDetailsStrategyArgs(
+            asset: Asset.lbtc(),
+            availableAssets: [Asset.lbtc()],
+            dbTransaction: dbTxn,
+          ),
+        );
+
+        result!.map(
+          send: (d) => expect(d.notes, 'paying for coffee'),
+          receive: (_) => fail('Should be send'),
+          swap: (_) => fail('Should be send'),
+          peg: (_) => fail('Should be send'),
+          redeposit: (_) => fail('Should be send'),
+        );
+      });
+
+      test('confirmed transaction prefers dbTransaction note over network memo',
+          () async {
+        final dbTxn = createMockDbTransaction(
+          txhash: 'confirmed_ln_send',
+          assetId: Asset.lbtc().id,
+          type: TransactionDbModelType.boltzSwap,
+          ghostTxnAmount: 10000,
+          note: 'my note',
+        );
+
+        final strategy = await getStrategy();
+        final result = await strategy.createConfirmedDetails(
+          TransactionDetailsStrategyArgs(
+            asset: Asset.lbtc(),
+            availableAssets: [Asset.lbtc()],
+            dbTransaction: dbTxn,
+            networkTransaction: createMockNetworkTransaction(
+              txhash: 'confirmed_ln_send',
+              blockHeight: 100,
+              memo: 'network memo',
+            ),
+          ),
+        );
+
+        result!.map(
+          send: (d) => expect(d.notes, 'my note'),
+          receive: (_) => fail('Should be send'),
+          swap: (_) => fail('Should be send'),
+          peg: (_) => fail('Should be send'),
+          redeposit: (_) => fail('Should be send'),
+        );
+      });
+
+      test('confirmed transaction falls back to network memo when no db note',
+          () async {
+        final dbTxn = createMockDbTransaction(
+          txhash: 'confirmed_ln_send',
+          assetId: Asset.lbtc().id,
+          type: TransactionDbModelType.boltzSwap,
+          ghostTxnAmount: 10000,
+        );
+
+        final strategy = await getStrategy();
+        final result = await strategy.createConfirmedDetails(
+          TransactionDetailsStrategyArgs(
+            asset: Asset.lbtc(),
+            availableAssets: [Asset.lbtc()],
+            dbTransaction: dbTxn,
+            networkTransaction: createMockNetworkTransaction(
+              txhash: 'confirmed_ln_send',
+              blockHeight: 100,
+              memo: 'network memo',
+            ),
+          ),
+        );
+
+        result!.map(
+          send: (d) => expect(d.notes, 'network memo'),
+          receive: (_) => fail('Should be send'),
+          swap: (_) => fail('Should be send'),
+          peg: (_) => fail('Should be send'),
+          redeposit: (_) => fail('Should be send'),
+        );
+      });
+    });
   });
 }

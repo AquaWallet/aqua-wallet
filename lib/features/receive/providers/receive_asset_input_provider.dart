@@ -28,11 +28,18 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final balanceInSats = arg.asset.isLightning
         ? assets.firstWhereOrNull((e) => e.isLBTC)?.amount ?? 0
         : assets.firstWhereOrNull((e) => e.id == arg.asset.id)?.amount ?? 0;
+    // Assets without fiat rates always use BTC display unit; others respect the
+    // user-configured preference (mirrors the send flow).
+    final displayUnit = !arg.asset.hasFiatRate
+        ? SupportedDisplayUnits.btc
+        : ref.watch(displayUnitsProvider).currentDisplayUnit;
+    final initialInputUnit = displayUnit.toInputUnit();
+
     final service = ref.read(amountInputServiceProvider);
     final balanceDisplay = service.getBalanceDisplay(
       balanceInSats: balanceInSats,
       type: AquaAssetInputType.crypto,
-      unit: AquaAssetInputUnit.crypto,
+      unit: initialInputUnit,
       rate: currentRate,
       asset: arg.asset,
     );
@@ -46,6 +53,7 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       swapPair: arg.swapPair,
       displayConversionAmount: '${symbol}0.00',
       inputType: type,
+      cryptoUnit: initialInputUnit,
     );
   }
 
@@ -113,10 +121,10 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         unit: unit,
         text: currentState.amountFieldText,
       );
-      state = AsyncValue.data(newState.copyWith(inputUnit: unit));
+      state = AsyncValue.data(newState.copyWith(cryptoUnit: unit));
     } else {
       final newState = _onInputVariableUpdate(unit: unit);
-      state = AsyncValue.data(newState.copyWith(inputUnit: unit));
+      state = AsyncValue.data(newState.copyWith(cryptoUnit: unit));
     }
   }
 
@@ -129,9 +137,7 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final newBalanceDisplay = service.getBalanceDisplay(
       balanceInSats: currentState.balanceInSats,
       type: type,
-      unit: type == AquaAssetInputType.crypto
-          ? currentState.inputUnit
-          : AquaAssetInputUnit.crypto,
+      unit: currentState.cryptoUnit,
       rate: currentState.rate,
       asset: currentState.asset,
     );
@@ -143,16 +149,13 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
           : service.getBalanceDisplay(
               balanceInSats: 0,
               type: AquaAssetInputType.crypto,
-              unit: currentState.inputUnit,
+              unit: currentState.cryptoUnit,
               rate: currentState.rate,
               asset: currentState.asset,
             );
 
       state = AsyncValue.data(currentState.copyWith(
         inputType: type,
-        inputUnit: type == AquaAssetInputType.crypto
-            ? currentState.inputUnit
-            : AquaAssetInputUnit.crypto,
         amountFieldText: null,
         displayConversionAmount: conversionAmount,
         balanceDisplay: newBalanceDisplay,
@@ -187,7 +190,7 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       }
     } else {
       final displayUnit =
-          SupportedDisplayUnits.fromAssetInputUnit(currentState.inputUnit);
+          SupportedDisplayUnits.fromAssetInputUnit(currentState.cryptoUnit);
       final decimal = ref.read(displayUnitsProvider).convertSatsToUnit(
             sats: currentState.amountInSats,
             asset: currentState.asset,
@@ -199,12 +202,10 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     final newState = _onInputVariableUpdate(
       type: type,
       text: convertedText,
+      unit: currentState.cryptoUnit,
     );
     state = AsyncValue.data(newState.copyWith(
       inputType: type,
-      inputUnit: type == AquaAssetInputType.crypto
-          ? currentState.inputUnit
-          : AquaAssetInputUnit.crypto,
       balanceDisplay: newBalanceDisplay,
     ));
   }
@@ -247,7 +248,7 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         : service.getBalanceDisplay(
             balanceInSats: 0,
             type: AquaAssetInputType.crypto,
-            unit: currentState.inputUnit,
+            unit: currentState.cryptoUnit,
             rate: ref.read(exchangeRatesProvider).currentCurrency,
             asset: currentState.asset,
           );
@@ -270,7 +271,7 @@ class ReceiveAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
     text ??= state.value!.amountFieldText ?? '0';
     type ??= state.value!.inputType;
     rate ??= state.value!.rate;
-    unit ??= state.value!.inputUnit;
+    unit ??= state.value!.cryptoUnit;
 
     final service = ref.read(amountInputServiceProvider);
     final result = service.processAmountInput(

@@ -75,6 +75,12 @@ enum MarketplaceServiceType {
 
   @JsonValue('lendasat')
   lendasat,
+
+  @JsonValue('chapsmart')
+  chapsmart,
+
+  @JsonValue('moneybadger')
+  moneybadger,
 }
 
 extension on MarketplaceServiceType {

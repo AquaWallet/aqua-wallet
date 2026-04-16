@@ -325,7 +325,7 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
           );
 
     return AssetTransactionDetailsUiModel.send(
-      transactionId: networkTxn.txhash ?? '',
+      transactionId: networkTxn.txhash,
       date: formatDate(networkTxn.createdAtTs),
       confirmations: confirmations,
       isPending: isPending,
@@ -339,7 +339,7 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
       receiveAddress: args.dbTransaction?.receiveAddress ??
           networkTxn.outputs?.firstOrNull?.address,
       blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
-      notes: networkTxn.memo,
+      notes: args.dbTransaction?.note ?? networkTxn.memo,
       canRbf: false,
       dbTransaction: args.dbTransaction,
       isLightning: false,

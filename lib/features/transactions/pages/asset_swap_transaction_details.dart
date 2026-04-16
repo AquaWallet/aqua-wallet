@@ -177,6 +177,13 @@ class AssetSwapTransactionDetails extends HookConsumerWidget {
                   AquaDivider(
                     colors: context.aquaColors,
                   ),
+                  TransactionNoteListItem(
+                    txHash: model.transactionId,
+                    note: model.notes,
+                  ),
+                  AquaDivider(
+                    colors: context.aquaColors,
+                  ),
                   AquaListItem(
                     onTap: () => onExplorerTap(
                       model.transactionId,

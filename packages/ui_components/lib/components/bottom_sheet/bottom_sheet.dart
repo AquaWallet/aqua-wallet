@@ -6,10 +6,12 @@ class AquaBottomSheet extends StatelessWidget {
     super.key,
     required this.colors,
     required this.content,
+    this.topBorderRadius = 24,
   });
 
   final AquaColors colors;
   final Widget content;
+  final double topBorderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +19,10 @@ class AquaBottomSheet extends StatelessWidget {
       elevation: 0,
       margin: EdgeInsets.zero,
       color: colors.surfacePrimary,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+          topLeft: Radius.circular(topBorderRadius),
+          topRight: Radius.circular(topBorderRadius),
         ),
       ),
       child: SingleChildScrollView(
@@ -35,16 +37,17 @@ class AquaBottomSheet extends StatelessWidget {
     BuildContext context, {
     required Widget content,
     required AquaColors colors,
+    double topBorderRadius = 24,
   }) {
     return showModalBottomSheet(
       context: context,
       constraints: context.isDesktop || context.isTablet
           ? const BoxConstraints(maxWidth: 343)
           : null,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+          topLeft: Radius.circular(topBorderRadius),
+          topRight: Radius.circular(topBorderRadius),
         ),
       ),
       enableDrag: true,
@@ -60,6 +63,7 @@ class AquaBottomSheet extends StatelessWidget {
         child: AquaBottomSheet(
           colors: colors,
           content: content,
+          topBorderRadius: topBorderRadius,
         ),
       ),
     );

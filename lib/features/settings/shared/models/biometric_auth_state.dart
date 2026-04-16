@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:local_auth/local_auth.dart';
 
 part 'biometric_auth_state.freezed.dart';
 part 'biometric_auth_state.g.dart';
@@ -11,6 +12,8 @@ class BiometricAuthState with _$BiometricAuthState {
     bool isDeviceSupported,
     @JsonKey(name: 'available') @Default(false) bool available,
     @JsonKey(name: 'enabled') @Default(false) bool enabled,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    BiometricType? primaryBiometricType,
   }) = _BiometricAuthState;
 
   factory BiometricAuthState.fromJson(Map<String, dynamic> json) =>

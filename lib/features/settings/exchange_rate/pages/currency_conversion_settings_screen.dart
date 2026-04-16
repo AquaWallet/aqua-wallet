@@ -3,7 +3,6 @@ import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ConversionCurrenciesSettingsScreen extends HookConsumerWidget {
   static const routeName = '/conversionCurrenciesSettingsScreen';
@@ -50,8 +49,7 @@ class ConversionCurrenciesSettingsScreen extends HookConsumerWidget {
                 ),
                 prefixIcon: Container(
                   margin: const EdgeInsets.only(left: 18.0, right: 12.0),
-                  child: SvgPicture.asset(
-                    Svgs.search,
+                  child: UiAssets.search.svg(
                     width: 16.0,
                     height: 16.0,
                     colorFilter: ColorFilter.mode(

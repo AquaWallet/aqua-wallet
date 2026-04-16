@@ -17,6 +17,11 @@ abstract class DeviceIO {
     String? fileName,
   });
 
+  Future<String> writeToTemp(
+    String content, {
+    String? fileName,
+  });
+
   Future<String> readFromDocuments({
     String? filePath,
   });
@@ -37,6 +42,20 @@ class _FileSystemService implements DeviceIO {
     final file = File('${directory.path}/$fileName');
     final res = await file.writeAsString(content);
     logger.debug('[DeviceIO] File written to: ${res.path}');
+    return res.path;
+  }
+
+  @override
+  Future<String> writeToTemp(
+    String content, {
+    String? fileName,
+  }) async {
+    final directory = await getTemporaryDirectory();
+    fileName ??= '${DateTime.now().toIso8601String().split('T').first}.txt';
+    final file =
+        await File('${directory.path}/$fileName').create(recursive: true);
+    final res = await file.writeAsString(content);
+    logger.debug('[DeviceIO] Temp file written to: ${res.path}');
     return res.path;
   }
 

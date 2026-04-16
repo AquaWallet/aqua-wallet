@@ -7,6 +7,8 @@ import 'package:aqua/features/transactions/transactions.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+const kMaxBoltzAgeHours = 24;
+
 final pendingTransactionUiModelsProvider = Provider.autoDispose((ref) {
   return PendingTransactionUiModelsBuilder(
     strategyFactory: ref.read(transactionUiModelsFactoryProvider),
@@ -105,8 +107,8 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
             seenPegOrderIds.contains(model.serviceOrderId!);
 
         if (!hasSeenTxhash && !hasSeenOrderId) {
-          pendingTxns.add(model);
           if (model.txhash.isNotEmpty) {
+            pendingTxns.add(model);
             seenTxHashes.add(model.txhash);
           }
           if (model.serviceOrderId != null) {
@@ -121,31 +123,15 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
 
     for (final ghostTxn in ghostTxns) {
       if (seenTxHashes.contains(ghostTxn.txhash)) {
-        //No-op: Skip those that are already added as swaps/pegs above
         continue;
       }
 
-      final networkTxn =
-          networkTxns.firstWhereOrNull((t) => t.txhash == ghostTxn.txhash);
-
-      if (networkTxn == null && networkTxns.isNotEmpty) {
-        final shouldIgnore = _shouldIgnoreGhost(
-          ghostTxn: ghostTxn,
-          lastNetworkTxn: networkTxns.last,
-        );
-        if (shouldIgnore) {
-          continue;
-        }
-      }
-      // If not ignored, check if it has enough confirmations
-      final confirmationCount = await confirmationService.getConfirmationCount(
-        asset,
-        networkTxn?.blockHeight ?? 0,
+      final isPending = await confirmationService.isGhostTransactionPending(
+        ghostTxn: ghostTxn,
+        asset: asset,
+        networkTxns: networkTxns,
       );
-      final confirmationThreshold =
-          confirmationService.getRequiredConfirmationCount(asset);
-
-      if (confirmationCount < confirmationThreshold) {
+      if (isPending) {
         pendingTxns.add(ghostTxn);
         seenTxHashes.add(ghostTxn.txhash);
       }
@@ -169,7 +155,6 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
       }
 
       // Check if Boltz swap is in a terminal state (expired, refunded, failed, etc.)
-      // These should not appear as pending
       if (orderId.isNotEmpty) {
         final order = boltzSwaps.firstWhereOrNull((o) => o.boltzId == orderId);
         final isBoltzSwapTerminal = order?.isTerminal ?? false;
@@ -177,52 +162,35 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
         if (order != null && isBoltzSwapTerminal) {
           continue;
         }
-      }
-      // Check if the Boltz transaction is older than the last network transaction
-      if (networkTxns.isNotEmpty) {
-        final shouldIgnore = _shouldIgnoreGhost(
-          ghostTxn: boltzTxn,
-          lastNetworkTxn: networkTxns.last,
-        );
-        if (shouldIgnore) {
+
+        if (order != null && order.lastKnownStatus?.isSubmarineUnpaid == true) {
           continue;
         }
       }
 
-      final networkTxn = boltzTxnHash.isNotEmpty
-          ? networkTxns.firstWhereOrNull((t) => t.txhash == boltzTxn.txhash)
-          : null;
-      final isBroadcastedByAqua = boltzTxnHash.isNotEmpty;
-      final isSeenInNetwork = networkTxn != null;
+      // Orphaned Boltz transaction: no matching Boltz order found and no
+      // on-chain tx hash to track. Use ghostTxnCreatedAt as a fallback -
+      // if the record is older than 24 hours, the swap is certainly expired.
+      if (orderId.isEmpty && boltzTxnHash.isEmpty) {
+        final createdAt = boltzTxn.ghostTxnCreatedAt;
+        if (createdAt == null ||
+            DateTime.now().difference(createdAt).inHours > kMaxBoltzAgeHours) {
+          continue;
+        }
+      }
 
-      // If Broadcasted by Aqua but not seen in network , it's still pending
-      if (isBroadcastedByAqua && !isSeenInNetwork) {
+      final isPending = await confirmationService.isGhostTransactionPending(
+        ghostTxn: boltzTxn,
+        asset: asset,
+        networkTxns: networkTxns,
+      );
+      if (isPending) {
         pendingTxns.add(boltzTxn);
         if (boltzTxnHash.isNotEmpty) {
           seenTxHashes.add(boltzTxnHash);
         }
         if (orderId.isNotEmpty) {
           seenBoltzOrderIds.add(orderId);
-        }
-        continue;
-      } else if (isSeenInNetwork) {
-        // If in network, check if it has enough confirmations
-        final confirmationCount =
-            await confirmationService.getConfirmationCount(
-          asset,
-          networkTxn.blockHeight ?? 0,
-        );
-        final confirmationThreshold =
-            confirmationService.getRequiredConfirmationCount(asset);
-
-        if (confirmationCount < confirmationThreshold) {
-          pendingTxns.add(boltzTxn);
-          if (boltzTxnHash.isNotEmpty) {
-            seenTxHashes.add(boltzTxnHash);
-          }
-          if (orderId.isNotEmpty) {
-            seenBoltzOrderIds.add(orderId);
-          }
         }
       }
     }
@@ -300,7 +268,7 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
       // Check if this transaction matches a peg order
       if (dbTxn == null && pegOrders != null) {
         final pegOrder = pegOrders.findMatchingOrder(
-          transactionId: txn.txhash!,
+          transactionId: txn.txhash,
           asset: asset,
           outputs: txn.outputs,
         );
@@ -359,19 +327,5 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
     }
 
     return uiModels;
-  }
-
-  bool _shouldIgnoreGhost({
-    required TransactionDbModel ghostTxn,
-    required GdkTransaction lastNetworkTxn,
-  }) {
-    // ignore weird db transactions
-    if (lastNetworkTxn.createdAtTs == null ||
-        ghostTxn.ghostTxnCreatedAt == null) {
-      return true;
-    }
-    // If ghost transaction is older than last network transaction, it's likely confirmed and should be ignored
-    return (ghostTxn.ghostTxnCreatedAt!.microsecondsSinceEpoch <
-        lastNetworkTxn.createdAtTs!);
   }
 }

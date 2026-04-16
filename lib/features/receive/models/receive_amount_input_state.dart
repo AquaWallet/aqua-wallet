@@ -16,15 +16,15 @@ class ReceiveAmountInputState with _$ReceiveAmountInputState {
     @Default('') String balanceDisplay,
     required String displayConversionAmount,
     required ExchangeRate rate,
-    @Default(AquaAssetInputUnit.crypto) AquaAssetInputUnit inputUnit,
+    @Default(AquaAssetInputUnit.crypto) AquaAssetInputUnit cryptoUnit,
     @Default(AquaAssetInputType.crypto) AquaAssetInputType inputType,
   }) = _ReceiveAmountInputState;
 }
 
 extension ReceiveAmountInputStateX on ReceiveAmountInputState {
-  bool get isSatsUnit => inputUnit == AquaAssetInputUnit.sats;
-  bool get isCryptoUnit => inputUnit == AquaAssetInputUnit.crypto;
-  bool get isBitsUnit => inputUnit == AquaAssetInputUnit.bits;
+  bool get isSatsUnit => cryptoUnit == AquaAssetInputUnit.sats;
+  bool get isCryptoUnit => cryptoUnit == AquaAssetInputUnit.crypto;
+  bool get isBitsUnit => cryptoUnit == AquaAssetInputUnit.bits;
   bool get isCryptoInput => inputType == AquaAssetInputType.crypto;
   bool get isFiatInput => inputType == AquaAssetInputType.fiat;
 }

@@ -4,7 +4,6 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:ui_components/components/text/text.dart';
 
 class WalletRestoreInputKeyboard extends HookConsumerWidget {
@@ -20,33 +19,36 @@ class WalletRestoreInputKeyboard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isCapsLock = ref.watch(mnemonicKeyboardCapsLockStatusProvider);
 
-    return Container(
-      margin: EdgeInsets.zero,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _KeyboardRow(
-            chars: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
-                .toMnemonicKeyboardKeys(capitalized: isCapsLock),
-            horizontalPadding: 12.0,
-            onKeyPressed: onKeyPressed,
-          ),
-          _KeyboardRow(
-            chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l']
-                .toMnemonicKeyboardKeys(capitalized: isCapsLock),
-            horizontalPadding: 32.0,
-            onKeyPressed: onKeyPressed,
-          ),
-          _KeyboardRow(
-            chars: ['z', 'x', 'c', 'v', 'b', 'n', 'm'].toMnemonicKeyboardKeys(
-              capitalized: isCapsLock,
-              withSpecialKeys: true,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Container(
+        margin: EdgeInsets.zero,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _KeyboardRow(
+              chars: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
+                  .toMnemonicKeyboardKeys(capitalized: isCapsLock),
+              horizontalPadding: 12.0,
+              onKeyPressed: onKeyPressed,
             ),
-            horizontalPadding: 12.0,
-            onKeyPressed: onKeyPressed,
-          ),
-        ],
+            _KeyboardRow(
+              chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l']
+                  .toMnemonicKeyboardKeys(capitalized: isCapsLock),
+              horizontalPadding: 32.0,
+              onKeyPressed: onKeyPressed,
+            ),
+            _KeyboardRow(
+              chars: ['z', 'x', 'c', 'v', 'b', 'n', 'm'].toMnemonicKeyboardKeys(
+                capitalized: isCapsLock,
+                withSpecialKeys: true,
+              ),
+              horizontalPadding: 12.0,
+              onKeyPressed: onKeyPressed,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -129,15 +131,13 @@ class _KeyboardKey extends StatelessWidget {
             size: context.adaptiveDouble(mobile: 26.0, smallMobile: 18),
             color: context.aquaColors.textPrimary,
           ),
-          backspace: () => SvgPicture.asset(
-            Svgs.backspace,
+          backspace: () => UiAssets.backspace.svg(
             colorFilter: ColorFilter.mode(
               Theme.of(context).colors.onBackground,
               BlendMode.srcIn,
             ),
           ),
-          capsLock: () => SvgPicture.asset(
-            Svgs.capsLock,
+          capsLock: () => UiAssets.capsLock.svg(
             colorFilter: ColorFilter.mode(
               Theme.of(context).colors.onBackground,
               BlendMode.srcIn,

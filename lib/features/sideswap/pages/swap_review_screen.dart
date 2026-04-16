@@ -1,5 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/constants.dart';
+import 'package:aqua/features/auth/auth_wrapper.dart';
 import 'package:aqua/features/home/pages/home_screen.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
@@ -106,28 +107,39 @@ class SwapReviewScreen extends HookConsumerWidget {
       return const TransactionProcessingAnimation();
     }
 
-    return Scaffold(
-      appBar: AquaAppBar(
-        title: context.loc.reviewSwap,
-        showActionButton: false,
+    void onBack() {
+      ref.invalidate(sideswapInputStateProvider);
+      ref.invalidate(sideswapWebsocketProvider);
+      ref.invalidate(pegProvider);
+      ref.invalidate(swapProvider);
+      context.popUntilPath(AuthWrapper.routeName);
+    }
+
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) onBack();
+      },
+      child: Scaffold(
+        appBar: AquaAppBar(
+          title: context.loc.reviewSwap,
+          showActionButton: false,
+          backgroundColor:
+              Theme.of(context).colors.swapReviewScreenBackgroundColor,
+          foregroundColor: Theme.of(context).colors.onBackground,
+          iconBackgroundColor:
+              Theme.of(context).colors.addressFieldContainerBackgroundColor,
+          iconForegroundColor: Theme.of(context).colors.onBackground,
+          onBackPressed: onBack,
+        ),
         backgroundColor:
             Theme.of(context).colors.swapReviewScreenBackgroundColor,
-        foregroundColor: Theme.of(context).colors.onBackground,
-        iconBackgroundColor:
-            Theme.of(context).colors.addressFieldContainerBackgroundColor,
-        iconForegroundColor: Theme.of(context).colors.onBackground,
-        onBackPressed: () {
-          ref.invalidate(sideswapInputStateProvider);
-          ref.invalidate(sideswapWebsocketProvider);
-          ref.invalidate(pegProvider);
-        },
-      ),
-      backgroundColor: Theme.of(context).colors.swapReviewScreenBackgroundColor,
-      body: Container(
-        padding: EdgeInsets.only(
-          top: context.adaptiveDouble(mobile: 24.0, smallMobile: 10.0),
+        body: Container(
+          padding: EdgeInsets.only(
+            top: context.adaptiveDouble(mobile: 24.0, smallMobile: 10.0),
+          ),
+          child: SingleChildScrollView(child: content),
         ),
-        child: SingleChildScrollView(child: content),
       ),
     );
   }

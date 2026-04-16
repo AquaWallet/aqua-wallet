@@ -1,5 +1,5 @@
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/config/constants/urls.dart';
+import 'package:aqua/gen/assets.gen.dart';
 import 'package:aqua/features/marketplace/models/on_ramp_regions_integrations.dart';
 import 'package:aqua/features/settings/exchange_rate/exchange_rate.dart';
 import 'package:aqua/features/settings/region/models/region.dart';
@@ -59,8 +59,8 @@ class OnRampIntegration with _$OnRampIntegration {
   // Static instances
   factory OnRampIntegration.beaverBitcoin() => OnRampIntegration(
         name: 'Beaver Bitcoin',
-        logoLight: SvgsMarketplace.beaverBlack,
-        logoDark: SvgsMarketplace.beaverWhite,
+        logoLight: UiAssets.marketplace.beaverBlack.path,
+        logoDark: UiAssets.marketplace.beaverWhite.path,
         type: OnRampIntegrationType.beaverBitcoin,
         paymentOptions: [PaymentOption.bankTransfer, PaymentOption.creditCard],
         deliveryOptions: [DeliveryOption.btc],
@@ -78,8 +78,8 @@ class OnRampIntegration with _$OnRampIntegration {
 
   factory OnRampIntegration.pocketBitcoin() => OnRampIntegration(
         name: 'Pocket Bitcoin',
-        logoLight: SvgsMarketplace.pocketBlack,
-        logoDark: SvgsMarketplace.pocketWhite,
+        logoLight: UiAssets.marketplace.pocketBlack.path,
+        logoDark: UiAssets.marketplace.pocketWhite.path,
         type: OnRampIntegrationType.pocketBitcoin,
         paymentOptions: [PaymentOption.bankTransfer, PaymentOption.creditCard],
         deliveryOptions: [DeliveryOption.btc],
@@ -98,8 +98,8 @@ class OnRampIntegration with _$OnRampIntegration {
 
   factory OnRampIntegration.btcDirect() => OnRampIntegration(
         name: 'BTC Direct',
-        logoLight: SvgsMarketplace.btcDirectBlack,
-        logoDark: SvgsMarketplace.btcDirectWhite,
+        logoLight: UiAssets.marketplace.btcDirectBlack.path,
+        logoDark: UiAssets.marketplace.btcDirectWhite.path,
         type: OnRampIntegrationType.btcDirect,
         paymentOptions: [
           PaymentOption.bankTransfer,
@@ -123,10 +123,10 @@ class OnRampIntegration with _$OnRampIntegration {
       );
 
   //NOTE: There are extensive Meld testing docs here: https://docs.meld.io/docs/crypto-testing-guide
-  factory OnRampIntegration.meld() => const OnRampIntegration(
+  factory OnRampIntegration.meld() => OnRampIntegration(
       name: 'Meld',
-      logoLight: SvgsMarketplace.meldBlack,
-      logoDark: SvgsMarketplace.meldWhite,
+      logoLight: UiAssets.marketplace.meldBlack.path,
+      logoDark: UiAssets.marketplace.meldWhite.path,
       type: OnRampIntegrationType.meld,
       paymentOptions: [PaymentOption.bankTransfer, PaymentOption.creditCard],
       deliveryOptions: [DeliveryOption.btc],

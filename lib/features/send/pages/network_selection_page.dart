@@ -12,9 +12,11 @@ class NetworkSelectionPage extends HookConsumerWidget {
   const NetworkSelectionPage({
     super.key,
     required this.args,
+    required this.goToStep,
   });
 
   final ValueNotifier<SendAssetArguments> args;
+  final void Function(SendFlowStep) goToStep;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,11 +33,9 @@ class NetworkSelectionPage extends HookConsumerWidget {
 
     final handleDismiss = useCallback(() {
       if (context.mounted) {
-        ref.read(sendFlowStepProvider.notifier).setStep(
-              SendFlowStep.address,
-            );
+        goToStep(SendFlowStep.address);
       }
-    }, [ref]);
+    }, [goToStep]);
 
     ref.listen(sendAssetInputStateProvider(args.value), (prev, next) {
       next.maybeWhen(
@@ -78,7 +78,7 @@ class NetworkSelectionPage extends HookConsumerWidget {
 
       if (newArgs != null) {
         args.value = newArgs;
-        ref.read(sendFlowStepProvider.notifier).setStep(SendFlowStep.amount);
+        goToStep(SendFlowStep.amount);
       }
     }, [args.value]);
 

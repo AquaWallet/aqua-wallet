@@ -105,7 +105,7 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
           : Center(
               child: AppbarButton(
                 key: SharedScreenKeys.sharedBackButton,
-                svgAssetName: Svgs.backButton,
+                svgAssetName: UiAssets.settingsBack.path,
                 elevated: darkMode && elevated,
                 outlineColor: iconOutlineColor ?? defaultIconOutlineColor,
                 foreground: iconForegroundColor ?? defaultIconForegroundColor,
@@ -126,7 +126,8 @@ class AquaAppBar extends HookConsumerWidget implements PreferredSizeWidget {
                     ? AppbarButton(
                         onPressed: onActionButtonPressed ?? () {},
                         elevated: darkMode && elevated,
-                        svgAssetName: actionButtonAsset ?? Svgs.support,
+                        svgAssetName:
+                            actionButtonAsset ?? UiAssets.support.path,
                         outlineColor:
                             iconOutlineColor ?? defaultIconOutlineColor,
                         foreground:

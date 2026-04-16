@@ -10,9 +10,11 @@ class LiquidFeeSelector extends HookConsumerWidget
   const LiquidFeeSelector({
     super.key,
     required this.args,
+    this.onFeeError,
   });
 
   final SendAssetArguments args;
+  final VoidCallback? onFeeError;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,7 +77,8 @@ class LiquidFeeSelector extends HookConsumerWidget
       return null;
     });
 
-    setupFeeOptionsErrorHandler(context, ref, feeOptionsProvider);
+    setupFeeOptionsErrorHandler(context, ref, feeOptionsProvider,
+        onRetry: onFeeError);
 
     return Row(
       children: [

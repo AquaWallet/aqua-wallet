@@ -48,23 +48,16 @@ class SplashScreen extends HookConsumerWidget {
         body: SafeArea(
           child: Column(
             children: [
-              const Spacer(flex: 5),
-              AquaIcon.aquaLogo(
-                size: 40,
-                color: AquaPrimitiveColors.palatinateBlue750,
-              ),
-              const Spacer(flex: 33),
+              const ScreenLogoHeader(),
+              const Spacer(flex: 12),
               Flexible(
                 flex: 31,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28),
-                    child: SplashTaglineText(text: tagline),
-                  ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: SplashTaglineText(text: tagline),
                 ),
               ),
-              const Spacer(flex: 31)
+              const Spacer(flex: 22)
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
 import 'package:aqua/features/marketplace/api_services/marketplace_service.dart';
+import 'package:aqua/features/marketplace/models/models.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/foundation.dart';
@@ -44,7 +45,16 @@ class EnabledServicesTypesNotifier
         .whereType<MarketplaceServiceAvailability>()
         .toList();
 
-    return allServices;
+    final currentRegion =
+        ref.watch(regionsProvider.select((p) => p.currentRegion));
+
+    return allServices.where((service) {
+      if (!service.isEnabled) return false;
+      final regions = RegionsIntegrations.supportedRegions(service.type);
+      if (regions == null) return true;
+      if (currentRegion == null) return false;
+      return regions.any((r) => r.iso == currentRegion.iso);
+    }).toList();
   }
 
   bool isTileEnabled(MarketplaceServiceType type) {

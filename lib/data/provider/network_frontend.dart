@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/data/models/gdk_models.dart';
+import 'package:aqua/features/notifications/notifications_service.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/data/provider/lwk_provider.dart';
 import 'package:aqua/features/send/providers/send_asset_used_utxo_provider.dart';
@@ -118,6 +119,12 @@ abstract class NetworkFrontend {
         // refresh balances & transactions
         await getBalance(requiresRefresh: true);
         await getTransactions(requiresRefresh: true);
+
+        final result = value as GdkTransactionEvent;
+        ref
+            .read(notificationsServiceProvider)
+            .showTransactionNotification(result);
+
         if (this is LiquidProvider) {
           await ref.read(lwkProvider).syncWallet();
         }

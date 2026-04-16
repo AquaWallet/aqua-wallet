@@ -71,7 +71,7 @@ void main() {
 
       final state = await container.read(provider.future);
 
-      expect(state.inputUnit, AquaAssetInputUnit.crypto);
+      expect(state.cryptoUnit, AquaAssetInputUnit.crypto);
     });
     test('input type should be crypto', () async {
       mockRefRateProvider.mockGetCurrentCurrency(value: kBtcUsdExchangeRate);
@@ -127,9 +127,9 @@ void main() {
 
       final finalState = await container.read(provider.future);
 
-      expect(initialState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(initialState.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(initialState.displayConversionAmount, '\$0.00');
-      expect(finalState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(finalState.cryptoUnit, AquaAssetInputUnit.crypto);
       // 100 BTC * 56690 USD/BTC = 5669000 USD (now correctly formatted as fiat)
       expect(finalState.displayConversionAmount, '\$5,669,000.00');
     });
@@ -237,7 +237,7 @@ void main() {
       mockRefRateProvider.mockGetCurrentCurrency(value: kBtcUsdExchangeRate);
       final state = await container.read(provider.future);
 
-      expect(state.inputUnit, AquaAssetInputUnit.crypto);
+      expect(state.cryptoUnit, AquaAssetInputUnit.crypto);
     });
     test('should change input unit from crypto to sats', () async {
       mockRefRateProvider.mockGetCurrentCurrency(value: kBtcUsdExchangeRate);
@@ -905,7 +905,7 @@ void main() {
       expect(fiatState.amountInSats, 1763979);
       expect(cryptoState.amountInSats, 100000000);
     });
-    test('should change unit to crypto on input type change to fiat', () async {
+    test('should preserve cryptoUnit on input type change to fiat', () async {
       final initialState = await container.read(provider.future);
 
       container.read(provider.notifier)
@@ -920,9 +920,9 @@ void main() {
 
       final cryptoState = await container.read(provider.future);
 
-      expect(initialState.inputUnit, AquaAssetInputUnit.crypto);
-      expect(fiatState.inputUnit, AquaAssetInputUnit.crypto);
-      expect(cryptoState.inputUnit, AquaAssetInputUnit.bits);
+      expect(initialState.cryptoUnit, AquaAssetInputUnit.crypto);
+      expect(fiatState.cryptoUnit, AquaAssetInputUnit.sats);
+      expect(cryptoState.cryptoUnit, AquaAssetInputUnit.bits);
     });
     test('should have correct conversion when input type is changed to fiat',
         () async {
@@ -961,23 +961,23 @@ void main() {
       final fiatState = await container.read(provider.future);
 
       expect(initialState.inputType, AquaAssetInputType.crypto);
-      expect(initialState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(initialState.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(initialState.amountFieldText, isNull);
       expect(initialState.displayConversionAmount, '\$0.00');
 
       expect(cryptoState.inputType, AquaAssetInputType.crypto);
-      expect(cryptoState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(cryptoState.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(cryptoState.amountFieldText,
           '100,000.00${kSpecialBtcSeparator}000${kSpecialBtcSeparator}000');
       expect(cryptoState.displayConversionAmount, '\$5,669,000,000.00');
 
       expect(satsState.inputType, AquaAssetInputType.crypto);
-      expect(satsState.inputUnit, AquaAssetInputUnit.sats);
+      expect(satsState.cryptoUnit, AquaAssetInputUnit.sats);
       expect(satsState.amountFieldText, '100,000');
       expect(satsState.displayConversionAmount, '\$56.69');
 
       expect(fiatState.inputType, AquaAssetInputType.fiat);
-      expect(fiatState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(fiatState.cryptoUnit, AquaAssetInputUnit.sats);
       expect(fiatState.amountFieldText, '56.69');
       // When switching from sats to fiat, "100,000" sats becomes "$56.69", so displayConversionAmount shows crypto equivalent of $56.69
       expect(fiatState.displayConversionAmount, '100,000');
@@ -1560,13 +1560,12 @@ void main() {
       expect(finalState.amountFieldText,
           '5,000.00${kSpecialBtcSeparator}000${kSpecialBtcSeparator}000');
       expect(finalState.inputType, AquaAssetInputType.crypto);
-      expect(finalState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(finalState.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(finalState.amountInSats, 500000000000);
       expect(submittedAmount, '500000000000');
     });
 
     test('should submit sats amount when switching input types', () async {
-      const kCryptoAmount = 1.5;
       const kSatsAmount = 150000000; // 1.5 BTC in sats
 
       await container.read(provider.future);
@@ -1578,14 +1577,15 @@ void main() {
         ..setType(AquaAssetInputType.crypto)
         ..setType(AquaAssetInputType.fiat)
         ..setType(AquaAssetInputType.crypto)
-        ..updateAmountFieldText(kCryptoAmount.toString())
         ..submitAmount();
 
       final finalState = await container.read(provider.future);
       final submittedAmount = container.read(receiveAssetAmountProvider);
 
-      expect(finalState.amountFieldText,
-          '1.50${kSpecialBtcSeparator}000${kSpecialBtcSeparator}000');
+      // sats unit is preserved through fiat/crypto type switches
+      expect(finalState.cryptoUnit, AquaAssetInputUnit.sats);
+      expect(finalState.amountFieldText, '150,000,000');
+      expect(finalState.amountInSats, kSatsAmount);
       expect(submittedAmount, '150000000');
     });
   });
@@ -1654,18 +1654,18 @@ void main() {
       final finalState = await container.read(provider.future);
 
       expect(initialState.inputType, AquaAssetInputType.crypto);
-      expect(initialState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(initialState.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(initialState.amountFieldText, isNull);
       expect(initialState.displayConversionAmount, '\$0.00');
 
       expect(inputState.inputType, AquaAssetInputType.crypto);
-      expect(inputState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(inputState.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(inputState.amountFieldText,
           '100,000.00${kSpecialBtcSeparator}000${kSpecialBtcSeparator}000');
       expect(inputState.displayConversionAmount, '\$5,669,000,000.00');
 
       expect(finalState.inputType, AquaAssetInputType.crypto);
-      expect(finalState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(finalState.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(finalState.amountFieldText, isNull);
       expect(finalState.displayConversionAmount, '\$0.00');
     });

@@ -1,4 +1,4 @@
-import 'package:aqua/config/config.dart';
+import 'package:aqua/config/constants/animations.dart' as animation;
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -121,7 +121,7 @@ class Asset with _$Asset {
             AssetType.usdtliquid, LiquidNetworkEnumType.mainnet),
         name: 'Liquid USDt',
         ticker: 'USDt',
-        logoUrl: Svgs.usdtAsset,
+        logoUrl: UiAssets.assetIcons.usdt.path,
         isLiquid: true,
         isUSDt: true,
         amount: amount,
@@ -131,7 +131,7 @@ class Asset with _$Asset {
         id: AssetIds.getAssetId(AssetType.lbtc, LiquidNetworkEnumType.mainnet),
         name: 'Liquid Bitcoin',
         ticker: 'L-BTC',
-        logoUrl: Svgs.liquidAsset,
+        logoUrl: UiAssets.assetIcons.liquid.path,
         isLiquid: true,
         isLBTC: true,
         amount: amount,
@@ -141,7 +141,7 @@ class Asset with _$Asset {
         name: 'Bitcoin',
         id: AssetIds.btc,
         ticker: 'BTC',
-        logoUrl: Svgs.btcAsset,
+        logoUrl: UiAssets.assetIcons.btc.path,
         isDefaultAsset: true,
         isLiquid: false,
         isLBTC: false,
@@ -153,7 +153,7 @@ class Asset with _$Asset {
         name: 'Ethereum USDt',
         id: AssetIds.usdtEth,
         ticker: 'USDt',
-        logoUrl: Svgs.ethUsdtAsset,
+        logoUrl: UiAssets.assetIcons.ethusdt.path,
         isDefaultAsset: false,
         isLiquid: false,
         isLBTC: false,
@@ -166,7 +166,7 @@ class Asset with _$Asset {
         name: 'Tron USDt',
         id: AssetIds.usdtTrx,
         ticker: 'USDt',
-        logoUrl: Svgs.tronUsdtAsset,
+        logoUrl: UiAssets.assetIcons.tronusdt.path,
         isLiquid: false,
         isDefaultAsset: false,
         isLBTC: false,
@@ -179,7 +179,7 @@ class Asset with _$Asset {
         name: 'Binance USDt',
         id: AssetIds.usdtBep,
         ticker: 'USDt',
-        logoUrl: Svgs.bepUsdtAsset,
+        logoUrl: UiAssets.assetIcons.bepusdt.path,
         isLiquid: false,
         isDefaultAsset: false,
         isLBTC: false,
@@ -192,7 +192,7 @@ class Asset with _$Asset {
         name: 'Solana USDt',
         id: AssetIds.usdtSol,
         ticker: 'USDt',
-        logoUrl: Svgs.solUsdtAsset,
+        logoUrl: UiAssets.assetIcons.solusdt.path,
         isLiquid: false,
         isDefaultAsset: false,
         isLBTC: false,
@@ -205,7 +205,7 @@ class Asset with _$Asset {
         name: 'Polygon USDt',
         id: AssetIds.usdtPol,
         ticker: 'USDt',
-        logoUrl: Svgs.polUsdtAsset,
+        logoUrl: UiAssets.assetIcons.polusdt.path,
         isLiquid: false,
         isDefaultAsset: false,
         isLBTC: false,
@@ -217,7 +217,7 @@ class Asset with _$Asset {
         name: 'Ton USDt',
         id: AssetIds.usdtTon,
         ticker: 'USDt',
-        logoUrl: Svgs.tonUsdtAsset,
+        logoUrl: UiAssets.assetIcons.tonusdt.path,
         isLiquid: false,
         isDefaultAsset: false,
         isLBTC: false,
@@ -229,7 +229,7 @@ class Asset with _$Asset {
         name: 'Lightning',
         id: AssetIds.lightning,
         ticker: 'BTC',
-        logoUrl: Svgs.lightningAsset,
+        logoUrl: UiAssets.assetIcons.l2.path,
         isDefaultAsset: true,
         isLiquid: false,
         isLBTC: false,
@@ -240,7 +240,7 @@ class Asset with _$Asset {
 
   // Testnet asset
   factory Asset.liquidTest() => Asset(
-        logoUrl: Svgs.unknownAsset,
+        logoUrl: UiAssets.assetIcons.assetUnknown.path,
         id: '38fca2d939696061a8f76d4e6b5eecd54e3b4221c846f24a6b279e79952850a5',
         name: 'Testnet Asset',
         ticker: 'TEST',
@@ -250,7 +250,7 @@ class Asset with _$Asset {
       );
 
   factory Asset.unknown() => Asset(
-        logoUrl: Svgs.unknownAsset,
+        logoUrl: UiAssets.assetIcons.assetUnknown.path,
         id: '',
         name: '',
         ticker: '',
@@ -289,7 +289,7 @@ extension AssetExt on Asset {
   /// any asset denominated in sats
   bool get isSatsAsset => isBTC || isLBTC || isLightning;
 
-  bool get isUnknown => logoUrl == Svgs.unknownAsset;
+  bool get isUnknown => logoUrl == UiAssets.assetIcons.assetUnknown.path;
   bool get selectable => !isBTC && !isLBTC && !isUSDt;
   bool get hasFiatRate => isBTC || isLBTC || isLightning;
 
@@ -311,6 +311,25 @@ extension AssetExt on Asset {
         _ when (isAnyUsdt) => FeeAsset.tetherUsdt,
         _ => FeeAsset.lbtc,
       };
+
+  String successAnimation(LiquidProvider liquid) => switch (this) {
+        _ when isLightning => animation.lightningCombined,
+        _ when isAnyUsdt => animation.waveLiquidUsdt,
+        _ when id == liquid.depixId => animation.waveDepix,
+        _ when id == liquid.mexasId => animation.waveMexas,
+        _ when id == liquid.eurXId => animation.waveEurx,
+        _ when isUnknown => animation.waveUnknown,
+        _ => animation.waveL2Bitcoin,
+      };
+
+  bool hasSuccessAnimation(LiquidProvider liquid) =>
+      isLightning ||
+      isLBTC ||
+      isAnyUsdt ||
+      isUnknown ||
+      id == liquid.depixId ||
+      id == liquid.mexasId ||
+      id == liquid.eurXId;
 
   // display name
   String get displayName {

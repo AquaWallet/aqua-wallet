@@ -99,7 +99,7 @@ class SecuritySettingsScreen extends HookConsumerWidget {
                 //   //ANCHOR - Auto Lock
                 //   MenuItemWidget.labeledArrow(
                 //     context: context,
-                //     assetName: Svgs.shieldCheckIcon,
+                //     assetName: UiAssets.shieldCheck.path,
                 //     color: context.colors.onBackground,
                 //     title: context.loc.autoLockSettingsScreenTitle,
                 //     label: _getAutoLockDisplayText(context, currentAutoLock),

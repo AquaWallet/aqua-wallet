@@ -23,8 +23,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: routes,
     //NOTE - All redirection logic goes here
     redirect: (context, state) async {
-      final auth = ref.read(jan3AuthProvider).valueOrNull;
-      final isLoggedIn = auth?.isAuthenticated ?? false;
+      final auth = ref.read(currentWalletAuthProvider);
+      final isLoggedIn = auth.isAuthenticated;
 
       if (!isLoggedIn && requiredLoginRoutes.contains(state.matchedLocation)) {
         return state.namedLocation(Jan3LoginScreen.routeName, queryParameters: {

@@ -6,12 +6,13 @@ import 'package:aqua/utils/utils.dart';
 import 'package:ui_components/ui_components.dart';
 
 mixin FeeOptionsErrorHandlerMixin {
-  /// Sets up error handling for fee options provider
   void setupFeeOptionsErrorHandler(
     BuildContext context,
     WidgetRef ref,
-    ProviderBase<AsyncValue<List<SendAssetFeeOptionModel>>> feeOptionsProvider,
-  ) {
+    ProviderBase<AsyncValue<List<SendAssetFeeOptionModel>>>
+        feeOptionsProvider, {
+    VoidCallback? onRetry,
+  }) {
     ref.listen(feeOptionsProvider, (prev, next) {
       if (prev?.error?.runtimeType == next.error.runtimeType) return;
 
@@ -29,10 +30,8 @@ mixin FeeOptionsErrorHandlerMixin {
           messageMaxLines: 10,
           primaryButtonText: context.loc.tryAgain,
           onPrimaryButtonTap: () {
-            context.pop(); // Close the modal
-            ref
-                .read(sendFlowStepProvider.notifier)
-                .setStep(SendFlowStep.amount);
+            context.pop();
+            onRetry?.call();
           },
           secondaryButtonText: context.loc.commonContactSupport,
           onSecondaryButtonTap: () => context.push(HelpSupportScreen.routeName),

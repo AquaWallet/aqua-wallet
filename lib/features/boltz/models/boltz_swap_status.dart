@@ -52,7 +52,8 @@ extension SwapStatusExtension on BoltzSwapStatus {
         this == BoltzSwapStatus.invoiceSet ||
         this == BoltzSwapStatus.transactionConfirmed ||
         this == BoltzSwapStatus.transactionMempool ||
-        this == BoltzSwapStatus.transactionClaimPending;
+        this == BoltzSwapStatus.transactionClaimPending ||
+        this == BoltzSwapStatus.submarineBroadcasted;
   }
 
   /// A reverse swap is ready for a claim tx

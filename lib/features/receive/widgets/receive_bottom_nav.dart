@@ -27,6 +27,7 @@ class ReceiveAssetBottomNav extends HookConsumerWidget {
       AquaBottomSheet.show(
         context,
         colors: context.aquaColors,
+        topBorderRadius: 8,
         content: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 21),
           child: Column(
@@ -38,11 +39,12 @@ class ReceiveAssetBottomNav extends HookConsumerWidget {
               if (address?.isNotEmpty ?? false) ...{
                 AquaListItem(
                   title: context.loc.receiveAssetScreenCopyAddressOptionShare,
-                  onTap: () async {
-                    await Share.share(address!);
-                    if (context.mounted) {
-                      context.pop();
-                    }
+                  onTap: () {
+                    Share.share(
+                      address!,
+                      sharePositionOrigin: context.sharePositionOrigin,
+                    );
+                    context.pop();
                   },
                   iconTrailing: AquaIcon.chevronForward(
                     color: context.aquaColors.textSecondary,
@@ -56,20 +58,15 @@ class ReceiveAssetBottomNav extends HookConsumerWidget {
               //ANCHOR - Share QR Image Button
               AquaListItem(
                 title: context.loc.receiveAssetScreenCopyAddressOptionImage,
-                onTap: () async {
-                  try {
-                    await shareWidgetAsImage(AquaAssetQRCode.qrKey);
-                  } catch (e) {
+                onTap: () {
+                  shareWidgetAsImage(AquaAssetQRCode.qrKey).catchError((e) {
                     if (context.mounted) {
                       context.showErrorSnackbar(
                         '${context.loc.failedToShareQrImage}: $e',
                       );
                     }
-                  } finally {
-                    if (context.mounted) {
-                      context.pop();
-                    }
-                  }
+                  });
+                  context.pop();
                 },
                 iconTrailing: AquaIcon.chevronForward(
                   color: context.aquaColors.textSecondary,

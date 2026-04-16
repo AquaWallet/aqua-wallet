@@ -46,9 +46,8 @@ class LegacyWalletScreen extends HookConsumerWidget {
     if (legacyMnemonic == null) return null;
 
     final fingerprint = generateBip32Fingerprint(legacyMnemonic);
-    final wallets =
-        await ref.read(storedWalletsProvider.notifier).loadStoredWallets();
-    final wallet = wallets.firstWhereOrNull((w) => w.id == fingerprint);
+    final wallet =
+        ref.read(storedWalletsProvider).valueOrNull?.getWalletById(fingerprint);
 
     return _LegacyInfo(
       fingerprint: fingerprint,

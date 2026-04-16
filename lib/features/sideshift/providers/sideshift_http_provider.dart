@@ -50,7 +50,11 @@ class OrderQuoteException implements Exception, OrderError {
 
 class LoadAssetsException implements Exception {}
 
-class LoadPairsException implements Exception {}
+class LoadPairsException implements Exception {
+  LoadPairsException([this.message]);
+
+  final String? message;
+}
 
 // Providers //////////////////////////////////////////////////////////////////s
 // Sideshift Http
@@ -91,7 +95,15 @@ class SideshiftHttpProvider {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       return SideShiftAssetPairInfo.fromJson(json);
     } else {
-      throw LoadPairsException();
+      logger.debug('[SideShift] Pair Error: ${response.body}');
+      String? message;
+      try {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        message = json['error']['message'] as String;
+      } catch (e) {
+        message = null;
+      }
+      throw LoadPairsException(message);
     }
   }
 

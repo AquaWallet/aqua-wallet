@@ -11,61 +11,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:ui_components/ui_components.dart';
 
 import '../../../../mocks/mocks.dart';
+import 'send_test_helpers.dart';
 
 const kUsdCurrencySymbol = '\$';
-
-List<Override> getStandardOverrides({
-  MockAddressParserProvider? addressParser,
-  MockManageAssetsProvider? manageAssets,
-  MockBitcoinProvider? bitcoin,
-  MockBalanceProvider? balance,
-  MockUserPreferencesNotifier? prefs,
-  Future<String?>? clipboardContent,
-  MockDisplayUnitsProvider? mockDisplayUnitsProvider,
-  ReferenceExchangeRateProviderMock? mockExchangeRatesProvider,
-}) =>
-    [
-      clipboardContentProvider
-          .overrideWith((_) => clipboardContent ?? Future.value(null)),
-      addressParserProvider
-          .overrideWith((_) => addressParser ?? MockAddressParserProvider()),
-      manageAssetsProvider
-          .overrideWith((_) => manageAssets ?? MockManageAssetsProvider()),
-      bitcoinProvider.overrideWith((_) => bitcoin ?? MockBitcoinProvider()),
-      balanceProvider.overrideWith((_) => balance ?? MockBalanceProvider()),
-      prefsProvider.overrideWith((_) => prefs ?? MockUserPreferencesNotifier()),
-      fiatRatesProvider.overrideWith(() => MockFiatRatesNotifier(rates: [
-            const BitcoinFiatRatesResponse(
-              name: 'US Dollar',
-              cryptoCode: 'BTC',
-              currencyPair: 'BTCUSD',
-              code: 'USD',
-              rate: 56690.0,
-            ),
-            const BitcoinFiatRatesResponse(
-              name: 'Euro',
-              cryptoCode: 'BTC',
-              currencyPair: 'BTCEUR',
-              code: 'EUR',
-              rate: 28342.0, // Approximate EUR/BTC rate
-            ),
-          ])),
-      formatterProvider.overrideWith((ref) => FormatterProvider(ref)),
-      formatProvider.overrideWith((ref) => FormatService(ref)),
-      // Add missing providers that send provider needs
-      displayUnitsProvider.overrideWith(
-          (ref) => mockDisplayUnitsProvider ?? MockDisplayUnitsProvider()),
-      exchangeRatesProvider.overrideWith((ref) =>
-          mockExchangeRatesProvider ?? ReferenceExchangeRateProviderMock()),
-      amountInputMutationsProvider
-          .overrideWith((ref) => MockCryptoAmountInputMutationsNotifier()),
-      amountInputServiceProvider.overrideWith((ref) => AmountInputService(
-            formatterProvider: ref.read(formatterProvider),
-            formatProvider: ref.read(formatProvider),
-            fiatRatesProvider: ref.watch(fiatRatesProvider),
-            unitsProvider: ref.read(displayUnitsProvider),
-          )),
-    ];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -1843,7 +1791,7 @@ void main() {
       final provider = sendAssetInputStateProvider(args);
       final state = await container.read(provider.future);
 
-      expect(state.inputUnit, AquaAssetInputUnit.crypto);
+      expect(state.cryptoUnit, AquaAssetInputUnit.crypto);
     });
 
     test('initial input unit should match display unit (sats -> sats)',
@@ -1877,7 +1825,7 @@ void main() {
       final provider = sendAssetInputStateProvider(args);
       final state = await mockContainer.read(provider.future);
 
-      expect(state.inputUnit, AquaAssetInputUnit.sats);
+      expect(state.cryptoUnit, AquaAssetInputUnit.sats);
     });
 
     test('initial input unit should match display unit (bits -> bits)',
@@ -1911,7 +1859,7 @@ void main() {
       final provider = sendAssetInputStateProvider(args);
       final state = await mockContainer.read(provider.future);
 
-      expect(state.inputUnit, AquaAssetInputUnit.bits);
+      expect(state.cryptoUnit, AquaAssetInputUnit.bits);
     });
 
     test('Lightning asset should use display unit (btc -> crypto)', () async {
@@ -1946,7 +1894,7 @@ void main() {
       final provider = sendAssetInputStateProvider(lightningArgs);
       final state = await mockContainer.read(provider.future);
 
-      expect(state.inputUnit, AquaAssetInputUnit.crypto);
+      expect(state.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(state.asset.isLightning, true);
     });
 
@@ -1982,7 +1930,7 @@ void main() {
       final provider = sendAssetInputStateProvider(lightningArgs);
       final state = await mockContainer.read(provider.future);
 
-      expect(state.inputUnit, AquaAssetInputUnit.sats);
+      expect(state.cryptoUnit, AquaAssetInputUnit.sats);
       expect(state.asset.isLightning, true);
     });
 
@@ -2018,7 +1966,7 @@ void main() {
       final provider = sendAssetInputStateProvider(lightningArgs);
       final state = await mockContainer.read(provider.future);
 
-      expect(state.inputUnit, AquaAssetInputUnit.bits);
+      expect(state.cryptoUnit, AquaAssetInputUnit.bits);
       expect(state.asset.isLightning, true);
     });
 
@@ -2057,7 +2005,7 @@ void main() {
       final state = await mockContainer.read(provider.future);
 
       // USDt should always use crypto unit, not sats
-      expect(state.inputUnit, AquaAssetInputUnit.crypto);
+      expect(state.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(state.asset.isUSDt, true);
     });
 
@@ -2096,7 +2044,7 @@ void main() {
       final state = await mockContainer.read(provider.future);
 
       // USDt should always use crypto unit, not bits
-      expect(state.inputUnit, AquaAssetInputUnit.crypto);
+      expect(state.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(state.asset.isUSDt, true);
     });
 
@@ -2126,12 +2074,12 @@ void main() {
       expect(cryptoState.amountFieldText, kInputAmount.toString());
       expect(cryptoState.amount, kOneBtcInSats * kInputAmount);
       expect(cryptoState.displayConversionAmount, '\$5,669,000.00');
-      expect(cryptoState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(cryptoState.cryptoUnit, AquaAssetInputUnit.crypto);
 
       // After unit change, amount should be reset
       expect(afterUnitChange.amountFieldText, isNull);
       expect(afterUnitChange.amount, 0);
-      expect(afterUnitChange.inputUnit, AquaAssetInputUnit.sats);
+      expect(afterUnitChange.cryptoUnit, AquaAssetInputUnit.sats);
       expect(afterUnitChange.isSendAllFunds, false);
       // For crypto input type with zero amount, display shows fiat amount
       expect(afterUnitChange.displayConversionAmount, '\$0.00');
@@ -2146,7 +2094,7 @@ void main() {
       expect(satsState.amountFieldText, kInputAmount.toString());
       expect(satsState.amount, kInputAmount);
       expect(satsState.displayConversionAmount, '\$0.06');
-      expect(satsState.inputUnit, AquaAssetInputUnit.sats);
+      expect(satsState.cryptoUnit, AquaAssetInputUnit.sats);
     });
 
     test('should reset amount when changing input unit from crypto to bits',
@@ -2173,12 +2121,12 @@ void main() {
       expect(cryptoState.amountFieldText, kInputAmount.toString());
       expect(cryptoState.amount, 10000000000); // 100 BTC in sats
       expect(cryptoState.displayConversionAmount, '\$5,669,000.00');
-      expect(cryptoState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(cryptoState.cryptoUnit, AquaAssetInputUnit.crypto);
 
       // After unit change, amount should be reset
       expect(afterUnitChange.amountFieldText, isNull);
       expect(afterUnitChange.amount, 0);
-      expect(afterUnitChange.inputUnit, AquaAssetInputUnit.bits);
+      expect(afterUnitChange.cryptoUnit, AquaAssetInputUnit.bits);
       expect(afterUnitChange.isSendAllFunds, false);
       expect(afterUnitChange.displayConversionAmount, '\$0.00');
 
@@ -2192,7 +2140,7 @@ void main() {
       expect(bitsState.amountFieldText, kInputAmount.toString());
       expect(bitsState.amount, 10000); // 100 bits * 100 sats/bit
       expect(bitsState.displayConversionAmount, '\$5.67');
-      expect(bitsState.inputUnit, AquaAssetInputUnit.bits);
+      expect(bitsState.cryptoUnit, AquaAssetInputUnit.bits);
     });
 
     test('should reset amount when changing input unit from sats to crypto',
@@ -2228,18 +2176,18 @@ void main() {
       // After switching to sats, amount should be reset
       expect(afterSatsChange.amountFieldText, isNull);
       expect(afterSatsChange.amount, 0);
-      expect(afterSatsChange.inputUnit, AquaAssetInputUnit.sats);
+      expect(afterSatsChange.cryptoUnit, AquaAssetInputUnit.sats);
       expect(afterSatsChange.isSendAllFunds, false);
 
       expect(satsState.amountFieldText, kAmountText);
       expect(satsState.amount, kAmount);
       expect(satsState.displayConversionAmount, '\$566.90');
-      expect(satsState.inputUnit, AquaAssetInputUnit.sats);
+      expect(satsState.cryptoUnit, AquaAssetInputUnit.sats);
 
       // After switching to crypto, amount should be reset
       expect(afterCryptoChange.amountFieldText, isNull);
       expect(afterCryptoChange.amount, 0);
-      expect(afterCryptoChange.inputUnit, AquaAssetInputUnit.crypto);
+      expect(afterCryptoChange.cryptoUnit, AquaAssetInputUnit.crypto);
       expect(afterCryptoChange.isSendAllFunds, false);
       expect(afterCryptoChange.displayConversionAmount, '\$0.00');
 
@@ -2251,7 +2199,7 @@ void main() {
 
       expect(cryptoState.amountFieldText, kAmountText);
       expect(cryptoState.displayConversionAmount, '\$56,690,000,000.00');
-      expect(cryptoState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(cryptoState.cryptoUnit, AquaAssetInputUnit.crypto);
     });
   });
 
@@ -2281,19 +2229,19 @@ void main() {
     // After switching to bits, amount should be reset
     expect(afterBitsChange.amountFieldText, isNull);
     expect(afterBitsChange.amount, 0);
-    expect(afterBitsChange.inputUnit, AquaAssetInputUnit.bits);
+    expect(afterBitsChange.cryptoUnit, AquaAssetInputUnit.bits);
     expect(afterBitsChange.isSendAllFunds, false);
 
     // 1,000,000 bits * 100 sats/bit = 100,000,000 sats (1 BTC)
     expect(bitsState.amountFieldText, kAmountText);
     expect(bitsState.amount, 100000000);
     expect(bitsState.displayConversionAmount, '\$56,690.00');
-    expect(bitsState.inputUnit, AquaAssetInputUnit.bits);
+    expect(bitsState.cryptoUnit, AquaAssetInputUnit.bits);
 
     // After switching to sats, amount should be reset
     expect(afterSatsChange.amountFieldText, isNull);
     expect(afterSatsChange.amount, 0);
-    expect(afterSatsChange.inputUnit, AquaAssetInputUnit.sats);
+    expect(afterSatsChange.cryptoUnit, AquaAssetInputUnit.sats);
     expect(afterSatsChange.isSendAllFunds, false);
 
     // Enter same number in sats mode - should be interpreted as sats
@@ -2303,7 +2251,7 @@ void main() {
     expect(satsState.amountFieldText, kAmountText);
     expect(satsState.amount, 1000000);
     expect(satsState.displayConversionAmount, '\$566.90');
-    expect(satsState.inputUnit, AquaAssetInputUnit.sats);
+    expect(satsState.cryptoUnit, AquaAssetInputUnit.sats);
   });
 
   test('should reset amount when changing unit (no amount preservation)',
@@ -2325,12 +2273,12 @@ void main() {
 
     expect(initialState.amount, 0);
     expect(cryptoState.amount, 10000000000); // 100 BTC in sats
-    expect(cryptoState.inputUnit, AquaAssetInputUnit.crypto);
+    expect(cryptoState.cryptoUnit, AquaAssetInputUnit.crypto);
 
     // Amount should be reset after unit change
     expect(afterUnitChange.amount, 0);
     expect(afterUnitChange.amountFieldText, isNull);
-    expect(afterUnitChange.inputUnit, AquaAssetInputUnit.sats);
+    expect(afterUnitChange.cryptoUnit, AquaAssetInputUnit.sats);
     expect(afterUnitChange.isSendAllFunds, false);
 
     // Enter same number in sats mode - should be interpreted as sats
@@ -2341,7 +2289,7 @@ void main() {
 
     expect(satsState.amount, 100); // 100 sats (not converted from BTC)
     expect(satsState.amountFieldText, kInputAmount.toString());
-    expect(satsState.inputUnit, AquaAssetInputUnit.sats);
+    expect(satsState.cryptoUnit, AquaAssetInputUnit.sats);
   });
 
   group('Input type', () {
@@ -3049,7 +2997,7 @@ void main() {
       expect(afterUnitChange.isSendAllFunds, true); // Now preserved
       expect(afterUnitChange.amount, 0);
       expect(afterUnitChange.amountFieldText, isNull);
-      expect(afterUnitChange.inputUnit, AquaAssetInputUnit.sats);
+      expect(afterUnitChange.cryptoUnit, AquaAssetInputUnit.sats);
     });
 
     test('should handle multiple consecutive rate changes', () async {
@@ -3096,7 +3044,7 @@ void main() {
 
       expect(initialState.amountFieldText, '1');
       expect(initialState.amount, 100000000); // 1 BTC in sats
-      expect(initialState.inputUnit, AquaAssetInputUnit.crypto);
+      expect(initialState.cryptoUnit, AquaAssetInputUnit.crypto);
 
       // First unit change: crypto -> sats
       container.read(provider.notifier).setUnit(AquaAssetInputUnit.sats);
@@ -3104,7 +3052,7 @@ void main() {
 
       expect(afterSatsChange.amountFieldText, isNull);
       expect(afterSatsChange.amount, 0);
-      expect(afterSatsChange.inputUnit, AquaAssetInputUnit.sats);
+      expect(afterSatsChange.cryptoUnit, AquaAssetInputUnit.sats);
 
       // Second unit change: sats -> bits
       container.read(provider.notifier).setUnit(AquaAssetInputUnit.bits);
@@ -3112,7 +3060,7 @@ void main() {
 
       expect(afterBitsChange.amountFieldText, isNull);
       expect(afterBitsChange.amount, 0);
-      expect(afterBitsChange.inputUnit, AquaAssetInputUnit.bits);
+      expect(afterBitsChange.cryptoUnit, AquaAssetInputUnit.bits);
 
       // Third unit change: bits -> crypto
       container.read(provider.notifier).setUnit(AquaAssetInputUnit.crypto);
@@ -3120,7 +3068,7 @@ void main() {
 
       expect(afterCryptoChange.amountFieldText, isNull);
       expect(afterCryptoChange.amount, 0);
-      expect(afterCryptoChange.inputUnit, AquaAssetInputUnit.crypto);
+      expect(afterCryptoChange.cryptoUnit, AquaAssetInputUnit.crypto);
     });
 
     test('should work correctly with USDt asset rate changes', () async {
@@ -3509,6 +3457,83 @@ void main() {
       container.read(provider.notifier).updateAmountFieldText('');
       final state = await container.read(provider.future);
       expect(state.amountFieldText, anyOf(isNull, isEmpty));
+    });
+  });
+
+  group('updateAddressFieldText with resetAmount', () {
+    test('should NOT reset amount fields when resetAmount is false (default)',
+        () async {
+      final provider = sendAssetInputStateProvider(args);
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: asset,
+          address: kFakeBitcoinAddress,
+        ),
+      );
+
+      await container.read(provider.future);
+
+      container
+          .read(provider.notifier)
+          .updateAmountFieldText(kPointOneBtc.toString());
+
+      final stateWithAmount = await container.read(provider.future);
+      expect(stateWithAmount.amount, kPointOneBtcInSats);
+      expect(stateWithAmount.amountFieldText, isNotNull);
+
+      await container
+          .read(provider.notifier)
+          .updateAddressFieldText(kFakeBitcoinAddress);
+
+      final state = await container.read(provider.future);
+      expect(state.addressFieldText, kFakeBitcoinAddress);
+      expect(state.amount, isNot(0));
+    });
+
+    test('should reset all amount-related fields when resetAmount is true',
+        () async {
+      final provider = sendAssetInputStateProvider(args);
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: asset,
+          address: kFakeBitcoinAddress,
+        ),
+      );
+
+      await container.read(provider.future);
+
+      // Set up state with amount, send-all, fiat input type, and adjusted amount
+      await container.read(provider.notifier).setSendMaxAmount(true);
+      container.read(provider.notifier).setType(AquaAssetInputType.fiat);
+      container
+          .read(provider.notifier)
+          .updateSwapDepositAmount(kOneBtcInSats + 1000);
+
+      final stateBefore = await container.read(provider.future);
+      expect(stateBefore.amount, kOneBtcInSats);
+      expect(stateBefore.isSendAllFunds, true);
+      expect(stateBefore.adjustedAmountToSend, kOneBtcInSats + 1000);
+
+      await container
+          .read(provider.notifier)
+          .updateAddressFieldText(kFakeBitcoinAddress, resetAmount: true);
+
+      final state = await container.read(provider.future);
+      expect(state.addressFieldText, kFakeBitcoinAddress);
+      expect(state.isAddressFieldEmpty, false);
+      expect(state.amount, 0);
+      expect(state.displayConversionAmount, isNull);
+      expect(state.isSendAllFunds, false);
+      expect(state.adjustedAmountToSend, isNull);
+      expect(state.inputType, AquaAssetInputType.crypto);
     });
   });
 

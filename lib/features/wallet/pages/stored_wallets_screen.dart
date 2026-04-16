@@ -27,7 +27,7 @@ class StoredWalletsScreen extends HookConsumerWidget with AuthGuardMixin {
         ref.watch(storedWalletsProvider.notifier).isWalletLimitReached;
     final onWalletSwitch = useCallback((String walletId) {
       final targetWallet =
-          wallets.firstWhereOrNull((wallet) => wallet.id == walletId);
+          ref.read(storedWalletsProvider).valueOrNull?.getWalletById(walletId);
 
       // ignore if wallet is already selected
       if (targetWallet?.id == currentWalletId) {

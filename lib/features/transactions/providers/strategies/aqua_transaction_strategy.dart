@@ -244,7 +244,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final canRbf = !isGhost &&
         await rbfService.isRbfAllowed(
           asset: args.asset,
-          txHash: networkTxn.txhash ?? '',
+          txHash: networkTxn.txhash,
         );
     final recipientGets = feesSats != null
         ? _getRecipientAmount(args, amountSats, feesSats)
@@ -257,7 +257,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     }
 
     return AssetTransactionDetailsUiModel.send(
-      transactionId: networkTxn.txhash ?? '',
+      transactionId: networkTxn.txhash,
       date: formatDate(networkTxn.createdAtTs),
       confirmations: confirmations,
       isPending: isPending,
@@ -271,7 +271,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       receiveAddress: args.dbTransaction?.receiveAddress ??
           networkTxn.outputs?.firstOrNull?.address,
       blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
-      notes: networkTxn.memo,
+      notes: args.dbTransaction?.note ?? networkTxn.memo,
       canRbf: canRbf,
       dbTransaction: args.dbTransaction,
       isLightning: false,
@@ -357,14 +357,14 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
           );
 
     return AssetTransactionDetailsUiModel.receive(
-      transactionId: networkTxn.txhash ?? '',
+      transactionId: networkTxn.txhash,
       date: formatDate(networkTxn.createdAtTs),
       confirmations: confirmations,
       isPending: isPending,
       receivedAmount: amount,
       receivedAmountFiat: amountFiat,
       receivedAsset: args.asset,
-      notes: networkTxn.memo,
+      notes: args.dbTransaction?.note ?? networkTxn.memo,
       blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
       dbTransaction: args.dbTransaction,
       isLightning: false,
@@ -375,7 +375,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     TransactionDetailsStrategyArgs args,
   ) async {
     final networkTxn = args.networkTransaction!;
-    final isConfidential = networkTxn.outputs?.first.assetId != null;
+    final isConfidential = networkTxn.outputs?.first.assetId == null;
     final amountSats = networkTxn.outputs?.first.satoshi as int;
 
     final confirmationCount = await confirmationService.getConfirmationCount(
@@ -405,7 +405,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     );
 
     return AssetTransactionDetailsUiModel.redeposit(
-      transactionId: networkTxn.txhash ?? '',
+      transactionId: networkTxn.txhash,
       asset: args.asset,
       date: formatDate(networkTxn.createdAtTs),
       confirmations: formatter.formatConfirmations(
@@ -418,7 +418,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       amountFiat: amountFiat ?? '',
       feeAmount: feeAmount,
       feeAssetTicker: args.asset.ticker,
-      notes: networkTxn.memo,
+      notes: args.dbTransaction?.note ?? networkTxn.memo,
       blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
       dbTransaction: args.dbTransaction,
     );
@@ -484,6 +484,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       feeAmountFiat: feeAmountFiat,
       feeAsset: feeAsset,
       canRbf: canRbf,
+      notes: dbTxn.note,
       dbTransaction: dbTxn,
       isLightning: false,
       feeForAsset: args.feeForAsset,
@@ -515,13 +516,14 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       final amountFiat = convertToFiat(args.asset, sats);
 
       return AssetTransactionDetailsUiModel.receive(
-        transactionId: networkTxn.txhash ?? '',
+        transactionId: networkTxn.txhash,
         date: formatDate(networkTxn.createdAtTs),
         confirmations: appLocalizations.pending,
         isPending: true,
         receivedAmount: amount,
         receivedAmountFiat: amountFiat,
         receivedAsset: args.asset,
+        notes: null,
         dbTransaction: null,
       );
     }
@@ -543,6 +545,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       receivedAmount: receivedAmount,
       receivedAmountFiat: amountFiat,
       receivedAsset: args.asset,
+      notes: dbTxn.note,
       dbTransaction: dbTxn,
     );
   }

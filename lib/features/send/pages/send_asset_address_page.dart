@@ -36,10 +36,12 @@ class SendAssetAddressPage extends HookConsumerWidget {
     super.key,
     required this.onContinuePressed,
     required this.arguments,
+    required this.onStepReset,
   });
 
   final OnSendAddressSubmit onContinuePressed;
   final SendAssetArguments arguments;
+  final VoidCallback onStepReset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,7 +82,7 @@ class SendAssetAddressPage extends HookConsumerWidget {
     }, []);
 
     final onScanPressed = useCallback(() async {
-      ref.read(sendFlowStepProvider.notifier).reset();
+      onStepReset();
 
       final result = await context.push(
         ScanScreen.routeName,
@@ -200,7 +202,7 @@ class SendAssetAddressPage extends HookConsumerWidget {
                         onChanged: (value) {
                           if (value.isEmpty) {
                             ref.invalidate(provider);
-                            ref.read(sendFlowStepProvider.notifier).reset();
+                            onStepReset();
                           } else {
                             ref
                                 .read(provider.notifier)

@@ -24,6 +24,8 @@ class MarketplaceButtonGrid extends HookConsumerWidget {
         MarketplaceServiceType.debitCard: () => const DebitCardTile(),
         // MarketplaceServiceType.giftCards: () => const GiftCardTile(),
         MarketplaceServiceType.lendasat: () => const LendasatTile(),
+        MarketplaceServiceType.chapsmart: () => const ChapsmartTile(),
+        MarketplaceServiceType.moneybadger: () => const MoneyBadgerTile(),
       };
     }, []);
 
@@ -41,9 +43,7 @@ class MarketplaceButtonGrid extends HookConsumerWidget {
                 child: CircularProgressIndicator(),
               ),
           data: (services) {
-            // Only show enabled services
             final enabledServices = services
-                .where((service) => service.isEnabled)
                 .map((service) => service.type)
                 .map((type) => allServices[type]?.call())
                 .whereType<Widget>()

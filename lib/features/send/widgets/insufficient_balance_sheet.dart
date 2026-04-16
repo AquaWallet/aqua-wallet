@@ -1,8 +1,6 @@
-import 'package:aqua/config/config.dart';
+import 'package:aqua/gen/assets.gen.dart';
 import 'package:aqua/utils/utils.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 enum InsufficientFundsType {
@@ -26,8 +24,7 @@ class InsufficientBalanceSheet extends HookConsumerWidget {
         children: [
           const SizedBox(height: 88.0),
           //ANCHOR - Illustration
-          SvgPicture.asset(
-            Svgs.insufficientBalance,
+          UiAssets.insufficientBalance.svg(
             width: 92.0,
             height: 80.0,
           ),

@@ -7,4 +7,8 @@ extension MockFeatureFlagsProviderX on MockFeatureFlagsProvider {
   void mockFakeBroadcastsEnabled(bool value) {
     when(() => fakeBroadcastsEnabled).thenReturn(value);
   }
+
+  void mockDbJsonExportEnabled(bool value) {
+    when(() => dbJsonExportEnabled).thenReturn(value);
+  }
 }

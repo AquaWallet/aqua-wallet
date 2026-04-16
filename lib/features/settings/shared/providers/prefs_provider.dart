@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aqua/config/config.dart';
+import 'package:aqua/features/notifications/notifications_service_model.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -377,4 +378,31 @@ class UserPreferencesNotifier extends ChangeNotifier {
     _prefs.setBool(PrefKeys.lightningReceiveWarningDisplayed, true);
     notifyListeners();
   }
+
+  //ANCHOR - Transaction Notifications
+
+  bool isNotificationsSettingsEnabled(NotificationChannelType type) {
+    final prefKey = mapNotificationTypeToPrefKey[type];
+    if (prefKey == null) {
+      throw Exception('');
+    }
+
+    return _prefs.getBool(prefKey) ?? false;
+  }
+
+  Future<void> setNotificationsSettings(
+      {required NotificationChannelType type, required bool enabled}) async {
+    final prefKey = mapNotificationTypeToPrefKey[type];
+
+    if (prefKey == null) {
+      throw Exception('');
+    }
+
+    _prefs.setBool(prefKey, enabled);
+    notifyListeners();
+  }
 }
+
+final Map<NotificationChannelType, String> mapNotificationTypeToPrefKey = {
+  NotificationChannelType.transaction: PrefKeys.transactionNotifications
+};

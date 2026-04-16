@@ -13,7 +13,7 @@ class TransactionSuccessArguments with _$TransactionSuccessArguments {
     required NetworkType network,
     required Asset asset,
     required int createdAt,
-    required AquaAssetInputUnit inputUnit,
+    required AquaAssetInputUnit cryptoUnit,
     int? totalAmountSent,
     int? amountToReceive,
     String? amountFiat,

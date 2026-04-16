@@ -1,5 +1,4 @@
 import 'package:aqua/common/common.dart';
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
@@ -23,7 +22,7 @@ mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
             context: context,
             height: 400.0,
             isDismissible: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.importTxnHistorySheetTitle,
             message: context.loc.checkTxnHistoryBackupSheetMessage,
             confirmButtonLabel: context.loc.importTxnHistorySheetConfirmButton,
@@ -34,7 +33,7 @@ mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
             context: context,
             height: 380.0,
             isDismissible: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.importTxnHistorySheetTitle,
             message: context.loc.importTxnHistorySheetMessage,
             confirmButtonLabel: context.loc.importTxnHistorySheetRestoreButton,
@@ -46,7 +45,7 @@ mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
             height: 320.0,
             isDismissible: false,
             showCancelButton: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.importTxnHistoryNotFoundSheetTitle,
             message: context.loc.importTxnHistoryNotFoundSheetMessage,
             confirmButtonLabel: context.loc.okay,
@@ -55,7 +54,7 @@ mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
             context: context,
             height: 380.0,
             isDismissible: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.permissionDenied,
             message: context.loc.importTxnHistoryPermissionDeniedSheetMessage,
             confirmButtonLabel: context.loc.requestPermission,
@@ -67,7 +66,7 @@ mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
             height: 320.0,
             isDismissible: false,
             showCancelButton: false,
-            svgPath: Svgs.backupWallet,
+            svgPath: UiAssets.backupWallet.path,
             title: context.loc.importTxnHistorySuccessSheetTitle,
             message: context.loc.importTxnHistorySuccessSheetMessage,
             confirmButtonLabel: context.loc.continueLabel,
@@ -80,7 +79,7 @@ mixin RestoreTransactionMixin<T extends Widget> on HookConsumerWidget {
             height: 320.0,
             isDismissible: false,
             showCancelButton: false,
-            svgPath: Svgs.failure,
+            svgPath: UiAssets.failure.path,
             title: context.loc.importTxnHistoryErrorSheetTitle,
             message: error is ExceptionLocalized
                 ? error.toLocalizedString(context)

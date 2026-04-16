@@ -1,4 +1,3 @@
-import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -22,7 +21,7 @@ class ClearInputButton extends ConsumerWidget {
           color: Colors.transparent,
           padding: EdgeInsets.zero,
           child: SvgPicture.asset(
-            Svgs.clearInput,
+            UiAssets.clearInput.path,
           ),
         ),
       ),

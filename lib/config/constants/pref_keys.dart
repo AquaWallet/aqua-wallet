@@ -20,7 +20,6 @@ class PrefKeys {
   static const txnDbRestoreReminder = 'txn_db_restore_reminder';
   // Experimental Feature Flags
   static const multipleOnramps = 'multiple_onramps';
-  static const addNoteEnabled = 'add_note_enabled';
   static const statusIndicator = 'status_indicator';
   static const lnurlWithdrawEnabled = 'lnurl_withdraw_enabled';
   static const pokerChipSweepEnabled = 'poker_chip_sweep_enabled';
@@ -31,19 +30,20 @@ class PrefKeys {
   static const throwAquaBroadcastErrorEnabled =
       'throw_aqua_broadcast_error_enabled';
   static const dbExportEnabled = 'db_export_enabled';
+  static const dbJsonExportEnabled = 'db_json_export_enabled';
   static const forceAquaNodeNotSyncedEnabled =
       'force_aqua_node_not_synced_enabled';
   static const changellyForUSDtSwapsEnabled = 'changelly_usdt_swaps_enabled';
   static const btcDirectEnabled = 'btc_direct_enabled';
   static const balanceHidden = "balance_hidden";
   static const displayUnits = 'display_units';
-  static const displayUnitsEnabled = 'display_units_enabled';
   static const customElectrumUrlEnabled = 'customElectrumUrlEnabled';
   static const debitCardStagingEnabled = 'debitCardStagingEnabled';
   static const jan3CardExpanded = 'jan3_card_expanded';
   static const lendASatMockDataEnabled = 'lendASatMockDataEnabled';
   static const marketplaceTilesMockDataEnabled =
       'marketplaceTilesMockDataEnabled';
+  static const notificationsEnabled = 'notifications_enabled';
 
   // Per-wallet settings keys
   static String userAssetsForWallet(String walletId, String env) {
@@ -56,4 +56,5 @@ class PrefKeys {
       'non_liquid_usdt_receive_warning_displayed';
   static const lightningReceiveWarningDisplayed =
       'lightning_receive_warning_displayed';
+  static const transactionNotifications = 'transaction_notifications';
 }

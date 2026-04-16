@@ -1,5 +1,4 @@
 import 'package:aqua/common/decimal/decimal_ext.dart';
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
@@ -44,32 +43,32 @@ extension SwapAssetExt on SwapAsset {
   }
 
   String getLogoUrl() {
-    if (id == AssetIds.btc) return Svgs.btcAsset;
-    if (id == AssetIds.lightning) return Svgs.lightningAsset;
+    if (id == AssetIds.btc) return UiAssets.assetIcons.btc.path;
+    if (id == AssetIds.lightning) return UiAssets.assetIcons.l2.path;
     if (isUSDt()) {
       switch (id) {
         case AssetIds.usdtEth:
-          return Svgs.ethUsdtAsset;
+          return UiAssets.assetIcons.ethusdt.path;
         case AssetIds.usdtTrx:
-          return Svgs.tronUsdtAsset;
+          return UiAssets.assetIcons.tronusdt.path;
         case AssetIds.usdtBep:
-          return Svgs.bepUsdtAsset;
+          return UiAssets.assetIcons.bepusdt.path;
         case AssetIds.usdtSol:
-          return Svgs.solUsdtAsset;
+          return UiAssets.assetIcons.solusdt.path;
         case AssetIds.usdtPol:
-          return Svgs.polUsdtAsset;
+          return UiAssets.assetIcons.polusdt.path;
         case AssetIds.usdtTon:
-          return Svgs.tonUsdtAsset;
+          return UiAssets.assetIcons.tonusdt.path;
         default:
           if (id ==
               AssetIds.getAssetId(
                   AssetType.usdtliquid, LiquidNetworkEnumType.mainnet)) {
-            return Svgs.usdtAsset;
+            return UiAssets.assetIcons.usdt.path;
           }
           break;
       }
     }
-    return Svgs.unknownAsset;
+    return UiAssets.assetIcons.assetUnknown.path;
   }
 
   bool isDefaultAsset() {

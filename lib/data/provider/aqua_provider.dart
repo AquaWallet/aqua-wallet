@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:aqua/config/config.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
@@ -332,7 +331,7 @@ class _AquaProvider extends AquaProvider {
         isLiquid: true,
         isLBTC: ref.read(liquidProvider).policyAsset == asset.assetId,
         isUSDt: ref.read(liquidProvider).usdtId == asset.assetId,
-        logoUrl: Svgs.liquidAsset,
+        logoUrl: UiAssets.assetIcons.liquid.path,
       );
     }
 

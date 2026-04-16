@@ -8,14 +8,14 @@ import 'package:aqua/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final tokenRefreshNotifierProvider =
-    AsyncNotifierProvider<TokenRefreshNotifier, void>(
-        () => TokenRefreshNotifier());
+    AsyncNotifierProvider.family<TokenRefreshNotifier, void, String>(
+        TokenRefreshNotifier.new);
 
 final logger = CustomLogger(FeatureFlag.jan3AuthToken);
 
-class TokenRefreshNotifier extends AsyncNotifier<void> {
+class TokenRefreshNotifier extends FamilyAsyncNotifier<void, String> {
   @override
-  Future<void> build() async {}
+  Future<void> build(String arg) async {}
 
   Future<void> refreshToken() async {
     if (state.isLoading) {
@@ -26,13 +26,15 @@ class TokenRefreshNotifier extends AsyncNotifier<void> {
       return;
     }
 
+    final tokenKey = Jan3AuthTokenManager.tokenKeyForWallet(arg);
+
     state = await AsyncValue.guard(() async {
       final api = await ref.read(jan3RequestTokenApiProvider.future);
       final storage = ref.read(secureStorageProvider);
 
       logger.debug('[TokenRefreshNotifier] refreshToken called');
 
-      final (token, error) = await storage.get(Jan3AuthTokenManager.tokenKey);
+      final (token, error) = await storage.get(tokenKey);
       if (error != null) {
         logger.debug('[TokenRefreshNotifier] No token found');
         return;
@@ -50,16 +52,16 @@ class TokenRefreshNotifier extends AsyncNotifier<void> {
           refresh: oldToken.refresh,
         );
 
-        await storage.delete(Jan3AuthTokenManager.tokenKey);
+        await storage.delete(tokenKey);
         await storage.save(
-          key: Jan3AuthTokenManager.tokenKey,
+          key: tokenKey,
           value: jsonEncode(newToken.toJson()),
         );
 
         logger.debug('[TokenRefreshNotifier] Token refreshed');
       } else {
         logger.warning('[TokenRefreshNotifier] Token refresh failed');
-        await storage.delete(Jan3AuthTokenManager.tokenKey);
+        await storage.delete(tokenKey);
         throw Exception('Token refresh failed');
       }
     });

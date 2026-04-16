@@ -1,8 +1,8 @@
 import 'package:aqua/common/common.dart';
 import 'package:aqua/config/constants/constants.dart' as constants;
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/bip329/bip329_settings_screen.dart';
+import 'package:aqua/features/settings/notifications/notifications.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
 import 'package:aqua/features/settings/shared/widgets/settings_tab_tiles_wrapper.dart';
@@ -43,8 +43,8 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
         .watch(featureFlagsProvider.select((p) => p.customElectrumUrlEnabled));
     final isJan3CardVisible =
         ref.watch(prefsProvider.select((p) => p.isJan3CardExpanded));
-    final isNotesEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.addNoteEnabled));
+    final isNotificationsEnabled =
+        ref.watch(featureFlagsProvider.select((p) => p.notificationsEnabled));
 
     final currentBlockExplorer =
         ref.watch(blockExplorerProvider.select((p) => p.currentBlockExplorer));
@@ -53,8 +53,8 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
     final walletState = ref.watch(storedWalletsProvider).valueOrNull;
     final currentWallet = walletState?.currentWallet;
     final currentWalletName = currentWallet?.name;
-    final accountState = ref.watch(jan3AuthProvider).valueOrNull;
-    final isAuthenticated = accountState?.isAuthenticated ?? false;
+    final accountState = ref.watch(currentWalletAuthProvider);
+    final isAuthenticated = accountState.isAuthenticated;
 
     return DesignRevampScaffold(
       extendBodyBehindAppBar: true,
@@ -288,6 +288,20 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                   onTap: () =>
                       context.push(BlockExplorerSettingsScreen.routeName),
                 ),
+                //ANCHOR - Notes
+                const SizedBox(height: 1.0),
+                AquaListItem(
+                  iconLeading: AquaIcon.note(
+                    size: 24,
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  iconTrailing: AquaIcon.chevronForward(
+                    size: 18,
+                    color: context.aquaColors.textSecondary,
+                  ),
+                  title: context.loc.notesSettingsScreenTitle,
+                  onTap: () => context.push(NotesSettingsScreen.routeName),
+                ),
                 const SizedBox(height: 1.0),
                 //ANCHOR - Security Settings
                 AquaListItem(
@@ -302,6 +316,24 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                   title: context.loc.securitySetingsTitle,
                   onTap: () => context.push(SecuritySettingsScreen.routeName),
                 ),
+                const SizedBox(height: 1.0),
+                //ANCHOR - Notifications Settings
+                if (isNotificationsEnabled) ...[
+                  AquaListItem(
+                    iconLeading: AquaIcon.notification(
+                      size: 24,
+                      color: context.aquaColors.textSecondary,
+                    ),
+                    iconTrailing: AquaIcon.chevronRight(
+                      size: 18,
+                      color: context.aquaColors.textSecondary,
+                    ),
+                    title: context.loc.notificationsSettingsScreenTitle,
+                    onTap: () =>
+                        context.push(NotificationsSettingsScreen.routeName),
+                  ),
+                  const SizedBox(height: 1.0),
+                ],
               ],
             ),
             const SizedBox(height: 24.0),
@@ -337,27 +369,13 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                     context.push(ElectrumServerSettingsScreen.routeName),
               ),
             ],
-
             const SizedBox(height: 36.0),
-
-            //ANCHOR - Notes
-            if (isNotesEnabled) ...[
-              const SizedBox(height: 4.0),
-              MenuItemWidget.arrow(
-                context: context,
-                assetName: Svgs.addNote,
-                color: context.colors.onBackground,
-                title: context.loc.notesSettingsScreenTitle,
-                onPressed: () => context.push(NotesSettingsScreen.routeName),
-              ),
-            ],
-            const SizedBox(height: 4.0),
             //ANCHOR - Jan3 Logo
             Center(
               child: SvgPicture.asset(
                 darkMode
-                    ? Svgs.jan3LogoWithAquaLight
-                    : Svgs.jan3LogoWithAquaDark,
+                    ? UiAssets.jan3LogoWithAquaLight.path
+                    : UiAssets.jan3LogoWithAquaDark.path,
               ),
             ),
             const SizedBox(height: 32.0),

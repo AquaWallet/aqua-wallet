@@ -599,7 +599,7 @@ class GdkTransaction with _$GdkTransaction {
     @JsonKey(name: 'transaction_version') int? transactionVersion,
     @JsonKey(name: 'transaction_vsize') int? transactionVsize,
     @JsonKey(name: 'transaction_weight') int? transactionWeight,
-    String? txhash,
+    required String txhash,
     GdkTransactionTypeEnum? type,
     int? vsize,
     String? swapOutgoingAssetId,

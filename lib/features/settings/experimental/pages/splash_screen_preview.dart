@@ -31,6 +31,11 @@ class SplashScreenPreview extends HookConsumerWidget {
       return timer.cancel;
     }, [tagLines.length]);
 
-    return SplashScreen(tagline: tagLines[currentIndex.value]);
+    return Scaffold(
+        floatingActionButton: FloatingActionButton.small(
+          onPressed: () => context.push(WelcomeScreen.routeName),
+          child: const Icon(Icons.arrow_forward),
+        ),
+        body: SplashScreen(tagline: tagLines[currentIndex.value]));
   }
 }

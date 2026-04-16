@@ -38,6 +38,6 @@ final boltzBroadcastProvider =
   } on DioException catch (e) {
     _logger.error(
         "broadcast transaction error: ${e.response?.statusCode}, ${e.response?.data}");
-    throw Exception(e);
+    throw Exception(e.message);
   }
 });

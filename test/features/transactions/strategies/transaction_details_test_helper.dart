@@ -342,6 +342,7 @@ TransactionDbModel createMockDbTransaction({
   int? estimatedFee,
   double? exchangeRateAtExecution,
   String? currencyAtExecution,
+  String? note,
 }) {
   return TransactionDbModel(
     txhash: txhash ?? 'mock_db_tx_hash',
@@ -360,5 +361,6 @@ TransactionDbModel createMockDbTransaction({
     estimatedFee: estimatedFee,
     exchangeRateAtExecution: exchangeRateAtExecution,
     currencyAtExecution: currencyAtExecution,
+    note: note,
   );
 }

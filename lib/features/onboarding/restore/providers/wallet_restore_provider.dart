@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
-import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/wallet/utils/bip32_utils.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 
@@ -43,11 +42,11 @@ class WalletRestoreNotifier extends AsyncNotifier<bool> {
         // NOTE - No need to remind for backup since we're restoring
         ref.read(backupReminderProvider).setIsWalletBackedUp(true);
 
-        final wallets =
-            ref.read(storedWalletsProvider).valueOrNull?.wallets ?? [];
         final walletId = generateBip32Fingerprint(seedPhrase);
-        final existingWallet =
-            wallets.firstWhereOrNull((w) => w.id == walletId);
+        final existingWallet = ref
+            .read(storedWalletsProvider)
+            .valueOrNull
+            ?.getWalletById(walletId);
 
         if (existingWallet != null) {
           throw WalletRestoreWalletAlreadyExistsException();
@@ -109,9 +108,9 @@ class WalletRestoreNotifier extends AsyncNotifier<bool> {
 
     // Handle wallet names for multi-wallet
     // Check if wallet already exists
-    final wallets = ref.read(storedWalletsProvider).valueOrNull?.wallets ?? [];
     final walletId = generateBip32Fingerprint(mnemonic);
-    final existingWallet = wallets.firstWhereOrNull((w) => w.id == walletId);
+    final existingWallet =
+        ref.read(storedWalletsProvider).valueOrNull?.getWalletById(walletId);
 
     if (existingWallet != null) {
       state = AsyncValue.error(

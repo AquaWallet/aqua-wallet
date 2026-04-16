@@ -87,8 +87,10 @@ class ReceiveAssetAmountValidationNotifier
 
   String _formatLimitWithUnits(int sats, Asset asset) {
     final formatter = ref.read(formatProvider);
-    final units = ref.read(displayUnitsProvider);
-    final displayUnit = units.currentDisplayUnit;
+    final input = ref.read(receiveAssetInputStateProvider(arg)).valueOrNull;
+    final displayUnit = input != null
+        ? SupportedDisplayUnits.fromAssetInputUnit(input.cryptoUnit)
+        : ref.read(displayUnitsProvider).currentDisplayUnit;
     final formatted = formatter.formatAssetAmount(
       amount: sats,
       asset: asset,

@@ -3,6 +3,7 @@ import 'package:aqua/features/bip329/bip329_export_provider.dart';
 import 'package:aqua/features/bip329/bip329_import_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:ui_components/gen/assets.gen.dart';
 
 class NotesSettingsScreen extends HookConsumerWidget {
   static const routeName = '/notesSettingsScreen';
@@ -37,9 +38,10 @@ class NotesSettingsScreen extends HookConsumerWidget {
             ),
             const SizedBox(height: 32.0),
             InkWell(
-                onTap: () => ref
-                    .read(bip329ExportNotifierProvider.notifier)
-                    .exportNotes(),
+                onTap: () =>
+                    ref.read(bip329ExportNotifierProvider.notifier).exportNotes(
+                          sharePositionOrigin: context.sharePositionOrigin,
+                        ),
                 child: Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
@@ -63,11 +65,11 @@ class NotesSettingsScreen extends HookConsumerWidget {
           const SizedBox(height: 32.0),
           InkWell(
               onTap: () async {
-                await ref
+                final importedCount = await ref
                     .read(bip329ImportNotifierProvider.notifier)
                     .importNotes();
+                if (!context.mounted) return;
                 showGeneralDialog(
-                    // ignore: use_build_context_synchronously
                     context: context,
                     pageBuilder: (_, __, ___) => PopScope(
                         canPop: true,
@@ -81,12 +83,19 @@ class NotesSettingsScreen extends HookConsumerWidget {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    UiAssets.checkSuccess.svg(
-                                      width: 97.0,
-                                    ),
+                                    importedCount > 0
+                                        ? UiAssets.checkSuccess.svg(
+                                            width: 97.0,
+                                          )
+                                        : AquaUiAssets.svgs.statusWarning.svg(
+                                            width: 97.0,
+                                          ),
                                     const SizedBox(height: 40),
-                                    Text(context.loc
-                                        .notesSettingsScreenImportSuccessMessage),
+                                    Text(importedCount > 0
+                                        ? context.loc
+                                            .notesSettingsScreenImportSuccessMessage
+                                        : context.loc
+                                            .notesSettingsScreenImportNoMatches),
                                   ],
                                 ),
                               )),

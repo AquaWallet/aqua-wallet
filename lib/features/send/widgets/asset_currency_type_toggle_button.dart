@@ -1,6 +1,5 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/shared/shared.dart';
-import 'package:flutter_svg/svg.dart';
 
 class AssetCurrencyTypeToggleButton extends ConsumerWidget {
   const AssetCurrencyTypeToggleButton({
@@ -31,7 +30,7 @@ class AssetCurrencyTypeToggleButton extends ConsumerWidget {
                     )
                   : null,
             ),
-            child: SvgPicture.asset(Svgs.walletExchange,
+            child: UiAssets.walletExchange.svg(
                 fit: BoxFit.scaleDown,
                 width: 14.0,
                 height: 14.0,

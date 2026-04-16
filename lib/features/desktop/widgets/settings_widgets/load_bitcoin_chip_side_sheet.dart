@@ -119,14 +119,7 @@ class LoadBitcoinChipSideSheetWidget extends HookWidget {
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ///TODO: missing Step/Folder image from codebase
-                        // SvgPicture.asset(
-                        //   Svgs.stepFolder,
-                        //   colorFilter: ColorFilter.mode(
-                        //     aquaColors.accentBrand,
-                        //     BlendMode.srcIn,
-                        //   ),
-                        // ),
+                        //TODO: missing Step/Folder image from codebase
                         const SizedBox(height: 16),
                         AquaText.body1SemiBold(
                           text: loc.bitcoinChipUploadFile,

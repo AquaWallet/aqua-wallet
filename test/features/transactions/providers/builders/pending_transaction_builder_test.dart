@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../mocks/mocks.dart';
+import '../../transactions/transaction_scenario_test_harness.dart';
 
 void main() {
   late PendingTransactionUiModelsBuilder builder;
@@ -21,6 +22,7 @@ void main() {
     registerFallbackValue(_createMockNetworkTransaction());
     registerFallbackValue(_createMockDbTransaction());
     registerFallbackValue(_createMockStrategyArgs());
+    registerFallbackValue(<GdkTransaction>[]);
   });
 
   setUp(() {
@@ -46,15 +48,7 @@ void main() {
         .thenAnswer((_) async => []);
     when(() => mockPegStorage.getAllPegOrders())
         .thenAnswer((_) async => <PegOrderDbModel>[]);
-    when(() => mockConfirmationService.getConfirmationCount(any(), any()))
-        .thenAnswer((_) async => 0);
-    when(() => mockConfirmationService.getRequiredConfirmationCount(any()))
-        .thenReturn(1);
-    when(() => mockConfirmationService.isTransactionPending(
-          asset: any(named: 'asset'),
-          transaction: any(named: 'transaction'),
-          dbTransaction: any(named: 'dbTransaction'),
-        )).thenAnswer((_) async => false);
+    setupConfirmationServiceDefaults(mockConfirmationService);
   });
 
   group('PendingTransactionBuilder - collectPendingTransactions', () {
@@ -278,12 +272,6 @@ void main() {
           )).thenAnswer((_) async => 10);
       when(() => mockConfirmationService.getRequiredConfirmationCount(any()))
           .thenReturn(1);
-      when(() => mockConfirmationService.isTransactionPending(
-            asset: any(named: 'asset'),
-            transaction: any(named: 'transaction'),
-            dbTransaction: any(named: 'dbTransaction'),
-          )).thenAnswer((_) async => false); // Has enough confirmations
-
       final args = TransactionBuilderArgs(
         asset: Asset.btc(),
         networkTxns: [networkTxn],
@@ -746,12 +734,6 @@ void main() {
           )).thenAnswer((_) async => 10); // 10 confirmations
       when(() => mockConfirmationService.getRequiredConfirmationCount(any()))
           .thenReturn(2); // Requires 2
-      when(() => mockConfirmationService.isTransactionPending(
-            asset: any(named: 'asset'),
-            transaction: any(named: 'transaction'),
-            dbTransaction: any(named: 'dbTransaction'),
-          )).thenAnswer((_) async => false);
-
       final args = TransactionBuilderArgs(
         asset: Asset.lbtc(),
         networkTxns: [networkTxn],
@@ -765,7 +747,7 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test('excludes Boltz transaction without txhash and not in network',
+    test('excludes Boltz transaction without txhash in submarine unpaid state',
         () async {
       // Boltz transaction with empty txhash (not broadcasted yet)
       final boltzTxn = _createMockDbTransaction(
@@ -774,11 +756,20 @@ void main() {
         serviceOrderId: 'boltz_order_4',
       );
 
-      when(() => mockConfirmationService.isTransactionPending(
-            asset: any(named: 'asset'),
-            transaction: any(named: 'transaction'),
-            dbTransaction: any(named: 'dbTransaction'),
-          )).thenAnswer((_) async => false);
+      // Submarine unpaid status - waiting for user to pay
+      final unpaidBoltzSwap = _createMockBoltzSwapDbModel(
+        boltzId: 'boltz_order_4',
+        lastKnownStatus: BoltzSwapStatus.invoiceSet,
+        createdAt: DateTime.now(),
+      );
+
+      final builderWithUnpaidSwap = PendingTransactionUiModelsBuilder(
+        confirmationService: mockConfirmationService,
+        swapStorage: mockSwapStorage,
+        pegStorage: mockPegStorage,
+        strategyFactory: mockStrategyFactory,
+        boltzSwaps: [unpaidBoltzSwap],
+      );
 
       final args = TransactionBuilderArgs(
         asset: Asset.lbtc(),
@@ -787,9 +778,9 @@ void main() {
         availableAssets: [Asset.lbtc()],
       );
 
-      final result = await builder.build(args);
+      final result = await builderWithUnpaidSwap.build(args);
 
-      // Should NOT show - not broadcasted AND not in network
+      // Should NOT show - submarine swap in unpaid state is filtered out
       expect(result, isEmpty);
     });
 
@@ -1038,6 +1029,53 @@ void main() {
 
       // Should show as pending - in mempool, 0 confirmations
       expect(result, hasLength(1));
+    });
+
+    test(
+        'excludes orphaned Boltz transaction with no orderId and no txhash (old)',
+        () async {
+      // A Boltz reverse swap with empty serviceOrderId and empty txhash -
+      // orphaned record that can never be matched to a swap or on-chain tx.
+      final orphanedBoltzTxn = _createMockDbTransaction(
+        txhash: '',
+        isBoltz: true,
+        type: TransactionDbModelType.boltzReverseSwap,
+        serviceOrderId: '',
+        ghostTxnCreatedAt: DateTime.now().subtract(const Duration(days: 80)),
+      );
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.lbtc(),
+        networkTxns: [_bgNetworkTxn],
+        localDbTxns: [orphanedBoltzTxn],
+        availableAssets: [Asset.lbtc()],
+      );
+
+      final result = await builder.build(args);
+
+      expect(result, isEmpty);
+    });
+
+    test('excludes orphaned Boltz transaction with null ghostTxnCreatedAt',
+        () async {
+      final orphanedBoltzTxn = _createMockDbTransaction(
+        txhash: '',
+        isBoltz: true,
+        type: TransactionDbModelType.boltzReverseSwap,
+        serviceOrderId: null,
+        ghostTxnCreatedAt: null,
+      );
+
+      final args = TransactionBuilderArgs(
+        asset: Asset.lbtc(),
+        networkTxns: [_bgNetworkTxn],
+        localDbTxns: [orphanedBoltzTxn],
+        availableAssets: [Asset.lbtc()],
+      );
+
+      final result = await builder.build(args);
+
+      expect(result, isEmpty);
     });
   });
 

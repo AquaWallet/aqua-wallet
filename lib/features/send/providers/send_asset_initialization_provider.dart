@@ -82,7 +82,7 @@ class SendAssetTransactionSetupNotifier
 
       ref
           .read(sendAssetInputStateProvider(arg).notifier)
-          .updateAddressFieldText(invoice);
+          .updateAddressFieldText(invoice, resetAmount: true);
     }
 
     //NOTE - Need re-read input because the addressFieldText could update

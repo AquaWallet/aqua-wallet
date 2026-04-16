@@ -25,7 +25,8 @@ class Jan3LoginScreen extends HookConsumerWidget {
 
     final isDark =
         ref.watch(prefsProvider.select((p) => p.isDarkMode(context)));
-    final profileState = ref.watch(jan3AuthProvider);
+    final walletId = ref.watch(currentWalletIdSyncProvider);
+    final profileAsync = ref.watch(jan3AuthProvider(walletId));
     final emailFormGroup = useMemoized(() => FormGroup({
           _emailFormControlName: FormControl<String>(
             validators: [
@@ -35,7 +36,7 @@ class Jan3LoginScreen extends HookConsumerWidget {
           ),
         }));
 
-    ref.listen(jan3AuthProvider, (prev, next) {
+    ref.listen(jan3AuthProvider(walletId), (prev, next) {
       if (prev?.value == next.value) return;
       next.value?.maybeWhen(
         authenticated: (_, pendingCardCreation) {
@@ -151,7 +152,7 @@ class Jan3LoginScreen extends HookConsumerWidget {
                   },
                 ),
 
-                if (profileState.error != null) ...{
+                if (profileAsync.error != null) ...{
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Row(
@@ -163,10 +164,10 @@ class Jan3LoginScreen extends HookConsumerWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          profileState.error is ExceptionLocalized
-                              ? (profileState.error as ExceptionLocalized)
+                          profileAsync.error is ExceptionLocalized
+                              ? (profileAsync.error as ExceptionLocalized)
                                   .toLocalizedString(context)
-                              : profileState.error.toString(),
+                              : profileAsync.error.toString(),
                           style: const TextStyle(
                             color: AquaColors.portlandOrange,
                             fontSize: 14,
@@ -190,14 +191,16 @@ class Jan3LoginScreen extends HookConsumerWidget {
                 // ANCHOR - Continue button
                 ReactiveFormConsumer(
                   builder: (context, form, _) => AquaElevatedButton(
-                    onPressed: (profileState.isLoading || form.invalid)
+                    onPressed: (profileAsync.isLoading || form.invalid)
                         ? null
-                        : () => ref.read(jan3AuthProvider.notifier).sendOtp(
+                        : () => ref
+                            .read(jan3AuthProvider(walletId).notifier)
+                            .sendOtp(
                               form.control(_emailFormControlName).value,
                               ref.read(languageProvider(context)
                                   .select((p) => p.currentLanguage)),
                             ),
-                    child: profileState.isLoading
+                    child: profileAsync.isLoading
                         ? const CircularProgressIndicator()
                         : Text(context.loc.loginScreenContinue),
                   ),

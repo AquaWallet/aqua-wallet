@@ -1,6 +1,6 @@
 import 'package:aqua/common/data_conversion/bip21_encoder.dart';
-import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
+import 'package:aqua/gen/assets.gen.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,7 +23,7 @@ void main() {
         id: 'test-asset',
         name: 'Test Asset',
         ticker: 'TEST',
-        logoUrl: Svgs.unknownAsset,
+        logoUrl: UiAssets.assetIcons.assetUnknown.path,
         precision: 2,
       );
 
@@ -49,7 +49,7 @@ void main() {
         id: 'test-asset',
         name: 'Test Asset',
         ticker: 'TEST',
-        logoUrl: Svgs.unknownAsset,
+        logoUrl: UiAssets.assetIcons.assetUnknown.path,
         precision: 2,
       );
 
@@ -68,7 +68,7 @@ void main() {
       id: 'test-asset',
       name: 'Test Asset',
       ticker: 'TEST',
-      logoUrl: Svgs.unknownAsset,
+      logoUrl: UiAssets.assetIcons.assetUnknown.path,
       precision: 2,
     );
 

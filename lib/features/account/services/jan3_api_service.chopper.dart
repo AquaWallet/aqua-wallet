@@ -265,4 +265,19 @@ final class _$Jan3ApiService extends Jan3ApiService {
     );
     return client.send<MessageResponse, MessageResponse>($request);
   }
+
+  @override
+  Future<Response<MoneybadgerDecodeResponse>> decodeMoneybadger(
+      MoneybadgerDecodeRequest request) {
+    final Uri $url = Uri.parse('/api/v1/moneybadger/decode/');
+    final $body = request;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client
+        .send<MoneybadgerDecodeResponse, MoneybadgerDecodeResponse>($request);
+  }
 }

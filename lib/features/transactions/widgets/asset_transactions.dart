@@ -262,7 +262,7 @@ class _TransactionsList extends StatelessWidget {
               AssetTransactionDetailsScreen.routeName,
               extra: TransactionDetailsArgs(
                 asset: item.dbTransaction?.isPeg == true ? asset : item.asset,
-                transactionId: item.transaction.txhash ?? '',
+                transactionId: item.transaction.txhash,
               ),
             ),
           ),

@@ -71,8 +71,12 @@ class SideshiftService extends SwapService {
         min: Decimal.parse(pairInfo.min),
         max: Decimal.parse(pairInfo.max),
       );
+    } on LoadPairsException catch (e) {
+      throw SwapServiceQuoteException(
+          SwapServiceSource.sideshift.displayName, e.message);
     } catch (e) {
-      throw SwapServiceQuoteException(SwapServiceSource.sideshift.displayName);
+      throw SwapServiceQuoteException(
+          SwapServiceSource.sideshift.displayName, e.toString());
     }
   }
 
@@ -286,7 +290,8 @@ class SideshiftService extends SwapService {
     } catch (e) {
       logger.error(
           '[SideShift] Error requesting quote: $e', e, StackTrace.current);
-      throw SwapServiceQuoteException(SwapServiceSource.sideshift.displayName);
+      throw SwapServiceQuoteException(
+          SwapServiceSource.sideshift.displayName, e.toString());
     }
   }
 

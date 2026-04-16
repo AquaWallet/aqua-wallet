@@ -1,15 +1,9 @@
-import 'dart:io';
-
 import 'package:aqua/features/pokerchip/pages/pages.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/settings/shared/keys/settings_screen_keys.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/mixins/mixins.dart';
-import 'package:aqua/logger.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:talker_flutter/talker_flutter.dart';
 import 'package:ui_components/ui_components.dart';
 
 class AdvancedSettingsScreen extends HookConsumerWidget
@@ -17,20 +11,6 @@ class AdvancedSettingsScreen extends HookConsumerWidget
   const AdvancedSettingsScreen({super.key});
 
   static const routeName = '/settings/advanced';
-
-  Future<void> _downloadFile(String logs) async {
-    final dir = await getTemporaryDirectory();
-    final dirPath = dir.path;
-    final fmtDate = DateTime.now().toString().replaceAll(":", " ");
-    final file =
-        await File('$dirPath/aqua_logs_$fmtDate.txt').create(recursive: true);
-    await file.writeAsString(logs);
-    await Share.shareXFiles(
-      <XFile>[
-        XFile(file.path),
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -124,11 +104,9 @@ class AdvancedSettingsScreen extends HookConsumerWidget
                   size: 18,
                   color: context.aquaColors.textSecondary,
                 ),
-                onTap: () => _downloadFile(
-                  logger.internalLogger.history.text(
-                    timeFormat: logger.internalLogger.settings.timeFormat,
-                  ),
-                ),
+                onTap: () => ref.read(exportLogsProvider.notifier).export(
+                      sharePositionOrigin: context.sharePositionOrigin,
+                    ),
               ),
               const SizedBox(height: 1.0),
               if (experimentalFeaturesEnabled) ...[

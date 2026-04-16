@@ -36,7 +36,7 @@ class SearchView extends StatelessWidget {
               ),
           prefixIcon: Container(
             padding: const EdgeInsets.only(left: 18.0, right: 12.0),
-            child: SvgPicture.asset(Svgs.search,
+            child: SvgPicture.asset(UiAssets.search.path,
                 width: 16.0,
                 height: 16.0,
                 colorFilter: ColorFilter.mode(

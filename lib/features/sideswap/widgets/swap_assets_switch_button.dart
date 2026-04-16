@@ -20,7 +20,7 @@ class SwapAssetsSwitchButton extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: SvgPicture.asset(
-            Svgs.exchangeSwap,
+            UiAssets.exchangeSwap.path,
             width: 20.0,
             height: 20.0,
             colorFilter: ColorFilter.mode(

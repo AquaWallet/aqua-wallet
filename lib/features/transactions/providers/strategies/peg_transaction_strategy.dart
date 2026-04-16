@@ -332,7 +332,7 @@ class PegTransactionUiModelCreator extends TransactionUiModelCreator {
       receiveAsset: receiveAsset,
       sendTxn: sendTxn,
       receiveTxn: receiveTxn,
-      fallbackTxHash: networkTxn.txhash ?? '',
+      fallbackTxHash: networkTxn.txhash,
     );
 
     final showApproximate = isPending || isEstimated;
@@ -342,7 +342,7 @@ class PegTransactionUiModelCreator extends TransactionUiModelCreator {
       date: formatDate(networkTxn.createdAtTs),
       confirmationCount: confirmationCount,
       isPending: isPending,
-      notes: networkTxn.memo,
+      notes: args.dbTransaction?.note ?? networkTxn.memo,
       deliverAmount: deliverAmount,
       receiveAmount: showApproximate ? '~$receiveAmount' : receiveAmount,
       deliverAsset: deliverAsset,
@@ -438,23 +438,23 @@ PegExplorerInfo getPegExplorerInfo({
   final isViewingDeliverSide = viewingAsset.id == deliverAsset.id;
 
   if (isViewingDeliverSide && sendTxn?.txhash != null) {
-    return (transactionId: sendTxn!.txhash!, explorerAsset: deliverAsset);
+    return (transactionId: sendTxn!.txhash, explorerAsset: deliverAsset);
   }
 
   if (!isViewingDeliverSide && receiveTxn?.txhash != null) {
-    return (transactionId: receiveTxn!.txhash!, explorerAsset: receiveAsset);
+    return (transactionId: receiveTxn!.txhash, explorerAsset: receiveAsset);
   }
 
   // Fallback 1: Viewing receive side but receiveTxn not yet available
   // (e.g., peg-in viewed from LBTC page before Sideswap processes it)
   if (sendTxn?.txhash != null) {
-    return (transactionId: sendTxn!.txhash!, explorerAsset: deliverAsset);
+    return (transactionId: sendTxn!.txhash, explorerAsset: deliverAsset);
   }
 
   // Fallback 2: Viewing deliver side but sendTxn not matched
   // (e.g., external peg where we only have the receive confirmation)
   if (receiveTxn?.txhash != null) {
-    return (transactionId: receiveTxn!.txhash!, explorerAsset: receiveAsset);
+    return (transactionId: receiveTxn!.txhash, explorerAsset: receiveAsset);
   }
 
   // Fallback 3: Neither network txn found - use db hash with deliver explorer

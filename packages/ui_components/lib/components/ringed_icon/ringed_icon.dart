@@ -7,6 +7,7 @@ enum AquaRingedIconVariant {
   danger,
   warning,
   info,
+  accent,
 }
 
 class AquaRingedIcon extends StatelessWidget {
@@ -34,6 +35,7 @@ class AquaRingedIcon extends StatelessWidget {
           AquaRingedIconVariant.danger => colors.accentDangerTransparent,
           AquaRingedIconVariant.warning => colors.accentWarningTransparent,
           AquaRingedIconVariant.info => colors.accentBrandTransparent,
+          AquaRingedIconVariant.accent => AquaPrimitiveColors.aquaBlue16,
         },
         borderRadius: BorderRadius.circular(100),
       ),
@@ -46,6 +48,7 @@ class AquaRingedIcon extends StatelessWidget {
             AquaRingedIconVariant.danger => colors.accentDanger,
             AquaRingedIconVariant.warning => colors.accentWarning,
             AquaRingedIconVariant.info => colors.accentBrand,
+            AquaRingedIconVariant.accent => AquaPrimitiveColors.aquaBlue500,
           },
           borderRadius: BorderRadius.circular(100),
         ),

@@ -1,25 +1,35 @@
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
+import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/address_validator/address_validator.dart';
 import 'package:aqua/features/address_validator/models/address_parsing_exception.dart';
+import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class MockLiquidProvider extends Mock implements LiquidProvider {}
-
-class MockBitcoinProvider extends Mock implements BitcoinProvider {}
-
-class MockBalanceService extends Mock implements BalanceService {}
-
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+import 'mocks/mocks.dart';
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(
+        const MoneybadgerDecodeRequest(qrData: '', isTestnet: false));
+  });
+
   final mockLiquidProvider = MockLiquidProvider();
   final mockBitcoinProvider = MockBitcoinProvider();
   final mockBalanceService = MockBalanceService();
+  final mockJan3 = MockJan3ApiService();
+  final mockSharedPreferences = MockSharedPreferences();
+
+  final container = ProviderContainer(overrides: [
+    liquidProvider.overrideWithValue(mockLiquidProvider),
+    bitcoinProvider.overrideWithValue(mockBitcoinProvider),
+    balanceProvider.overrideWithValue(mockBalanceService),
+    jan3ApiServiceProvider.overrideWith((_) async => mockJan3),
+    sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+    activeAltUSDtsProvider.overrideWithValue([]),
+  ]);
 
   setUp(() {
     when(() => mockBalanceService.getLBTCBalance())
@@ -33,12 +43,6 @@ void main() {
       when(() => mockBitcoinProvider.isValidAddress(any()))
           .thenAnswer((_) async => true);
     });
-
-    final container = ProviderContainer(overrides: [
-      liquidProvider.overrideWithValue(mockLiquidProvider),
-      bitcoinProvider.overrideWithValue(mockBitcoinProvider),
-      balanceProvider.overrideWithValue(mockBalanceService),
-    ]);
 
     test('Bitcoin address', () async {
       const address = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
@@ -59,14 +63,6 @@ void main() {
   });
 
   group('BIP21', () {
-    final mockSharedPreferences = MockSharedPreferences();
-    final container = ProviderContainer(overrides: [
-      liquidProvider.overrideWithValue(mockLiquidProvider),
-      bitcoinProvider.overrideWithValue(mockBitcoinProvider),
-      balanceProvider.overrideWithValue(mockBalanceService),
-      sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
-      activeAltUSDtsProvider.overrideWithValue([]),
-    ]);
     setUp(() {
       when(() => mockSharedPreferences.getString(any())).thenReturn(null);
       when(() => mockSharedPreferences.getStringList(any())).thenReturn(null);
@@ -187,11 +183,6 @@ void main() {
   });
 
   group('Lightning', () {
-    final container = ProviderContainer(overrides: [
-      liquidProvider.overrideWithValue(mockLiquidProvider),
-      bitcoinProvider.overrideWithValue(mockBitcoinProvider),
-      balanceProvider.overrideWithValue(mockBalanceService),
-    ]);
     test('expired invoice return true (test for expiration elsewhere)',
         () async {
       expect(
@@ -248,16 +239,12 @@ void main() {
   }, skip: true);
 
   group('Alt-USDts', () {
-    final container = ProviderContainer(overrides: [
-      liquidProvider.overrideWithValue(mockLiquidProvider),
-      bitcoinProvider.overrideWithValue(mockBitcoinProvider),
-      balanceProvider.overrideWithValue(mockBalanceService),
-    ]);
-
-    when(() => mockLiquidProvider.isValidAddress(any()))
-        .thenAnswer((_) async => false);
-    when(() => mockBitcoinProvider.isValidAddress(any()))
-        .thenAnswer((_) async => false);
+    setUp(() {
+      when(() => mockLiquidProvider.isValidAddress(any()))
+          .thenAnswer((_) async => false);
+      when(() => mockBitcoinProvider.isValidAddress(any()))
+          .thenAnswer((_) async => false);
+    });
 
     test('Ethereum address', () async {
       expect(
@@ -395,5 +382,65 @@ void main() {
       //   equals(Asset.usdtTon()),
       // );
     }, skip: true);
+  });
+
+  group('Moneybadger backend decode', () {
+    setUp(() {
+      when(() => mockLiquidProvider.isValidAddress(any()))
+          .thenAnswer((_) async => false);
+      when(() => mockBitcoinProvider.isValidAddress(any()))
+          .thenAnswer((_) async => false);
+      when(() => mockSharedPreferences.getString(any())).thenReturn(null);
+      when(() => mockSharedPreferences.getBool(any())).thenReturn(null);
+      mockJan3.mockDecodeMoneybadgerError();
+    });
+
+    test(
+        'error path: throws AddressParsingException when backend returns error',
+        () async {
+      const zapperQrCode =
+          'http://2.zap.pe?t=6&i=40895:49955:7[34|29.99|11,33n|REF12345|10:10[39|ZAR,38|DillonDev';
+
+      // No asset passed — exercises the asset==null path where Moneybadger
+      // decode is tried as a last resort before throwing invalidAddress.
+      await expectLater(
+        () => container
+            .read(addressParserProvider)
+            .parseInput(input: zapperQrCode),
+        throwsA(isA<AddressParsingException>()),
+      );
+    });
+
+    test(
+        'pre-encoded QR (with @cryptoqr.net) is handled as a lightning address, not via the backend',
+        () async {
+      // The URL-encoded form ends with @cryptoqr.net, matching the lightning
+      // address format (user@domain). It goes directly through
+      // _parseLightningAddress — the Moneybadger backend is never called.
+      const encodedQrCode =
+          'http%3A%2F%2F2.zap.pe%3Ft%3D6%26i%3D40895%3A49955%3A7%5B34%7C29.99%7C11%2C33n%7CREF12345%7C10%3A10%5B39%7CZAR%2C38%7CDillonDev@cryptoqr.net';
+
+      final mockLnurlService = MockLnurlService();
+      when(() => mockLnurlService.isValidLightningAddressFormat(any()))
+          .thenReturn(true);
+      when(() => mockLnurlService.convertLnAddressToWellKnown(any()))
+          .thenThrow(Exception('unreachable server'));
+
+      final encodedContainer = ProviderContainer(overrides: [
+        liquidProvider.overrideWithValue(mockLiquidProvider),
+        bitcoinProvider.overrideWithValue(mockBitcoinProvider),
+        balanceProvider.overrideWithValue(mockBalanceService),
+        lnurlProvider.overrideWithValue(mockLnurlService),
+      ]);
+
+      await expectLater(
+        () => encodedContainer
+            .read(addressParserProvider)
+            .parseInput(input: encodedQrCode),
+        throwsA(isA<AddressParsingException>()),
+      );
+
+      encodedContainer.dispose();
+    });
   });
 }

@@ -214,6 +214,17 @@ extension TransactionDbModelX on TransactionDbModel {
 
   String? get swapServiceUrl =>
       type?.swapServiceDetails(swapServiceSource)?.link;
+
+  String? get swapTrackingUrl {
+    if (serviceOrderId == null) return null;
+    return switch (swapServiceSource) {
+      SwapServiceSource.sideshift =>
+        '$sideshiftOrderTrackingUrl$serviceOrderId',
+      SwapServiceSource.changelly =>
+        '$changellyOrderTrackingUrl$serviceOrderId',
+      _ => null,
+    };
+  }
 }
 
 extension IsarCollectionX<T> on IsarCollection<T> {

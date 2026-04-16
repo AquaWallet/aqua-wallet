@@ -84,13 +84,17 @@ class SendAssetReviewPage extends HookConsumerWidget
                   //ANCHOR - Transaction Review Content
                   child: switch (args.asset) {
                     _ when (args.asset.isBTC || args.asset.isLiquid) =>
-                      AquaTransactionReviewContent(args: args),
+                      AquaTransactionReviewContent(
+                        args: args,
+                        onFeeError: onErrorButtonTap,
+                      ),
                     _ when (args.asset.isLightning) =>
                       LightningTransactionReviewContent(args),
                     _ when (args.asset.isAltUsdt) =>
                       UsdSwapTransactionReviewContent(
                         args: args,
                         transactionType: transactionType,
+                        onFeeError: onErrorButtonTap,
                       ),
                     _ => const SizedBox.shrink(),
                   },
