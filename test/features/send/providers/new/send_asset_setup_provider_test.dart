@@ -27,7 +27,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final lightningAsset = Asset.lightning();
+  final lbtcAsset = Asset.lbtc();
   const kFakeInvoice = 'lnbc1000n1fake_resolved_invoice';
+  const kFakeLiquidAddress = 'fake-liquid-address';
   const kLnurlAmount = 1000;
   final lnurlPayParams = LNURLPayParams(
     callback: 'https://example.com/lnurlp/callback',
@@ -76,6 +78,26 @@ void main() {
     mockBoltzNotifier = MockBoltzSubmarineSwapNotifier();
   });
 
+  ProviderContainer createContainer({
+    required MockAddressParserProvider addressParser,
+    MockManageAssetsProvider? manageAssets,
+  }) {
+    return ProviderContainer(overrides: [
+      ...getStandardOverrides(
+        addressParser: addressParser,
+        balance: mockBalanceProvider,
+        manageAssets: manageAssets,
+        mockDisplayUnitsProvider: mockDisplayUnitsProvider,
+        mockExchangeRatesProvider: mockExchangeRatesProvider,
+      ),
+      satsToFiatDisplayWithSymbolProvider.overrideWith(
+        (_, __) => Future.value('\$0.00'),
+      ),
+      lnurlProvider.overrideWith((_) => mockLnurl),
+      boltzSubmarineSwapProvider.overrideWith((_) => mockBoltzNotifier),
+    ]);
+  }
+
   group('_initLightning LNURL flow', () {
     test('should reset amount after resolving LNURL invoice', () async {
       mockBalanceProvider.mockGetBalanceCall(value: 100000000);
@@ -84,7 +106,6 @@ void main() {
         value: ParsedAddress(
           asset: lightningAsset,
           address: kFakeInvoice,
-          lnurlParseResult: lnurlParseResult,
         ),
       );
 
@@ -97,25 +118,11 @@ void main() {
             address: any(named: 'address'),
           )).thenAnswer((_) async => true);
 
-      final container = ProviderContainer(overrides: [
-        ...getStandardOverrides(
-          addressParser: mockAddressParser,
-          balance: mockBalanceProvider,
-          mockDisplayUnitsProvider: mockDisplayUnitsProvider,
-          mockExchangeRatesProvider: mockExchangeRatesProvider,
-        ),
-        satsToFiatDisplayWithSymbolProvider.overrideWith(
-          (_, __) => Future.value('\$0.00'),
-        ),
-        lnurlProvider.overrideWith((_) => mockLnurl),
-        boltzSubmarineSwapProvider.overrideWith((_) => mockBoltzNotifier),
-      ]);
+      final container = createContainer(addressParser: mockAddressParser);
       addTearDown(container.dispose);
 
-      // Initialize input state — LNURL data gives it a non-zero amount
       await container.read(sendAssetInputStateProvider(args).future);
 
-      // Switch to fiat input type before setup runs
       container
           .read(sendAssetInputStateProvider(args).notifier)
           .setType(AquaAssetInputType.fiat);
@@ -126,16 +133,127 @@ void main() {
       expect(inputBefore.isLnurl, true);
       expect(inputBefore.inputType, AquaAssetInputType.fiat);
 
-      // Run setup provider which resolves LNURL → invoice
       await container.read(sendAssetSetupProvider(args).future);
 
-      // The input state amount should be reset after the invoice replaced the LNURL
       final inputAfter =
           container.read(sendAssetInputStateProvider(args)).valueOrNull;
       expect(inputAfter, isNotNull);
       expect(inputAfter!.amount, 0);
       expect(inputAfter.isSendAllFunds, false);
       expect(inputAfter.inputType, AquaAssetInputType.crypto);
+    });
+
+    test('should call prepareSubmarineSwap exactly once for regular invoice',
+        () async {
+      mockBalanceProvider.mockGetBalanceCall(value: 100000000);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: lightningAsset,
+          address: kFakeInvoice,
+        ),
+      );
+
+      when(() => mockLnurl.callLnurlPay(
+            payParams: any(named: 'payParams'),
+            amountSatoshis: any(named: 'amountSatoshis'),
+          )).thenAnswer((_) async => kFakeInvoice);
+
+      when(() => mockBoltzNotifier.prepareSubmarineSwap(
+            address: any(named: 'address'),
+          )).thenAnswer((_) async => true);
+
+      final container = createContainer(addressParser: mockAddressParser);
+      addTearDown(container.dispose);
+
+      await container.read(sendAssetInputStateProvider(args).future);
+
+      final result = await container.read(sendAssetSetupProvider(args).future);
+
+      expect(result, true);
+      verify(() => mockBoltzNotifier.prepareSubmarineSwap(
+            address: kFakeInvoice,
+          )).called(1);
+    });
+  });
+
+  group('_initLightning boltz-to-boltz flow', () {
+    late MockManageAssetsProvider mockManageAssets;
+
+    setUp(() {
+      mockManageAssets = MockManageAssetsProvider();
+      mockManageAssets.mockIsNonLbtcLiquidToLbtcCall(value: false);
+    });
+
+    test('should return true and skip prepareSubmarineSwap for boltz-to-boltz',
+        () async {
+      mockBalanceProvider.mockGetBalanceCall(value: 100000000);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: lbtcAsset,
+          address: kFakeLiquidAddress,
+          isBoltzToBoltzSwap: true,
+        ),
+      );
+
+      when(() => mockLnurl.callLnurlPay(
+            payParams: any(named: 'payParams'),
+            amountSatoshis: any(named: 'amountSatoshis'),
+          )).thenAnswer((_) async => kFakeInvoice);
+
+      final container = createContainer(
+        addressParser: mockAddressParser,
+        manageAssets: mockManageAssets,
+      );
+      addTearDown(container.dispose);
+
+      await container.read(sendAssetInputStateProvider(args).future);
+
+      final result = await container.read(sendAssetSetupProvider(args).future);
+
+      expect(result, true);
+      verifyNever(() => mockBoltzNotifier.prepareSubmarineSwap(
+            address: any(named: 'address'),
+          ));
+    });
+
+    test('should switch asset from lightning to lbtc for boltz-to-boltz',
+        () async {
+      mockBalanceProvider.mockGetBalanceCall(value: 100000000);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: lbtcAsset,
+          address: kFakeLiquidAddress,
+          isBoltzToBoltzSwap: true,
+        ),
+      );
+
+      when(() => mockLnurl.callLnurlPay(
+            payParams: any(named: 'payParams'),
+            amountSatoshis: any(named: 'amountSatoshis'),
+          )).thenAnswer((_) async => kFakeInvoice);
+
+      final container = createContainer(
+        addressParser: mockAddressParser,
+        manageAssets: mockManageAssets,
+      );
+      addTearDown(container.dispose);
+
+      await container.read(sendAssetInputStateProvider(args).future);
+
+      final inputBefore =
+          container.read(sendAssetInputStateProvider(args)).valueOrNull!;
+      expect(inputBefore.asset.isLightning, true);
+
+      await container.read(sendAssetSetupProvider(args).future);
+
+      final inputAfter =
+          container.read(sendAssetInputStateProvider(args)).valueOrNull!;
+      expect(inputAfter.asset.isLBTC, true);
+      expect(inputAfter.isBoltzToBoltzSwap, true);
+      expect(inputAfter.addressFieldText, kFakeLiquidAddress);
     });
   });
 }

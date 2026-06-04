@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:aqua/config/config.dart';
 import 'package:aqua/features/account/providers/current_wallet_auth_provider.dart';
+import 'package:aqua/features/account/services/jan3_api_service.dart';
+import 'package:aqua/features/lightning_address/lightning_address.dart';
 import 'package:aqua/features/logger_table/logger_table.dart';
 import 'package:aqua/features/marketplace/providers/providers.dart';
 import 'package:aqua/features/recovery/pages/seed_qr_screen.dart';
@@ -40,8 +44,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         ref.watch(featureFlagsProvider.select((p) => p.pokerChipSweepEnabled));
     final isDatabaseExportEnabled =
         ref.watch(featureFlagsProvider.select((p) => p.dbExportEnabled));
-    final isDatabaseJsonExportEnabled =
-        ref.watch(featureFlagsProvider.select((p) => p.dbJsonExportEnabled));
     final useChangellyForUSDtSwapsEnabled = ref.watch(
         featureFlagsProvider.select((p) => p.changellyForUSDtSwapsEnabled));
     final isBtcDirectEnabled =
@@ -50,8 +52,8 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
         .watch(featureFlagsProvider.select((p) => p.customElectrumUrlEnabled));
     final isMarketplaceTilesMockDataEnabled = ref.watch(
         featureFlagsProvider.select((p) => p.marketplaceTilesMockDataEnabled));
-    final isDebitCardStagingEnabled = ref.watch(
-      featureFlagsProvider.select((p) => p.debitCardStagingEnabled),
+    final isJan3StagingEnabled = ref.watch(
+      featureFlagsProvider.select((p) => p.jan3StagingEnabled),
     );
     final isNotificationsEnabled = ref.watch(
       featureFlagsProvider.select((p) => p.notificationsEnabled),
@@ -237,20 +239,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           ),
           const SizedBox(height: 16.0),
 
-          //ANCHOR: Database JSON export
-          MenuItemWidget.switchItem(
-            context: context,
-            title: context.loc.expFeaturesScreenItemsDbJsonExport,
-            assetName: UiAssets.history.path,
-            value: isDatabaseJsonExportEnabled,
-            onPressed: () {
-              ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                    key: PrefKeys.dbJsonExportEnabled,
-                    currentValue: isDatabaseJsonExportEnabled,
-                  );
-            },
-          ),
-          const SizedBox(height: 16.0),
           //ANCHOR: Watch Only Export
           MenuItemWidget.arrow(
             context: context,
@@ -345,17 +333,17 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
           ),
           const SizedBox(height: 16.0),
 
-          //ANCHOR: Debit Card Staging Environment
+          //ANCHOR: Staging Environment
           MenuItemWidget.switchItem(
             context: context,
             title: context.loc.expFeaturesScreenItemsDebitCardStaging,
             assetName: UiAssets.marketplace.bankings.path,
-            value: isDebitCardStagingEnabled,
+            value: isJan3StagingEnabled,
             onPressed: () {
               ref.read(currentWalletAuthProvider.notifier).signOutAll();
               ref.read(featureFlagsProvider.notifier).toggleFeatureFlag(
-                    key: PrefKeys.debitCardStagingEnabled,
-                    currentValue: isDebitCardStagingEnabled,
+                    key: PrefKeys.jan3StagingEnabled,
+                    currentValue: isJan3StagingEnabled,
                   );
             },
           ),
@@ -439,7 +427,6 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
                   );
             },
           ),
-          const SizedBox(height: 16.0),
 
           // Debug Mode Only
           if (kDebugMode) ...[
@@ -473,6 +460,86 @@ class ExperimentalFeaturesScreen extends HookConsumerWidget
               title: context.loc.walletAuthDebug,
               isEnabled: true,
               onPressed: () => context.push(DebugWalletAuthScreen.routeName),
+            ),
+            const SizedBox(height: 16.0),
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: UiAssets.info.path,
+              color: context.colors.onBackground,
+              title: context.loc.expFeaturesScreenJan3GetUserDebug,
+              isEnabled: true,
+              onPressed: () async {
+                try {
+                  final api = await ref.read(jan3ApiServiceProvider.future);
+                  final res = await api.getUser();
+                  final formattedResponse = res.body != null
+                      ? const JsonEncoder.withIndent('  ')
+                          .convert(res.body!.toJson())
+                      : 'HTTP ${res.statusCode}\nbody: null\nerror: ${res.error}';
+                  if (!context.mounted) return;
+                  await showDialog<void>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: Text(
+                        context.loc.expFeaturesScreenJan3GetUserResponse,
+                      ),
+                      content: SizedBox(
+                        width: double.maxFinite,
+                        child: SingleChildScrollView(
+                          child: SelectableText(
+                            formattedResponse,
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          child: Text(context.loc.ok),
+                        ),
+                      ],
+                    ),
+                  );
+                } catch (e, st) {
+                  if (!context.mounted) return;
+                  await showDialog<void>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: Text(
+                        context.loc.expFeaturesScreenJan3GetUserResponse,
+                      ),
+                      content: SingleChildScrollView(
+                        child: SelectableText(
+                          '$e\n$st',
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          child: Text(context.loc.ok),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 16.0),
+            MenuItemWidget.arrow(
+              context: context,
+              assetName: UiAssets.lightningBolt.path,
+              color: context.colors.onBackground,
+              title: context.loc.expFeaturesScreenLightningAddressInfoScreen,
+              isEnabled: true,
+              onPressed: () =>
+                  context.push(LightningAddressWelcomeScreen.routeName),
             ),
             const SizedBox(height: 16.0),
             //ANCHOR - Database export and import

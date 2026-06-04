@@ -1030,53 +1030,6 @@ void main() {
       // Should show as pending - in mempool, 0 confirmations
       expect(result, hasLength(1));
     });
-
-    test(
-        'excludes orphaned Boltz transaction with no orderId and no txhash (old)',
-        () async {
-      // A Boltz reverse swap with empty serviceOrderId and empty txhash -
-      // orphaned record that can never be matched to a swap or on-chain tx.
-      final orphanedBoltzTxn = _createMockDbTransaction(
-        txhash: '',
-        isBoltz: true,
-        type: TransactionDbModelType.boltzReverseSwap,
-        serviceOrderId: '',
-        ghostTxnCreatedAt: DateTime.now().subtract(const Duration(days: 80)),
-      );
-
-      final args = TransactionBuilderArgs(
-        asset: Asset.lbtc(),
-        networkTxns: [_bgNetworkTxn],
-        localDbTxns: [orphanedBoltzTxn],
-        availableAssets: [Asset.lbtc()],
-      );
-
-      final result = await builder.build(args);
-
-      expect(result, isEmpty);
-    });
-
-    test('excludes orphaned Boltz transaction with null ghostTxnCreatedAt',
-        () async {
-      final orphanedBoltzTxn = _createMockDbTransaction(
-        txhash: '',
-        isBoltz: true,
-        type: TransactionDbModelType.boltzReverseSwap,
-        serviceOrderId: null,
-        ghostTxnCreatedAt: null,
-      );
-
-      final args = TransactionBuilderArgs(
-        asset: Asset.lbtc(),
-        networkTxns: [_bgNetworkTxn],
-        localDbTxns: [orphanedBoltzTxn],
-        availableAssets: [Asset.lbtc()],
-      );
-
-      final result = await builder.build(args);
-
-      expect(result, isEmpty);
-    });
   });
 
   group('PendingTransactionBuilder - _shouldIgnoreGhost', () {

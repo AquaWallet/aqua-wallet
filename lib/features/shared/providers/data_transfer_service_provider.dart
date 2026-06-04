@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:aqua/common/exceptions/exception_localized.dart';
+import 'package:aqua/config/constants/pref_keys.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -38,6 +39,7 @@ abstract class DataTransferService {
   static const String keyTransactions = 'transactions';
   static const String keySideshiftOrders = 'sideshiftOrders';
   static const String keyBoltzSwaps = 'boltzSwaps';
+  static const String keyPreferences = 'preferences';
 
   Future<bool> isExportFileExist();
   Future<String> export();
@@ -55,6 +57,7 @@ class _DataTransferService implements DataTransferService {
     final transactions = await ref.read(transactionStorageProvider.future);
     final sideshiftOrders = await ref.read(sideshiftStorageProvider.future);
     final boltzSwaps = await ref.read(boltzStorageProvider.future);
+    final prefs = ref.read(sharedPreferencesProvider);
     final map = {
       DataTransferService.keyTransactions:
           transactions.map((e) => e.toJson()).toList(),
@@ -62,6 +65,12 @@ class _DataTransferService implements DataTransferService {
           sideshiftOrders.map((e) => e.toJson()).toList(),
       DataTransferService.keyBoltzSwaps:
           boltzSwaps.map((e) => e.toJson()).toList(),
+      DataTransferService.keyPreferences: {
+        PrefKeys.hasSeenLightningAddressWelcomeScreen: prefs.getBool(
+              PrefKeys.hasSeenLightningAddressWelcomeScreen,
+            ) ??
+            false,
+      },
     };
     final jsonString = jsonEncode(map);
 
@@ -115,6 +124,18 @@ class _DataTransferService implements DataTransferService {
           .cast<Map<String, dynamic>>()
           .map(BoltzSwapDbModel.fromJson)
           .forEach(ref.read(boltzStorageProvider.notifier).save);
+
+      final prefItems =
+          map[DataTransferService.keyPreferences] as Map<String, dynamic>?;
+      if (prefItems != null) {
+        final prefs = ref.read(sharedPreferencesProvider);
+        final seenWelcome =
+            prefItems[PrefKeys.hasSeenLightningAddressWelcomeScreen] as bool?;
+        if (seenWelcome != null) {
+          await prefs.setBool(
+              PrefKeys.hasSeenLightningAddressWelcomeScreen, seenWelcome);
+        }
+      }
 
       return map;
     } on ArgumentError catch (e) {

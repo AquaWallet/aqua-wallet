@@ -11,6 +11,8 @@ class Jan3AuthState with _$Jan3AuthState {
   }) = Jan3UserAuthenticated;
   const factory Jan3AuthState.pendingOtpVerification() =
       Jan3UserPendingOtpVerification;
+  const factory Jan3AuthState.pendingWalletRebind() =
+      Jan3UserPendingWalletRebind;
   const factory Jan3AuthState.unauthenticated() = Jan3UserUnauthenticated;
 }
 
@@ -18,6 +20,10 @@ extension Jan3AuthStateX on Jan3AuthState {
   bool get isAuthenticated => when(
         authenticated: (_, __) => true,
         pendingOtpVerification: () => false,
+        pendingWalletRebind: () => false,
         unauthenticated: () => false,
       );
+
+  ProfileResponse? get profile =>
+      mapOrNull(authenticated: (state) => state.profile);
 }

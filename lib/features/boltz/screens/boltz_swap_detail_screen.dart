@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
@@ -26,14 +24,16 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
     final amountWithUnit = swap.amountFromInvoice != null
         ? '${formatter.formatAssetAmount(amount: swap.amountFromInvoice!, asset: lbtc)} ${displayUnits.getAssetDisplayUnit(lbtc)}'
         : null;
-    final refundData = useFuture(
-      ref.read(boltzSubmarineSwapProvider.notifier).getRefundData(swap),
+    final refundSwap = useFuture(
+      ref.read(boltzSubmarineSwapProvider.notifier).getSwapForRefund(swap),
     );
 
-    final onSwapRefund = useCallback(() {
-      final jsonString = jsonEncode(refundData.data?.toJson());
-      context.copyToClipboard(jsonString);
-    }, [refundData.data]);
+    final onCopyRefundData = useCallback(() async {
+      final jsonString = await refundSwap.data?.toJson();
+      if (jsonString != null && context.mounted) {
+        context.copyToClipboard(jsonString);
+      }
+    }, [refundSwap.data]);
 
     return DesignRevampScaffold(
       appBar: AquaTopAppBar(
@@ -175,15 +175,28 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
                 ],
                 //ANCHOR - Refund Swap Button
                 if (swap.kind == SwapType.submarine &&
-                    swap.refundTxId == null) ...[
+                    swap.refundTxId == null &&
+                    swap.lastKnownStatus?.isFinal != true) ...[
                   AquaListItem(
-                    title: context.loc.boltzCopyRefundData,
+                    title: context.loc.boltzRefundSwap,
                     titleColor: context.aquaColors.accentBrand,
                     iconTrailing: AquaIcon.chevronForward(
                       size: 18,
                       color: context.aquaColors.textSecondary,
                     ),
-                    onTap: refundData.data != null ? onSwapRefund : null,
+                    onTap: () => ref
+                        .read(boltzSwapSettlementServiceProvider)
+                        .refundBySwapId(swap.boltzId),
+                  ),
+                  AquaDivider(colors: context.aquaColors),
+                  AquaListItem(
+                    title: context.loc.boltzCopyRefundData,
+                    titleColor: context.aquaColors.accentBrand,
+                    iconTrailing: AquaIcon.copy(
+                      size: 18,
+                      color: context.aquaColors.textSecondary,
+                    ),
+                    onTap: refundSwap.data != null ? onCopyRefundData : null,
                   ),
                   AquaDivider(colors: context.aquaColors),
                 ],

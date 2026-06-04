@@ -37,9 +37,6 @@ class FeatureFlagsNotifier extends ChangeNotifier {
 
   bool get dbExportEnabled => _prefs.getBool(PrefKeys.dbExportEnabled) ?? false;
 
-  bool get dbJsonExportEnabled =>
-      _prefs.getBool(PrefKeys.dbJsonExportEnabled) ?? false;
-
   bool get forceAquaNodeNotSyncedEnabled =>
       _prefs.getBool(PrefKeys.forceAquaNodeNotSyncedEnabled) ?? false;
 
@@ -52,8 +49,8 @@ class FeatureFlagsNotifier extends ChangeNotifier {
   bool get customElectrumUrlEnabled =>
       _prefs.getBool(PrefKeys.customElectrumUrlEnabled) ?? false;
 
-  bool get debitCardStagingEnabled =>
-      _prefs.getBool(PrefKeys.debitCardStagingEnabled) ?? false;
+  bool get jan3StagingEnabled =>
+      _prefs.getBool(PrefKeys.jan3StagingEnabled) ?? false;
 
   bool get lendASatMockDataEnabled =>
       _prefs.getBool(PrefKeys.lendASatMockDataEnabled) ?? false;

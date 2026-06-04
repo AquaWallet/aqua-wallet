@@ -71,7 +71,13 @@ class SendAssetAddressPage extends HookConsumerWidget {
     );
 
     useEffect(() {
-      if (inputState.isAddressFieldEmpty &&
+      if (arguments.transactionType == SendTransactionType.deepLink &&
+          arguments.input != null &&
+          arguments.input!.isNotEmpty) {
+        Future.microtask(() {
+          ref.read(provider.notifier).updateAddressFieldText(arguments.input!);
+        });
+      } else if (inputState.isAddressFieldEmpty &&
           !inputState.isClipboardEmpty &&
           inputState.clipboardAddress != null) {
         Future.microtask(() {
@@ -142,8 +148,7 @@ class SendAssetAddressPage extends HookConsumerWidget {
           AquaTooltip.show(
             context,
             anchorKey: SendKeys.sendContinueButton,
-            message:
-                '${context.loc.lightningSendTooltip} \n ${context.loc.learnMore}',
+            message: context.loc.lightningSendTooltip,
             colors: context.aquaColors,
             maxLines: 2,
             variant: AquaTooltipVariant.normal,

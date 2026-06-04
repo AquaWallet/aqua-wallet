@@ -81,6 +81,9 @@ enum MarketplaceServiceType {
 
   @JsonValue('moneybadger')
   moneybadger,
+
+  @JsonValue('top_up_depix')
+  topUpDepix,
 }
 
 extension on MarketplaceServiceType {
@@ -91,6 +94,31 @@ MarketplaceServiceType? _marketplaceServiceTypeFromString(String id) {
   return MarketplaceServiceType.values.firstWhereOrNull(
     (e) => e.toJson() == id,
   );
+}
+
+@freezed
+class SetupFlag with _$SetupFlag {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory SetupFlag({
+    required String name,
+    required bool activeAtStart,
+    @Default([]) List<String> excludedRegions,
+  }) = _SetupFlag;
+
+  factory SetupFlag.fromJson(Map<String, dynamic> json) =>
+      _$SetupFlagFromJson(json);
+}
+
+@freezed
+class SetupConfig with _$SetupConfig {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory SetupConfig({
+    required String date,
+    @Default([]) List<SetupFlag> flags,
+  }) = _SetupConfig;
+
+  factory SetupConfig.fromJson(Map<String, dynamic> json) =>
+      _$SetupConfigFromJson(json);
 }
 
 @freezed

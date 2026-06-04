@@ -22,12 +22,16 @@ class ReceiveAssetAmountValidationNotifier
     final asset = arg.asset;
 
     if (asset.isAltUsdt && arg.minLimit != null && arg.maxLimit != null) {
-      final amountFieldText = input.amountFieldText?.replaceAll(',', '');
-      if (amountFieldText == null || amountFieldText.isEmpty) {
+      final raw = input.amountFieldText;
+      if (raw == null || raw.isEmpty) {
         return false;
       }
 
-      final amount = Decimal.tryParse(amountFieldText);
+      final cleaned = ref.read(formatterProvider).cleanAmountString(
+            raw,
+            input.rate.currency.format,
+          );
+      final amount = Decimal.tryParse(cleaned);
       if (amount == null || amount == Decimal.zero) {
         return false;
       }

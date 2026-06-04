@@ -13,6 +13,10 @@ const hiddenBalancePlaceholder = '✱✱✱✱';
 
 const kUsdtDisplayPrecision = 2;
 
+/// Max fractional digits for crypto amount display, clamping, and parse checks.
+/// Matches default [Asset.precision] for BTC-denominated assets.
+const kMaxAssetDisplayPrecision = 8;
+
 const minWidthOfDesktopWindow = 1050.0;
 const minHeightOfDesktopWindow = 1050.0;
 const initWidthOfDesktopWindow = 1200.0;

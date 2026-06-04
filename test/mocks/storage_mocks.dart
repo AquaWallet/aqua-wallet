@@ -58,7 +58,7 @@ class MockBoltzStorageProvider extends AsyncNotifier<List<BoltzSwapDbModel>>
   final List<BoltzSwapDbModel>? _swaps;
 
   @override
-  FutureOr<List<BoltzSwapDbModel>> build() async => _swaps ?? kMockDbBoltzSwaps;
+  FutureOr<List<BoltzSwapDbModel>> build() => _swaps ?? kMockDbBoltzSwaps;
 }
 
 class MockPegStorageNotifier extends AsyncNotifier<List<PegOrderDbModel>>

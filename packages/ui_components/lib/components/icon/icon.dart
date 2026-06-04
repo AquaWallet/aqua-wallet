@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ui_components/components/icon/lightning_btc_composite_icon.dart';
+import 'package:ui_components/config/config.dart';
 import 'package:ui_components/gen/assets.gen.dart';
 import 'package:ui_components/shared/shared.dart';
 import 'package:vector_graphics/vector_graphics.dart';
@@ -1567,6 +1568,67 @@ class AquaAssetIcon extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Bare asset glyphs for offscreen QR PNG encoding (no InkWell / InkSparkle).
+abstract final class AquaAssetIconEncoding {
+  static const iconPadding = 8.0;
+
+  static Widget overlay({
+    String? assetId,
+    String? iconUrl,
+    required double iconSize,
+  }) {
+    final glyph = iconUrl != null && iconUrl.isNotEmpty
+        ? glyphForUrl(iconUrl)
+        : glyphForAssetId(assetId ?? '');
+    final haloColor = AquaColors.lightColors.textInverse;
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        _sized(glyph, iconSize + iconPadding, haloColor),
+        _sized(glyph, iconSize, null),
+      ],
+    );
+  }
+
+  static Widget glyphForUrl(String url) => _NetworkSvgFallback(
+        url: url,
+        fallback: AquaUiAssets.svgs.currency.assetUnknown.svg(),
+      );
+
+  static Widget glyphForAssetId(String assetId) => switch (assetId) {
+        AssetIds.layer2 => AquaUiAssets.svgs.currency.l2Bitcoin.svg(),
+        AssetIds.btc => AquaUiAssets.svgs.currency.bitcoin.svg(),
+        _ when AssetIds.lbtc.contains(assetId) =>
+          AquaUiAssets.svgs.currency.liquidBitcoin.svg(),
+        AssetIds.lightning => AquaUiAssets.svgs.currency.lightningBtc.svg(),
+        AssetIds.usdtEth => AquaUiAssets.svgs.currency.usdtEthereum.svg(),
+        _ when AssetIds.mexas.contains(assetId) =>
+          AquaUiAssets.svgs.currency.mexas.svg(),
+        _ when AssetIds.usdtliquid.contains(assetId) =>
+          AquaUiAssets.svgs.currency.usdtLiquid.svg(),
+        AssetIds.usdtTrx => AquaUiAssets.svgs.currency.usdtTron.svg(),
+        AssetIds.usdtBep => AquaUiAssets.svgs.currency.usdtBinance.svg(),
+        AssetIds.usdtSol => AquaUiAssets.svgs.currency.usdtSolana.svg(),
+        AssetIds.usdtPol => AquaUiAssets.svgs.currency.usdtPolygon.svg(),
+        AssetIds.usdtTon => AquaUiAssets.svgs.currency.usdtTon.svg(),
+        AssetIds.usdtTether => AquaUiAssets.svgs.currency.usdtTether.svg(),
+        _ => AquaUiAssets.svgs.currency.assetUnknown.svg(),
+      };
+
+  static Widget _sized(Widget child, double size, Color? color) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: color != null
+          ? ColorFiltered(
+              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+              child: child,
+            )
+          : child,
     );
   }
 }

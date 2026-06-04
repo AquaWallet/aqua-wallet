@@ -12,7 +12,8 @@ class AquaChip extends StatelessWidget {
   const AquaChip({
     super.key,
     required this.label,
-    this.icon,
+    this.leadingIcon,
+    this.trailingIcon,
     this.compact = false,
     this.colors,
     this.onTap,
@@ -21,7 +22,8 @@ class AquaChip extends StatelessWidget {
   const AquaChip.success({
     super.key,
     required this.label,
-    this.icon,
+    this.leadingIcon,
+    this.trailingIcon,
     this.compact = false,
     this.colors,
     this.onTap,
@@ -30,7 +32,8 @@ class AquaChip extends StatelessWidget {
   const AquaChip.error({
     super.key,
     required this.label,
-    this.icon,
+    this.leadingIcon,
+    this.trailingIcon,
     this.compact = false,
     this.colors,
     this.onTap,
@@ -39,18 +42,39 @@ class AquaChip extends StatelessWidget {
   const AquaChip.accent({
     super.key,
     required this.label,
-    this.icon,
+    this.leadingIcon,
+    this.trailingIcon,
     this.compact = false,
     this.colors,
     this.onTap,
   }) : variant = AquaChipVariant.accent;
 
   final String label;
-  final Widget? icon;
+  final Widget? leadingIcon;
+  final Widget? trailingIcon;
   final bool compact;
   final AquaChipVariant variant;
   final AquaColors? colors;
   final VoidCallback? onTap;
+
+  EdgeInsetsGeometry _buildPadding() {
+    final hasLeading = leadingIcon != null;
+    final hasTrailing = trailingIcon != null;
+
+    if (!hasLeading && !hasTrailing) {
+      return EdgeInsets.symmetric(
+        horizontal: compact ? 8 : 16,
+        vertical: 4,
+      );
+    }
+
+    return EdgeInsetsDirectional.only(
+      start: hasLeading ? (compact ? 4 : 8) : (compact ? 8 : 16),
+      end: hasTrailing ? (compact ? 4 : 8) : (compact ? 8 : 16),
+      top: 4,
+      bottom: 4,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,20 +113,14 @@ class AquaChip extends StatelessWidget {
           (state) => state.isHovered ? Colors.transparent : null,
         ),
         child: Container(
-          padding: icon == null
-              ? EdgeInsets.symmetric(
-                  horizontal: compact ? 8 : 16,
-                  vertical: 4,
-                )
-              : EdgeInsetsDirectional.only(
-                  start: compact ? 8 : 16,
-                  end: compact ? 4 : 8,
-                  top: 4,
-                  bottom: 4,
-                ),
+          padding: _buildPadding(),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (leadingIcon != null) ...[
+                leadingIcon!,
+                SizedBox(width: compact ? 4 : 6),
+              ],
               Text(
                 label,
                 style: compact
@@ -113,12 +131,10 @@ class AquaChip extends StatelessWidget {
                         color: foregroundColor,
                       ),
               ),
-              if (icon != null) ...{
-                Container(
-                  margin: const EdgeInsetsDirectional.only(start: 4),
-                  child: icon!,
-                ),
-              }
+              if (trailingIcon != null) ...[
+                SizedBox(width: compact ? 4 : 6),
+                trailingIcon!,
+              ],
             ],
           ),
         ),

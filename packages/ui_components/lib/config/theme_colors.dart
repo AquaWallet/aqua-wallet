@@ -29,6 +29,7 @@ abstract class AquaColors {
   Color get accentDangerTransparent;
 
   // Custom Colors
+  Color get link;
   Color get chipSuccessBackgroundColor;
   Color get chipErrorBackgroundColor;
   Color get chipSuccessForegroundColor;
@@ -101,6 +102,8 @@ class LightColors implements AquaColors {
   // Custom Colors
 
   @override
+  Color get link => AquaPrimitiveColors.palatinateBlue750;
+  @override
   Color get chipSuccessBackgroundColor => accentSuccessTransparent;
   @override
   Color get chipErrorBackgroundColor => accentDangerTransparent;
@@ -166,6 +169,8 @@ class DarkColors implements AquaColors {
   // Custom Colors
 
   @override
+  Color get link => AquaPrimitiveColors.white;
+  @override
   Color get chipSuccessBackgroundColor => accentSuccessTransparent;
   @override
   Color get chipErrorBackgroundColor => accentDangerTransparent;
@@ -230,6 +235,8 @@ class DeepOceanColors implements AquaColors {
 
   // Custom Colors
 
+  @override
+  Color get link => AquaPrimitiveColors.white;
   @override
   Color get chipSuccessBackgroundColor => surfacePrimary;
   @override

@@ -1029,5 +1029,3095 @@
   "legacyWalletSettingsScreenFingerprintTitle": "Gjurmë gishti",
   "legacyWalletSettingsScreenNoWalletMessage": "Nuk ka portofol legacy të pranishëm",
   "settingsScreenItemLegacyWallet": "Portofol Legacy",
-  "languageSettingsChineseSimplified": "Kinezçe, e thjeshtuar"
+  "languageSettingsChineseSimplified": "Kinezçe, e thjeshtuar",
+  "@addBalance": {
+    "approved": "true"
+  },
+  "@addMoreAssets": {
+    "approved": "true"
+  },
+  "@address": {
+    "approved": "true"
+  },
+  "@addressHistory": {
+    "approved": "true"
+  },
+  "@addressHistoryAddressesEmptyDescription": {
+    "approved": "true"
+  },
+  "@addressHistoryUnused": {
+    "approved": "true"
+  },
+  "@amount": {
+    "approved": "true"
+  },
+  "@amountBelowMin": {
+    "approved": "true"
+  },
+  "@assetTransactionDetailsExplorerButton": {
+    "approved": "true"
+  },
+  "@assetTransactionDetailsPending": {
+    "approved": "true"
+  },
+  "@assetTransactionDetailsTimeAt": {
+    "approved": "true"
+  },
+  "@assetTransactionsLiquidEmptyList": {
+    "approved": "true"
+  },
+  "@assetTransactionsTypeTopup": {
+    "approved": "true"
+  },
+  "@assetTransactionsTypeToppingUp": {
+    "approved": "true"
+  },
+  "@toppingUp": {
+    "approved": "true"
+  },
+  "@authenticateToRevealCardDetails": {
+    "approved": "true"
+  },
+  "@authenticationMessage": {
+    "approved": "true"
+  },
+  "@authScreenDescription": {
+    "approved": "true"
+  },
+  "@authScreenUnlockWithBiometricsButton": {
+    "approved": "true"
+  },
+  "@authScreenUnlockWithPinButton": {
+    "approved": "true"
+  },
+  "@backupConfirmationButton": {
+    "approved": "true"
+  },
+  "@backupLater": {
+    "approved": "true"
+  },
+  "@backupConfirmationSelect": {
+    "approved": "true"
+  },
+  "@backupConfirmationTitle": {
+    "approved": "true"
+  },
+  "@backupFailureDescription": {
+    "approved": "true"
+  },
+  "@backupFailureQuitButton": {
+    "approved": "true"
+  },
+  "@backupInviteButtonLater": {
+    "approved": "true"
+  },
+  "@backupInviteButtonNext": {
+    "approved": "true"
+  },
+  "@backupInviteDescription": {
+    "approved": "true"
+  },
+  "@backupInviteLoadingIndicator": {
+    "approved": "true"
+  },
+  "@backupInviteTitle": {
+    "approved": "true"
+  },
+  "@backupVerifiedTitle": {
+    "approved": "true"
+  },
+  "@backupVerifiedDescription": {
+    "approved": "true"
+  },
+  "@backupVerifiedButton": {
+    "approved": "true"
+  },
+  "@backupIncorrectWordsTitle": {
+    "approved": "true"
+  },
+  "@backupIncorrectWordsDescription": {
+    "approved": "true"
+  },
+  "@backupIncorrectWordsTryAgain": {
+    "approved": "true"
+  },
+  "@backupRecoveryAlertSubtitle": {
+    "approved": "true"
+  },
+  "@backupRecoveryAlertTitle": {
+    "approved": "true"
+  },
+  "@backupRecoveryPhraseQRSubtitle": {
+    "approved": "true"
+  },
+  "@backupRecoveryPhraseQRTitle": {
+    "approved": "true"
+  },
+  "@backupRecoveryPhraseSubtitle": {
+    "approved": "true"
+  },
+  "@balance": {
+    "approved": "true"
+  },
+  "@binance": {
+    "approved": "true"
+  },
+  "@biometricAuthenticationDescription": {
+    "approved": "true"
+  },
+  "@bitcoinChip": {
+    "approved": "true"
+  },
+  "@bitcoinElectrumServerUrlRequired": {
+    "approved": "true"
+  },
+  "@bitcoinUrl": {
+    "approved": "true"
+  },
+  "@blockExplorerSettingsTitle": {
+    "approved": "true"
+  },
+  "@boltzClaimSwap": {
+    "approved": "true"
+  },
+  "@boltzClaimTx": {
+    "approved": "true"
+  },
+  "@boltzCopyRefundData": {
+    "approved": "true"
+  },
+  "@boltzCopySwapData": {
+    "approved": "true"
+  },
+  "@boltzGenerateInvoice": {
+    "approved": "true"
+  },
+  "@boltzId": {
+    "approved": "true"
+  },
+  "@boltzInitTitleError": {
+    "approved": "true"
+  },
+  "@boltzInvoiceAmount": {
+    "approved": "true"
+  },
+  "@boltzMaxAmountError": {
+    "approved": "true"
+  },
+  "@boltzNormalSwapAlreadyBroadcastedError": {
+    "approved": "true"
+  },
+  "@boltzRefundTx": {
+    "approved": "true"
+  },
+  "@boltzServiceFee": {
+    "approved": "true"
+  },
+  "@serviceFee": {
+    "approved": "true"
+  },
+  "@boltzSwaps": {
+    "approved": "true"
+  },
+  "@boltzSwapsListEmptyState": {
+    "approved": "true"
+  },
+  "@noBoltzSwapsFoundDescription": {
+    "approved": "true"
+  },
+  "@boltzSwapsListReceiveHeading": {
+    "approved": "true"
+  },
+  "@boltzSwapsListSendHeading": {
+    "approved": "true"
+  },
+  "@boltzTimeoutBlockHeight": {
+    "approved": "true"
+  },
+  "@boltzTotalFees": {
+    "approved": "true"
+  },
+  "@buyWithFiatScreenTitle": {
+    "approved": "true"
+  },
+  "@cancel": {
+    "approved": "true"
+  },
+  "@cardBalance": {
+    "approved": "true"
+  },
+  "@checkTxnHistoryBackupSheetMessage": {
+    "approved": "true"
+  },
+  "@completed": {
+    "approved": "true"
+  },
+  "@confirm": {
+    "approved": "true"
+  },
+  "@confirmed": {
+    "approved": "true"
+  },
+  "@connectionStatusBitcoinBlock": {
+    "approved": "true"
+  },
+  "@connectionStatusLiquidBlock": {
+    "approved": "true"
+  },
+  "@connectionStatusOffline": {
+    "approved": "true"
+  },
+  "@connectionStatusOfflineMessage": {
+    "approved": "true"
+  },
+  "@continueLabel": {
+    "approved": "true"
+  },
+  "@conversionCurrenciesScreenTitle": {
+    "approved": "true"
+  },
+  "@conversionCurrenciesSearchHint": {
+    "approved": "true"
+  },
+  "@conversionRate99": {
+    "approved": "true"
+  },
+  "@copiedToClipboard": {
+    "approved": "true"
+  },
+  "@createdAt": {
+    "approved": "true"
+  },
+  "@created": {
+    "approved": "true"
+  },
+  "@createWallet": {
+    "approved": "true"
+  },
+  "@currentBitcoinRate": {
+    "approved": "true"
+  },
+  "@currentLiquidRate": {
+    "approved": "true"
+  },
+  "@custom": {
+    "approved": "true"
+  },
+  "@customElectrumServer": {
+    "approved": "true"
+  },
+  "@cvv": {
+    "approved": "true"
+  },
+  "@date": {
+    "approved": "true"
+  },
+  "@debitCardCreateCard": {
+    "approved": "true"
+  },
+  "@debitCardOnboardingToSDescriptionBold": {
+    "approved": "true"
+  },
+  "@debitCardOnboardingToSDescriptionNormal": {
+    "approved": "true"
+  },
+  "@debitCardOnboardingToSDescriptionJoiner": {
+    "approved": "true"
+  },
+  "@debitCardOnboardingToSDescriptionCardAgreement": {
+    "approved": "true"
+  },
+  "@declinedDebitCardTransaction": {
+    "approved": "true"
+  },
+  "@debitCardPendingTransactions": {
+    "approved": "true"
+  },
+  "@debitCardConfirmedTransactions": {
+    "approved": "true"
+  },
+  "@cardTransaction": {
+    "approved": "true"
+  },
+  "@cardAuthorizationRefund": {
+    "approved": "true"
+  },
+  "@reloadDebitCardtransaction": {
+    "approved": "true"
+  },
+  "@defaultElectrumServer": {
+    "approved": "true"
+  },
+  "@depositAddress": {
+    "approved": "true"
+  },
+  "@depositAddressCopied": {
+    "approved": "true"
+  },
+  "@depositAmount": {
+    "approved": "true"
+  },
+  "@directPegIn": {
+    "approved": "true"
+  },
+  "@displayUnits": {
+    "approved": "true"
+  },
+  "@domainCom": {
+    "approved": "true"
+  },
+  "@done": {
+    "approved": "true"
+  },
+  "@electrumServer": {
+    "approved": "true"
+  },
+  "@electrumServerWarning": {
+    "approved": "true"
+  },
+  "@error": {
+    "approved": "true"
+  },
+  "@errorMinPegInAmount": {
+    "approved": "true"
+  },
+  "@errorMinPegOutAmount": {
+    "approved": "true"
+  },
+  "@errorWhilePreparingFeeOptions": {
+    "approved": "true"
+  },
+  "@estimatedLiquidNetworkFee": {
+    "approved": "true"
+  },
+  "@estimatedTaxiFee": {
+    "approved": "true"
+  },
+  "@eth": {
+    "approved": "true"
+  },
+  "@exchangeTransferFromTitle": {
+    "approved": "true"
+  },
+  "@exchangeTransferToTitle": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsBtcDirect": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsChangellyUSDtSwaps": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsClearGhostTxns": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsEnableElectrumServer": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsNotes": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsStatusIndicator": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsSubaccounts": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsDebitCardStaging": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenSectionDebugMode": {
+    "approved": "true"
+  },
+  "@expired": {
+    "approved": "true"
+  },
+  "@expiresAt": {
+    "approved": "true"
+  },
+  "@expiryDate": {
+    "approved": "true"
+  },
+  "@exportPermissionRequired": {
+    "approved": "true"
+  },
+  "@exportTxnErrorFileNotFound": {
+    "approved": "true"
+  },
+  "@exportTxnErrorInvalidImportKey": {
+    "approved": "true"
+  },
+  "@exportTxnHistoryErrorSheetMessage": {
+    "approved": "true"
+  },
+  "@exportTxnHistoryErrorSheetTitle": {
+    "approved": "true"
+  },
+  "@exportTxnHistoryPermissionDeniedSheetCancelButton": {
+    "approved": "true"
+  },
+  "@exportTxnHistoryPermissionDeniedSheetMessage": {
+    "approved": "true"
+  },
+  "@exportTxnHistorySheetCancelButton": {
+    "approved": "true"
+  },
+  "@exportTxnHistorySheetConfirmButton": {
+    "approved": "true"
+  },
+  "@exportTxnHistorySheetMessage": {
+    "approved": "true"
+  },
+  "@exportTxnHistorySheetTitle": {
+    "approved": "true"
+  },
+  "@exportTxnHistorySuccessSheetMessage": {
+    "approved": "true"
+  },
+  "@exportTxnHistorySuccessSheetTitle": {
+    "approved": "true"
+  },
+  "@failed": {
+    "approved": "true"
+  },
+  "@failedSigningIncompleteTxn": {
+    "approved": "true"
+  },
+  "@failedToGenerateInvoice": {
+    "approved": "true"
+  },
+  "@fee": {
+    "approved": "true"
+  },
+  "@feeAssetMismatchError": {
+    "approved": "true"
+  },
+  "@feeEstimate": {
+    "approved": "true"
+  },
+  "@feeNotFoundError": {
+    "approved": "true"
+  },
+  "@feeRateNotFoundError": {
+    "approved": "true"
+  },
+  "@fees": {
+    "approved": "true"
+  },
+  "@feeTransactionNotFoundError": {
+    "approved": "true"
+  },
+  "@from": {
+    "approved": "true"
+  },
+  "@gdkNetworkFeeBelowMinimum": {
+    "approved": "true"
+  },
+  "@gdkNetworkInsufficientFundsForFee": {
+    "approved": "true"
+  },
+  "@gdkNetworkInvalidAmount": {
+    "approved": "true"
+  },
+  "@gdkNetworkChangeBelowDustThreshold": {
+    "approved": "true"
+  },
+  "@generalError": {
+    "approved": "true"
+  },
+  "@genericSwapAmountError": {
+    "approved": "true"
+  },
+  "@genericSwapApiError": {
+    "approved": "true"
+  },
+  "@genericSwapAuthError": {
+    "approved": "true"
+  },
+  "@genericSwapCurrencyListError": {
+    "approved": "true"
+  },
+  "@genericSwapError": {
+    "approved": "true"
+  },
+  "@genericSwapInvalidAddressError": {
+    "approved": "true"
+  },
+  "@genericSwapMaxAmountError": {
+    "approved": "true"
+  },
+  "@genericSwapMinAmountError": {
+    "approved": "true"
+  },
+  "@genericSwapNetworkFeeError": {
+    "approved": "true"
+  },
+  "@genericSwapOrderCreationError": {
+    "approved": "true"
+  },
+  "@genericSwapOrderStatusError": {
+    "approved": "true"
+  },
+  "@genericSwapPairsError": {
+    "approved": "true"
+  },
+  "@genericSwapQuoteError": {
+    "approved": "true"
+  },
+  "@genericSwapUnsupportedCurrencyError": {
+    "approved": "true"
+  },
+  "@details": {
+    "approved": "true"
+  },
+  "@high": {
+    "approved": "true"
+  },
+  "@homeTabWalletTitle": {
+    "approved": "true"
+  },
+  "@walletPlaceHolderName": {
+    "approved": "true"
+  },
+  "@importTxnHistoryErrorSheetMessage": {
+    "approved": "true"
+  },
+  "@importTxnHistoryErrorSheetTitle": {
+    "approved": "true"
+  },
+  "@importTxnHistoryNotFoundSheetMessage": {
+    "approved": "true"
+  },
+  "@importTxnHistoryNotFoundSheetTitle": {
+    "approved": "true"
+  },
+  "@importTxnHistoryPermissionDeniedSheetMessage": {
+    "approved": "true"
+  },
+  "@importTxnHistorySheetConfirmButton": {
+    "approved": "true"
+  },
+  "@importTxnHistorySheetMessage": {
+    "approved": "true"
+  },
+  "@importTxnHistorySheetRestoreButton": {
+    "approved": "true"
+  },
+  "@importTxnHistorySheetTitle": {
+    "approved": "true"
+  },
+  "@importTxnHistorySuccessSheetMessage": {
+    "approved": "true"
+  },
+  "@importTxnHistorySuccessSheetTitle": {
+    "approved": "true"
+  },
+  "@increaseFee": {
+    "approved": "true"
+  },
+  "@information": {
+    "approved": "true"
+  },
+  "@inProgress": {
+    "approved": "true"
+  },
+  "@insufficientBalanceToCoverFees": {
+    "approved": "true"
+  },
+  "@insufficientFunds": {
+    "approved": "true"
+  },
+  "@insufficientFundsForFeesSheetMessage": {
+    "approved": "true"
+  },
+  "@insufficientFundsSheetCurrentBalance": {
+    "approved": "true"
+  },
+  "@insufficientFundsSheetMessage": {
+    "approved": "true"
+  },
+  "@insufficientFundsSheetRequiredFee": {
+    "approved": "true"
+  },
+  "@internalSend": {
+    "approved": "true"
+  },
+  "@internalSendReviewBitcoin": {
+    "approved": "true"
+  },
+  "@internalSendReviewCurrentRate": {
+    "approved": "true"
+  },
+  "@internalSendReviewNetworkFee": {
+    "approved": "true"
+  },
+  "@internalSendReviewSendAmountTitle": {
+    "approved": "true"
+  },
+  "@internalSendReviewSideswapServiceFee": {
+    "approved": "true"
+  },
+  "@internalSendTimeoutError": {
+    "approved": "true"
+  },
+  "@timeout": {
+    "approved": "true"
+  },
+  "@invalidAddress": {
+    "approved": "true"
+  },
+  "@invalidNetworkTypeError": {
+    "approved": "true"
+  },
+  "@invalidSubaccountTypeError": {
+    "approved": "true"
+  },
+  "@invoicesWithoutAmountNotSupported": {
+    "approved": "true"
+  },
+  "@l2Bitcoin": {
+    "approved": "true"
+  },
+  "@language": {
+    "approved": "true"
+  },
+  "@later": {
+    "approved": "true"
+  },
+  "@layer2Bitcoin": {
+    "approved": "true"
+  },
+  "@legacySegwitSubaccountNotFoundError": {
+    "approved": "true"
+  },
+  "@lightning": {
+    "approved": "true"
+  },
+  "@lightningInvoice": {
+    "approved": "true"
+  },
+  "@lightningInvoiceNotFound": {
+    "approved": "true"
+  },
+  "@lightningTransactionPendingScreenSendTitle": {
+    "approved": "true"
+  },
+  "@lightningTransactionSuccessScreenAmountSats": {
+    "approved": "true"
+  },
+  "@lightningTransactionSuccessScreenReceiveTitle": {
+    "approved": "true"
+  },
+  "@lightningTransactionSuccessScreenSendTitle": {
+    "approved": "true"
+  },
+  "@linkErrorAlertSubtitle": {
+    "approved": "true"
+  },
+  "@linkErrorAlertTitle": {
+    "approved": "true"
+  },
+  "@liquid": {
+    "approved": "true"
+  },
+  "@liquidElectrumServerUrlRequired": {
+    "approved": "true"
+  },
+  "@liquidNetworkFees": {
+    "approved": "true"
+  },
+  "@liquidNetworkRate": {
+    "approved": "true"
+  },
+  "@liquidUrl": {
+    "approved": "true"
+  },
+  "@lnurlpInvoiceRetrievalError": {
+    "approved": "true"
+  },
+  "@lnurlwGeneralError": {
+    "approved": "true"
+  },
+  "@lnUrlWithdraw": {
+    "approved": "true"
+  },
+  "@lnurlwWithdraw": {
+    "approved": "true"
+  },
+  "@loginScreenAuthError": {
+    "approved": "true"
+  },
+  "@loginScreenContinue": {
+    "approved": "true"
+  },
+  "@loginScreenDescription": {
+    "approved": "true"
+  },
+  "@loginScreenEmailHint": {
+    "approved": "true"
+  },
+  "@loginScreenEmailPrompt": {
+    "approved": "true"
+  },
+  "@loginScreenFieldRequired": {
+    "approved": "true"
+  },
+  "@loginScreenGeneralError": {
+    "approved": "true"
+  },
+  "@loginScreenInvalidEmail": {
+    "approved": "true"
+  },
+  "@loginScreenTitle": {
+    "approved": "true"
+  },
+  "@low": {
+    "approved": "true"
+  },
+  "@manageAssets": {
+    "approved": "true"
+  },
+  "@manageAssetsScreenError": {
+    "approved": "true"
+  },
+  "@marketplaceScreenBtcMapButton": {
+    "approved": "true"
+  },
+  "@marketplaceScreenBtcMapButtonDescription": {
+    "approved": "true"
+  },
+  "@marketplaceScreenBuyButton": {
+    "approved": "true"
+  },
+  "@marketplaceScreenBuyButtonDescription": {
+    "approved": "true"
+  },
+  "@marketplaceScreenExchangeButtonDescription": {
+    "approved": "true"
+  },
+  "@marketplaceScreenDolphinCardButton": {
+    "approved": "true"
+  },
+  "@marketplaceScreenDolphinCardButtonDescription": {
+    "approved": "true"
+  },
+  "@marketplaceTitle": {
+    "approved": "true"
+  },
+  "@max": {
+    "approved": "true"
+  },
+  "@min": {
+    "approved": "true"
+  },
+  "@minimum": {
+    "approved": "true"
+  },
+  "@maxLabel": {
+    "approved": "true"
+  },
+  "@minLabel": {
+    "approved": "true"
+  },
+  "@balanceLabel": {
+    "approved": "true"
+  },
+  "@invalidMiniPrivateKeyError": {
+    "approved": "true"
+  },
+  "@monthlyLimit": {
+    "approved": "true"
+  },
+  "@myCard": {
+    "approved": "true"
+  },
+  "@myNotes": {
+    "approved": "true"
+  },
+  "@nativeSegwitSubaccountCreationError": {
+    "approved": "true"
+  },
+  "@needRestartAppError": {
+    "approved": "true"
+  },
+  "@networkFees": {
+    "approved": "true"
+  },
+  "@noAddresses": {
+    "approved": "true"
+  },
+  "@noFee": {
+    "approved": "true"
+  },
+  "@noOnrampOptionsAvailable": {
+    "approved": "true"
+  },
+  "@notEnoughFunds": {
+    "approved": "true"
+  },
+  "@note": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenTitle": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenExportTitle": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenExportTip": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenExportButton": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenImportTitle": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenImportTip": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenImportButton": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenImportSuccessMessage": {
+    "approved": "true"
+  },
+  "@noUnspentOutputsError": {
+    "approved": "true"
+  },
+  "@ok": {
+    "approved": "true"
+  },
+  "@okay": {
+    "approved": "true"
+  },
+  "@onrampScreenBtcPriceLabel": {
+    "approved": "true"
+  },
+  "@onrampScreenDeliveryOptionsLabel": {
+    "approved": "true"
+  },
+  "@onrampScreenPaymentOptionsLabel": {
+    "approved": "true"
+  },
+  "@onrampScreenTitle": {
+    "approved": "true"
+  },
+  "@orderId": {
+    "approved": "true"
+  },
+  "@otpScreenChangeEmail": {
+    "approved": "true"
+  },
+  "@otpScreenDescription": {
+    "approved": "true"
+  },
+  "@otpScreenNotYourEmail": {
+    "approved": "true"
+  },
+  "@otpScreenResendButton": {
+    "approved": "true"
+  },
+  "@otpScreenResendCode": {
+    "approved": "true"
+  },
+  "@otpScreenTitle": {
+    "approved": "true"
+  },
+  "@pegBitcoinNetworkFees": {
+    "approved": "true"
+  },
+  "@pegErrorFeeExceedAmount": {
+    "approved": "true"
+  },
+  "@pegErrorTransaction": {
+    "approved": "true"
+  },
+  "@pegInProgress": {
+    "approved": "true"
+  },
+  "@pegLiquidNetworkFees": {
+    "approved": "true"
+  },
+  "@pegOrderReviewTitle": {
+    "approved": "true"
+  },
+  "@permissionDenied": {
+    "approved": "true"
+  },
+  "@personalElectrumServer": {
+    "approved": "true"
+  },
+  "@pinScreenDisabledDescription": {
+    "approved": "true"
+  },
+  "@pinScreenFailedAttemptsMessage": {
+    "approved": "true"
+  },
+  "@pinScreenInvalidPinMessage": {
+    "approved": "true"
+  },
+  "@pinScreenLockedMessage": {
+    "approved": "true"
+  },
+  "@pinScreenSetupDescription": {
+    "approved": "true"
+  },
+  "@pinScreenSetupMismatchError": {
+    "approved": "true"
+  },
+  "@pinScreenSetupVerifyDescription": {
+    "approved": "true"
+  },
+  "@pinScreenSuccessTitle": {
+    "approved": "true"
+  },
+  "@pinScreenWarningDescription": {
+    "approved": "true"
+  },
+  "@pinScreenWarningTitle": {
+    "approved": "true"
+  },
+  "@pinScreenWarningViewRecovery": {
+    "approved": "true"
+  },
+  "@pleaseChooseTheElectrumServersYouTrust": {
+    "approved": "true"
+  },
+  "@pleaseEnterAValidUrl": {
+    "approved": "true"
+  },
+  "@pokerChipBalanceError": {
+    "approved": "true"
+  },
+  "@pokerchipSweep": {
+    "approved": "true"
+  },
+  "@pokerChipSweepDialogTitle": {
+    "approved": "true"
+  },
+  "@pokerChipSweepDialogContent": {
+    "approved": "true"
+  },
+  "@pokerChipSweepSuccessful": {
+    "approved": "true"
+  },
+  "@polygon": {
+    "approved": "true"
+  },
+  "@privacyPolicy": {
+    "approved": "true"
+  },
+  "@proceed": {
+    "approved": "true"
+  },
+  "@processing": {
+    "approved": "true"
+  },
+  "@receive": {
+    "approved": "true"
+  },
+  "@receiveAddressError": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenDirectPegInMinAmount": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenGenerateNewAddress": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenShare": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenSwapServiceFee": {
+    "approved": "true"
+  },
+  "@received": {
+    "approved": "true"
+  },
+  "@refExRateSettingsScreenItemLabel": {
+    "approved": "true"
+  },
+  "@refund": {
+    "approved": "true"
+  },
+  "@refunded": {
+    "approved": "true"
+  },
+  "@refunding": {
+    "approved": "true"
+  },
+  "@region": {
+    "approved": "true"
+  },
+  "@regionSettingsScreenError": {
+    "approved": "true"
+  },
+  "@removeWalletScreenRemoveFailed": {
+    "approved": "true"
+  },
+  "@requestPermission": {
+    "approved": "true"
+  },
+  "@restoreInputButton": {
+    "approved": "true"
+  },
+  "@restoreInputError": {
+    "approved": "true"
+  },
+  "@restorePromptButton": {
+    "approved": "true"
+  },
+  "@restorePromptSubtitle": {
+    "approved": "true"
+  },
+  "@restoreWallet": {
+    "approved": "true"
+  },
+  "@retry": {
+    "approved": "true"
+  },
+  "@reviewSwap": {
+    "approved": "true"
+  },
+  "@satsPerVByte": {
+    "approved": "true"
+  },
+  "@satsPerVByteWithoutApprox": {
+    "approved": "true"
+  },
+  "@save": {
+    "approved": "true"
+  },
+  "@scan": {
+    "approved": "true"
+  },
+  "@scanQrCodeIncompatibleAssetAlertSubtitle": {
+    "approved": "true"
+  },
+  "@scanQrCodePermissionAlertGrantButton": {
+    "approved": "true"
+  },
+  "@scanQrCodePermissionAlertSubtitle": {
+    "approved": "true"
+  },
+  "@scanQrCodePermissionAlertTitle": {
+    "approved": "true"
+  },
+  "@scanQrCodeTitle": {
+    "approved": "true"
+  },
+  "@scanQrCodeUnsupportedAssetAlertSubtitle": {
+    "approved": "true"
+  },
+  "@scanQrCodeValidationAlertTitle": {
+    "approved": "true"
+  },
+  "@scanTextDefaultError": {
+    "approved": "true"
+  },
+  "@scanTextTitle": {
+    "approved": "true"
+  },
+  "@buttonScanText": {
+    "approved": "true"
+  },
+  "@cameraIsNotAvailable": {
+    "approved": "true"
+  },
+  "@notAvailable": {
+    "approved": "true"
+  },
+  "@selectAddress": {
+    "approved": "true"
+  },
+  "@searchHistory": {
+    "approved": "true"
+  },
+  "@send": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenAssetNotInManagedAssetsError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenBoltzInvoiceError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenEmptyAddressError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenEmptyAmountError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenExpiredInvoiceError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenGreaterThanMaxAmountError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenInvalidLightningAddressError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenLessThanMinAmountError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenNonMatchingAmountError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenNonMatchingAssetIdError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenNotEnoughFundsError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenNotEnoughFundsForFeeError": {
+    "approved": "true"
+  },
+  "@sendAssetAmountScreenUnsupportedInvoiceError": {
+    "approved": "true"
+  },
+  "@sendAssetCompleteScreenFeeLabel": {
+    "approved": "true"
+  },
+  "@sendAssetReviewNotEnoughFunds": {
+    "approved": "true"
+  },
+  "@sendAssetReviewScreenConfirmAmountTitleReceive": {
+    "approved": "true"
+  },
+  "@sendAssetReviewScreenConfirmAmountTitleSend": {
+    "approved": "true"
+  },
+  "@sendAssetReviewScreenConfirmCustomFeeButton": {
+    "approved": "true"
+  },
+  "@sendAssetReviewScreenConfirmCustomFeeMinimum": {
+    "approved": "true"
+  },
+  "@sendAssetScreenClipboardTitle": {
+    "approved": "true"
+  },
+  "@sendAssetScreenUseAllFundsButton": {
+    "approved": "true"
+  },
+  "@sendReviewExtPrivKeyHeader": {
+    "approved": "true"
+  },
+  "@sending": {
+    "approved": "true"
+  },
+  "@sendMaxAmountError": {
+    "approved": "true"
+  },
+  "@sendMinAmountError": {
+    "approved": "true"
+  },
+  "@sendMinAmountErrorTooltip": {
+    "approved": "true"
+  },
+  "@sendMaxAmountErrorTooltip": {
+    "approved": "true"
+  },
+  "@sendTo": {
+    "approved": "true"
+  },
+  "@service": {
+    "approved": "true"
+  },
+  "@serverOnline": {
+    "approved": "true"
+  },
+  "@setAmount": {
+    "approved": "true"
+  },
+  "@settings": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelAUD": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelBRL": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelCAD": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelCHF": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelCNY": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelCZK": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelDKK": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelEUR": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelGBP": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelHKD": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelILS": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelINR": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelMXN": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelMYR": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelNGN": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelNOK": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelNZD": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelPLN": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelRUB": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelSEK": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelSGD": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelTHB": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelTRY": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelUSD": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelVND": {
+    "approved": "true"
+  },
+  "@settingsScreenCurrencyLabelZAR": {
+    "approved": "true"
+  },
+  "@settingsScreenItemBiometricAuth": {
+    "approved": "true"
+  },
+  "@themesSettingsScreenTitle": {
+    "approved": "true"
+  },
+  "@themesSettingsScreenItemBotev": {
+    "approved": "true"
+  },
+  "@themesSettingsScreenItemLight": {
+    "approved": "true"
+  },
+  "@themesSettingsScreenItemDark": {
+    "approved": "true"
+  },
+  "@themesSettingsScreenItemSystem": {
+    "approved": "true"
+  },
+  "@settingsScreenItemExperimentalFeatures": {
+    "approved": "true"
+  },
+  "@settingsScreenItemExplorer": {
+    "approved": "true"
+  },
+  "@settingsScreenItemHiddenLanguageDisabled": {
+    "approved": "true"
+  },
+  "@settingsScreenItemHiddenLanguageEnabled": {
+    "approved": "true"
+  },
+  "@settingsScreenItemLogs": {
+    "approved": "true"
+  },
+  "@settingsScreenItemPhrase": {
+    "approved": "true"
+  },
+  "@settingsScreenItemPin": {
+    "approved": "true"
+  },
+  "@settingsScreenItemVersion": {
+    "approved": "true"
+  },
+  "@settingsScreenItemViewSeedQR": {
+    "approved": "true"
+  },
+  "@settingsScreenSectionAdvanced": {
+    "approved": "true"
+  },
+  "@settingsScreenSectionGeneral": {
+    "approved": "true"
+  },
+  "@settingsScreenSectionSecurity": {
+    "approved": "true"
+  },
+  "@settleAddress": {
+    "approved": "true"
+  },
+  "@settleAddressCopied": {
+    "approved": "true"
+  },
+  "@settleAmount": {
+    "approved": "true"
+  },
+  "@sideshiftDeliverAmountExceedBalanceError": {
+    "approved": "true"
+  },
+  "@sideshiftDeliverAmountRequiredError": {
+    "approved": "true"
+  },
+  "@sideshiftMaxDeliverAmountError": {
+    "approved": "true"
+  },
+  "@sideshiftMinDeliverAmountError": {
+    "approved": "true"
+  },
+  "@sideshiftNoPermissionsError": {
+    "approved": "true"
+  },
+  "@sideshiftOrderStatusReview": {
+    "approved": "true"
+  },
+  "@sideshiftOrderStatusSettled": {
+    "approved": "true"
+  },
+  "@sideshiftOrderStatusSettling": {
+    "approved": "true"
+  },
+  "@sideshiftRefundAddressNotFound": {
+    "approved": "true"
+  },
+  "@sideswapOrderID": {
+    "approved": "true"
+  },
+  "@slideToSend": {
+    "approved": "true"
+  },
+  "@solana": {
+    "approved": "true"
+  },
+  "@somethingWentWrong": {
+    "approved": "true"
+  },
+  "@standard": {
+    "approved": "true"
+  },
+  "@status": {
+    "approved": "true"
+  },
+  "@subaccountCreationError": {
+    "approved": "true"
+  },
+  "@subaccountLoadError": {
+    "approved": "true"
+  },
+  "@subaccountNotFoundError": {
+    "approved": "true"
+  },
+  "@subaccountsScreenTitle": {
+    "approved": "true"
+  },
+  "@subaccountUpdateError": {
+    "approved": "true"
+  },
+  "@subaccountUpdateMainAccountNameError": {
+    "approved": "true"
+  },
+  "@success": {
+    "approved": "true"
+  },
+  "@swap": {
+    "approved": "true"
+  },
+  "@swapError": {
+    "approved": "true"
+  },
+  "@swapErrorInvalidBtcPair": {
+    "approved": "true"
+  },
+  "@swapErrorInvalidLbtcPair": {
+    "approved": "true"
+  },
+  "@swapErrorInvalidPair": {
+    "approved": "true"
+  },
+  "@swapErrorInvalidUsdtPair": {
+    "approved": "true"
+  },
+  "@swapErrorUnselectedAsset": {
+    "approved": "true"
+  },
+  "@swapErrorUnspendableAmount": {
+    "approved": "true"
+  },
+  "@swapFee": {
+    "approved": "true"
+  },
+  "@swapFrom": {
+    "approved": "true"
+  },
+  "@swapId": {
+    "approved": "true"
+  },
+  "@swapIdCopiedSnackbar": {
+    "approved": "true"
+  },
+  "@swapPanelPegInInfo": {
+    "approved": "true"
+  },
+  "@swapPanelPegOutInfo": {
+    "approved": "true"
+  },
+  "@swaps": {
+    "approved": "true"
+  },
+  "@swapScreenConvertAllButton": {
+    "approved": "true"
+  },
+  "@swapScreenConvertMinButton": {
+    "approved": "true"
+  },
+  "@swapScreenSuccessAmountTitle": {
+    "approved": "true"
+  },
+  "@swapServiceApiError": {
+    "approved": "true"
+  },
+  "@swapServiceAuthenticationError": {
+    "approved": "true"
+  },
+  "@swapServiceCurrencyListError": {
+    "approved": "true"
+  },
+  "@swapServiceGeneralError": {
+    "approved": "true"
+  },
+  "@swapServiceInvalidAddressError": {
+    "approved": "true"
+  },
+  "@swapServiceMaxAmountError": {
+    "approved": "true"
+  },
+  "@swapServiceMinAmountError": {
+    "approved": "true"
+  },
+  "@swapServiceNetworkFeeError": {
+    "approved": "true"
+  },
+  "@swapServiceOrderCreationError": {
+    "approved": "true"
+  },
+  "@swapServiceOrderStatusError": {
+    "approved": "true"
+  },
+  "@swapServicePairsFetchError": {
+    "approved": "true"
+  },
+  "@swapServiceQuoteError": {
+    "approved": "true"
+  },
+  "@swapServiceUnsupportedCurrencyError": {
+    "approved": "true"
+  },
+  "@swapStatusExchanging": {
+    "approved": "true"
+  },
+  "@sweepFunds": {
+    "approved": "true"
+  },
+  "@tabSavings": {
+    "approved": "true"
+  },
+  "@tabSpendingSingular": {
+    "approved": "true"
+  },
+  "@tabSpending": {
+    "approved": "true"
+  },
+  "@testSettingsScreenDebugDatabaseView": {
+    "approved": "true"
+  },
+  "@testSettingsScreenItemDatabaseExport": {
+    "approved": "true"
+  },
+  "@testSettingsScreenItemFakeBroadcast": {
+    "approved": "true"
+  },
+  "@testSettingsScreenItemForceAquaNodeNotSynced": {
+    "approved": "true"
+  },
+  "@testSettingsScreenItemThrowAquaBroadcastError": {
+    "approved": "true"
+  },
+  "@testSettingsScreenSectionTitle": {
+    "approved": "true"
+  },
+  "@testTransactionDatabaseExport": {
+    "approved": "true"
+  },
+  "@testTransactionDatabaseImport": {
+    "approved": "true"
+  },
+  "@time": {
+    "approved": "true"
+  },
+  "@to": {
+    "approved": "true"
+  },
+  "@ton": {
+    "approved": "true"
+  },
+  "@topUp": {
+    "approved": "true"
+  },
+  "@total": {
+    "approved": "true"
+  },
+  "@totalFees": {
+    "approved": "true"
+  },
+  "@transactionBlindingError": {
+    "approved": "true"
+  },
+  "@transactionBroadcastError": {
+    "approved": "true"
+  },
+  "@transactionCreationError": {
+    "approved": "true"
+  },
+  "@transactionFetchError": {
+    "approved": "true"
+  },
+  "@transactionID": {
+    "approved": "true"
+  },
+  "@transactions": {
+    "approved": "true"
+  },
+  "@transactionSigningError": {
+    "approved": "true"
+  },
+  "@transactionSizeNotFoundError": {
+    "approved": "true"
+  },
+  "@tron": {
+    "approved": "true"
+  },
+  "@tryAgain": {
+    "approved": "true"
+  },
+  "@used": {
+    "approved": "true"
+  },
+  "@unused": {
+    "approved": "true"
+  },
+  "@unknown": {
+    "approved": "true"
+  },
+  "@unknownErrorSubtitle": {
+    "approved": "true"
+  },
+  "@unknownErrorTitle": {
+    "approved": "true"
+  },
+  "@unknownTransactionSizeError": {
+    "approved": "true"
+  },
+  "@usdtSwapOrderListEmptyState": {
+    "approved": "true"
+  },
+  "@usdtSwap": {
+    "approved": "true"
+  },
+  "@usdtSwapOrders": {
+    "approved": "true"
+  },
+  "@useBalanceFrom": {
+    "approved": "true"
+  },
+  "@usedAddresses": {
+    "approved": "true"
+  },
+  "@verificationFailed": {
+    "approved": "true"
+  },
+  "@waiting": {
+    "approved": "true"
+  },
+  "@warningPhraseScreenFirstCardText": {
+    "approved": "true"
+  },
+  "@warningPhraseScreenFirstCardTitle": {
+    "approved": "true"
+  },
+  "@warningPhraseScreenNextButton": {
+    "approved": "true"
+  },
+  "@showSeedPhrase": {
+    "approved": "true"
+  },
+  "@warningPhraseScreenSecondCardText": {
+    "approved": "true"
+  },
+  "@warningPhraseScreenSecondCardTitle": {
+    "approved": "true"
+  },
+  "@warningPhraseScreenThirdCardText": {
+    "approved": "true"
+  },
+  "@warningPhraseScreenThirdCardTitle": {
+    "approved": "true"
+  },
+  "@warningPhraseScreenTitle": {
+    "approved": "true"
+  },
+  "@seedPhraseTitle": {
+    "approved": "true"
+  },
+  "@watchOnlyScreenDescription": {
+    "approved": "true"
+  },
+  "@watchOnlyScreenSubtitle": {
+    "approved": "true"
+  },
+  "@watchOnlyScreenTitle": {
+    "approved": "true"
+  },
+  "@watchOnlyWalletTitle": {
+    "approved": "true"
+  },
+  "@welcomeScreenDesc1": {
+    "approved": "true"
+  },
+  "@welcomeScreenDesc2": {
+    "approved": "true"
+  },
+  "@welcomeScreenDesc3": {
+    "approved": "true"
+  },
+  "@welcomeScreenDesc4": {
+    "approved": "true"
+  },
+  "@welcomeScreenDesc5": {
+    "approved": "true"
+  },
+  "@welcomeScreenToSDescriptionBold": {
+    "approved": "true"
+  },
+  "@faqTitle": {
+    "approved": "true"
+  },
+  "@faqSubtitle": {
+    "approved": "true"
+  },
+  "@youHaveNoTransactionsYet": {
+    "approved": "true"
+  },
+  "@youveSuccessfullySent": {
+    "approved": "true"
+  },
+  "@youWillReceive": {
+    "approved": "true"
+  },
+  "@zendeskTitle": {
+    "approved": "true"
+  },
+  "@zendeskSubtitle": {
+    "approved": "true"
+  },
+  "@youWillTopUp": {
+    "approved": "true"
+  },
+  "@yourTopUpWasSuccessful": {
+    "approved": "true"
+  },
+  "@yourTopUpIsBeingProcessed": {
+    "approved": "true"
+  },
+  "@dolphinCard": {
+    "approved": "true"
+  },
+  "@supportedCountries": {
+    "approved": "true"
+  },
+  "@features": {
+    "approved": "true"
+  },
+  "@reloadable": {
+    "approved": "true"
+  },
+  "@noCostToLoad": {
+    "approved": "true"
+  },
+  "@fourThousandUsdMonthlySpendingLimit": {
+    "approved": "true"
+  },
+  "@onePercentFeeOnSpend": {
+    "approved": "true"
+  },
+  "@oneDollarMinFee": {
+    "approved": "true"
+  },
+  "@close": {
+    "approved": "true"
+  },
+  "@dolphin": {
+    "approved": "true"
+  },
+  "@chooseYourStyle": {
+    "approved": "true"
+  },
+  "@next": {
+    "approved": "true"
+  },
+  "@supportedCountriesDescription": {
+    "approved": "true"
+  },
+  "@failedToFetchFeeOptions": {
+    "approved": "true"
+  },
+  "@debitCardWaitlistTitle": {
+    "approved": "true"
+  },
+  "@debitCardWaitlistMessage": {
+    "approved": "true"
+  },
+  "@debitCardWaitlistButton": {
+    "approved": "true"
+  },
+  "@jan3AccountTitle": {
+    "approved": "true"
+  },
+  "@jan3InviteFriends": {
+    "approved": "true"
+  },
+  "@jan3LogOut": {
+    "approved": "true"
+  },
+  "@jan3InviteMessage": {
+    "approved": "true"
+  },
+  "@jan3TermsCheckboxAgree": {
+    "approved": "true"
+  },
+  "@jan3TermsCheckboxTerms": {
+    "approved": "true"
+  },
+  "@storedWalletsTitle": {
+    "approved": "true"
+  },
+  "@storedWalletsNameYourWallet": {
+    "approved": "true"
+  },
+  "@samrock_not_enough_subaccounts_exception": {
+    "approved": "true"
+  },
+  "@samrock_connection_failed_exception": {
+    "approved": "true"
+  },
+  "@samrock_missing_wallet_data_exception": {
+    "approved": "true"
+  },
+  "@samrock_generic_exception": {
+    "approved": "true"
+  },
+  "@inclFees": {
+    "approved": "true"
+  },
+  "@walletName": {
+    "approved": "true"
+  },
+  "@max23Characters": {
+    "approved": "true"
+  },
+  "@areYouSure": {
+    "approved": "true"
+  },
+  "@deleteWalletWarning": {
+    "approved": "true"
+  },
+  "@thisActionIsPermanent": {
+    "approved": "true"
+  },
+  "@deleteWallet": {
+    "approved": "true"
+  },
+  "@authenticateToSwitchWallet": {
+    "approved": "true"
+  },
+  "@authenticateToDeleteWallet": {
+    "approved": "true"
+  },
+  "@authenticationRequired": {
+    "approved": "true"
+  },
+  "@selectWallet": {
+    "approved": "true"
+  },
+  "@selectNetwork": {
+    "approved": "true"
+  },
+  "@goBack": {
+    "approved": "true"
+  },
+  "@samRockScreenAppBarTitle": {
+    "approved": "true"
+  },
+  "@samRockScreenConfirmHostTitle": {
+    "approved": "true"
+  },
+  "@samRockScreenConfirmHostSubtitle": {
+    "approved": "true"
+  },
+  "@samRockScreenSuccessTitle": {
+    "approved": "true"
+  },
+  "@samRockScreenCompleteSetupButton": {
+    "approved": "true"
+  },
+  "@samRockScreenCreateWalletTitle": {
+    "approved": "true"
+  },
+  "@samRockScreenCreateWalletMessage": {
+    "approved": "true"
+  },
+  "@samRockEditWalletScreenHostLabel": {
+    "approved": "true"
+  },
+  "@samRockFailedToGetNewWalletStateException": {
+    "approved": "true"
+  },
+  "@samRockScreenUseExistingWalletButton": {
+    "approved": "true"
+  },
+  "@noServicesFound": {
+    "approved": "true"
+  },
+  "@loading": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenCopyAddressButton": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenCopyAddressOptionClipboard": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenCopyAddressOptionShare": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenCopyAddressOptionImage": {
+    "approved": "true"
+  },
+  "@receiveAssetScreenCopyAddressOptionImageError": {
+    "approved": "true"
+  },
+  "@receiveNetworkFees": {
+    "approved": "true"
+  },
+  "@sendNetworkFees": {
+    "approved": "true"
+  },
+  "@swapOrder": {
+    "approved": "true"
+  },
+  "@swapOrders": {
+    "approved": "true"
+  },
+  "@addresses": {
+    "approved": "true"
+  },
+  "@dateTime": {
+    "approved": "true"
+  },
+  "@viewInExplorer": {
+    "approved": "true"
+  },
+  "@nConfirmation": {
+    "approved": "true"
+  },
+  "@pending": {
+    "approved": "true"
+  },
+  "@viewUnblindedTxInExplorer": {
+    "approved": "true"
+  },
+  "@destinationAddress": {
+    "approved": "true"
+  },
+  "@recipientGets": {
+    "approved": "true"
+  },
+  "@provider": {
+    "approved": "true"
+  },
+  "@contactSwapServiceSupport": {
+    "approved": "true"
+  },
+  "@sent": {
+    "approved": "true"
+  },
+  "@receiving": {
+    "approved": "true"
+  },
+  "@swapping": {
+    "approved": "true"
+  },
+  "@swapped": {
+    "approved": "true"
+  },
+  "@buy": {
+    "approved": "true"
+  },
+  "@newQuote": {
+    "approved": "true"
+  },
+  "@assetTransactionDetailsValueAtTime": {
+    "approved": "true"
+  },
+  "@marketplaceScreenLendasatButton": {
+    "approved": "true"
+  },
+  "@marketplaceScreenLendasatButtonDescription": {
+    "approved": "true"
+  },
+  "@liquidNetworkFee": {
+    "approved": "true"
+  },
+  "@contactSideswapSupport": {
+    "approved": "true"
+  },
+  "@maxAmount": {
+    "approved": "true"
+  },
+  "@slideToSwap": {
+    "approved": "true"
+  },
+  "@commonJustAMoment": {
+    "approved": "true"
+  },
+  "@commonYourRedeemIsInMotion": {
+    "approved": "true"
+  },
+  "@commonSwapInitiated": {
+    "approved": "true"
+  },
+  "@swapInitiatedMessage": {
+    "approved": "true"
+  },
+  "@swapFailed": {
+    "approved": "true"
+  },
+  "@commonTechnicalData": {
+    "approved": "true"
+  },
+  "@commonBal": {
+    "approved": "true"
+  },
+  "@commonConfirmSwap": {
+    "approved": "true"
+  },
+  "@commonSwapComplete": {
+    "approved": "true"
+  },
+  "@commonYourSwapWasSuccessful": {
+    "approved": "true"
+  },
+  "@commonOnchain": {
+    "approved": "true"
+  },
+  "@commonFeeratePriority": {
+    "approved": "true"
+  },
+  "@commonSuccessfullySent": {
+    "approved": "true"
+  },
+  "@commonSuccessfullyReceived": {
+    "approved": "true"
+  },
+  "@commonSendFailed": {
+    "approved": "true"
+  },
+  "@commonNoHistory": {
+    "approved": "true"
+  },
+  "@commonNoTransactions": {
+    "approved": "true"
+  },
+  "@settingsConnectToJan3Account": {
+    "approved": "true"
+  },
+  "@unlockMoreFeatures": {
+    "approved": "true"
+  },
+  "@settingsConnectWallet": {
+    "approved": "true"
+  },
+  "@settingsSecurityAddPasscode": {
+    "approved": "true"
+  },
+  "@commonPriceAlert": {
+    "approved": "true"
+  },
+  "@onboardingYourBitcoinYourWay": {
+    "approved": "true"
+  },
+  "@onboardingYourBitcoinYourWayBody": {
+    "approved": "true"
+  },
+  "@onboardingEffortlessPayments": {
+    "approved": "true"
+  },
+  "@onboardingEffortlessPaymentsBody": {
+    "approved": "true"
+  },
+  "@onboardingWalletCreatedBody": {
+    "approved": "true"
+  },
+  "@onboardingWalletRestored": {
+    "approved": "true"
+  },
+  "@onboardingWalletRestoredBody": {
+    "approved": "true"
+  },
+  "@onboardingDesktopDescription": {
+    "approved": "true"
+  },
+  "@marketplaceBuyBitcoinPayWith": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardReloadableAtNoCost": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardTopUpInProgress": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardTopUpFailed": {
+    "approved": "true"
+  },
+  "@commonRegionBan": {
+    "approved": "true"
+  },
+  "@commonNonReloadable": {
+    "approved": "true"
+  },
+  "@common1xCard": {
+    "approved": "true"
+  },
+  "@common1xDolphinFundCard": {
+    "approved": "true"
+  },
+  "@commonDolphinCardMyCards": {
+    "approved": "true"
+  },
+  "@commonAmountInclFees": {
+    "approved": "true"
+  },
+  "@bitcoinChipSweepToWallet": {
+    "approved": "true"
+  },
+  "@bitcoinChipConfirmSweep": {
+    "approved": "true"
+  },
+  "@bitcoinChipYourSweepWasSuccessful": {
+    "approved": "true"
+  },
+  "@bitcoinChipChipSweep": {
+    "approved": "true"
+  },
+  "@bitcoinChipChooseDenomination": {
+    "approved": "true"
+  },
+  "@chip": {
+    "approved": "true"
+  },
+  "@bitcoinChipDefaultAmount": {
+    "approved": "true"
+  },
+  "@confirmChipLoad": {
+    "approved": "true"
+  },
+  "@chipLoad": {
+    "approved": "true"
+  },
+  "@bitcoinChipChipLoadComplete": {
+    "approved": "true"
+  },
+  "@bitcoinChipAddChipAddresses": {
+    "approved": "true"
+  },
+  "@pasteAddressesOnePerLine": {
+    "approved": "true"
+  },
+  "@editChipValue": {
+    "approved": "true"
+  },
+  "@confirmChipLoadSlideToLoad": {
+    "approved": "true"
+  },
+  "@chipLoadEditDefaultValue": {
+    "approved": "true"
+  },
+  "@commonAlerts": {
+    "approved": "true"
+  },
+  "@settingsAlertsNewBlockAlert": {
+    "approved": "true"
+  },
+  "@settingsAlertsPriceAlertSubtext": {
+    "approved": "true"
+  },
+  "@settingsAlertsMempoolFeeAlertSubtext": {
+    "approved": "true"
+  },
+  "@settingsAlertsNewBlockAlertSubtext": {
+    "approved": "true"
+  },
+  "@settingsAddAlertSetTargetPrice": {
+    "approved": "true"
+  },
+  "@settingsAlertsAddAlertCurrentPrice": {
+    "approved": "true"
+  },
+  "@settingsAlertsAddAlertsRepeatEverytime": {
+    "approved": "true"
+  },
+  "@settingsAlertsSetTargetFeeConditionCrossing": {
+    "approved": "true"
+  },
+  "@pushNotificationAllowNotification": {
+    "approved": "true"
+  },
+  "@settingsAlertsSetAlertSuccess": {
+    "approved": "true"
+  },
+  "@lnurlRedeemSatsBody": {
+    "approved": "true"
+  },
+  "@lnurlRedeemSats": {
+    "approved": "true"
+  },
+  "@lnurlSatsRedeemed": {
+    "approved": "true"
+  },
+  "@lnurlSatsRedeemedBody": {
+    "approved": "true"
+  },
+  "@lnurlRedemptionFailed": {
+    "approved": "true"
+  },
+  "@commonAddNewAlert": {
+    "approved": "true"
+  },
+  "@settingsAlertsSubtextRepeat": {
+    "approved": "true"
+  },
+  "@settingsAlertsSubtextRepeatOnce": {
+    "approved": "true"
+  },
+  "@settingsAlertsSetTargetFee": {
+    "approved": "true"
+  },
+  "@settingsAlertsSetTargetFeeCurrentFees": {
+    "approved": "true"
+  },
+  "@settingsAlertsSetTargetFeeConditionCrossingDown": {
+    "approved": "true"
+  },
+  "@settingsAlertsSetTargetFeeCondition": {
+    "approved": "true"
+  },
+  "@settingsAlertsSetTargetFeeConditionCrossingUp": {
+    "approved": "true"
+  },
+  "@nativeBuyPaymentDetailsSaveForNextTime": {
+    "approved": "true"
+  },
+  "@slideToBuy": {
+    "approved": "true"
+  },
+  "@nativeBuyNoOffersAvailable": {
+    "approved": "true"
+  },
+  "@nativeBuyNoOffersAvailableBody": {
+    "approved": "true"
+  },
+  "@kycVerificationInProgress": {
+    "approved": "true"
+  },
+  "@kycVerificationInProgressBody": {
+    "approved": "true"
+  },
+  "@kycVerificationFailedBody": {
+    "approved": "true"
+  },
+  "@marketplaceLendButton": {
+    "approved": "true"
+  },
+  "@marketplaceLendAvailableOffers": {
+    "approved": "true"
+  },
+  "@commonInterestRate": {
+    "approved": "true"
+  },
+  "@marketplaceLendLtv": {
+    "approved": "true"
+  },
+  "@marketplaceLendRequest": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanAmount": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanAmountSubtitle": {
+    "approved": "true"
+  },
+  "@marketplaceLendAvailableRange": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanDuration": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanDurationSubtitle": {
+    "approved": "true"
+  },
+  "@marketplaceLendRequestALoan": {
+    "approved": "true"
+  },
+  "@marketplaceLendCollateral": {
+    "approved": "true"
+  },
+  "@marketplaceLendOriginationFee": {
+    "approved": "true"
+  },
+  "@marketplaceLendLiquidationPrice": {
+    "approved": "true"
+  },
+  "@marketplaceLendTotalRepayment": {
+    "approved": "true"
+  },
+  "@marketplaceLendSendRequest": {
+    "approved": "true"
+  },
+  "@marketplaceLendRequestSent": {
+    "approved": "true"
+  },
+  "@marketplaceLendRequestSentSubtitle": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanRequestApproved": {
+    "approved": "true"
+  },
+  "@marketplaceLendLockYourCollateralToProceed": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanRequestDenied": {
+    "approved": "true"
+  },
+  "@marketplaceLendloanCancelled": {
+    "approved": "true"
+  },
+  "@marketplaceLendYourLoans": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoans": {
+    "approved": "true"
+  },
+  "@marketplaceLendPendingApproval": {
+    "approved": "true"
+  },
+  "@marketplaceLendCollateralRequired": {
+    "approved": "true"
+  },
+  "@marketplaceLendNewLoan": {
+    "approved": "true"
+  },
+  "@marketplaceLendSlideToDeposit": {
+    "approved": "true"
+  },
+  "@marketplaceLendDepositSent": {
+    "approved": "true"
+  },
+  "@marketplaceLendYourCollateralDepositHasBeenSent": {
+    "approved": "true"
+  },
+  "@marketplaceLendPendingCollateral": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanInitiated": {
+    "approved": "true"
+  },
+  "@marketplaceLendYourLoanIsNowActive": {
+    "approved": "true"
+  },
+  "@marketplaceLendRepaymentReminder": {
+    "approved": "true"
+  },
+  "@marketplaceLendYourLoanIsNearingItsDue": {
+    "approved": "true"
+  },
+  "@marketplaceLendRepaymentDueSoon": {
+    "approved": "true"
+  },
+  "@marketplaceLendRepayNowToAvoidLiquidation": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanLiquidated": {
+    "approved": "true"
+  },
+  "@marketplaceLendCollateralSoldDueToLowValue": {
+    "approved": "true"
+  },
+  "@marketplaceLendPendingLoan": {
+    "approved": "true"
+  },
+  "@marketplaceLendViewCollateralTx": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoan": {
+    "approved": "true"
+  },
+  "@marketplaceLendOpenLoan": {
+    "approved": "true"
+  },
+  "@marketplaceLendOpened": {
+    "approved": "true"
+  },
+  "@marketplaceLendExtentContract": {
+    "approved": "true"
+  },
+  "@marketplaceLendExtendContract": {
+    "approved": "true"
+  },
+  "@marketplaceLendRepayLoan": {
+    "approved": "true"
+  },
+  "@marketplaceLendViewLoanRefundTx": {
+    "approved": "true"
+  },
+  "@marketplaceLendClosed": {
+    "approved": "true"
+  },
+  "@marketplaceLendLiquidated": {
+    "approved": "true"
+  },
+  "@marketplaceLendCancelRequest": {
+    "approved": "true"
+  },
+  "@marketplaceLendDepositCollateral": {
+    "approved": "true"
+  },
+  "@marketplaceLendLoanExtension": {
+    "approved": "true"
+  },
+  "@marketplaceLendHowLongToExtend": {
+    "approved": "true"
+  },
+  "@marketplaceLendExtensionRequestSent": {
+    "approved": "true"
+  },
+  "@marketplaceLendExtensionApproved": {
+    "approved": "true"
+  },
+  "@marketplaceLendYourLoanHasBeenExtended": {
+    "approved": "true"
+  },
+  "@marketplaceLendExtensionDenied": {
+    "approved": "true"
+  },
+  "@lockWallet": {
+    "approved": "true"
+  },
+  "@addNewWallet": {
+    "approved": "true"
+  },
+  "@newWalletCreated": {
+    "approved": "true"
+  },
+  "@newWalletCreatedSubtitle": {
+    "approved": "true"
+  },
+  "@editWallet": {
+    "approved": "true"
+  },
+  "@assetsReceiveLightningQRSubtitle": {
+    "approved": "true"
+  },
+  "@commonSingleUseAddress": {
+    "approved": "true"
+  },
+  "@assetsReceiveUsdtQRSubtitle": {
+    "approved": "true"
+  },
+  "@commonSwapViewReceipt": {
+    "approved": "true"
+  },
+  "@commonSomethingWentWrong": {
+    "approved": "true"
+  },
+  "@swappedFromLusdt": {
+    "approved": "true"
+  },
+  "@commonMempoolFeeAlert": {
+    "approved": "true"
+  },
+  "@featureUnavailableInYourRegion": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardNoTransactionsYet": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardSlideToTopUp": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardyourTopupIsInProgress": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardConfirmTopUp": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardAddFundsToYourCardAnd": {
+    "approved": "true"
+  },
+  "@bitcoinChipScanBitcoinChipSubtitle": {
+    "approved": "true"
+  },
+  "@marketplaceDolphinCardSubtitle": {
+    "approved": "true"
+  },
+  "@bitcoinChipLoadBitcoinChip": {
+    "approved": "true"
+  },
+  "@bitcoinChipLoadBitcoinChipSubtitle": {
+    "approved": "true"
+  },
+  "@bitcoinChipSlideToSweep": {
+    "approved": "true"
+  },
+  "@bitcoinChipUploadACsvOrEnterAddresses": {
+    "approved": "true"
+  },
+  "@mustIncludeAnAddressColumnOptional": {
+    "approved": "true"
+  },
+  "@bitcoinChipUploadFile": {
+    "approved": "true"
+  },
+  "@bitcoinChipCsvLessThan5mb": {
+    "approved": "true"
+  },
+  "@bitcoinChipParseAddresses": {
+    "approved": "true"
+  },
+  "@bitcoinChipChipLoadFailed": {
+    "approved": "true"
+  },
+  "@settingsAlertsSaveAlert": {
+    "approved": "true"
+  },
+  "@somethingWentWrongWhileRedeemingPlease": {
+    "approved": "true"
+  },
+  "@commonPleaseCheckYourConnectionAndTry": {
+    "approved": "true"
+  },
+  "@markeplaceLendtheLenderDeclinedYourRequest": {
+    "approved": "true"
+  },
+  "@marketplaceLendyouDidntLockCollateralInTime": {
+    "approved": "true"
+  },
+  "@marketplaceLendViewLoanPayoutTx": {
+    "approved": "true"
+  },
+  "@marketplaceLendyourExtensionWasNotApproved": {
+    "approved": "true"
+  },
+  "@dolphinCardTransactionHistoryReversal": {
+    "approved": "true"
+  },
+  "@oneXCardFundingFailed": {
+    "approved": "true"
+  },
+  "@oneXCardSlideToFundCard": {
+    "approved": "true"
+  },
+  "@onlyForInsertAltUsdtNetwork": {
+    "approved": "true"
+  },
+  "@assistiveTextAssistivetextbool": {
+    "approved": "true"
+  },
+  "@nDays": {
+    "approved": "true"
+  },
+  "@rangeDays": {
+    "approved": "true"
+  },
+  "@commonContactSupport": {
+    "approved": "true"
+  },
+  "@forNDays": {
+    "approved": "true"
+  },
+  "@enterSeedWords": {
+    "approved": "true"
+  },
+  "@dolphinCardSupportZendeskSubjectCriticalDoNotChange": {
+    "approved": "true"
+  },
+  "@autoLockSettingsOptionAlways": {
+    "approved": "true"
+  },
+  "@autoLockSettingsOptionMinutes": {
+    "approved": "true"
+  },
+  "@confirmations": {
+    "approved": "true"
+  },
+  "@bitcoinChipSweepFailed": {
+    "approved": "true"
+  },
+  "@nativeBuyPaymentDetailsSecurityCode": {
+    "approved": "true"
+  },
+  "@nativeBuyPaymentDetailsExpirationDate": {
+    "approved": "true"
+  },
+  "@nativeBuyPaymentDetailsCardNumber": {
+    "approved": "true"
+  },
+  "@nativeBuyPaymentDetailsNameOnCard": {
+    "approved": "true"
+  },
+  "@nativeBuyPaymentCardPayment": {
+    "approved": "true"
+  },
+  "@autoLockSettingsScreenTitle": {
+    "approved": "true"
+  },
+  "@scanBitcoinChip": {
+    "approved": "true"
+  },
+  "@swapPairIsNullError": {
+    "approved": "true"
+  },
+  "@debitCardInvoiceExpiredTitle": {
+    "approved": "true"
+  },
+  "@debitCardInvoiceExpiredMessage": {
+    "approved": "true"
+  },
+  "@commonGotIt": {
+    "approved": "true"
+  },
+  "@languageSettingsEnglish": {
+    "approved": "true"
+  },
+  "@languageSettingsSpanish": {
+    "approved": "true"
+  },
+  "@languageSettingsNederlands": {
+    "approved": "true"
+  },
+  "@languageSettingsBulgarian": {
+    "approved": "true"
+  },
+  "@languageSettingsPortugal": {
+    "approved": "true"
+  },
+  "@languageSettingsCzech": {
+    "approved": "true"
+  },
+  "@languageSettingsCatalan": {
+    "approved": "true"
+  },
+  "@searchTitle": {
+    "approved": "true"
+  },
+  "@removeWallet": {
+    "approved": "true"
+  },
+  "@choosePriceSource": {
+    "approved": "true"
+  },
+  "@currencyPriceSource": {
+    "approved": "true"
+  },
+  "@zendesk": {
+    "approved": "true"
+  },
+  "@btcPayServer": {
+    "approved": "true"
+  },
+  "@experimental": {
+    "approved": "true"
+  },
+  "@exportAndShareLogs": {
+    "approved": "true"
+  },
+  "@referenceCurrency": {
+    "approved": "true"
+  },
+  "@unitAndCurrencySettingsTitle": {
+    "approved": "true"
+  },
+  "@dailyLimit": {
+    "approved": "true"
+  },
+  "@amountRange": {
+    "approved": "true"
+  },
+  "@serviceId": {
+    "approved": "true"
+  },
+  "@serviceSwapDetails": {
+    "approved": "true"
+  },
+  "@redepositing": {
+    "approved": "true"
+  },
+  "@redeposited": {
+    "approved": "true"
+  },
+  "@marketplaceTileDisabledMessage": {
+    "approved": "true"
+  },
+  "@dolphinCardTopUpFee": {
+    "approved": "true"
+  },
+  "@dolphinCardTopUpFeePercentage": {
+    "approved": "true"
+  },
+  "@settingsNode": {
+    "approved": "true"
+  },
+  "@topUpTemporarilyDisabled": {
+    "approved": "true"
+  },
+  "@transactionNotFound": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsMarketplaceTilesMockData": {
+    "approved": "true"
+  },
+  "@debitCardTopUpBtcPriceLabel": {
+    "approved": "true"
+  },
+  "@lnurlWithdrawPrompt": {
+    "approved": "true"
+  },
+  "@redeemAmount": {
+    "approved": "true"
+  },
+  "@settingsReconnectingToNode": {
+    "approved": "true"
+  },
+  "@usdtWillBeSwapped": {
+    "approved": "true"
+  },
+  "@lightningWillBeSwapped": {
+    "approved": "true"
+  },
+  "@usdAutoSwapToLUsdtDescription": {
+    "approved": "true"
+  },
+  "@lightningAutoSwapToLUsdtDescription": {
+    "approved": "true"
+  },
+  "@learnMore": {
+    "approved": "true"
+  },
+  "@share": {
+    "approved": "true"
+  },
+  "@copyAddress": {
+    "approved": "true"
+  },
+  "@failedToShareQrImage": {
+    "approved": "true"
+  },
+  "@topUpNoun": {
+    "approved": "true"
+  },
+  "@range": {
+    "approved": "true"
+  },
+  "@providerId": {
+    "approved": "true"
+  },
+  "@providerProcessingFee": {
+    "approved": "true"
+  },
+  "@exp": {
+    "approved": "true"
+  },
+  "@pinScreenWarningSubtitle": {
+    "approved": "true"
+  },
+  "@pinScreenLockedCountdownMessage": {
+    "approved": "true"
+  },
+  "@noConfirmations": {
+    "approved": "true"
+  },
+  "@pinScreenSavedSeed": {
+    "approved": "true"
+  },
+  "@walletSettingsScreenItemWatchOnlyExport": {
+    "approved": "true"
+  },
+  "@walletProcessingCreateMessage": {
+    "approved": "true"
+  },
+  "@walletProcessingRestoreMessage": {
+    "approved": "true"
+  },
+  "@oneConfirmation": {
+    "approved": "true"
+  },
+  "@nConfirmations": {
+    "approved": "true"
+  },
+  "@noAddressesFound": {
+    "approved": "true"
+  },
+  "@hideSeedPhrase": {
+    "approved": "true"
+  },
+  "@recipientAddress": {
+    "approved": "true"
+  },
+  "@paste": {
+    "approved": "true"
+  },
+  "@confirmSend": {
+    "approved": "true"
+  },
+  "@recipient": {
+    "approved": "true"
+  },
+  "@addNote": {
+    "approved": "true"
+  },
+  "@lightningSwapDetails": {
+    "approved": "true"
+  },
+  "@welcomeScreenMainTitle": {
+    "approved": "true"
+  },
+  "@welcomeScreenMainTitleOneLine": {
+    "approved": "true"
+  },
+  "@and": {
+    "approved": "true"
+  },
+  "@network": {
+    "approved": "true"
+  },
+  "@walletCreated": {
+    "approved": "true"
+  },
+  "@backupSeedPhrase": {
+    "approved": "true"
+  },
+  "@welcomeScreenToSDescription": {
+    "approved": "true"
+  },
+  "@securitySetingsTitle": {
+    "approved": "true"
+  },
+  "@appSettingsTitle": {
+    "approved": "true"
+  },
+  "@feeIncreased": {
+    "approved": "true"
+  },
+  "@transactionFeeRateHasBeenIncreased": {
+    "approved": "true"
+  },
+  "@feeIncreaseFailed": {
+    "approved": "true"
+  },
+  "@feeIncreaseFailedMessage": {
+    "approved": "true"
+  },
+  "@walletSwitchAnimationTitle": {
+    "approved": "true"
+  },
+  "@walletDeleteAnimationTitle": {
+    "approved": "true"
+  },
+  "@lightningSendTooltip": {
+    "approved": "true"
+  },
+  "@lightningSendTooltipLearnMore": {
+    "approved": "true"
+  },
+  "@walletDetails": {
+    "approved": "true"
+  },
+  "@restoreInputErrorSubtitle": {
+    "approved": "true"
+  },
+  "@pastedFromClipboard": {
+    "approved": "true"
+  },
+  "@swapCreated": {
+    "approved": "true"
+  },
+  "@transactionMempool": {
+    "approved": "true"
+  },
+  "@transactionConfirmed": {
+    "approved": "true"
+  },
+  "@swapExpired": {
+    "approved": "true"
+  },
+  "@swapRefunded": {
+    "approved": "true"
+  },
+  "@invoiceSet": {
+    "approved": "true"
+  },
+  "@invoicePending": {
+    "approved": "true"
+  },
+  "@invoiceFailedToPay": {
+    "approved": "true"
+  },
+  "@invoiceExpired": {
+    "approved": "true"
+  },
+  "@transactionLockupFailed": {
+    "approved": "true"
+  },
+  "@invoiceSettled": {
+    "approved": "true"
+  },
+  "@submarineBroadcasted": {
+    "approved": "true"
+  },
+  "@transactionClaimPending": {
+    "approved": "true"
+  },
+  "@transactionClaimed": {
+    "approved": "true"
+  },
+  "@transactionRefunded": {
+    "approved": "true"
+  },
+  "@transactionFailed": {
+    "approved": "true"
+  },
+  "@active": {
+    "approved": "true"
+  },
+  "@history": {
+    "approved": "true"
+  },
+  "@dolphinCardTopUpWarningNotWithdrawable": {
+    "approved": "true"
+  },
+  "@dolphinCardTopUpWarningNotWithdrawableLearnMore": {
+    "approved": "true"
+  },
+  "@youAreSending": {
+    "approved": "true"
+  },
+  "@swappedToLbtc": {
+    "approved": "true"
+  },
+  "@verify": {
+    "approved": "true"
+  },
+  "@sendAssetReviewScreenConfirmAmountTitleSent": {
+    "approved": "true"
+  },
+  "@selectionUnavailable": {
+    "approved": "true"
+  },
+  "@notAvailableRightNow": {
+    "approved": "true"
+  },
+  "@serviceCurrentlyDown": {
+    "approved": "true"
+  },
+  "@languageSettingsGerman": {
+    "approved": "true"
+  },
+  "@languageSettingsFrench": {
+    "approved": "true"
+  },
+  "@languageSettingsHungarian": {
+    "approved": "true"
+  },
+  "@languageSettingsPolish": {
+    "approved": "true"
+  },
+  "@failedToFetchReferenceRates": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsTestnetEnv": {
+    "approved": "true"
+  },
+  "@assetTransactionsTypeSwapFrom": {
+    "approved": "true"
+  },
+  "@lUsdt": {
+    "approved": "true"
+  },
+  "@lBtc": {
+    "approved": "true"
+  },
+  "@onChain": {
+    "approved": "true"
+  },
+  "@assetTransactionsTypeSwapTo": {
+    "approved": "true"
+  },
+  "@swappedToLusdt": {
+    "approved": "true"
+  },
+  "@walletNameAlreadyExists": {
+    "approved": "true"
+  },
+  "@welcomeScreenDesc6": {
+    "approved": "true"
+  },
+  "@walletDeletedRestartScreenTitle": {
+    "approved": "true"
+  },
+  "@walletDeletedRestartScreenBody": {
+    "approved": "true"
+  },
+  "@walletDeletedRestartScreenRestartButtonTitle": {
+    "approved": "true"
+  },
+  "@languageSettingsThai": {
+    "approved": "true"
+  },
+  "@walletDeletedModalBody": {
+    "approved": "true"
+  },
+  "@walletDeletedModalTitle": {
+    "approved": "true"
+  },
+  "@minimumAmount": {
+    "approved": "true"
+  },
+  "@directPegInDesc1": {
+    "approved": "true"
+  },
+  "@directPegInDesc2": {
+    "approved": "true"
+  },
+  "@tapForOptions": {
+    "approved": "true"
+  },
+  "@failedLightningTransactionTooltip": {
+    "approved": "true"
+  },
+  "@restoreWalletAlreadyAddedAlertTitle": {
+    "approved": "true"
+  },
+  "@restoreWalletAlreadyAddedAlertSubtitle": {
+    "approved": "true"
+  },
+  "@bitcoinPrice": {
+    "approved": "true"
+  },
+  "@addFunds": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenMessageTestnetEnv": {
+    "approved": "true"
+  },
+  "@fundedCard": {
+    "approved": "true"
+  },
+  "@createAddress": {
+    "approved": "true"
+  },
+  "@swapWarningInsufficientLiquidity": {
+    "approved": "true"
+  },
+  "@swapLiquidityWarningTitle": {
+    "approved": "true"
+  },
+  "@proofOfPayment": {
+    "approved": "true"
+  },
+  "@cardSuspendedPopUpTitle": {
+    "approved": "true"
+  },
+  "@cardSuspendedPopUpSubtitle": {
+    "approved": "true"
+  },
+  "@suspended": {
+    "approved": "true"
+  },
+  "@swapLiquidityWarningSubtitle": {
+    "approved": "true"
+  },
+  "@languageSettingsItalian": {
+    "approved": "true"
+  },
+  "@languageSettingsAlbanian": {
+    "approved": "true"
+  },
+  "@languageSettingsSerbian": {
+    "approved": "true"
+  },
+  "@walletLimitReached": {
+    "approved": "true"
+  },
+  "@assetTxFeeLabel": {
+    "approved": "true"
+  },
+  "@languageSettingsArabic": {
+    "approved": "true"
+  },
+  "@assetFeeTxTooltipText": {
+    "approved": "true"
+  },
+  "@usdtFeeTxTooltipTextLearnMore": {
+    "approved": "true"
+  },
+  "@assetFeeTxTooltipTextNotDynamic": {
+    "approved": "true"
+  },
+  "@legacyWalletSettingsScreenFingerprintTitle": {
+    "approved": "true"
+  },
+  "@legacyWalletSettingsScreenNoWalletMessage": {
+    "approved": "true"
+  },
+  "@settingsScreenItemLegacyWallet": {
+    "approved": "true"
+  },
+  "@languageSettingsChineseSimplified": {
+    "approved": "true"
+  }
 }

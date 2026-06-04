@@ -213,7 +213,10 @@ class AquaModalSheet extends StatelessWidget {
     required AquaColors colors,
     required String copiedToClipboardText,
     double bottomPadding = 20.0,
+    VoidCallback? onDismiss,
   }) {
+    bool buttonTapped = false;
+
     return showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -239,9 +242,17 @@ class AquaModalSheet extends StatelessWidget {
           colors: colors,
           primaryButtonKey: primaryButtonKey,
           primaryButtonText: primaryButtonText,
-          onPrimaryButtonTap: onPrimaryButtonTap,
+          onPrimaryButtonTap: () {
+            buttonTapped = true;
+            onPrimaryButtonTap();
+          },
           secondaryButtonText: secondaryButtonText,
-          onSecondaryButtonTap: onSecondaryButtonTap,
+          onSecondaryButtonTap: onSecondaryButtonTap == null
+              ? null
+              : () {
+                  buttonTapped = true;
+                  onSecondaryButtonTap();
+                },
           copyableContentTitle: copyableContentTitle,
           copyableContentMessage: copyableContentMessage,
           hyperlinkText: hyperlinkText,
@@ -254,7 +265,10 @@ class AquaModalSheet extends StatelessWidget {
           copiedToClipboardText: copiedToClipboardText,
         ),
       ),
-    );
+    ).then((result) {
+      if (!buttonTapped) onDismiss?.call();
+      return result;
+    });
   }
 }
 

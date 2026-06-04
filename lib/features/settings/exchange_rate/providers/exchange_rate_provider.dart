@@ -32,6 +32,8 @@ final Map<FiatCurrency, ExchangeRate> currencyModelLookup = {
       const ExchangeRate(FiatCurrency.ils, ExchangeRateSource.coingecko),
   FiatCurrency.inr:
       const ExchangeRate(FiatCurrency.inr, ExchangeRateSource.coingecko),
+  FiatCurrency.jpy:
+      const ExchangeRate(FiatCurrency.jpy, ExchangeRateSource.coingecko),
   FiatCurrency.mxn:
       const ExchangeRate(FiatCurrency.mxn, ExchangeRateSource.coingecko),
   FiatCurrency.myr:

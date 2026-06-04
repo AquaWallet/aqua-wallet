@@ -1,3 +1,4 @@
+export 'blinding_url_provider.dart';
 export 'builders/builders.dart';
 export 'builders/confirmed_transaction_builder.dart';
 export 'builders/pending_transaction_builder.dart';

@@ -4,6 +4,7 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/transactions/providers/transaction_fee_structure_provider.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -35,27 +36,62 @@ void main() {
       currencyPair: 'BTCUSD',
     );
 
-    test('throws FeeTransactionNotFoundError if no GDK transaction', () async {
+    test('returns estimated L-BTC fee when GDK transaction not created yet',
+        () async {
+      final kEstimatedFeeSats = kEstimatedLiquidSendNetworkFee.toInt();
+      final kEstimatedFeeFiat =
+          kEstimatedFeeSats / (100000000 / kBtcFiatRate.rate);
+
+      final mockPrefsProvider = MockUserPreferencesNotifier();
       final mockManageAssetsProvider = MockManageAssetsProvider();
       final mockSideswapTaxiProvider = MockSideswapTaxiProvider(
         throwError: true,
       );
+      final mockBalanceProvider = MockBalanceProvider();
+      final mockFiatProvider = MockFiatProvider();
       final container = ProviderContainer(overrides: [
+        prefsProvider.overrideWith((_) => mockPrefsProvider),
         manageAssetsProvider.overrideWith((_) => mockManageAssetsProvider),
         sideswapTaxiProvider.overrideWith(() => mockSideswapTaxiProvider),
+        balanceProvider.overrideWith((_) => mockBalanceProvider),
+        fiatProvider.overrideWith((_) => mockFiatProvider),
         sendAssetInputStateProvider.overrideWith(
           () => MockSendAssetInputStateNotifier(input: sendInput),
         ),
         sendAssetTxnProvider.overrideWith(
           () => MockSendAssetTxnProvider(transaction: null),
         ),
+        fiatRatesProvider.overrideWith(
+          () => MockFiatRatesNotifier(rates: [kBtcFiatRate]),
+        ),
       ]);
+      mockPrefsProvider.mockGetReferenceCurrencyCall(kLbtcFiatCurrency);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
       mockManageAssetsProvider.mockIsUsdtEnabledCall(value: false);
+      mockBalanceProvider.mockGetBalanceCall(value: kEstimatedFeeSats + 1);
+      mockFiatProvider.mockFormatSatsToFiatWithRateDisplayCall(
+        returnValue: '\$0.00',
+      );
       final provider = sendAssetFeeOptionsProvider(args);
 
+      final state = await container.read(provider.future);
+
       expect(
-        () async => container.read(provider.future),
-        throwsA(isA<FeeTransactionNotFoundError>()),
+        state,
+        contains(
+          isA<LiquidSendAssetFeeOptionModel>()
+              .having((s) => s.fee.isEnabled, 'isEnabled', true)
+              .having((s) => s.fee.availableForFeePayment, 'available', true)
+              .having(
+                (s) => s.fee,
+                'fee',
+                isA<LbtcLiquidFeeModel>()
+                    .having((s) => s.feeSats, 'sats', kEstimatedFeeSats)
+                    .having((s) => s.feeFiat, 'fiat', kEstimatedFeeFiat)
+                    .having((s) => s.fiatFeeDisplay, 'fiatFeeDisp', '≈ \$0.00')
+                    .having((s) => s.feeAsset, 'feeAsset', FeeAsset.lbtc),
+              ),
+        ),
       );
     });
     test('throws FeeNotFoundError if no fee in GDK transaction', () async {

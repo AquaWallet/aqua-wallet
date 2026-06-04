@@ -87,38 +87,21 @@ abstract class TransactionUiModelCreator {
         args.asset;
   }
 
-  String computeBlindingUrl(GdkTransaction? transaction, Asset asset) {
+  String computeBlindingUrl(
+    GdkTransaction? transaction,
+    Asset asset, {
+    String? blindingData,
+  }) {
     if (transaction == null || !asset.isLiquid) {
       return '';
     }
-
-    final blindingStrings = <String>[];
-
-    // Extract blinding info from inputs
-    if (transaction.inputs?.isNotEmpty ?? false) {
-      for (final input in transaction.inputs!) {
-        if (input.amountBlinder != null && input.assetBlinder != null) {
-          blindingStrings.add(
-            '${input.satoshi},${input.assetId},${input.amountBlinder},${input.assetBlinder}',
-          );
-        }
-      }
-    }
-
-    // Extract blinding info from outputs
-    if (transaction.outputs?.isNotEmpty ?? false) {
-      for (final output in transaction.outputs!) {
-        if (output.amountBlinder != null && output.assetBlinder != null) {
-          blindingStrings.add(
-            '${output.satoshi},${output.assetId},${output.amountBlinder},${output.assetBlinder}',
-          );
-        }
-      }
-    }
-
-    return blindingStrings.isNotEmpty
-        ? '${transaction.txhash}#blinded=${blindingStrings.join(',')}'
-        : '';
+    return ref.read(blindingUrlProvider).buildBlindingUrl(
+          txhash: transaction.txhash,
+          isLiquid: asset.isLiquid,
+          inputs: transaction.inputs,
+          outputs: transaction.outputs,
+          storedBlindingData: blindingData,
+        );
   }
 
   String convertToFiat(Asset asset, int satoshiAmount) {

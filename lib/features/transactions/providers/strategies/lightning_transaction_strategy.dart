@@ -441,7 +441,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         notes: dbTxn.note ?? networkTxn?.memo,
         dbTransaction: dbTxn,
         isLightning: true,
-        blindingUrl: computeBlindingUrl(networkTxn, args.asset),
+        blindingUrl: computeBlindingUrl(networkTxn, args.asset,
+            blindingData: args.dbTransaction?.blindingData),
         fiatAmountAtExecutionDisplay: fiatValueAtTime,
       );
     }
@@ -474,7 +475,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         notes: dbTxn.note ?? networkTxn?.memo,
         dbTransaction: dbTxn,
         isLightning: true,
-        blindingUrl: computeBlindingUrl(networkTxn, args.asset),
+        blindingUrl: computeBlindingUrl(networkTxn, args.asset,
+            blindingData: args.dbTransaction?.blindingData),
         feeAmount: feeAmount,
         feeAmountFiat: convertToFiat(feeAsset, boltzFeeSats),
         feeAsset: feeAsset,
@@ -499,7 +501,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         notes: dbTxn.note ?? networkTxn?.memo,
         dbTransaction: dbTxn,
         isLightning: true,
-        blindingUrl: computeBlindingUrl(networkTxn, args.asset),
+        blindingUrl: computeBlindingUrl(networkTxn, args.asset,
+            blindingData: args.dbTransaction?.blindingData),
       );
     }
 

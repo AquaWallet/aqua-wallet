@@ -20,6 +20,7 @@ import 'package:aqua/features/lending/pages/loans_listings_screen.dart';
 import 'package:aqua/features/lending/pages/repayment_screen.dart';
 import 'package:aqua/features/lending/pages/withdraw_collateral_screen.dart';
 import 'package:aqua/features/lightning/lightning.dart';
+import 'package:aqua/features/lightning_address/lightning_address.dart';
 import 'package:aqua/features/logger_table/logger_table.dart';
 import 'package:aqua/features/marketplace/pages/on_ramp_screen.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
@@ -37,6 +38,7 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/debug/debug_wallet_auth_screen.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/settings/notifications/pages/notifications_settings_screen.dart';
+import 'package:aqua/features/depix/depix.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/swaps.dart';
@@ -320,6 +322,10 @@ List<RouteBase> get routes {
       builder: (context, state) => const AdvancedSettingsScreen(),
     ),
     GoRoute(
+      path: AccountSettingsScreen.routeName,
+      builder: (context, state) => const AccountSettingsScreen(),
+    ),
+    GoRoute(
       path: WalletSettingsScreen.routeName,
       builder: (_, state) => WalletSettingsScreen(
         walletId: state.extra as String,
@@ -428,11 +434,6 @@ List<RouteBase> get routes {
       builder: (context, state) => const SendMenuScreen(),
     ),
     GoRoute(
-      path: SendAssetScreen.routeName,
-      builder: (context, state) =>
-          SendAssetScreen(arguments: state.extra as SendAssetArguments),
-    ),
-    GoRoute(
       path: RbfFeeInputScreen.routeName,
       builder: (_, state) =>
           RbfFeeInputScreen(transactionId: state.extra as String),
@@ -444,6 +445,10 @@ List<RouteBase> get routes {
     GoRoute(
       path: DebugWalletAuthScreen.routeName,
       builder: (context, state) => const DebugWalletAuthScreen(),
+    ),
+    GoRoute(
+      path: DepixScreen.routeName,
+      builder: (context, state) => const DepixScreen(),
     ),
     GoRoute(
       path: Jan3LoginScreen.routeName,
@@ -520,6 +525,26 @@ List<RouteBase> get routes {
     GoRoute(
       path: ServiceErrorScreen.routeName,
       builder: (context, state) => const ServiceErrorScreen(),
+    ),
+    GoRoute(
+      path: LightningAddressWelcomeScreen.routeName,
+      builder: (context, state) => const LightningAddressWelcomeScreen(),
+    ),
+    GoRoute(
+      path: LnAddressEditScreen.routeName,
+      builder: (context, state) => LnAddressEditScreen(
+        arguments: state.extra as LnAddressEditArguments,
+      ),
+    ),
+    GoRoute(
+      path: LnAddressGiftScreen.routeName,
+      builder: (context, state) => LnAddressGiftScreen(
+        syncReceiveModeOnExit: state.extra == true,
+      ),
+    ),
+    GoRoute(
+      path: LnAddressGiftOpenedScreen.routeName,
+      builder: (context, state) => const LnAddressGiftOpenedScreen(),
     ),
   ];
 }

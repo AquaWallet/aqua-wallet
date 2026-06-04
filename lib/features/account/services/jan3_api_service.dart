@@ -15,13 +15,13 @@ part 'jan3_api_service.chopper.dart';
 final jan3ApiServiceProvider =
     FutureProvider.autoDispose<Jan3ApiService>((ref) async {
   final walletId = ref.watch(currentWalletIdSyncProvider);
-  final tokenManager = ref.watch(jan3AuthTokenManagerProvider(walletId));
   final onUnauthorized =
       ref.read(jan3AuthProvider(walletId).notifier).onUnauthorized;
-  final debitCardStagingEnabled =
-      ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
+  final tokenManager = ref.watch(jan3AuthTokenManagerProvider(walletId));
+  final jan3StagingEnabled =
+      ref.read(featureFlagsProvider.select((p) => p.jan3StagingEnabled));
   return Jan3ApiService.create(
-      tokenManager, onUnauthorized, debitCardStagingEnabled);
+      tokenManager, onUnauthorized, jan3StagingEnabled);
 });
 
 @ChopperApi(baseUrl: '/api/')
@@ -42,6 +42,11 @@ abstract class Jan3ApiService extends ChopperService {
 
   @Get(path: 'v1/auth/user/')
   Future<Response<ProfileResponse>> getUser();
+
+  @Patch(path: 'v1/auth/user')
+  Future<Response<ProfileResponse>> updateUser(
+    @Body() Map<String, dynamic> body,
+  );
 
   // Exchange Rates
   @Get(path: 'v1/prices/exrates/')
@@ -128,15 +133,14 @@ abstract class Jan3ApiService extends ChopperService {
   static Jan3ApiService create(
     Jan3AuthTokenManager tokenManager,
     VoidCallback onUnauthorized,
-    bool debitCardStagingEnabled,
+    bool jan3StagingEnabled,
   ) {
     final client = ChopperClient(
       client: http.IOClient(
         HttpClient()..connectionTimeout = const Duration(seconds: 10),
       ),
-      baseUrl: Uri.parse(debitCardStagingEnabled
-          ? aquaAnkaraStagingApiUrl
-          : aquaAnkaraProdApiUrl),
+      baseUrl: Uri.parse(
+          jan3StagingEnabled ? aquaAnkaraStagingApiUrl : aquaAnkaraProdApiUrl),
       services: [_$Jan3ApiService()],
       interceptors: [
         HttpLoggingInterceptor(),

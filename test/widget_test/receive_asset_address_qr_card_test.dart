@@ -1,3 +1,4 @@
+import 'package:aqua/features/lightning_address/lightning_address.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -16,20 +17,25 @@ void main() {
       SwapOrder? swapOrder,
       SwapPair? swapPair,
     }) {
-      return MaterialApp(
-        localizationsDelegates: const [
-          ...AppLocalizations.localizationsDelegates,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
+      return ProviderScope(
+        overrides: [
+          lightningAddressProvider.overrideWithValue(null),
         ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: ReceiveAssetAddressQrCard(
-            asset: asset,
-            address: address,
-            swapOrder: swapOrder,
-            swapPair: swapPair,
+        child: MaterialApp(
+          localizationsDelegates: const [
+            ...AppLocalizations.localizationsDelegates,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: ReceiveAssetAddressQrCard(
+              asset: asset,
+              address: address,
+              swapOrder: swapOrder,
+              swapPair: swapPair,
+            ),
           ),
         ),
       );

@@ -30,7 +30,6 @@ class PrefKeys {
   static const throwAquaBroadcastErrorEnabled =
       'throw_aqua_broadcast_error_enabled';
   static const dbExportEnabled = 'db_export_enabled';
-  static const dbJsonExportEnabled = 'db_json_export_enabled';
   static const forceAquaNodeNotSyncedEnabled =
       'force_aqua_node_not_synced_enabled';
   static const changellyForUSDtSwapsEnabled = 'changelly_usdt_swaps_enabled';
@@ -38,11 +37,13 @@ class PrefKeys {
   static const balanceHidden = "balance_hidden";
   static const displayUnits = 'display_units';
   static const customElectrumUrlEnabled = 'customElectrumUrlEnabled';
-  static const debitCardStagingEnabled = 'debitCardStagingEnabled';
+  static const jan3StagingEnabled = 'jan3StagingEnabled';
   static const jan3CardExpanded = 'jan3_card_expanded';
   static const lendASatMockDataEnabled = 'lendASatMockDataEnabled';
   static const marketplaceTilesMockDataEnabled =
       'marketplaceTilesMockDataEnabled';
+  static const hasSeenLightningAddressWelcomeScreen =
+      'has_seen_lightning_address_welcome_screen';
   static const notificationsEnabled = 'notifications_enabled';
 
   // Per-wallet settings keys

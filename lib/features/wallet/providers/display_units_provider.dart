@@ -1,12 +1,13 @@
 import 'dart:math' as math;
 
+import 'package:aqua/constants.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:decimal/decimal.dart';
 import 'package:ui_components/models/models.dart';
 
 enum SupportedDisplayUnits {
-  btc('BTC', 0, 8, 100000000),
+  btc('BTC', 0, kMaxAssetDisplayPrecision, 100000000),
   sats('Sats', 8, 0, 1),
   bits('Bits', 6, 2, 100);
 
@@ -25,7 +26,7 @@ enum SupportedDisplayUnits {
         asset?.isLightning == true) {
       return displayPrecision;
     }
-    return asset?.precision ?? 8;
+    return asset?.precision ?? kMaxAssetDisplayPrecision;
   }
 
   factory SupportedDisplayUnits.fromAssetInputUnit(AquaAssetInputUnit value) =>

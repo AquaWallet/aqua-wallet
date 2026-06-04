@@ -37,8 +37,10 @@ class Jan3LoginScreen extends HookConsumerWidget {
         }));
 
     ref.listen(jan3AuthProvider(walletId), (prev, next) {
-      if (prev?.value == next.value) return;
-      next.value?.maybeWhen(
+      final prevValue = prev?.value;
+      final nextValue = next.value;
+      if (prevValue == nextValue && prev?.hasError != true) return;
+      nextValue?.maybeWhen(
         authenticated: (_, pendingCardCreation) {
           context.popUntilPath(AuthWrapper.routeName);
 

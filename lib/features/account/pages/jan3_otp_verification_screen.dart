@@ -31,6 +31,14 @@ class Jan3OtpVerificationScreen extends HookConsumerWidget {
       return otp.value.length == otpDigitCount;
     }, [otp.value]);
 
+    ref.listen(jan3AuthProvider(walletId), (_, next) {
+      next.whenData((authState) {
+        if (authState is Jan3UserUnauthenticated) {
+          context.pop();
+        }
+      });
+    });
+
     final defaultPinTheme = useMemoized(
         () => PinTheme(
               width: 52,

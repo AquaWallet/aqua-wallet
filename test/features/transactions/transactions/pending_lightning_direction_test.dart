@@ -1,4 +1,5 @@
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,6 +31,7 @@ void main() {
             confirmations: 0, // Pending (not confirmed)
             boltzOrderId: boltzId,
             claimTxId: '', // Empty for pending
+            boltzStatus: BoltzSwapStatus.transactionMempool,
           )
           .build();
 
@@ -172,7 +174,6 @@ void main() {
     });
 
     test('pending Lightning transaction has correct crypto amount', () async {
-      // This test verifies the fix for ghostTxnAmount being set in TransactionDbModel
       const boltzId = 'boltz_amount_test';
       const expectedAmount = 50000000;
 
@@ -183,6 +184,7 @@ void main() {
             confirmations: 0, // Pending
             boltzOrderId: boltzId,
             claimTxId: '', // Empty for pending
+            boltzStatus: BoltzSwapStatus.transactionMempool,
           )
           .build();
 
@@ -220,6 +222,7 @@ void main() {
             confirmations: 0, // Pending
             boltzOrderId: 'boltz_incoming',
             claimTxId: '',
+            boltzStatus: BoltzSwapStatus.transactionMempool,
           )
           .withLightningTransaction(
             amount: 25000000,
@@ -255,35 +258,50 @@ void main() {
     });
 
     test(
-        'fresh Boltz transaction (no network tx, empty txhash) appears as pending',
+        'reverse swap with empty txhash and no claimable status is NOT pending',
         () async {
-      // This simulates the exact state right after a Boltz swap is created:
-      // - TransactionDbModel saved with txhash: ""
-      // - No network transaction exists yet
-      // - ghostTxnAmount and ghostTxnCreatedAt are set
+      // A reverse swap that was created but never paid (or already expired)
+      // should NOT show as pending — there is no on-chain transaction.
       final scenario = TransactionScenarioHarness()
           .withLightningTransaction(
-            amount: 100000000, // 1 BTC in sats
+            amount: 100000000,
             isIncoming: true,
             confirmations: 0,
-            boltzOrderId: 'fresh_boltz_swap',
-            claimTxId: '', // Empty - no claim yet
+            boltzOrderId: 'expired_boltz_swap',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.swapExpired,
           )
           .build();
 
-      // Verify the db transaction has the expected state
-      final dbTxns = scenario.getDbTransactions();
-      expect(dbTxns, hasLength(1));
+      final container = scenario.createContainer(
+        formatService: setup.mockFormatService,
+        txnFailureService: setup.mockTxnFailureService,
+      );
 
-      final dbTxn = dbTxns.first;
-      expect(dbTxn.txhash, isEmpty, reason: 'txhash should be empty');
-      expect(dbTxn.isBoltz, isTrue, reason: 'Should be identified as Boltz');
-      expect(dbTxn.ghostTxnAmount, isNotNull,
-          reason: 'ghostTxnAmount must be set');
-      expect(dbTxn.ghostTxnCreatedAt, isNotNull,
-          reason: 'ghostTxnCreatedAt must be set');
-      expect(dbTxn.assetId, equals(AssetIds.lightning),
-          reason: 'assetId should be lightning');
+      final lnTxns = await readTransactions(container, Asset.lbtc());
+
+      expect(lnTxns, isEmpty,
+          reason:
+              'Expired reverse swap with no claim tx should not be pending');
+
+      container.dispose();
+    });
+
+    test(
+        'reverse swap with empty txhash and claimable status appears as pending',
+        () async {
+      // A reverse swap whose lockup tx is on-chain (transactionMempool)
+      // should show as pending while we attempt to claim.
+      final scenario = TransactionScenarioHarness()
+          .withLightningTransaction(
+            amount: 100000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'claimable_boltz_swap',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.transactionMempool,
+          )
+          .build();
 
       final container = scenario.createContainer(
         formatService: setup.mockFormatService,
@@ -293,7 +311,7 @@ void main() {
       final lnTxns = await readTransactions(container, Asset.lbtc());
 
       expect(lnTxns, hasLength(1),
-          reason: 'Fresh Boltz transaction should appear in pending list');
+          reason: 'Claimable reverse swap should appear in pending list');
 
       lnTxns.first.map(
         normal: (_) => fail('Should be pending, not confirmed'),
@@ -301,7 +319,187 @@ void main() {
           expect(model.cryptoAmount, isNotEmpty,
               reason: 'Should have formatted crypto amount');
           expect(model.dbTransaction, isNotNull);
-          expect(model.dbTransaction?.serviceOrderId, 'fresh_boltz_swap');
+          expect(model.dbTransaction?.serviceOrderId, 'claimable_boltz_swap');
+        },
+      );
+
+      container.dispose();
+    });
+
+    test('reverse swap with empty txhash and status "created" is NOT pending',
+        () async {
+      // Invoice was generated but never paid. The app may have been offline
+      // when the swap expired, so lastKnownStatus is still "created".
+      final scenario = TransactionScenarioHarness()
+          .withLightningTransaction(
+            amount: 50000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'unpaid_boltz_swap',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.created,
+          )
+          .build();
+
+      final container = scenario.createContainer(
+        formatService: setup.mockFormatService,
+        txnFailureService: setup.mockTxnFailureService,
+      );
+
+      final lnTxns = await readTransactions(container, Asset.lbtc());
+
+      expect(lnTxns, isEmpty,
+          reason:
+              'Reverse swap with "created" status and no claim tx should not be pending');
+
+      container.dispose();
+    });
+
+    test('reverse swap with empty txhash and null status is NOT pending',
+        () async {
+      // Edge case: BoltzSwapDbModel exists but lastKnownStatus was never set.
+      final scenario = TransactionScenarioHarness()
+          .withLightningTransaction(
+            amount: 50000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'null_status_boltz_swap',
+            claimTxId: '',
+            boltzStatus: null,
+          )
+          .build();
+
+      final container = scenario.createContainer(
+        formatService: setup.mockFormatService,
+        txnFailureService: setup.mockTxnFailureService,
+      );
+
+      final lnTxns = await readTransactions(container, Asset.lbtc());
+
+      expect(lnTxns, isEmpty,
+          reason:
+              'Reverse swap with null status and no claim tx should not be pending');
+
+      container.dispose();
+    });
+
+    test(
+        'reverse swap with empty txhash and invoiceSettled status is NOT pending',
+        () async {
+      // Swap completed (invoice settled) but the claim txhash was never
+      // written back to the TransactionDbModel (DB save failure).
+      final scenario = TransactionScenarioHarness()
+          .withLightningTransaction(
+            amount: 75000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'settled_boltz_swap',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.invoiceSettled,
+          )
+          .build();
+
+      final container = scenario.createContainer(
+        formatService: setup.mockFormatService,
+        txnFailureService: setup.mockTxnFailureService,
+      );
+
+      final lnTxns = await readTransactions(container, Asset.lbtc());
+
+      expect(lnTxns, isEmpty,
+          reason:
+              'Terminal reverse swap with no claim tx should not be pending');
+
+      container.dispose();
+    });
+
+    test('multiple phantom reverse swaps are all hidden', () async {
+      // Simulates a user who generated several invoices without any being
+      // paid — each left a TransactionDbModel with txhash: "".
+      final scenario = TransactionScenarioHarness()
+          .withLightningTransaction(
+            amount: 10000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'phantom_1',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.swapExpired,
+          )
+          .withLightningTransaction(
+            amount: 20000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'phantom_2',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.created,
+          )
+          .withLightningTransaction(
+            amount: 30000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'phantom_3',
+            claimTxId: '',
+            boltzStatus: null,
+          )
+          .build();
+
+      final container = scenario.createContainer(
+        formatService: setup.mockFormatService,
+        txnFailureService: setup.mockTxnFailureService,
+      );
+
+      final lnTxns = await readTransactions(container, Asset.lbtc());
+
+      expect(lnTxns, isEmpty,
+          reason:
+              'All phantom reverse swaps (expired, created, null) should be hidden');
+
+      container.dispose();
+    });
+
+    test('one claimable swap among phantom entries is shown', () async {
+      // Mix of phantom entries and one actively claimable swap.
+      final scenario = TransactionScenarioHarness()
+          .withLightningTransaction(
+            amount: 10000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'phantom_expired',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.swapExpired,
+          )
+          .withLightningTransaction(
+            amount: 50000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'active_claim',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.transactionConfirmed,
+          )
+          .withLightningTransaction(
+            amount: 20000000,
+            isIncoming: true,
+            confirmations: 0,
+            boltzOrderId: 'phantom_created',
+            claimTxId: '',
+            boltzStatus: BoltzSwapStatus.created,
+          )
+          .build();
+
+      final container = scenario.createContainer(
+        formatService: setup.mockFormatService,
+        txnFailureService: setup.mockTxnFailureService,
+      );
+
+      final lnTxns = await readTransactions(container, Asset.lbtc());
+
+      expect(lnTxns, hasLength(1),
+          reason: 'Only the actively claimable swap should be pending');
+
+      lnTxns.first.map(
+        normal: (_) => fail('Should be pending'),
+        pending: (model) {
+          expect(model.dbTransaction?.serviceOrderId, 'active_claim');
         },
       );
 

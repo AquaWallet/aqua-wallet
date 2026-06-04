@@ -1,0 +1,13 @@
+export 'models/depix_exceptions.dart';
+export 'utils/brl_cents.dart';
+export 'models/depix_models.dart';
+export 'pages/depix_amount_entry_screen.dart';
+export 'pages/depix_deposit_qr_page.dart';
+export 'pages/depix_deposits_list_page.dart';
+export 'pages/depix_pix_qr_view.dart';
+export 'pages/depix_screen.dart';
+export 'providers/depix_amount_entry_spec_provider.dart';
+export 'providers/depix_deposit_provider.dart';
+export 'providers/depix_deposits_list_provider.dart';
+export 'providers/depix_flow_provider.dart';
+export 'services/jan3_api_depix.dart';

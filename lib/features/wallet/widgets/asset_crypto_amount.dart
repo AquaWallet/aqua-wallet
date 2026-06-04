@@ -92,7 +92,7 @@ class AssetCryptoAmount extends HookConsumerWidget {
       amount: int.tryParse(amount ?? '') ?? currentAsset.amount,
       decimalPlacesOverride: currentAsset.isNonSatsAsset
           ? (usdtPrecisionOverride)
-          : assetPrecision.clamp(0, 8),
+          : assetPrecision.clamp(0, kMaxAssetDisplayPrecision),
       removeTrailingZeros: false,
       asset: currentAsset,
       displayUnitOverride: forceDisplayUnit,

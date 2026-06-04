@@ -30,4 +30,8 @@ extension MockLiquidProviderX on MockLiquidProvider {
     when(() => getReceiveAddress())
         .thenAnswer((_) async => GdkReceiveAddressDetails(address: address));
   }
+
+  void mockGetSubaccounts({required List<GdkSubaccount> subaccounts}) {
+    when(() => getSubaccounts()).thenAnswer((_) async => subaccounts);
+  }
 }

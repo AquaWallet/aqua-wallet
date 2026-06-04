@@ -62,5 +62,25 @@
 		<string>We need access to your documents to export swap data.</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>FlutterDeepLinkingEnabled</key>
+		<false/>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleURLName</key>
+				<string>io.aquawallet</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>aqua</string>
+					<string>AQUA</string>
+					<string>bitcoin</string>
+					<string>BITCOIN</string>
+					<string>liquidnetwork</string>
+					<string>LIQUIDNETWORK</string>
+					<string>lightning</string>
+					<string>LIGHTNING</string>
+				</array>
+			</dict>
+		</array>
 	</dict>
 </plist>

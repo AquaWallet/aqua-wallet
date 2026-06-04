@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:aqua/config/config.dart' hide AquaColors;
 import 'package:aqua/features/shared/shared.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:ui_components/ui_components.dart';
 

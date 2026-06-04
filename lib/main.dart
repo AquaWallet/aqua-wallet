@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:aqua/config/router/go_router.dart';
 import 'package:aqua/constants.dart';
+import 'package:aqua/data/provider/app_links/deep_link_provider.dart';
 import 'package:aqua/data/provider/isar_export_provider.dart';
 import 'package:aqua/data/provider/aqua_provider.dart';
 import 'package:aqua/data/provider/theme_provider.dart';
@@ -151,7 +152,9 @@ class AquaApp extends HookConsumerWidget {
       [],
     );
 
+    ref.watch(deepLinkProvider);
     ref.watch(isarExportServiceProvider);
+
     return CustomPaint(
       painter: PreloadBackgroundPainter(
         isBotevMode: botevMode,

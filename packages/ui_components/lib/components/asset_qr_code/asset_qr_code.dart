@@ -22,8 +22,6 @@ class AquaAssetQRCode extends StatelessWidget {
   final double iconSize;
   final String? iconUrl;
 
-  static final qrKey = GlobalKey();
-
   @override
   Widget build(BuildContext context) {
     final isPlaceholder = content.isEmpty;
@@ -35,26 +33,22 @@ class AquaAssetQRCode extends StatelessWidget {
         children: [
           Opacity(
             opacity: isPlaceholder ? 0.3 : 1,
-            child: RepaintBoundary(
-              key: qrKey,
-              child: QrImageView(
-                data: isPlaceholder ? kPlaceholderQrUrl : content,
-                version: QrVersions.auto,
-                errorCorrectionLevel: QrErrorCorrectLevel
-                    .M, // Medium error correction for better scanning
-                backgroundColor: Colors.white,
-                dataModuleStyle: QrDataModuleStyle(
-                  dataModuleShape: QrDataModuleShape.square,
-                  color: AquaColors.lightColors.textPrimary,
-                ),
-                eyeStyle: QrEyeStyle(
-                  eyeShape: QrEyeShape.square,
-                  color: AquaColors.lightColors.textPrimary,
-                ),
-                embeddedImage: null,
-                embeddedImageStyle: QrEmbeddedImageStyle(
-                  size: Size.square(iconSize + (kIconPadding * 2)),
-                ),
+            child: QrImageView(
+              data: isPlaceholder ? kPlaceholderQrUrl : content,
+              version: QrVersions.auto,
+              errorCorrectionLevel: QrErrorCorrectLevel.M,
+              backgroundColor: Colors.white,
+              dataModuleStyle: QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: AquaColors.lightColors.textPrimary,
+              ),
+              eyeStyle: QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: AquaColors.lightColors.textPrimary,
+              ),
+              embeddedImage: null,
+              embeddedImageStyle: QrEmbeddedImageStyle(
+                size: Size.square(iconSize + (kIconPadding * 2)),
               ),
             ),
           ),

@@ -26,7 +26,7 @@ abstract class BoltzSwapStorage {
   Future<void> clear();
   Future<void> clearByWalletId(String walletId);
   Future<void> saveBoltzSwapResponse({
-    required TransactionDbModel txnDbModel,
+    TransactionDbModel? txnDbModel,
     required BoltzSwapDbModel swapDbModel,
     required KeyPair keys,
     required PreImage preimage,
@@ -202,7 +202,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
   // Utility method to consolidate the saving of boltz V2 swap data
   @override
   Future<void> saveBoltzSwapResponse({
-    required TransactionDbModel txnDbModel,
+    TransactionDbModel? txnDbModel,
     required BoltzSwapDbModel swapDbModel,
     required KeyPair keys,
     required PreImage preimage,
@@ -221,8 +221,11 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
           value: jsonEncode(preImageStorageModel.toJson()),
         );
 
-    // Save general transaction data
-    await ref.read(transactionStorageProvider.notifier).save(txnDbModel);
+    // Save general transaction data (not needed for reverse swaps — the
+    // TransactionDbModel is created later when the claim tx is broadcast)
+    if (txnDbModel != null) {
+      await ref.read(transactionStorageProvider.notifier).save(txnDbModel);
+    }
 
     // Save boltz swap data
     await save(swapDbModel);

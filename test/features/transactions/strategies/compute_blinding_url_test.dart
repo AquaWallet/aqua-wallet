@@ -333,6 +333,124 @@ void main() {
           hasLength(4)); // satoshi,assetId,amtBlinder,assetBlinder
     });
 
+    test('appends stored blinding data to URL with existing blinders', () {
+      final transaction = _createTransaction(
+        txhash: 'tx_hash',
+        inputs: [
+          _createInOut(
+            satoshi: 100000000,
+            assetId: 'asset_1',
+            blinders: ('amt_blind_1', 'asset_blind_1'),
+          ),
+        ],
+      );
+
+      final result = strategy.computeBlindingUrl(
+        transaction,
+        Asset.lbtc(),
+        blindingData: '500,stored_asset,stored_amt,stored_asset_blind',
+      );
+
+      expect(
+          result,
+          equals(
+              'tx_hash#blinded=100000000,asset_1,amt_blind_1,asset_blind_1,500,stored_asset,stored_amt,stored_asset_blind'));
+    });
+
+    test(
+        'uses stored blinding data alone when no inputs or outputs have blinders',
+        () {
+      final transaction = _createTransaction(
+        txhash: 'tx_hash',
+        inputs: [_createInOut(blinders: null)],
+        outputs: [_createInOut(blinders: null)],
+      );
+
+      final result = strategy.computeBlindingUrl(
+        transaction,
+        Asset.lbtc(),
+        blindingData: '200,only_asset,only_amt,only_asset_blind',
+      );
+
+      expect(result,
+          equals('tx_hash#blinded=200,only_asset,only_amt,only_asset_blind'));
+    });
+
+    test('ignores empty stored blinding data string', () {
+      final transaction = _createTransaction(
+        txhash: 'tx_hash',
+        inputs: [
+          _createInOut(
+            satoshi: 100000000,
+            assetId: 'asset_1',
+            blinders: ('amt_blind', 'asset_blind'),
+          ),
+        ],
+      );
+
+      final result = strategy.computeBlindingUrl(
+        transaction,
+        Asset.lbtc(),
+        blindingData: '',
+      );
+
+      expect(result,
+          equals('tx_hash#blinded=100000000,asset_1,amt_blind,asset_blind'));
+    });
+
+    test('ignores null stored blinding data', () {
+      final transaction = _createTransaction(
+        txhash: 'tx_hash',
+        inputs: [
+          _createInOut(
+            satoshi: 100000000,
+            assetId: 'asset_1',
+            blinders: ('amt_blind', 'asset_blind'),
+          ),
+        ],
+      );
+
+      final result = strategy.computeBlindingUrl(
+        transaction,
+        Asset.lbtc(),
+        blindingData: null,
+      );
+
+      expect(result,
+          equals('tx_hash#blinded=100000000,asset_1,amt_blind,asset_blind'));
+    });
+
+    test('appends stored blinding data after both inputs and outputs', () {
+      final transaction = _createTransaction(
+        txhash: 'tx_hash',
+        inputs: [
+          _createInOut(
+            satoshi: 1,
+            assetId: 'in',
+            blinders: ('in_amt', 'in_asset'),
+          ),
+        ],
+        outputs: [
+          _createInOut(
+            satoshi: 2,
+            assetId: 'out',
+            blinders: ('out_amt', 'out_asset'),
+          ),
+        ],
+      );
+
+      final result = strategy.computeBlindingUrl(
+        transaction,
+        Asset.lbtc(),
+        blindingData: '3,stored,stored_amt,stored_asset',
+      );
+
+      expect(
+          result,
+          equals(
+              'tx_hash#blinded=1,in,in_amt,in_asset,2,out,out_amt,out_asset,3,stored,stored_amt,stored_asset'));
+    });
+
     test('preserves order: inputs first, then outputs', () {
       final transaction = _createTransaction(
         txhash: 'tx_hash',

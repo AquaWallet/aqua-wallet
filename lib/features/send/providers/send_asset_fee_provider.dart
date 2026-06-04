@@ -6,6 +6,7 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/transactions/providers/transaction_fee_structure_provider.dart';
 import 'package:decimal/decimal.dart';
 
 const kVbPerKb = 1000;
@@ -63,7 +64,7 @@ class SendAssetFeeNotifier extends AutoDisposeFamilyAsyncNotifier<
     if (input.feeAsset == FeeAsset.lbtc) {
       return SendAssetFeeState.liquid(
         feeRate: liquidFeeRateKb,
-        estimatedFee: fee!.toInt(),
+        estimatedFee: fee?.toInt() ?? kEstimatedLiquidSendNetworkFee.toInt(),
       );
     }
 

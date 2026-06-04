@@ -112,7 +112,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
 
           return signedGdkTx.transaction!;
         },
-        gdkPsbt: (tx) => tx,
+        gdkPsbt: (pset, _) => pset,
       );
 
       if (ref.read(featureFlagsProvider).fakeBroadcastsEnabled) {
@@ -235,6 +235,10 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
       receiveAddress: input.addressFieldText,
       note: input.note,
       feeAssetId: feeAssetId,
+      blindingData: transaction.maybeMap(
+        gdkPsbt: (tx) => tx.blindingData,
+        orElse: () => null,
+      ),
     );
 
     if (input.isTopUp) {
@@ -291,7 +295,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
         return taxiState.finalSignedPset;
       }
 
-      final finalPset =
+      final taxiResult =
           await ref.read(sideswapTaxiProvider.notifier).createTaxiTransaction(
                 taxiAsset: usdtAsset,
                 amount: input.adjustedAmountToSend ?? input.amount,
@@ -300,9 +304,9 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
               );
       _logger.debug('[Send][Taxi] Final signed pset successfully created');
       state = AsyncValue.data(SendAssetTransactionState.created(
-        tx: SendAssetOnchainTx.gdkPsbt(finalPset),
+        tx: taxiResult,
       ));
-      return finalPset;
+      return taxiResult.pset;
     } catch (e) {
       _logger.debug('[Send][Taxi] create taxi tx - error: $e');
       rethrow;
@@ -345,7 +349,7 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
         return mappedUtxos;
       },
       // cannot easily parse utxos from psbt at this point
-      gdkPsbt: (_) => null,
+      gdkPsbt: (_, __) => null,
     );
 
     if (usedUtxos == null) return;

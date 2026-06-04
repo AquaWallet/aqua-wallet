@@ -110,16 +110,11 @@ class BoltzReverseSwapNotifier extends StateNotifier<ReceiveBoltzState> {
         outAddress: address.address!,
         lastKnownStatus: BoltzSwapStatus.created,
       );
-      final transactionDbModel = TransactionDbModel.fromV2SwapResponse(
-        txhash: "",
-        assetId: Asset.lightning().id,
-        swap: response,
-        walletId: walletId,
-        // this will be settle address if resolves as a boltz-to-boltz swap. if a regular ln swap, claim address will be settle address.
-        settleAddress: address.address!,
-      );
+      // No TransactionDbModel is created here — for reverse swaps, the
+      // TransactionDbModel is only created when the claim tx is broadcast
+      // (in updateReverseSwapClaim). This avoids phantom DB entries for
+      // invoices that expire or are never paid.
       await _ref.read(boltzStorageProvider.notifier).saveBoltzSwapResponse(
-            txnDbModel: transactionDbModel,
             swapDbModel: swapDbModel,
             keys: response.keys,
             preimage: response.preimage,

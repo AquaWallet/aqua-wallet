@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:math' show max;
 
 import 'package:aqua/constants.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/send/send.dart';
+import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 
 // This provider validates the amount input and throws exceptions to block invalid sends.
@@ -30,29 +32,27 @@ class SendAssetAmountValidationNotifier
       throw AmountParsingException(AmountParsingExceptionType.notEnoughFunds);
     }
 
-    if (asset.isLBTC && amount < kGdkMinSendAmountLbtcSats) {
-      throw AmountParsingException(
-        AmountParsingExceptionType.belowLbtcMin,
-        thresholdSats: kGdkMinSendAmountLbtcSats,
-      );
-    }
-
-    if (!asset.isLBTC && amount < kGdkMinSendAmountSats) {
-      throw AmountParsingException(
-        AmountParsingExceptionType.belowMin,
-        thresholdSats: kGdkMinSendAmountSats,
-      );
-    }
-
     final constraints =
         await ref.read(sendAssetAmountConstraintsProvider(arg).future);
     final minServiceSend = constraints.minSats;
     final maxServiceSend = constraints.maxSats;
 
-    if (amount < minServiceSend) {
+    final gdkMin =
+        asset.isLayerTwo ? kGdkMinSendAmountLbtcSats : kGdkMinSendAmountSats;
+    final bindingMinSats = max(gdkMin, minServiceSend);
+
+    if (amount < bindingMinSats) {
+      final AmountParsingExceptionType belowMinType;
+      if (minServiceSend > 0 && bindingMinSats == minServiceSend) {
+        belowMinType = AmountParsingExceptionType.belowSendMin;
+      } else if (asset.isLBTC) {
+        belowMinType = AmountParsingExceptionType.belowLbtcMin;
+      } else {
+        belowMinType = AmountParsingExceptionType.belowMin;
+      }
       throw AmountParsingException(
-        AmountParsingExceptionType.belowSendMin,
-        thresholdSats: minServiceSend,
+        belowMinType,
+        thresholdSats: bindingMinSats,
       );
     }
 

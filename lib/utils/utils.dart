@@ -6,6 +6,8 @@ export 'extensions/extensions.dart';
 export 'fake_data.dart';
 export 'regex.dart';
 export 'responsive_utils.dart';
+export 'share_receive_qr_image.dart';
+export 'share_widget_as_image.dart';
 export 'zendesk.dart';
 
 class Debouncer {

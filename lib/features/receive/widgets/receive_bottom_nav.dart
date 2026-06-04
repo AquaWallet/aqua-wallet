@@ -1,4 +1,3 @@
-import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
@@ -59,7 +58,11 @@ class ReceiveAssetBottomNav extends HookConsumerWidget {
               AquaListItem(
                 title: context.loc.receiveAssetScreenCopyAddressOptionImage,
                 onTap: () {
-                  shareWidgetAsImage(AquaAssetQRCode.qrKey).catchError((e) {
+                  shareReceiveQrImage(
+                    data: address!,
+                    asset: asset,
+                    sharePositionOrigin: context.sharePositionOrigin,
+                  ).catchError((e) {
                     if (context.mounted) {
                       context.showErrorSnackbar(
                         '${context.loc.failedToShareQrImage}: $e',

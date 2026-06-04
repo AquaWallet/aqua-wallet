@@ -7,8 +7,6 @@ import 'package:aqua/features/transactions/transactions.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const kMaxBoltzAgeHours = 24;
-
 final pendingTransactionUiModelsProvider = Provider.autoDispose((ref) {
   return PendingTransactionUiModelsBuilder(
     strategyFactory: ref.read(transactionUiModelsFactoryProvider),
@@ -118,8 +116,11 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
       }
     }
 
-    // Add ghost transactions that are still pending
-    final ghostTxns = localDbTxns.where((t) => t.isGhost).toList();
+    // Add ghost transactions that are still pending.
+    // Exclude isBoltz transactions here - they are handled in the dedicated
+    // boltz loop below which has terminal/unpaid/orphaned status checks.
+    final ghostTxns =
+        localDbTxns.where((t) => t.isGhost && !t.isBoltz).toList();
 
     for (final ghostTxn in ghostTxns) {
       if (seenTxHashes.contains(ghostTxn.txhash)) {
@@ -137,7 +138,8 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
       }
     }
 
-    // Boltz transactions are NOT marked as ghost but still need to appear as pending
+    // Boltz transactions are marked as ghost AND isBoltz - process them here
+    // where we can check terminal/unpaid/orphaned status before pending logic
     final boltzTxns = localDbTxns.where((t) => t.isBoltz).toList();
     final seenBoltzOrderIds = <String>{};
 
@@ -154,6 +156,20 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
         continue;
       }
 
+      // Reverse swaps with empty txhash have no on-chain claim tx yet.
+      // Only show them as pending when the swap is actively claimable
+      // (lockup confirmed on-chain, waiting for our claim broadcast).
+      // Skip for all other states: created (not yet paid), expired, failed,
+      // unknown/null status, or missing BoltzSwapDbModel.
+      if (boltzTxn.isBoltzReverseSwap && boltzTxnHash.isEmpty) {
+        final order = orderId.isNotEmpty
+            ? boltzSwaps.firstWhereOrNull((o) => o.boltzId == orderId)
+            : null;
+        if (order == null || order.lastKnownStatus?.needsClaim != true) {
+          continue;
+        }
+      }
+
       // Check if Boltz swap is in a terminal state (expired, refunded, failed, etc.)
       if (orderId.isNotEmpty) {
         final order = boltzSwaps.firstWhereOrNull((o) => o.boltzId == orderId);
@@ -164,17 +180,6 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
         }
 
         if (order != null && order.lastKnownStatus?.isSubmarineUnpaid == true) {
-          continue;
-        }
-      }
-
-      // Orphaned Boltz transaction: no matching Boltz order found and no
-      // on-chain tx hash to track. Use ghostTxnCreatedAt as a fallback -
-      // if the record is older than 24 hours, the swap is certainly expired.
-      if (orderId.isEmpty && boltzTxnHash.isEmpty) {
-        final createdAt = boltzTxn.ghostTxnCreatedAt;
-        if (createdAt == null ||
-            DateTime.now().difference(createdAt).inHours > kMaxBoltzAgeHours) {
           continue;
         }
       }
@@ -291,6 +296,17 @@ class PendingTransactionUiModelsBuilder implements TransactionUiModelBuilder {
             seenServiceOrderIds.add(dbTxn.serviceOrderId!);
           }
         }
+      }
+
+      // Synthetic pending outgoing: no DB entry yet for this aquaSend,
+      // so create a minimal model so the strategy can render it as pending.
+      if (dbTxn == null && txn.type == GdkTransactionTypeEnum.outgoing) {
+        dbTxn = TransactionDbModel(
+          txhash: txn.txhash,
+          assetId: asset.id,
+          type: TransactionDbModelType.aquaSend,
+          ghostTxnAmount: txn.satoshi?[asset.id]?.abs(),
+        );
       }
 
       final isPending = await confirmationService.isTransactionPending(

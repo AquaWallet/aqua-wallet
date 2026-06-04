@@ -98,6 +98,7 @@ class SettingsTab extends HookConsumerWidget with AuthGuardMixin {
                       .setJan3CardExpanded(isExpanded: false);
                 }
               },
+              onTap: () => context.push(AccountSettingsScreen.routeName),
             ),
             if (isJan3CardVisible || isAuthenticated) ...[
               const SizedBox(height: 16.0),

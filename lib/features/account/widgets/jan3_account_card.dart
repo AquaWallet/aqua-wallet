@@ -1,5 +1,4 @@
 import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/features/account/models/auth_state.dart';
 import 'package:aqua/features/account/pages/jan3_login_screen.dart';
 import 'package:aqua/features/account/providers/providers.dart';
 import 'package:aqua/features/settings/shared/providers/prefs_provider.dart';
@@ -12,11 +11,13 @@ import 'package:ui_components/ui_components.dart';
 class Jan3AccountCard extends HookConsumerWidget {
   final bool isExpanded;
   final VoidCallback? onClose;
+  final VoidCallback? onTap;
 
   const Jan3AccountCard({
     super.key,
     this.isExpanded = true,
     this.onClose,
+    this.onTap,
   });
 
   @override
@@ -35,48 +36,54 @@ class Jan3AccountCard extends HookConsumerWidget {
     final cardContent = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              // Jan3 Logo
-              darkMode
-                  ? UiAssets.svgs.dark.jan3MiniLogo.svg(
-                      width: 40,
-                      height: 40,
-                    )
-                  : UiAssets.svgs.light.jan3MiniLogo.svg(
-                      width: 40,
-                      height: 40,
-                    ),
-              const SizedBox(width: 24),
-              // Account Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AquaText.body1SemiBold(
-                      text: context.loc.jan3AccountTitle,
-                    ),
-                    AquaText.body2Medium(
-                      text: accountState.mapOrNull(
-                            authenticated: (state) => state.profile.email,
-                          ) ??
-                          context.loc.unlockMoreFeatures,
-                      color: context.aquaColors.textSecondary,
-                    ),
-                  ],
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                // Jan3 Logo
+                darkMode
+                    ? UiAssets.svgs.dark.jan3MiniLogo.svg(
+                        width: 40,
+                        height: 40,
+                      )
+                    : UiAssets.svgs.light.jan3MiniLogo.svg(
+                        width: 40,
+                        height: 40,
+                      ),
+                const SizedBox(width: 24),
+                // Account Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AquaText.body1SemiBold(
+                        text: context.loc.jan3AccountTitle,
+                      ),
+                      AquaText.body2Medium(
+                        text: accountState.profile?.email ??
+                            context.loc.unlockMoreFeatures,
+                        color: context.aquaColors.textSecondary,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              // Close button
-              isLoggedIn
-                  ? const SizedBox.shrink()
-                  : AquaIcon.close(
-                      size: 18,
-                      color: context.aquaColors.textTertiary,
-                      onTap: onClose,
-                    ),
-            ],
+                if (!isLoggedIn)
+                  AquaIcon.close(
+                    size: 18,
+                    color: context.aquaColors.textTertiary,
+                    onTap: onClose,
+                  ),
+                if (isLoggedIn) ...[
+                  const SizedBox(width: 8),
+                  AquaIcon.chevronRight(
+                    size: 18,
+                    color: context.aquaColors.textSecondary,
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
         AquaDivider(

@@ -419,6 +419,7 @@ class TransactionScenarioHarness {
     String? boltzOrderId,
     String? claimTxId,
     DateTime? timestamp,
+    BoltzSwapStatus? boltzStatus,
   }) {
     final hash = claimTxId ?? 'ln_claim_${_txCounter++}';
     final orderId = boltzOrderId ?? 'boltz_order_$_txCounter';
@@ -435,6 +436,7 @@ class TransactionScenarioHarness {
       isBoltz: true,
       boltzOrderId: orderId,
       boltzClaimTxId: hash,
+      boltzStatus: boltzStatus,
     ));
 
     return this;
@@ -668,6 +670,7 @@ class TransactionScenario {
   final bool isBoltz;
   final String? boltzOrderId;
   final String? boltzClaimTxId;
+  final BoltzSwapStatus? boltzStatus;
   final bool isSwapOrder;
   final SwapServiceSource? swapServiceSource;
   final String? swapOrderId;
@@ -696,6 +699,7 @@ class TransactionScenario {
     this.isBoltz = false,
     this.boltzOrderId,
     this.boltzClaimTxId,
+    this.boltzStatus,
     this.isSwapOrder = false,
     this.swapServiceSource,
     this.swapOrderId,
@@ -814,6 +818,7 @@ class TransactionScenario {
       id: Isar.autoIncrement,
       boltzId: boltzOrderId!,
       claimTxId: boltzClaimTxId,
+      lastKnownStatus: boltzStatus,
       invoice: 'lnbc...',
       kind: type == GdkTransactionTypeEnum.incoming
           ? boltz.SwapType.reverse
@@ -876,6 +881,8 @@ class ScenarioEnvironment {
   List<GdkTransaction> getNetworkTransactions(Asset asset) {
     return scenarios
         .where((s) {
+          // Skip scenarios with empty txhash — no real network tx exists
+          if (s.txhash.isEmpty) return false;
           // Non-ghost transactions matching the asset
           if (s.asset.id == asset.id && !s.isGhost) return true;
           // Boltz/Lightning transactions also appear on LBTC page

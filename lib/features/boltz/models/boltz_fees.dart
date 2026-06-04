@@ -1,4 +1,5 @@
 import 'package:aqua/features/lightning/models/bolt11_ext.dart';
+import 'package:boltz/boltz.dart';
 
 // These fees are DiscountCT fees (unless marked "legacy")
 const kBoltzLiquidLockupTxFee =
@@ -36,6 +37,18 @@ class BoltzFees {
 
   static int serviceFeeSubmarine(int amount) {
     return (amount * kBoltzSubmarinePercentFee).round();
+  }
+
+  /// Batched submarine swaps (between [SwapLimits.minimalBatched] and
+  /// [SwapLimits.minimal]) cannot be cooperatively claimed or closed.
+  static bool shouldTryCoopSubmarineSwap({
+    required int amountSats,
+    required SwapLimits limits,
+  }) {
+    final minimalBatched = limits.minimalBatched?.toInt();
+    if (minimalBatched == null) return true;
+    final minimal = limits.minimal.toInt();
+    return amountSats >= minimal;
   }
 
   //ANCHOR: Reverse

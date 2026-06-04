@@ -580,7 +580,7 @@ void main() {
       expect(state.asset.id, asset.id);
       expect(state.clipboardAddress, isNull);
       expect(state.isClipboardEmpty, true);
-      expect(state.addressFieldText, kFakeBtcBip21Url);
+      expect(state.addressFieldText, kFakeBtcBip21Url.toLowerCase());
       expect(state.isAddressFieldEmpty, false);
       expect(state.isLnurl, false);
       expect(state.lnurlData, isNull);
@@ -661,6 +661,111 @@ void main() {
       expect(state.addressFieldText, kFakeLiquidAddress);
       expect(state.isAddressFieldEmpty, false);
       expect(state.isAmountEditable, isFalse);
+    });
+    test(
+        'strips lightning: prefix from addressFieldText for same-asset lightning input',
+        () async {
+      final asset = Asset.lightning();
+      final args = SendAssetArguments.fromAsset(asset);
+      const kLightningPrefixedInput =
+          'lightning:lnbc1500n1pj9nrefpp5ld5...fake';
+      const kStrippedInvoice = 'lnbc1500n1pj9nrefpp5ld5...fake';
+      final container = ProviderContainer(
+          overrides: getStandardOverrides(
+        clipboardContent: null,
+        addressParser: mockAddressParser,
+        bitcoin: mockBitcoinProvider,
+        balance: mockBalanceProvider,
+        prefs: mockPrefsProvider,
+        mockDisplayUnitsProvider: mockDisplayUnitsProvider,
+        mockExchangeRatesProvider: mockExchangeRatesProvider,
+      ));
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockManageAssetsProvider.mockIsNonLbtcLiquidToLbtcCall(value: false);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: asset,
+          address: kStrippedInvoice,
+        ),
+      );
+
+      final provider = sendAssetInputStateProvider(args);
+      await container.read(provider.future);
+
+      await container
+          .read(provider.notifier)
+          .updateAddressFieldText(kLightningPrefixedInput);
+
+      final state = await container.read(provider.future);
+      expect(state.addressFieldText, kStrippedInvoice);
+      expect(state.isAddressFieldEmpty, false);
+    });
+    test('uses parsedAddress for non-BIP21 same-asset input', () async {
+      final asset = Asset.btc();
+      final args = SendAssetArguments.fromAsset(asset);
+      const kRawInput = 'some-raw-btc-address';
+      const kParsedAddress = 'some-raw-btc-address';
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockManageAssetsProvider.mockIsNonLbtcLiquidToLbtcCall(value: false);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: asset,
+          address: kParsedAddress,
+        ),
+      );
+
+      final provider = sendAssetInputStateProvider(args);
+      await container.read(provider.future);
+
+      await container.read(provider.notifier).updateAddressFieldText(kRawInput);
+
+      final state = await container.read(provider.future);
+      expect(state.addressFieldText, kParsedAddress);
+    });
+    test('uses parsedAddress for non-BIP21 input when asset switches',
+        () async {
+      final asset = Asset.btc();
+      final args = SendAssetArguments.fromAsset(asset);
+      final otherAsset = Asset.lightning();
+      const kRawInput = 'lightning:lnbc500n1fake';
+      const kParsedAddress = 'lnbc500n1fake';
+      final container = ProviderContainer(
+          overrides: getStandardOverrides(
+        clipboardContent: null,
+        addressParser: mockAddressParser,
+        manageAssets: mockManageAssetsProvider,
+        bitcoin: mockBitcoinProvider,
+        balance: mockBalanceProvider,
+        prefs: mockPrefsProvider,
+        mockDisplayUnitsProvider: mockDisplayUnitsProvider,
+        mockExchangeRatesProvider: mockExchangeRatesProvider,
+      ));
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+      mockManageAssetsProvider.mockIsNonLbtcLiquidToLbtcCall(value: false);
+      mockAddressParser.mockParseInputCall(
+        value: ParsedAddress(
+          asset: otherAsset,
+          address: kParsedAddress,
+        ),
+      );
+
+      final provider = sendAssetInputStateProvider(args);
+      await container.read(provider.future);
+
+      await container.read(provider.notifier).updateAddressFieldText(kRawInput);
+
+      final state = await container.read(provider.future);
+      expect(state.asset.id, otherAsset.id);
+      expect(state.addressFieldText, kParsedAddress);
     });
   });
 

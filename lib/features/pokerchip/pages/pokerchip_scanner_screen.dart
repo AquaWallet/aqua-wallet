@@ -1,5 +1,4 @@
 import 'package:aqua/features/pokerchip/pokerchip.dart';
-import 'package:aqua/features/pokerchip/widgets/scanner_button.dart';
 import 'package:aqua/features/qr_scan/qr_scan.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
@@ -68,7 +67,7 @@ class PokerchipScannerScreen extends HookConsumerWidget {
                       data: Theme.of(context).copyWith(
                         brightness: Brightness.light,
                       ),
-                      child: ScannerButton(
+                      child: AquaGlassButton(
                         onTap: () async {
                           controller.stop();
                           context.pop();
@@ -108,7 +107,7 @@ class PokerchipScannerScreen extends HookConsumerWidget {
                       data: Theme.of(context).copyWith(
                         brightness: Brightness.light,
                       ),
-                      child: ScannerButton(
+                      child: AquaGlassButton(
                         onTap: () async {
                           final image = await imagePicker.pickImage(
                             source: ImageSource.gallery,
@@ -129,7 +128,7 @@ class PokerchipScannerScreen extends HookConsumerWidget {
                       data: Theme.of(context).copyWith(
                         brightness: Brightness.light,
                       ),
-                      child: ScannerButton(
+                      child: AquaGlassButton(
                         onTap: ref.read(qrScanProvider.notifier).toggleFlash,
                         icon: AquaIcon.lightbulb(
                           color: context.aquaColors.textInverse,

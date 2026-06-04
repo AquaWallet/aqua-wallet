@@ -101,7 +101,6 @@ class ConfirmationService {
       asset: sendAsset,
     );
 
-// If the receive transaction is not found, check if the ghost transaction is older than the last network transaction
     if (receiveTxn == null) {
       if (receiveNetworkTxns.isEmpty) {
         return false;
@@ -109,7 +108,7 @@ class ConfirmationService {
       final sendCreatedAtTs = sendTxn.createdAtTs;
       return !_shouldIgnoreGhost(
         ghostTxnCreatedAtMicroseconds: sendCreatedAtTs,
-        lastNetworkTxn: sendNetworkTxns.last,
+        lastNetworkTxn: receiveNetworkTxns.last,
       );
     }
 

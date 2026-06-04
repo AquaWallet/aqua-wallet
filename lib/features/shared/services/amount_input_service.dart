@@ -278,6 +278,15 @@ class AmountInputService {
   String? getFormattedAmountFieldText({
     String? amountFieldText,
     required ExchangeRate rate,
+  }) =>
+      getFormattedAmountFieldTextForSpec(
+        amountFieldText: amountFieldText,
+        fiatSpec: rate.currency.format,
+      );
+
+  String? getFormattedAmountFieldTextForSpec({
+    String? amountFieldText,
+    required CurrencyFormatSpec fiatSpec,
   }) {
     final text = amountFieldText;
 
@@ -289,25 +298,24 @@ class AmountInputService {
     if (endsWithSeparator) {
       // Parse only the integer part of the text.
       final numberPart = text.substring(0, text.length - 1);
-      final separator = rate.currency.format.decimalSeparator;
+      final separator = fiatSpec.decimalSeparator;
       if (numberPart.isEmpty) return '0$separator';
 
-      final cleaned =
-          formatterProvider.cleanAmountString(numberPart, rate.currency.format);
+      final cleaned = formatterProvider.cleanAmountString(numberPart, fiatSpec);
       final decimalValue = Decimal.tryParse(cleaned);
       if (decimalValue == null) return text;
 
       final formatted = formatProvider.formatFiatAmount(
-          amount: decimalValue,
-          specOverride: rate.currency.format,
-          decimalPlacesOverride: 0,
-          withSymbol: false);
+        amount: decimalValue,
+        specOverride: fiatSpec,
+        decimalPlacesOverride: 0,
+        withSymbol: false,
+      );
 
       return '$formatted$separator';
     }
 
-    final cleaned =
-        formatterProvider.cleanAmountString(text, rate.currency.format);
+    final cleaned = formatterProvider.cleanAmountString(text, fiatSpec);
     if (cleaned == '0') return cleaned;
 
     final decimalValue = Decimal.tryParse(cleaned);
@@ -317,13 +325,12 @@ class AmountInputService {
     final parts = cleaned.split('.');
     final decimalPlaces = parts.length > 1 ? parts[1].length : 0;
 
-    final value = formatProvider.formatFiatAmount(
-        amount: decimalValue,
-        specOverride: rate.currency.format,
-        decimalPlacesOverride: decimalPlaces,
-        withSymbol: false);
-
-    return value;
+    return formatProvider.formatFiatAmount(
+      amount: decimalValue,
+      specOverride: fiatSpec,
+      decimalPlacesOverride: decimalPlaces,
+      withSymbol: false,
+    );
   }
 
   /// Formats USDt amount in target currency

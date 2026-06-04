@@ -56,7 +56,9 @@ class SendAssetReviewInfoCard extends HookConsumerWidget {
                 const SizedBox(width: 19.0),
                 //ANCHOR - Amount Details
                 switch (transactionType) {
-                  SendTransactionType.send => _SendTransactionAmountDetails(
+                  SendTransactionType.send ||
+                  SendTransactionType.deepLink =>
+                    _SendTransactionAmountDetails(
                       key: SendKeys.sendTransactionAmountDetails,
                       amount: amount,
                       asset: asset,

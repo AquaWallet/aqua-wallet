@@ -39,6 +39,9 @@ class SendAssetInputStateAdapterNotifier {
     required GenerateInvoiceResponse invoice,
     required String address,
   }) async {
+    // Wait for the provider's async build() to complete before calling methods.
+    await ref.read(sendAssetInputStateProvider(arguments).future);
+
     final amount = invoice.cryptoAmountOwed;
     final amountText =
         _convertBtcAmountToDisplayString(double.parse(amount), arguments.asset);

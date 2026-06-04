@@ -70,7 +70,7 @@ final _transactionMenuAssetsListProvider = Provider.autoDispose
                     displayUnitOverride: displayUnit,
                     decimalPlacesOverride: asset.isAnyUsdt
                         ? kUsdtDisplayPrecision
-                        : asset.precision.clamp(0, 8),
+                        : asset.precision.clamp(0, kMaxAssetDisplayPrecision),
                   ),
               amountFiat: isSend
                   ? ref

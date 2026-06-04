@@ -45,6 +45,8 @@ class DirectPegInScreen extends HookConsumerWidget {
         logger.debug('[DirectPegIn] PegStatus: $value');
       });
 
+    final pegAddress = order?.pegAddress ?? '';
+
     return DesignRevampScaffold(
       appBar: AquaTopAppBar(
         title: context.loc.internalSendReviewBitcoin,
@@ -59,7 +61,7 @@ class DirectPegInScreen extends HookConsumerWidget {
             ReceiveAssetAddressQrCard(
               asset: Asset.btc(),
               isDirectPegIn: true,
-              address: order?.pegAddress ?? '',
+              address: pegAddress,
             ),
             if (minAmount != null) ...[
               const SizedBox(height: 24.0),

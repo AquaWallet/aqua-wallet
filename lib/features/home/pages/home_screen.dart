@@ -1,9 +1,11 @@
 import 'package:aqua/common/widgets/custom_alert_dialog/custom_alert_dialog_ui_model.dart';
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/backup/backup.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/feature_flags/models/feature_flags_models.dart';
 import 'package:aqua/features/home/home.dart';
+import 'package:aqua/features/lightning_address/lightning_address.dart';
 import 'package:aqua/features/marketplace/marketplace.dart';
 import 'package:aqua/features/marketplace/providers/enabled_services_provider.dart';
 import 'package:aqua/features/onboarding/onboarding.dart';
@@ -47,8 +49,10 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
     final isWalletTabSelected = selectedTab == WalletTabs.wallet;
     final hasTransacted = ref.watch(hasTransactedProvider).asData?.value;
     final unifiedBalance = ref.watch(unifiedBalanceProvider);
-    final currentWallet =
-        ref.watch(storedWalletsProvider).valueOrNull?.currentWallet;
+    final walletsAsync = ref.watch(storedWalletsProvider);
+    final currentWallet = walletsAsync.valueOrNull?.currentWallet;
+    final walletId = ref.watch(currentWalletIdSyncProvider);
+    ref.watch(homePostLoadSequenceScheduledProvider);
     final region = ref.watch(regionsProvider.select((p) => p.currentRegion));
     final modalState = ref.watch(walletSuccessModalProvider);
     final languageCode = ref.watch(prefsProvider.select((p) => p.languageCode));
@@ -78,6 +82,36 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
     ref.watch(swapServicesRegistryProvider);
     ref.watch(preferredUsdtSwapServiceProvider);
     ref.watch(pendingTransactionMarkingProvider);
+    ref.watch(lightningAddressNotificationProvider);
+    ref.watch(lnAddressRegistrationProvider);
+
+    ref.listen(jan3AuthProvider(walletId), (_, next) {
+      next.whenData((authState) {
+        if (authState is Jan3UserPendingWalletRebind) {
+          AquaModalSheet.show(
+            context,
+            colors: context.aquaColors,
+            title: context.loc.walletRebindTitle,
+            message: context.loc.walletRebindMessage,
+            primaryButtonText: context.loc.walletRebindPrimaryButton,
+            secondaryButtonText: context.loc.goBack,
+            iconVariant: AquaRingedIconVariant.normal,
+            icon: AquaIcon.infoCircle(color: context.aquaColors.textTertiary),
+            copiedToClipboardText: context.loc.copiedToClipboard,
+            onPrimaryButtonTap: () {
+              ref.read(lnAddressRegistrationProvider.notifier).activate();
+            },
+            onSecondaryButtonTap: () {
+              Navigator.of(context).pop();
+              ref.read(jan3AuthProvider(walletId).notifier).signOut();
+            },
+            onDismiss: () {
+              ref.read(jan3AuthProvider(walletId).notifier).signOut();
+            },
+          );
+        }
+      });
+    });
 
     ref.watch(boltzInitProvider).maybeWhen(
           data: (_) {
@@ -204,27 +238,41 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
         onSecondaryButtonTap: modalData.onSecondaryButtonTap,
         copiedToClipboardText: context.loc.copiedToClipboard,
       );
-    }, [modalState.modalType]);
+    }, [modalState.modalType, walletSuccessModalLookup]);
 
     useEffect(() {
-      if (ref.read(walletSuccessModalProvider.notifier).shouldShowModal) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final assetsLoaded = ref.read(availableAssetsProvider).hasValue;
-          final balanceLoaded = unifiedBalance != null;
-          final walletsLoaded = currentWallet != null;
-
-          if (assetsLoaded &&
-              balanceLoaded &&
-              walletsLoaded &&
-              context.mounted) {
-            if (context.mounted) {
-              showWalletSuccessModal();
-            }
-          }
-        });
+      if (walletId.isEmpty || !ref.read(storedWalletsProvider).hasValue) {
+        return null;
       }
+
+      final alreadyScheduled = ref.read(homePostLoadSequenceScheduledProvider);
+      if (alreadyScheduled) return null;
+
+      final assetsLoaded = ref.read(availableAssetsProvider).hasValue;
+      final balanceLoaded = unifiedBalance != null;
+      final walletsLoaded = currentWallet != null;
+      if (!assetsLoaded || !balanceLoaded || !walletsLoaded) return null;
+
+      ref.read(homePostLoadSequenceScheduledProvider.notifier).markScheduled();
+
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!context.mounted) return;
+
+        final shouldShowModal =
+            ref.read(walletSuccessModalProvider.notifier).shouldShowModal;
+        if (shouldShowModal) {
+          showWalletSuccessModal();
+        }
+
+        if (ref
+            .read(lightningAddressNotificationProvider)
+            .shouldShowLightningAddressWelcomeScreen) {
+          context.push(LightningAddressWelcomeScreen.routeName);
+        }
+      });
+
       return null;
-    }, [modalState, showWalletSuccessModal, unifiedBalance, currentWallet]);
+    }, [unifiedBalance, currentWallet, walletId]);
 
     return Theme(
       data: isDarkMode

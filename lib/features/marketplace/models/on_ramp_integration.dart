@@ -1,11 +1,10 @@
 import 'package:aqua/config/constants/urls.dart';
-import 'package:aqua/gen/assets.gen.dart';
-import 'package:aqua/features/marketplace/models/on_ramp_regions_integrations.dart';
 import 'package:aqua/features/settings/exchange_rate/exchange_rate.dart';
 import 'package:aqua/features/settings/region/models/region.dart';
+import 'package:aqua/gen/assets.gen.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'models.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'on_ramp_integration.freezed.dart';
 part 'on_ramp_integration.g.dart';
