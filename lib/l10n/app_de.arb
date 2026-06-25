@@ -267,7 +267,7 @@
   "minValueVariant": "Min: {value}",
   "maxValueVariant": "Max: {value}",
   "minValue": "Min: {value}",
-  "balanceValue": "Bal: {value}",
+  "balanceValue": "Saldo: {value}",
   "invalidMiniPrivateKeyError": "Ungültiger Mini Privater Schlüssel",
   "monthlyLimit": "Monatslimit",
   "myCard": "Meine Karte",
@@ -574,7 +574,7 @@
   "youveSuccessfullySent": "Erfolgreich versendet",
   "youWillReceive": "Sie werden erhalten",
   "zendeskTitle": "Support",
-  "zendeskSubtitle": "Support für Hilfe kontaktieren",
+  "zendeskSubtitle": "Support kontaktieren",
   "youWillTopUp": "Sie werden aufladen",
   "yourTopUpWasSuccessful": "Aufladung erfolgreich!",
   "yourTopUpIsBeingProcessed": "Aufladung wird verarbeitet",
@@ -974,7 +974,7 @@
   "history": "Historie",
   "dolphinCardTopUpWarningNotWithdrawable": "Karten-Guthaben kann nicht abgehoben werden. 3DS wird nicht unterstützt; einige Händler könnten Zahlungen ablehnen.",
   "dolphinCardTopUpWarningNotWithdrawableLearnMore": "Mehr erfahren",
-  "youAreSending": "Sie schicken...",
+  "youAreSending": "Sie senden...",
   "swappedToLbtc": "In L-BTC getauscht",
   "verify": "Verifizieren",
   "sendAssetReviewScreenConfirmAmountTitleSent": "Gesendet",
@@ -1034,6 +1034,357 @@
   "legacyWalletSettingsScreenNoWalletMessage": "Keine Legacy-Wallet vorhanden",
   "settingsScreenItemLegacyWallet": "Legacy-Wallet",
   "languageSettingsChineseSimplified": "Chinesisch, vereinfacht",
+  "authScreenSubdescription": "Entsperren Sie mit Biometrie oder Ihrem Zugangscode.",
+  "authScreenUnlockWithFaceId": "Mit Face ID entsperren",
+  "authScreenUnlockWithFingerprint": "Mit Fingerabdruck entsperren",
+  "authScreenUnlockWithTouchId": "Mit Touch ID entsperren",
+  "authScreenSubdescriptionFace": "Entsperren Sie mit Face ID oder Ihrem Zugangscode.",
+  "authScreenSubdescriptionFingerprint": "Entsperren Sie mit Ihrem Fingerabdruck oder Ihrem Zugangscode.",
+  "authScreenSubdescriptionTouchId": "Entsperren Sie mit Touch ID oder Ihrem Zugangscode.",
+  "boltzRefundSwap": "Swap erstatten",
+  "expFeaturesScreenItemsDbJsonExport": "Datenbank-JSON-Export",
+  "expFeaturesScreenLightningAddressInfoScreen": "Info-Bildschirm zur Lightning-Adresse",
+  "maxLabel": "Max:",
+  "minLabel": "Min:",
+  "balanceLabel": "Saldo:",
+  "notesSettingsScreenImportNoMatches": "Keine passenden Transaktionen in dieser Wallet gefunden",
+  "marketplaceScreenChapsmartButton": "ChapSmart",
+  "marketplaceScreenChapsmartButtonDescription": "Mit Bitcoin bezahlen, wo M-PESA akzeptiert wird",
+  "marketplaceScreenMoneybadgerButton": "MoneyBadger",
+  "marketplaceScreenMoneybadgerButtonDescription": "Mit Bitcoin in ganz Südafrika bezahlen",
+  "marketplaceScreenTopUpDepixButton": "DePix aufladen",
+  "marketplaceScreenTopUpDepixButtonDescription": "Brasilianische Reais in DePix tauschen",
+  "boltzSwapSupportZendeskSubjectCriticalDoNotChange": "Boltz Swap Support",
+  "notificationsTransactionTitle": "Empfangene Transaktion",
+  "notificationsTransactionBody": "Sie haben eine neue Transaktion erhalten",
+  "walletSettingsScreenTitle": "Wallet",
+  "notificationsSettingsScreenTitle": "Benachrichtigungen",
+  "transactionNotificationsToggle": "Transaktionsbenachrichtigungen",
+  "transactionNotificationsDescription": "Lassen Sie sich benachrichtigen, wenn Sie Transaktionen erhalten",
+  "lightningAddressWelcomeSubtitle": "Empfangen Sie Bitcoin sofort mit Ihrer ganz persönlichen AQUA-Lightning-Adresse. Einfach zu teilen, immer verfügbar.",
+  "lightningAddressWelcomeViewButton": "Lightning-Adresse erhalten",
+  "newLightningAddress": "Neue Lightning-Adresse",
+  "lightningAddressChangeWarning": "Bitte beachten Sie, dass Zahlungen an Ihre vorherige Adresse nicht mehr funktionieren.",
+  "receiveLightningSwitchToInvoice": "Zu Rechnung wechseln",
+  "receiveLightningSwitchToAddress": "Zu Lightning-Adresse wechseln",
+  "you": "Sie",
+  "notNow": "Nicht jetzt",
+  "accountSettingsTitle": "JAN3-Konto",
+  "accountSettingsWalletMismatchTitle": "Lightning-Adresse nicht verfügbar",
+  "accountSettingsWalletMismatchMessage": "Wir konnten Ihre Lightning-Adresse in dieser Wallet nicht aktivieren, weil sie mit einer anderen Wallet verknüpft ist.",
+  "walletRebindTitle": "Lightning-Adresse in diese Wallet verschieben",
+  "walletRebindMessage": "Ihre Lightning-Adresse ist derzeit mit einer anderen Wallet verknüpft. Wenn Sie fortfahren, wird sie in diese Wallet verschoben und an Ihre Lightning-Adresse gesendete Zahlungen werden stattdessen hier empfangen.",
+  "walletRebindPrimaryButton": "Lightning-Adresse verschieben",
+  "accountSettingsSubtitle": "Dieses JAN3-Konto wird nur mit Ihrer aktuellen Wallet verknüpft. Um sich anzumelden und eine andere Wallet zu verknüpfen, wiederholen Sie einfach den Vorgang.",
+  "accountSettingsLightningAddressLabel": "Lightning-Adresse",
+  "accountSettingsLnAddressDisabledTitle": "Lightning-Adresse nicht verfügbar",
+  "accountSettingsLnAddressDisabledMessage": "Die Lightning-Adresse ist derzeit deaktiviert und kann nicht bearbeitet werden.",
+  "lnAddressEditTitle": "Lightning-Adresse ändern",
+  "lnAddressEditSubtitle": "Zahlungen an Ihre vorherige Adresse werden nicht mehr funktionieren.",
+  "lnAddressEditPayWith": "Bezahlen mit",
+  "lnAddressEditConfirmPurchase": "Kauf bestätigen",
+  "lnAddressEditYourAddress": "Ihre Lightning-Adresse",
+  "lnAddressEditUnavailable": "Diese Adresse ist nicht verfügbar",
+  "lnAddressEditSlideToChange": "Wischen, um die Adresse zu ändern",
+  "lnAddressChangeFailed": "Änderung fehlgeschlagen",
+  "lnAddressChangeFailedMessage": "Wir konnten Ihre Lightning-Adresse nicht ändern. Bitte versuchen Sie es erneut.",
+  "lnAddressEditPaymentApproved": "Adresse geändert",
+  "lnAddressEditPaymentApprovedMessage": "Ihre Lightning-Adresse wurde erfolgreich geändert.",
+  "lnAddressGiftTitle": "Bitcoin Lightning",
+  "lnAddressGiftSubtitle": "Hier ist Ihre ganz persönliche AQUA-Lightning-Adresse! Sie wird zur einfachen Wiederherstellung mit Ihrem JAN3-Konto verknüpft. Stellen Sie also sicher, dass Sie zuerst angemeldet sind.",
+  "openBox": "Box öffnen",
+  "accountSettingsGetLightningAddress": "Lightning-Adresse erhalten",
+  "walletAuthDebug": "Wallet-Authentifizierungs-Debug",
+  "expFeaturesScreenJan3GetUserDebug": "Jan3 API: Benutzer abrufen",
+  "expFeaturesScreenJan3GetUserResponse": "Benutzerantwort",
+  "showFullToken": "Vollständigen Token anzeigen",
+  "depixAmountEntryTitle": "DePix kaufen",
+  "depixAmountEntryQuoteTimer": "Angebot wird aktualisiert in:",
+  "depixAmountEntryChipTapped": "Währung",
+  "depixAmountEntryContinue": "Mit folgendem Betrag fortfahren:",
+  "depixDepositQrTitle": "Einzahlung abschließen",
+  "depixDepositFailedTitle": "Einzahlung fehlgeschlagen",
+  "depixDepositQrSubtitle": "Hierhin gesendete Pix werden in DePix getauscht.",
+  "depixDepositEulenFee": "Eulen-Bearbeitungsgebühr",
+  "depixLiquidAddressNotFoundError": "Ihre Liquid-Adresse konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
+  "depixDepositRequestFailedError": "Einzahlungsanfrage fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  "depixDepositsListTitle": "Einzahlungen",
+  "depixDepositsListEmpty": "Noch keine Einzahlungen",
+  "depixDepositsListNewDeposit": "Neue Einzahlung",
+  "depixDepositsListContinuePendingDeposit": "Mit ausstehender Einzahlung fortfahren",
+  "depixDepositsListDepositUnderReview": "Einzahlung in Prüfung",
+  "depixDepositStatusCanceled": "Storniert",
+  "depixDepositStatusUnderReview": "In Prüfung",
+  "depixDepositStatusDepixSent": "DePix gesendet",
+  "depixDepositStatusError": "Fehler",
+  "depixDepositStatusRefunded": "Rückerstattet",
+  "depixDepositStatusExpired": "Abgelaufen",
+  "depixDepositStatusPending": "Ausstehend",
+  "depixDepositStatusPendingPix2fa": "Pix2FA ausstehend",
+  "depixDepositStatusDelayed": "Verzögert",
+  "depixDepositStatusUnknown": "Unbekannt",
+  "depixDepositStatusUnrecognized": "{code}",
+  "@authScreenSubdescription": {
+    "approved": "true"
+  },
+  "@authScreenUnlockWithFaceId": {
+    "approved": "true"
+  },
+  "@authScreenUnlockWithFingerprint": {
+    "approved": "true"
+  },
+  "@authScreenUnlockWithTouchId": {
+    "approved": "true"
+  },
+  "@authScreenSubdescriptionFace": {
+    "approved": "true"
+  },
+  "@authScreenSubdescriptionFingerprint": {
+    "approved": "true"
+  },
+  "@authScreenSubdescriptionTouchId": {
+    "approved": "true"
+  },
+  "@boltzRefundSwap": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenItemsDbJsonExport": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenLightningAddressInfoScreen": {
+    "approved": "true"
+  },
+  "@maxLabel": {
+    "approved": "true"
+  },
+  "@minLabel": {
+    "approved": "true"
+  },
+  "@balanceLabel": {
+    "approved": "true"
+  },
+  "@notesSettingsScreenImportNoMatches": {
+    "approved": "true"
+  },
+  "@marketplaceScreenChapsmartButton": {
+    "approved": "true"
+  },
+  "@marketplaceScreenChapsmartButtonDescription": {
+    "approved": "true"
+  },
+  "@marketplaceScreenMoneybadgerButton": {
+    "approved": "true"
+  },
+  "@marketplaceScreenMoneybadgerButtonDescription": {
+    "approved": "true"
+  },
+  "@marketplaceScreenTopUpDepixButton": {
+    "approved": "true"
+  },
+  "@marketplaceScreenTopUpDepixButtonDescription": {
+    "approved": "true"
+  },
+  "@boltzSwapSupportZendeskSubjectCriticalDoNotChange": {
+    "approved": "true"
+  },
+  "@notificationsTransactionTitle": {
+    "approved": "true"
+  },
+  "@notificationsTransactionBody": {
+    "approved": "true"
+  },
+  "@walletSettingsScreenTitle": {
+    "approved": "true"
+  },
+  "@notificationsSettingsScreenTitle": {
+    "approved": "true"
+  },
+  "@transactionNotificationsToggle": {
+    "approved": "true"
+  },
+  "@transactionNotificationsDescription": {
+    "approved": "true"
+  },
+  "@lightningAddressWelcomeSubtitle": {
+    "approved": "true"
+  },
+  "@lightningAddressWelcomeViewButton": {
+    "approved": "true"
+  },
+  "@newLightningAddress": {
+    "approved": "true"
+  },
+  "@lightningAddressChangeWarning": {
+    "approved": "true"
+  },
+  "@receiveLightningSwitchToInvoice": {
+    "approved": "true"
+  },
+  "@receiveLightningSwitchToAddress": {
+    "approved": "true"
+  },
+  "@notNow": {
+    "approved": "true"
+  },
+  "@accountSettingsTitle": {
+    "approved": "true"
+  },
+  "@accountSettingsWalletMismatchTitle": {
+    "approved": "true"
+  },
+  "@accountSettingsWalletMismatchMessage": {
+    "approved": "true"
+  },
+  "@walletRebindTitle": {
+    "approved": "true"
+  },
+  "@walletRebindMessage": {
+    "approved": "true"
+  },
+  "@walletRebindPrimaryButton": {
+    "approved": "true"
+  },
+  "@accountSettingsSubtitle": {
+    "approved": "true"
+  },
+  "@accountSettingsLightningAddressLabel": {
+    "approved": "true"
+  },
+  "@accountSettingsLnAddressDisabledTitle": {
+    "approved": "true"
+  },
+  "@accountSettingsLnAddressDisabledMessage": {
+    "approved": "true"
+  },
+  "@lnAddressEditTitle": {
+    "approved": "true"
+  },
+  "@lnAddressEditSubtitle": {
+    "approved": "true"
+  },
+  "@lnAddressEditPayWith": {
+    "approved": "true"
+  },
+  "@lnAddressEditConfirmPurchase": {
+    "approved": "true"
+  },
+  "@lnAddressEditYourAddress": {
+    "approved": "true"
+  },
+  "@lnAddressEditUnavailable": {
+    "approved": "true"
+  },
+  "@lnAddressEditSlideToChange": {
+    "approved": "true"
+  },
+  "@lnAddressChangeFailed": {
+    "approved": "true"
+  },
+  "@lnAddressChangeFailedMessage": {
+    "approved": "true"
+  },
+  "@lnAddressEditPaymentApproved": {
+    "approved": "true"
+  },
+  "@lnAddressEditPaymentApprovedMessage": {
+    "approved": "true"
+  },
+  "@lnAddressGiftTitle": {
+    "approved": "true"
+  },
+  "@lnAddressGiftSubtitle": {
+    "approved": "true"
+  },
+  "@accountSettingsGetLightningAddress": {
+    "approved": "true"
+  },
+  "@walletAuthDebug": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenJan3GetUserDebug": {
+    "approved": "true"
+  },
+  "@expFeaturesScreenJan3GetUserResponse": {
+    "approved": "true"
+  },
+  "@showFullToken": {
+    "approved": "true"
+  },
+  "@depixAmountEntryTitle": {
+    "approved": "true"
+  },
+  "@depixAmountEntryQuoteTimer": {
+    "approved": "true"
+  },
+  "@depixAmountEntryChipTapped": {
+    "approved": "true"
+  },
+  "@depixAmountEntryContinue": {
+    "approved": "true"
+  },
+  "@depixDepositQrTitle": {
+    "approved": "true"
+  },
+  "@depixDepositFailedTitle": {
+    "approved": "true"
+  },
+  "@depixDepositQrSubtitle": {
+    "approved": "true"
+  },
+  "@depixDepositEulenFee": {
+    "approved": "true"
+  },
+  "@depixLiquidAddressNotFoundError": {
+    "approved": "true"
+  },
+  "@depixDepositRequestFailedError": {
+    "approved": "true"
+  },
+  "@depixDepositsListTitle": {
+    "approved": "true"
+  },
+  "@depixDepositsListEmpty": {
+    "approved": "true"
+  },
+  "@depixDepositsListNewDeposit": {
+    "approved": "true"
+  },
+  "@depixDepositsListContinuePendingDeposit": {
+    "approved": "true"
+  },
+  "@depixDepositsListDepositUnderReview": {
+    "approved": "true"
+  },
+  "@depixDepositStatusCanceled": {
+    "approved": "true"
+  },
+  "@depixDepositStatusUnderReview": {
+    "approved": "true"
+  },
+  "@depixDepositStatusDepixSent": {
+    "approved": "true"
+  },
+  "@depixDepositStatusError": {
+    "approved": "true"
+  },
+  "@depixDepositStatusRefunded": {
+    "approved": "true"
+  },
+  "@depixDepositStatusExpired": {
+    "approved": "true"
+  },
+  "@depixDepositStatusPending": {
+    "approved": "true"
+  },
+  "@depixDepositStatusPendingPix2fa": {
+    "approved": "true"
+  },
+  "@depixDepositStatusDelayed": {
+    "approved": "true"
+  },
+  "@depixDepositStatusUnknown": {
+    "approved": "true"
+  },
   "@addBalance": {
     "approved": "true"
   },
