@@ -2,8 +2,11 @@ import 'package:aqua/config/config.dart';
 import 'package:aqua/config/router/routes.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/auth/auth.dart';
+import 'package:aqua/features/depix/pages/depix_screen.dart';
 import 'package:aqua/features/desktop/pages/pages.dart';
+import 'package:aqua/features/lightning_address/pages/ln_address_gift_screen.dart';
 import 'package:aqua/features/private_integrations/private_integrations.dart';
+import 'package:aqua/features/settings/shared/pages/account_settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ui_components/shared/constants/constants.dart';
@@ -14,6 +17,9 @@ const requiredLoginRoutes = [
   DebitCardMyCardScreen.routeName,
   DebitCardOnboardingScreen.routeName,
   DebitCardStyleSelectionScreen.routeName,
+  AccountSettingsScreen.routeName,
+  DepixScreen.routeName,
+  LnAddressGiftScreen.routeName,
 ];
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -23,8 +29,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: routes,
     //NOTE - All redirection logic goes here
     redirect: (context, state) async {
-      final auth = ref.read(currentWalletAuthProvider);
-      final isLoggedIn = auth.isAuthenticated;
+      final authAsync =
+          ref.read(jan3AuthProvider(ref.read(currentWalletIdSyncProvider)));
+
+      if (authAsync.isLoading) return null;
+      final isLoggedIn = authAsync.valueOrNull?.isAuthenticated ?? false;
 
       if (!isLoggedIn && requiredLoginRoutes.contains(state.matchedLocation)) {
         return state.namedLocation(Jan3LoginScreen.routeName, queryParameters: {

@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:aqua/common/decimal/decimal_ext.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/features/lightning/lightning.dart';
+import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/models/swap_models.dart';
 import 'package:boltz/boltz.dart';
 
@@ -26,10 +28,14 @@ class SendAssetAmountConstraints {
   factory SendAssetAmountConstraints.lightning(
       {required SubmarineFeesAndLimits submarineFees,
       LNURLPayParams? lnurlPayParams}) {
+    final batchedMin = submarineFees.lbtcLimits.minimalBatched?.toInt();
+    final minSendable = batchedMin == null
+        ? kGdkMinSendAmountLbtcSats
+        : max(kGdkMinSendAmountLbtcSats,
+            batchedMin); // This is almost always kGdkMinSendAmountLbtcSats
     final sendMin = lnurlPayParams != null
-        ? max(lnurlPayParams.minSendableSats,
-            submarineFees.lbtcLimits.minimal.toInt())
-        : submarineFees.lbtcLimits.minimal.toInt();
+        ? max(lnurlPayParams.minSendableSats, minSendable)
+        : minSendable;
     final sendMax = lnurlPayParams != null
         ? min(lnurlPayParams.maxSendableSats,
             submarineFees.lbtcLimits.maximal.toInt())
@@ -40,6 +46,13 @@ class SendAssetAmountConstraints {
       maxSats: sendMax,
     );
   }
+
+  @visibleForTesting
+  factory SendAssetAmountConstraints.test({
+    required int minSats,
+    required int maxSats,
+  }) =>
+      SendAssetAmountConstraints._(minSats: minSats, maxSats: maxSats);
 
   factory SendAssetAmountConstraints.swap(
     SwapRate rate,

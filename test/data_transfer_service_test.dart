@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:aqua/config/constants/pref_keys.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -23,6 +24,9 @@ final originalMap = {
       kMockDbSideshiftOrders.map((e) => e.toJson()).toList(),
   DataTransferService.keyBoltzSwaps:
       kMockDbBoltzSwaps.map((e) => e.toJson()).toList(),
+  DataTransferService.keyPreferences: {
+    PrefKeys.hasSeenLightningAddressWelcomeScreen: false,
+  },
 };
 
 void main() {
@@ -30,6 +34,7 @@ void main() {
 
   final mockEncryption = MockEncryption();
   final mockSecureStorageProvider = MockSecureStorageProvider();
+  final mockSharedPreferences = MockSharedPreferences();
   final mockIoProvider = MockFileSystemProvider();
   final mockTransactionStorageProvider = MockTransactionStorageProvider();
   final mockSideshiftStorageProvider = MockSideshiftStorageProvider();
@@ -39,12 +44,14 @@ void main() {
     registerFallbackValue(kMockDbTransactions.first);
     registerFallbackValue(kMockDbSideshiftOrders.first);
     registerFallbackValue(kMockDbBoltzSwaps.first);
+    when(() => mockSharedPreferences.getBool(any())).thenReturn(false);
   });
 
   group('DataTransferService', () {
     group('with mocked encrpytion', () {
       final container = ProviderContainer(overrides: [
         secureStorageProvider.overrideWithValue(mockSecureStorageProvider),
+        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
         transactionStorageProvider
             .overrideWith(() => mockTransactionStorageProvider),
         sideshiftStorageProvider
@@ -68,6 +75,9 @@ void main() {
                 kMockDbSideshiftOrders.map((e) => e.toJson()).toList(),
             DataTransferService.keyBoltzSwaps:
                 kMockDbBoltzSwaps.map((e) => e.toJson()).toList(),
+            DataTransferService.keyPreferences: {
+              PrefKeys.hasSeenLightningAddressWelcomeScreen: false,
+            },
           };
           final jsonString = jsonEncode(map);
           when(() => mockEncryption.encrypt(jsonString))
@@ -180,6 +190,7 @@ void main() {
 
     group('with real encrpytion', () {
       final mockSecureStorageProvider = MockSecureStorageProvider();
+      final mockSharedPreferencesReal = MockSharedPreferences();
       final mockIoProvider = MockFileSystemProvider();
       final mockTransactionStorageProvider = MockTransactionStorageProvider();
       final mockSideshiftStorageProvider = MockSideshiftStorageProvider();
@@ -187,6 +198,7 @@ void main() {
 
       final container = ProviderContainer(overrides: [
         secureStorageProvider.overrideWithValue(mockSecureStorageProvider),
+        sharedPreferencesProvider.overrideWithValue(mockSharedPreferencesReal),
         transactionStorageProvider
             .overrideWith(() => mockTransactionStorageProvider),
         sideshiftStorageProvider
@@ -198,6 +210,8 @@ void main() {
       tearDownAll(container.dispose);
 
       test('import with different account should throw error', () async {
+        when(() => mockSharedPreferencesReal.getBool(any())).thenReturn(false);
+
         // Export mock data
         when(() => mockSecureStorageProvider.get(StorageKeys.currentWalletId))
             .thenAnswer((_) async => (kTestWalletId, null));

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+export 'package:aqua/features/account/models/auth_state.dart';
+
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/feature_flags/services/feature_flags_service.dart';
 import 'package:aqua/features/private_integrations/private_integrations.dart';
@@ -145,11 +147,22 @@ class Jan3AuthNotifier extends FamilyAsyncNotifier<Jan3AuthState, String> {
       await ref
           .read(jan3AuthTokenManagerProvider(arg))
           .saveToken(tokenResponse);
-      final cards = await ref.read(moonCardsProvider.future);
-      await _onVerified(pendingCardCreation: cards.isEmpty);
+      await _completeVerification();
     } else {
-      state = AsyncValue.error(ProfileAuthErrorException(), StackTrace.current);
+      state = AsyncValue<Jan3AuthState>.error(
+        ProfileAuthErrorException(),
+        StackTrace.current,
+      ).copyWithPrevious(
+        const AsyncValue.data(Jan3AuthState.pendingOtpVerification()),
+      );
     }
+  }
+
+  Future<void> refreshAfterRebind() => _refreshProfileData();
+
+  Future<void> _completeVerification() async {
+    final cards = await ref.read(moonCardsProvider.future);
+    await _onVerified(pendingCardCreation: cards.isEmpty);
   }
 
   Future<void> _refreshProfileData({
@@ -162,10 +175,17 @@ class Jan3AuthNotifier extends FamilyAsyncNotifier<Jan3AuthState, String> {
     if (profile.isSuccessful && profile.body != null) {
       _logger.debug('[Jan3Account] Successfully refreshed profile data');
 
-      // Store the profile in the wallet
       await _storeProfileInWallet(profile.body!);
-      await _signOutConflictingWallets(profile.body!.id);
 
+      // Defer conflicting wallet sign-out until rebind is confirmed by user.
+      // If fingerprints match (or no fingerprint set), proceed normally.
+      final serverFingerprint = profile.body!.fingerprint;
+      if (serverFingerprint != null && serverFingerprint != arg) {
+        state = const AsyncValue.data(Jan3AuthState.pendingWalletRebind());
+        return;
+      }
+
+      await _signOutConflictingWallets(profile.body!.id);
       state = AsyncValue.data(
         Jan3AuthState.authenticated(
           profile: profile.body!,
@@ -222,19 +242,15 @@ class Jan3AuthNotifier extends FamilyAsyncNotifier<Jan3AuthState, String> {
     try {
       final token = await tokenProvider.getAccessToken();
 
-      if (token != null) {
-        _logger.warning(
-            '[Jan3Account] Recieved unauthorized with valid token, forcing sign out');
-        await tokenProvider.deleteToken();
-        signOut();
+      // Wrong OTP during login has no token yet; verifyOtp handles the error.
+      if (token == null) {
         return;
       }
 
-      if (state.valueOrNull is! Jan3UserPendingOtpVerification) {
-        _logger.debug('[Jan3Account] Token is null, signing out');
-        _logger.debug('[Jan3Account] State: ${state.valueOrNull}');
-        signOut();
-      }
+      _logger.warning(
+          '[Jan3Account] Recieved unauthorized with valid token, forcing sign out');
+      await tokenProvider.deleteToken();
+      signOut();
     } catch (e) {
       _logger.error('[Jan3Account] Error during unauthorized: $e');
       signOut();

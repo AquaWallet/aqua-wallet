@@ -10,11 +10,11 @@ part 'jan3_api_token_refresh.chopper.dart';
 
 final jan3RequestTokenApiProvider =
     FutureProvider.autoDispose<Jan3ApiTokenlessService>((ref) async {
-  final debitCardStagingEnabled =
-      ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
+  final jan3StagingEnabled =
+      ref.read(featureFlagsProvider.select((p) => p.jan3StagingEnabled));
 
   return Jan3ApiTokenlessService.create(
-    debitCardStagingEnabled: debitCardStagingEnabled,
+    jan3StagingEnabled: jan3StagingEnabled,
   );
 });
 
@@ -26,12 +26,11 @@ abstract class Jan3ApiTokenlessService extends ChopperService {
   );
 
   static Jan3ApiTokenlessService create({
-    required bool debitCardStagingEnabled,
+    required bool jan3StagingEnabled,
   }) {
     final client = ChopperClient(
-      baseUrl: Uri.parse(debitCardStagingEnabled
-          ? aquaAnkaraStagingApiUrl
-          : aquaAnkaraProdApiUrl),
+      baseUrl: Uri.parse(
+          jan3StagingEnabled ? aquaAnkaraStagingApiUrl : aquaAnkaraProdApiUrl),
       services: [_$Jan3ApiTokenlessService()],
       interceptors: [
         HttpLoggingInterceptor(),

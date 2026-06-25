@@ -258,7 +258,9 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
       feeAmountFiat: feeAmount, // Only show the USDT amount, not the fiat value
       feeAsset: feeAsset,
       receiveAddress: dbTxn.receiveAddress,
-      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
+      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset,
+          blindingData: args.dbTransaction?.blindingData),
+      notes: dbTxn.note,
       canRbf: false,
       dbTransaction: dbTxn,
       isLightning: false,
@@ -338,7 +340,8 @@ class AltUsdtTransactionUiModelCreator extends TransactionUiModelCreator {
       feeAsset: feeAsset,
       receiveAddress: args.dbTransaction?.receiveAddress ??
           networkTxn.outputs?.firstOrNull?.address,
-      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
+      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset,
+          blindingData: args.dbTransaction?.blindingData),
       notes: args.dbTransaction?.note ?? networkTxn.memo,
       canRbf: false,
       dbTransaction: args.dbTransaction,

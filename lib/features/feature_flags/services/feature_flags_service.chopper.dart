@@ -38,4 +38,19 @@ final class _$FeatureFlagsService extends FeatureFlagsService {
     );
     return client.send<List<SwitchType>, SwitchType>($request);
   }
+
+  @override
+  Future<Response<SetupConfig>> getSetup({String? buildNumber}) {
+    final Uri $url = Uri.parse('/api/v1/config/setup/');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'build': buildNumber
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    return client.send<SetupConfig, SetupConfig>($request);
+  }
 }

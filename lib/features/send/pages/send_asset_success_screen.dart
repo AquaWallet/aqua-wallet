@@ -60,6 +60,7 @@ class AssetTransactionSuccessScreen extends HookConsumerWidget {
               displayUnitOverride: unit,
               decimalPlacesOverride:
                   args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+              removeTrailingZeros: false,
             );
         final assetTicker = args.asset.getDisplayTicker(unit);
         return '$fmtAmount $assetTicker';

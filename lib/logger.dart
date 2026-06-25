@@ -42,6 +42,7 @@ enum FeatureFlag {
   jan3Account('Jan3Account'),
   jan3AuthToken('Jan3AuthToken'),
   debitCard('DebitCard'),
+  lightningAddress('LightningAddress'),
   multiWallet('MultiWallet');
 
   const FeatureFlag(this.value);

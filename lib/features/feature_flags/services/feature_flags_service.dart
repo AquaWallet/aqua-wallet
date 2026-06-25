@@ -11,12 +11,12 @@ final featureFlagsServiceProvider =
     FutureProvider<FeatureFlagsService>((ref) async {
   final walletId = ref.watch(currentWalletIdSyncProvider);
   final tokenManager = ref.watch(jan3AuthTokenManagerProvider(walletId));
-  final debitCardStagingEnabled =
-      ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
+  final jan3StagingEnabled =
+      ref.read(featureFlagsProvider.select((p) => p.jan3StagingEnabled));
   return FeatureFlagsService.create(
     tokenManager,
     ref.read(jan3AuthProvider(walletId).notifier).onUnauthorized,
-    debitCardStagingEnabled,
+    jan3StagingEnabled,
   );
 });
 
@@ -30,15 +30,20 @@ abstract class FeatureFlagsService extends ChopperService {
   @Get(path: 'switches/')
   Future<Response<List<SwitchType>>> getSwitches();
 
+  // Setup config (includes remote feature flags)
+  @Get(path: 'setup/')
+  Future<Response<SetupConfig>> getSetup({
+    @Query('build') String? buildNumber,
+  });
+
   static FeatureFlagsService create(
     Jan3AuthTokenManager tokenManager,
     VoidCallback onUnauthorized,
-    bool debitCardStagingEnabled,
+    bool jan3StagingEnabled,
   ) {
     final client = ChopperClient(
-      baseUrl: Uri.parse(debitCardStagingEnabled
-          ? aquaAnkaraStagingApiUrl
-          : aquaAnkaraProdApiUrl),
+      baseUrl: Uri.parse(
+          jan3StagingEnabled ? aquaAnkaraStagingApiUrl : aquaAnkaraProdApiUrl),
       services: [_$FeatureFlagsService()],
       interceptors: [
         HttpLoggingInterceptor(),
@@ -48,6 +53,8 @@ abstract class FeatureFlagsService extends ChopperService {
       converter: const JsonToTypeConverter({
         FeatureFlag: FeatureFlag.fromJson,
         SwitchType: SwitchType.fromJson,
+        SetupConfig: SetupConfig.fromJson,
+        SetupFlag: SetupFlag.fromJson,
       }),
     );
     return _$FeatureFlagsService(client);

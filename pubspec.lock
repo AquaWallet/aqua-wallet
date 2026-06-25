@@ -33,6 +33,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  app_links:
+    dependency: "direct main"
+    description:
+      name: app_links
+      sha256: "85ed8fc1d25a76475914fff28cc994653bd900bc2c26e4b57a49e097febb54ba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.4.0"
+  app_links_linux:
+    dependency: transitive
+    description:
+      name: app_links_linux
+      sha256: f5f7173a78609f3dfd4c2ff2c95bd559ab43c80a87dc6a095921d96c05688c81
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
+  app_links_platform_interface:
+    dependency: transitive
+    description:
+      name: app_links_platform_interface
+      sha256: "05f5379577c513b534a29ddea68176a4d4802c46180ee8e2e966257158772a3f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
+  app_links_web:
+    dependency: transitive
+    description:
+      name: app_links_web
+      sha256: af060ed76183f9e2b87510a9480e56a5352b6c249778d07bd2c95fc35632a555
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   app_settings:
     dependency: "direct main"
     description:
@@ -108,11 +140,12 @@ packages:
   boltz:
     dependency: "direct main"
     description:
-      name: boltz
-      sha256: b30f54cdff157422e8969b990e24e0fa9445f9c719f1d4d5869e90b8064471cf
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
+      path: "."
+      ref: "037a1fd3690bf5e8c5fae89b13a15505fa10cc7f"
+      resolved-ref: "037a1fd3690bf5e8c5fae89b13a15505fa10cc7f"
+      url: "https://github.com/SatoshiPortal/boltz-dart"
+    source: git
+    version: "0.3.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -844,10 +877,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: "5a5c7a5deeef2cc2ffe6076a33b0429f4a20ceac22a397297aed2b1eb067e611"
+      sha256: "37ef40bc6f863652e865f0b2563ea07f0d3c58d8efad803cc01933a4b2ee067e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.9.0"
+    version: "2.11.1"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -999,6 +1032,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.3.4"
+  gtk:
+    dependency: transitive
+    description:
+      name: gtk
+      sha256: e8ce9ca4b1df106e4d72dad201d345ea1a036cc12c360f1a7d5a758f78ffa42c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   hashcodes:
     dependency: transitive
     description:
@@ -1311,11 +1352,12 @@ packages:
   lwk:
     dependency: "direct main"
     description:
-      name: lwk
-      sha256: f947231993dbcb3661d8a68251e06feb2a93b4924ef16437974d393f5e28b854
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
+      path: "."
+      ref: b1cda1b7e315adc49d8449fb2d3f508552ae5109
+      resolved-ref: b1cda1b7e315adc49d8449fb2d3f508552ae5109
+      url: "https://github.com/SatoshiPortal/lwk-dart"
+    source: git
+    version: "0.3.0"
   matcher:
     dependency: transitive
     description:

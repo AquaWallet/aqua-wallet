@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/models/gdk_models.dart';
 import 'package:aqua/data/provider/bitcoin_provider.dart';
 import 'package:aqua/data/provider/fiat_provider.dart';
@@ -326,7 +327,7 @@ class _AquaProvider extends AquaProvider {
         amount: 0,
         name: asset.name ?? '',
         ticker: asset.ticker ?? '',
-        precision: asset.precision ?? 8,
+        precision: asset.precision ?? kMaxAssetDisplayPrecision,
         domain: asset.entity?.domain,
         isLiquid: true,
         isLBTC: ref.read(liquidProvider).policyAsset == asset.assetId,

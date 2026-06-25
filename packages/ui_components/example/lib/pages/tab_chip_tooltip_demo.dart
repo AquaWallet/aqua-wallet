@@ -227,7 +227,7 @@ class _ChipDemoSection extends StatelessWidget {
               const SizedBox(height: 23),
               AquaChip(
                 label: '10.46%',
-                icon: SvgPicture.asset(
+                trailingIcon: SvgPicture.asset(
                   kCarretIcon,
                   width: 16,
                   height: 16,
@@ -255,7 +255,7 @@ class _ChipDemoSection extends StatelessWidget {
               AquaChip.success(
                 label: '10.46%',
                 colors: theme.colors,
-                icon: SvgPicture.asset(
+                trailingIcon: SvgPicture.asset(
                   kCarretIcon,
                   width: 16,
                   height: 16,
@@ -288,7 +288,7 @@ class _ChipDemoSection extends StatelessWidget {
               AquaChip.error(
                 label: '10.46%',
                 colors: theme.colors,
-                icon: SvgPicture.asset(
+                trailingIcon: SvgPicture.asset(
                   kCarretIcon,
                   width: 16,
                   height: 16,
@@ -321,7 +321,7 @@ class _ChipDemoSection extends StatelessWidget {
               AquaChip.accent(
                 label: '10.46%',
                 colors: theme.colors,
-                icon: SvgPicture.asset(
+                trailingIcon: SvgPicture.asset(
                   kCarretIcon,
                   width: 16,
                   height: 16,

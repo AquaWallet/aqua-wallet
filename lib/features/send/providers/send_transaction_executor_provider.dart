@@ -35,6 +35,10 @@ abstract class Transactor {
     required String rawTx,
     NetworkType network = NetworkType.liquid,
   });
+
+  Future<String> createAndSignTransaction({
+    required SendAssetInputState input,
+  });
 }
 
 class SendGdkTransactor extends Transactor {
@@ -127,6 +131,41 @@ class SendGdkTransactor extends Transactor {
     }
 
     return SendAssetOnchainTx.gdkTx(gdkNewTxReply);
+  }
+
+  @override
+  Future<String> createAndSignTransaction({
+    required SendAssetInputState input,
+  }) async {
+    final txn = await createTransaction(sendInput: input);
+
+    final txReply = txn.txReply;
+    if (txReply == null || txn.transactionHex == null) {
+      throw AquaSendFailedSigningIncompleteTxnError();
+    }
+
+    final network = arg.asset.isBTC ? NetworkType.bitcoin : NetworkType.liquid;
+
+    final blindedTxn = arg.asset.isBTC
+        ? txReply
+        : await ref.read(liquidProvider).blindTransaction(txReply);
+
+    if (blindedTxn == null) {
+      throw GdkNetworkException('Failed to blind transaction');
+    }
+
+    final signedTx = await signTransaction(
+      transaction: blindedTxn,
+      network: network,
+    );
+
+    final signedRawTx = signedTx.transaction;
+    if (signedRawTx == null) {
+      throw GdkNetworkException('Signing produced no transaction hex');
+    }
+
+    logger.debug('[Send] createAndSignTransaction complete');
+    return signedRawTx;
   }
 
   Future<GdkUnspentOutputsReply?> _getUtxos({

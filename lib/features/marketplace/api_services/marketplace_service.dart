@@ -25,10 +25,10 @@ class MarketplaceJsonConverter extends JsonToTypeConverter {
 
 final marketplaceServiceProvider =
     Provider.autoDispose<MarketplaceService>((ref) {
-  final debitCardStagingEnabled =
-      ref.read(featureFlagsProvider.select((p) => p.debitCardStagingEnabled));
+  final jan3StagingEnabled =
+      ref.read(featureFlagsProvider.select((p) => p.jan3StagingEnabled));
   return MarketplaceService.create(
-    debitCardStagingEnabled: debitCardStagingEnabled,
+    jan3StagingEnabled: jan3StagingEnabled,
   );
 });
 
@@ -50,10 +50,10 @@ abstract class MarketplaceService extends ChopperService {
   Future<Response<AssetsResponse>> fetchTestNetAssets();
 
   static MarketplaceService create({
-    required bool debitCardStagingEnabled,
+    required bool jan3StagingEnabled,
   }) {
     final client = ChopperClient(
-        baseUrl: Uri.parse(debitCardStagingEnabled
+        baseUrl: Uri.parse(jan3StagingEnabled
             ? aquaAnkaraStagingApiUrl
             : aquaAnkaraProdApiUrl),
         services: [_$MarketplaceService()],

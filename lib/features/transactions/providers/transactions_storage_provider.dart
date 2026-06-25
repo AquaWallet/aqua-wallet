@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/exceptions/transaction_exceptions.dart';
@@ -304,26 +305,37 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
     required int fee,
   }) async {
     final storage = await ref.read(storageProvider.future);
+    final walletId = await ref.read(currentWalletIdOrThrowProvider.future);
+
     await storage.writeTxn(() async {
-      final transaction = await storage.transactionDbModels
+      final existing = await storage.transactionDbModels
           .filter()
           .serviceOrderIdEqualTo(boltzId)
           .findFirst();
-      if (transaction == null) {
-        logger.warning(
-            '[Transactions] No transaction found for Boltz ID: $boltzId');
-        return;
-      }
 
-      final updated = transaction.copyWith(
-        txhash: claimTxId,
-        receiveAddress: receiveAddress,
-        isGhost: true,
-        ghostTxnCreatedAt: DateTime.now(),
-        ghostTxnAmount: outAmount,
-        ghostTxnFee: fee,
-      );
-      await storage.transactionDbModels.put(updated);
+      final model = existing != null
+          ? existing.copyWith(
+              txhash: claimTxId,
+              receiveAddress: receiveAddress,
+              isGhost: true,
+              ghostTxnCreatedAt: DateTime.now(),
+              ghostTxnAmount: outAmount,
+              ghostTxnFee: fee,
+            )
+          : TransactionDbModel(
+              txhash: claimTxId,
+              assetId: AssetIds.lightning,
+              walletId: walletId,
+              type: TransactionDbModelType.boltzReverseSwap,
+              serviceOrderId: boltzId,
+              receiveAddress: receiveAddress,
+              isGhost: true,
+              ghostTxnCreatedAt: DateTime.now(),
+              ghostTxnAmount: outAmount,
+              ghostTxnFee: fee,
+            );
+
+      await storage.transactionDbModels.put(model);
     });
 
     await _reloadCurrentWalletTransactions();

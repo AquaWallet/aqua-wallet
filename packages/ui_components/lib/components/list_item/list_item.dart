@@ -2,27 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:ui_components/ui_components.dart';
 
 class AquaListItem extends StatelessWidget {
-  const AquaListItem({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.contentWidget,
-    this.titleTrailing,
-    this.subtitleTrailing,
-    this.iconLeading,
-    this.iconTrailing,
-    this.iconSecondaryTrailing,
-    this.titleColor,
-    this.subtitleColor,
-    this.titleTrailingColor,
-    this.subtitleTrailingColor,
-    this.backgroundColor,
-    this.selected,
-    this.onTap,
-    this.colors,
-    this.titleMaxLines = 2,
-    this.subtitleMaxLines = 3,
-  });
+  const AquaListItem(
+      {super.key,
+      required this.title,
+      this.subtitle,
+      this.contentWidget,
+      this.titleTrailing,
+      this.subtitleTrailing,
+      this.iconLeading,
+      this.iconTrailing,
+      this.iconSecondaryTrailing,
+      this.titleColor,
+      this.subtitleColor,
+      this.titleTrailingColor,
+      this.subtitleTrailingColor,
+      this.backgroundColor,
+      this.selected,
+      this.onTap,
+      this.colors,
+      this.titleMaxLines = 2,
+      this.subtitleMaxLines = 3,
+      this.disabled = false});
 
   final String title;
   final String? subtitle;
@@ -42,6 +42,7 @@ class AquaListItem extends StatelessWidget {
   final int titleMaxLines;
   final int subtitleMaxLines;
   final AquaColors? colors;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -62,80 +63,85 @@ class AquaListItem extends StatelessWidget {
           }
           return null;
         }),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          child: Ink(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: selected == true ? colors?.surfaceSelected : null,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: selected == true
-                    ? colors?.surfaceBorderSelected ?? Colors.transparent
-                    : Colors.transparent,
+        onTap: disabled ? null : onTap,
+        child: Opacity(
+          opacity: disabled ? 0.5 : 1,
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            child: Ink(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: selected == true ? colors?.surfaceSelected : null,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: selected == true
+                      ? colors?.surfaceBorderSelected ?? Colors.transparent
+                      : Colors.transparent,
+                ),
               ),
-            ),
-            child: Row(
-              children: [
-                if (iconLeading != null) ...{
-                  iconLeading!,
-                  const SizedBox(width: 16),
-                },
-                Expanded(
-                  child: Column(
+              child: Row(
+                children: [
+                  if (iconLeading != null) ...{
+                    iconLeading!,
+                    const SizedBox(width: 16),
+                  },
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AquaText.body1SemiBold(
+                          text: title,
+                          color: titleColor,
+                          maxLines: titleMaxLines,
+                          height: 1.3,
+                        ),
+                        if (contentWidget != null) ...{
+                          contentWidget!,
+                        } else if (subtitle != null &&
+                            subtitle!.isNotEmpty) ...{
+                          AquaText.body2Medium(
+                            text: subtitle!,
+                            color: subtitleColor,
+                            height: 0,
+                            maxLines: subtitleMaxLines,
+                          ),
+                        },
+                      ],
+                    ),
+                  ),
+                  Column(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      AquaText.body1SemiBold(
-                        text: title,
-                        color: titleColor,
-                        maxLines: titleMaxLines,
-                        height: 1.3,
-                      ),
-                      if (contentWidget != null) ...{
-                        contentWidget!,
-                      } else if (subtitle != null && subtitle!.isNotEmpty) ...{
+                      if (titleTrailing != null &&
+                          titleTrailing!.isNotEmpty) ...{
+                        AquaText.body1SemiBold(
+                          text: titleTrailing!,
+                          color: titleTrailingColor,
+                          height: 1.3,
+                        ),
+                      },
+                      if (subtitleTrailing != null &&
+                          subtitleTrailing!.isNotEmpty) ...{
                         AquaText.body2Medium(
-                          text: subtitle!,
-                          color: subtitleColor,
+                          text: subtitleTrailing!,
+                          color: subtitleTrailingColor,
                           height: 0,
-                          maxLines: subtitleMaxLines,
                         ),
                       },
                     ],
                   ),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (titleTrailing != null && titleTrailing!.isNotEmpty) ...{
-                      AquaText.body1SemiBold(
-                        text: titleTrailing!,
-                        color: titleTrailingColor,
-                        height: 1.3,
-                      ),
-                    },
-                    if (subtitleTrailing != null &&
-                        subtitleTrailing!.isNotEmpty) ...{
-                      AquaText.body2Medium(
-                        text: subtitleTrailing!,
-                        color: subtitleTrailingColor,
-                        height: 0,
-                      ),
-                    },
-                  ],
-                ),
-                if (iconSecondaryTrailing != null) ...{
-                  const SizedBox(width: 14),
-                  iconSecondaryTrailing!,
-                },
-                if (iconTrailing != null) ...{
-                  SizedBox(width: iconSecondaryTrailing != null ? 10 : 16),
-                  iconTrailing!,
-                }
-              ],
+                  if (iconSecondaryTrailing != null) ...{
+                    const SizedBox(width: 14),
+                    iconSecondaryTrailing!,
+                  },
+                  if (iconTrailing != null) ...{
+                    SizedBox(width: iconSecondaryTrailing != null ? 10 : 16),
+                    iconTrailing!,
+                  }
+                ],
+              ),
             ),
           ),
         ),

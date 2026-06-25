@@ -11,7 +11,10 @@ import 'package:ui_components/ui_components.dart';
 final _logger = CustomLogger(FeatureFlag.send);
 
 class SendAssetScreen extends HookConsumerWidget {
-  const SendAssetScreen({super.key, required this.arguments});
+  const SendAssetScreen({
+    super.key,
+    required this.arguments,
+  });
 
   final SendAssetArguments arguments;
 
@@ -24,10 +27,10 @@ class SendAssetScreen extends HookConsumerWidget {
     final currentStep = useState<SendFlowStep?>(null);
 
     useEffect(() {
-      final initialStep = input.value?.initialStep;
-      if (currentStep.value == null && input.hasValue && initialStep != null) {
+      final step = input.value?.initialStep ?? SendFlowStep.address;
+      if (currentStep.value == null && input.hasValue) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          currentStep.value = initialStep;
+          currentStep.value = step;
         });
       }
       return null;

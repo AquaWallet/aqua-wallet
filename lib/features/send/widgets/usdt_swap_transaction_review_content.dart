@@ -1,4 +1,5 @@
 import 'package:aqua/data/provider/format_provider.dart';
+import 'package:aqua/features/note/note.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -6,6 +7,7 @@ import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components/ui_components.dart';
 
@@ -58,6 +60,7 @@ class UsdSwapTransactionReviewContent extends ConsumerWidget {
         _RecipientAndFeeCard(
           fees: fees,
           address: input.addressFieldText,
+          args: args,
         ),
         const SizedBox(height: 16),
         //ANCHOR - Order ID Card
@@ -75,17 +78,31 @@ class UsdSwapTransactionReviewContent extends ConsumerWidget {
   }
 }
 
-class _RecipientAndFeeCard extends StatelessWidget {
+class _RecipientAndFeeCard extends HookConsumerWidget {
   const _RecipientAndFeeCard({
     required this.fees,
     required this.address,
+    required this.args,
   });
 
   final USDtSwapFee? fees;
   final String? address;
+  final SendAssetArguments args;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final provider = sendAssetInputStateProvider(args);
+    final note = ref.watch(provider).valueOrNull?.note;
+
+    final onNoteTap = useCallback(() async {
+      final text = await AquaBottomSheet.show(
+        context,
+        content: AddNoteForm(note: note),
+        colors: context.aquaColors,
+      );
+      ref.read(provider.notifier).updateNote(text);
+    }, [note]);
+
     return Skeletonizer(
       enabled: fees == null,
       child: AquaCard.surface(
@@ -122,6 +139,13 @@ class _RecipientAndFeeCard extends StatelessWidget {
               title: context.loc.totalFees,
               titleTrailing: fees?.totalFeesCrypto ?? '',
             ),
+            Divider(
+              height: 4,
+              thickness: 1,
+              color: context.aquaColors.surfaceSecondary,
+            ),
+            //ANCHOR - Add Note
+            NoteListItem(note: note, onTap: onNoteTap),
           ],
         ),
       ),

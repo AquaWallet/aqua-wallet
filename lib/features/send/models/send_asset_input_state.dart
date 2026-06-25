@@ -116,6 +116,10 @@ extension SendAssetInputStateX on SendAssetInputState {
   bool get isSatsUnit => cryptoUnit == AquaAssetInputUnit.sats;
 
   SendFlowStep get initialStep {
+    // Show the address for deep link transactions
+    if (transactionType == SendTransactionType.deepLink) {
+      return SendFlowStep.address;
+    }
     // externalSweepPrivKey
     if (externalSweepPrivKey != null) {
       return SendFlowStep.review;

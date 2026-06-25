@@ -1,10 +1,14 @@
+import 'package:aqua/common/common.dart';
+import 'package:aqua/config/constants/constants.dart' as constants;
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/utils/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:ui_components/ui_components.dart';
 
 //TODO - Ad-hoc solution, should revisit once more services are added
-enum SendTransactionType { send, topUp, privateKeySweep }
+enum SendTransactionType { send, topUp, privateKeySweep, deepLink }
 
 class SendAssetReviewPage extends HookConsumerWidget
     with GenericErrorPromptMixin {
@@ -37,6 +41,10 @@ class SendAssetReviewPage extends HookConsumerWidget
 
     final swapOrderReady = ref.watch(sendAssetSwapOrderReadyProvider(args));
 
+    final resolvedAsset = ref.watch(sendAssetInputStateProvider(args)
+            .select((s) => s.valueOrNull?.asset)) ??
+        args.asset;
+
     useEffect(() {
       if (setupInitialized && swapOrderReady) {
         createInitialTransaction();
@@ -45,6 +53,22 @@ class SendAssetReviewPage extends HookConsumerWidget
     }, [setupInitialized, swapOrderReady]);
 
     ref
+      ..listen(sendAssetInputStateProvider(args), (prev, curr) {
+        final wasBoltzToBoltz = prev?.valueOrNull?.isBoltzToBoltzSwap ?? false;
+        final isBoltzToBoltzNow = curr.valueOrNull?.isBoltzToBoltzSwap ?? false;
+        if (!wasBoltzToBoltz && isBoltzToBoltzNow) {
+          AquaTooltip.show(
+            context,
+            message: context.loc.lightningSendTooltip,
+            colors: context.aquaColors,
+            maxLines: 2,
+            variant: AquaTooltipVariant.normal,
+            onToolTipTap: () => ref
+                .read(launchUrlProvider.notifier)
+                .launchUrl(constants.jan3AquatoAquaTransactionsInfoUrl),
+          );
+        }
+      })
       ..listen(sendAssetInputStateProvider(args), (prev, curr) {
         if (curr.valueOrNull?.feeAsset != prev?.valueOrNull?.feeAsset &&
             !curr.isLoading) {
@@ -69,54 +93,39 @@ class SendAssetReviewPage extends HookConsumerWidget
         );
       });
 
-    return SafeArea(
-      child: Stack(
-        children: [
-          LayoutBuilder(
-            builder: (context, viewportConstraints) => ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: viewportConstraints.maxHeight,
-              ),
-              child: IntrinsicHeight(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  physics: const BouncingScrollPhysics(),
-                  //ANCHOR - Transaction Review Content
-                  child: switch (args.asset) {
-                    _ when (args.asset.isBTC || args.asset.isLiquid) =>
-                      AquaTransactionReviewContent(
-                        args: args,
-                        onFeeError: onErrorButtonTap,
-                      ),
-                    _ when (args.asset.isLightning) =>
-                      LightningTransactionReviewContent(args),
-                    _ when (args.asset.isAltUsdt) =>
-                      UsdSwapTransactionReviewContent(
-                        args: args,
-                        transactionType: transactionType,
-                        onFeeError: onErrorButtonTap,
-                      ),
-                    _ => const SizedBox.shrink(),
-                  },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            physics: const BouncingScrollPhysics(),
+            child: switch (resolvedAsset) {
+              _ when (resolvedAsset.isBTC || resolvedAsset.isLiquid) =>
+                AquaTransactionReviewContent(
+                  args: args,
+                  onFeeError: onErrorButtonTap,
                 ),
-              ),
-            ),
+              _ when (resolvedAsset.isLightning) =>
+                LightningTransactionReviewContent(args),
+              _ when (resolvedAsset.isAltUsdt) =>
+                UsdSwapTransactionReviewContent(
+                  args: args,
+                  transactionType: transactionType,
+                  onFeeError: onErrorButtonTap,
+                ),
+              _ => const SizedBox.shrink(),
+            },
           ),
-          //ANCHOR - Transaction Execution Slider
-          Container(
-            alignment: Alignment.bottomCenter,
-            margin: const EdgeInsets.only(
-              left: 16,
-              right: 16,
-              bottom: 12,
-            ),
-            child: SendConfirmationSlider(
-              args: args,
-              onConfirmed: onConfirmed,
-            ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: SendConfirmationSlider(
+            args: args,
+            onConfirmed: onConfirmed,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

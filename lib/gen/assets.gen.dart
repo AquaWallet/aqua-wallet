@@ -1566,6 +1566,10 @@ class $AssetsMarketplaceGen {
   SvgGenImage get chapsmart =>
       const SvgGenImage('assets/marketplace/chapsmart.svg');
 
+  /// File path: assets/marketplace/de_pix_tile.svg
+  SvgGenImage get dePixTile =>
+      const SvgGenImage('assets/marketplace/de_pix_tile.svg');
+
   /// File path: assets/marketplace/meld_black.svg
   SvgGenImage get meldBlack =>
       const SvgGenImage('assets/marketplace/meld_black.svg');
@@ -1608,6 +1612,7 @@ class $AssetsMarketplaceGen {
         btcDirectWhite,
         btse,
         chapsmart,
+        dePixTile,
         meldBlack,
         meldWhite,
         moneybadger,
@@ -1679,6 +1684,14 @@ class $AssetsSvgsGen {
   /// Directory path: assets/svgs/light
   $AssetsSvgsLightGen get light => const $AssetsSvgsLightGen();
 
+  /// File path: assets/svgs/ln_address_gift_box_base.svg
+  SvgGenImage get lnAddressGiftBoxBase =>
+      const SvgGenImage('assets/svgs/ln_address_gift_box_base.svg');
+
+  /// File path: assets/svgs/ln_address_gift_lid.svg
+  SvgGenImage get lnAddressGiftLid =>
+      const SvgGenImage('assets/svgs/ln_address_gift_lid.svg');
+
   /// File path: assets/svgs/profile.svg
   SvgGenImage get profile => const SvgGenImage('assets/svgs/profile.svg');
 
@@ -1733,6 +1746,8 @@ class $AssetsSvgsGen {
         eye,
         eyeHidden,
         faq,
+        lnAddressGiftBoxBase,
+        lnAddressGiftLid,
         profile,
         refund,
         visa,

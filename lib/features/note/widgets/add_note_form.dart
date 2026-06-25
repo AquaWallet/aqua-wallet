@@ -46,6 +46,7 @@ class AddNoteForm extends HookWidget {
             showCounter: true,
             forceFocus: true,
             keyboardType: TextInputType.multiline,
+            textCapitalization: TextCapitalization.sentences,
           ),
           const SizedBox(height: 24),
           //ANCHOR - Save Button

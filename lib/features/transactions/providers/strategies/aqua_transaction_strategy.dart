@@ -223,10 +223,15 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final feesSats =
         _calculateFeesSats(args, amountSats, feeAsset, networkTxn.fee);
 
-    final feeAmount = formatter.formatAssetAmountOrElseNull(
+    final feeAmountFormatted = formatter.formatAssetAmountOrElseNull(
       amount: feesSats,
       asset: feeAsset,
+      decimalPlacesOverride: feeAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: false,
     );
+    final feeAmount = feeAsset.isAnyUsdt && feeAmountFormatted != null
+        ? '\$$feeAmountFormatted'
+        : feeAmountFormatted;
 
     final amountFiat = convertToFiat(args.asset, -amountSats);
     final feeAmountFiat =
@@ -270,7 +275,8 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       feeAsset: feeAsset,
       receiveAddress: args.dbTransaction?.receiveAddress ??
           networkTxn.outputs?.firstOrNull?.address,
-      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
+      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset,
+          blindingData: args.dbTransaction?.blindingData),
       notes: args.dbTransaction?.note ?? networkTxn.memo,
       canRbf: canRbf,
       dbTransaction: args.dbTransaction,
@@ -365,7 +371,8 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       receivedAmountFiat: amountFiat,
       receivedAsset: args.asset,
       notes: args.dbTransaction?.note ?? networkTxn.memo,
-      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
+      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset,
+          blindingData: args.dbTransaction?.blindingData),
       dbTransaction: args.dbTransaction,
       isLightning: false,
     );
@@ -419,7 +426,8 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       feeAmount: feeAmount,
       feeAssetTicker: args.asset.ticker,
       notes: args.dbTransaction?.note ?? networkTxn.memo,
-      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
+      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset,
+          blindingData: args.dbTransaction?.blindingData),
       dbTransaction: args.dbTransaction,
     );
   }
@@ -432,17 +440,21 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
     final date = dbTxn.ghostTxnCreatedAt?.formatFullDateTime ?? '';
     final isNegative = dbTxn.type == TransactionDbModelType.aquaSend;
 
+    final amountSats = dbTxn.ghostTxnAmount ?? 0;
+
     final deliveredAmount = formatter.signedFormatAssetAmount(
-      amount: isNegative ? -dbTxn.ghostTxnAmount! : dbTxn.ghostTxnAmount!,
+      amount: isNegative ? -amountSats : amountSats,
       asset: args.asset,
       removeTrailingZeros: false,
     );
-
-    final amountSats = dbTxn.ghostTxnAmount ?? 0;
-    final feeAmount = formatter.formatAssetAmount(
+    final feeAmountFormatted = formatter.formatAssetAmount(
       amount: dbTxn.ghostTxnFee ?? 0,
       asset: feeAsset,
+      decimalPlacesOverride: feeAsset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+      removeTrailingZeros: false,
     );
+    final feeAmount =
+        feeAsset.isAnyUsdt ? '\$$feeAmountFormatted' : feeAmountFormatted;
 
     final amountFiat =
         convertToFiat(args.asset, isNegative ? -amountSats : amountSats);
@@ -461,6 +473,7 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
             asset: args.asset,
             decimalPlacesOverride:
                 args.asset.isAnyUsdt ? kUsdtDisplayPrecision : null,
+            removeTrailingZeros: false,
           )
         : null;
 
@@ -488,7 +501,8 @@ class AquaTransactionUiModelCreator extends TransactionUiModelCreator {
       dbTransaction: dbTxn,
       isLightning: false,
       feeForAsset: args.feeForAsset,
-      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset),
+      blindingUrl: computeBlindingUrl(args.networkTransaction, args.asset,
+          blindingData: args.dbTransaction?.blindingData),
       recepientGetsAmount: recipientGetsAmount,
       fiatAmountAtExecutionDisplay: fiatValueAtTime,
     );

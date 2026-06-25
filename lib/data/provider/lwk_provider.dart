@@ -128,6 +128,7 @@ class LwkNetworkFrontend {
     required String outAddress,
     required String asset,
     String? baseUrl,
+    bool isSendAll = false,
   }) async {
     if (_wollet == null) {
       throw Exception('LWK wallet not logged in');
@@ -137,7 +138,8 @@ class LwkNetworkFrontend {
         outAddress: outAddress,
         asset: asset,
         network: network,
-        baseUrl: baseUrl);
+        baseUrl: baseUrl,
+        isSendAll: isSendAll);
   }
 
   Future<String> signPsetWithExtraDetails(String pset) async {

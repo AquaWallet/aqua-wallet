@@ -1,4 +1,5 @@
 import 'package:aqua/config/constants/animations.dart' as animation;
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -109,7 +110,7 @@ class Asset with _$Asset {
     @JsonKey(name: 'IsRemovable') @Default(true) bool isRemovable,
     String? domain,
     @Default(0) int amount,
-    @Default(8) int precision,
+    @Default(kMaxAssetDisplayPrecision) int precision,
     @Default(false) bool isLiquid,
     @Default(false) bool isLBTC,
     @Default(false) bool isUSDt,
@@ -293,6 +294,11 @@ extension AssetExt on Asset {
   bool get selectable => !isBTC && !isLBTC && !isUSDt;
   bool get hasFiatRate => isBTC || isLBTC || isLightning;
 
+  /// Tron (base58check), Solana (base58), and TON (base64) addresses are
+  /// case-sensitive. All other supported address formats (bech32, blech32,
+  /// bolt11, hex) are case-insensitive and safe to lowercase for UX.
+  bool get isAddressCaseSensitive => !isLightning;
+
   String get network => switch (this) {
         _ when isEth => 'Ethereum',
         _ when isTrx => 'Tron',
@@ -342,7 +348,7 @@ extension AssetExt on Asset {
 }
 
 extension AssetUsdtExt on Asset {
-  int get usdtLiquidPrecision => 8;
+  int get usdtLiquidPrecision => kMaxAssetDisplayPrecision;
 
   bool get isUsdtLiquid => isUSDt && isLiquid;
 

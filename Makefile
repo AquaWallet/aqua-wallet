@@ -13,11 +13,11 @@ get-gdk:
 	mkdir crypto
 	# gdk-iphone
 	curl --location $(GDK_RELEASE_URL)/gdk-iphone.tar.gz --output /tmp/gdk-iphone.tar.gz
-	echo "30f992aff1e46f10a5d847620e1267b593ef7c37e99dc6f5f5dd9b0e47df8830  /tmp/gdk-iphone.tar.gz" | shasum -a 256 --check
+	echo "1ca065c3d9ea3b10c2959ca066d2af827cf74e4f4d19a896bbea426e4b941cd0  /tmp/gdk-iphone.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk-iphone.tar.gz --directory crypto
 	# gdk-android-jni
 	curl --location $(GDK_RELEASE_URL)/gdk-release_$(GDK_VERSION).tar.gz --output /tmp/gdk-release.tar.gz
-	echo "5ab668a398012bd651201de816ee6d278750c1ff4fa6ea3e3782f382a10b8b22  /tmp/gdk-release.tar.gz" | shasum -a 256 --check
+	echo "e78c089e79b7fc23cbeca367c16fa6ef0be179728005df937aebceea4b193d97  /tmp/gdk-release.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk-release.tar.gz --directory crypto
 	mv crypto/gdk-release_$(GDK_VERSION) crypto/gdk
 	cp -r gdk-includes/include crypto/gdk/
@@ -27,7 +27,7 @@ patch-ios-sim: patch-ios-sim-gdk
 patch-ios-sim-gdk:
 	# gdk-iphone-sim
 	curl --location $(GDK_RELEASE_URL)/gdk-iphone-sim-x86_64.tar.gz --output /tmp/gdk-iphone-sim.tar.gz
-	echo "3ccca62f50c3253817f7fcea385b4ad4f333bba433d847f6821f069b585cfa97  /tmp/gdk-iphone-sim.tar.gz" | shasum -a 256 --check
+	echo "efbdb605914f20ee593e7b4ae47d66229f229288edb2686099b2f2885bc04e5d  /tmp/gdk-iphone-sim.tar.gz" | shasum -a 256 --check
 	tar --extract --file /tmp/gdk-iphone-sim.tar.gz --directory crypto
 	cp crypto/gdk-iphonesim-x86_64/lib/x86_64-apple-ios13.00/libgreen_gdk_full.a crypto/gdk-iphone/lib/arm64-apple-ios13.00/
 

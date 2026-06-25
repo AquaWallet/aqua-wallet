@@ -158,20 +158,7 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
     }
   }
 
-  Future<BoltzRefundData?> getRefundData(BoltzSwapDbModel swapDbModel) async {
-    final swap = await _ref
-        .read(boltzStorageProvider.notifier)
-        .getLbtcLnV2SwapById(swapDbModel.boltzId);
-
-    if (swap != null) {
-      return BoltzRefundData(
-        id: swap.id,
-        privateKey: swap.keys.secretKey,
-        blindingKey: swap.blindingKey,
-        redeemScript: swapDbModel.redeemScript ?? "",
-        timeoutBlockHeight: swap.swapScript.locktime,
-      );
-    }
-    return null;
-  }
+  Future<LbtcLnSwap?> getSwapForRefund(BoltzSwapDbModel swapDbModel) => _ref
+      .read(boltzStorageProvider.notifier)
+      .getLbtcLnV2SwapById(swapDbModel.boltzId);
 }

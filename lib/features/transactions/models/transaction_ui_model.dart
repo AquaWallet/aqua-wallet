@@ -51,35 +51,6 @@ extension TransactionUiModelX on TransactionUiModel {
         (otherAsset?.isAnyUsdt ?? false);
   }
 
-  Iterable<String> inOutToBlindingString(List<GdkTransactionInOut> inOuts) {
-    return inOuts
-        .where((inOut) =>
-            inOut.amountBlinder != null && inOut.assetBlinder != null)
-        .map((inOut) => '${inOut.satoshi},'
-            '${inOut.assetId},'
-            '${inOut.amountBlinder},'
-            '${inOut.assetBlinder}');
-  }
-
-  String get blindingUrl => maybeMap(
-        normal: (model) {
-          if (asset.isLiquid) {
-            final blindingStrings = [
-              if (model.transaction.inputs?.isNotEmpty ?? false)
-                ...inOutToBlindingString(model.transaction.inputs!),
-              if (model.transaction.outputs?.isNotEmpty ?? false)
-                ...inOutToBlindingString(model.transaction.outputs!)
-            ].join(',');
-
-            return blindingStrings.isNotEmpty
-                ? '${model.transaction.txhash}#blinded=$blindingStrings'
-                : '';
-          }
-          return '';
-        },
-        orElse: () => '',
-      );
-
   TransactionUiModel applyFeeTransactionFlag(
     GdkTransaction? networkTxn,
     Asset asset,

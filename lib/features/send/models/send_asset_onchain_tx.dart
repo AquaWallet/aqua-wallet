@@ -9,7 +9,10 @@ class SendAssetOnchainTx with _$SendAssetOnchainTx {
   const factory SendAssetOnchainTx.gdkTx(GdkNewTransactionReply gdkTx) = GdkTx;
 
   /// `gdkPsbt` is used for taxi sends, where we need to send a psbt to the rust-elements library
-  const factory SendAssetOnchainTx.gdkPsbt(String pset) = GdkPsbt;
+  const factory SendAssetOnchainTx.gdkPsbt(
+    String pset, {
+    required String blindingData,
+  }) = GdkPsbt;
 }
 
 extension SendAssetOnchainTxExtension on SendAssetOnchainTx {

@@ -104,6 +104,7 @@ class TransactionDbModel with _$TransactionDbModel {
     String? walletId,
     double? exchangeRateAtExecution,
     String? currencyAtExecution,
+    String? blindingData,
   }) = _TransactionDbModel;
 
   @override

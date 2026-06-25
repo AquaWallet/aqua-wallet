@@ -80,22 +80,24 @@ class SendAssetTransactionSetupNotifier
         throw LightningInvoiceNotFoundError();
       }
 
-      ref
+      await ref
           .read(sendAssetInputStateProvider(arg).notifier)
           .updateAddressFieldText(invoice, resetAmount: true);
     }
 
-    //NOTE - Need re-read input because the addressFieldText could update
-    final updatedInput = ref.watch(sendAssetInputStateProvider(arg));
+    final updatedInput = ref.read(sendAssetInputStateProvider(arg));
     final updatedInputValue = updatedInput.valueOrNull;
-    if (!updatedInput.isLoading &&
-        updatedInputValue != null &&
-        !updatedInputValue.isBoltzToBoltzSwap) {
-      return ref
-          .read(boltzSubmarineSwapProvider.notifier)
-          .prepareSubmarineSwap(address: updatedInputValue.addressFieldText);
+    if (updatedInput.isLoading || updatedInputValue == null) {
+      return false;
     }
-    return false;
+
+    if (updatedInputValue.isBoltzToBoltzSwap) {
+      return true;
+    }
+
+    return ref
+        .read(boltzSubmarineSwapProvider.notifier)
+        .prepareSubmarineSwap(address: updatedInputValue.addressFieldText);
   }
 
   Future<bool> _initUSDtSwap(SendAssetInputState input) async {

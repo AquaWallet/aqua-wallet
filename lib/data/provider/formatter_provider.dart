@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/wallet/wallet.dart';
@@ -28,7 +29,7 @@ class FormatterProvider {
   }
 
   int parseAssetAmountDirect({required String amount, required int precision}) {
-    if (precision < 0 || precision > 8) {
+    if (precision < 0 || precision > kMaxAssetDisplayPrecision) {
       throw ParseAmountWrongPrecisionException();
     }
 
@@ -74,7 +75,7 @@ class FormatterProvider {
         _ref.read(exchangeRatesProvider).currentCurrency.currency.format;
     final cleanAmount = cleanAmountString(amount, fiatSpec);
 
-    if (precision < 0 || precision > 8) {
+    if (precision < 0 || precision > kMaxAssetDisplayPrecision) {
       throw ParseAmountWrongPrecisionException();
     }
 

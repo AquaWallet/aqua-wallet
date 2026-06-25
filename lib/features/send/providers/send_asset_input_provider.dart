@@ -5,6 +5,7 @@
 
 import 'dart:async';
 
+import 'package:aqua/common/data_conversion/bip21_encoder.dart';
 import 'package:aqua/common/exceptions/selection_unavailable_exception.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
@@ -27,7 +28,8 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
   FutureOr<SendAssetInputState> build(SendAssetArguments arg) async {
     final clipboardContent = await ref.watch(clipboardContentProvider.future);
     final asset = arg.asset;
-    final addressInput = arg.input;
+    final addressInput =
+        asset.isAddressCaseSensitive ? arg.input : arg.input?.toLowerCase();
     String? amountFieldText = arg.userEnteredAmount?.toString();
     // Assets without fiat rates should always use BTC display unit, not global preference
     // This includes USDt and other assets that don't have BTC/LBTC/Lightning fiat rate support
@@ -513,6 +515,9 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
 
   Future<void> _processAddress(String content) async {
     final previousState = state.value!;
+    if (!previousState.asset.isAddressCaseSensitive) {
+      content = content.toLowerCase();
+    }
     state = const AsyncValue.loading();
     try {
       final isValid = await _validateAddress(previousState.asset, content);
@@ -565,8 +570,6 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
         return;
       }
 
-      final isDiffAsset = isDifferentAsset(asset, parsedAsset);
-
       final newAsset = switchAsset(
         asset: asset,
         parsedAsset: parsedAsset,
@@ -585,14 +588,15 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
                 sats: parsedAmountInSats,
                 asset: asset,
               );
+      final isBip21 = Bip21Decoder.decodeOrNull(content) != null;
+
       state = AsyncValue.data(previousState.copyWith(
         asset: newAsset,
         swapPair: getSwapPair(newAsset),
         amount: parsedAmountInSats,
         amountFieldText: amountinDisplayUnit.toString(),
         displayConversionAmount: fiatAmount,
-        addressFieldText:
-            isDiffAsset || isBoltzToBoltzSwap ? parsedAddress : content,
+        addressFieldText: isBip21 ? content : parsedAddress,
         isBoltzToBoltzSwap: isBoltzToBoltzSwap,
         lnurlData: null, // reset lnurl data since isLnurl is false
         ambiguousAssets: ambiguousAssets,

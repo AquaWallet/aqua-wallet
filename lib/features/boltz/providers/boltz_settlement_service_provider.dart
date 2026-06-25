@@ -142,12 +142,24 @@ class BoltzSwapSettlementService {
       return;
     }
 
+    await _ref
+        .read(boltzStorageProvider.notifier)
+        .updateBoltzSwapStatus(boltzId: swapId, status: status);
+
     if (status == BoltzSwapStatus.transactionClaimPending) {
       if (_coopCloseInProgress[swapId] == true) {
         _logger.debug(
             '[Boltz] Coop close already in progress for ${cachedOrder.boltzId}. Skipping.');
         return;
       }
+
+      final tryCoop = await _shouldTryCoopSubmarineSwap(cachedOrder);
+      if (!tryCoop) {
+        _logger.debug(
+            '[Boltz] Skipping normal swap coop close for batched amount: ${cachedOrder.boltzId}');
+        return;
+      }
+
       _coopCloseInProgress[swapId] = true;
 
       try {
@@ -184,7 +196,8 @@ class BoltzSwapSettlementService {
             .read(boltzStorageProvider.notifier)
             .getLbtcLnV2SwapById(cachedOrder.boltzId);
         if (boltzSwap == null) return;
-        final tx = await refund(boltzSwap);
+        final tryCoop = await _shouldTryCoopSubmarineSwap(cachedOrder);
+        final tx = await refund(boltzSwap, tryCoop: tryCoop);
 
         if (tx != null) {
           await _closeSwap(cachedOrder.boltzId);
@@ -204,6 +217,10 @@ class BoltzSwapSettlementService {
       logger.error('[Boltz] Could not find latest swap data for $swapId');
       return;
     }
+
+    await _ref
+        .read(boltzStorageProvider.notifier)
+        .updateBoltzSwapStatus(boltzId: swapId, status: status);
 
     if (cachedOrder.claimTxId != null && cachedOrder.claimTxId!.isNotEmpty) {
       _logger.debug(
@@ -251,6 +268,24 @@ class BoltzSwapSettlementService {
     }
   }
 
+  Future<bool> _shouldTryCoopSubmarineSwap(BoltzSwapDbModel swap) async {
+    try {
+      final fees = await _ref.read(boltzFeesProvider.future);
+      final limits = (await fees.submarine()).lbtcLimits;
+      final amount = swap.amountFromInvoice ?? swap.outAmount;
+      return BoltzFees.shouldTryCoopSubmarineSwap(
+        amountSats: amount,
+        limits: limits,
+      );
+    } catch (e, stackTrace) {
+      _logger.error(
+          '[Boltz] Failed to fetch normal swap limits, defaulting to coop',
+          e,
+          stackTrace);
+      return true;
+    }
+  }
+
   Future<String?> refund(LbtcLnSwap swap, {bool tryCoop = true}) async {
     _logger.debug('Refunding Boltz Swap: ${swap.id}');
 
@@ -294,42 +329,31 @@ class BoltzSwapSettlementService {
   // NOTE: The musig coop claim can fail (should only happen if boltz goes offline)
   Future<String?> claim(LbtcLnSwap swap, {bool tryCoop = true}) async {
     _logger.debug('[Boltz] Claiming Boltz Swap: ${swap.id}');
+
+    late final String broadcastResponse;
+    late final String receiveAddress;
+    late final int fee;
+
     try {
       final address = await _ref.read(liquidProvider).getReceiveAddress();
       if (address == null || address.address == null) {
         throw Exception(
             'Receive address is null when trying to construct claim tx');
       }
-
-      final fee = _calculateClaimFee(tryCoop);
+      receiveAddress = address.address!;
+      fee = _calculateClaimFee(tryCoop);
 
       final claimBytes = await swap.claim(
-        outAddress: address.address!,
+        outAddress: receiveAddress,
         minerFee: TxFee.absolute(BigInt.from(fee)),
         tryCooperate: tryCoop,
       );
 
       _logger.debug('Boltz Swap Claim bytes: $claimBytes');
 
-      final broadcastResponse = await broadcast(swap, claimBytes);
+      broadcastResponse = await broadcast(swap, claimBytes);
       _logger.debug('[Boltz] Boltz Swap Claim response: $broadcastResponse');
-
-      // Update local cache
-      await _ref.read(boltzStorageProvider.notifier).updateReverseSwapClaim(
-            boltzId: swap.id,
-            claimTxId: broadcastResponse,
-            receiveAddress: address.address!,
-            outAmount: swap.outAmount.toInt(),
-            fee: fee,
-          );
-
-      await _ref
-          .read(transactionStorageProvider.notifier)
-          .markBoltzGhostTxn(swap.id, amount: swap.outAmount.toInt(), fee: fee);
-
-      return broadcastResponse;
     } catch (e) {
-      // if coop/keypath claim fails, try the scriptpath (will only happen if boltz is down or uncooperative)
       if (tryCoop) {
         _logger.error(
             '[Boltz] Error claiming coop ${swap.id} - trying non-coop ${e.toString()}');
@@ -339,16 +363,59 @@ class BoltzSwapSettlementService {
       _logger.error('Error claiming Boltz Swap: ${swap.id} - ${e.toString()}');
       rethrow;
     }
+
+    // DB updates are outside the broadcast retry scope so a coop failure
+    // cannot trigger a non-coop retry that overwrites the stored txhash.
+    // Wrapped in its own try/catch so a DB error doesn't lose the txhash
+    // that was already broadcast on-chain.
+    try {
+      await _ref.read(boltzStorageProvider.notifier).updateReverseSwapClaim(
+            boltzId: swap.id,
+            claimTxId: broadcastResponse,
+            receiveAddress: receiveAddress,
+            outAmount: swap.outAmount.toInt(),
+            fee: fee,
+          );
+    } catch (e) {
+      _logger.error('[Boltz] DB save failed after successful claim broadcast '
+          '(txId: $broadcastResponse, swapId: ${swap.id}): $e');
+    }
+
+    return broadcastResponse;
   }
 
   Future<String?> claimBySwapId(String swapId) async {
+    if (_claimsInProgress[swapId] == true) {
+      _logger.debug('[Boltz] Claim already in progress for $swapId. Skipping.');
+      return null;
+    }
+
+    _claimsInProgress[swapId] = true;
+    try {
+      final swap = await _ref
+          .read(boltzStorageProvider.notifier)
+          .getLbtcLnV2SwapById(swapId);
+      if (swap != null) {
+        return await claim(swap);
+      }
+      return null;
+    } finally {
+      _claimsInProgress[swapId] = false;
+    }
+  }
+
+  Future<String?> refundBySwapId(String swapId) async {
+    final cachedOrder =
+        await _ref.read(boltzStorageProvider.notifier).getSwapById(swapId);
     final swap = await _ref
         .read(boltzStorageProvider.notifier)
         .getLbtcLnV2SwapById(swapId);
-    if (swap != null) {
-      return await claim(swap);
-    }
-    return null;
+    if (swap == null) return null;
+
+    final tryCoop = cachedOrder?.kind == SwapType.submarine
+        ? await _shouldTryCoopSubmarineSwap(cachedOrder!)
+        : true;
+    return refund(swap, tryCoop: tryCoop);
   }
 
   // TODO: There is an issue on boltz-rust to allow passing a fee rate. When implement we can greatly simply with just the single condition of lowball or no-lowball fee rate

@@ -35,7 +35,7 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
       return [];
     }
 
-    final txn = await ref.watch(sendAssetTxnProvider(arg).future);
+    final txn = txnState.valueOrNull ?? const SendAssetTransactionState.idle();
     final input = await ref.watch(sendAssetInputStateProvider(arg).future);
 
     final gdkTransaction = txn.mapOrNull(
@@ -196,14 +196,9 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
     required FiatCurrency currency,
     required bool isTaxiAvailable,
   }) async {
-    // NOTE: Don't throw the errors if Taxi can be used for fee payment OR when the transaction fee is loading
     final transactionFee =
         gdkTransaction?.fee ?? kEstimatedLiquidSendNetworkFee.toInt();
     final isFeeAvailable = gdkTransaction?.error?.isEmpty ?? true;
-
-    if (!isTaxiAvailable && gdkTransaction == null) {
-      throw FeeTransactionNotFoundError();
-    }
 
     if (!isTaxiAvailable && !isFeeAvailable) {
       throw FeeNotFoundError();
@@ -252,12 +247,6 @@ class SendAssetFeeOptionsNotifier extends AutoDisposeFamilyAsyncNotifier<
     required bool isTaxiDisabled,
   }) async {
     if (isUsdtAssetEnabled && !isTaxiDisabled) {
-      // TODO - This is a temporary fix to prevent the taxi fee option from being shown when the user is sending all funds.
-      // Remove this once this is fixed.
-      if (input.isSendAllFunds) {
-        return null;
-      }
-
       final usdtAsset = ref.read(manageAssetsProvider).liquidUsdtAsset;
       final usdtBalance = await ref.read(balanceProvider).getBalance(usdtAsset);
       //NOTE - Taxi fee estimate crashes if invoked with zero USDt balance

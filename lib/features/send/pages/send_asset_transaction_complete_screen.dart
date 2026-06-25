@@ -88,7 +88,8 @@ class SendAssetTransactionCompleteScreen extends HookConsumerWidget {
                           fit: BoxFit.contain,
                         ),
                         switch (args.transactionType) {
-                          SendTransactionType.send =>
+                          SendTransactionType.send ||
+                          SendTransactionType.deepLink =>
                             _SendTransactionAmountDetails(args: args),
                           SendTransactionType.topUp =>
                             _TopUpTransactionAmountDetails(args: args),

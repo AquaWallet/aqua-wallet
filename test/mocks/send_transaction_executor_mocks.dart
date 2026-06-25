@@ -29,4 +29,9 @@ extension MockSendGdkTransactorX on MockSendGdkTransactor {
           network: any(named: 'network'),
         )).thenAnswer((_) => Future.value(rawTx));
   }
+
+  void mockCreateAndSignTransaction(String rawTx) {
+    when(() => createAndSignTransaction(input: any(named: 'input')))
+        .thenAnswer((_) => Future.value(rawTx));
+  }
 }

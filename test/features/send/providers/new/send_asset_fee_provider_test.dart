@@ -777,7 +777,8 @@ void main() {
       'throws FeeTransactionNotFoundError when send GDK transaction is null',
       () async {
         final mockSendAssetTxnProvider = MockSendAssetTxnProvider(
-          transaction: const SendAssetOnchainTx.gdkPsbt('xxx'),
+          transaction:
+              const SendAssetOnchainTx.gdkPsbt('xxx', blindingData: ''),
         );
         final mockSendAssetInputStateNotifier = MockSendAssetInputStateNotifier(
           input: SendAssetInputState(rate: kBtcUsdExchangeRate, asset: asset),

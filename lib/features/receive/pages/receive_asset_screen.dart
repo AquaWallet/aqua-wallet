@@ -1,4 +1,5 @@
 import 'package:aqua/features/boltz/providers/boltz_reverse_swap_provider.dart';
+import 'package:aqua/features/lightning_address/lightning_address.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -27,12 +28,21 @@ class ReceiveAssetScreen extends HookConsumerWidget {
         .watch(receiveAssetAddressProvider((asset.value, amount)))
         .valueOrNull;
 
+    final lnAddressState = ref.watch(lightningAddressProvider);
+    final isInvoiceMode = ref.watch(lnReceiveModeProvider);
+
+    final isLightningAddressMode =
+        asset.value.isLightning && lnAddressState.isActive && !isInvoiceMode;
+
     final isLightningAmountEntry =
         boltzUiState.isAmountEntry && asset.value.isLightning;
 
-    final title = isLightningAmountEntry
+    final title = isLightningAmountEntry && !isLightningAddressMode
         ? context.loc.boltzInvoiceAmount
         : asset.value.name;
+
+    final effectiveAddress =
+        isLightningAddressMode ? lnAddressState!.address : address;
 
     return PopScope(
       canPop: true,
@@ -45,15 +55,7 @@ class ReceiveAssetScreen extends HookConsumerWidget {
         appBar: AquaTopAppBar(
           title: title,
           colors: context.aquaColors,
-          onBackPressed: () {
-            if (asset.value.isLightning &&
-                (boltzUiState.isQrCode || boltzUiState.isSuccess)) {
-              // Reset to enter amount state
-              ref.invalidate(boltzReverseSwapProvider);
-            } else {
-              context.pop();
-            }
-          },
+          onBackPressed: () => context.pop(),
         ),
         body: SafeArea(
           child: Padding(
@@ -62,23 +64,26 @@ class ReceiveAssetScreen extends HookConsumerWidget {
               children: [
                 Expanded(
                   child: switch (asset.value) {
-                    _ when asset.value.isLightning =>
-                      ReceiveLightningCard(args: args),
+                    _ when asset.value.isLightning => ReceiveLightningCard(
+                        args: args,
+                      ),
                     _ when asset.value.isAltUsdt => ReceiveSwapContent(
                         deliverAsset: asset.value,
                         swapPair:
                             ReceiveArguments.fromAsset(asset.value).swapPair,
                       ),
-                    _ => ReceiveAddressContent(asset: asset.value),
+                    _ => ReceiveAddressContent(
+                        asset: asset.value,
+                      ),
                   },
                 ),
-                // Bottom navigation for non-Lightning assets or Lightning QR page
                 if (!asset.value.isLightning ||
+                    isLightningAddressMode ||
                     !boltzUiState.isAmountEntry) ...[
                   const SizedBox(height: 28),
                   ReceiveAssetBottomNav(
                     asset: asset.value,
-                    address: address,
+                    address: effectiveAddress,
                   ),
                 ]
               ],

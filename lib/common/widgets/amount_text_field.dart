@@ -1,4 +1,5 @@
 import 'package:aqua/common/input_formatters/comma_text_input_formatter.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/common/input_formatters/decimal_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,7 +34,7 @@ class AmountTextField extends StatelessWidget {
     this.inputFormatters,
     this.text,
     this.hintText,
-    this.precision = 8,
+    this.precision = kMaxAssetDisplayPrecision,
     this.autofocus = true,
     this.decoration = const InputDecoration(
       isCollapsed: true,

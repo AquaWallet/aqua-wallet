@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:aqua/common/common.dart';
+import 'package:aqua/constants.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
 import 'package:aqua/features/send/send.dart';
@@ -10,6 +13,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../mocks/mocks.dart';
+
+class _FixedSendAssetAmountConstraintsNotifier
+    extends SendAssetAmountConstraintsNotifier {
+  _FixedSendAssetAmountConstraintsNotifier(this.constraints);
+
+  final SendAssetAmountConstraints constraints;
+
+  @override
+  FutureOr<SendAssetAmountConstraints> build(SendAssetArguments arg) =>
+      constraints;
+}
 
 const kMinServiceSendAmount = 0.1;
 const kMaxServiceSendAmount = 1;
@@ -198,5 +212,124 @@ void main() {
       expect(isButtonEnabled, true,
           reason: 'Button should be enabled when amount is valid');
     });
+  });
+
+  group('binding min (GDK vs service)', () {
+    final lightningAsset = Asset.lightning();
+    final lightningArgs = SendAssetArguments.fromAsset(lightningAsset);
+    const kBoltzStyleMinSats = 1000;
+
+    final serviceConstraints = SendAssetAmountConstraints.test(
+      minSats: kBoltzStyleMinSats,
+      maxSats: 500000,
+    );
+
+    setUpAll(() {
+      registerFallbackValue(lightningAsset);
+      registerFallbackValue(lightningArgs);
+    });
+
+    test(
+      'Lightning: amount above GDK min but below service min throws '
+      'belowSendMin with service threshold (not belowMin at 546)',
+      () async {
+        expect(
+          kGdkMinSendAmountSats,
+          lessThan(kBoltzStyleMinSats),
+          reason: 'test assumes GDK min is lower than mocked service min',
+        );
+
+        final input = SendAssetInputState(
+          asset: lightningAsset,
+          amount: 800,
+          amountFieldText: '800',
+          rate: kBtcUsdExchangeRate,
+          balanceInSats: 500000,
+        );
+
+        final scoped = ProviderContainer(overrides: [
+          sendAssetInputStateProvider.overrideWith(
+            () => MockSendAssetInputStateNotifier(input: input),
+          ),
+          sendAssetAmountConstraintsProvider.overrideWith(
+            () => _FixedSendAssetAmountConstraintsNotifier(serviceConstraints),
+          ),
+        ]);
+
+        final provider = sendAssetAmountValidationProvider(lightningArgs);
+
+        try {
+          await scoped.read(provider.future);
+          fail('Expected AmountParsingException');
+        } catch (e) {
+          expect(e, isA<AmountParsingException>());
+          final ex = e as AmountParsingException;
+          expect(ex.type, AmountParsingExceptionType.belowSendMin);
+          expect(ex.thresholdSats, kBoltzStyleMinSats);
+        }
+      },
+    );
+
+    test(
+      'Lightning: amount at or above binding min (service) validates',
+      () async {
+        final input = SendAssetInputState(
+          asset: lightningAsset,
+          amount: 1500,
+          amountFieldText: '1500',
+          rate: kBtcUsdExchangeRate,
+          balanceInSats: 500000,
+        );
+
+        final scoped = ProviderContainer(overrides: [
+          sendAssetInputStateProvider.overrideWith(
+            () => MockSendAssetInputStateNotifier(input: input),
+          ),
+          sendAssetAmountConstraintsProvider.overrideWith(
+            () => _FixedSendAssetAmountConstraintsNotifier(serviceConstraints),
+          ),
+        ]);
+
+        final provider = sendAssetAmountValidationProvider(lightningArgs);
+        final result = await scoped.read(provider.future);
+
+        expect(result, true);
+      },
+    );
+
+    test(
+      'Lightning: amount below GDK min but service min higher throws '
+      'belowSendMin (single binding min, not belowMin at GDK)',
+      () async {
+        final input = SendAssetInputState(
+          asset: lightningAsset,
+          amount: 400,
+          amountFieldText: '400',
+          rate: kBtcUsdExchangeRate,
+          balanceInSats: 500000,
+        );
+
+        final scoped = ProviderContainer(overrides: [
+          sendAssetInputStateProvider.overrideWith(
+            () => MockSendAssetInputStateNotifier(input: input),
+          ),
+          sendAssetAmountConstraintsProvider.overrideWith(
+            () => _FixedSendAssetAmountConstraintsNotifier(serviceConstraints),
+          ),
+        ]);
+
+        final provider = sendAssetAmountValidationProvider(lightningArgs);
+
+        try {
+          await scoped.read(provider.future);
+          fail('Expected AmountParsingException');
+        } catch (e) {
+          expect(e, isA<AmountParsingException>());
+          final ex = e as AmountParsingException;
+          expect(ex.type, AmountParsingExceptionType.belowSendMin);
+          expect(ex.thresholdSats, kBoltzStyleMinSats);
+        }
+      },
+    );
   });
 }

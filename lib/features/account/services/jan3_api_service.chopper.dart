@@ -66,6 +66,19 @@ final class _$Jan3ApiService extends Jan3ApiService {
   }
 
   @override
+  Future<Response<ProfileResponse>> updateUser(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/api/v1/auth/user');
+    final $body = body;
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<ProfileResponse, ProfileResponse>($request);
+  }
+
+  @override
   Future<Response<ExchangeRateResponse>> getExchangeRates() {
     final Uri $url = Uri.parse('/api/v1/prices/exrates/');
     final Request $request = Request(

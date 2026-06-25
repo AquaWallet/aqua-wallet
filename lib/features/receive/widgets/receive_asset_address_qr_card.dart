@@ -1,15 +1,10 @@
-import 'dart:io';
-import 'dart:ui' as ui;
-
+import 'package:aqua/features/feature_flags/providers/setup_config_provider.dart';
+import 'package:aqua/features/lightning_address/lightning_address.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/models/swap_models.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:ui_components/ui_components.dart';
 
 class CopyButton extends StatelessWidget {
@@ -57,42 +52,7 @@ class CopyButton extends StatelessWidget {
   }
 }
 
-shareWidgetAsImage(GlobalKey widgetKey) async {
-  RenderRepaintBoundary boundary =
-      widgetKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-
-  final image = await boundary.toImage(pixelRatio: 3.0);
-
-  // Create a new image with white background
-  final recorder = ui.PictureRecorder();
-  final canvas = Canvas(recorder);
-  final size = Size(image.width.toDouble(), image.height.toDouble());
-
-  // Fill with white background
-  final paint = Paint()..color = const Color(0xFFFFFFFF);
-  canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
-
-  // Draw the captured image on top
-  canvas.drawImage(image, Offset.zero, Paint());
-
-  // Convert to image
-  final picture = recorder.endRecording();
-  final finalImage =
-      await picture.toImage(size.width.toInt(), size.height.toInt());
-  final byteData = await finalImage.toByteData(format: ui.ImageByteFormat.png);
-  final bytes = byteData!.buffer.asUint8List();
-
-  // Save to temporary file
-  final tempDir = await getTemporaryDirectory();
-  final file = await File('${tempDir.path}/share_widget_img.png').create();
-  await file.writeAsBytes(bytes);
-
-  // Share the file
-  final origin = boundary.localToGlobal(Offset.zero) & boundary.size;
-  await Share.shareXFiles([XFile(file.path)], sharePositionOrigin: origin);
-}
-
-class ReceiveAssetAddressQrCard extends HookWidget {
+class ReceiveAssetAddressQrCard extends HookConsumerWidget {
   const ReceiveAssetAddressQrCard({
     super.key,
     this.isDirectPegIn = false,
@@ -109,7 +69,9 @@ class ReceiveAssetAddressQrCard extends HookWidget {
   final SwapPair? swapPair;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLnAddressEnabled = ref.watch(lnAddressRemoteFlagProvider);
+
     return AquaCard.glass(
       width: double.maxFinite,
       elevation: 8,
@@ -162,6 +124,10 @@ class ReceiveAssetAddressQrCard extends HookWidget {
               shouldWrap: asset.isLightning,
             ),
           ),
+          if (asset.isLightning && isLnAddressEnabled) ...[
+            const SizedBox(height: 16),
+            const LnReceiveModeSwitcher(),
+          ],
           const SizedBox(height: 26),
         ],
       ),

@@ -36,7 +36,10 @@ class AquaTextField extends HookWidget {
     this.counterTextColor,
     this.onChanged,
     this.debounceTime = kDefaultDebounceDuration,
+    this.suffixText,
+    this.suffixStyle,
     this.inputFormatters,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   final String? label;
@@ -66,7 +69,10 @@ class AquaTextField extends HookWidget {
   final Color? counterTextColor;
   final ValueChanged<String>? onChanged;
   final Duration debounceTime;
+  final String? suffixText;
+  final TextStyle? suffixStyle;
   final List<TextInputFormatter>? inputFormatters;
+  final TextCapitalization textCapitalization;
 
   static const kLabelAnimationDuration = Duration(milliseconds: 200);
   static const kLineHeight = 24.0;
@@ -94,6 +100,7 @@ class AquaTextField extends HookWidget {
     final currentLength = useState(controller?.text.length ?? 0);
     // Track actual measured text height instead of line count for accuracy
     final measuredTextHeight = useState(minLines * kLineHeight);
+    final measuredTextWidth = useState(0.0);
     final isMultiline = maxLines > 1 || minLines > 1;
     final theme = Theme.of(context);
 
@@ -103,6 +110,7 @@ class AquaTextField extends HookWidget {
         kTrailingIconPadding * 2,
       _ when (trailingIcon != null || showClearInputButton) =>
         kTrailingIconPadding,
+      _ when (suffixText != null) => kTrailingIconPadding,
       _ => kContentTrailingPadding,
     };
     final totalHorizontalPadding = kContentHorizontalPadding + rightPadding;
@@ -130,6 +138,14 @@ class AquaTextField extends HookWidget {
       controller?.addListener(listener);
       return () => controller?.removeListener(listener);
     }, [controller]);
+
+    // Initialize inline suffix position for pre-filled text
+    useEffect(() {
+      if (controller?.text.isNotEmpty == true && suffixText != null) {
+        _updateTextWidth(controller!.text, measuredTextWidth, textStyle);
+      }
+      return null;
+    }, [controller?.text, suffixText]);
 
     // Initialize text height based on existing text in controller
     useEffect(() {
@@ -212,32 +228,6 @@ class AquaTextField extends HookWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  //ANCHOR - Label
-                  if (label != null) ...{
-                    AnimatedPositioned(
-                      duration: kLabelAnimationDuration,
-                      left: kLabelLeftPosition,
-                      top: (isFocused.value || hasText.value)
-                          ? kLabelTopPositionWhenActive
-                          : isMultiline
-                              ? kLabelTopPositionMultiline
-                              : (kTextfieldHeight - kLineHeight) / 2,
-                      child: AnimatedDefaultTextStyle(
-                        duration: kLabelAnimationDuration,
-                        style: (isFocused.value || hasText.value)
-                            ? labelStyle ??
-                                AquaTypography.caption2SemiBold.copyWith(
-                                  color: labelColor,
-                                )
-                            : labelStyle ??
-                                AquaTypography.body1.copyWith(
-                                  color: labelColor,
-                                ),
-                        child: Text(label!),
-                      ),
-                    ),
-                  },
-
                   //ANCHOR - TextField
                   Positioned.fill(
                     top: (label != null && (isFocused.value || hasText.value))
@@ -254,6 +244,7 @@ class AquaTextField extends HookWidget {
                             (isMultiline ? TextInputType.multiline : null),
                         textInputAction: textInputAction,
                         enabled: enabled,
+                        textCapitalization: textCapitalization,
                         inputFormatters: inputFormatters,
                         minLines: null,
                         maxLines: null,
@@ -304,6 +295,11 @@ class AquaTextField extends HookWidget {
                             );
                           }
 
+                          if (suffixText != null) {
+                            _updateTextWidth(
+                                value, measuredTextWidth, textStyle);
+                          }
+
                           debounceTimer.value?.cancel();
                           debounceTimer.value = Timer(
                             debounceTime,
@@ -313,6 +309,24 @@ class AquaTextField extends HookWidget {
                       ),
                     ),
                   ),
+
+                  //ANCHOR - Inline Suffix
+                  if (suffixText != null && hasText.value) ...{
+                    Positioned(
+                      left: kContentHorizontalPadding + measuredTextWidth.value,
+                      top: (label != null && (isFocused.value || hasText.value))
+                          ? kLabelOffsetWhenActive
+                          : 0,
+                      bottom: 0,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          suffixText!,
+                          style: suffixStyle ?? textStyle,
+                        ),
+                      ),
+                    ),
+                  },
 
                   if (showClearInputButton || trailingIcon != null) ...{
                     Positioned(
@@ -351,6 +365,34 @@ class AquaTextField extends HookWidget {
                       ),
                     ),
                   },
+
+                  //ANCHOR - Label (rendered last so it paints on top of TextField)
+                  if (label != null) ...{
+                    AnimatedPositioned(
+                      duration: kLabelAnimationDuration,
+                      left: kLabelLeftPosition,
+                      top: (isFocused.value || hasText.value)
+                          ? kLabelTopPositionWhenActive
+                          : isMultiline
+                              ? kLabelTopPositionMultiline
+                              : (kTextfieldHeight - kLineHeight) / 2,
+                      child: IgnorePointer(
+                        child: AnimatedDefaultTextStyle(
+                          duration: kLabelAnimationDuration,
+                          style: (isFocused.value || hasText.value)
+                              ? labelStyle ??
+                                  AquaTypography.caption2SemiBold.copyWith(
+                                    color: labelColor,
+                                  )
+                              : labelStyle ??
+                                  AquaTypography.body1.copyWith(
+                                    color: labelColor,
+                                  ),
+                          child: Text(label!),
+                        ),
+                      ),
+                    ),
+                  },
                 ],
               ),
             ),
@@ -374,6 +416,18 @@ class AquaTextField extends HookWidget {
         ],
       ),
     );
+  }
+
+  void _updateTextWidth(
+    String text,
+    ValueNotifier<double> measuredTextWidth,
+    TextStyle style,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    measuredTextWidth.value = painter.width;
   }
 
   /// Helper method to update the measured text height based on text content
@@ -428,6 +482,9 @@ class _ClearInputButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final aquaColors = theme.brightness == Brightness.light
+        ? AquaColors.lightColors
+        : AquaColors.darkColors;
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(100),
@@ -442,7 +499,7 @@ class _ClearInputButton extends StatelessWidget {
           padding: const EdgeInsets.all(4.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(100),
-            color: theme.colorScheme.outline,
+            color: aquaColors.surfaceSecondary,
           ),
           child: SizedBox.square(
             dimension: 14,

@@ -1,5 +1,6 @@
 import 'package:aqua/features/feature_flags/feature_flags.dart';
 import 'package:aqua/features/marketplace/marketplace_tiles/tiles.dart';
+import 'package:aqua/features/marketplace/marketplace_tiles/top_up_depix_tile.dart';
 import 'package:aqua/features/marketplace/providers/enabled_services_provider.dart';
 import 'package:aqua/features/marketplace/widgets/error_retry_button.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -22,6 +23,7 @@ class MarketplaceButtonGrid extends HookConsumerWidget {
         MarketplaceServiceType.swaps: () => const SwapsTile(),
         MarketplaceServiceType.btcMap: () => const BtcMapTile(),
         MarketplaceServiceType.debitCard: () => const DebitCardTile(),
+        MarketplaceServiceType.topUpDepix: () => const TopUpDepixTile(),
         // MarketplaceServiceType.giftCards: () => const GiftCardTile(),
         MarketplaceServiceType.lendasat: () => const LendasatTile(),
         MarketplaceServiceType.chapsmart: () => const ChapsmartTile(),

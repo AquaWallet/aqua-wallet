@@ -8,9 +8,11 @@ class ReceiveAddressContent extends HookConsumerWidget {
   const ReceiveAddressContent({
     super.key,
     required this.asset,
+    this.hideAmountRow = false,
   });
 
   final Asset asset;
+  final bool hideAmountRow;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +42,7 @@ class ReceiveAddressContent extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 //ANCHOR - Amount Input Button
-                if (asset.shouldShowAmountInputOnReceive) ...[
+                if (asset.shouldShowAmountInputOnReceive && !hideAmountRow) ...[
                   AquaListItem(
                     key: ReceiveAssetKeys.receiveAssetSetAmountButton,
                     onTap: () => context.push(
@@ -59,7 +61,8 @@ class ReceiveAddressContent extends HookConsumerWidget {
                   ),
                 ],
                 if (asset.isLBTC && isDirectPegInEnabled) ...[
-                  if (asset.shouldShowAmountInputOnReceive) ...[
+                  if (asset.shouldShowAmountInputOnReceive &&
+                      !hideAmountRow) ...[
                     AquaDivider(colors: context.aquaColors),
                   ],
                   AquaListItem(
@@ -77,7 +80,8 @@ class ReceiveAddressContent extends HookConsumerWidget {
                 ],
                 //ANCHOR - Regenerate Address Button
                 if (asset.shouldShowRegenerateAddressOnReceive) ...[
-                  if (asset.shouldShowAmountInputOnReceive ||
+                  if ((asset.shouldShowAmountInputOnReceive &&
+                          !hideAmountRow) ||
                       (asset.isLBTC && isDirectPegInEnabled)) ...[
                     AquaDivider(colors: context.aquaColors),
                   ],

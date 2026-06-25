@@ -365,7 +365,7 @@ void main() {
         result!.map(
           send: (details) {
             // Verify feeAmount is formatted as USD, not L-BTC format
-            expect(details.feeAmount, '0.01');
+            expect(details.feeAmount, r'$0.01');
             expect(details.feeAsset.id, Asset.usdtLiquid().id);
           },
           receive: (_) => fail('Should be send'),
@@ -423,8 +423,10 @@ void main() {
         result!.map(
           send: (details) {
             // Verify feeAmount is formatted as USD, not L-BTC format
-            expect(details.feeAmount,
-                '0.05'); // 50000000 - 45000000 = 5000000 / satsPerBtc = 0.05 USDT
+            expect(
+              details.feeAmount,
+              r'$0.05',
+            ); // 50000000 - 45000000 = 5000000 / satsPerBtc = 0.05 USDT
             expect(details.feeAsset.id, Asset.usdtLiquid().id);
           },
           receive: (_) => fail('Should be send'),

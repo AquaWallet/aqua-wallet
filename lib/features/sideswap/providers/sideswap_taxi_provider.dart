@@ -4,8 +4,10 @@ import 'package:aqua/common/price/btc_price.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/manage_assets/models/assets.dart';
 import 'package:aqua/features/settings/manage_assets/providers/manage_assets_provider.dart';
+import 'package:aqua/features/send/models/send_asset_onchain_tx.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
+import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/logger.dart';
 import 'package:aqua/data/provider/lwk_provider.dart';
 import 'package:convert/convert.dart';
@@ -23,7 +25,7 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
   @override
   FutureOr<TaxiState> build() => const TaxiState.empty();
 
-  Future<String> createTaxiTransaction({
+  Future<GdkPsbt> createTaxiTransaction({
     required Asset taxiAsset,
     required int amount,
     required String sendAddress,
@@ -31,19 +33,19 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
   }) async {
     state = const AsyncLoading();
 
-    final pset = await _createTaxiPsetWithLwk(
+    final result = await _createTaxiPsetWithLwk(
       asset: taxiAsset,
       amount: amount,
       sendAddress: sendAddress,
       sendAll: sendAll,
     );
     state = AsyncData(TaxiState.clientSignedPset(
-      fullySignedPset: GdkNewTransactionReply(psbt: pset),
+      fullySignedPset: GdkNewTransactionReply(psbt: result.pset),
     ));
-    return pset;
+    return result;
   }
 
-  Future<String> _createTaxiPsetWithLwk({
+  Future<GdkPsbt> _createTaxiPsetWithLwk({
     required Asset asset,
     required int amount,
     required String sendAddress,
@@ -52,13 +54,13 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
     try {
       logger.debug('[Taxi] Creating payjoin transaction with LWK');
 
-      // Create payjoin transaction using LWK
       final payjoinTx = await ref
           .read(lwkProvider)
           .createPayjoin(
             usdtSats: amount,
             outAddress: sendAddress,
             asset: asset.id,
+            isSendAll: sendAll,
           )
           .timeout(
             kTaxiPayjoinTimeout,
@@ -70,7 +72,12 @@ class TaxiNotifier extends AutoDisposeAsyncNotifier<TaxiState> {
       final signedPset =
           await ref.read(lwkProvider).signPsetWithExtraDetails(payjoinTx.pset);
       final txBytes = await extractTxBytes(pset: signedPset);
-      return hex.encode(txBytes);
+      final rawTxHex = hex.encode(txBytes);
+      final blindingData = ref
+          .read(blindingUrlProvider)
+          .txOutSecretsToBlindingData(payjoinTx.unblindedOutputs);
+
+      return GdkPsbt(rawTxHex, blindingData: blindingData);
     } catch (e) {
       if (e is LwkError) {
         logger.error('[Taxi] LWK payjoin creation failed: ${e.msg}');
