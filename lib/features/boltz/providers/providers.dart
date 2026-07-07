@@ -1,4 +1,3 @@
-export 'boltz_broadcast_provider.dart';
 export 'boltz_fees_provider.dart';
 export 'boltz_init_provider.dart';
 export 'boltz_normal_swap_provider.dart';

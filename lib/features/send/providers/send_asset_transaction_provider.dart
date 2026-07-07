@@ -136,6 +136,20 @@ class SendAssetTxnNotifier extends AutoDisposeFamilyAsyncNotifier<
         return;
       }
 
+      // For Lightning submarine swaps, also broadcast directly to Boltz
+      // for faster 0-conf detection (fire-and-forget)
+      if (input.asset.isLightning) {
+        final swap = ref.read(boltzSubmarineSwapProvider);
+        if (swap != null) {
+          swap.broadcastBoltz(signedHex: signedRawTx!).then(
+                (boltzTxId) => _logger
+                    .debug('[Send] Boltz direct broadcast success: $boltzTxId'),
+                onError: (e) =>
+                    _logger.error('[Send] Boltz direct broadcast failed', e),
+              );
+        }
+      }
+
       final txId = await ref
           .read(sendTransactionExecutorProvider(arg))
           .broadcastTransaction(

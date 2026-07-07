@@ -29,22 +29,23 @@ class LnAddressEditFormNotifier
   }
 
   Future<void> setUsername(String value) async {
+    final lowered = value.toLowerCase();
     final current = state.valueOrNull;
     if (current == null) return;
 
     _availabilityDebounce?.cancel();
 
     state = AsyncData(
-      current.copyWith(inputUsername: value, isAvailable: null),
+      current.copyWith(inputUsername: lowered, isAvailable: null),
     );
 
-    if (value.isEmpty || value == current.currentUsername) {
+    if (lowered.isEmpty || lowered == current.currentUsername) {
       return;
     }
 
     _availabilityDebounce = Timer(_availabilityDebounceDuration, () {
       _availabilityDebounce = null;
-      unawaited(_fetchUsernameAvailability(value));
+      unawaited(_fetchUsernameAvailability(lowered));
     });
   }
 

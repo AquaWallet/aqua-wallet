@@ -141,11 +141,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "037a1fd3690bf5e8c5fae89b13a15505fa10cc7f"
-      resolved-ref: "037a1fd3690bf5e8c5fae89b13a15505fa10cc7f"
+      ref: d04df7b02298cd5643949fb235fa85d9a4823ca3
+      resolved-ref: d04df7b02298cd5643949fb235fa85d9a4823ca3
       url: "https://github.com/SatoshiPortal/boltz-dart"
     source: git
-    version: "0.3.0"
+    version: "0.4.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -877,10 +877,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: "37ef40bc6f863652e865f0b2563ea07f0d3c58d8efad803cc01933a4b2ee067e"
+      sha256: e87d6b9ee934dcd24a128ccb2bd91905d2d5fe5c06245d6a8f5477d4907a437a
       url: "https://pub.dev"
     source: hosted
-    version: "2.11.1"
+    version: "2.12.0"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -1353,11 +1353,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b1cda1b7e315adc49d8449fb2d3f508552ae5109
-      resolved-ref: b1cda1b7e315adc49d8449fb2d3f508552ae5109
+      ref: c010b2b9ec721791701e1015409ba71b079d6bf5
+      resolved-ref: c010b2b9ec721791701e1015409ba71b079d6bf5
       url: "https://github.com/SatoshiPortal/lwk-dart"
     source: git
-    version: "0.3.0"
+    version: "0.4.0"
   matcher:
     dependency: transitive
     description:

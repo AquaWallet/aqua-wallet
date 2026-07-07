@@ -3,7 +3,7 @@ description: AQUA - Bitcoin & Layer 2 Wallet
 
 publish_to: "none"
 
-version: 0.5.0+256
+version: 0.5.1+264
 
 environment:
   sdk: "3.4.4"
@@ -25,7 +25,7 @@ dependencies:
   boltz:
     git:
       url: https://github.com/SatoshiPortal/boltz-dart
-      ref: 037a1fd3690bf5e8c5fae89b13a15505fa10cc7f
+      ref: d04df7b02298cd5643949fb235fa85d9a4823ca3
   chopper: ^7.4.0
   collection: ^1.17.1
   connectivity_plus: ^6.1.2
@@ -102,7 +102,7 @@ dependencies:
   lwk:
     git:
       url: https://github.com/SatoshiPortal/lwk-dart
-      ref: b1cda1b7e315adc49d8449fb2d3f508552ae5109
+      ref: c010b2b9ec721791701e1015409ba71b079d6bf5
 
 dev_dependencies:
   build_runner: ^2.4.6

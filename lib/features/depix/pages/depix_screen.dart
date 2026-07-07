@@ -75,10 +75,6 @@ class DepixScreen extends HookConsumerWidget with GenericErrorPromptMixin {
       _ => context.loc.depixDepositsListTitle,
     };
 
-    final amountEntrySpec =
-        ref.watch(depixAmountEntrySpecProvider).valueOrNull ??
-            depixAmountEntrySpecFallback;
-
     return PopScope(
       canPop: currentStep == null || currentStep == DepixStep.depositsList,
       onPopInvoked: (didPop) {
@@ -94,10 +90,10 @@ class DepixScreen extends HookConsumerWidget with GenericErrorPromptMixin {
           child: PageView(
             physics: const NeverScrollableScrollPhysics(),
             controller: pageController,
-            children: [
-              const DepixDepositsListPage(),
-              DepixAmountEntryPage(spec: amountEntrySpec),
-              DepixDepositQrPage(spec: amountEntrySpec),
+            children: const [
+              DepixDepositsListPage(),
+              DepixAmountEntryPage(),
+              DepixDepositQrPage(),
             ],
           ),
         ),

@@ -538,9 +538,7 @@ List<RouteBase> get routes {
     ),
     GoRoute(
       path: LnAddressGiftScreen.routeName,
-      builder: (context, state) => LnAddressGiftScreen(
-        syncReceiveModeOnExit: state.extra == true,
-      ),
+      builder: (context, state) => const LnAddressGiftScreen(),
     ),
     GoRoute(
       path: LnAddressGiftOpenedScreen.routeName,

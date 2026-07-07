@@ -16,19 +16,19 @@ typedef LnAddressPaymentRequestResult = ({
 });
 
 final lnAddressPaymentRequestProvider = AutoDisposeAsyncNotifierProvider<
-    LnAddressPaymentRequestNotifier, LnAddressPaymentRequestResult>(
+    LnAddressPaymentRequestNotifier, LnAddressPaymentRequestResult?>(
   LnAddressPaymentRequestNotifier.new,
 );
 
 class LnAddressPaymentRequestNotifier
-    extends AutoDisposeAsyncNotifier<LnAddressPaymentRequestResult> {
+    extends AutoDisposeAsyncNotifier<LnAddressPaymentRequestResult?> {
   @override
-  Future<LnAddressPaymentRequestResult> build() async {
+  Future<LnAddressPaymentRequestResult?> build() async {
     final form = await ref.watch(lnAddressEditInputProvider.future);
     final selectedAsset = form.selectedAsset;
     _logger.debug(
         '[LnAddressPaymentRequest] init: asset=$selectedAsset username=${form.inputUsername}');
-    if (selectedAsset == null) throw StateError('No asset selected');
+    if (selectedAsset == null) return null;
 
     final api = ref.read(jan3ApiLightningAddressesProvider);
     final assetTicker = selectedAsset.isLBTC

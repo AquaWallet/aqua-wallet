@@ -1,19 +1,15 @@
-import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/depix/pages/depix_pix_qr_view.dart';
 import 'package:aqua/features/depix/providers/depix_deposit_provider.dart';
-import 'package:aqua/features/depix/utils/brl_cents.dart';
+import 'package:aqua/features/depix/providers/depix_amount_formatter_provider.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components/ui_components.dart';
 
 class DepixDepositQrPage extends HookConsumerWidget {
-  const DepixDepositQrPage({super.key, required this.spec});
-
-  final AmountEntrySpec spec;
+  const DepixDepositQrPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,47 +20,33 @@ class DepixDepositQrPage extends HookConsumerWidget {
       error: (_, __) => const SizedBox.shrink(),
       data: (result) {
         if (result == null) return const SizedBox.shrink();
-        return _DepixDepositQrContent(
-          result: result,
-          amountEntrySpec: spec,
-        );
+        return _DepixDepositQrContent(result: result);
       },
     );
   }
 }
 
 class _DepixDepositQrContent extends HookConsumerWidget {
-  const _DepixDepositQrContent({
-    required this.result,
-    required this.amountEntrySpec,
-  });
+  const _DepixDepositQrContent({required this.result});
 
   final DepixDepositResult result;
-  final AmountEntrySpec amountEntrySpec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.aquaColors;
-    final format = ref.watch(formatProvider);
-    final spec = amountEntrySpec;
+    final formatter = ref.watch(depixAmountFormatterProvider);
 
-    final amountFormatted = amountEntryFormatFiatNumeric(
-      format,
-      Decimal.parse(result.amountBrlCents.asBrl.toString()),
-      spec.fiat.format,
-      padZeroDecimals: false,
+    final amountFormatted = formatter.formatBrlCents(
+      result.amountBrlCents,
       withSymbol: true,
     );
 
-    final feeFormatted = spec.fixedFiatFee != null
-        ? amountEntryFormatFiatNumeric(
-            format,
-            Decimal.parse(spec.fixedFiatFee.toString()),
-            spec.fiat.format,
-            padZeroDecimals: false,
+    final feeFormatted = result.feeBrlCents > 0
+        ? formatter.formatBrlCents(
+            result.feeBrlCents,
             withSymbol: true,
           )
-        : '';
+        : context.loc.depixDepositEulenFeeEmpty;
 
     final qrRepaintKey = useMemoized(GlobalKey.new);
 

@@ -10,11 +10,11 @@ class LnAddressGiftContent extends HookWidget {
   const LnAddressGiftContent({
     super.key,
     required this.onOpenBox,
-    required this.onLater,
+    this.onLater,
   });
 
   final VoidCallback onOpenBox;
-  final VoidCallback onLater;
+  final VoidCallback? onLater;
 
   @override
   Widget build(BuildContext context) {
@@ -114,11 +114,13 @@ class LnAddressGiftContent extends HookWidget {
             onOpenBox();
           },
         ),
-        const SizedBox(height: 16),
-        AquaButton.secondary(
-          text: context.loc.later,
-          onPressed: onLater,
-        ),
+        if (onLater != null) ...[
+          const SizedBox(height: 16),
+          AquaButton.secondary(
+            text: context.loc.later,
+            onPressed: onLater,
+          ),
+        ],
       ],
     );
   }

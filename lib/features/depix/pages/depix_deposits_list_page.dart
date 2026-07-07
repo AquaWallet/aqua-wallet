@@ -1,10 +1,7 @@
-import 'package:aqua/data/provider/format_provider.dart';
 import 'package:aqua/features/depix/depix.dart';
 import 'package:aqua/features/depix/utils/status_label.dart';
-import 'package:aqua/features/settings/exchange_rate/models/exchange_rate.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/utils.dart';
-import 'package:decimal/decimal.dart';
 import 'package:intl/intl.dart';
 import 'package:ui_components/ui_components.dart';
 
@@ -13,12 +10,11 @@ class DepixDepositsListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final format = ref.watch(formatProvider);
-    final brlFormat = FiatCurrency.brl.format;
+    final formatter = ref.watch(depixAmountFormatterProvider);
     final depositsAsync = ref.watch(depixDepositsListProvider);
     final deposits =
         depositsAsync.valueOrNull?.deposits ?? const <EulenDeposit>[];
-    final ctaLocked = deposits.any((d) => d.status.isUnderReview);
+    final ctaLocked = deposits.any((d) => d.status.isPendingProviderAction);
     final ctaLabel = ctaLocked
         ? context.loc.depixDepositsListDepositUnderReview
         : deposits.any((d) => d.status.isPending)
@@ -72,11 +68,8 @@ class DepixDepositsListPage extends ConsumerWidget {
                 itemCount: deposits.length,
                 itemBuilder: (context, index) {
                   final deposit = deposits[index];
-                  final amountBrl = amountEntryFormatFiatNumeric(
-                    format,
-                    Decimal.parse(deposit.amountBrlCents.asBrl.toString()),
-                    brlFormat,
-                    padZeroDecimals: false,
+                  final amountBrl = formatter.formatBrlCents(
+                    deposit.amountBrlCents,
                     withSymbol: true,
                   );
                   final date =
@@ -87,7 +80,7 @@ class DepixDepositsListPage extends ConsumerWidget {
                     colors: context.aquaColors,
                     iconTrailing: AquaChipLabel(
                       message: deposit.status.label(context),
-                      variant: deposit.status.statusVariant(deposit.status),
+                      variant: deposit.status.statusVariant,
                       margin: EdgeInsets.zero,
                       colors: context.aquaColors,
                     ),

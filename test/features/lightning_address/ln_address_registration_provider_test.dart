@@ -27,12 +27,14 @@ ProfileResponse _testProfile({
   String? lnUsername = 'testuser',
   String? fingerprint,
   bool lnAddressToggled = true,
+  bool lnAddressGiftOpened = true,
 }) =>
     ProfileResponse(
       id: 'test-id',
       email: 'test@test.com',
       lnUsername: lnUsername,
       lnAddressToggled: lnAddressToggled,
+      lnAddressGiftOpened: lnAddressGiftOpened,
       newAddressesNeeded: newAddressesNeeded,
       fingerprint: fingerprint,
       lastLogin: DateTime.now(),

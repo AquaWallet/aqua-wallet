@@ -37,7 +37,11 @@ enum EulenDepositStatus {
       };
 
   bool get isPending => this == pending;
-  bool get isUnderReview => this == underReview;
+  bool get isPendingProviderAction =>
+      this == underReview ||
+      this == pendingPix2fa ||
+      this == delayed ||
+      this == unknown;
 }
 
 EulenDepositStatus eulenDepositStatusFromJson(Object? json) =>
@@ -105,12 +109,14 @@ class EulenDepositResponse with _$EulenDepositResponse {
 }
 
 @freezed
-class EulenPixDepixFeeResponse with _$EulenPixDepixFeeResponse {
+class EulenFeeCalculation with _$EulenFeeCalculation {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory EulenPixDepixFeeResponse({
-    required int pixDepixFeeBrlCents,
-  }) = _EulenPixDepixFeeResponse;
+  const factory EulenFeeCalculation({
+    required int netAmountBrlCents,
+    required int extraChargesBrlCents,
+    required int grossAmountBrlCents,
+  }) = _EulenFeeCalculation;
 
-  factory EulenPixDepixFeeResponse.fromJson(Map<String, dynamic> json) =>
-      _$EulenPixDepixFeeResponseFromJson(json);
+  factory EulenFeeCalculation.fromJson(Map<String, dynamic> json) =>
+      _$EulenFeeCalculationFromJson(json);
 }
