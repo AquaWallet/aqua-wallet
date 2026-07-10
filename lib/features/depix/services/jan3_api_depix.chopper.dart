@@ -42,14 +42,34 @@ final class _$Jan3ApiDepix extends Jan3ApiDepix {
   }
 
   @override
-  Future<Response<EulenPixDepixFeeResponse>> getPixDepixFee() {
+  Future<Response<EulenFeeCalculation>> calculateFeeFromGross(
+      int grossAmountBrlCents) {
     final Uri $url = Uri.parse('/api/v1/eulen/pix-depix-fee/');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'gross_amount_brl_cents': grossAmountBrlCents
+    };
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
+      parameters: $params,
     );
-    return client
-        .send<EulenPixDepixFeeResponse, EulenPixDepixFeeResponse>($request);
+    return client.send<EulenFeeCalculation, EulenFeeCalculation>($request);
+  }
+
+  @override
+  Future<Response<EulenFeeCalculation>> calculateFeeFromNet(
+      int netAmountBrlCents) {
+    final Uri $url = Uri.parse('/api/v1/eulen/pix-depix-fee/');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'net_amount_brl_cents': netAmountBrlCents
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    return client.send<EulenFeeCalculation, EulenFeeCalculation>($request);
   }
 }

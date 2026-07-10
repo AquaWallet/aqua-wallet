@@ -2,13 +2,12 @@ import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/depix/models/models.dart';
 import 'package:aqua/features/depix/providers/depix_flow_provider.dart';
 import 'package:aqua/features/depix/services/jan3_api_depix.dart';
-import 'package:aqua/features/shared/pages/amount_entry/amount_entry_spec.dart';
-import 'package:decimal/decimal.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 typedef DepixDepositResult = ({
   EulenDepositResponse deposit,
-  int amountBrlCents
+  int amountBrlCents,
+  int feeBrlCents,
 });
 
 class DepixDepositNotifier
@@ -16,7 +15,7 @@ class DepixDepositNotifier
   @override
   DepixDepositResult? build() => null;
 
-  Future<void> submit(int amountBrlCents) async {
+  Future<void> _submit(int amountBrlCents, int feeBrlCents) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final address = await ref.read(liquidProvider).getReceiveAddress();
@@ -36,22 +35,16 @@ class DepixDepositNotifier
           responseError: response.error,
         );
       }
-      return (deposit: response.body!, amountBrlCents: amountBrlCents);
+      return (
+        deposit: response.body!,
+        amountBrlCents: amountBrlCents,
+        feeBrlCents: feeBrlCents,
+      );
     });
   }
 
-  Future<void> submitFromAmountEntry(
-    double amount,
-    bool isReversed,
-    AmountEntrySpec spec,
-  ) async {
-    final amountBrlCents = isReversed
-        ? (amountEntryAssetToFiatAmount(Decimal.parse(amount.toString()), spec)
-                    .toDouble() *
-                100)
-            .round()
-        : (amount * 100).round();
-    await submit(amountBrlCents);
+  Future<void> submitWithFee(int grossAmountBrlCents, int feeBrlCents) async {
+    await _submit(grossAmountBrlCents, feeBrlCents);
     ref.read(depixFlowProvider.notifier).setStep(DepixStep.depositQr);
   }
 
@@ -72,6 +65,7 @@ class DepixDepositNotifier
         depositId: pendingDeposit.depositId,
       ),
       amountBrlCents: pendingDeposit.amountBrlCents,
+      feeBrlCents: 0,
     ));
   }
 }

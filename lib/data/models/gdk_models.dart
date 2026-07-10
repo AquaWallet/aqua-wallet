@@ -1100,7 +1100,9 @@ class GdkNewTransactionReply with _$GdkNewTransactionReply {
     @JsonKey(name: 'is_sweep') bool? isSweep,
     String? network,
     @Default(true) @JsonKey(name: 'rbf_optin') bool? rbfOptin,
-    Map<String, dynamic>? satoshi,
+    // Signed per-asset net effect on the wallet (negative = leaving). Matches
+    // the `satoshi` map on GdkTransaction / GdkWallet.
+    Map<String, int>? satoshi,
     @JsonKey(name: 'spv_verified') String? spvVerified,
     @JsonKey(name: 'is_blinded') bool? isBlinded,
     @JsonKey(name: 'is_partial') bool? isPartial,

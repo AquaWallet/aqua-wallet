@@ -30,6 +30,10 @@ class DepixDepositsListNotifier
       ref.read(depixFlowProvider.notifier).setStep(DepixStep.amountEntry);
       return;
     }
+    if (pending.qrCopyPaste == null) {
+      ref.read(depixFlowProvider.notifier).setStep(DepixStep.amountEntry);
+      return;
+    }
     ref.read(depixDepositProvider.notifier).resumePendingDeposit(pending);
     ref.read(depixFlowProvider.notifier).setStep(DepixStep.depositQr);
   }

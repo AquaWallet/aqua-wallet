@@ -53,6 +53,8 @@ class LnAddressEditScreen extends HookConsumerWidget {
                 context.pop();
                 context.popUntilPath(AccountSettingsScreen.routeName);
               },
+              onDismiss: () =>
+                  context.popUntilPath(AccountSettingsScreen.routeName),
               colors: context.aquaColors,
               copiedToClipboardText: context.loc.copiedToClipboard,
             );
@@ -80,9 +82,54 @@ class LnAddressEditScreen extends HookConsumerWidget {
                 context.pop();
                 context.popUntilPath(AccountSettingsScreen.routeName);
               },
+              onDismiss: () =>
+                  context.popUntilPath(AccountSettingsScreen.routeName),
               secondaryButtonText: context.loc.commonContactSupport,
-              onSecondaryButtonTap: () =>
-                  context.push(HelpSupportScreen.routeName),
+              onSecondaryButtonTap: () {
+                context.pop();
+                context.replace(HelpSupportScreen.routeName);
+              },
+              colors: context.aquaColors,
+              copiedToClipboardText: context.loc.copiedToClipboard,
+            );
+          }
+        });
+      }
+    });
+
+    ref.listen(lnAddressPaymentRequestProvider, (prev, next) {
+      if (next.hasError && prev?.hasError != true) {
+        final error = next.error!;
+        final stackTrace = next.stackTrace;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _logger.error(
+            '[LnAddressEdit] Payment request failed',
+            error,
+            stackTrace,
+          );
+          if (context.mounted) {
+            AquaModalSheet.show(
+              context,
+              icon: AquaIcon.warning(color: Colors.white),
+              iconVariant: AquaRingedIconVariant.warning,
+              title: context.loc.lnAddressEditPaymentRequestFailed,
+              message: context.loc.lnAddressEditPaymentRequestFailedMessage,
+              primaryButtonText: context.loc.ok,
+              onPrimaryButtonTap: () {
+                context.pop();
+                ref.invalidate(lnAddressPaymentRequestProvider);
+                context.pop();
+              },
+              onDismiss: () {
+                ref.invalidate(lnAddressPaymentRequestProvider);
+                context.pop();
+              },
+              secondaryButtonText: context.loc.commonContactSupport,
+              onSecondaryButtonTap: () {
+                context.pop();
+                ref.invalidate(lnAddressPaymentRequestProvider);
+                context.replace(HelpSupportScreen.routeName);
+              },
               colors: context.aquaColors,
               copiedToClipboardText: context.loc.copiedToClipboard,
             );

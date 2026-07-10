@@ -24,6 +24,8 @@ final kTestProfile = ProfileResponse(
   isStaff: false,
   isActive: true,
   dateJoined: DateTime(2024),
+  lnAddressGiftOpened: false,
+  lnAddressToggled: false,
   groups: [],
   userPermissions: [],
 );

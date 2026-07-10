@@ -23,6 +23,7 @@ final lightningAddressProvider =
   return LightningAddressState(
     address: address,
     isToggled: profile!.lnAddressToggled,
+    giftOpened: profile.lnAddressGiftOpened,
   );
 });
 
@@ -30,8 +31,12 @@ extension LightningAddressStateX on LightningAddressState? {
   /// Whether the user has a lightning address registered.
   bool get isRegistered => this != null;
 
-  /// Whether the lightning address is registered and toggled on.
-  bool get isActive => this?.isToggled == true;
+  /// Whether the lightning address is registered, toggled on, and the gift box has been opened.
+  bool get isActive => this != null && this!.isToggled && this!.giftOpened;
+
+  /// User has accepted the LN address (toggle=on). But back-end is requesting to re-open the gift box screen.
+  bool get shouldPromptGiftOpen =>
+      this != null && this!.isToggled && !this!.giftOpened;
 }
 
 /// `true` = Boltz invoice flow; `false` = lightning address receive when available.

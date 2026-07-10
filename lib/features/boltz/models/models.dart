@@ -1,4 +1,3 @@
-export 'boltz_broadcast_tx_response.dart';
 export 'boltz_exceptions.dart';
 export 'boltz_fees.dart';
 export 'boltz_reverse_swap_bip21_response.dart';

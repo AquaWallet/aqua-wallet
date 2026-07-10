@@ -112,6 +112,15 @@ class HomeScreen extends HookConsumerWidget with RestoreTransactionMixin {
         }
       });
     });
+    ref.listen(
+      // User has LNAddress toggled on. Back-end is requesting to re-open the gift box screen.
+      lightningAddressProvider.select((s) => s.shouldPromptGiftOpen),
+      (_, shouldPrompt) {
+        if (shouldPrompt) {
+          context.push(LnAddressGiftScreen.routeName);
+        }
+      },
+    );
 
     ref.watch(boltzInitProvider).maybeWhen(
           data: (_) {

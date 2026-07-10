@@ -21,8 +21,7 @@ extension EulenDepositStatusExt on EulenDepositStatus {
     };
   }
 
-  AquaChipLabelVariant statusVariant(EulenDepositStatus status) =>
-      switch (status) {
+  AquaChipLabelVariant get statusVariant => switch (this) {
         EulenDepositStatus.depixSent => AquaChipLabelVariant.success,
         EulenDepositStatus.pending ||
         EulenDepositStatus.pendingPix2fa ||

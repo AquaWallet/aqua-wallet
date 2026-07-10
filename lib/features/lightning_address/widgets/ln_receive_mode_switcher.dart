@@ -22,9 +22,8 @@ class LnReceiveModeSwitcher extends ConsumerWidget {
       onTap: () {
         if (isInvoiceMode) {
           final lnAddress = ref.read(lightningAddressProvider);
-          if (lnAddress == null || !lnAddress.isToggled) {
-            ref.read(lnReceiveModeProvider.notifier).setAddressMode();
-            context.push(LnAddressGiftScreen.routeName, extra: true);
+          if (!lnAddress.isActive) {
+            context.push(LnAddressGiftScreen.routeName);
             return;
           }
         }

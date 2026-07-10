@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/experimental/providers/experimental_features_provider.dart';
+import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/transactions/transactions.dart';
@@ -9,6 +10,80 @@ import 'package:aqua/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 final _logger = CustomLogger(FeatureFlag.swap);
+
+const _kSideswapDomain = 'sideswap.io';
+
+/// Whether [url] is an HTTPS endpoint on the SideSwap service origin. Used to
+/// allowlist the order's `uploadUrl` before posting wallet inputs / a signed
+/// PSET to it.
+@visibleForTesting
+bool isTrustedSideswapUploadUrl(String url) {
+  final uri = Uri.tryParse(url);
+  if (uri == null || uri.scheme != 'https') {
+    return false;
+  }
+  final host = uri.host.toLowerCase();
+  return host == _kSideswapDomain || host.endsWith('.$_kSideswapDomain');
+}
+
+/// Whether the server's [order] matches the assets and amount the user entered
+/// in [input]. The PSET delta check trusts [order], but [order] is server-sent;
+/// this anchors it to user intent. Only the user-edited side is bounded.
+@visibleForTesting
+bool isSwapOrderApproved({
+  required SwapStartWebResult order,
+  required SideswapInputState input,
+}) {
+  final send = input.userInputSendAmount;
+  final recv = input.userInputReceiveAmount;
+  // Require at least one user-entered amount to anchor against; otherwise we'd
+  // be approving on asset match alone.
+  if (send == null && recv == null) {
+    return false;
+  }
+  return order.sendAsset == input.deliverAsset?.id &&
+      order.recvAsset == input.receiveAsset?.id &&
+      (send == null || order.sendAmount <= send) &&
+      (recv == null || order.recvAmount >= recv);
+}
+
+/// Whether a swap PSET's effect on the wallet matches what the user approved.
+///
+/// [walletDelta] is GDK's signed per-asset effect on this wallet (from
+/// `psbt_get_details`): negative = leaving, positive = arriving, computed only
+/// over wallet-owned inputs/outputs. The swap is approved if the wallet
+/// receives at least [order].recvAmount of the receive asset and no asset
+/// leaves beyond [order].sendAmount of the send asset (plus [fee] for L-BTC).
+@visibleForTesting
+bool isSwapPsetDeltaApproved({
+  required Map<String, int> walletDelta,
+  required SwapStartWebResult order,
+  required String lbtcId,
+  required int fee,
+}) {
+  if (walletDelta.isEmpty) {
+    return false;
+  }
+  final received = walletDelta[order.recvAsset] ?? 0;
+  if (received < order.recvAmount) {
+    return false;
+  }
+  for (final entry in walletDelta.entries) {
+    final assetId = entry.key;
+    final leaving = -entry.value; // positive = this asset is leaving the wallet
+
+    // The only outflows the user authorised: the send asset up to sendAmount,
+    // plus the L-BTC network fee (fees are always paid in L-BTC). Any other
+    // asset, or more than this, must not leave the wallet.
+    final allowedToLeave = (assetId == order.sendAsset ? order.sendAmount : 0) +
+        (assetId == lbtcId ? fee : 0);
+
+    if (leaving > allowedToLeave) {
+      return false;
+    }
+  }
+  return true;
+}
 
 final swapProvider =
     AutoDisposeAsyncNotifierProvider<SwapNotifier, SwapState>(SwapNotifier.new);
@@ -86,6 +161,14 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
           throw SideSwapExecuteInvalidAmountException();
         }
 
+        // verify the order matches what the user selected/entered before uploading any inputs
+        if (!isSwapOrderApproved(
+          order: result,
+          input: ref.read(sideswapInputStateProvider),
+        )) {
+          throw SideSwapExecuteOrderMismatchException();
+        }
+
         final allUtxos = await ref.read(liquidProvider).getUnspentOutputs();
         final sendAssetUtxos = allUtxos!.unsentOutputs![result.sendAsset];
         // sort utxos by amount in decreasing order
@@ -126,6 +209,11 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
                 vout: utxo.ptIdx))
             .toList();
 
+        // only ever upload to / sign against a SideSwap origin, so a
+        // tampered order can't redirect our inputs + PSET to an attacker server.
+        if (!isTrustedSideswapUploadUrl(result.uploadUrl)) {
+          throw SideSwapExecuteInvalidUploadUrlException();
+        }
         final url = Uri.parse(result.uploadUrl);
         final responseBody =
             await ref.read(sideswapHttpProvider).httpStartWebParamsBody(
@@ -159,12 +247,16 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
           throw SideSwapExecutePsbtVerificationFailedException();
         }
 
-        psbtTx.transactionOutputs?.firstWhere(
-            (element) =>
-                element['asset_id'] == result.recvAsset &&
-                element['satoshi'] == result.recvAmount,
-            orElse: () =>
-                throw SideSwapExecutePsbtVerificationFailedException());
+        // verify GDK's signed per-asset effect on the wallet matches the approved swap
+        final approved = isSwapPsetDeltaApproved(
+          walletDelta: psbtTx.satoshi ?? const <String, int>{},
+          order: result,
+          lbtcId: ref.read(manageAssetsProvider).lbtcAsset.id,
+          fee: psbtTx.fee ?? 0,
+        );
+        if (!approved) {
+          throw SideSwapExecutePsbtVerificationFailedException();
+        }
 
         final signDetails = GdkSignPsbtDetails(psbt: pset, utxos: utxosGdk);
 
@@ -198,10 +290,15 @@ class SwapNotifier extends AutoDisposeAsyncNotifier<SwapState> {
         SideSwapExecuteInvalidAmountException _ =>
           const SideswapHttpStateNetworkError(
               "Send and receive amounts must be positive"),
+        SideSwapExecuteOrderMismatchException _ =>
+          const SideswapHttpStateNetworkError(
+              "Order does not match your request"),
         SideSwapExecuteInsufficientFundsException _ =>
           const SideswapHttpStateNetworkError("Insufficient funds"),
         SideSwapExecutePsbtVerificationFailedException _ =>
           const SideswapHttpStateNetworkError("Failed to verify pset"),
+        SideSwapExecuteInvalidUploadUrlException _ =>
+          const SideswapHttpStateNetworkError("Untrusted upload URL"),
         _ => SideswapHttpState.error(err, stackTrace)
       };
 
@@ -262,8 +359,12 @@ class SideSwapExecuteInvalidAssetException implements Exception {}
 
 class SideSwapExecuteInvalidAmountException implements Exception {}
 
+class SideSwapExecuteOrderMismatchException implements Exception {}
+
 class SideSwapExecuteInsufficientFundsException implements Exception {}
 
 class SideSwapExecutePsbtVerificationFailedException implements Exception {}
+
+class SideSwapExecuteInvalidUploadUrlException implements Exception {}
 
 class SideSwapExecuteBroadcastTxFetchException implements Exception {}

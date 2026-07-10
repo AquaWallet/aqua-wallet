@@ -94,9 +94,9 @@ class LnAddressGiftOpenedScreen extends HookConsumerWidget {
                         ],
                       ),
                     ),
-                    AquaButton.tertiary(
+                    AquaButton.primary(
                       isInverted: true,
-                      text: context.loc.okay,
+                      text: context.loc.commonGotIt,
                       isLoading: registrationAsync.isLoading,
                       onPressed: registrationAsync.isLoading
                           ? null

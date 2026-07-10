@@ -31,7 +31,14 @@ abstract class Jan3ApiDepix extends ChopperService {
   Future<Response<EulenDepositsResponse>> getDeposits();
 
   @Get(path: 'v1/eulen/pix-depix-fee/')
-  Future<Response<EulenPixDepixFeeResponse>> getPixDepixFee();
+  Future<Response<EulenFeeCalculation>> calculateFeeFromGross(
+    @Query('gross_amount_brl_cents') int grossAmountBrlCents,
+  );
+
+  @Get(path: 'v1/eulen/pix-depix-fee/')
+  Future<Response<EulenFeeCalculation>> calculateFeeFromNet(
+    @Query('net_amount_brl_cents') int netAmountBrlCents,
+  );
 
   static Jan3ApiDepix create(
     Jan3AuthTokenManager tokenManager,
@@ -54,7 +61,7 @@ abstract class Jan3ApiDepix extends ChopperService {
       converter: const JsonToTypeConverter({
         EulenDepositResponse: EulenDepositResponse.fromJson,
         EulenDepositsResponse: EulenDepositsResponse.fromJson,
-        EulenPixDepixFeeResponse: EulenPixDepixFeeResponse.fromJson,
+        EulenFeeCalculation: EulenFeeCalculation.fromJson,
       }),
     );
     return _$Jan3ApiDepix(client);

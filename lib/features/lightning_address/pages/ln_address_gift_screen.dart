@@ -13,24 +13,14 @@ import 'package:ui_components/ui_components.dart';
 class LnAddressGiftScreen extends ConsumerWidget {
   static const routeName = '/lnAddressGiftScreen';
 
-  const LnAddressGiftScreen({
-    super.key,
-    this.syncReceiveModeOnExit = false,
-  });
-
-  final bool syncReceiveModeOnExit;
-
-  void _exitWithoutActivation(WidgetRef ref) {
-    if (syncReceiveModeOnExit && !ref.read(lightningAddressProvider).isActive) {
-      ref.read(lnReceiveModeProvider.notifier).setInvoiceMode();
-    }
-  }
+  const LnAddressGiftScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final walletId = ref.watch(currentWalletIdSyncProvider);
     final authAsync = ref.watch(jan3AuthProvider(walletId));
     final lnAddressState = ref.watch(lightningAddressProvider);
+    final canPop = !lnAddressState.shouldPromptGiftOpen;
 
     if (authAsync.isLoading) {
       return DesignRevampScaffold(
@@ -61,33 +51,27 @@ class LnAddressGiftScreen extends ConsumerWidget {
     }
 
     return PopScope(
-      onPopInvoked: (didPop) {
-        if (didPop) _exitWithoutActivation(ref);
-      },
+      canPop: canPop,
       child: DesignRevampScaffold(
         appBar: AquaTopAppBar(
           title: context.loc.lnAddressGiftTitle,
           colors: context.aquaColors,
-          onBackPressed: () {
-            _exitWithoutActivation(ref);
-            context.pop();
-          },
+          showBackButton: canPop,
+          onBackPressed: canPop ? () => context.pop() : null,
         ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: LnAddressGiftContent(
               onOpenBox: () {
+                ref.read(lnReceiveModeProvider.notifier).setAddressMode();
                 ref
                     .read(lnAddressRegistrationProvider.notifier)
                     .activate()
                     .ignore();
                 context.pushReplacement(LnAddressGiftOpenedScreen.routeName);
               },
-              onLater: () {
-                _exitWithoutActivation(ref);
-                context.pop();
-              },
+              onLater: canPop ? () => context.pop() : null,
             ),
           ),
         ),

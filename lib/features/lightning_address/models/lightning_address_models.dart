@@ -11,6 +11,8 @@ class LightningAddressState with _$LightningAddressState {
   const factory LightningAddressState({
     required String address,
     required bool isToggled,
+    // Tracks if the user has opened the gift box. Should match isToggled. Otherwise the user would be prompted to open the gift box.
+    required bool giftOpened,
   }) = _LightningAddressState;
 }
 

@@ -119,14 +119,17 @@ class AssetTransactionSuccessScreen extends HookConsumerWidget {
           children: [
             if (hasAnimation)
               SizedBox.expand(
-                child: Lottie.asset(
-                  args.asset.successAnimation(liquid),
-                  controller: animController,
+                child: FittedBox(
                   fit: BoxFit.cover,
-                  onLoaded: (composition) {
-                    animController.duration = composition.duration;
-                    animController.forward();
-                  },
+                  child: Lottie.asset(
+                    args.asset.successAnimation(liquid),
+                    controller: animController,
+                    fit: BoxFit.fill,
+                    onLoaded: (composition) {
+                      animController.duration = composition.duration;
+                      animController.forward();
+                    },
+                  ),
                 ),
               ),
             IgnorePointer(

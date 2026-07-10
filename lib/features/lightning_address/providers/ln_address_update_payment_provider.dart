@@ -20,6 +20,7 @@ class LnAddressUpdatePaymentNotifier extends AutoDisposeAsyncNotifier<void> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final request = await ref.read(lnAddressPaymentRequestProvider.future);
+      if (request == null) throw StateError('Payment request not ready');
       final input = ref.read(sendAssetInputStateProvider(request.args)).value;
       _logger.debug(
           '[LnAddressUpdate] submit: address=${input?.addressFieldText} amount=${input?.amount} feeAsset=${input?.feeAsset}');

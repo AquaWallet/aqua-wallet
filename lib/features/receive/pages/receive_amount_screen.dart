@@ -1,6 +1,8 @@
 import 'package:aqua/common/exceptions/exception_localized.dart';
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/provider/theme_provider.dart';
+import 'package:aqua/features/feature_flags/providers/setup_config_provider.dart';
+import 'package:aqua/features/lightning_address/lightning_address.dart';
 import 'package:aqua/features/receive/receive.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -62,6 +64,11 @@ class ReceiveAmountScreen extends HookConsumerWidget {
       text: input?.amountFieldText,
     );
     final isStableCoin = args.asset.isNonSatsAsset;
+    final isLnAddressEnabled = ref.watch(lnAddressRemoteFlagProvider);
+
+    ref.listen(lnReceiveModeProvider, (_, isInvoiceMode) {
+      if (!isInvoiceMode && context.mounted) context.pop();
+    });
 
     if (input == null) {
       return const SizedBox.shrink();
@@ -203,6 +210,12 @@ class ReceiveAmountScreen extends HookConsumerWidget {
                     minLimit: args.minLimit!,
                     maxLimit: args.maxLimit!,
                   ),
+                if (args.asset.isLightning && isLnAddressEnabled) ...[
+                  const SizedBox(height: 24),
+                  const Center(
+                    child: LnReceiveModeSwitcher(),
+                  ),
+                ],
                 const Spacer(),
                 if (tooltipError?.isNotEmpty == true) ...[
                   AquaChipLabel(

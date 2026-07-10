@@ -16,6 +16,17 @@ export 'src/types.dart';
 Uri decodeLnurlUri(String encodedUrl) {
   Uri decodedUri;
 
+  // LUD-01 fallback scheme: extract LNURL from `lightning=` query parameter
+  final inputUri = Uri.tryParse(encodedUrl);
+  if (inputUri != null &&
+      (inputUri.scheme == 'https' || inputUri.scheme == 'http') &&
+      inputUri.queryParameters.containsKey('lightning')) {
+    final lnurlValue = inputUri.queryParameters['lightning']!;
+    if (lnurlValue.isNotEmpty) {
+      return decodeLnurlUri(lnurlValue);
+    }
+  }
+
   /// The URL doesn't have to be encoded at all as per LUD-17: Protocol schemes and raw (non bech32-encoded) URLs.
   /// https://github.com/lnurl/luds/blob/luds/17.md
   /// Handle non bech32-encoded LNURL
@@ -58,15 +69,12 @@ Future<LNURLParseResult> getParamsFromLnurlServer(Uri encodedUrl) async {
   final dio = createDioInstance(addUserAgent: true);
 
   try {
-    final response = await dio.get(encodedUrl.toString());
-
-    if (response.statusCode! >= 300) {
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
-    }
+    // LUD-01: "Neither status codes or any HTTP Header has any meaning.
+    // Clients should ignore them and just parse the response body as JSON."
+    final response = await dio.get(
+      encodedUrl.toString(),
+      options: Options(validateStatus: (_) => true),
+    );
 
     Map<String, dynamic> parsedJson = response.data;
 

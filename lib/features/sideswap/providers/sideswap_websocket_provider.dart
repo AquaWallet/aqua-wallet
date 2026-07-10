@@ -307,7 +307,7 @@ class SideswapWebsocketProvider {
           final response = SwapDoneResponse.fromJson(json);
           final receiveAsset = response.params?.recvAsset;
           final transactionId = response.params?.txid;
-          logger.error('[Sideswap] Done: $transactionId');
+          logger.info('[Sideswap] Done: $transactionId');
           final success = response.params?.status == SwapDoneStatusEnum.success;
           if (receiveAsset != null && transactionId != null && success) {
             ref.read(swapProvider.notifier).processSwapCompletion(response);

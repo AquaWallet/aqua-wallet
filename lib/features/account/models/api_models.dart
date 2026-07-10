@@ -134,6 +134,7 @@ class ProfileResponse with _$ProfileResponse {
     @Default(false) bool canEditLnUsername,
     @Default(0) int newAddressesNeeded,
     @Default(false) bool lnAddressToggled,
+    @Default(false) bool lnAddressGiftOpened,
     String? fingerprint,
     required DateTime? lastLogin,
     required bool isSuperuser,
