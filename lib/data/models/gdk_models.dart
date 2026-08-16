@@ -733,6 +733,7 @@ class GdkNetwork with _$GdkNetwork {
     @JsonKey(name: 'ct_exponent') int? ctExponent,
     bool? development,
     @JsonKey(name: 'electrum_tls') bool? electrumTls,
+    @JsonKey(name: 'validate_domain') bool? validateDomain,
     @JsonKey(name: 'electrum_url') String? electrumUrl,
     bool? liquid,
     bool? mainnet,

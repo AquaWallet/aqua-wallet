@@ -1,1 +1,0 @@
-class AssetDetailsProviderInvalidArgumentsException implements Exception {}

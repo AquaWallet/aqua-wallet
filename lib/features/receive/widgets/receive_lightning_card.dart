@@ -15,7 +15,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components/ui_components.dart';
 
-class ReceiveLightningCard extends HookConsumerWidget {
+class ReceiveLightningCard extends HookConsumerWidget
+    with GenericErrorPromptMixin {
   final ReceiveAmountArguments args;
 
   const ReceiveLightningCard({
@@ -26,25 +27,33 @@ class ReceiveLightningCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final setupAsync = ref.watch(setupConfigProvider);
+    final reverseFeesAsync = ref.watch(boltzReverseFeesProvider);
     final lnAddressState = ref.watch(lightningAddressProvider);
     final isInvoiceMode = ref.watch(lnReceiveModeProvider);
 
     final showLnAddress = lnAddressState.isActive;
+    final showsLnAddressOnly = showLnAddress && !isInvoiceMode;
 
-    if (showLnAddress && !isInvoiceMode) {
+    useFlowBlockingErrorPrompt(context, reverseFeesAsync);
+
+    // Wait for remote flags before starting the Boltz flow to avoid a race
+    // condition where Boltz initializes and then gets interrupted mid-load when
+    // the flag arrives and switches the UI to the LN address flow.
+    if (setupAsync.isLoading || reverseFeesAsync.isLoading) {
+      return const Expanded(child: _LoadingContent());
+    }
+
+    if (setupAsync.hasError || reverseFeesAsync.hasError) {
+      return const Expanded(child: SizedBox.shrink());
+    }
+
+    if (showsLnAddressOnly) {
       return Expanded(
         child: _LightningAddressReceiveContent(
           lnAddress: lnAddressState!.address,
           asset: args.asset,
         ),
       );
-    }
-
-    // Wait for remote flags before starting the Boltz flow to avoid a race
-    // condition where Boltz initializes and then gets interrupted mid-load when
-    // the flag arrives and switches the UI to the LN address flow.
-    if (setupAsync.isLoading) {
-      return const Expanded(child: _LoadingContent());
     }
 
     return _BoltzInvoiceFlow(
@@ -55,7 +64,8 @@ class ReceiveLightningCard extends HookConsumerWidget {
 }
 
 /// Existing Boltz invoice flow extracted into its own widget
-class _BoltzInvoiceFlow extends HookConsumerWidget {
+class _BoltzInvoiceFlow extends HookConsumerWidget
+    with GenericErrorPromptMixin {
   final ReceiveAmountArguments args;
   final bool hasLnAddress;
 
@@ -67,13 +77,36 @@ class _BoltzInvoiceFlow extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final boltzUiState = ref.watch(boltzReverseSwapProvider);
-    final reverseFees = ref.watch(boltzReverseFeesProvider).valueOrNull;
+    final reverseFeesAsync = ref.watch(boltzReverseFeesProvider);
+    final reverseFees = reverseFeesAsync.valueOrNull;
     final minLimitSats = reverseFees?.lbtcLimits.minimal.toInt();
     final maxLimitSats = reverseFees?.lbtcLimits.maximal.toInt();
     final boltzOrder = useMemoized(
       () => boltzUiState.mapOrNull(qrCode: (s) => s.swap),
       [boltzUiState],
     );
+
+    ref.listen(boltzReverseSwapErrorProvider, (_, error) {
+      if (error == null || !context.mounted) return;
+      final isServiceUnavailable =
+          error.type == BoltzExceptionType.serviceUnavailable;
+
+      showGenericErrorPromptOnAsyncError(
+        context,
+        AsyncValue.error(error, StackTrace.current),
+        buttonLabel: isServiceUnavailable ? context.loc.close : null,
+        onPrimaryButtonTap: () {
+          ref.read(boltzReverseSwapErrorProvider.notifier).clear();
+          if (isServiceUnavailable && context.mounted) context.pop();
+        },
+        onDismiss: isServiceUnavailable
+            ? () {
+                ref.read(boltzReverseSwapErrorProvider.notifier).clear();
+                if (context.mounted) context.pop();
+              }
+            : null,
+      );
+    });
 
     if (boltzOrder != null) {
       void navigateToSuccess() {

@@ -27,6 +27,10 @@ final _backgroundStartTime = StateProvider<DateTime?>((ref) => null);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  if (kReleaseMode) {
+    debugPrint = (String? message, {int? wrapWidth}) {};
+  }
+
   if (isDesktop) {
     ///There is additional setup for specific functionality that needs to be followed
     ///For example, Hidden at launch, Quit on close, Confirm before closing, Listening events

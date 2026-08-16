@@ -89,6 +89,9 @@ class AssetTransactionDetailsUiModel with _$AssetTransactionDetailsUiModel {
     /// this asset (e.g., L-BTC fee for a USDT or DEPIX send).
     Asset? feeForAsset,
     String? fiatAmountAtExecutionDisplay,
+
+    /// Host of the swap service that facilitated this send, when one was used.
+    String? swapServiceUrl,
   }) = SendTransactionDetailsUiModel;
 
   const factory AssetTransactionDetailsUiModel.receive({
@@ -106,6 +109,9 @@ class AssetTransactionDetailsUiModel with _$AssetTransactionDetailsUiModel {
     String? feeAmount,
     String? feeAmountFiat,
     Asset? feeAsset,
+
+    /// Host of the swap service that facilitated this receive, when one was used.
+    String? swapServiceUrl,
   }) = ReceiveTransactionDetailsUiModel;
 }
 

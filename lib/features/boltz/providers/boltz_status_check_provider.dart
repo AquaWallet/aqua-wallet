@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
@@ -23,7 +22,8 @@ class BoltzSwapStatusNotifier
         '[Boltz] [WSS] Building status notifier for: $arg, current _id: $_id');
 
     _id = arg;
-    final boltzWebSocket = ref.read(boltzWebSocketProvider);
+    final apiUrl = await _resolveApiUrl(arg);
+    final boltzWebSocket = ref.read(boltzWebSocketProvider(apiUrl));
 
     await _subscription?.cancel();
     _subscription = null;
@@ -31,10 +31,13 @@ class BoltzSwapStatusNotifier
     ref.onDispose(() async {
       _logger.info('[Boltz] [WSS] Disposing status stream for: $_id');
       await _subscription?.cancel();
+      await boltzWebSocket.unsubscribe(arg);
     });
 
-    final stream =
-        await boltzWebSocket.getStream(_id!, forceNewSubscription: true);
+    final stream = await boltzWebSocket.getStream(
+      _id!,
+      forceNewSubscription: true,
+    );
 
     _subscription = stream.listen(
       null,
@@ -61,5 +64,22 @@ class BoltzSwapStatusNotifier
         rethrow;
       }
     });
+  }
+
+  /// Prefer the URL stored on the swap; fall back to current setup config by kind.
+  Future<String> _resolveApiUrl(String swapId) async {
+    final swapDb =
+        await ref.read(boltzStorageProvider.notifier).getSwapById(swapId);
+    if (swapDb == null) {
+      throw StateError(
+          '[Boltz] [WSS] Cannot resolve API URL: swap $swapId not found');
+    }
+
+    final storedUrl = swapDb.boltzUrl;
+    if (storedUrl != null && storedUrl.isNotEmpty) {
+      return storedUrl;
+    }
+
+    return ref.watch(boltzApiUrlProvider(swapDb.kind).future);
   }
 }

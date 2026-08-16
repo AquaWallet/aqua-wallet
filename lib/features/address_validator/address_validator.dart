@@ -186,7 +186,6 @@ class AddressParser {
       final miniPrivateKeyService = MiniPrivateKeyService();
       if (miniPrivateKeyService.isValidMiniPrivateKey(input)) {
         final wifPrivateKey = miniPrivateKeyService.miniKeyToWIF(input);
-        logger.debug('Valid wif private key: $wifPrivateKey');
         return ParsedAddress(
             address: '',
             extPrivateKey: wifPrivateKey,
@@ -223,9 +222,11 @@ class AddressParser {
         if (parsed != null) return parsed;
 
         if (isLightningInvoice(input: input)) {
-          final submarineFees = await ref
-              .read(boltzFeesProvider.future)
-              .then((value) => value.submarine());
+          final submarineFees = await requireBoltzService(() async {
+            final fees =
+                await ref.read(boltzFeesProvider(SwapType.submarine).future);
+            return fees.submarine();
+          });
           return await _parseLightningInvoice(input, asset, submarineFees);
         }
       }
@@ -252,6 +253,8 @@ class AddressParser {
               AddressParsingExceptionType.invalidAddress);
         }
       }
+    } on BoltzException {
+      rethrow;
     } on AddressParsingException {
       rethrow;
     } catch (e) {
@@ -472,11 +475,15 @@ class AddressParser {
       final lbtcBalance = await ref.read(balanceProvider).getLBTCBalance();
       if (decoder.lightning != null && lbtcBalance > 0) {
         try {
-          final submarineFees = await ref
-              .read(boltzFeesProvider.future)
-              .then((value) => value.submarine());
+          final submarineFees = await requireBoltzService(() async {
+            final fees =
+                await ref.read(boltzFeesProvider(SwapType.submarine).future);
+            return fees.submarine();
+          });
           parsedLNInvoice = await _parseLightningInvoice(
               decoder.lightning!, asset, submarineFees);
+        } on BoltzException {
+          rethrow;
         } catch (e, _) {
           // if lightning invoice was included but something went wrong such as an expired invoice, don't rethrow as we want to fallback to btc
         }
@@ -498,6 +505,8 @@ class AddressParser {
               label: decoder.label,
               lightningInvoice: decoder.lightning);
       return parsedAddress;
+    } on BoltzException {
+      rethrow;
     } on AddressParsingExceptionType catch (_) {
       rethrow;
     } catch (e) {

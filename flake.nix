@@ -3,7 +3,7 @@
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:NixOS/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
   };
 
   outputs = { self, nixpkgs, flake-utils }:
@@ -17,7 +17,7 @@
         androidEnv = pkgs.androidenv.override { licenseAccepted = true; };
         androidComposition = androidEnv.composeAndroidPackages {
           cmdLineToolsVersion = "8.0"; # emulator related: newer versions are not only compatible with avdmanager
-          platformToolsVersion = "34.0.4";
+          platformToolsVersion = "35.0.2";
           buildToolsVersions = [ "30.0.3" "33.0.2" "34.0.0" ];
           platformVersions = [ "29" "30" "31" "32" "33" "34" ];
           abiVersions = [ "x86_64" ]; # emulator related: on an ARM machine, replace "x86_64" with
@@ -43,7 +43,7 @@
         isDarwin = pkgs.stdenv.isDarwin;
       in
       {
-        devShell = with pkgs; mkShellNoCC rec {
+        devShell = with pkgs; mkShellNoCC (rec {
           ANDROID_HOME = "${androidSdk}/libexec/android-sdk";
           ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
           JAVA_HOME = jdk17.home;
@@ -62,6 +62,7 @@
           ] ++ pkgs.lib.optionals isDarwin [
             ruby
             cocoapods
+            libiconv
           ];
           # emulator related: vulkan-loader and libGL shared libs are necessary for hardware decoding
           LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [vulkan-loader libGL]}";
@@ -81,7 +82,13 @@
             export PATH="$(git rev-parse --show-toplevel)/flutter/bin:$PATH"
             git submodule update --init
           '';
-        };
+        } // pkgs.lib.optionalAttrs isDarwin {
+          # Point the host linker at Apple's clang instead; the
+          # Android cross-builds keep using the NDK toolchain cargokit sets up.
+          CARGO_TARGET_AARCH64_APPLE_DARWIN_LINKER = "/usr/bin/clang";
+          CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER = "/usr/bin/clang";
+          LIBRARY_PATH = "${libiconv}/lib";
+        });
       }
     );
 }

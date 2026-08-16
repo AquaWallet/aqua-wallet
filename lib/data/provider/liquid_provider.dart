@@ -93,6 +93,7 @@ class LiquidNetworkFactory {
           name: networkName,
           networkDetails: GdkNetwork(
             electrumTls: true,
+            validateDomain: true,
             electrumUrl: customElectrumUrl,
           ),
         );
@@ -108,6 +109,7 @@ class LiquidNetworkFactory {
           name: networkName,
           networkDetails: GdkNetwork(
             electrumTls: true,
+            validateDomain: true,
             electrumUrl: customElectrumUrl,
           ),
         );

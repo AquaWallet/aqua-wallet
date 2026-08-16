@@ -63,6 +63,8 @@
   "boltzGenerateInvoice": "Create Invoice",
   "boltzId": "Boltz ID",
   "boltzInitTitleError": "There was an error initializing the Lightning service.",
+  "lightningSwapsUnavailableTitle": "Lightning Unavailable",
+  "lightningSwapsUnavailableMessage": "Lightning swaps are currently unavailable.",
   "boltzInvoiceAmount": "Invoice Amount",
   "boltzMaxAmountError": "The amount exceeds the maximum limit of {max} {unit}.",
   "boltzNormalSwapAlreadyBroadcastedError": "Liquid transaction for this swap already exists.",

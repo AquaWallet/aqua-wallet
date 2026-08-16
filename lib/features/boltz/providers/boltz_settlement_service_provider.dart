@@ -20,8 +20,6 @@ class BoltzSwapSettlementService {
   }
 
   Future<void> _initialize() async {
-    _ref.invalidate(boltzWebSocketProvider);
-    await _ref.read(boltzWebSocketProvider).initializeWebSocket();
     _initializeMonitoring();
 
     // Force an initial monitoring of current swaps
@@ -261,7 +259,14 @@ class BoltzSwapSettlementService {
       _claimsInProgress.remove(boltzId);
       _refundsInProgress.remove(boltzId);
       _coopCloseInProgress.remove(boltzId);
-      await _ref.read(boltzWebSocketProvider).unsubscribe(boltzId);
+      final swap =
+          await _ref.read(boltzStorageProvider.notifier).getSwapById(boltzId);
+      if (swap != null) {
+        final apiUrl = swap.boltzUrl?.isNotEmpty == true
+            ? swap.boltzUrl!
+            : await _ref.read(boltzApiUrlProvider(swap.kind).future);
+        await _ref.read(boltzWebSocketProvider(apiUrl)).unsubscribe(boltzId);
+      }
       _logger.debug('[Boltz] Closed swap: $boltzId');
     } catch (e) {
       _logger.error('Error closing swap: $boltzId', e);
@@ -270,7 +275,8 @@ class BoltzSwapSettlementService {
 
   Future<bool> _shouldTryCoopSubmarineSwap(BoltzSwapDbModel swap) async {
     try {
-      final fees = await _ref.read(boltzFeesProvider.future);
+      final fees =
+          await _ref.read(boltzFeesProvider(SwapType.submarine).future);
       final limits = (await fees.submarine()).lbtcLimits;
       final amount = swap.amountFromInvoice ?? swap.outAmount;
       return BoltzFees.shouldTryCoopSubmarineSwap(

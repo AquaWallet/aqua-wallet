@@ -47,8 +47,6 @@ class MiniPrivateKeyService {
       throw MiniPrivateKeyException(MiniPrivateKeyExceptionType.invalidMiniKey);
     }
 
-    logger.debug('Full private key (hex): $fullPrivateKey');
-
     // Convert full private key to WIF
     final privateKeyBytes = List<int>.generate(
       fullPrivateKey.length ~/ 2,
@@ -61,8 +59,6 @@ class MiniPrivateKeyService {
       extendedKey.add(0x01);
     }
 
-    logger.debug('Extended key length: ${extendedKey.length}');
-
     // Create new digest instances for each hash operation
     final firstSha = SHA256Digest().process(Uint8List.fromList(extendedKey));
     final secondSha = SHA256Digest().process(firstSha);
@@ -70,9 +66,6 @@ class MiniPrivateKeyService {
 
     final finalKey = Uint8List.fromList(extendedKey + checksum);
     final wif = Base58.encode(finalKey);
-
-    logger.debug('WIF length: ${wif.length}');
-    logger.debug('WIF compressed: $compressed');
 
     return wif;
   }

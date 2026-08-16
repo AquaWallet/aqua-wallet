@@ -9,6 +9,7 @@ import 'package:aqua/common/data_conversion/bip21_encoder.dart';
 import 'package:aqua/common/exceptions/selection_unavailable_exception.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -603,7 +604,7 @@ class SendAssetInputStateNotifier extends AutoDisposeFamilyAsyncNotifier<
       ));
     } catch (e) {
       logger.error('Process Address Error', e, StackTrace.current);
-      if (e is AddressParsingException) {
+      if (e is BoltzException || e is AddressParsingException) {
         state = AsyncValue.error(e, StackTrace.current);
       } else {
         state = AsyncValue.error(

@@ -1,5 +1,4 @@
 import 'package:aqua/common/common.dart';
-import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/note/note.dart';
@@ -240,16 +239,9 @@ class _OrderIdCard extends ConsumerWidget {
               children: [
                 //ANCHOR - Service Provider
                 AquaListItem(
-                  onTap: () => ref.read(urlLauncherProvider).open(boltzWebsite),
                   title: context.loc.provider,
                   subtitleTrailing: 'Boltz',
                   subtitleTrailingColor: context.aquaColors.accentBrand,
-                  iconTrailing: Skeleton.unite(
-                    child: AquaIcon.externalLink(
-                      size: 18,
-                      color: context.aquaColors.textSecondary,
-                    ),
-                  ),
                 ),
                 Divider(
                   height: 4,

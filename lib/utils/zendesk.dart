@@ -42,11 +42,12 @@ String getAquaMoonZendeskUrl(
 }
 
 String getAquaBoltzZendeskUrl(
-    String subject, String swapId, String aquaVersion) {
+    String subject, String swapId, String aquaVersion, String boltzUrl) {
   return buildUrlWithParams(
     aquaZendeskBoltzUrl,
     queryParams: {
       'tf_$zendeskFormFieldBoltzSwapId': swapId,
+      'tf_$zendeskFormFieldBoltzUrl': boltzUrl,
       'tf_$zendeskFormFieldAquaVersion': aquaVersion,
       'tf_subject': subject,
     },

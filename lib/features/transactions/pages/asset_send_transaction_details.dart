@@ -361,6 +361,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
         model.isLightning ? model.dbTransaction?.serviceOrderId : null;
     final proofOfPaymentUrl =
         ref.watch(boltzProofOfPaymentProvider(boltzOrderId)).valueOrNull;
+    final boltzUrl = model.swapServiceUrl ?? boltzWebsite;
     final aquaVersion = ref.watch(versionProvider).valueOrNull ?? '';
 
     return Column(
@@ -437,16 +438,9 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                 ),
               ],
               AquaListItem(
-                onTap: model.dbTransaction?.swapServiceUrl != null
-                    ? () => onOpenUrl(model.dbTransaction!.swapServiceUrl!)
-                    : null,
                 title: context.loc.provider,
-                subtitleTrailing: model.dbTransaction?.swapServiceName,
+                subtitleTrailing: boltzUrl,
                 subtitleTrailingColor: context.aquaColors.accentBrand,
-                iconTrailing: AquaIcon.externalLink(
-                  size: 18,
-                  color: context.aquaColors.textSecondary,
-                ),
               ),
               AquaDivider(
                 colors: context.aquaColors,
@@ -501,6 +495,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                         .loc.boltzSwapSupportZendeskSubjectCriticalDoNotChange,
                     swapId,
                     aquaVersion,
+                    boltzUrl,
                   ));
                 },
                 title: context.loc.commonContactSupport,

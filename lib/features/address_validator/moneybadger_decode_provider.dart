@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart';
 
 /// Decodes a QR string via the Moneybadger backend.
 /// Returns the lightning address on success, null if the input is not a
@@ -23,10 +24,8 @@ class MoneybadgerDecodeNotifier extends AsyncNotifier<String?> {
       );
       final address = response.body?.lightningAddress;
       return address?.isNotEmpty == true ? address : null;
-    } catch (e, stackTrace) {
-      debugPrint(
-        'Moneybadger decode failed: $e\n$stackTrace',
-      );
+    } catch (e) {
+      logger.warning('[QR] Moneybadger decode failed: $e');
       // Backend unavailable or unrecognised QR — caller continues.
       return null;
     }

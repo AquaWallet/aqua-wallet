@@ -79,7 +79,28 @@ class WalletRecoveryQRScreen extends HookConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 46.0),
-                          CopyableTextView(text: qrCode),
+                          Padding(
+                            padding: const EdgeInsetsDirectional.only(
+                              bottom: 18.0,
+                              start: 20.0,
+                              end: 30.0,
+                            ),
+                            child: Text(
+                              qrCode,
+                              textAlign: TextAlign.start,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colors
+                                        .copayableTextColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.0,
+                                    letterSpacing: .2,
+                                  ),
+                            ),
+                          ),
                         ],
                       );
                     },

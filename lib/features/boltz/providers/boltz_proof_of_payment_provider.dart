@@ -27,7 +27,7 @@ class BoltzProofOfPaymentNotifier
 
     final invoice = swap.invoice;
     final client = ref.read(dioProvider);
-    final baseUri = ref.read(boltzEnvConfigProvider).apiUrl;
+    final baseUri = swap.boltzUrl;
     final uri = '$baseUri/swap/submarine/${swap.id}/preimage';
     final response = await client.get(uri);
     final preimage = response.data['preimage'] as String?;

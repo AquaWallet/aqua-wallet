@@ -1,3 +1,4 @@
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/sideswap/swap.dart';
@@ -10,7 +11,7 @@ import 'package:ui_components/ui_components.dart';
 
 final _logger = CustomLogger(FeatureFlag.send);
 
-class SendAssetScreen extends HookConsumerWidget {
+class SendAssetScreen extends HookConsumerWidget with GenericErrorPromptMixin {
   const SendAssetScreen({
     super.key,
     required this.arguments,
@@ -25,6 +26,13 @@ class SendAssetScreen extends HookConsumerWidget {
     final args = useState(arguments);
     final input = ref.watch(sendAssetInputStateProvider(args.value));
     final currentStep = useState<SendFlowStep?>(null);
+    final inputError = input.error;
+    useFlowBlockingErrorPrompt(
+      context,
+      input,
+      enabled: inputError is BoltzException &&
+          inputError.type == BoltzExceptionType.serviceUnavailable,
+    );
 
     useEffect(() {
       final step = input.value?.initialStep ?? SendFlowStep.address;

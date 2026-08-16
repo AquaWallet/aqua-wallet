@@ -1,4 +1,5 @@
 import 'package:aqua/features/shared/shared.dart';
+import 'package:aqua/logger.dart' show logger;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'feature_flags_models.freezed.dart';
@@ -114,6 +115,7 @@ class SetupConfig with _$SetupConfig {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory SetupConfig({
     required String date,
+    @Default({}) Map<String, String> baseUrls,
     @Default([]) List<SetupFlag> flags,
   }) = _SetupConfig;
 
@@ -136,7 +138,7 @@ class MarketplaceServiceAvailability with _$MarketplaceServiceAvailability {
       ServiceTilesResponse response) {
     final type = _marketplaceServiceTypeFromString(response.name);
     if (type == null) {
-      debugPrint('Unknown action id: ${response.name}');
+      logger.warning('[Onramp] Unknown marketplace service: ${response.name}');
       return null;
     }
 

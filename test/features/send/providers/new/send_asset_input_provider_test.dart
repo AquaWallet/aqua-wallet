@@ -1,5 +1,6 @@
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/address_validator/address_validation.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/lightning.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -472,6 +473,33 @@ void main() {
             'type',
             AddressParsingExceptionType.invalidAddress,
           ),
+        ),
+      );
+    });
+    test('preserves Boltz service unavailable errors', () async {
+      final error = BoltzException(BoltzExceptionType.serviceUnavailable);
+      when(() => mockAddressParser.parseInput(
+            input: any(named: 'input'),
+            asset: any(named: 'asset'),
+          )).thenThrow(error);
+      mockBalanceProvider.mockGetBalanceCall(value: kOneBtcInSats);
+      mockBitcoinProvider.mockBitcoinRateCall(rate: kBtcUsdRate);
+      mockPrefsProvider.mockGetLanguageCodeCall(kFakeLanguageCode);
+      mockAddressParser.mockIsValidAddressForAssetCall(value: true);
+
+      final provider = sendAssetInputStateProvider(args);
+      await container.read(provider.future);
+
+      await container
+          .read(provider.notifier)
+          .updateAddressFieldText(kFakeBitcoinAddress);
+
+      expect(
+        container.read(provider.notifier).state,
+        isA<AsyncError<SendAssetInputState>>().having(
+          (e) => e.error,
+          'error',
+          same(error),
         ),
       );
     });

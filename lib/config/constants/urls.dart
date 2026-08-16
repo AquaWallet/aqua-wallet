@@ -30,20 +30,18 @@ const aquaZendeskFaqUrl = "http://jan3.zendesk.com/";
 const zendeskFormFieldCardFieldId = "40744642792347";
 const zendeskFormFieldAquaVersion = "35450967121051";
 const zendeskFormFieldBoltzSwapId = "47962289026459";
+const zendeskFormFieldBoltzUrl = "54096244920219";
 
 // BLOCKSTREAM.INFO
 const blockstreamInfoBaseUrl = 'https://blockstream.info';
 const blockstreamElectrumBaseUrl = 'blockstream.info';
 
+// Legacy Boltz transactions without a persisted API URL
+const boltzWebsite = 'https://boltz.exchange';
+
 // MELD
 const meldProdUrl = 'https://meldcrypto.com/';
 const meldSandboxUrl = 'https://sb.meldcrypto.com/';
-
-// BOLTZ
-const boltzWebsite = 'https://boltz.exchange';
-const boltzV2MainnetUrl = 'https://api.boltz.exchange/v2';
-const boltzV2TestnetUrl = 'https://api.testnet.boltz.exchange/v2';
-const boltzMainnetRefundUrl = 'https://boltz.exchange/refund';
 
 // SIDESWAP
 const sideswapWebsite = 'https://sideswap.io';

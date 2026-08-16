@@ -41,6 +41,5 @@ extension TextEditingControllerX on TextEditingController {
         text += key.text;
       }
     }
-    debugPrint('[Numpad] Amount: $text');
   }
 }

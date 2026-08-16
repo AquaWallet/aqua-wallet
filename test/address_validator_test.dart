@@ -3,9 +3,11 @@ import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/account/account.dart';
 import 'package:aqua/features/address_validator/address_validator.dart';
 import 'package:aqua/features/address_validator/models/address_parsing_exception.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/providers/lnurl_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
+import 'package:boltz/boltz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'mocks/mocks.dart';
@@ -21,6 +23,7 @@ void main() {
   final mockBalanceService = MockBalanceService();
   final mockJan3 = MockJan3ApiService();
   final mockSharedPreferences = MockSharedPreferences();
+  final mockBoltzFees = _MockBoltzFees();
 
   final container = ProviderContainer(overrides: [
     liquidProvider.overrideWithValue(mockLiquidProvider),
@@ -29,11 +32,30 @@ void main() {
     jan3ApiServiceProvider.overrideWith((_) async => mockJan3),
     sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
     activeAltUSDtsProvider.overrideWithValue([]),
+    boltzFeesProvider.overrideWith(
+      () => _TestBoltzFeesNotifier(mockBoltzFees),
+    ),
   ]);
 
   setUp(() {
     when(() => mockBalanceService.getLBTCBalance())
         .thenAnswer((_) async => 10000);
+    final limits = SwapLimits(
+      minimal: BigInt.one,
+      maximal: BigInt.from(100000000),
+    );
+    final fees = SubSwapFees(
+      percentage: 0,
+      minerFees: BigInt.zero,
+    );
+    when(mockBoltzFees.submarine).thenAnswer(
+      (_) async => SubmarineFeesAndLimits(
+        btcLimits: limits,
+        lbtcLimits: limits,
+        btcFees: fees,
+        lbtcFees: fees,
+      ),
+    );
   });
 
   group('Bitcoin and Liquid', () {
@@ -443,4 +465,15 @@ void main() {
       encodedContainer.dispose();
     });
   });
+}
+
+class _MockBoltzFees extends Mock implements Fees {}
+
+class _TestBoltzFeesNotifier extends BoltzFeesNotifier {
+  _TestBoltzFeesNotifier(this.fees);
+
+  final Fees fees;
+
+  @override
+  Future<Fees> build(SwapType arg) async => fees;
 }

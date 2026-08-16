@@ -7,8 +7,10 @@ import 'package:aqua/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.boltz);
 
-final boltzWebSocketProvider = Provider<BoltzWebSocket>((ref) {
-  final boltzWebSocket = BoltzWebSocket(ref);
+/// One independently managed WebSocket per Boltz API URL.
+final boltzWebSocketProvider =
+    Provider.family<BoltzWebSocket, String>((ref, apiUrl) {
+  final boltzWebSocket = BoltzWebSocket(apiUrl);
   ref.onDispose(() {
     if (boltzWebSocket.isConnected) {
       boltzWebSocket.closeConnection();
@@ -18,7 +20,7 @@ final boltzWebSocketProvider = Provider<BoltzWebSocket>((ref) {
 });
 
 class BoltzWebSocket {
-  final Ref _ref;
+  final String apiUrl;
   IOWebSocketChannel? _wssStream;
   StreamSubscription? _wsSubscription;
   final _subscriptions = <String, StreamController<Map<String, dynamic>>>{};
@@ -28,8 +30,8 @@ class BoltzWebSocket {
   final _subscriptionQueue = <String>[];
   bool _isConnectionReady = false;
 
-  BoltzWebSocket(this._ref) {
-    _logger.debug('[Boltz] -- BoltzWebSocket init --');
+  BoltzWebSocket(this.apiUrl) {
+    _logger.debug('[Boltz] -- BoltzWebSocket init for $apiUrl --');
   }
 
   bool get hasActiveSubscriptions => _subscriptions.isNotEmpty;
@@ -57,9 +59,7 @@ class BoltzWebSocket {
     _logger.info('[Boltz] [WSS] Initializing WebSocket connection');
     _isConnectionReady = false;
 
-    final baseUrl = _ref
-        .read(boltzEnvConfigProvider.select((env) => env.apiUrl))
-        .replaceFirst('https://', 'wss://');
+    final baseUrl = apiUrl.replaceFirst('https://', 'wss://');
     final url = '$baseUrl/ws';
 
     try {
@@ -306,6 +306,9 @@ class BoltzWebSocket {
       } finally {
         await _subscriptions[swapId]!.close();
         _subscriptions.remove(swapId);
+        // A failed send leaves the id queued, which would otherwise resurrect
+        // the subscription the caller just cancelled.
+        _subscriptionQueue.remove(swapId);
       }
     }
   }

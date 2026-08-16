@@ -93,7 +93,7 @@ class LightColors implements AquaColors {
   @override
   Color get accentWarning => AquaPrimitiveColors.amber;
   @override
-  Color get accentWarningTransparent => AquaPrimitiveColors.amber4;
+  Color get accentWarningTransparent => AquaPrimitiveColors.amber16;
   @override
   Color get accentDanger => AquaPrimitiveColors.vermillion500;
   @override

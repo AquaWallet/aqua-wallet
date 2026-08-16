@@ -558,46 +558,6 @@ class LibGdk {
     return _createAuthHandler(authHandler.value);
   }
 
-  Future<Result<GdkAuthHandlerStatus>> registerUser({
-    required Pointer<GA_session> session,
-    GdkHwDevice? hwDevice,
-    required GdkLoginCredentials credentials,
-  }) async {
-    hwDevice ??= const GdkHwDevice();
-
-    final json = toJson(hwDevice.toJsonString());
-    if (json.isError) {
-      return Result.error(json.asError!.error, json.asError!.stackTrace);
-    }
-
-    logger.debug('Register credentials: ${credentials.toJsonString()}');
-    final credentialsJson = toJson(credentials.toJsonString());
-    if (credentialsJson.isError) {
-      return Result.error(
-          credentialsJson.asError!.error, credentialsJson.asError!.stackTrace);
-    }
-
-    final authHandler = arena<Pointer<GA_auth_handler>>();
-    final result = bindings.lib.GA_register_user(
-      session,
-      json.asValue!.value,
-      credentialsJson.asValue!.value,
-      authHandler,
-    );
-
-    if (result != 0) {
-      _destroyAuthHandler(authHandler.value);
-    }
-
-    final checkResult = _checkResult(result: result);
-    if (checkResult.isError) {
-      return Result.error(
-          checkResult.asError!.error, checkResult.asError!.stackTrace);
-    }
-
-    return _createAuthHandler(authHandler.value);
-  }
-
   /// creating subaccount isn't needed now
   ///
   /// Example how to call function from gdk_backend

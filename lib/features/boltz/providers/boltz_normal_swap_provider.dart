@@ -67,14 +67,18 @@ class BoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?> {
     final chain = _ref.read(envProvider) == Env.mainnet
         ? Chain.liquid
         : Chain.liquidTestnet;
-    final response = await LbtcLnSwap.newSubmarine(
-      mnemonic: mnemonicString,
-      index: BigInt.zero,
-      invoice: address,
-      network: chain,
-      electrumUrl: electrumUrl,
-      boltzUrl: _ref.read(boltzEnvConfigProvider).apiUrl,
-      referralId: 'AQUA',
+    final boltzUrl =
+        await _ref.read(boltzApiUrlProvider(SwapType.submarine).future);
+    final response = await guardBoltzCall(
+      () => LbtcLnSwap.newSubmarine(
+        mnemonic: mnemonicString,
+        index: BigInt.zero,
+        invoice: address,
+        network: chain,
+        electrumUrl: electrumUrl,
+        boltzUrl: boltzUrl,
+        referralId: 'AQUA',
+      ),
     );
     state = response;
 

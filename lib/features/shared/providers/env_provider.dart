@@ -72,28 +72,7 @@ final meldEnvConfigProvider = Provider<EnvConfig>((ref) {
   }
 });
 
-// ANCHOR - Boltz
-
-final boltzEnvConfigProvider = Provider<EnvConfig>((ref) {
-  final env = ref.watch(envProvider);
-
-  switch (env) {
-    case Env.mainnet:
-      return const EnvConfig(
-        apiUrl: boltzV2MainnetUrl,
-        apiKey: '',
-      );
-    case Env.testnet || Env.regtest:
-      return const EnvConfig(
-        apiUrl: boltzV2TestnetUrl,
-        apiKey: '',
-      );
-    default:
-      throw UnimplementedError('Unknown environment');
-  }
-});
-
-// ANCHOR - Boltz
+// ANCHOR - Sideswap
 
 final sideswapEnvConfigProvider = Provider<EnvConfig>((ref) {
   final env = ref.watch(envProvider);

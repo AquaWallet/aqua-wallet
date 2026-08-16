@@ -1,3 +1,4 @@
+import 'package:aqua/config/constants/urls.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -206,6 +207,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
     final receivedDisplayUnit =
         unitsProvider.getAssetDisplayUnit(model.receivedAsset);
     final dbTransaction = model.dbTransaction;
+    final boltzUrl = model.swapServiceUrl ?? boltzWebsite;
     final aquaVersion = ref.watch(versionProvider).valueOrNull ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,15 +265,9 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                 colors: context.aquaColors,
               ),
               AquaListItem(
-                onTap: () =>
-                    onOpenUrl(model.dbTransaction?.swapServiceUrl ?? ''),
                 title: context.loc.provider,
-                subtitleTrailing: model.dbTransaction?.swapServiceName,
+                subtitleTrailing: boltzUrl,
                 subtitleTrailingColor: context.aquaColors.accentBrand,
-                iconTrailing: AquaIcon.externalLink(
-                  size: 18,
-                  color: context.aquaColors.textSecondary,
-                ),
               ),
               AquaDivider(
                 colors: context.aquaColors,
@@ -321,6 +317,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                         .loc.boltzSwapSupportZendeskSubjectCriticalDoNotChange,
                     swapId,
                     aquaVersion,
+                    boltzUrl,
                   ));
                 },
                 title: context.loc.commonContactSupport,

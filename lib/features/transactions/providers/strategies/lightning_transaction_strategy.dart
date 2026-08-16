@@ -1,3 +1,4 @@
+import 'package:aqua/config/constants/urls.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -208,6 +209,12 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
     if (dbTxn == null || !dbTxn.isBoltz) {
       return null;
     }
+    final swap = dbTxn.serviceOrderId != null
+        ? await ref
+            .read(boltzStorageProvider.notifier)
+            .getSwapById(dbTxn.serviceOrderId!)
+        : null;
+    final boltzUrl = swap != null ? swap.boltzUrl : boltzWebsite;
 
     // Determine transaction type (submarine swap, reverse swap, or failed)
     final isSubmarineSwap = dbTxn.type == TransactionDbModelType.boltzSwap ||
@@ -280,6 +287,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         isLightning: true,
         blindingUrl: '',
         fiatAmountAtExecutionDisplay: fiatValueAtTime,
+        swapServiceUrl: boltzUrl,
       );
     }
 
@@ -308,6 +316,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         dbTransaction: dbTxn,
         isLightning: true,
         blindingUrl: '',
+        swapServiceUrl: boltzUrl,
       );
     }
 
@@ -334,6 +343,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         dbTransaction: dbTxn,
         isLightning: true,
         blindingUrl: '',
+        swapServiceUrl: boltzUrl,
       );
     }
 
@@ -361,6 +371,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
             .read(boltzStorageProvider.notifier)
             .getSwapById(dbTxn.serviceOrderId!)
         : null;
+    final boltzUrl = boltzSwap != null ? boltzSwap.boltzUrl : boltzWebsite;
     final feeAsset = getFeeAsset(args);
     final confirmationCount = await confirmationService.getConfirmationCount(
         args.asset, networkTxn?.blockHeight ?? 0);
@@ -444,6 +455,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         blindingUrl: computeBlindingUrl(networkTxn, args.asset,
             blindingData: args.dbTransaction?.blindingData),
         fiatAmountAtExecutionDisplay: fiatValueAtTime,
+        swapServiceUrl: boltzUrl,
       );
     }
 
@@ -480,6 +492,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         feeAmount: feeAmount,
         feeAmountFiat: convertToFiat(feeAsset, boltzFeeSats),
         feeAsset: feeAsset,
+        swapServiceUrl: boltzUrl,
       );
     }
     // Refund: Lightning → On-chain (shows as RECEIVE)
@@ -503,6 +516,7 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         isLightning: true,
         blindingUrl: computeBlindingUrl(networkTxn, args.asset,
             blindingData: args.dbTransaction?.blindingData),
+        swapServiceUrl: boltzUrl,
       );
     }
 

@@ -46,6 +46,8 @@ class BitcoinProvider extends NetworkFrontend {
         GdkRegisterNetworkData(
           name: networkName,
           networkDetails: GdkNetwork(
+            electrumTls: true,
+            validateDomain: true,
             electrumUrl: electrumConfig.customElectrumServerBtcUrl,
           ),
         ),

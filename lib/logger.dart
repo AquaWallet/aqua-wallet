@@ -84,24 +84,26 @@ String formatFeatureFlag(FeatureFlag? feature) {
 }
 
 class CustomLogger {
-  factory CustomLogger(FeatureFlag? feature) {
-    _customLogger.feature = feature;
-    return _customLogger;
-  }
-
-  CustomLogger._internal();
-
-  static final CustomLogger _customLogger = CustomLogger._internal();
+  CustomLogger(this.feature);
 
   static const String appName = 'Aqua';
+
+  /// Per logger, so each message is tagged with the component that logged it.
   FeatureFlag? feature;
 
-  Talker internalLogger = TalkerFlutter.init(
+  static final Talker _talker = TalkerFlutter.init(
       filter: kDebugMode && enabledLogFlags.isNotEmpty
           ? FeatureFilter(enabledLogFlags)
           : null);
 
+  /// One Talker for all loggers.
+  Talker internalLogger = _talker;
+
   void debug(dynamic message, [Object? exception, StackTrace? stackTrace]) {
+    // Debug logs are development-only.
+    if (kReleaseMode) {
+      return;
+    }
     internalLogger.debug('$appName: ${formatFeatureFlag(feature)} $message');
   }
 
