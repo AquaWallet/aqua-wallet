@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/marketplace/api_services/marketplace_service.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -283,4 +284,385 @@ void main() {
       verifyNever(() => mockMarketplaceService.fetchAssets());
     });
   });
+
+  group('ManageAssetsProvider', () {
+    late MockUserPreferencesNotifier mockPrefs;
+
+    const kEurxId =
+        '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec';
+    const kMexId =
+        '26ac924263ba547b706251635550a8649545ee5c074fe5db8d7140557baaf32e';
+    const kUnknownId =
+        '8a4053ef1b2f3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d';
+
+    final curatedAssets = [
+      Asset(
+        id: kLbtcId,
+        name: 'Liquid Bitcoin',
+        ticker: 'L-BTC',
+        logoUrl:
+            'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/L-BTC.svg',
+        isDefaultAsset: true,
+        isRemovable: false,
+        isLiquid: true,
+        isLBTC: true,
+      ),
+      Asset(
+        id: kUsdtId,
+        name: 'Tether USDt',
+        ticker: 'USDt',
+        logoUrl:
+            'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/USDt.svg',
+        isDefaultAsset: true,
+        isRemovable: true,
+        isLiquid: true,
+        isUSDt: true,
+      ),
+      Asset(
+        id: kEurxId,
+        name: 'PEGx EURx',
+        ticker: 'EURx',
+        logoUrl:
+            'https://aqua-asset-logos.s3.us-west-2.amazonaws.com/EURx.svg',
+        isRemovable: true,
+        isLiquid: true,
+      ),
+    ];
+
+    final discoveredAssetsList = [
+      Asset(
+        id: kUnknownId,
+        name: 'SomeToken',
+        ticker: 'STK',
+        logoUrl: Svgs.unknownAsset,
+        precision: 8,
+        isLiquid: true,
+        isRemovable: true,
+        amount: 100000,
+      ),
+    ];
+
+    setUp(() {
+      mockPrefs = MockUserPreferencesNotifier();
+    });
+
+    test('userAssets returns assets matching user pref IDs', () {
+      when(() => mockPrefs.userAssetIds)
+          .thenReturn([kLbtcId, kUsdtId, kEurxId]);
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        [],
+      );
+
+      expect(provider.userAssets.length, 3);
+      expect(provider.userAssets.first.id, kLbtcId);
+    });
+
+    test('availableAssets excludes already enabled assets', () {
+      when(() => mockPrefs.userAssetIds).thenReturn([kLbtcId, kUsdtId]);
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        [],
+      );
+
+      // EURx is removable and not in userAssetIds, so it should be available
+      expect(provider.availableAssets.length, 1);
+      expect(provider.availableAssets.first.id, kEurxId);
+    });
+
+    test('enabledDiscoveredAssets returns empty when no discovered prefs', () {
+      when(() => mockPrefs.userAssetIds).thenReturn([kLbtcId]);
+      when(() => mockPrefs.discoveredAssetIds).thenReturn([]);
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        discoveredAssetsList,
+      );
+
+      expect(provider.enabledDiscoveredAssets, isEmpty);
+    });
+
+    test('enabledDiscoveredAssets returns matching discovered assets', () {
+      when(() => mockPrefs.userAssetIds).thenReturn([kLbtcId]);
+      when(() => mockPrefs.discoveredAssetIds).thenReturn([kUnknownId]);
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        discoveredAssetsList,
+      );
+
+      expect(provider.enabledDiscoveredAssets.length, 1);
+      expect(provider.enabledDiscoveredAssets.first.id, kUnknownId);
+      expect(provider.enabledDiscoveredAssets.first.ticker, 'STK');
+    });
+
+    test('enabledDiscoveredAssets ignores IDs not in discovered list', () {
+      when(() => mockPrefs.userAssetIds).thenReturn([kLbtcId]);
+      when(() => mockPrefs.discoveredAssetIds)
+          .thenReturn(['nonexistent_asset_id']);
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        discoveredAssetsList,
+      );
+
+      expect(provider.enabledDiscoveredAssets, isEmpty);
+    });
+
+    test('addDiscoveredAsset delegates to prefs', () async {
+      when(() => mockPrefs.userAssetIds).thenReturn([kLbtcId]);
+      when(() => mockPrefs.discoveredAssetIds).thenReturn([]);
+      when(() => mockPrefs.addDiscoveredAsset(any()))
+          .thenAnswer((_) async {});
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        discoveredAssetsList,
+      );
+
+      await provider.addDiscoveredAsset(discoveredAssetsList.first);
+
+      verify(() => mockPrefs.addDiscoveredAsset(kUnknownId)).called(1);
+    });
+
+    test('removeDiscoveredAsset delegates to prefs', () async {
+      when(() => mockPrefs.userAssetIds).thenReturn([kLbtcId]);
+      when(() => mockPrefs.discoveredAssetIds).thenReturn([kUnknownId]);
+      when(() => mockPrefs.removeDiscoveredAsset(any()))
+          .thenAnswer((_) async {});
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        discoveredAssetsList,
+      );
+
+      await provider.removeDiscoveredAsset(discoveredAssetsList.first);
+
+      verify(() => mockPrefs.removeDiscoveredAsset(kUnknownId)).called(1);
+    });
+
+    test('discoveredAssets field is accessible', () {
+      when(() => mockPrefs.userAssetIds).thenReturn([kLbtcId]);
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        discoveredAssetsList,
+      );
+
+      expect(provider.discoveredAssets.length, 1);
+      expect(provider.discoveredAssets.first.id, kUnknownId);
+    });
+
+    test('discoveredAssets empty when no non-curated assets exist', () {
+      when(() => mockPrefs.userAssetIds).thenReturn([kLbtcId]);
+
+      final provider = ManageAssetsProvider(
+        Env.mainnet,
+        mockPrefs,
+        curatedAssets,
+        [],
+      );
+
+      expect(provider.discoveredAssets, isEmpty);
+    });
+  });
+
+  group('discoveredAssetsProvider', () {
+    const kUnknownAssetId =
+        '8a4053ef1b2f3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d';
+
+    test('returns empty list when all balances are curated', () async {
+      final mockLiquidProvider = MockLiquidProvider();
+      final mockSharedPreferences = MockSharedPreferences();
+
+      when(() => mockLiquidProvider.policyAsset).thenReturn(kLbtcId);
+      when(() => mockLiquidProvider.usdtId).thenReturn(kUsdtId);
+      when(() => mockLiquidProvider.getBalance(requiresRefresh: false))
+          .thenAnswer((_) async => {
+                kLbtcId: 50000,
+                kUsdtId: 100000,
+              });
+      when(() => mockSharedPreferences.setStringList(any(), any()))
+          .thenAnswer((_) async => true);
+
+      when(() => mockMarketplaceService.fetchAssets()).thenAnswer(
+        (_) async => Response(
+          http.Response(jsonEncode(assetsJson), 200),
+          AssetsResponse.fromJson(assetsJson),
+        ),
+      );
+
+      final testContainer = ProviderContainer(overrides: [
+        marketplaceServiceProvider.overrideWithValue(mockMarketplaceService),
+        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+        liquidProvider.overrideWithValue(mockLiquidProvider),
+        envProvider
+            .overrideWith((ref) => FakeEnvNotifier(mockSharedPreferences)),
+      ]);
+
+      addTearDown(testContainer.dispose);
+
+      // First resolve availableAssetsProvider so discoveredAssetsProvider can use it
+      await testContainer.read(availableAssetsProvider.future);
+      final result =
+          await testContainer.read(discoveredAssetsProvider.future);
+
+      expect(result, isEmpty);
+    });
+
+    test('returns discovered assets for non-curated balances', () async {
+      final mockLiquidProvider = MockLiquidProvider();
+      final mockSharedPreferences = MockSharedPreferences();
+
+      when(() => mockLiquidProvider.policyAsset).thenReturn(kLbtcId);
+      when(() => mockLiquidProvider.usdtId).thenReturn(kUsdtId);
+      when(() => mockLiquidProvider.getBalance(requiresRefresh: false))
+          .thenAnswer((_) async => {
+                kLbtcId: 50000,
+                kUsdtId: 100000,
+                kUnknownAssetId: 75000,
+              });
+      when(() => mockLiquidProvider.allRawAssets).thenReturn({
+        kUnknownAssetId: const GdkAssetInformation(
+          name: 'Some Token',
+          ticker: 'STK',
+          precision: 8,
+        ),
+      });
+      when(() => mockSharedPreferences.setStringList(any(), any()))
+          .thenAnswer((_) async => true);
+
+      when(() => mockMarketplaceService.fetchAssets()).thenAnswer(
+        (_) async => Response(
+          http.Response(jsonEncode(assetsJson), 200),
+          AssetsResponse.fromJson(assetsJson),
+        ),
+      );
+
+      final testContainer = ProviderContainer(overrides: [
+        marketplaceServiceProvider.overrideWithValue(mockMarketplaceService),
+        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+        liquidProvider.overrideWithValue(mockLiquidProvider),
+        envProvider
+            .overrideWith((ref) => FakeEnvNotifier(mockSharedPreferences)),
+      ]);
+
+      addTearDown(testContainer.dispose);
+
+      await testContainer.read(availableAssetsProvider.future);
+      final result =
+          await testContainer.read(discoveredAssetsProvider.future);
+
+      expect(result.length, 1);
+      expect(result.first.id, kUnknownAssetId);
+      expect(result.first.name, 'Some Token');
+      expect(result.first.ticker, 'STK');
+      expect(result.first.logoUrl, Svgs.unknownAsset);
+      expect(result.first.isLiquid, true);
+      expect(result.first.isRemovable, true);
+      expect(result.first.amount, 75000);
+    });
+
+    test('excludes policy asset from discovered assets', () async {
+      final mockLiquidProvider = MockLiquidProvider();
+      final mockSharedPreferences = MockSharedPreferences();
+
+      when(() => mockLiquidProvider.policyAsset).thenReturn(kLbtcId);
+      when(() => mockLiquidProvider.usdtId).thenReturn(kUsdtId);
+      // Balance only has policy asset (which is already curated anyway)
+      // and an unknown asset with zero balance
+      when(() => mockLiquidProvider.getBalance(requiresRefresh: false))
+          .thenAnswer((_) async => {
+                kLbtcId: 50000,
+                kUnknownAssetId: 0,
+              });
+      when(() => mockSharedPreferences.setStringList(any(), any()))
+          .thenAnswer((_) async => true);
+
+      when(() => mockMarketplaceService.fetchAssets()).thenAnswer(
+        (_) async => Response(
+          http.Response(jsonEncode(assetsJson), 200),
+          AssetsResponse.fromJson(assetsJson),
+        ),
+      );
+
+      final testContainer = ProviderContainer(overrides: [
+        marketplaceServiceProvider.overrideWithValue(mockMarketplaceService),
+        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+        liquidProvider.overrideWithValue(mockLiquidProvider),
+        envProvider
+            .overrideWith((ref) => FakeEnvNotifier(mockSharedPreferences)),
+      ]);
+
+      addTearDown(testContainer.dispose);
+
+      await testContainer.read(availableAssetsProvider.future);
+      final result =
+          await testContainer.read(discoveredAssetsProvider.future);
+
+      expect(result, isEmpty);
+    });
+
+    test('uses truncated ID as name when GDK has no metadata', () async {
+      final mockLiquidProvider = MockLiquidProvider();
+      final mockSharedPreferences = MockSharedPreferences();
+
+      when(() => mockLiquidProvider.policyAsset).thenReturn(kLbtcId);
+      when(() => mockLiquidProvider.usdtId).thenReturn(kUsdtId);
+      when(() => mockLiquidProvider.getBalance(requiresRefresh: false))
+          .thenAnswer((_) async => {
+                kUnknownAssetId: 50000,
+              });
+      when(() => mockLiquidProvider.allRawAssets).thenReturn({});
+      when(() => mockSharedPreferences.setStringList(any(), any()))
+          .thenAnswer((_) async => true);
+
+      when(() => mockMarketplaceService.fetchAssets()).thenAnswer(
+        (_) async => Response(
+          http.Response(jsonEncode(assetsJson), 200),
+          AssetsResponse.fromJson(assetsJson),
+        ),
+      );
+
+      final testContainer = ProviderContainer(overrides: [
+        marketplaceServiceProvider.overrideWithValue(mockMarketplaceService),
+        sharedPreferencesProvider.overrideWithValue(mockSharedPreferences),
+        liquidProvider.overrideWithValue(mockLiquidProvider),
+        envProvider
+            .overrideWith((ref) => FakeEnvNotifier(mockSharedPreferences)),
+      ]);
+
+      addTearDown(testContainer.dispose);
+
+      await testContainer.read(availableAssetsProvider.future);
+      final result =
+          await testContainer.read(discoveredAssetsProvider.future);
+
+      expect(result.length, 1);
+      expect(result.first.name, kUnknownAssetId.substring(0, 8));
+      expect(result.first.ticker, '???');
+      expect(result.first.precision, 8);
+    });
+  });
 }
+
+class MockUserPreferencesNotifier extends Mock
+    implements UserPreferencesNotifier {}

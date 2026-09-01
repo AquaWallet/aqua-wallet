@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:aqua/config/constants/svgs.dart';
 import 'package:aqua/data/provider/liquid_provider.dart';
 import 'package:aqua/features/marketplace/api_services/marketplace_service.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -107,20 +108,62 @@ final availableAssetsProvider =
   return allAssets;
 });
 
+final discoveredAssetsProvider =
+    FutureProvider.autoDispose<List<Asset>>((ref) async {
+  final balances =
+      await ref.read(liquidProvider).getBalance(requiresRefresh: false) ?? {};
+  final curatedIds = ref
+          .watch(availableAssetsProvider)
+          .asData
+          ?.value
+          ?.map((a) => a.id)
+          .toSet() ??
+      {};
+  final policyAsset = ref.read(liquidProvider).policyAsset;
+
+  // Asset IDs with balance that are NOT in the curated list
+  final unknownIds = balances.keys
+      .where((id) => !curatedIds.contains(id))
+      .where((id) => id != policyAsset)
+      .where((id) => (balances[id] as int? ?? 0) > 0)
+      .toList();
+
+  if (unknownIds.isEmpty) return [];
+
+  // Fetch metadata from GDK asset registry (local cache)
+  final rawAssets = ref.read(liquidProvider).allRawAssets ?? {};
+
+  return unknownIds.map((id) {
+    final info = rawAssets[id];
+    return Asset(
+      id: id,
+      name: info?.name ?? id.substring(0, 8),
+      ticker: info?.ticker ?? '???',
+      logoUrl: Svgs.unknownAsset,
+      precision: info?.precision ?? 8,
+      isLiquid: true,
+      isRemovable: true,
+      amount: balances[id] as int? ?? 0,
+    );
+  }).toList();
+});
+
 final manageAssetsProvider = Provider.autoDispose<ManageAssetsProvider>((ref) {
   final env = ref.watch(envProvider);
   final prefs = ref.watch(prefsProvider);
   final assets = ref.watch(availableAssetsProvider).asData?.value ?? [];
-  return ManageAssetsProvider(env, prefs, assets);
+  final discovered = ref.watch(discoveredAssetsProvider).asData?.value ?? [];
+  return ManageAssetsProvider(env, prefs, assets, discovered);
 });
 
 class ManageAssetsProvider extends ChangeNotifier {
-  ManageAssetsProvider(this.env, this.prefs, this.allAssets);
+  ManageAssetsProvider(this.env, this.prefs, this.allAssets, this.discoveredAssets);
 
   final Env env;
   final UserPreferencesNotifier prefs;
   //NOTE - The assets supported by Aqua at a given moment (fetched from API)
   final List<Asset> allAssets;
+  final List<Asset> discoveredAssets;
 
   //NOTE - These are all the assets that are currently enabled by the user.
   //This is supposed to be a subset of [availableAssets].
@@ -153,6 +196,23 @@ class ManageAssetsProvider extends ChangeNotifier {
 
   Future<void> removeAsset(Asset asset) async {
     prefs.removeAsset(asset.id);
+    notifyListeners();
+  }
+
+  List<Asset> get enabledDiscoveredAssets {
+    return prefs.discoveredAssetIds
+        .map((id) => discoveredAssets.firstWhereOrNull((a) => a.id == id))
+        .whereType<Asset>()
+        .toList();
+  }
+
+  Future<void> addDiscoveredAsset(Asset asset) async {
+    prefs.addDiscoveredAsset(asset.id);
+    notifyListeners();
+  }
+
+  Future<void> removeDiscoveredAsset(Asset asset) async {
+    prefs.removeDiscoveredAsset(asset.id);
     notifyListeners();
   }
 

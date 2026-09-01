@@ -16,4 +16,12 @@ extension MockManageAssetsProviderX on MockManageAssetsProvider {
   void mockLiquidUsdtAssetCall({required Asset asset}) {
     when(() => liquidUsdtAsset).thenReturn(asset);
   }
+
+  void mockDiscoveredAssets({required List<Asset> assets}) {
+    when(() => discoveredAssets).thenReturn(assets);
+  }
+
+  void mockEnabledDiscoveredAssets({required List<Asset> assets}) {
+    when(() => enabledDiscoveredAssets).thenReturn(assets);
+  }
 }
