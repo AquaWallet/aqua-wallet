@@ -10,6 +10,7 @@ export 'backup_reminder_provider_mocks.dart';
 export 'balance_service_mocks.dart';
 export 'bitcoin_provider_mocks.dart';
 export 'boltz_provider_mocks.dart';
+export 'boltz_websocket_mocks.dart';
 export 'confirmation_service_mocks.dart';
 export 'constants.dart';
 export 'conversion_currencies_provider_mocks.dart';

@@ -1,3 +1,4 @@
+import 'package:aqua/config/constants/lightning_providers.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/lightning/models/bolt11_ext.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -84,6 +85,16 @@ class BoltzSwapDbModel with _$BoltzSwapDbModel {
         scriptAddress: response.scriptAddress,
         createdAt: DateTime.now(),
       );
+}
+
+extension BoltzSwapDbModelProvider on BoltzSwapDbModel {
+  /// Name to show for this swap's provider. Pass the configured name for this
+  /// swap's [kind] as [currentName] where a setup config is available, so a
+  /// swap on a non-retired host names the provider Ankara configures.
+  String displayProviderName({
+    String currentName = currentLnProviderName,
+  }) =>
+      lnProviderNameForApiUrl(boltzUrl, currentName: currentName);
 }
 
 @freezed

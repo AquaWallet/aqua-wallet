@@ -27,6 +27,9 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
     final refundSwap = useFuture(
       ref.read(boltzSubmarineSwapProvider.notifier).getSwapForRefund(swap),
     );
+    final providerName = swap.displayProviderName(
+      currentName: ref.watch(currentLnProviderNameProvider(swap.kind)),
+    );
 
     final onCopyRefundData = useCallback(() async {
       final jsonString = await refundSwap.data?.toJson();
@@ -80,9 +83,9 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
                   subtitleTrailing: swap.locktime.toString(),
                 ),
                 AquaDivider(colors: context.aquaColors),
-                //ANCHOR - Boltz ID
+                //ANCHOR - Swap ID
                 AquaListItem(
-                  title: context.loc.boltzId,
+                  title: context.loc.serviceId(providerName),
                   contentWidget: Text(
                     swap.boltzId,
                     style: AquaAddressTypography.body2.copyWith(
@@ -93,7 +96,7 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
                     size: 18,
                     color: context.aquaColors.textSecondary,
                   ),
-                  onTap: () => context.copyToClipboard(swap.invoice),
+                  onTap: () => context.copyToClipboard(swap.boltzId),
                 ),
                 AquaDivider(colors: context.aquaColors),
                 //ANCHOR - Invoice
@@ -147,7 +150,7 @@ class BoltzSwapDetailScreen extends HookConsumerWidget {
                 ],
                 //ANCHOR - Boltz Data Button
                 AquaListItem(
-                  title: context.loc.boltzCopySwapData,
+                  title: context.loc.serviceCopySwapData(providerName),
                   titleColor: context.aquaColors.accentBrand,
                   iconTrailing: AquaIcon.copy(
                     size: 18,

@@ -2,10 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/logger.dart';
 
 final _logger = CustomLogger(FeatureFlag.boltz);
+
+/// Opens the transport for a wss:// url. Only tests replace it, so they can
+/// drive connect failures and reconnects without a live server.
+typedef BoltzChannelFactory = WebSocketChannel Function(String url);
 
 /// One independently managed WebSocket per Boltz API URL.
 final boltzWebSocketProvider =
@@ -21,20 +26,32 @@ final boltzWebSocketProvider =
 
 class BoltzWebSocket {
   final String apiUrl;
-  IOWebSocketChannel? _wssStream;
+  final BoltzChannelFactory _channelFactory;
+  WebSocketChannel? _wssStream;
   StreamSubscription? _wsSubscription;
   final _subscriptions = <String, StreamController<Map<String, dynamic>>>{};
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 5;
-  final _subscriptionQueue = <String>[];
+  final _subscriptionQueue = <String>{};
   bool _isConnectionReady = false;
+  Future<void>? _connecting;
 
-  BoltzWebSocket(this.apiUrl) {
+  BoltzWebSocket(this.apiUrl, {BoltzChannelFactory? channelFactory})
+      : _channelFactory = channelFactory ?? _connectIoChannel {
     _logger.debug('[Boltz] -- BoltzWebSocket init for $apiUrl --');
   }
 
-  bool get hasActiveSubscriptions => _subscriptions.isNotEmpty;
+  static WebSocketChannel _connectIoChannel(String url) =>
+      IOWebSocketChannel.connect(
+        url,
+        connectTimeout: const Duration(seconds: 10),
+      );
+
+  /// Queued ids count too: a connection that dies before the first subscribe
+  /// succeeds has an empty [_subscriptions] map but still needs a reconnect.
+  bool get _hasSubscribers =>
+      _subscriptions.isNotEmpty || _subscriptionQueue.isNotEmpty;
 
   bool get isConnected {
     if (_wssStream == null) {
@@ -50,23 +67,16 @@ class BoltzWebSocket {
     return isConnected;
   }
 
-  Future<void> initializeWebSocket() async {
-    if (isConnected) {
-      _logger.info('[Boltz] [WSS] WebSocket already connected');
-      return;
-    }
-
+  /// Transport only: opens the socket and marks it ready. Subscription
+  /// bookkeeping lives in [_connect], the sole caller.
+  Future<void> _openSocket() async {
     _logger.info('[Boltz] [WSS] Initializing WebSocket connection');
-    _isConnectionReady = false;
 
     final baseUrl = apiUrl.replaceFirst('https://', 'wss://');
     final url = '$baseUrl/ws';
 
     try {
-      _wssStream = IOWebSocketChannel.connect(
-        url,
-        connectTimeout: const Duration(seconds: 10),
-      );
+      _wssStream = _channelFactory(url);
       _logger.info('[Boltz] [WSS] Opening shared WebSocket connection at $url');
 
       _wsSubscription = _wssStream!.stream.listen(
@@ -85,8 +95,6 @@ class BoltzWebSocket {
       _reconnectAttempts = 0;
       _isConnectionReady = true;
       _logger.info('[Boltz] [WSS] WebSocket connection established');
-
-      _processSubscriptionQueue();
     } catch (e) {
       _isConnectionReady = false;
       _logger
@@ -126,7 +134,7 @@ class BoltzWebSocket {
     _logger.info('[Boltz] [WSS] WebSocket connection closed');
     _isConnectionReady = false;
 
-    if (hasActiveSubscriptions) {
+    if (_hasSubscribers) {
       _logger.info(
           '[Boltz] [WSS] Active subscriptions found, scheduling reconnection');
       _scheduleReconnection();
@@ -135,6 +143,8 @@ class BoltzWebSocket {
     }
   }
 
+  /// Safe to call from multiple sites: the active-timer guard makes repeat
+  /// scheduling a no-op.
   void _scheduleReconnection() {
     if (_reconnectTimer?.isActive ?? false) return;
     if (_reconnectAttempts >= _maxReconnectAttempts) {
@@ -145,46 +155,45 @@ class BoltzWebSocket {
     final delay = Duration(seconds: pow(2, _reconnectAttempts).toInt());
     _logger.info('[Boltz] [WSS] Scheduling reconnection in $delay');
     _reconnectTimer = Timer(delay, () {
-      if (hasActiveSubscriptions) {
+      // A subscribe() can reconnect through _ensureConnected while this timer
+      // is pending. Do not spend an attempt on a run that has nothing to do,
+      // otherwise the backoff for the next real failure starts too high.
+      if (isConnected && _subscriptionQueue.isEmpty) {
+        _logger.info(
+            '[Boltz] [WSS] Reconnect timer fired but connection is live, skipping');
+        return;
+      }
+      if (_hasSubscribers) {
         _logger.info(
             '[Boltz] [WSS] Attempting to reconnect... (Attempt ${_reconnectAttempts + 1})');
         _reconnectAttempts++;
-        _reestablishConnection();
+        // Reconnects and re-sends the queue; a failed attempt logs and
+        // reschedules internally. Its error is ignored here: there is no
+        // caller to report it to.
+        _processSubscriptionQueue().ignore();
       }
     });
   }
 
-  Future<void> _reestablishConnection() async {
+  /// Serializes connection attempts: concurrent callers await the same
+  /// in-flight connect instead of racing cleanup against init.
+  Future<void> _ensureConnected() {
+    if (isConnected) return Future.value();
+    return _connecting ??= _connect().whenComplete(() => _connecting = null);
+  }
+
+  Future<void> _connect() async {
     _logger.info('[Boltz] [WSS] Reestablishing WebSocket connection');
+    // Cleanup must fully finish before _openSocket assigns the new channel,
+    // otherwise cleanup's teardown nulls out the fresh stream.
+    await _cleanupConnection();
+    await _openSocket();
 
-    if (isConnected) {
-      _logger.info(
-          '[Boltz] [WSS] WebSocket already connected, skipping reestablishment');
-      return;
-    }
-
-    try {
-      // Set a timeout for the entire reestablishment process
-      await Future.wait([
-        _cleanupConnection(),
-        initializeWebSocket(),
-      ]).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          _logger.error('[Boltz] [WSS] Connection reestablishment timed out');
-          throw TimeoutException('WebSocket reestablishment timed out');
-        },
-      );
-    } catch (e) {
-      _logger.error('[Boltz] [WSS] Failed to reestablish connection: $e');
-
-      // If we still have active subscriptions, schedule another reconnection attempt
-      if (hasActiveSubscriptions) {
-        _scheduleReconnection();
-      }
-
-      rethrow;
-    }
+    // The new socket knows nothing about previously live subscriptions
+    // (e.g. after a server restart), so re-send them along with the queue.
+    // The queue may transiently overlap _subscriptions here; sends dedup.
+    _subscriptionQueue.addAll(_subscriptions.keys);
+    await _drainSubscriptionQueue();
   }
 
   Future<void> _cleanupConnection() async {
@@ -214,6 +223,9 @@ class BoltzWebSocket {
 
   Future<void> _sendSubscriptions(List<String> swapIds) async {
     try {
+      if (!isConnected) {
+        throw StateError('WebSocket is not connected');
+      }
       _wssStream!.sink.add(jsonEncode(
           {"op": "subscribe", "channel": "swap.update", "args": swapIds}));
 
@@ -226,7 +238,7 @@ class BoltzWebSocket {
             _subscriptions[swapId] =
                 StreamController<Map<String, dynamic>>.broadcast();
           } else {
-            _logger.info(
+            _logger.debug(
                 '[Boltz] [WSS] Controller already exists and active for swap: $swapId');
             continue;
           }
@@ -270,25 +282,42 @@ class BoltzWebSocket {
   }
 
   Future<void> _processSubscriptionQueue() async {
-    if (!isConnected) {
-      _logger.info('[Boltz] [WSS] Connection lost, attempting to reconnect');
-      await Future.delayed(const Duration(milliseconds: 100));
-      await _reestablishConnection();
+    try {
+      await _ensureConnected();
+    } catch (e) {
+      // _openSocket already logged and scheduled a reconnect, and the queued
+      // ids stay queued for it. Rethrow anyway: subscribe() callers must see
+      // the real connection error, not a generic "no subscription" failure.
+      _logger.error('[Boltz] [WSS] Cannot connect to send subscriptions: $e');
+      rethrow;
     }
 
+    await _drainSubscriptionQueue();
+  }
+
+  Future<void> _drainSubscriptionQueue() async {
     while (_subscriptionQueue.isNotEmpty) {
       try {
-        final swapIds = List<String>.from(_subscriptionQueue);
+        final swapIds = _subscriptionQueue.toList();
         await _sendSubscriptions(swapIds);
-        _subscriptionQueue.clear();
+        // Only drop what was sent: new ids may have been queued while the
+        // send was in flight.
+        _subscriptionQueue.removeAll(swapIds);
       } catch (e) {
         _logger.error('[Boltz] [WSS] Failed to process subscriptions: $e');
+        _scheduleReconnection();
         break;
       }
     }
   }
 
   Future<void> unsubscribe(String swapId) async {
+    // Drop the queued id first. A subscribe that never reached the server has
+    // no entry in _subscriptions, and a leftover queue entry keeps
+    // _hasSubscribers true, so the socket would reconnect and resurrect a
+    // subscription that nobody listens to.
+    _subscriptionQueue.remove(swapId);
+
     if (_subscriptions.containsKey(swapId)) {
       try {
         if (_wssStream != null && isConnected) {
@@ -306,9 +335,6 @@ class BoltzWebSocket {
       } finally {
         await _subscriptions[swapId]!.close();
         _subscriptions.remove(swapId);
-        // A failed send leaves the id queued, which would otherwise resurrect
-        // the subscription the caller just cancelled.
-        _subscriptionQueue.remove(swapId);
       }
     }
   }

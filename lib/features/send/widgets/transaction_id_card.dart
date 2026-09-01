@@ -1,8 +1,10 @@
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/gen/fonts.gen.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:boltz/boltz.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class TransactionIdCard extends HookConsumerWidget {
@@ -44,7 +46,12 @@ class TransactionIdCard extends HookConsumerWidget {
           //ANCHOR - Shift ID
           if (asset.isAltUsdt || asset.isLightning) ...{
             _CopyableTransactionId(
-              label: asset.isAltUsdt ? context.loc.swapId : context.loc.boltzId,
+              // A send that just completed can only have used the current
+              // provider.
+              label: asset.isAltUsdt
+                  ? context.loc.swapId
+                  : context.loc.serviceId(
+                      ref.watch(lnProviderNameProvider(SwapType.submarine))),
               transactionId: arguments.serviceOrderId ?? '-',
             ),
             const SizedBox(height: 18),

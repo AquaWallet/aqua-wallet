@@ -4,11 +4,11 @@ import 'package:boltz/boltz.dart';
 
 // ANCHOR - Boltz Fees Provider (submarine vs reverse hosts)
 final boltzFeesProvider =
-    AsyncNotifierProvider.family<BoltzFeesNotifier, Fees, SwapType>(
+    AsyncNotifierProvider.autoDispose.family<BoltzFeesNotifier, Fees, SwapType>(
   BoltzFeesNotifier.new,
 );
 
-class BoltzFeesNotifier extends FamilyAsyncNotifier<Fees, SwapType> {
+class BoltzFeesNotifier extends AutoDisposeFamilyAsyncNotifier<Fees, SwapType> {
   @override
   Future<Fees> build(SwapType arg) async {
     final boltzUrl = await ref.watch(boltzApiUrlProvider(arg).future);

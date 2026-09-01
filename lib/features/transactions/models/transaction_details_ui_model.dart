@@ -92,6 +92,9 @@ class AssetTransactionDetailsUiModel with _$AssetTransactionDetailsUiModel {
 
     /// Host of the swap service that facilitated this send, when one was used.
     String? swapServiceUrl,
+
+    /// Display name of that swap service, as recorded when the swap was made.
+    String? swapServiceName,
   }) = SendTransactionDetailsUiModel;
 
   const factory AssetTransactionDetailsUiModel.receive({
@@ -112,6 +115,9 @@ class AssetTransactionDetailsUiModel with _$AssetTransactionDetailsUiModel {
 
     /// Host of the swap service that facilitated this receive, when one was used.
     String? swapServiceUrl,
+
+    /// Display name of that swap service, as recorded when the swap was made.
+    String? swapServiceName,
   }) = ReceiveTransactionDetailsUiModel;
 }
 

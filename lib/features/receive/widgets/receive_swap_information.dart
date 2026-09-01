@@ -1,8 +1,10 @@
 import 'package:aqua/data/provider/format_provider.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:boltz/boltz.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/ui_components.dart';
@@ -91,8 +93,11 @@ class ReceiveSwapInformation extends HookConsumerWidget {
           const SizedBox(height: 1),
           //ANCHOR - Provider Processing Fee
           AquaListItem(
-            title: context.loc
-                .providerProcessingFee(getProviderTitle(order, swapPair)),
+            title: context.loc.providerProcessingFee(getProviderTitle(
+              order,
+              swapPair,
+              ref.watch(lnProviderNameProvider(SwapType.reverse)),
+            )),
             subtitleTrailing: networkFee,
           ),
           const SizedBox(height: 1),
@@ -118,15 +123,18 @@ class ReceiveSwapInformation extends HookConsumerWidget {
     );
   }
 
+  /// A Lightning swap is named after its provider, which the caller resolves
+  /// from the configured host. Every other swap is named after its service.
   @visibleForTesting
-  static String getProviderTitle(SwapOrder? order, SwapPair swapPair) {
+  static String getProviderTitle(
+    SwapOrder? order,
+    SwapPair swapPair,
+    String lnProviderName,
+  ) {
     if (order == null) return '';
 
-    final deliverAsset = swapPair.from.toAsset();
-    final providerName = deliverAsset.providerName;
-
-    return providerName.isNotEmpty
-        ? providerName
+    return swapPair.from.toAsset().isLightning
+        ? lnProviderName
         : order.serviceType.displayName;
   }
 }

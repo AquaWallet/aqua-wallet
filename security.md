@@ -4,10 +4,7 @@
 
 Please **do not** report security vulnerabilities through public GitHub issues, discussions, or pull requests.
 
-Instead, please report them via one of the following methods:
-
-1. **Preferred**: Use [GitHub Private Vulnerability Reporting](https://github.com/AquaWallet/aqua-wallet/security/advisories/new).
-2. Email us at **security@jan3.com**.
+Instead, please report them using [GitHub Private Vulnerability Reporting](https://github.com/AquaWallet/aqua-wallet/security/advisories/new).
 
 When reporting a vulnerability, please include as much of the following information as possible:
 
@@ -16,6 +13,11 @@ When reporting a vulnerability, please include as much of the following informat
 - Affected version(s) or commit hash
 - Potential impact
 - Any suggested fix or mitigation (optional)
+- Detailed description of the bug
+- Liquid address for the bounty payout (if eligible)
+- Your name and physical address (for us to be able to process the bounty, if eligible) 
+ 
+You can find additional information in [JAN3 Responsible Disclosure](https://jan3.com/responsible-disclosure)
 
 ### What to expect
 

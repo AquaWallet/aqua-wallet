@@ -1,11 +1,12 @@
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/desktop/widgets/widgets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/shared/utils/transaction_summary_localizations_extension.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:boltz/boltz.dart';
 import 'package:ui_components/ui_components.dart';
 
-class LightningTransactionSideSheet extends HookWidget {
+class LightningTransactionSideSheet extends HookConsumerWidget {
   LightningTransactionSideSheet.send({
     required this.iconAssetId,
     required this.timestamp,
@@ -80,9 +81,15 @@ class LightningTransactionSideSheet extends HookWidget {
   final AquaTransactionType _type;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = context.loc;
     final aquaColors = context.aquaColors;
+    // A receive over Lightning is a reverse swap; a send is a submarine one.
+    final providerName = ref.watch(lnProviderNameProvider(
+      _type == AquaTransactionType.receive
+          ? SwapType.reverse
+          : SwapType.submarine,
+    ));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
@@ -164,7 +171,7 @@ class LightningTransactionSideSheet extends HookWidget {
                         AquaListItem(
                           title: loc.provider,
                           backgroundColor: aquaColors.surfacePrimary,
-                          subtitleTrailing: 'Boltz',
+                          subtitleTrailing: providerName,
                           subtitleTrailingColor: aquaColors.accentBrand,
                           iconTrailing: AquaIcon.externalLink(
                             color: aquaColors.textSecondary,
@@ -173,7 +180,7 @@ class LightningTransactionSideSheet extends HookWidget {
                         ),
                         const StylizedDivider(),
                         AquaListItem(
-                          title: loc.boltzId,
+                          title: loc.serviceId(providerName),
                           backgroundColor: aquaColors.surfacePrimary,
                           subtitle: 'bArmJxFZh9PK',
                           subtitleColor: aquaColors.textSecondary,

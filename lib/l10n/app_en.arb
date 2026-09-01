@@ -59,7 +59,6 @@
   "boltzClaimSwap": "Claim Swap",
   "boltzClaimTx": "Claim Tx",
   "boltzCopyRefundData": "Copy Refund Data",
-  "boltzCopySwapData": "Copy Boltz Data",
   "boltzGenerateInvoice": "Create Invoice",
   "boltzId": "Boltz ID",
   "boltzInitTitleError": "There was an error initializing the Lightning service.",
@@ -138,12 +137,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Changelly for USDt Swaps",
   "expFeaturesScreenItemsClearGhostTxns": "Clear Ghost Transactions",
   "expFeaturesScreenItemsEnableElectrumServer": "Custom Electrum Server",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Force Boltz Failed Normal Swap",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Force Failed Lightning Swap",
   "expFeaturesScreenItemsNotes": "Notes",
   "expFeaturesScreenItemsStatusIndicator": "Status Indicator",
   "expFeaturesScreenItemsSubaccounts": "Activate Subaccounts",
   "expFeaturesScreenItemsDebitCardStaging": "Enable Staging Usage",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Enabling this will cause Boltz Lightning sends to fail, forcing a refund needed state.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Enabling this will cause Lightning sends to fail, forcing a refund needed state.",
   "expFeaturesScreenItemsDbJsonExport": "Database JSON export",
   "expFeaturesScreenSectionDebugMode": "Debug Mode Only",
   "expFeaturesScreenLightningAddressInfoScreen": "Lightning Address info screen",
@@ -385,7 +384,7 @@
   "searchHistory": "Search history",
   "send": "Send",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "Asset not in asset list",
-  "sendAssetAmountScreenBoltzInvoiceError": "There was a problem with this Boltz invoice.",
+  "sendAssetAmountScreenBoltzInvoiceError": "There was a problem with this Lightning invoice.",
   "sendAssetAmountScreenEmptyAddressError": "Fill the address field",
   "sendAssetAmountScreenEmptyAmountError": "Fill the amount field",
   "sendAssetAmountScreenExpiredInvoiceError": "The invoice is expired.",
@@ -911,6 +910,7 @@
   "amountRange": "Range: {min} - {max}",
   "serviceId": "{serviceName} ID",
   "serviceSwapDetails": "{serviceName} Swap Details",
+  "serviceCopySwapData": "Copy {serviceName} Data",
   "redepositing": "Redepositing",
   "redeposited": "Redeposited",
   "marketplaceTileDisabledMessage": "Not available in your selected region",
@@ -1295,9 +1295,6 @@
     "approved": "true"
   },
   "@boltzCopyRefundData": {
-    "approved": "true"
-  },
-  "@boltzCopySwapData": {
     "approved": "true"
   },
   "@boltzGenerateInvoice": {

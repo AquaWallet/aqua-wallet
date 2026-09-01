@@ -36,9 +36,6 @@ const zendeskFormFieldBoltzUrl = "54096244920219";
 const blockstreamInfoBaseUrl = 'https://blockstream.info';
 const blockstreamElectrumBaseUrl = 'blockstream.info';
 
-// Legacy Boltz transactions without a persisted API URL
-const boltzWebsite = 'https://boltz.exchange';
-
 // MELD
 const meldProdUrl = 'https://meldcrypto.com/';
 const meldSandboxUrl = 'https://sb.meldcrypto.com/';

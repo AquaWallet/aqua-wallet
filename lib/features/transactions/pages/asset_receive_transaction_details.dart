@@ -1,4 +1,4 @@
-import 'package:aqua/config/constants/urls.dart';
+import 'package:aqua/config/constants/lightning_providers.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -207,7 +207,8 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
     final receivedDisplayUnit =
         unitsProvider.getAssetDisplayUnit(model.receivedAsset);
     final dbTransaction = model.dbTransaction;
-    final boltzUrl = model.swapServiceUrl ?? boltzWebsite;
+    final providerUrl = model.swapServiceUrl ?? legacyLnProviderWebsite;
+    final providerName = model.swapServiceName ?? legacyLnProviderName;
     final aquaVersion = ref.watch(versionProvider).valueOrNull ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,7 +267,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
               ),
               AquaListItem(
                 title: context.loc.provider,
-                subtitleTrailing: boltzUrl,
+                subtitleTrailing: providerName,
                 subtitleTrailingColor: context.aquaColors.accentBrand,
               ),
               AquaDivider(
@@ -275,7 +276,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
               AquaListItem(
                 onTap: () => context
                     .copyToClipboard(model.dbTransaction?.serviceOrderId ?? ''),
-                title: context.loc.boltzId,
+                title: context.loc.serviceId(providerName),
                 contentWidget: Text(
                   model.dbTransaction?.serviceOrderId ?? '',
                   style: AquaAddressTypography.body2.copyWith(
@@ -317,7 +318,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                         .loc.boltzSwapSupportZendeskSubjectCriticalDoNotChange,
                     swapId,
                     aquaVersion,
-                    boltzUrl,
+                    providerUrl,
                   ));
                 },
                 title: context.loc.commonContactSupport,

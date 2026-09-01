@@ -220,10 +220,16 @@ class BoltzSwapSettlementService {
         .read(boltzStorageProvider.notifier)
         .updateBoltzSwapStatus(boltzId: swapId, status: status);
 
+    if (status.isFinal) {
+      _logger.debug(
+          '[Boltz] Swap ${cachedOrder.boltzId} reached final status ${status.value}. Closing.');
+      await _closeSwap(cachedOrder.boltzId);
+      return;
+    }
+
     if (cachedOrder.claimTxId != null && cachedOrder.claimTxId!.isNotEmpty) {
       _logger.debug(
           '[Boltz] Swap ${cachedOrder.boltzId} has already been claimed. Skipping.');
-      await _closeSwap(cachedOrder.boltzId);
       return;
     }
 
@@ -233,8 +239,7 @@ class BoltzSwapSettlementService {
       return;
     }
 
-    if (status.needsClaim &&
-        (cachedOrder.claimTxId == null || cachedOrder.claimTxId!.isEmpty)) {
+    if (status.needsClaim) {
       _logger.debug('[Boltz] Swap needs claim: ${cachedOrder.boltzId}');
       _claimsInProgress[swapId] = true;
       try {
@@ -242,11 +247,7 @@ class BoltzSwapSettlementService {
             .read(boltzStorageProvider.notifier)
             .getLbtcLnV2SwapById(cachedOrder.boltzId);
         if (boltzSwap == null) return;
-        final tx = await claim(boltzSwap);
-
-        if (tx != null) {
-          await _closeSwap(cachedOrder.boltzId);
-        }
+        await claim(boltzSwap);
       } finally {
         _claimsInProgress[swapId] = false;
       }

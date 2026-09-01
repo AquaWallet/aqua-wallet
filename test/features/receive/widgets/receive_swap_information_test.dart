@@ -1,4 +1,5 @@
 import 'package:aqua/features/receive/widgets/receive_swap_information.dart';
+import 'package:aqua/features/settings/manage_assets/manage_assets.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,7 +30,8 @@ void main() {
         to: SwapAssetExt.usdtLiquid,
       );
 
-      final result = ReceiveSwapInformation.getProviderTitle(order, swapPair);
+      final result =
+          ReceiveSwapInformation.getProviderTitle(order, swapPair, 'Indra');
 
       expect(result, 'SideShift');
     });
@@ -58,12 +60,42 @@ void main() {
         to: SwapAssetExt.usdtLiquid,
       );
 
-      final result = ReceiveSwapInformation.getProviderTitle(order, swapPair);
+      final result =
+          ReceiveSwapInformation.getProviderTitle(order, swapPair, 'Indra');
 
       // This verifies the bug fix - previously would have returned "Shift" because
       // providerName was hardcoded to return 'Shift' for all alt-USDT assets
       expect(result, 'Changelly');
       expect(result, isNot('Shift'));
+    });
+
+    test('Lightning order returns the resolved provider name', () {
+      final lightning = SwapAssetExt.fromAsset(Asset.lightning());
+      final order = SwapOrder(
+        createdAt: DateTime.now(),
+        id: 'test_lightning_order',
+        from: lightning,
+        to: SwapAssetExt.lbtc,
+        depositAddress: 'lnbc1DepositInvoice',
+        settleAddress: 'lq1SettleAddress',
+        depositAmount: Decimal.parse('100'),
+        settleAmount: Decimal.parse('99'),
+        serviceFee: SwapFee(
+          type: SwapFeeType.flatFee,
+          value: Decimal.parse('1'),
+          currency: SwapFeeCurrency.usd,
+        ),
+        status: SwapOrderStatus.waiting,
+        serviceType: SwapServiceSource.sideshift,
+      );
+
+      final swapPair = SwapPair(from: lightning, to: SwapAssetExt.lbtc);
+
+      final result =
+          ReceiveSwapInformation.getProviderTitle(order, swapPair, 'Indra');
+
+      // The Lightning provider wins over the swap service that carried it.
+      expect(result, 'Indra');
     });
 
     test('Null order returns empty string', () {
@@ -72,7 +104,8 @@ void main() {
         to: SwapAssetExt.usdtLiquid,
       );
 
-      final result = ReceiveSwapInformation.getProviderTitle(null, swapPair);
+      final result =
+          ReceiveSwapInformation.getProviderTitle(null, swapPair, 'Indra');
 
       expect(result, '');
     });

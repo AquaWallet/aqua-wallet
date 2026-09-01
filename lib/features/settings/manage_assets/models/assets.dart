@@ -401,14 +401,6 @@ extension AssetUsdtExt on Asset {
     return 'USD';
   }
 
-  // provider name
-  String get providerName {
-    if (isLightning) {
-      return 'Boltz';
-    }
-    return '';
-  }
-
   AssetUiModel toUiModel({
     String? name,
     String? displayUnit,

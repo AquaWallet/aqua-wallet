@@ -1,4 +1,4 @@
-import 'package:aqua/config/constants/urls.dart';
+import 'package:aqua/config/constants/lightning_providers.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/settings/settings.dart';
@@ -214,7 +214,15 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
             .read(boltzStorageProvider.notifier)
             .getSwapById(dbTxn.serviceOrderId!)
         : null;
-    final boltzUrl = swap != null ? swap.boltzUrl : boltzWebsite;
+    final providerUrl = swap != null ? swap.boltzUrl : legacyLnProviderWebsite;
+    // An orphan row — swap data cleared or restored from a backup — cannot name
+    // its provider. Boltz is the better guess: every restored history predates
+    // the provider switch.
+    final providerName = swap != null
+        ? swap.displayProviderName(
+            currentName: ref.read(currentLnProviderNameProvider(swap.kind)),
+          )
+        : legacyLnProviderName;
 
     // Determine transaction type (submarine swap, reverse swap, or failed)
     final isSubmarineSwap = dbTxn.type == TransactionDbModelType.boltzSwap ||
@@ -287,7 +295,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         isLightning: true,
         blindingUrl: '',
         fiatAmountAtExecutionDisplay: fiatValueAtTime,
-        swapServiceUrl: boltzUrl,
+        swapServiceUrl: providerUrl,
+        swapServiceName: providerName,
       );
     }
 
@@ -316,7 +325,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         dbTransaction: dbTxn,
         isLightning: true,
         blindingUrl: '',
-        swapServiceUrl: boltzUrl,
+        swapServiceUrl: providerUrl,
+        swapServiceName: providerName,
       );
     }
 
@@ -343,7 +353,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         dbTransaction: dbTxn,
         isLightning: true,
         blindingUrl: '',
-        swapServiceUrl: boltzUrl,
+        swapServiceUrl: providerUrl,
+        swapServiceName: providerName,
       );
     }
 
@@ -371,7 +382,17 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
             .read(boltzStorageProvider.notifier)
             .getSwapById(dbTxn.serviceOrderId!)
         : null;
-    final boltzUrl = boltzSwap != null ? boltzSwap.boltzUrl : boltzWebsite;
+    final providerUrl =
+        boltzSwap != null ? boltzSwap.boltzUrl : legacyLnProviderWebsite;
+    // An orphan row — swap data cleared or restored from a backup — cannot name
+    // its provider. Boltz is the better guess: every restored history predates
+    // the provider switch.
+    final providerName = boltzSwap != null
+        ? boltzSwap.displayProviderName(
+            currentName:
+                ref.read(currentLnProviderNameProvider(boltzSwap.kind)),
+          )
+        : legacyLnProviderName;
     final feeAsset = getFeeAsset(args);
     final confirmationCount = await confirmationService.getConfirmationCount(
         args.asset, networkTxn?.blockHeight ?? 0);
@@ -455,7 +476,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         blindingUrl: computeBlindingUrl(networkTxn, args.asset,
             blindingData: args.dbTransaction?.blindingData),
         fiatAmountAtExecutionDisplay: fiatValueAtTime,
-        swapServiceUrl: boltzUrl,
+        swapServiceUrl: providerUrl,
+        swapServiceName: providerName,
       );
     }
 
@@ -492,7 +514,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         feeAmount: feeAmount,
         feeAmountFiat: convertToFiat(feeAsset, boltzFeeSats),
         feeAsset: feeAsset,
-        swapServiceUrl: boltzUrl,
+        swapServiceUrl: providerUrl,
+        swapServiceName: providerName,
       );
     }
     // Refund: Lightning → On-chain (shows as RECEIVE)
@@ -516,7 +539,8 @@ class LightningTransactionUiModelCreator extends TransactionUiModelCreator {
         isLightning: true,
         blindingUrl: computeBlindingUrl(networkTxn, args.asset,
             blindingData: args.dbTransaction?.blindingData),
-        swapServiceUrl: boltzUrl,
+        swapServiceUrl: providerUrl,
+        swapServiceName: providerName,
       );
     }
 

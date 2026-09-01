@@ -95,6 +95,10 @@ class _AquaTransactionDetailsContent extends ConsumerWidget {
 
     final feeDisplayUnit = unitsProvider.getAssetDisplayUnit(model.feeAsset);
     final recipientGetsAmount = '${model.recepientGetsAmount}';
+    // Only shown when the row carries a name, so the empty fallback never
+    // reaches the screen.
+    final serviceName =
+        model.swapServiceName ?? model.dbTransaction?.swapServiceName ?? '';
     final recipientGetsUnit =
         model.deliverAsset.getDisplayTicker(unitsProvider.currentDisplayUnit);
     return Column(
@@ -141,7 +145,7 @@ class _AquaTransactionDetailsContent extends ConsumerWidget {
                 AquaDivider(colors: context.aquaColors),
                 AquaListItem(
                   title: context.loc.provider,
-                  subtitleTrailing: model.dbTransaction!.swapServiceName,
+                  subtitleTrailing: serviceName,
                   onTap: model.dbTransaction!.swapTrackingUrl != null
                       ? () => ref
                           .read(urlLauncherProvider)
@@ -156,8 +160,7 @@ class _AquaTransactionDetailsContent extends ConsumerWidget {
                 ),
                 AquaDivider(colors: context.aquaColors),
                 AquaListItem(
-                  title: context.loc
-                      .serviceId(model.dbTransaction!.swapServiceName ?? ''),
+                  title: context.loc.serviceId(serviceName),
                   contentWidget: Text(
                     model.dbTransaction!.serviceOrderId ?? '',
                     style: AquaAddressTypography.body2.copyWith(
@@ -361,7 +364,8 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
         model.isLightning ? model.dbTransaction?.serviceOrderId : null;
     final proofOfPaymentUrl =
         ref.watch(boltzProofOfPaymentProvider(boltzOrderId)).valueOrNull;
-    final boltzUrl = model.swapServiceUrl ?? boltzWebsite;
+    final providerUrl = model.swapServiceUrl ?? legacyLnProviderWebsite;
+    final providerName = model.swapServiceName ?? legacyLnProviderName;
     final aquaVersion = ref.watch(versionProvider).valueOrNull ?? '';
 
     return Column(
@@ -439,7 +443,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
               ],
               AquaListItem(
                 title: context.loc.provider,
-                subtitleTrailing: boltzUrl,
+                subtitleTrailing: providerName,
                 subtitleTrailingColor: context.aquaColors.accentBrand,
               ),
               AquaDivider(
@@ -450,7 +454,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                     ? () => context
                         .copyToClipboard(model.dbTransaction!.serviceOrderId!)
                     : null,
-                title: context.loc.boltzId,
+                title: context.loc.serviceId(providerName),
                 contentWidget: Text(
                   model.dbTransaction?.serviceOrderId ?? '',
                   style: AquaAddressTypography.body2.copyWith(
@@ -495,7 +499,7 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
                         .loc.boltzSwapSupportZendeskSubjectCriticalDoNotChange,
                     swapId,
                     aquaVersion,
-                    boltzUrl,
+                    providerUrl,
                   ));
                 },
                 title: context.loc.commonContactSupport,

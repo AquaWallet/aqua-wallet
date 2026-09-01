@@ -1,8 +1,10 @@
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/desktop/constants/constants.dart';
 import 'package:aqua/features/desktop/utils/utils.dart';
 import 'package:aqua/features/desktop/widgets/widgets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:boltz/boltz.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ui_components/ui_components.dart';
 
@@ -315,7 +317,7 @@ class SendFlowSideSheet extends HookWidget {
   }
 }
 
-class SendConfirmSideSheet extends HookWidget {
+class SendConfirmSideSheet extends HookConsumerWidget {
   const SendConfirmSideSheet({
     required this.loc,
     required this.aquaColors,
@@ -328,10 +330,11 @@ class SendConfirmSideSheet extends HookWidget {
   final String assetId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final enabledSliderKey = useState(UniqueKey());
     final sliderState = useState(AquaSliderState.initial);
     final noteAdded = useState<String>('');
+    final providerName = ref.watch(lnProviderNameProvider(SwapType.submarine));
     return SettingsContentForSideSheet(
       aquaColors: aquaColors,
       title: 'Confirm Send',
@@ -499,7 +502,7 @@ class SendConfirmSideSheet extends HookWidget {
                   colors: aquaColors,
                   title: loc.provider,
                   titleColor: aquaColors.textPrimary,
-                  subtitleTrailing: 'Boltz.Exchange',
+                  subtitleTrailing: providerName,
                   subtitleTrailingColor: aquaColors.accentBrand,
                   iconTrailing: AquaIcon.externalLink(
                     color: aquaColors.textSecondary,
@@ -509,7 +512,7 @@ class SendConfirmSideSheet extends HookWidget {
                 const Divider(height: 0),
                 AquaListItem(
                   colors: aquaColors,
-                  title: loc.boltzId,
+                  title: loc.serviceId(providerName),
                   titleColor: aquaColors.textPrimary,
                   subtitle: 'kgURxBaDI8QK',
                   subtitleColor: aquaColors.textSecondary,

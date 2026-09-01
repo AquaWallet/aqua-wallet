@@ -1,17 +1,20 @@
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/desktop/widgets/widgets.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/utils/extensions/context_ext.dart';
+import 'package:boltz/boltz.dart';
 import 'package:ui_components/ui_components.dart';
 
-class SwapOrderSideSheet extends StatelessWidget {
+class SwapOrderSideSheet extends ConsumerWidget {
   const SwapOrderSideSheet({
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = context.loc;
     final aquaColors = context.aquaColors;
+    final providerName = ref.watch(lnProviderNameProvider(SwapType.submarine));
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
@@ -77,7 +80,7 @@ class SwapOrderSideSheet extends StatelessWidget {
                         ),
                         const StylizedDivider(),
                         AquaListItem(
-                          title: loc.boltzId,
+                          title: loc.serviceId(providerName),
                           backgroundColor: aquaColors.surfacePrimary,
                           subtitle: 'bArmJxFZh9PK',
                           subtitleColor: aquaColors.textSecondary,
@@ -121,7 +124,7 @@ class SwapOrderSideSheet extends StatelessWidget {
                         ),
                         const StylizedDivider(),
                         AquaListItem(
-                          title: loc.boltzCopySwapData,
+                          title: loc.serviceCopySwapData(providerName),
                           titleColor: aquaColors.accentBrand,
                           backgroundColor: aquaColors.surfacePrimary,
                           iconTrailing: AquaIcon.copy(

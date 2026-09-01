@@ -56,8 +56,8 @@ extension TransactionDbModelTypeExtension on TransactionDbModelType {
       TransactionDbModelType.boltzSwap ||
       TransactionDbModelType.boltzReverseSwap =>
         (
-          name: 'Boltz',
-          link: boltzWebsite,
+          name: legacyLnProviderName,
+          link: legacyLnProviderWebsite,
         ),
       TransactionDbModelType.sideshiftSwap => serviceSource != null
           ? (

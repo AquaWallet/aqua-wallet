@@ -38,9 +38,8 @@ final boltzToBoltzReceiveProvider = StreamProvider.autoDispose
 // ANCHOR: - Fetch Reverse Swap Bip21
 
 /// Fetch bip21 for direct liquid send (this is a minor hack to fix an issue with Aqua > Aqua swaps)
-final fetchReverseSwapBip21Provider =
-    FutureProvider.family<BoltzReverseSwapBip21Response, String>(
-        (ref, lnInvoice) async {
+final fetchReverseSwapBip21Provider = FutureProvider.autoDispose
+    .family<BoltzReverseSwapBip21Response, String>((ref, lnInvoice) async {
   final client = ref.read(dioProvider);
   // Reverse-swap bip21 lives on the receive host that created the invoice.
   final baseUri = await ref.watch(boltzApiUrlProvider(SwapType.reverse).future);

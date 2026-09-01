@@ -7,18 +7,19 @@ final setupConfigProvider =
     AsyncNotifierProvider<SetupConfigNotifier, SetupConfig>(
         SetupConfigNotifier.new);
 
+Future<SetupConfig> fetchSetupConfig(Ref ref) async {
+  final service = await ref.watch(featureFlagsServiceProvider.future);
+  final packageInfo = await PackageInfo.fromPlatform();
+  final response = await service.getSetup(buildNumber: packageInfo.buildNumber);
+  if (!response.isSuccessful || response.body == null) {
+    throw Exception('Failed to fetch setup config');
+  }
+  return response.body!;
+}
+
 class SetupConfigNotifier extends AsyncNotifier<SetupConfig> {
   @override
-  Future<SetupConfig> build() async {
-    final service = await ref.watch(featureFlagsServiceProvider.future);
-    final packageInfo = await PackageInfo.fromPlatform();
-    final response =
-        await service.getSetup(buildNumber: packageInfo.buildNumber);
-    if (!response.isSuccessful || response.body == null) {
-      throw Exception('Failed to fetch setup config');
-    }
-    return response.body!;
-  }
+  Future<SetupConfig> build() => fetchSetupConfig(ref);
 }
 
 extension SetupFlagListExtension on List<SetupFlag> {

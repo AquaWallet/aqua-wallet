@@ -1,4 +1,5 @@
 import 'package:aqua/common/common.dart';
+import 'package:aqua/config/constants/lightning_providers.dart';
 import 'package:aqua/data/data.dart';
 import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/note/note.dart';
@@ -8,6 +9,7 @@ import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/features/wallet/wallet.dart';
 import 'package:aqua/utils/utils.dart';
+import 'package:boltz/boltz.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components/ui_components.dart';
@@ -213,6 +215,15 @@ class _OrderIdCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final order = ref.watch(boltzSubmarineSwapProvider);
     final orderId = order?.id;
+    // Name the host this swap actually uses, so this screen and history agree
+    // even when the configured host is not the current provider's.
+    final providerName = order == null
+        ? ref.watch(lnProviderNameProvider(SwapType.submarine))
+        : lnProviderNameForApiUrl(
+            order.boltzUrl,
+            currentName:
+                ref.watch(currentLnProviderNameProvider(SwapType.submarine)),
+          );
 
     return Skeletonizer(
       enabled: order == null,
@@ -240,7 +251,7 @@ class _OrderIdCard extends ConsumerWidget {
                 //ANCHOR - Service Provider
                 AquaListItem(
                   title: context.loc.provider,
-                  subtitleTrailing: 'Boltz',
+                  subtitleTrailing: providerName,
                   subtitleTrailingColor: context.aquaColors.accentBrand,
                 ),
                 Divider(
@@ -253,7 +264,7 @@ class _OrderIdCard extends ConsumerWidget {
                   onTap: orderId != null
                       ? () => context.copyToClipboard(orderId)
                       : null,
-                  title: context.loc.boltzId,
+                  title: context.loc.serviceId(providerName),
                   contentWidget: Text(
                     orderId ?? '',
                     style: AquaAddressTypography.body2.copyWith(
