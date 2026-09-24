@@ -14,6 +14,9 @@ class PrefKeys {
   static const userAssets = 'user_assets';
   static const userRegtestAssets = 'user_regtest_assets';
   static const userTestnetAssets = 'user_testnet_assets';
+  static const discoveredAssets = 'discovered_assets';
+  static const discoveredTestnetAssets = 'discovered_testnet_assets';
+  static const discoveredRegtestAssets = 'discovered_regtest_assets';
   static const hiddenLanguages = 'hidden_languages';
   static const enabledConversionCurrencies = 'enabled_conversion_currencies';
   static const directPegIn = 'direct_peg_in';
