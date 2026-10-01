@@ -52,9 +52,7 @@
   "boltzClaimSwap": "Reclamar intercanvi",
   "boltzClaimTx": "Reclamar Transacció",
   "boltzCopyRefundData": "Copia les dades de reemborsament",
-  "boltzCopySwapData": "Copiar les dades de Boltz",
   "boltzGenerateInvoice": "Generar factura",
-  "boltzId": "Id de Boltz",
   "boltzInitTitleError": "S'ha produït un error en inicialitzar el servei Lightning.",
   "boltzInvoiceAmount": "Import de la factura",
   "boltzMaxAmountError": "L'import supera el límit màxim de {max} {unit}.",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "Retornar la transacció",
   "boltzServiceFee": "Comissió de servei",
   "serviceFee": "Comissió de servei",
-  "boltzSwaps": "Intercanvis de Boltz",
   "boltzSwapsListEmptyState": "No s'han trobat intercanvis",
   "noBoltzSwapsFoundDescription": "Els teus intercanvis apareixeran aquí.",
-  "boltzSwapsListReceiveHeading": "Transaccions entrants de Boltz",
-  "boltzSwapsListSendHeading": "Transaccions sortint de Boltz",
   "boltzTimeoutBlockHeight": "Altura de Bloc de temps límit",
   "boltzTotalFees": "Total Comissions",
   "buyWithFiatScreenTitle": "Comprar Bitcoin i més",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Changelly for USDt Swaps",
   "expFeaturesScreenItemsClearGhostTxns": "Clear Ghost Transactions",
   "expFeaturesScreenItemsEnableElectrumServer": "Custom Electrum Server",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Force Boltz Failed Normal Swap",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Force Failed Lightning Swap",
   "expFeaturesScreenItemsNotes": "Notes",
   "expFeaturesScreenItemsStatusIndicator": "Indicador d'estat",
   "expFeaturesScreenItemsSubaccounts": "Activa els Subcomptes",
   "expFeaturesScreenItemsDebitCardStaging": "Debit Card Staging",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Enabling this will cause Boltz Lightning sends to fail, forcing a refund needed state.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Enabling this will cause Lightning sends to fail, forcing a refund needed state.",
   "expFeaturesScreenSectionDebugMode": "Només mode de depuració",
   "expired": "Caducat",
   "expiresAt": "Caduca a",
@@ -372,7 +367,7 @@
   "searchHistory": "Historial de cerques",
   "send": "Enviar",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "L'actiu no està a la llista d'actius",
-  "sendAssetAmountScreenBoltzInvoiceError": "Hi ha hagut un problema amb aquesta factura de Boltz.",
+  "sendAssetAmountScreenBoltzInvoiceError": "Hi ha hagut un problema amb aquesta factura Lightning.",
   "sendAssetAmountScreenEmptyAddressError": "Omple el camp adreça",
   "sendAssetAmountScreenEmptyAmountError": "Omple el camp import",
   "sendAssetAmountScreenExpiredInvoiceError": "La factura ha caducat.",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

@@ -40,7 +40,7 @@ abstract class BoltzSwapStorage {
     required String claimTxId,
     required String receiveAddress,
     required int outAmount,
-    required int fee,
+    int? fee,
   });
   Future<void> updateRefundTxId({
     required String boltzId,
@@ -413,7 +413,7 @@ class BoltzSwapStorageNotifier extends AsyncNotifier<List<BoltzSwapDbModel>>
     required String claimTxId,
     required String receiveAddress,
     required int outAmount,
-    required int fee,
+    int? fee,
   }) async {
     logger.debug(
         '[Boltz] Updating reverse swap claim for $boltzId with: tx $claimTxId - receive $receiveAddress - amount $outAmount - fee $fee');

@@ -260,6 +260,56 @@ void main() {
     });
   }, skip: true);
 
+  group('Lightning invoice limits', () {
+    setUp(() {
+      when(() => mockLiquidProvider.isValidAddress(any()))
+          .thenAnswer((_) async => false);
+      when(() => mockBitcoinProvider.isValidAddress(any()))
+          .thenAnswer((_) async => false);
+      when(() => mockSharedPreferences.getString(any())).thenReturn(null);
+      when(() => mockSharedPreferences.getBool(any())).thenReturn(null);
+      when(() => mockSharedPreferences.getStringList(any())).thenReturn(null);
+      mockJan3.mockDecodeMoneybadgerError();
+
+      final limits = SwapLimits(
+        minimal: BigInt.one,
+        maximal: BigInt.from(1000),
+      );
+      final fees = SubSwapFees(
+        percentage: 0,
+        minerFees: BigInt.zero,
+      );
+      when(mockBoltzFees.submarine).thenAnswer(
+        (_) async => SubmarineFeesAndLimits(
+          btcLimits: limits,
+          lbtcLimits: limits,
+          btcFees: fees,
+          lbtcFees: fees,
+        ),
+      );
+    });
+
+    test('invoice above the maximum carries the limit for display', () async {
+      // 100u invoice, an order of magnitude above the 1000 sat maximum.
+      await expectLater(
+        () => container.read(addressParserProvider).parseInput(
+            asset: Asset.lightning(),
+            input:
+                'lnbc100u1pjm2062pp5pxe5trpma4yfz9sra4rr7ahngk40ve0q9qztwr2qp0v57shmp7cqdp8f35kw6r5de5kueeqv3jhqmmnd96zqvpwxqcrqvgcqzzsxqrrssrzjqw4t06fjwutwa9rt37l6uqumpku9x4j5neevtn9pz04x0zfapqs72rymu5qq6rqqqqqqqqqqqqqqqqqq9qsp5x74u3tjywc3qw3fpf6jppqx2fz3epvqcyygsltrw7d5wzlm6avaq9qyyssqwp43q356y878e4t20uza5fl9g5k9sg5klk62qfsdfra7nanqf5e4jhr5nxhzx4st9jtc5fzpp92wk9qdj8m8csy6rdnmzn7nkatexucp5qstxg'),
+        throwsA(
+          isA<AddressParsingException>()
+              .having(
+                (e) => e.type,
+                'type',
+                AddressParsingExceptionType.greaterThanMaxAmountInInvoice,
+              )
+              .having((e) => e.amount, 'amount', isNotNull)
+              .having((e) => e.unit, 'unit', isNotNull),
+        ),
+      );
+    });
+  });
+
   group('Alt-USDts', () {
     setUp(() {
       when(() => mockLiquidProvider.isValidAddress(any()))

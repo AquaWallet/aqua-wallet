@@ -52,9 +52,7 @@
   "boltzClaimSwap": "Resgatar Troca",
   "boltzClaimTx": "Reivindicar Tx",
   "boltzCopyRefundData": "Copiar Dados de Reembolso",
-  "boltzCopySwapData": "Copiar Dados do Boltz",
   "boltzGenerateInvoice": "Criar Fatura",
-  "boltzId": "ID de Boltz",
   "boltzInitTitleError": "Houve um erro ao inicializar o serviço Lightning.",
   "boltzInvoiceAmount": "Quantia da Fatura",
   "boltzMaxAmountError": "A quantia excede o máximo de {max} sats.",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "Transação de Reembolso",
   "boltzServiceFee": "Taxa de Serviço",
   "serviceFee": "Taxa de Serviço",
-  "boltzSwaps": "Trocas Boltz",
   "boltzSwapsListEmptyState": "Não foram encontradas trocas",
   "noBoltzSwapsFoundDescription": "Suas trocas aparecerão aqui.",
-  "boltzSwapsListReceiveHeading": "Transações de Entrada Boltz",
-  "boltzSwapsListSendHeading": "Transação de Saída Boltz",
   "boltzTimeoutBlockHeight": "Altura do Bloco de Tempo Limite",
   "boltzTotalFees": "Taxas Totais",
   "buyWithFiatScreenTitle": "Compre Bitcoin e mais",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Alteração para USDt Swaps",
   "expFeaturesScreenItemsClearGhostTxns": "Limpar Transações Fantasma",
   "expFeaturesScreenItemsEnableElectrumServer": "Servidor Electrum Personalizado",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Forçar swap normal no Boltz falhou",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Forçar swap Lightning com falha",
   "expFeaturesScreenItemsNotes": "Notas",
   "expFeaturesScreenItemsStatusIndicator": "Indicador de Status",
   "expFeaturesScreenItemsSubaccounts": "Ativar Subcontas",
   "expFeaturesScreenItemsDebitCardStaging": "Configuração do Cartão de Débito",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Habilitar isso fará com que o Boltz Lightning falhe, forçando o estado de reembolso necessário.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Habilitar isso fará com que o Lightning falhe, forçando o estado de reembolso necessário.",
   "expFeaturesScreenSectionDebugMode": "Modo de depuração apenas",
   "expired": "Expirado",
   "expiresAt": "Expira em",
@@ -372,7 +367,7 @@
   "searchHistory": "Pesquisar histórico",
   "send": "Enviado",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "O conteúdo não está na lista de ativos",
-  "sendAssetAmountScreenBoltzInvoiceError": "Houve um problema com esta fatura Boltz.",
+  "sendAssetAmountScreenBoltzInvoiceError": "Houve um problema com esta fatura Lightning.",
   "sendAssetAmountScreenEmptyAddressError": "Preencha o campo de endereço",
   "sendAssetAmountScreenEmptyAmountError": "Preencha o campo de valor",
   "sendAssetAmountScreenExpiredInvoiceError": "A fatura está expirada.",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

@@ -5,7 +5,6 @@ import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
 import 'package:aqua/features/swaps/swaps.dart';
-import 'package:boltz/boltz.dart';
 
 // This provider deals with various constraints for the send asset amount set
 // by the multiple external services.
@@ -25,11 +24,7 @@ class SendAssetAmountConstraintsNotifier extends AutoDisposeFamilyAsyncNotifier<
 
     if (asset.isLightning) {
       final params = input.lnurlData?.payParams;
-      final submarineFees = await requireBoltzService(() async {
-        final fees =
-            await ref.read(boltzFeesProvider(SwapType.submarine).future);
-        return fees.submarine();
-      });
+      final submarineFees = await ref.watch(boltzSubmarineFeesProvider.future);
       return SendAssetAmountConstraints.lightning(
           submarineFees: submarineFees, lnurlPayParams: params);
     }

@@ -19,7 +19,7 @@ class BoltzProofOfPaymentNotifier
         .read(boltzStorageProvider.notifier)
         .getLbtcLnV2SwapById(boltzOrderId);
     final swapStatus =
-        (await ref.read(boltzSwapStatusProvider(boltzOrderId).future)).status;
+        (await ref.watch(boltzSwapStatusProvider(boltzOrderId).future)).status;
 
     if (swap == null || swap.invoice.isEmpty || !swapStatus.isSuccess) {
       return null;

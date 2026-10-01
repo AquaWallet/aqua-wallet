@@ -7,6 +7,7 @@ import 'package:aqua/features/sideswap/swap.dart';
 import 'package:aqua/features/swaps/swaps.dart';
 import 'package:aqua/features/transactions/transactions.dart';
 import 'package:aqua/features/wallet/providers/display_units_provider.dart';
+import 'package:boltz/boltz.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -142,6 +143,8 @@ void main() {
     test('returns correct fee structure when Lightning send', () async {
       const kFeeRate = 200;
       const kEstimatedFee = 2000;
+      // The swap provider returns a percent value (0.1 = 0.1%)
+      const kBoltzPercent = 0.1;
       final asset = Asset.lightning();
       final args = FeeStructureArguments.aquaSend(
         sendAssetArgs: SendAssetArguments.lightningBtc(asset),
@@ -152,9 +155,27 @@ void main() {
           estimatedFee: kEstimatedFee,
         ),
       );
+      final limits = SwapLimits(
+        minimal: BigInt.from(1000),
+        maximal: BigInt.from(500000),
+      );
+      final fees = SubSwapFees(
+        percentage: kBoltzPercent,
+        minerFees: BigInt.from(21),
+      );
       final container = ProviderContainer(
         overrides: [
           sendAssetFeeProvider.overrideWith(() => mockSendAssetFeeNotifier),
+          boltzSubmarineFeesProvider.overrideWith(
+            () => MockBoltzSubmarineFeesNotifier(
+              SubmarineFeesAndLimits(
+                btcLimits: limits,
+                lbtcLimits: limits,
+                btcFees: fees,
+                lbtcFees: fees,
+              ),
+            ),
+          ),
         ],
       );
 
@@ -169,7 +190,7 @@ void main() {
             .having(
               (s) => s.swapFeePercentage,
               'swapFeePercentage',
-              kBoltzSubmarinePercentFee,
+              kBoltzPercent,
             ),
       );
     });

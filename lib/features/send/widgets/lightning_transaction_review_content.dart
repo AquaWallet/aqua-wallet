@@ -120,7 +120,7 @@ class _RecipientAndFeeCard extends HookConsumerWidget {
           displayUnitOverride: unit,
         );
     final ticker = asset.getDisplayTicker(unit);
-    final feePercent = (fees?.swapFeePercentage ?? 0) * 100;
+    final feePercent = fees?.swapFeePercentage ?? 0;
     final feeRate = (fees?.onchainFeeRate ?? 0) / kVbPerKb;
     final showSkeleton = feesModel.isLoading || fees == null;
 

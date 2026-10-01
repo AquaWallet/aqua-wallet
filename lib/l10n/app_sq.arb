@@ -52,9 +52,7 @@
   "boltzClaimSwap": "Merr këmbimin (Swap-in)",
   "boltzClaimTx": "Merr Tx",
   "boltzCopyRefundData": "Kopjo të dhënat e rimbursimit",
-  "boltzCopySwapData": "Kopjo të dhënat e Boltz",
   "boltzGenerateInvoice": "Krijo faturën",
-  "boltzId": "Boltz ID",
   "boltzInitTitleError": "Ndodhi një gabim gjatë inicializimit të shërbimit Lightning.",
   "boltzInvoiceAmount": "Shuma e Faturës",
   "boltzMaxAmountError": "Shuma tejkalon kufirin maksimal prej {max}{unit}",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "Rimburso transaksionin",
   "boltzServiceFee": "Provizioni i shërbimit",
   "serviceFee": "Provizioni i shërbimit",
-  "boltzSwaps": "Këmbimet Boltz",
   "boltzSwapsListEmptyState": "Nuk u gjet asnjë këmbim",
   "noBoltzSwapsFoundDescription": "Këmbimet tuaja do të shfaqën këtu.",
-  "boltzSwapsListReceiveHeading": "Transaksionet hyrese të Boltz",
-  "boltzSwapsListSendHeading": "Transaksionet dalëse të Boltz",
   "boltzTimeoutBlockHeight": "Timeout Block Height",
   "boltzTotalFees": "Provizioni total",
   "buyWithFiatScreenTitle": "Blej Bitcoin dhe të tjera",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Changelly për këmbimet USDt",
   "expFeaturesScreenItemsClearGhostTxns": "Fshi Transaksionet Fantazmë",
   "expFeaturesScreenItemsEnableElectrumServer": "Server Electrum i personalizuar",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Detyro Boltz që të dështojë Këmbimin Normal",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Detyro dështimin e këmbimit Lightning",
   "expFeaturesScreenItemsNotes": "Shënime",
   "expFeaturesScreenItemsStatusIndicator": "Treguesi i statusit",
   "expFeaturesScreenItemsSubaccounts": "Aktivo Nën-Llogaritë",
   "expFeaturesScreenItemsDebitCardStaging": "Debit Card Staging",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Aktivizimi i kësaj do të bëjë që dërgesat Boltz Lightning të dështojnë, duke detyruar një gjendje të rimbursimit të nevojshëm.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Aktivizimi i kësaj do të bëjë që dërgesat Lightning të dështojnë, duke detyruar një gjendje të rimbursimit të nevojshëm.",
   "expFeaturesScreenSectionDebugMode": "Vetëm për Modin e Diagnostikimit",
   "expired": "E skaduar",
   "expiresAt": "Skadon më",
@@ -372,7 +367,7 @@
   "searchHistory": "Historia e kërkimit",
   "send": "Dërgo",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "Aseti nuk ndodhet në listën e aseteve",
-  "sendAssetAmountScreenBoltzInvoiceError": "Shkoi diçka gabim me këtë faturë Boltz",
+  "sendAssetAmountScreenBoltzInvoiceError": "Shkoi diçka gabim me këtë faturë Lightning",
   "sendAssetAmountScreenEmptyAddressError": "Plotëso fushën e adresës",
   "sendAssetAmountScreenEmptyAmountError": "Plotëso fushën e shumës",
   "sendAssetAmountScreenExpiredInvoiceError": "Fatura ka skaduar.",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

@@ -1,5 +1,6 @@
 import 'package:aqua/features/send/send.dart';
 import 'package:aqua/features/settings/settings.dart';
+import 'package:aqua/features/swaps/swaps.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -36,6 +37,38 @@ void main() {
 
       // Unknown asset should return null since it's not alt USDT
       expect(result, isNull);
+    });
+
+    test('should return null for Liquid USDT', () {
+      expect(getSwapPair(Asset.usdtLiquid()), isNull);
+    });
+
+    test('alt USDT send pairs are from LUSDT to the target asset', () {
+      final cases = <Asset, SwapAsset>{
+        Asset.usdtEth(): SwapAssetExt.usdtEth,
+        Asset.usdtTrx(): SwapAssetExt.usdtTrx,
+        Asset.usdtBep(): SwapAssetExt.usdtBep,
+        Asset.usdtSol(): SwapAssetExt.usdtSol,
+        Asset.usdtPol(): SwapAssetExt.usdtPol,
+        Asset.usdtTon(): SwapAssetExt.usdtTon,
+      };
+
+      for (final entry in cases.entries) {
+        final pair = getSwapPair(entry.key);
+        expect(pair, isNotNull, reason: entry.key.id);
+        expect(pair!.from, SwapAssetExt.usdtLiquid, reason: entry.key.id);
+        expect(pair.to, entry.value, reason: entry.key.id);
+      }
+    });
+  });
+
+  group('SendAssetArguments swap pair', () {
+    test('fromAsset builds the send direction for alt USDT', () {
+      final args = SendAssetArguments.fromAsset(Asset.usdtEth());
+
+      expect(args.swapPair, isNotNull);
+      expect(args.swapPair!.from, SwapAssetExt.usdtLiquid);
+      expect(args.swapPair!.to, SwapAssetExt.usdtEth);
     });
   });
 

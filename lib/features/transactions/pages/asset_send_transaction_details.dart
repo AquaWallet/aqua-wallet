@@ -1,5 +1,6 @@
 import 'package:aqua/config/config.dart';
 import 'package:aqua/data/data.dart';
+import 'package:aqua/features/boltz/boltz.dart';
 import 'package:aqua/features/boltz/providers/boltz_proof_of_payment_provider.dart';
 import 'package:aqua/features/settings/settings.dart';
 import 'package:aqua/features/shared/shared.dart';
@@ -362,6 +363,18 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
     final feeDisplayUnit = unitsProvider.getAssetDisplayUnit(model.feeAsset);
     final boltzOrderId =
         model.isLightning ? model.dbTransaction?.serviceOrderId : null;
+    final swapStatus = boltzOrderId != null
+        ? ref.watch(boltzStorageProvider.select((swaps) => swaps.valueOrNull
+            ?.firstWhereOrNull((swap) => swap.boltzId == boltzOrderId)
+            ?.lastKnownStatus))
+        : null;
+    final statusLabel = switch (swapStatus) {
+      null => model.isFailed ? context.loc.failed : model.confirmations,
+      final status when status.isFailed => context.loc.failed,
+      final status when status.isSuccess => context.loc.completed,
+      _ => context.loc.pending,
+    };
+    final isFailed = swapStatus?.isFailed ?? model.isFailed;
     final proofOfPaymentUrl =
         ref.watch(boltzProofOfPaymentProvider(boltzOrderId)).valueOrNull;
     final providerUrl = model.swapServiceUrl ?? legacyLnProviderWebsite;
@@ -393,9 +406,8 @@ class _LightningTransactionDetailsContent extends ConsumerWidget {
             children: [
               AquaListItem(
                 title: context.loc.status,
-                subtitleTrailing:
-                    model.isFailed ? context.loc.failed : model.confirmations,
-                subtitleTrailingColor: model.isFailed
+                subtitleTrailing: statusLabel,
+                subtitleTrailingColor: isFailed
                     ? context.aquaColors.accentDanger
                     : context.aquaColors.accentSuccess,
               ),

@@ -293,8 +293,14 @@ class BoltzSwapSettlementService {
     }
   }
 
+  /// sats/vByte
+  double get _liquidFeeRate =>
+      _ref.read(feeEstimateProvider).getLiquidFeeRate();
+
   Future<String?> refund(LbtcLnSwap swap, {bool tryCoop = true}) async {
     _logger.debug('Refunding Boltz Swap: ${swap.id}');
+
+    late final String broadcastResponse;
 
     try {
       final address = await _ref.read(liquidProvider).getReceiveAddress();
@@ -305,24 +311,14 @@ class BoltzSwapSettlementService {
 
       final refundBytes = await swap.refund(
         outAddress: address.address!,
-        minerFee: TxFee.absolute(BigInt.from(kBoltzLiquidRefundTxFee)),
+        minerFee: TxFee.relative(_liquidFeeRate),
         tryCooperate: tryCoop,
       );
 
       _logger.debug('Boltz Swap Refund tx bytes: $refundBytes');
 
-      final broadcastResponse = await broadcast(swap, refundBytes);
-
-      await _ref
-          .read(boltzStorageProvider.notifier)
-          .updateRefundTxId(boltzId: swap.id, txId: broadcastResponse);
-
-      await _ref
-          .read(transactionStorageProvider.notifier)
-          .saveBoltzRefundTxn(boltzSwap: swap, txId: broadcastResponse);
-
+      broadcastResponse = await broadcast(swap, refundBytes);
       _logger.debug('Boltz Swap Refund response: $broadcastResponse');
-      return broadcastResponse;
     } catch (e) {
       // if coop/keypath refund fails, try the scriptpath (will only happen if boltz is down or uncooperative)
       if (tryCoop) {
@@ -331,6 +327,21 @@ class BoltzSwapSettlementService {
       _logger.error('Error refunding Boltz Swap: ${swap.id}', e);
       rethrow;
     }
+
+    try {
+      await _ref
+          .read(boltzStorageProvider.notifier)
+          .updateRefundTxId(boltzId: swap.id, txId: broadcastResponse);
+
+      await _ref
+          .read(transactionStorageProvider.notifier)
+          .saveBoltzRefundTxn(boltzSwap: swap, txId: broadcastResponse);
+    } catch (e) {
+      _logger.error('[Boltz] DB save failed after successful refund broadcast '
+          '(txId: $broadcastResponse, swapId: ${swap.id}): $e');
+    }
+
+    return broadcastResponse;
   }
 
   // NOTE: The musig coop claim can fail (should only happen if boltz goes offline)
@@ -339,7 +350,6 @@ class BoltzSwapSettlementService {
 
     late final String broadcastResponse;
     late final String receiveAddress;
-    late final int fee;
 
     try {
       final address = await _ref.read(liquidProvider).getReceiveAddress();
@@ -348,11 +358,10 @@ class BoltzSwapSettlementService {
             'Receive address is null when trying to construct claim tx');
       }
       receiveAddress = address.address!;
-      fee = _calculateClaimFee(tryCoop);
 
       final claimBytes = await swap.claim(
         outAddress: receiveAddress,
-        minerFee: TxFee.absolute(BigInt.from(fee)),
+        minerFee: TxFee.relative(_liquidFeeRate),
         tryCooperate: tryCoop,
       );
 
@@ -371,17 +380,12 @@ class BoltzSwapSettlementService {
       rethrow;
     }
 
-    // DB updates are outside the broadcast retry scope so a coop failure
-    // cannot trigger a non-coop retry that overwrites the stored txhash.
-    // Wrapped in its own try/catch so a DB error doesn't lose the txhash
-    // that was already broadcast on-chain.
     try {
       await _ref.read(boltzStorageProvider.notifier).updateReverseSwapClaim(
             boltzId: swap.id,
             claimTxId: broadcastResponse,
             receiveAddress: receiveAddress,
             outAmount: swap.outAmount.toInt(),
-            fee: fee,
           );
     } catch (e) {
       _logger.error('[Boltz] DB save failed after successful claim broadcast '
@@ -423,16 +427,6 @@ class BoltzSwapSettlementService {
         ? await _shouldTryCoopSubmarineSwap(cachedOrder!)
         : true;
     return refund(swap, tryCoop: tryCoop);
-  }
-
-  // TODO: There is an issue on boltz-rust to allow passing a fee rate. When implement we can greatly simply with just the single condition of lowball or no-lowball fee rate
-  // - https://github.com/SatoshiPortal/boltz-rust/issues/56
-  int _calculateClaimFee(bool tryCoop) {
-    if (tryCoop) {
-      return kBoltzLiquidClaimTxFee;
-    } else {
-      return kBoltzLiquidClaimTxFee_NonCoop;
-    }
   }
 
   Future<String> broadcast(LbtcLnSwap swap, String tx) async {

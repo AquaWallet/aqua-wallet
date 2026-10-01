@@ -52,9 +52,7 @@
   "boltzClaimSwap": "المطالبة بالتبديل",
   "boltzClaimTx": "المطالبة بالمعاملة",
   "boltzCopyRefundData": "انسخ بيانات الاسترجاع",
-  "boltzCopySwapData": "انسخ بيانات Boltz",
   "boltzGenerateInvoice": "إنشاء فاتورة",
-  "boltzId": "معرّف Boltz",
   "boltzInitTitleError": "حدث خطأ في تهيئة خدمة البرق.",
   "boltzInvoiceAmount": "مبلغ الفاتورة",
   "boltzMaxAmountError": "المبلغ يتجاوز الحد الأقصى من {max} {unit}.",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "معاملة الاسترجاع",
   "boltzServiceFee": "رسوم الخدمة",
   "serviceFee": "رسوم الخدمة",
-  "boltzSwaps": "تبديلات Boltz",
   "boltzSwapsListEmptyState": "لا توجد تبديلات",
   "noBoltzSwapsFoundDescription": "ستظهر تبديلاتك هنا.",
-  "boltzSwapsListReceiveHeading": "المعاملات الواردة من Boltz",
-  "boltzSwapsListSendHeading": "المعاملات الصادرة من Boltz",
   "boltzTimeoutBlockHeight": "كتلة انتهاء المهلة",
   "boltzTotalFees": "إجمالي الرسوم",
   "buyWithFiatScreenTitle": "شراء بيتكوين والمزيد",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Changelly لتبديلات USDt",
   "expFeaturesScreenItemsClearGhostTxns": "مسح المعاملات الشبحية",
   "expFeaturesScreenItemsEnableElectrumServer": "خادم Electrum مخصص",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "فرض فشل تبديل Boltz العادي",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "فرض فشل تبديل Lightning",
   "expFeaturesScreenItemsNotes": "ملاحظات",
   "expFeaturesScreenItemsStatusIndicator": "مؤشر الحالة",
   "expFeaturesScreenItemsSubaccounts": "تفعيل الحسابات الفرعية",
   "expFeaturesScreenItemsDebitCardStaging": "بيئة اختبار البطاقة",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "سيؤدي تمكين هذا إلى فشل عمليات الإرسال عبر Boltz Lightning، مما يجبر على حالة تستلزم استردادًا.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "سيؤدي تمكين هذا إلى فشل عمليات الإرسال عبر Lightning، مما يجبر على حالة تستلزم استردادًا.",
   "expFeaturesScreenSectionDebugMode": "مخصص لوضع التصحيح فقط",
   "expired": "منتهي الصلاحية",
   "expiresAt": "ينتهي في",
@@ -372,7 +367,7 @@
   "searchHistory": "سجل البحث",
   "send": "أرسل",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "الأصل ليس في قائمة الأصول",
-  "sendAssetAmountScreenBoltzInvoiceError": "كانت هناك مشكلة في هذه فاتورة Boltz.",
+  "sendAssetAmountScreenBoltzInvoiceError": "كانت هناك مشكلة في هذه فاتورة Lightning.",
   "sendAssetAmountScreenEmptyAddressError": "ملء حقل العنوان",
   "sendAssetAmountScreenEmptyAmountError": "ملء حقل المبلغ",
   "sendAssetAmountScreenExpiredInvoiceError": "انتهت صلاحية الفاتورة.",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

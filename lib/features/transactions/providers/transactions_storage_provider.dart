@@ -60,7 +60,7 @@ abstract class TransactionStorage {
     required String claimTxId,
     required String receiveAddress,
     required int outAmount,
-    required int fee,
+    int? fee,
   });
 
   /// Throws [TransactionNotFoundException] if transaction not found
@@ -302,7 +302,7 @@ class TransactionStorageNotifier extends AsyncNotifier<List<TransactionDbModel>>
     required String claimTxId,
     required String receiveAddress,
     required int outAmount,
-    required int fee,
+    int? fee,
   }) async {
     final storage = await ref.read(storageProvider.future);
     final walletId = await ref.read(currentWalletIdOrThrowProvider.future);

@@ -14,6 +14,12 @@ class TooltipExceptionDecorator implements ExceptionLocalized {
     if (_originalException is AmountParsingException) {
       final amountException = _originalException;
 
+      // Without an amount there is no limit to show, so fall back to the
+      // wording that omits it.
+      if (amountException.amount != null) {
+        return _originalException.toLocalizedString(context);
+      }
+
       switch (amountException.type) {
         case AmountParsingExceptionType.belowLbtcMin:
         case AmountParsingExceptionType.belowMin:

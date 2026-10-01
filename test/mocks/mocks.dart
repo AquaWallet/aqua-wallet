@@ -17,6 +17,7 @@ export 'conversion_currencies_provider_mocks.dart';
 export 'conversion_provider_mocks.dart';
 export 'crypto_amount_input_mutations_notifier_mock.dart';
 export 'display_units_provider_mocks.dart';
+export 'electrs_provider_mocks.dart';
 export 'exchange_rate_provider_mocks.dart';
 export 'feature_flags_provider_mocks.dart';
 export 'fee_estimate_provider_mocks.dart';

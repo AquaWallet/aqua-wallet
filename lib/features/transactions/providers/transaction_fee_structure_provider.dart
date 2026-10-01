@@ -30,17 +30,22 @@ class TransactionFeeStructureNotifier extends AutoDisposeFamilyAsyncNotifier<
         }
 
         final feeState = await ref.watch(sendAssetFeeProvider(args).future);
+        // Live swap provider service fee percent (e.g. 0.1 = 0.1%), only for
+        // lightning
+        final submarineFees = args.asset.isLightning
+            ? await ref.watch(boltzSubmarineFeesProvider.future)
+            : null;
         return feeState.map(
           bitcoin: (fee) => FeeStructure.bitcoinSend(
             feeRate: fee.feeRate,
             estimatedFee: fee.estimatedFee,
           ),
           liquid: (fee) {
-            if (args.asset.isLightning) {
+            if (submarineFees != null) {
               return FeeStructure.boltzSend(
                 onchainFeeRate: fee.feeRate,
                 estimatedOnchainFee: fee.estimatedFee,
-                swapFeePercentage: kBoltzSubmarinePercentFee,
+                swapFeePercentage: submarineFees.lbtcFees.percentage,
               );
             }
             return FeeStructure.liquidSend(

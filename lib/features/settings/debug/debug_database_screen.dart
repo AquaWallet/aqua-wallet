@@ -16,7 +16,7 @@ final databaseContentsProvider =
   return {
     'Transactions': await isar.transactionDbModels.where().findAll(),
     'Sideshift Orders': await isar.sideshiftOrderDbModels.where().findAll(),
-    'Boltz Swaps': await isar.boltzSwapDbModels.where().findAll(),
+    'Lightning Swaps': await isar.boltzSwapDbModels.where().findAll(),
     'Peg Orders': await isar.pegOrderDbModels.where().findAll(),
   };
 });

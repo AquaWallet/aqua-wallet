@@ -43,15 +43,11 @@ class FeeStructure with _$FeeStructure {
     required double swapFeePercentage,
   }) = SideswapPegOutFee;
 
-  const factory FeeStructure.boltzReceive({
-    required int lightningFeeRate,
-    required int estimatedLightningFee,
-    required double swapFeePercentage,
-  }) = BoltzReceiveFee;
-
   const factory FeeStructure.boltzSend({
     required int onchainFeeRate,
     required int estimatedOnchainFee,
+    // Percent value as returned by the swap provider (0.1 = 0.1%), same as
+    // sideswap fees
     required double swapFeePercentage,
   }) = BoltzSendFee;
 

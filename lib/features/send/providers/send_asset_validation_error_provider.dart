@@ -64,7 +64,8 @@ class AssetValidationErrorParams {
 }
 
 /// When [sendInput] is present and the exception carries [AmountParsingException.thresholdSats],
-/// fills [amount] / [displayUnitTicker] using the send screen unit ([SendAssetInputState.cryptoUnit]).
+/// fills [amount] with the threshold formatted in the send screen unit
+/// ([SendAssetInputState.cryptoUnit]), unit label included.
 ExceptionLocalized _makeExceptionDisplay(
   Ref ref,
   ExceptionLocalized exception,
@@ -76,13 +77,8 @@ ExceptionLocalized _makeExceptionDisplay(
 
   final ts = e.thresholdSats!;
   final asset = sendInput.asset;
-  final units = ref.read(displayUnitsProvider);
   final displayUnit =
       SupportedDisplayUnits.fromAssetInputUnit(sendInput.cryptoUnit);
-  final displayUnitTicker = units.getAssetDisplayUnit(
-    asset,
-    forcedDisplayUnit: displayUnit,
-  );
 
   final String amountLine;
   if (asset.isUSDt && sendInput.inputType == AquaAssetInputType.fiat) {
@@ -94,7 +90,7 @@ ExceptionLocalized _makeExceptionDisplay(
           withSymbol: false,
         );
   } else {
-    final unitLabel = asset.isNonSatsAsset ? asset.ticker : displayUnit.value;
+    final unitLabel = asset.getDisplayTicker(displayUnit);
     final formatted = ref.read(formatProvider).formatAssetAmount(
           amount: ts,
           asset: asset,
@@ -107,11 +103,6 @@ ExceptionLocalized _makeExceptionDisplay(
   switch (e.type) {
     case AmountParsingExceptionType.belowMin:
     case AmountParsingExceptionType.belowLbtcMin:
-      return AmountParsingException(
-        e.type,
-        amount: amountLine,
-        displayUnitTicker: displayUnitTicker,
-      );
     case AmountParsingExceptionType.belowSendMin:
     case AmountParsingExceptionType.aboveSendMax:
       return AmountParsingException(e.type, amount: amountLine);

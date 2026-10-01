@@ -1,6 +1,5 @@
 export 'address_box.dart';
 export 'alt_usdt_network_warning_chip.dart';
-export 'boltz_fee_widget.dart';
 export 'asset_amount_limits_display.dart';
 export 'receive_address_card.dart';
 export 'receive_asset_address_qr_card.dart';

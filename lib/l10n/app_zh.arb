@@ -52,9 +52,7 @@
   "boltzClaimSwap": "认领交换",
   "boltzClaimTx": "认领Tx",
   "boltzCopyRefundData": "复制退款数据",
-  "boltzCopySwapData": "复制Boltz数据",
   "boltzGenerateInvoice": "创建发票",
-  "boltzId": "Boltz ID",
   "boltzInitTitleError": "初始化Lightning服务时出错。",
   "boltzInvoiceAmount": "发票金额",
   "boltzMaxAmountError": "金额超过{max}{unit}的最大限额。",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "退款交易",
   "boltzServiceFee": "服务费",
   "serviceFee": "服务费",
-  "boltzSwaps": "Boltz兑换",
   "boltzSwapsListEmptyState": "未找到兑换订单",
   "noBoltzSwapsFoundDescription": "您的兑换订单将在此显示。",
-  "boltzSwapsListReceiveHeading": "入境Boltz交易",
-  "boltzSwapsListSendHeading": "出境Boltz交易",
   "boltzTimeoutBlockHeight": "超时区块高度",
   "boltzTotalFees": "总费用",
   "buyWithFiatScreenTitle": "购买比特币和更多",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Changelly用于USDt交换",
   "expFeaturesScreenItemsClearGhostTxns": "清除幽灵交易",
   "expFeaturesScreenItemsEnableElectrumServer": "自定义Electrum服务器",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Force Boltz Failed Normal Swap",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Force Failed Lightning Swap",
   "expFeaturesScreenItemsNotes": "备注",
   "expFeaturesScreenItemsStatusIndicator": "状态指示器",
   "expFeaturesScreenItemsSubaccounts": "激活子账户",
   "expFeaturesScreenItemsDebitCardStaging": "借记卡Staging",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Enabling this will cause Boltz Lightning sends to fail, forcing a refund needed state.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Enabling this will cause Lightning sends to fail, forcing a refund needed state.",
   "expFeaturesScreenSectionDebugMode": "Debug Mode Only",
   "expired": "已过期",
   "expiresAt": "过期时间",
@@ -372,7 +367,7 @@
   "searchHistory": "搜索历史",
   "send": "发送",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "资产不在资产列表中",
-  "sendAssetAmountScreenBoltzInvoiceError": "此Boltz发票存在问题。",
+  "sendAssetAmountScreenBoltzInvoiceError": "此Lightning发票存在问题。",
   "sendAssetAmountScreenEmptyAddressError": "填写地址字段",
   "sendAssetAmountScreenEmptyAmountError": "填写金额字段",
   "sendAssetAmountScreenExpiredInvoiceError": "发票已过期。",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

@@ -44,8 +44,6 @@ class TransactionFeeBreakdownCard extends ConsumerWidget {
             bitcoinSend: (data) => _BitcoinSendInfo(fees: data),
             liquidSend: (data) => _LiquidSendInfo(fees: data),
             liquidTaxiSend: (data) => _LiquidTaxiSendInfo(fees: data),
-            // TODO Add remaining fee brakdown types
-            // boltzReceive: (data) => _BoltzReceiveInfo(fees: data),
             boltzSend: (data) => _BoltzSendInfo(fees: data),
             usdtSwap: (data) => _USDtSwapInfo(fees: data),
             orElse: () => const SizedBox.shrink(),
@@ -436,7 +434,7 @@ class _BoltzSendInfo extends StatelessWidget {
             children: [
               _FeeBreakdownItem(
                 title: context.loc.boltzServiceFee,
-                value: '${fees.swapFeePercentage * 100}%',
+                value: '${fees.swapFeePercentage}%',
               ),
               const SizedBox(height: 14),
               _FeeBreakdownItem(

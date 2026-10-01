@@ -52,9 +52,7 @@
   "boltzClaimSwap": "Richiedi Swap",
   "boltzClaimTx": "Richiedi Transazione",
   "boltzCopyRefundData": "Copia dati di rimborso",
-  "boltzCopySwapData": "Copia dati di Boltz",
   "boltzGenerateInvoice": "Crea fattura",
-  "boltzId": "Boltz ID",
   "boltzInitTitleError": "Errore di inizializzazione del servizio Lightning.",
   "boltzInvoiceAmount": "Importo fattura",
   "boltzMaxAmountError": "L'importo supera il limite massimo di {max} {unit}.",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "Transazione di rimborso",
   "boltzServiceFee": "Commissione di Servizio",
   "serviceFee": "Commissione di Servizio",
-  "boltzSwaps": "Boltz Swap",
   "boltzSwapsListEmptyState": "Nessuno Swap Trovato",
   "noBoltzSwapsFoundDescription": "I tuoi swap appariranno qui",
-  "boltzSwapsListReceiveHeading": "Transazioni Boltz in entrata",
-  "boltzSwapsListSendHeading": "Transazioni Boltz in uscita",
   "boltzTimeoutBlockHeight": "Altezza del blocco di Timeout",
   "boltzTotalFees": "Commissioni totali",
   "buyWithFiatScreenTitle": "Acquista Bitcoin e altro",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Usa Changelly for USDt Swaps",
   "expFeaturesScreenItemsClearGhostTxns": "Cancella Transazioni Ghost",
   "expFeaturesScreenItemsEnableElectrumServer": "Server Electrum personalizzato",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Forza  Boltz Swap normale fallito",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Forza swap Lightning fallito",
   "expFeaturesScreenItemsNotes": "Note",
   "expFeaturesScreenItemsStatusIndicator": "Indicatore di stato",
   "expFeaturesScreenItemsSubaccounts": "Attiva sub-account",
   "expFeaturesScreenItemsDebitCardStaging": "Staging Carta Di Debito",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Abilitando questa opzione Boltz Lightning fallisce, forzando uno stato necessario per il rimborso.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Abilitando questa opzione Lightning fallisce, forzando uno stato necessario per il rimborso.",
   "expFeaturesScreenSectionDebugMode": "Solo modalità Debug",
   "expired": "Scaduto",
   "expiresAt": "Scade il",
@@ -372,7 +367,7 @@
   "searchHistory": "Cronologia delle ricerche",
   "send": "Invia",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "Asset non in lista",
-  "sendAssetAmountScreenBoltzInvoiceError": "Si è verificato un problema con questa fattura Boltz",
+  "sendAssetAmountScreenBoltzInvoiceError": "Si è verificato un problema con questa fattura Lightning",
   "sendAssetAmountScreenEmptyAddressError": "Riempi il campo indirizzo",
   "sendAssetAmountScreenEmptyAmountError": "Riempi il campo quantità",
   "sendAssetAmountScreenExpiredInvoiceError": "La fattura è scaduta.",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

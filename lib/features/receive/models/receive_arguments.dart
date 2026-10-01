@@ -12,93 +12,13 @@ class ReceiveArguments with _$ReceiveArguments {
     SwapPair? swapPair,
   }) = _ReceiveArguments;
 
-  factory ReceiveArguments.btc(Asset asset) => ReceiveArguments._(
+  factory ReceiveArguments.fromAsset(Asset asset) => ReceiveArguments._(
         asset: asset,
-        swapPair: null,
+        swapPair: asset.isAltUsdt
+            ? SwapPair(
+                from: SwapAsset.fromAsset(asset),
+                to: SwapAssetExt.usdtLiquid,
+              )
+            : null,
       );
-
-  factory ReceiveArguments.lbtc(Asset asset) => ReceiveArguments._(
-        asset: asset,
-        swapPair: null,
-      );
-
-  factory ReceiveArguments.liquidUsdt(Asset asset) => ReceiveArguments._(
-        asset: asset,
-        swapPair: null,
-      );
-
-  factory ReceiveArguments.ethereumUsdt(Asset asset) => ReceiveArguments._(
-        asset: asset,
-        swapPair: SwapPair(
-          from: SwapAssetExt.usdtLiquid,
-          to: SwapAssetExt.usdtEth,
-        ),
-      );
-
-  factory ReceiveArguments.tronUsdt(Asset asset) => ReceiveArguments._(
-        asset: asset,
-        swapPair: SwapPair(
-          from: SwapAssetExt.usdtLiquid,
-          to: SwapAssetExt.usdtTrx,
-        ),
-      );
-
-  factory ReceiveArguments.binanceUsdt(Asset asset) => ReceiveArguments._(
-        asset: asset,
-        swapPair: SwapPair(
-          from: SwapAssetExt.usdtLiquid,
-          to: SwapAssetExt.usdtBep,
-        ),
-      );
-
-  factory ReceiveArguments.solanaUsdt(Asset asset) => ReceiveArguments._(
-        asset: asset,
-        swapPair: SwapPair(
-          from: SwapAssetExt.usdtLiquid,
-          to: SwapAssetExt.usdtSol,
-        ),
-      );
-
-  factory ReceiveArguments.polygonUsdt(Asset asset) => ReceiveArguments._(
-        asset: asset,
-        swapPair: SwapPair(
-          from: SwapAssetExt.usdtLiquid,
-          to: SwapAssetExt.usdtPol,
-        ),
-      );
-
-  factory ReceiveArguments.tonUsdt(Asset asset) => ReceiveArguments._(
-        asset: asset,
-        swapPair: SwapPair(
-          from: SwapAssetExt.usdtLiquid,
-          to: SwapAssetExt.usdtTon,
-        ),
-      );
-
-  factory ReceiveArguments.fromAsset(Asset asset) {
-    if (asset.isLBTC) {
-      return ReceiveArguments.lbtc(asset);
-    }
-    if (asset.isUsdtLiquid) {
-      return ReceiveArguments.liquidUsdt(asset);
-    }
-    switch (asset.id) {
-      case AssetIds.btc:
-        return ReceiveArguments.btc(asset);
-      case AssetIds.usdtEth:
-        return ReceiveArguments.ethereumUsdt(asset);
-      case AssetIds.usdtTrx:
-        return ReceiveArguments.tronUsdt(asset);
-      case AssetIds.usdtBep:
-        return ReceiveArguments.binanceUsdt(asset);
-      case AssetIds.usdtSol:
-        return ReceiveArguments.solanaUsdt(asset);
-      case AssetIds.usdtPol:
-        return ReceiveArguments.polygonUsdt(asset);
-      case AssetIds.usdtTon:
-        return ReceiveArguments.tonUsdt(asset);
-      default:
-        return ReceiveArguments.liquidUsdt(asset);
-    }
-  }
 }

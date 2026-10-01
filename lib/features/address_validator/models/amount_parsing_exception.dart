@@ -26,10 +26,13 @@ class AmountParsingException implements ExceptionLocalized {
         return context.loc.sendAssetAmountScreenEmptyAmountError;
       case AmountParsingExceptionType.belowMin:
       case AmountParsingExceptionType.belowLbtcMin:
-        if (amount == null || displayUnitTicker == null) {
+        if (amount == null) {
           return context.loc.commonSomethingWentWrong;
         }
-        return context.loc.amountBelowMin(amount!, displayUnitTicker!);
+        // A missing ticker means [amount] already carries its unit.
+        return displayUnitTicker == null
+            ? context.loc.sendMinAmountError(amount!)
+            : context.loc.amountBelowMin(amount!, displayUnitTicker!);
       case AmountParsingExceptionType.notEnoughFunds:
         return context.loc.sendAssetAmountScreenNotEnoughFundsError;
       case AmountParsingExceptionType.notEnoughFundsForFee:

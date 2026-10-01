@@ -52,9 +52,7 @@
   "boltzClaimSwap": "Potvrdi zamenu",
   "boltzClaimTx": "Preuzmi transakciju",
   "boltzCopyRefundData": "Kopiraj podatke za refundaciju",
-  "boltzCopySwapData": "Kopiraj Boltz podatke",
   "boltzGenerateInvoice": "Generiši račun",
-  "boltzId": "Boltz ID",
   "boltzInitTitleError": "Došlo je do greške pri pokretanju Lightning servisa.",
   "boltzInvoiceAmount": "Iznos računa",
   "boltzMaxAmountError": "Iznos prelazi maksimalni limit od {max} {unit}.",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "Transakcija refundacije",
   "boltzServiceFee": "Provizija za uslugu",
   "serviceFee": "Provizija za uslugu",
-  "boltzSwaps": "Boltz zamene",
   "boltzSwapsListEmptyState": "Nema pronađenih zamena",
   "noBoltzSwapsFoundDescription": "Vaše zamene će se pojaviti ovde.",
-  "boltzSwapsListReceiveHeading": "Ulazne Boltz transakcije",
-  "boltzSwapsListSendHeading": "Izlazne Boltz transakcije",
   "boltzTimeoutBlockHeight": "Time out Block Height",
   "boltzTotalFees": "Ukupne provizije",
   "buyWithFiatScreenTitle": "Kupite Bitcoin i još mnogo toga",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Changelly za USDt zamene",
   "expFeaturesScreenItemsClearGhostTxns": "Obriši duh transakcije",
   "expFeaturesScreenItemsEnableElectrumServer": "Custom Electrum Server",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Forsiraj neuspešnu Boltz normalnu zamenu",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Forsiraj neuspešnu Lightning zamenu",
   "expFeaturesScreenItemsNotes": "Beleške",
   "expFeaturesScreenItemsStatusIndicator": "Indikator statusa",
   "expFeaturesScreenItemsSubaccounts": "Aktiviraj podnaloge",
   "expFeaturesScreenItemsDebitCardStaging": "Staging debitne kartice",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Uključivanje ovoga će izazvati neuspeh Boltz Lightning slanja, što će zahtevati refundaciju.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Uključivanje ovoga će izazvati neuspeh Lightning slanja, što će zahtevati refundaciju.",
   "expFeaturesScreenSectionDebugMode": "Samo za debug mod",
   "expired": "Isteklo",
   "expiresAt": "Ističe",
@@ -372,7 +367,7 @@
   "searchHistory": "Pretraži istoriju",
   "send": "Pošalji",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "Sredstvo nije na listi sredstava",
-  "sendAssetAmountScreenBoltzInvoiceError": "Došlo je do problema sa ovom Boltz fakturom.",
+  "sendAssetAmountScreenBoltzInvoiceError": "Došlo je do problema sa ovom Lightning fakturom.",
   "sendAssetAmountScreenEmptyAddressError": "Popunite polje za adresu",
   "sendAssetAmountScreenEmptyAmountError": "Popunite polje za iznos",
   "sendAssetAmountScreenExpiredInvoiceError": "Faktura je istekla.",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

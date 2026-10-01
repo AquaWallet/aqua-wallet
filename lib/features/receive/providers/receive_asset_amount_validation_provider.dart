@@ -79,8 +79,7 @@ class ReceiveAssetAmountValidationNotifier
     final maxSats = reverseFees.lbtcLimits.maximal.toInt();
     if (amount < minSats) {
       throw AmountParsingException(AmountParsingExceptionType.belowMin,
-          amount: _formatLimitWithUnits(minSats, asset),
-          displayUnitTicker: asset.ticker);
+          amount: _formatLimitWithUnits(minSats, asset));
     }
     if (amount > maxSats) {
       throw AmountParsingException(AmountParsingExceptionType.aboveSendMax,

@@ -34,7 +34,10 @@ class AddressParsingException implements ExceptionLocalized {
         return context.loc
             .sendAssetAmountScreenLessThanMinAmountError(amount!, unit!);
       case AddressParsingExceptionType.greaterThanMaxAmountInInvoice:
-        return context.loc.sendAssetAmountScreenGreaterThanMaxAmountError;
+        if (amount == null || unit == null) {
+          return context.loc.sendAssetAmountScreenGreaterThanMaxAmountError;
+        }
+        return context.loc.boltzMaxAmountError(amount!, unit!);
       case AddressParsingExceptionType.invalidLightningAddress:
         return context.loc.sendAssetAmountScreenInvalidLightningAddressError;
       case AddressParsingExceptionType.boltzInvoiceError:

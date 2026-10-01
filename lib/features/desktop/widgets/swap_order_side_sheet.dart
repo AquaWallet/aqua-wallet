@@ -131,7 +131,7 @@ class SwapOrderSideSheet extends ConsumerWidget {
                             color: aquaColors.textSecondary,
                           ),
                           onTap: () async => context.copyToClipboard(
-                            'Boltz data',
+                            'Swap data',
                           ),
                         ),
                         const StylizedDivider(),

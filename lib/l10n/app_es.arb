@@ -52,9 +52,7 @@
   "boltzClaimSwap": "Solicitar Intercambio",
   "boltzClaimTx": "Reclamar Transacción",
   "boltzCopyRefundData": "Copiar Datos de Reembolso",
-  "boltzCopySwapData": "Copiar Datos de Boltz",
   "boltzGenerateInvoice": "Generar Factura",
-  "boltzId": "ID de Boltz",
   "boltzInitTitleError": "Se ha producido un error al inicializar el servicio Lightning.",
   "boltzInvoiceAmount": "Monto de la Factura",
   "boltzMaxAmountError": "El monto excede el límite máximo de {max} sats.",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "Reembolsar Transacción",
   "boltzServiceFee": "Comisión de Servicio",
   "serviceFee": "Comisión de Servicio",
-  "boltzSwaps": "Intercambios de Boltz",
   "boltzSwapsListEmptyState": "No se encontraron intercambios",
   "noBoltzSwapsFoundDescription": "Tus intercambios aparecerán aquí.",
-  "boltzSwapsListReceiveHeading": "Transacciones Entrantes de Boltz",
-  "boltzSwapsListSendHeading": "Transacciones Salientes de Boltz",
   "boltzTimeoutBlockHeight": "Altura del Bloque de Tiempo Límite",
   "boltzTotalFees": "Comisión Total",
   "buyWithFiatScreenTitle": "Comprar/Vender con moneda local y más",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Changelly para Intercambios de USDt",
   "expFeaturesScreenItemsClearGhostTxns": "Limpiar Transacciones Fantasma",
   "expFeaturesScreenItemsEnableElectrumServer": "Servidor Electrum Personalizado",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Force Boltz Falló el Intercambio Normal",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Forzar intercambio Lightning fallido",
   "expFeaturesScreenItemsNotes": "Notas",
   "expFeaturesScreenItemsStatusIndicator": "Indicador de Estatus",
   "expFeaturesScreenItemsSubaccounts": "Activar Subcuentas",
   "expFeaturesScreenItemsDebitCardStaging": "Staging de Tarjeta de Débito",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Enabling this will cause Boltz Lightning sends to fail, forcing a refund needed state.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Enabling this will cause Lightning sends to fail, forcing a refund needed state.",
   "expFeaturesScreenSectionDebugMode": "Sólo Modo de Depuración",
   "expired": "Expirado",
   "expiresAt": "Expira",
@@ -372,7 +367,7 @@
   "searchHistory": "Historial de búsqueda",
   "send": "Enviar",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "Activo no está en la lista de activos",
-  "sendAssetAmountScreenBoltzInvoiceError": "Hubo un problema con esta factura de Boltz.",
+  "sendAssetAmountScreenBoltzInvoiceError": "Hubo un problema con esta factura Lightning.",
   "sendAssetAmountScreenEmptyAddressError": "Llenar el campo de dirección",
   "sendAssetAmountScreenEmptyAmountError": "Llenar el monto",
   "sendAssetAmountScreenExpiredInvoiceError": "La factura ha caducado.",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

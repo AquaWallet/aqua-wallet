@@ -10,3 +10,15 @@ class MockBoltzSubmarineSwapNotifier extends StateNotifier<LbtcLnSwap?>
     implements BoltzSubmarineSwapNotifier {
   MockBoltzSubmarineSwapNotifier({LbtcLnSwap? swap}) : super(swap);
 }
+
+class MockBoltzSubmarineFeesNotifier
+    extends AutoDisposeAsyncNotifier<SubmarineFeesAndLimits>
+    with Mock
+    implements BoltzSubmarineFeesNotifier {
+  MockBoltzSubmarineFeesNotifier(this.fees);
+
+  final SubmarineFeesAndLimits fees;
+
+  @override
+  Future<SubmarineFeesAndLimits> build() async => fees;
+}

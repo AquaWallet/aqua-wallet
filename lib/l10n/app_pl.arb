@@ -52,9 +52,7 @@
   "boltzClaimSwap": "Odbierz wymianę",
   "boltzClaimTx": "Transakcja odbioru",
   "boltzCopyRefundData": "Kopiuj dane zwrotu",
-  "boltzCopySwapData": "Kopiuj dane Boltz",
   "boltzGenerateInvoice": "Utwórz fakturę",
-  "boltzId": "ID Boltz",
   "boltzInitTitleError": "Wystąpił błąd podczas inicjalizacji usługi Lightning.",
   "boltzInvoiceAmount": "Kwota faktury",
   "boltzMaxAmountError": "Kwota przekracza maksymalny limit {max} {unit}.",
@@ -62,11 +60,8 @@
   "boltzRefundTx": "Transakcja zwrotu",
   "boltzServiceFee": "Opłata serwisowa",
   "serviceFee": "Opłata serwisowa",
-  "boltzSwaps": "Wymiany Boltz",
   "boltzSwapsListEmptyState": "Brak wymian",
   "noBoltzSwapsFoundDescription": "Twoje wymiany pojawią się tutaj.",
-  "boltzSwapsListReceiveHeading": "Przychodzące transakcje Boltz",
-  "boltzSwapsListSendHeading": "Wychodzące transakcje Boltz",
   "boltzTimeoutBlockHeight": "Wysokość bloku limitu czasu",
   "boltzTotalFees": "Łączne opłaty",
   "buyWithFiatScreenTitle": "Kup Bitcoin i więcej",
@@ -128,12 +123,12 @@
   "expFeaturesScreenItemsChangellyUSDtSwaps": "Changelly dla wymian USDt",
   "expFeaturesScreenItemsClearGhostTxns": "Wyczyść transakcje-duchy",
   "expFeaturesScreenItemsEnableElectrumServer": "Własny serwer Electrum",
-  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Wymuś nieudaną normalną wymianę Boltz",
+  "expFeaturesScreenItemsForceBoltzFailedNormalSwap": "Wymuś nieudaną wymianę Lightning",
   "expFeaturesScreenItemsNotes": "Notatki",
   "expFeaturesScreenItemsStatusIndicator": "Wskaźnik statusu",
   "expFeaturesScreenItemsSubaccounts": "Aktywuj subkonta",
   "expFeaturesScreenItemsDebitCardStaging": "Przygotowanie karty debetowej",
-  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Włączenie tej opcji spowoduje, że wysyłki Lightning przez Boltz będą kończyć się błędem, co wymusi stan wymagający zwrotu.",
+  "expFeaturesScreenMessageBoltzFailedNormalSwap": "Włączenie tej opcji spowoduje, że wysyłki Lightning będą kończyć się błędem, co wymusi stan wymagający zwrotu.",
   "expFeaturesScreenSectionDebugMode": "Tylko tryb debugowania",
   "expired": "Wygasło",
   "expiresAt": "Wygasa",
@@ -372,7 +367,7 @@
   "searchHistory": "Szukaj w historii",
   "send": "Wyślij",
   "sendAssetAmountScreenAssetNotInManagedAssetsError": "Aktyw nie znajduje się na liście aktywów.",
-  "sendAssetAmountScreenBoltzInvoiceError": "Wystąpił problem z tą fakturą Boltz.",
+  "sendAssetAmountScreenBoltzInvoiceError": "Wystąpił problem z tą fakturą Lightning.",
   "sendAssetAmountScreenEmptyAddressError": "Wypełnij pole adresu",
   "sendAssetAmountScreenEmptyAmountError": "Wypełnij pole kwoty",
   "sendAssetAmountScreenExpiredInvoiceError": "Faktura wygasła.",
@@ -1186,13 +1181,7 @@
   "@boltzCopyRefundData": {
     "approved": "true"
   },
-  "@boltzCopySwapData": {
-    "approved": "true"
-  },
   "@boltzGenerateInvoice": {
-    "approved": "true"
-  },
-  "@boltzId": {
     "approved": "true"
   },
   "@boltzInitTitleError": {
@@ -1216,19 +1205,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
@@ -1415,7 +1395,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenItemsForceBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenItemsNotes": {
     "approved": "true"
@@ -1430,7 +1410,7 @@
     "approved": "true"
   },
   "@expFeaturesScreenMessageBoltzFailedNormalSwap": {
-    "approved": "true"
+    "approved": "false"
   },
   "@expFeaturesScreenSectionDebugMode": {
     "approved": "true"
@@ -2147,7 +2127,7 @@
     "approved": "true"
   },
   "@sendAssetAmountScreenBoltzInvoiceError": {
-    "approved": "true"
+    "approved": "false"
   },
   "@sendAssetAmountScreenEmptyAddressError": {
     "approved": "true"

@@ -28,11 +28,9 @@ class SendAssetAmountConstraints {
   factory SendAssetAmountConstraints.lightning(
       {required SubmarineFeesAndLimits submarineFees,
       LNURLPayParams? lnurlPayParams}) {
-    final batchedMin = submarineFees.lbtcLimits.minimalBatched?.toInt();
-    final minSendable = batchedMin == null
-        ? kGdkMinSendAmountLbtcSats
-        : max(kGdkMinSendAmountLbtcSats,
-            batchedMin); // This is almost always kGdkMinSendAmountLbtcSats
+    final swapMin = submarineFees.lbtcLimits.minimalBatched?.toInt() ??
+        submarineFees.lbtcLimits.minimal.toInt();
+    final minSendable = max(kGdkMinSendAmountLbtcSats, swapMin);
     final sendMin = lnurlPayParams != null
         ? max(lnurlPayParams.minSendableSats, minSendable)
         : minSendable;

@@ -381,35 +381,23 @@ class AddressParser {
       }
 
       // validate minimum and maximum amounts
-      final minSats = SendAssetAmountConstraints.lightning(
+      final constraints = SendAssetAmountConstraints.lightning(
         submarineFees: submarineFees,
-      ).minSats;
+      );
+      final minSats = constraints.minSats;
       if (amount < Decimal.fromInt(minSats)) {
-        final formatter = ref.read(formatProvider);
-        final unitsProvider = ref.read(displayUnitsProvider);
-        final currentUnit = unitsProvider.currentDisplayUnit;
-        final minAmountFormatted = formatter.formatAssetAmount(
-          amount: minSats,
-          asset: Asset.btc(),
-          displayUnitOverride: currentUnit,
-        );
-
-        final displayUnitTicker =
-            unitsProvider.getAssetDisplayUnit(Asset.lightning());
-
-        throw AddressParsingException(
+        throw _invoiceLimitException(
           AddressParsingExceptionType.lessThanMinAmountInInvoice,
-          amount: minAmountFormatted,
-          unit: displayUnitTicker,
+          minSats,
         );
       }
 
-      if (amount >
-          Decimal.fromInt(
-              SendAssetAmountConstraints.lightning(submarineFees: submarineFees)
-                  .maxSats)) {
-        throw AddressParsingException(
-            AddressParsingExceptionType.greaterThanMaxAmountInInvoice);
+      final maxSats = constraints.maxSats;
+      if (amount > Decimal.fromInt(maxSats)) {
+        throw _invoiceLimitException(
+          AddressParsingExceptionType.greaterThanMaxAmountInInvoice,
+          maxSats,
+        );
       }
 
       // check expiry
@@ -444,6 +432,24 @@ class AddressParser {
         return null;
       }
     }
+  }
+
+  /// Builds a swap limit failure with [limitSats] formatted in the current
+  /// display unit, so the message can name the limit the invoice missed.
+  AddressParsingException _invoiceLimitException(
+      AddressParsingExceptionType type, int limitSats) {
+    final unitsProvider = ref.read(displayUnitsProvider);
+    final formatted = ref.read(formatProvider).formatAssetAmount(
+          amount: limitSats,
+          asset: Asset.btc(),
+          displayUnitOverride: unitsProvider.currentDisplayUnit,
+        );
+
+    return AddressParsingException(
+      type,
+      amount: formatted,
+      unit: unitsProvider.getAssetDisplayUnit(Asset.lightning()),
+    );
   }
 
   /// Parse Bip21

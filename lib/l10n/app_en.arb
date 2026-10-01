@@ -60,7 +60,6 @@
   "boltzClaimTx": "Claim Tx",
   "boltzCopyRefundData": "Copy Refund Data",
   "boltzGenerateInvoice": "Create Invoice",
-  "boltzId": "Boltz ID",
   "boltzInitTitleError": "There was an error initializing the Lightning service.",
   "lightningSwapsUnavailableTitle": "Lightning Unavailable",
   "lightningSwapsUnavailableMessage": "Lightning swaps are currently unavailable.",
@@ -71,11 +70,8 @@
   "boltzRefundSwap": "Refund Swap",
   "boltzServiceFee": "Service Fee",
   "serviceFee": "Service Fee",
-  "boltzSwaps": "Boltz Swaps",
   "boltzSwapsListEmptyState": "No Swaps Found",
   "noBoltzSwapsFoundDescription": "Your swaps will appear here.",
-  "boltzSwapsListReceiveHeading": "Inbound Boltz Transactions",
-  "boltzSwapsListSendHeading": "Outbound Boltz Transactions",
   "boltzTimeoutBlockHeight": "Timeout Block Height",
   "boltzTotalFees": "Total Fees",
   "buyWithFiatScreenTitle": "Buy Bitcoin and More",
@@ -871,7 +867,7 @@
   "forNDays": "For {n} Days",
   "enterSeedWords": "Enter Seed Words",
   "dolphinCardSupportZendeskSubjectCriticalDoNotChange": "Dolphin Card Support",
-  "boltzSwapSupportZendeskSubjectCriticalDoNotChange": "Boltz Swap Support",
+  "boltzSwapSupportZendeskSubjectCriticalDoNotChange": "Lightning Swap Support",
   "autoLockSettingsOptionAlways": "Always",
   "autoLockSettingsOptionMinutes": "{minutes} minutes",
   "confirmations": "Confirmations",
@@ -1300,9 +1296,6 @@
   "@boltzGenerateInvoice": {
     "approved": "true"
   },
-  "@boltzId": {
-    "approved": "true"
-  },
   "@boltzInitTitleError": {
     "approved": "true"
   },
@@ -1327,19 +1320,10 @@
   "@serviceFee": {
     "approved": "true"
   },
-  "@boltzSwaps": {
-    "approved": "true"
-  },
   "@boltzSwapsListEmptyState": {
     "approved": "true"
   },
   "@noBoltzSwapsFoundDescription": {
-    "approved": "true"
-  },
-  "@boltzSwapsListReceiveHeading": {
-    "approved": "true"
-  },
-  "@boltzSwapsListSendHeading": {
     "approved": "true"
   },
   "@boltzTimeoutBlockHeight": {
